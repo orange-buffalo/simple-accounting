@@ -142,6 +142,82 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should create income in foreign currency without converted amount`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            category { input.selectOption("Delivery") }
+            title { input.fill("Pending Slurm payment") }
+            currency { input.selectOption("EUREuro") }
+            originalAmount { input.fill("100.00") }
+            dateReceived { input.fill("3025-01-15") }
+
+            saveButton.click()
+        }
+
+        page.shouldBeIncomesOverviewPage()
+
+        aggregateTemplate.findSingle<Income>()
+            .shouldBeEntityWithFields(
+                Income(
+                    title = "Pending Slurm payment",
+                    categoryId = preconditions.category.id!!,
+                    dateReceived = LocalDate.of(3025, 1, 15),
+                    currency = "EUR",
+                    originalAmount = 10000,
+                    convertedAmounts = AmountsInDefaultCurrency(null),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(null),
+                    status = IncomeStatus.PENDING_CONVERSION,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = preconditions.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Income::id,
+                    Income::version,
+                )
+            )
+    }
+
+    @Test
+    fun `should create income in foreign currency with different tax rate but without taxable amount`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            category { input.selectOption("Delivery") }
+            title { input.fill("Omicron Persei cargo pending tax") }
+            currency { input.selectOption("EUREuro") }
+            originalAmount { input.fill("80.00") }
+            dateReceived { input.fill("3025-01-16") }
+            convertedAmountInDefaultCurrency("USD").input.fill("100.00")
+            useDifferentExchangeRateForIncomeTaxPurposes().click()
+
+            saveButton.click()
+        }
+
+        page.shouldBeIncomesOverviewPage()
+
+        aggregateTemplate.findSingle<Income>()
+            .shouldBeEntityWithFields(
+                Income(
+                    title = "Omicron Persei cargo pending tax",
+                    categoryId = preconditions.category.id!!,
+                    dateReceived = LocalDate.of(3025, 1, 16),
+                    currency = "EUR",
+                    originalAmount = 8000,
+                    convertedAmounts = AmountsInDefaultCurrency(10000),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(null),
+                    status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                    useDifferentExchangeRateForIncomeTaxPurposes = true,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = preconditions.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Income::id,
+                    Income::version,
+                )
+            )
+    }
+
+    @Test
     fun `should create income with notes`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
