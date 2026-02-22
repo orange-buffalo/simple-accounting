@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.expenses
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser

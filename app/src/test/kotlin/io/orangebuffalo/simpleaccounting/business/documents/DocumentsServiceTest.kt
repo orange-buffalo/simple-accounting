@@ -4,7 +4,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString

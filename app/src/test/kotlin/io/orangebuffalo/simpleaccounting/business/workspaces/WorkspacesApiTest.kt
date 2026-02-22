@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody

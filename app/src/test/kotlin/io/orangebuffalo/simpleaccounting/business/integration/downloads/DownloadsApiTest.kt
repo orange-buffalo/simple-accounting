@@ -4,7 +4,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import org.assertj.core.api.Assertions.assertThat

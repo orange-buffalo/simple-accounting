@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.security.jwt
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensRepository
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat

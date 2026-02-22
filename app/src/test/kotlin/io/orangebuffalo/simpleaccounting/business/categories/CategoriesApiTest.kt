@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.categories
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo

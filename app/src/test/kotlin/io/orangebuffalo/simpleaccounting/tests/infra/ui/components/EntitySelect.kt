@@ -3,14 +3,11 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.should
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.InvoiceOption
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.tests.ui.user.InvoiceOption
 
 /**
  * Component wrapper for SaEntitySelect.vue - a remote select component that
@@ -42,7 +39,7 @@ class EntitySelect private constructor(
     fun selectOption(optionText: String) {
         rootLocator.shouldBeVisible()
         search(optionText)
-        
+
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
             .locator(".el-select-dropdown__item")
@@ -54,40 +51,9 @@ class EntitySelect private constructor(
         shouldHaveSelectedValue(optionText)
     }
 
-    /**
-     * Searches for an entity and selects it from the results.
-     * Combines search and selection in one operation.
-     */
-    fun searchAndSelect(query: String, optionText: String) {
-        search(query)
-        selectOption(optionText)
-    }
-
     fun shouldHaveSelectedValue(value: String) {
         input.locator(".el-select__selected-item span:not([aria-hidden])")
             .shouldHaveText(value)
-    }
-
-    /**
-     * Verifies that options are displayed in the dropdown.
-     * Opens dropdown if needed.
-     */
-    fun shouldHaveOptions(vararg options: String) {
-        shouldHaveOptions { actualOptions ->
-            actualOptions.shouldWithClue("Expected options: ${options.toList()}") {
-                shouldContainExactly(*options)
-            }
-        }
-    }
-
-    fun shouldHaveOptions(spec: (actualOptions: List<String>) -> Unit) {
-        withDropdownOpen {
-            shouldSatisfy {
-                locator(".el-select-dropdown__item:not([disabled])")
-                    .allInnerTexts()
-                    .should(spec)
-            }
-        }
     }
 
     /**
@@ -133,40 +99,6 @@ class EntitySelect private constructor(
     }
 
     /**
-     * Verifies that the "more elements" indicator is not shown.
-     */
-    fun shouldNotShowMoreElementsIndicator() {
-        withDropdownOpen {
-            locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
-                .shouldBeHidden()
-        }
-    }
-
-    /**
-     * Verifies that the loading state is displayed.
-     */
-    fun shouldBeLoading() {
-        rootLocator.locator(".sa-input-loader__indicator").shouldBeVisible()
-    }
-
-    /**
-     * Verifies that the component is not in loading state.
-     */
-    fun shouldNotBeLoading() {
-        rootLocator.locator(".sa-input-loader__indicator").shouldBeHidden()
-    }
-
-    /**
-     * Verifies that an error state is displayed in the dropdown.
-     */
-    fun shouldShowError() {
-        withDropdownOpen {
-            locator(".el-select-dropdown__item.is-disabled .sa-basic-error-message")
-                .shouldBeVisible()
-        }
-    }
-
-    /**
      * Clears the current selection by clicking the clear button.
      * Only works when clearable=true is set on the component.
      */
@@ -189,13 +121,6 @@ class EntitySelect private constructor(
      */
     fun shouldBeEmpty() {
         input.locator(".el-select__placeholder").shouldBeVisible()
-    }
-
-    /**
-     * Verifies that the select shows the specified placeholder text.
-     */
-    fun shouldHavePlaceholder(placeholder: String) {
-        input.locator(".el-select__placeholder").shouldHaveText(placeholder)
     }
 
     /**

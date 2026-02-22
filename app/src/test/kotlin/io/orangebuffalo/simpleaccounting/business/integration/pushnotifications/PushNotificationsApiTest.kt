@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.assertNextJsonIs
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import kotlinx.coroutines.DelicateCoroutinesApi

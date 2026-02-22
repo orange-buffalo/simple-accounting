@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.GraphqlClientRequestExecutor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqualTo

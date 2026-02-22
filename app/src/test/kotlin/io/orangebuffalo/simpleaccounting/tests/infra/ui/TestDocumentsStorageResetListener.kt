@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui
 
+import org.springframework.beans.factory.getBean
 import org.springframework.test.context.TestContext
 import org.springframework.test.context.TestExecutionListener
 
@@ -10,7 +11,7 @@ import org.springframework.test.context.TestExecutionListener
 class TestDocumentsStorageResetListener : TestExecutionListener {
     override fun beforeTestMethod(testContext: TestContext) {
         testContext.applicationContext
-            .getBean(TestDocumentsStorage::class.java)
+            .getBean<TestDocumentsStorage>()
             .reset()
     }
 }

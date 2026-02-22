@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -271,8 +271,8 @@ internal class FilteringApiQueryExecutorLegacyTest(
         override fun valuesRow(): Row2<Long, String> = super.valuesRow() as Row2<Long, String>
         override fun field1(): Field<Long> = TestDummyTable.testDummy.id
         override fun field2(): Field<String> = TestDummyTable.testDummy.name
-        override fun value1(): Long? = id
-        override fun value2(): String? = name
+        override fun value1(): Long = id
+        override fun value2(): String = name
         override fun component1(): Long = id
         override fun component2(): String = name
 

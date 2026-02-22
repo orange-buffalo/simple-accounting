@@ -4,7 +4,7 @@ import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking

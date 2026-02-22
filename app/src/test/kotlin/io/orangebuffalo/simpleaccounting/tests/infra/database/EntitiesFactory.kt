@@ -39,8 +39,8 @@ private var sequenceValue = 1
 /**
  * API for creating entities in tests, first of all if not always - for tests preconditions.
  * It is rarely used standalone, but mostly indirectly via
- * [io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase.preconditions] or
- * [io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase.lazyPreconditions].
+ * [io.orangebuffalo.simpleaccounting.SaIntegrationTestBase.preconditions] or
+ * [io.orangebuffalo.simpleaccounting.SaIntegrationTestBase.lazyPreconditions].
  */
 class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun platformUser(

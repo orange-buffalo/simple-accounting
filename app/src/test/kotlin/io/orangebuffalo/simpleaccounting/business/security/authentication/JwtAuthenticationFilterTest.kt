@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.whenever
