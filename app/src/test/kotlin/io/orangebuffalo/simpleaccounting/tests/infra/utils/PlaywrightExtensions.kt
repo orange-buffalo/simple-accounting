@@ -229,7 +229,7 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
 /**
  * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
  */
-fun injectJsUtils(): String = /* language=javascript */ $$""";
+fun injectJsUtils(): String = /* language=javascript */ $$"""
     // noinspection JSUnusedLocalSymbols
     const utils = {
         /**

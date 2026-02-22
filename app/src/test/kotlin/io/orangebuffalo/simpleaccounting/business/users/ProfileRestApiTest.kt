@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.users
 
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.put

@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
@@ -339,7 +339,7 @@ class AuthenticationApiTest(
         runBlocking {
             // Force preconditions evaluation before stubbing
             val validTill = preconditions.validAccessToken.validTill
-            
+
             whenever(jwtService.buildJwtToken(argThat {
                 userName == "validToken"
             }, eq(validTill))) doReturn "jwtTokenForTransientUser"
@@ -406,7 +406,7 @@ class AuthenticationApiTest(
         // Force preconditions evaluation before stubbing
         val tokenValue = preconditions.validAccessToken.token
         val validTill = preconditions.validAccessToken.validTill
-        
+
         whenever(jwtService.buildJwtToken(argThat {
             userName == tokenValue
                     && isTransient

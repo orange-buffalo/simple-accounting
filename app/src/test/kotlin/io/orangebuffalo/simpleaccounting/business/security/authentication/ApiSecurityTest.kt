@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

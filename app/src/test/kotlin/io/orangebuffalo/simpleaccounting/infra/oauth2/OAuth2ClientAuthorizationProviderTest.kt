@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.urlEncodeParameter

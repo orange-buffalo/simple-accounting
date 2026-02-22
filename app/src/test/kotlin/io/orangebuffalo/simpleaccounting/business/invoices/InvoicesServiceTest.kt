@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
