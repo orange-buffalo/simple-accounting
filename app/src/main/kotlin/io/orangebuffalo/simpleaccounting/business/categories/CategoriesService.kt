@@ -17,6 +17,15 @@ class CategoriesService(
         return withDbContext { categoriesRepository.save(category) }
     }
 
+    suspend fun saveCategory(category: Category): Category {
+        workspacesService.validateWorkspaceAccess(category.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        return withDbContext { categoriesRepository.save(category) }
+    }
+
+    suspend fun getCategoryByIdAndWorkspace(categoryId: Long, workspaceId: Long): Category? = withDbContext {
+        categoriesRepository.findByIdAndWorkspaceId(categoryId, workspaceId)
+    }
+
     suspend fun validateCategory(categoryId: Long, workspaceId: Long) = withDbContext {
         if (!categoriesRepository.existsByIdAndWorkspaceId(categoryId, workspaceId)) {
             throw EntityNotFoundException("Category $categoryId is not found")

@@ -10,11 +10,15 @@ import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApi(
     private val categoriesService: CategoriesService,
+    private val workspacesService: WorkspacesService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
@@ -41,6 +45,37 @@ class CategoriesApi(
         )
         .mapToCategoryDto()
 
+    @GetMapping("{categoryId}")
+    suspend fun getCategory(
+        @PathVariable workspaceId: Long,
+        @PathVariable categoryId: Long
+    ): CategoryDto {
+        workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val category = categoriesService.getCategoryByIdAndWorkspace(categoryId, workspaceId)
+            ?: throw EntityNotFoundException("Category $categoryId is not found")
+        return category.mapToCategoryDto()
+    }
+
+    @PutMapping("{categoryId}")
+    suspend fun updateCategory(
+        @PathVariable workspaceId: Long,
+        @PathVariable categoryId: Long,
+        @RequestBody @Valid request: EditCategoryDto
+    ): CategoryDto {
+        val category = categoriesService.getCategoryByIdAndWorkspace(categoryId, workspaceId)
+            ?: throw EntityNotFoundException("Category $categoryId is not found")
+
+        return category
+            .apply {
+                name = request.name
+                description = request.description
+                income = request.income
+                expense = request.expense
+            }
+            .let { categoriesService.saveCategory(it) }
+            .mapToCategoryDto()
+    }
+
     private val filteringApiExecutor = filteringApiExecutorBuilder
         .executor<Category, CategoryDto, NoOpSorting, CategoriesFilteringRequest> {
             query(Tables.CATEGORY) {
@@ -61,6 +96,13 @@ data class CategoryDto(
 )
 
 data class CreateCategoryDto(
+    @field:NotBlank var name: String,
+    var description: String?,
+    @field:NotNull var income: Boolean,
+    @field:NotNull var expense: Boolean
+)
+
+data class EditCategoryDto(
     @field:NotBlank var name: String,
     var description: String?,
     @field:NotNull var income: Boolean,
