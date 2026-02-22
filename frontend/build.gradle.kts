@@ -57,6 +57,8 @@ val verifyGqlTypes by tasks.register<SaFrontendTask>("verifyGqlTypes") {
     doLast {
         val outputDir = verifyGqlTypesOutput.get().asFile
         outputDir.mkdirs()
+        // Sentinel file for Gradle UP-TO-DATE tracking: Gradle requires at least one output to
+        // determine whether the task is up-to-date and can be skipped on subsequent runs.
         outputDir.resolve("result.txt").writeText("OK")
     }
 }
