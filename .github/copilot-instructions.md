@@ -218,13 +218,9 @@ When migrating a REST endpoint to GraphQL, follow these steps:
 4. **Remove the REST controller** and its test after the GraphQL mutation is fully tested.
 
 5. **Update the OpenAPI spec** (`app/src/test/resources/api-spec.yaml`):
-   - Remove the REST endpoint path
-   - Remove any schemas used exclusively by that endpoint
-   - Also delete the corresponding generated TypeScript files in `frontend/src/services/api/generated/`
-   - Update `generated/apis/index.ts` and `generated/models/index.ts` to remove the deleted exports
-   - Run `ApiSpecTest` with `OVERRIDE_COMMITTED_FILES=true` to auto-regenerate, or update manually
+   - Run `ApiSpecTest` with `OVERRIDE_COMMITTED_FILES=true` to update all relevant artifacts.
 
-6. **Update the frontend**: Replace REST API calls with `useMutation` from `use-gql-api.ts`.
+6. **Update the frontend**: Replace REST API calls with `useMutation` / `useQuery` from `use-gql-api.ts`.
    - For loading state tests, replace `withBlockedApiResponse("api/path")` with
      `withBlockedGqlApiResponse("mutationName")` in Playwright full stack tests.
 
