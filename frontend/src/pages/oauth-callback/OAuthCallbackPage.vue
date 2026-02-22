@@ -53,10 +53,14 @@
   async function executeCallback() {
     const params = new URLSearchParams(window.location.search);
 
-    const code: string | undefined = params.get('code') || undefined;
-    const error: string | undefined = params.get('error') || undefined;
+    const code: string | null = params.get('code') || null;
+    const error: string | null = params.get('error') || null;
     const state: string = params.get('state') || '';
-    const result = await completeOAuth2FlowMutation({ code, error, state });
+    const result = await completeOAuth2FlowMutation({
+      code,
+      error,
+      state,
+    });
     if (result.success) {
       success.value = true;
     } else {

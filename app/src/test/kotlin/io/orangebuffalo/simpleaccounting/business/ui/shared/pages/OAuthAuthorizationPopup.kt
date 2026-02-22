@@ -3,11 +3,14 @@ package io.orangebuffalo.simpleaccounting.business.ui.shared.pages
 import com.microsoft.playwright.Page
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 
 class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page) {
     private val pageContainer = page.locator(".oauth-callback-page")
@@ -49,6 +52,13 @@ class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page)
                 }
             )
             return authorizationPopup.shouldNotBeNull()
+        }
+
+        /**
+         * Configures the generated error ID to match the expected failure rendering result
+         */
+        fun TokenGenerator.setupErrorIdForOAuthAuthorizationFailure() {
+            whenever(generateUuid()) doReturn "test-error-id"
         }
     }
 }

@@ -5,7 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.context.ApplicationEventPublisher
@@ -24,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.coroutines.coroutineContext
 import kotlin.streams.asSequence
 
 private const val STATE_TOKEN_LENGTH = 20L
@@ -136,7 +136,7 @@ class OAuth2ClientAuthorizationProvider(
         OAuth2FailedEvent(
             user = savedRequest.owner,
             clientRegistrationId = savedRequest.clientRegistrationId,
-            context = currentCoroutineContext()
+            context = coroutineContext
         )
     )
 
@@ -187,7 +187,7 @@ class OAuth2ClientAuthorizationProvider(
             OAuth2SucceededEvent(
                 user = savedRequest.owner,
                 clientRegistrationId = savedRequest.clientRegistrationId,
-                context = currentCoroutineContext()
+                context = coroutineContext
             )
         )
     }

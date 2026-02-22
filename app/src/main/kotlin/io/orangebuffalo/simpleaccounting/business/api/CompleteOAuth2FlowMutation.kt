@@ -40,7 +40,7 @@ class CompleteOAuth2FlowMutation(
             )
             logger.debug { "OAuth2 authorization callback successfully processed" }
             CompleteOAuth2FlowResponse(success = true)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             val errorId = tokenGenerator.generateUuid()
             logger.error(e) { "Failure to process OAuth2 authorization callback. Error ID is $errorId" }
             CompleteOAuth2FlowResponse(success = false, errorId = errorId)
