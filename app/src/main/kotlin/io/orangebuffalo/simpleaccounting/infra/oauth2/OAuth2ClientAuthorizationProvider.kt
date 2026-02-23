@@ -1,10 +1,10 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.context.ApplicationEventPublisher
@@ -47,7 +47,8 @@ class OAuth2ClientAuthorizationProvider(
      * Creates a URL for initialization of OAuth2 authorization code grant flow.
      * User can be redirected to this URL to provide their consent and allow resources access.
      *
-     * After authorization, user will be redirected to the callback URL handled by [OAuth2CallbackApi].
+     * After authorization, user will be redirected to the callback URL handled by
+     * [io.orangebuffalo.simpleaccounting.business.api.CompleteOAuth2FlowMutation].
      */
     suspend fun buildAuthorizationUrl(
         clientRegistrationId: String,

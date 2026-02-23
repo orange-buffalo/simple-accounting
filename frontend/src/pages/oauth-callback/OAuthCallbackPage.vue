@@ -34,40 +34,39 @@
   import { ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { oAuth2CallbackApi } from '@/services/api';
-  import type { ErrorResponse } from '@/services/api';
-  import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
 
   const loading = ref(true);
-  const errorId = ref<string | undefined>();
   const success = ref(false);
+  const errorId = ref<string | undefined>();
+
+  const completeOAuth2FlowMutation = useMutation(graphql(/* GraphQL */ `
+    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {
+      completeOAuth2Flow(code: $code, error: $error, state: $state) {
+        success
+        errorId
+      }
+    }
+  `), 'completeOAuth2Flow');
 
   async function executeCallback() {
     const params = new URLSearchParams(window.location.search);
 
-    const code: string | undefined = params.get('code') || undefined;
-    const error: string | undefined = params.get('error') || undefined;
-    const state: string | undefined = params.get('state') || '';
-    try {
-      await oAuth2CallbackApi.authCallback({
-        oAuth2AuthorizationCallbackRequest: {
-          code,
-          error,
-          state,
-        },
-      });
+    const code: string | null = params.get('code') || null;
+    const error: string | null = params.get('error') || null;
+    const state: string = params.get('state') || '';
+    const result = await completeOAuth2FlowMutation({
+      code,
+      error,
+      state,
+    });
+    if (result.success) {
       success.value = true;
-    } catch (e: unknown) {
-      if (e instanceof ApiBusinessError) {
-        // TODO #1209: proper typing here, use e.errorAs
-        const body = e.error as unknown as ErrorResponse;
-        errorId.value = body.errorId;
-      } else {
-        throw e;
-      }
-    } finally {
-      loading.value = false;
+    } else {
+      errorId.value = result.errorId ?? undefined;
     }
+    loading.value = false;
   }
 
   executeCallback();

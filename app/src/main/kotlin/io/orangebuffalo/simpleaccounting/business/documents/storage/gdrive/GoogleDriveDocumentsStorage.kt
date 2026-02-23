@@ -88,7 +88,7 @@ class GoogleDriveDocumentsStorage(
 
     @EventListener
     fun onAuthSuccess(authSucceededEvent: OAuth2SucceededEvent) = authSucceededEvent
-        .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
+        .executeInSourceContext(OAUTH2_CLIENT_REGISTRATION_ID) {
 
             val user = authSucceededEvent.user
             val integration = withDbContext {
@@ -115,7 +115,7 @@ class GoogleDriveDocumentsStorage(
 
     @EventListener
     fun onAuthFailure(authFailedEvent: OAuth2FailedEvent) = authFailedEvent
-        .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
+        .executeInSourceContext(OAUTH2_CLIENT_REGISTRATION_ID) {
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
                 userId = authFailedEvent.user.id!!,
