@@ -82,7 +82,7 @@
             </ElFormItem>
 
             <ElFormItem
-              v-if="income.useDifferentExchangeRateForIncomeTaxPurposes"
+              v-if="isInForeignCurrency && income.useDifferentExchangeRateForIncomeTaxPurposes"
               :label="$t.editIncome.generalInformation.incomeTaxableAmountInDefaultCurrency.label(defaultCurrency)"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
