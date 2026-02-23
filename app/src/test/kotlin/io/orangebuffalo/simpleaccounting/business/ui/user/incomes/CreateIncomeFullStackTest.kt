@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.openCreateIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
@@ -404,6 +405,45 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findAll<Income>()
             .shouldWithClue("No incomes should be created") {
                 shouldHaveSize(0)
+            }
+    }
+
+    @Test
+    fun `should create income with linked invoice`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val category = category(workspace = workspace, name = "Delivery")
+                val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
+                val invoice = invoice(
+                    customer = customer,
+                    title = "Delivery to Mars",
+                    amount = 15000,
+                    dateIssued = LocalDate.of(3025, 1, 10),
+                    status = InvoiceStatus.SENT
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openCreateIncomePage {
+            category { input.selectOption("Delivery") }
+            title { input.fill("Payment for delivery services") }
+            originalAmount { input.fill("150.00") }
+            dateReceived { input.fill("3025-01-15") }
+            linkedInvoice {
+                input.selectOption("Delivery to Mars")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeIncomesOverviewPage()
+
+        aggregateTemplate.findSingle<Income>()
+            .should {
+                it.linkedInvoiceId.shouldBe(testData.invoice.id)
             }
     }
 
