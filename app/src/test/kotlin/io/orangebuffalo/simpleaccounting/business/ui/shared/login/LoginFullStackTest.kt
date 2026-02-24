@@ -228,19 +228,25 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should logout and show login page with cookie removed`(page: Page) {
-        page.authenticateViaCookie(preconditions.fry)
-        page.navigate("/")
+        page.openLoginPage {
+            rememberMeCheckbox { shouldBeChecked() }
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill(preconditions.fry.passwordHash) }
+            loginButton { click() }
+        }
+
         page.shouldBeDashboardPage {}
 
-        val cookieBefore = page.context().cookies().find { it.name == "refreshToken" }
-        cookieBefore.shouldNotBeNull()
+        val cookieAfterLogin = page.context().cookies().find { it.name == "refreshToken" }
+        cookieAfterLogin.shouldNotBeNull()
+        cookieAfterLogin.value.shouldNotBeNull()
 
         page.shouldHaveSideMenu().clickLogout()
 
         page.shouldBeLoginPage {}
 
-        val cookieAfter = page.context().cookies().find { it.name == "refreshToken" }
-        cookieAfter.shouldBeNull()
+        val cookieAfterLogout = page.context().cookies().find { it.name == "refreshToken" }
+        cookieAfterLogout.shouldBeNull()
     }
 
     private fun mockWrongPassword() {
