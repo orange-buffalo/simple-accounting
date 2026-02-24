@@ -90,10 +90,6 @@ class AuthenticationApi(
         }
     }
 
-    @PostMapping("logout")
-    suspend fun logout() =
-        ResponseEntity.ok().withRefreshTokenCookie(null, Duration.ZERO).body("")
-
     private fun ResponseEntity.BodyBuilder.withRefreshTokenCookie(
         value: String?,
         maxAge: Duration

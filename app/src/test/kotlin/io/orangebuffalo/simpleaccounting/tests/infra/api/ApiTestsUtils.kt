@@ -336,4 +336,6 @@ class GraphqlClientRequestExecutor(
             path = path,
         )
     }
+
+    fun execute(): WebTestClient.ResponseSpec = requestSpec.exchange()
 }

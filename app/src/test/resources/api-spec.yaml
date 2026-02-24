@@ -1368,18 +1368,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
-  /api/auth/logout:
-    post:
-      tags:
-      - authentication-api
-      operationId: logout
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
   /api/auth/login:
     post:
       tags:

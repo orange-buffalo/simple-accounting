@@ -96,7 +96,6 @@ async function login(loginRequest: LoginRequest) {
 
 async function logout() {
   cancelTokenRefresh();
-  await authApi.logout();
   updateApiToken(null);
 }
 
