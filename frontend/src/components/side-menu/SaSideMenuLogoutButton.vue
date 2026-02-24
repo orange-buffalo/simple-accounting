@@ -29,8 +29,11 @@
   );
 
   const doLogout = async () => {
-    await invalidateRefreshToken({});
-    logout();
-    await router.push('/login');
+    try {
+      await invalidateRefreshToken({});
+    } finally {
+      logout();
+      await router.push('/login');
+    }
   };
 </script>
