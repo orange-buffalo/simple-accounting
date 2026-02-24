@@ -60,10 +60,6 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
                 Customer(
                     name = "Mom's Friendly Robot Company",
                     workspaceId = testData.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    Customer::id,
-                    Customer::version,
                 )
             )
     }

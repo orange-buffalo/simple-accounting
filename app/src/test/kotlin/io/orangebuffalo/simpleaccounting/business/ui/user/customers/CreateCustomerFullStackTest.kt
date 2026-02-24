@@ -33,10 +33,6 @@ class CreateCustomerFullStackTest : SaFullStackTestBase() {
                 Customer(
                     name = "Slurm Corp",
                     workspaceId = preconditions.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    Customer::id,
-                    Customer::version,
                 )
             )
     }

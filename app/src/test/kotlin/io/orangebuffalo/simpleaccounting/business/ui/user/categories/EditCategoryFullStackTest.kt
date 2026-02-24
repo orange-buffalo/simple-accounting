@@ -82,10 +82,6 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
                     workspaceId = testData.workspace.id!!,
                     income = false,
                     expense = true,
-                ),
-                ignoredProperties = arrayOf(
-                    Category::id,
-                    Category::version,
                 )
             )
     }

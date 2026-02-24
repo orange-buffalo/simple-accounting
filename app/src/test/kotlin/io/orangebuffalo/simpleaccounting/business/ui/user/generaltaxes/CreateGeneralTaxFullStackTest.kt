@@ -37,10 +37,6 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
                     rateInBps = 2000,
                     description = "Value Added Tax",
                     workspaceId = preconditions.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    GeneralTax::id,
-                    GeneralTax::version,
                 )
             )
     }

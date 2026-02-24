@@ -45,10 +45,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     reportingDate = LocalDate.of(3025, 1, 15),
                     timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                 )
             )
     }
@@ -80,10 +76,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     notes = "# Important\nTax payment for fiscal year 3024",
                     timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                 )
             )
     }
@@ -125,8 +117,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     workspaceId = preconditions.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                     IncomeTaxPayment::attachments,
                 )
             )
@@ -175,8 +165,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     workspaceId = preconditions.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                     IncomeTaxPayment::attachments,
                 )
             )

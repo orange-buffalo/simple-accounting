@@ -167,10 +167,6 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     reportingDate = LocalDate.of(3025, 1, 18),
                     timeRecorded = MOCK_TIME,
                     workspaceId = testData.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                 )
             )
     }
@@ -244,8 +240,6 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     workspaceId = testData.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(
-                    IncomeTaxPayment::id,
-                    IncomeTaxPayment::version,
                     IncomeTaxPayment::attachments,
                 )
             )

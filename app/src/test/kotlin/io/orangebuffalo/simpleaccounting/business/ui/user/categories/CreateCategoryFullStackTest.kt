@@ -41,10 +41,6 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
                     workspaceId = preconditions.workspace.id!!,
                     income = true,
                     expense = true
-                ),
-                ignoredProperties = arrayOf(
-                    Category::id,
-                    Category::version,
                 )
             )
     }
@@ -68,11 +64,7 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
                     income = true,
                     expense = false
                 ),
-                ignoredProperties = arrayOf(
-                    Category::id,
-                    Category::version,
-                    Category::description,
-                )
+                Category::description
             )
     }
 
