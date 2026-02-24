@@ -86,10 +86,6 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                     rateInBps = 1500,
                     description = "State Sales Tax",
                     workspaceId = testData.workspace.id!!,
-                ),
-                ignoredProperties = arrayOf(
-                    GeneralTax::id,
-                    GeneralTax::version,
                 )
             )
     }
