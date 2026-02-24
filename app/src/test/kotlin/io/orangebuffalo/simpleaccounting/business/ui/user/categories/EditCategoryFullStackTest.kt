@@ -49,6 +49,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
                 val category = category(
                     workspace = workspace,
                     name = "Slurm supplies",
+                    description = "Addictive beverage costs",
                     income = true,
                     expense = false,
                 )
@@ -62,6 +63,10 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Slurm supplies")
                 input.fill("Robot maintenance")
             }
+            description {
+                input.shouldHaveValue("Addictive beverage costs")
+                input.fill("Oil and parts for robots")
+            }
             income.click()
             expense.click()
             saveButton.click()
@@ -73,6 +78,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             .shouldBeEntityWithFields(
                 Category(
                     name = "Robot maintenance",
+                    description = "Oil and parts for robots",
                     workspaceId = testData.workspace.id!!,
                     income = false,
                     expense = true,
@@ -80,7 +86,6 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
                 ignoredProperties = arrayOf(
                     Category::id,
                     Category::version,
-                    Category::description,
                 )
             )
     }
