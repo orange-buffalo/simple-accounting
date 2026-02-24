@@ -13,7 +13,9 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.openLoginPage
+import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -222,6 +224,29 @@ class LoginFullStackTest : SaFullStackTestBase() {
                         "Contact them if you need to reset the token"
             )
         }
+    }
+
+    @Test
+    fun `should logout and show login page with cookie removed`(page: Page) {
+        page.openLoginPage {
+            rememberMeCheckbox { shouldBeChecked() }
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill(preconditions.fry.passwordHash) }
+            loginButton { click() }
+        }
+
+        page.shouldBeDashboardPage {}
+
+        val cookieAfterLogin = page.context().cookies().find { it.name == "refreshToken" }
+        cookieAfterLogin.shouldNotBeNull()
+        cookieAfterLogin.value.shouldNotBeNull()
+
+        page.shouldHaveSideMenu().clickLogout()
+
+        page.shouldBeLoginPage {}
+
+        val cookieAfterLogout = page.context().cookies().find { it.name == "refreshToken" }
+        cookieAfterLogout.shouldBeNull()
     }
 
     private fun mockWrongPassword() {

@@ -96,8 +96,16 @@ async function login(loginRequest: LoginRequest) {
 
 async function logout() {
   cancelTokenRefresh();
-  await authApi.logout();
-  updateApiToken(null);
+  try {
+    await fetch('/api/graphql', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'mutation { invalidateRefreshToken }' }),
+    });
+  } finally {
+    updateApiToken(null);
+  }
 }
 
 async function loginBySharedToken(sharedToken: string) {

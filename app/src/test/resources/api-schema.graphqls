@@ -114,6 +114,8 @@ type Mutation {
     "The state token that was included in the authorization request."
     state: String!
   ): CompleteOAuth2FlowResponse! @auth(type : AUTHENTICATED_USER)
+  "Invalidates the refresh token cookie, effectively logging out the current user."
+  invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }

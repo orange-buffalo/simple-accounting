@@ -82,6 +82,8 @@ export type Mutation = {
   changePassword: ChangePasswordResponse;
   /** Completes the OAuth2 authorization flow by processing the authorization server callback. */
   completeOAuth2Flow: CompleteOAuth2FlowResponse;
+  /** Invalidates the refresh token cookie, effectively logging out the current user. */
+  invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
   refreshAccessToken: RefreshAccessTokenResponse;
 };
