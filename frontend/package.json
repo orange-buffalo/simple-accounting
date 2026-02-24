@@ -33,7 +33,7 @@
     "marked": "17.0.3",
     "qs": "6.15.0",
     "vue": "3.5.28",
-    "vue-router": "5.0.2"
+    "vue-router": "5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -54,15 +54,15 @@
     "@types/node": "25.3.0",
     "@types/qs": "6.14.0",
     "@types/sinonjs__fake-timers": "15.0.1",
-    "@typescript-eslint/eslint-plugin": "8.56.0",
-    "@typescript-eslint/parser": "8.56.0",
+    "@typescript-eslint/eslint-plugin": "8.56.1",
+    "@typescript-eslint/parser": "8.56.1",
     "@vitejs/plugin-vue": "6.0.4",
     "@vue/eslint-config-airbnb": "8.0.0",
     "@vue/eslint-config-typescript": "13.0.0",
     "@vue/test-utils": "2.4.6",
     "cldr-data": "36.0.5",
     "cldrjs": "0.5.5",
-    "eslint": "10.0.0",
+    "eslint": "10.0.1",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-vue": "10.8.0",
     "fetch-mock": "12.6.0",
@@ -70,14 +70,14 @@
     "globals": "17.3.0",
     "js-yaml": "4.1.1",
     "jsdom": "28.1.0",
-    "rollup-plugin-visualizer": "6.0.5",
+    "rollup-plugin-visualizer": "7.0.0",
     "sass": "1.97.3",
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vite-svg-loader": "5.1.0",
     "vitest": "4.0.18",
     "vue-eslint-parser": "10.4.0",
-    "vue-tsc": "3.2.4",
+    "vue-tsc": "3.2.5",
     "whatwg-fetch": "3.6.20"
   }
 }

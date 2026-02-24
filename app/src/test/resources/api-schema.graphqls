@@ -73,6 +73,14 @@ type ChangePasswordResponse {
   success: Boolean!
 }
 
+"Response for the completeOAuth2Flow mutation."
+type CompleteOAuth2FlowResponse {
+  "An error reference ID that can be used to identify the specific failure in the logs. Present only when the flow failed."
+  errorId: String
+  "Whether the OAuth2 authorization flow was completed successfully."
+  success: Boolean!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -97,6 +105,15 @@ type Mutation {
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(description : "The provided current password does not match the user's actual password.", errorCode : "CURRENT_PASSWORD_MISMATCH")
+  "Completes the OAuth2 authorization flow by processing the authorization server callback."
+  completeOAuth2Flow(
+    "The authorization code returned by the authorization server."
+    code: String,
+    "The error code returned by the authorization server if authorization failed."
+    error: String,
+    "The state token that was included in the authorization request."
+    state: String!
+  ): CompleteOAuth2FlowResponse! @auth(type : AUTHENTICATED_USER)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }

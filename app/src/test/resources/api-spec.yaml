@@ -1368,27 +1368,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
-  /api/auth/oauth2/callback:
-    post:
-      tags:
-      - o-auth-2-callback-api
-      operationId: authCallback
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OAuth2AuthorizationCallbackRequest"
-        required: true
-      responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "200":
-          description: OK
-          content: {}
   /api/auth/logout:
     post:
       tags:
@@ -1731,13 +1710,6 @@ paths:
                   $ref: "#/components/schemas/DataBuffer"
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        errorId:
-          type: string
-      required:
-      - errorId
     EditWorkspaceDto:
       type: object
       properties:
@@ -2497,17 +2469,6 @@ components:
           type: string
       required:
       - token
-    OAuth2AuthorizationCallbackRequest:
-      type: object
-      properties:
-        code:
-          type: string
-        error:
-          type: string
-        state:
-          type: string
-      required:
-      - state
     LoginRequest:
       type: object
       properties:

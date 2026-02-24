@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -35,8 +35,8 @@ class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page)
     companion object {
         fun Page.shouldHaveAuthorizationPopupOpenBy(action: () -> Unit): OAuthAuthorizationPopup {
             var authorizationPopup: OAuthAuthorizationPopup? = null
-            withBlockedApiResponse(
-                "auth/oauth2/callback",
+            withBlockedGqlApiResponse(
+                "completeOAuth2Flow",
                 initiator = {
                     val popup = waitForPopup(action)
                     // somehow the popup is extremely unstable (locator fails just on creation);

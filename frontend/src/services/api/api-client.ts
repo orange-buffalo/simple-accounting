@@ -11,7 +11,6 @@ import {
   GeneralTaxesApiApi,
   DocumentsApiApi,
   GoogleDriveStorageApiApi,
-  OAuth2CallbackApiApi,
   ExpensesApiApi,
   IncomesApiApi,
   IncomeTaxPaymentsApiApi,
@@ -60,7 +59,6 @@ export const incomesApi = new IncomesApiApi(defaultConfig);
 export const documentsApi = new DocumentsApiApi(defaultConfig);
 export const generalTaxesApi = new GeneralTaxesApiApi(defaultConfig);
 export const googleDriveStorageApi = new GoogleDriveStorageApiApi(defaultConfig);
-export const oAuth2CallbackApi = new OAuth2CallbackApiApi(defaultConfig);
 export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiApi(defaultConfig);
 export const reportingApi = new ReportingApiApi(defaultConfig);
 export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiApi(defaultConfig);
