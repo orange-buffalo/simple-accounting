@@ -1075,6 +1075,61 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerDto"
+  /api/workspaces/{workspaceId}/categories/{categoryId}:
+    get:
+      tags:
+      - categories-api
+      operationId: getCategory
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDto"
+    put:
+      tags:
+      - categories-api
+      operationId: updateCategory
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditCategoryDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDto"
   /api/workspaces/{workspaceId}/categories:
     get:
       tags:
@@ -2306,6 +2361,22 @@ components:
       - timeUploaded
       - version
     CreateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        income:
+          type: boolean
+        expense:
+          type: boolean
+      required:
+      - expense
+      - income
+      - name
+    EditCategoryDto:
       type: object
       properties:
         name:

@@ -16,6 +16,7 @@ import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayme
 import Reporting from '@/pages/reporting/Reporting.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
 import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
+import EditCategory from '@/pages/settings/categories/EditCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
 import EditCustomer from '@/pages/settings/customers/EditCustomer.vue';
 import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
@@ -135,6 +136,12 @@ export default function setupRouter() {
             path: 'settings/categories/create',
             name: 'create-new-category',
             component: CreateCategory,
+          },
+          {
+            path: 'settings/categories/:id/edit',
+            name: 'edit-category',
+            props: ID_ROUTER_PARAM_PROCESSOR,
+            component: EditCategory,
           },
           {
             path: 'expenses',

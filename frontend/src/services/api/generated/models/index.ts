@@ -20,6 +20,7 @@ export * from './CurrentUserPushNotificationMessage';
 export * from './CustomerDto';
 export * from './DocumentDto';
 export * from './DocumentsStorageStatus';
+export * from './EditCategoryDto';
 export * from './EditCustomerDto';
 export * from './EditExpenseDto';
 export * from './EditGeneralTaxDto';

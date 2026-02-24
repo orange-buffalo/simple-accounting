@@ -5,7 +5,10 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.categories.CategoriesOverviewPage.Companion.openCategoriesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.categories.CategoriesOverviewPage.Companion.shouldBeCategoriesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.categories.CreateCategoryPage.Companion.shouldBeCreateCategoryPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.categories.EditCategoryPage.Companion.shouldBeEditCategoryPage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import org.junit.jupiter.api.Test
 
@@ -47,14 +50,17 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Delivery",
                         hasDetails = false,
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
                     SaOverviewItemData(
                         title = "Robot maintenance",
                         hasDetails = false,
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
                     SaOverviewItemData(
                         title = "Slurm supplies",
                         hasDetails = false,
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                     )
                 )
             }
@@ -77,5 +83,31 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeCreateCategoryPage()
+    }
+
+    @Test
+    fun `should navigate from overview to edit page`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Slurm supplies", income = true, expense = false)
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openCategoriesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Slurm supplies")
+                staticItems[0].executeEditAction()
+            }
+        }
+
+        page.shouldBeEditCategoryPage {
+            name {
+                input.shouldHaveValue("Slurm supplies")
+            }
+        }
     }
 }
