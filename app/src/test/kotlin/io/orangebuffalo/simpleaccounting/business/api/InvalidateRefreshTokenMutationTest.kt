@@ -24,7 +24,7 @@ class InvalidateRefreshTokenMutationTest(
             .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
                 assertThat(cookie).contains("refreshToken=")
                     .contains("Max-Age=0")
-                    .contains("Path=/api/auth/token")
+                    .contains("Path=/api")
                     .contains("HttpOnly")
                     .contains("SameSite=Strict")
             }

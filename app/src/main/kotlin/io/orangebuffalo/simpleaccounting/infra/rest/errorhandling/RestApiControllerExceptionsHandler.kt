@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
-import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
-import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException
-import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException
 import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
 import io.swagger.v3.oas.models.media.ObjectSchema
 import io.swagger.v3.oas.models.media.StringSchema
@@ -56,37 +53,6 @@ internal class RestApiControllerExceptionsHandler(
             ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(GeneralErrorDto("AccessDenied"))
-        )
-    }
-
-    @ExceptionHandler
-    fun onException(exception: LoginUnavailableException): Mono<ResponseEntity<GeneralErrorDto>> {
-        logger.trace(exception) {}
-        return Mono.just(
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(GeneralErrorDto("LoginNotAvailable"))
-        )
-    }
-
-    @ExceptionHandler
-    fun onException(exception: UserNotActivatedException): Mono<ResponseEntity<GeneralErrorDto>> {
-        logger.trace(exception) {}
-        return Mono.just(
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(GeneralErrorDto("UserNotActivated"))
-        )
-    }
-
-    @ExceptionHandler
-    fun onException(exception: AccountIsTemporaryLockedException):
-            Mono<ResponseEntity<AccountIsTemporaryLockedErrorDto>> {
-        logger.trace(exception) {}
-        return Mono.just(
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(exception.toDto())
         )
     }
 
@@ -267,17 +233,6 @@ data class InvalidInputErrorDto(
         val params: Map<String, String>? = null,
     )
 }
-
-@Suppress("unused")
-class AccountIsTemporaryLockedErrorDto(
-    val error: String = "AccountLocked",
-    val lockExpiresInSec: Long
-)
-
-private fun AccountIsTemporaryLockedException.toDto() =
-    AccountIsTemporaryLockedErrorDto(
-        lockExpiresInSec = lockExpiresInSec
-    )
 
 /**
  * A base class for complex cases of API error handing when response body is more than just an error code.

@@ -20,7 +20,7 @@ class InvalidateRefreshTokenMutation : Mutation {
                 .from("refreshToken", "")
                 .httpOnly(true)
                 .sameSite("Strict")
-                .path("/api/auth/token")
+                .path("/api")
                 .maxAge(Duration.ZERO)
                 .build()
         )

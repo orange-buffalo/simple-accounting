@@ -3,6 +3,9 @@ package io.orangebuffalo.simpleaccounting.infra.graphql
 import graphql.schema.*
 import org.springframework.stereotype.Component
 
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
+
 /**
  * Transforms the GraphQL schema by adding dynamically generated enum types for business error codes.
  * 
@@ -13,6 +16,16 @@ import org.springframework.stereotype.Component
 class BusinessErrorSchemaTransformer(
     private val businessErrorRegistry: BusinessErrorRegistry,
 ) {
+
+    /**
+     * Collects all unique extension types declared in business error mappings.
+     * These types should be added to the schema's additional types during generation.
+     */
+    val extensionTypes: Set<KClass<*>>
+        get() = businessErrorRegistry.operationMappings.values
+            .flatMap { it.mappings }
+            .mapNotNull { it.extensionsType }
+            .toSet()
 
     fun transform(schema: GraphQLSchema): GraphQLSchema {
         if (businessErrorRegistry.operationMappings.isEmpty()) {

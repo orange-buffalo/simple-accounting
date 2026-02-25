@@ -296,7 +296,8 @@ class GraphqlClientRequestExecutor(
         errorCode: String,
         path: String,
         locationColumn: Int = 3,
-        locationLine: Int = 2
+        locationLine: Int = 2,
+        additionalExtensions: Map<String, Any>? = null
     ) {
         requestSpec
             .exchange()
@@ -308,6 +309,14 @@ class GraphqlClientRequestExecutor(
                         put("extensions", buildJsonObject {
                             put("errorType", "BUSINESS_ERROR")
                             put("errorCode", errorCode)
+                            additionalExtensions?.forEach { (key, value) ->
+                                when (value) {
+                                    is String -> put(key, value)
+                                    is Number -> put(key, value.toLong())
+                                    is Boolean -> put(key, value)
+                                    else -> put(key, value.toString())
+                                }
+                            }
                         })
                         putJsonArray("locations") {
                             add(buildJsonObject {

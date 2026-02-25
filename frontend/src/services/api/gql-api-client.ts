@@ -142,10 +142,12 @@ async function executeGqlRequestAndHandleErrors<Data>(
       if (typeof errorCode !== 'string') {
         throw new ApiError(`Invalid business error format: ${JSON.stringify(graphQLError)}`);
       }
-      throw new ApiBusinessError({
+      const businessError = new ApiBusinessError({
         error: errorCode,
         message: graphQLError.message,
       });
+      businessError.extensions = graphQLError.extensions;
+      throw businessError;
     }
 
     throw new ApiError(

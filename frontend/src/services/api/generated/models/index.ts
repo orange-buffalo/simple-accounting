@@ -45,7 +45,6 @@ export * from './IncomeTaxPaymentsStatisticsDto';
 export * from './IncomesExpensesStatisticsDto';
 export * from './InvalidInputErrorDto';
 export * from './InvoiceDto';
-export * from './LoginRequest';
 export * from './PendingTaxSummaryItemDto';
 export * from './PlatformUserDto';
 export * from './ProfileDto';

@@ -80,7 +80,7 @@ class SaGraphQlSchemaConfig {
                     ValidationErrorCode::class.createType(),
                     ValidationErrorDetails::class.createType(),
                     ValidationErrorParam::class.createType(),
-                )
+                ) + businessErrorSchemaTransformer.extensionTypes.map { it.createType() }
             )
         }
         

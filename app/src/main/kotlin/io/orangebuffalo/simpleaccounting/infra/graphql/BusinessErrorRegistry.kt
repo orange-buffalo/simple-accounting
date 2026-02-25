@@ -39,6 +39,7 @@ class BusinessErrorRegistry(
                             exceptionClass = annotation.exceptionClass,
                             errorCode = annotation.errorCode,
                             description = annotation.description,
+                            extensionsType = annotation.extensionsType.takeIf { it != Unit::class },
                         )
                     }
                     mappings[function.name] = OperationBusinessErrors(
@@ -53,14 +54,14 @@ class BusinessErrorRegistry(
     }
 
     /**
-     * Finds the error code for a given exception in a specific operation.
+     * Finds the business error mapping for a given exception in a specific operation.
      * Returns null if no mapping is found.
      */
-    fun findErrorCode(operationName: String, exception: Throwable): String? {
+    fun findErrorMapping(operationName: String, exception: Throwable): BusinessErrorMapping? {
         val operationErrors = operationMappings[operationName] ?: return null
         return operationErrors.mappings.firstOrNull { mapping ->
             mapping.exceptionClass.isInstance(exception)
-        }?.errorCode
+        }
     }
 }
 
@@ -79,4 +80,5 @@ data class BusinessErrorMapping(
     val exceptionClass: KClass<out Exception>,
     val errorCode: String,
     val description: String,
+    val extensionsType: KClass<*>?,
 )

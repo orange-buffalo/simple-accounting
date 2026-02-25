@@ -75,9 +75,13 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi } from '@/services/api';
+  import { useAuth, profileApi, handleGqlApiBusinessError } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
-  import { ApiAuthError } from '@/services/api/api-errors.ts';
+  import {
+    CreateAccessTokenByCredentialsErrorCodes,
+    type AccountLockedErrorExtensions,
+  } from '@/services/api/gql/graphql.ts';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -152,27 +156,30 @@
 
   const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
-  interface LoginErrorResponse {
-    error?: string,
-    lockExpiresInSec?: number
-  }
-
   const onLoginError = async (processingError: unknown) => {
-    if (!(processingError instanceof ApiAuthError)) {
-      throw processingError;
-    }
-    const body = await processingError.response.clone()
-      .json();
-    const apiResponse = body as unknown as LoginErrorResponse;
-    if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
-      accountLockTimer.start(apiResponse.lockExpiresInSec);
-    } else if (apiResponse?.error === 'LoginNotAvailable') {
+    const errorCode = handleGqlApiBusinessError<
+      CreateAccessTokenByCredentialsErrorCodes
+    >(processingError);
+    if (errorCode === CreateAccessTokenByCredentialsErrorCodes.AccountLocked
+      && processingError instanceof ApiBusinessError) {
+      const { lockExpiresInSec } = processingError
+        .extensionsAs<AccountLockedErrorExtensions>();
+      accountLockTimer.start(lockExpiresInSec);
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.LoginNotAvailable) {
       uiState.loginError = $t.value.loginPage.loginError.underAttack();
-    } else if (apiResponse?.error === 'UserNotActivated') {
-      uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.UserNotActivated) {
+      uiState.loginError
+        = $t.value.loginPage.loginError.userNotActivated();
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.BadCredentials) {
+      uiState.loginError
+        = $t.value.loginPage.loginError.generalFailure();
     } else {
       console.error('Login failure', processingError);
-      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
+      uiState.loginError
+        = $t.value.loginPage.loginError.generalFailure();
     }
   };
 

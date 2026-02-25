@@ -1,7 +1,8 @@
 import { jwtDecode } from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
-import type { LoginRequest } from '@/services/api/generated';
 import { authApi } from '@/services/api/api-client';
+import { graphql } from '@/services/api/gql';
+import { executeRawGqlMutation } from '@/services/api/gql-raw-client';
 
 interface ApiToken {
   jwtToken: string | null,
@@ -87,10 +88,36 @@ export function getAuthorizationHeader(): string | null {
   return null;
 }
 
+const loginMutation = graphql(/* GraphQL */ `
+  mutation createAccessTokenByCredentials(
+    $userName: String!
+    $password: String!
+    $issueRefreshTokenCookie: Boolean
+  ) {
+    createAccessTokenByCredentials(
+      userName: $userName
+      password: $password
+      issueRefreshTokenCookie: $issueRefreshTokenCookie
+    ) {
+      accessToken
+    }
+  }
+`);
+
+interface LoginRequest {
+  userName: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 async function login(loginRequest: LoginRequest) {
   cancelTokenRefresh();
-  const response = await authApi.login({ loginRequest });
-  updateApiToken(response.token);
+  const data = await executeRawGqlMutation(loginMutation, {
+    userName: loginRequest.userName,
+    password: loginRequest.password,
+    issueRefreshTokenCookie: loginRequest.rememberMe,
+  });
+  updateApiToken(data.createAccessTokenByCredentials.accessToken);
   scheduleTokenRefresh();
 }
 
@@ -101,7 +128,9 @@ async function logout() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'mutation { invalidateRefreshToken }' }),
+      body: JSON.stringify(
+        { query: 'mutation { invalidateRefreshToken }' },
+      ),
     });
   } finally {
     updateApiToken(null);

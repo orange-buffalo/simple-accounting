@@ -15,19 +15,12 @@
 
 import * as runtime from '../runtime';
 import type {
-  LoginRequest,
   TokenResponse,
 } from '../models/index';
 import {
-    LoginRequestFromJSON,
-    LoginRequestToJSON,
     TokenResponseFromJSON,
     TokenResponseToJSON,
 } from '../models/index';
-
-export interface LoginOperationRequest {
-    loginRequest: LoginRequest;
-}
 
 export interface LoginBySharedWorkspaceTokenRequest {
     sharedWorkspaceToken: string;
@@ -41,40 +34,6 @@ export interface RefreshTokenRequest {
  * 
  */
 export class AuthenticationApiApi extends runtime.BaseAPI {
-
-    /**
-     */
-    async loginRaw(requestParameters: LoginOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TokenResponse>> {
-        if (requestParameters['loginRequest'] == null) {
-            throw new runtime.RequiredError(
-                'loginRequest',
-                'Required parameter "loginRequest" was null or undefined when calling login().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/api/auth/login`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: LoginRequestToJSON(requestParameters['loginRequest']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async login(requestParameters: LoginOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TokenResponse> {
-        const response = await this.loginRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
 
     /**
      */

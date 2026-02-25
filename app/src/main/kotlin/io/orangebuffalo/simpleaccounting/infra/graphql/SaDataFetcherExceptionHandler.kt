@@ -8,6 +8,7 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.language.SourceLocation
+import io.orangebuffalo.simpleaccounting.business.api.errors.GraphQlBusinessErrorExtensionsProvider
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
@@ -51,10 +52,10 @@ class SaDataFetcherExceptionHandler(
         // Handle business errors declared via @BusinessError annotation
         val operationName = handlerParameters.path.segmentName
         if (operationName != null) {
-            val errorCode = businessErrorRegistry.findErrorCode(operationName, exception)
-            if (errorCode != null) {
+            val errorMapping = businessErrorRegistry.findErrorMapping(operationName, exception)
+            if (errorMapping != null) {
                 return DataFetcherExceptionHandlerResult.newResult()
-                    .error(BusinessErrorGraphQLError(exception, errorCode, handlerParameters))
+                    .error(BusinessErrorGraphQLError(exception, errorMapping, handlerParameters))
                     .build()
             }
         }
@@ -96,7 +97,7 @@ private class SaGrapQlError(
  */
 private class BusinessErrorGraphQLError(
     private val exception: Throwable,
-    private val errorCode: String,
+    private val errorMapping: BusinessErrorMapping,
     private val handlerParameters: DataFetcherExceptionHandlerParameters,
 ) : GraphQLError {
     override fun getMessage(): String = exception.message ?: "Business error occurred"
@@ -105,10 +106,35 @@ private class BusinessErrorGraphQLError(
 
     override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
 
-    override fun getExtensions(): Map<String, Any> = mapOf(
-        "errorType" to SaGrapQlErrorType.BUSINESS_ERROR,
-        "errorCode" to errorCode
-    )
+    override fun getExtensions(): Map<String, Any> {
+        val baseExtensions = mapOf(
+            "errorType" to SaGrapQlErrorType.BUSINESS_ERROR,
+            "errorCode" to errorMapping.errorCode
+        )
+        return if (exception is GraphQlBusinessErrorExtensionsProvider) {
+            val extensions = exception.getBusinessErrorExtensions()
+            val declaredType = errorMapping.extensionsType
+                ?: throw IllegalStateException(
+                    "Exception ${exception::class.qualifiedName} implements GraphQlBusinessErrorExtensionsProvider " +
+                            "but @BusinessError for error code '${errorMapping.errorCode}' does not declare extensionsType"
+                )
+            if (!declaredType.isInstance(extensions)) {
+                throw IllegalStateException(
+                    "Exception ${exception::class.qualifiedName} returned ${extensions::class.qualifiedName} " +
+                            "from getBusinessErrorExtensions(), but @BusinessError for error code '${errorMapping.errorCode}' " +
+                            "declares extensionsType=${declaredType.qualifiedName}"
+                )
+            }
+            baseExtensions + serializeExtensions(extensions)
+        } else {
+            baseExtensions
+        }
+    }
+
+    private fun serializeExtensions(extensions: Any): Map<String, Any> =
+        extensions::class.members
+            .filterIsInstance<kotlin.reflect.KProperty1<Any, *>>()
+            .associate { it.name to (it.get(extensions) ?: error("Null extension value for ${it.name}")) }
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }
