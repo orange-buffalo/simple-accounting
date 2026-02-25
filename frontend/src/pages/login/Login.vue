@@ -75,9 +75,9 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi } from '@/services/api';
+  import { useAuth, profileApi, handleGqlApiBusinessError } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
-  import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { CreateAccessTokenByCredentialsErrorCodes } from '@/services/api/gql/graphql.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -153,22 +153,29 @@
   const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
   const onLoginError = async (processingError: unknown) => {
-    if (!(processingError instanceof ApiBusinessError)) {
-      throw processingError;
-    }
-    const errorCode = processingError.error.error;
-    if (errorCode === 'ACCOUNT_LOCKED'
+    const errorCode = handleGqlApiBusinessError<
+      CreateAccessTokenByCredentialsErrorCodes
+    >(processingError);
+    if (errorCode === CreateAccessTokenByCredentialsErrorCodes.AccountLocked
       && (processingError as any).lockExpiresInSec !== undefined) {
-      accountLockTimer.start((processingError as any).lockExpiresInSec);
-    } else if (errorCode === 'LOGIN_NOT_AVAILABLE') {
+      accountLockTimer.start(
+        (processingError as any).lockExpiresInSec,
+      );
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.LoginNotAvailable) {
       uiState.loginError = $t.value.loginPage.loginError.underAttack();
-    } else if (errorCode === 'USER_NOT_ACTIVATED') {
-      uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
-    } else if (errorCode === 'BAD_CREDENTIALS') {
-      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.UserNotActivated) {
+      uiState.loginError
+        = $t.value.loginPage.loginError.userNotActivated();
+    } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.BadCredentials) {
+      uiState.loginError
+        = $t.value.loginPage.loginError.generalFailure();
     } else {
       console.error('Login failure', processingError);
-      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
+      uiState.loginError
+        = $t.value.loginPage.loginError.generalFailure();
     }
   };
 
