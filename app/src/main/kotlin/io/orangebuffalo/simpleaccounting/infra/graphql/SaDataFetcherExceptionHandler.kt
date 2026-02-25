@@ -8,6 +8,7 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.language.SourceLocation
+import io.orangebuffalo.simpleaccounting.business.api.errors.GraphQlBusinessErrorExtensionsProvider
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
@@ -105,10 +106,17 @@ private class BusinessErrorGraphQLError(
 
     override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
 
-    override fun getExtensions(): Map<String, Any> = mapOf(
-        "errorType" to SaGrapQlErrorType.BUSINESS_ERROR,
-        "errorCode" to errorCode
-    )
+    override fun getExtensions(): Map<String, Any> {
+        val baseExtensions = mapOf(
+            "errorType" to SaGrapQlErrorType.BUSINESS_ERROR,
+            "errorCode" to errorCode
+        )
+        return if (exception is GraphQlBusinessErrorExtensionsProvider) {
+            baseExtensions + exception.getBusinessErrorExtensions()
+        } else {
+            baseExtensions
+        }
+    }
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

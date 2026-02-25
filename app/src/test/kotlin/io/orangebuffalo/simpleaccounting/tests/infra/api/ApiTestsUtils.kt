@@ -296,7 +296,8 @@ class GraphqlClientRequestExecutor(
         errorCode: String,
         path: String,
         locationColumn: Int = 3,
-        locationLine: Int = 2
+        locationLine: Int = 2,
+        additionalExtensions: (JsonObjectBuilder.() -> Unit)? = null
     ) {
         requestSpec
             .exchange()
@@ -308,6 +309,7 @@ class GraphqlClientRequestExecutor(
                         put("extensions", buildJsonObject {
                             put("errorType", "BUSINESS_ERROR")
                             put("errorCode", errorCode)
+                            additionalExtensions?.invoke(this)
                         })
                         putJsonArray("locations") {
                             add(buildJsonObject {

@@ -11,25 +11,27 @@ import assertk.fail
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
+import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
 
-private const val LOGIN_PATH = "/api/auth/login"
 private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
 class BruteForceDefenseTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: ApiTestClient,
+    @Autowired private val rawClient: WebTestClient,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @Autowired private val platformUsersRepository: PlatformUsersRepository,
 ) : SaIntegrationTestBase() {
@@ -44,8 +46,14 @@ class BruteForceDefenseTest(
         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
-        client.executeLoginForFry()
-            .expectStatus().isOk
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifySuccessResponse(
+                "createAccessTokenByCredentials" to buildJsonObject {
+                    put("accessToken", "\${json-unit.any-string}")
+                }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isZero()
@@ -58,15 +66,14 @@ class BruteForceDefenseTest(
         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "BadCredentials"
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Invalid Credentials",
+                errorCode = "BAD_CREDENTIALS",
+                path = "createAccessTokenByCredentials"
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(1)
@@ -84,8 +91,14 @@ class BruteForceDefenseTest(
 
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
-        client.executeLoginForFry()
-            .expectStatus().isOk
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifySuccessResponse(
+                "createAccessTokenByCredentials" to buildJsonObject {
+                    put("accessToken", "\${json-unit.any-string}")
+                }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isZero()
@@ -101,16 +114,15 @@ class BruteForceDefenseTest(
             temporaryLockExpirationTime = CURRENT_TIME
         }
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "AccountLocked",
-                        "lockExpiresInSec": 0
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Account is temporary locked",
+                errorCode = "ACCOUNT_LOCKED",
+                path = "createAccessTokenByCredentials",
+                additionalExtensions = { put("lockExpiresInSec", 0) }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -126,16 +138,15 @@ class BruteForceDefenseTest(
             temporaryLockExpirationTime = CURRENT_TIME.plusMillis(4500)
         }
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "AccountLocked",
-                        "lockExpiresInSec": 4
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Account is temporary locked",
+                errorCode = "ACCOUNT_LOCKED",
+                path = "createAccessTokenByCredentials",
+                additionalExtensions = { put("lockExpiresInSec", 4) }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -153,15 +164,14 @@ class BruteForceDefenseTest(
 
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "BadCredentials"
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Invalid Credentials",
+                errorCode = "BAD_CREDENTIALS",
+                path = "createAccessTokenByCredentials"
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -179,16 +189,15 @@ class BruteForceDefenseTest(
 
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "AccountLocked",
-                        "lockExpiresInSec": 60
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Account is temporary locked",
+                errorCode = "ACCOUNT_LOCKED",
+                path = "createAccessTokenByCredentials",
+                additionalExtensions = { put("lockExpiresInSec", 60) }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(6)
@@ -206,16 +215,15 @@ class BruteForceDefenseTest(
 
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "AccountLocked",
-                        "lockExpiresInSec": 135
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Account is temporary locked",
+                errorCode = "ACCOUNT_LOCKED",
+                path = "createAccessTokenByCredentials",
+                additionalExtensions = { put("lockExpiresInSec", 135) }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(8)
@@ -233,16 +241,15 @@ class BruteForceDefenseTest(
 
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.executeLoginForFry()
-            .expectStatus().isUnauthorized
-            .expectThatJsonBody {
-                shouldBeEqualToJson(
-                    """{
-                        "error": "AccountLocked",
-                        "lockExpiresInSec": 86400
-                    }"""
-                )
-            }
+        client
+            .graphqlMutation { loginMutation() }
+            .fromAnonymous()
+            .executeAndVerifyBusinessError(
+                message = "Account is temporary locked",
+                errorCode = "ACCOUNT_LOCKED",
+                path = "createAccessTokenByCredentials",
+                additionalExtensions = { put("lockExpiresInSec", 86400) }
+            )
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(101)
@@ -259,7 +266,7 @@ class BruteForceDefenseTest(
         val requests = generateSequence(1) { if (it < 10) it + 1 else null }
             .map {
                 GlobalScope.async(newFixedThreadPoolContext(10, "parallelLogins")) {
-                    client.executeLoginForFry()
+                    rawClient.executeGraphqlLoginForFry()
                 }
             }
             .toList()
@@ -273,26 +280,22 @@ class BruteForceDefenseTest(
         var accountLockedCount = 0
         responses.forEach { response ->
             response
-                .expectStatus().isUnauthorized
+                .expectStatus().isOk
                 .expectBody<String>().consumeWith { body ->
                     val json = body.responseBody ?: ""
                     when {
-                        json.contains("BadCredentials") -> badCredentialsCount++
-                        json.contains("LoginNotAvailable") -> loginNotAvailableCount++
-                        json.contains("AccountLocked") -> accountLockedCount++
+                        json.contains("BAD_CREDENTIALS") -> badCredentialsCount++
+                        json.contains("LOGIN_NOT_AVAILABLE") -> loginNotAvailableCount++
+                        json.contains("ACCOUNT_LOCKED") -> accountLockedCount++
                         else -> fail("[$json] is not an expected error")
                     }
                 }
         }
 
-        // we can't know how exactly each request is processed, but overall all issued requests must be responded
         assertThat(badCredentialsCount + loginNotAvailableCount + accountLockedCount).isEqualTo(10)
-        // at least one must go through and fail with Bad Credentials
         assertThat(badCredentialsCount).isGreaterThan(0)
 
         assertFryLoginStatistics {
-            // depending on how many requests we process to login, different number of failed attempts is possible
-            // but the number of Bad Credentials responses should be equal to failed attempts number
             if (accountLockedCount > 0) {
                 assertThat(failedAttemptsCount).isEqualTo(6)
             } else {
@@ -318,15 +321,13 @@ class BruteForceDefenseTest(
         }
     }
 
-    private fun WebTestClient.executeLoginForFry(): WebTestClient.ResponseSpec = post()
-        .uri(LOGIN_PATH)
-        .contentType(APPLICATION_JSON)
-        .bodyValue(
-            LoginRequest(
-                userName = "Fry",
-                password = "qwerty"
-            )
-        )
+    private fun MutationProjection.loginMutation(): MutationProjection =
+        createAccessTokenByCredentials(password = "qwerty", userName = "Fry") { accessToken }
+
+    private fun WebTestClient.executeGraphqlLoginForFry(): WebTestClient.ResponseSpec = post()
+        .uri("/api/graphql")
+        .header("Content-Type", "application/json")
+        .bodyValue("""{"query": "mutation { createAccessTokenByCredentials(userName: \"Fry\", password: \"qwerty\") { accessToken } }"}""")
         .exchange()
 
     private fun setupPreconditions() = preconditions {

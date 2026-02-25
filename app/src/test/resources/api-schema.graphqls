@@ -81,6 +81,12 @@ type CompleteOAuth2FlowResponse {
   success: Boolean!
 }
 
+"Response for the createAccessTokenByCredentials mutation."
+type CreateAccessTokenByCredentialsResponse {
+  "The JWT access token for the authenticated user."
+  accessToken: String!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -114,6 +120,15 @@ type Mutation {
     "The state token that was included in the authorization request."
     state: String!
   ): CompleteOAuth2FlowResponse! @auth(type : AUTHENTICATED_USER)
+  "Authenticates a user by username and password credentials and returns an access token. Optionally issues a refresh token cookie for persistent sessions."
+  createAccessTokenByCredentials(
+    "Whether to issue a refresh token cookie for persistent sessions. Defaults to false if not provided."
+    issueRefreshTokenCookie: Boolean,
+    "The password of the user."
+    password: String! @notBlank,
+    "The username of the user."
+    userName: String! @notBlank
+  ): CreateAccessTokenByCredentialsResponse! @auth(type : ANONYMOUS) @businessError(description : "The provided credentials are invalid.", errorCode : "BAD_CREDENTIALS") @businessError(description : "The user account has not been activated yet.", errorCode : "USER_NOT_ACTIVATED") @businessError(description : "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.", errorCode : "ACCOUNT_LOCKED") @businessError(description : "Login is temporarily unavailable due to too many concurrent authentication requests for this user.", errorCode : "LOGIN_NOT_AVAILABLE")
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
@@ -191,6 +206,18 @@ enum AuthType {
 enum ChangePasswordErrorCodes {
   "The provided current password does not match the user's actual password."
   CURRENT_PASSWORD_MISMATCH
+}
+
+"Possible business error codes for the createAccessTokenByCredentials operation."
+enum CreateAccessTokenByCredentialsErrorCodes {
+  "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds."
+  ACCOUNT_LOCKED
+  "The provided credentials are invalid."
+  BAD_CREDENTIALS
+  "Login is temporarily unavailable due to too many concurrent authentication requests for this user."
+  LOGIN_NOT_AVAILABLE
+  "The user account has not been activated yet."
+  USER_NOT_ACTIVATED
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
