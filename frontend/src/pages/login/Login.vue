@@ -77,7 +77,7 @@
   import useNavigation from '@/services/use-navigation';
   import { useAuth, profileApi } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
-  import { ApiAuthError } from '@/services/api/api-errors.ts';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -152,24 +152,20 @@
 
   const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
-  interface LoginErrorResponse {
-    error?: string,
-    lockExpiresInSec?: number
-  }
-
   const onLoginError = async (processingError: unknown) => {
-    if (!(processingError instanceof ApiAuthError)) {
+    if (!(processingError instanceof ApiBusinessError)) {
       throw processingError;
     }
-    const body = await processingError.response.clone()
-      .json();
-    const apiResponse = body as unknown as LoginErrorResponse;
-    if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
-      accountLockTimer.start(apiResponse.lockExpiresInSec);
-    } else if (apiResponse?.error === 'LoginNotAvailable') {
+    const errorCode = processingError.error.error;
+    if (errorCode === 'ACCOUNT_LOCKED'
+      && (processingError as any).lockExpiresInSec !== undefined) {
+      accountLockTimer.start((processingError as any).lockExpiresInSec);
+    } else if (errorCode === 'LOGIN_NOT_AVAILABLE') {
       uiState.loginError = $t.value.loginPage.loginError.underAttack();
-    } else if (apiResponse?.error === 'UserNotActivated') {
+    } else if (errorCode === 'USER_NOT_ACTIVATED') {
       uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
+    } else if (errorCode === 'BAD_CREDENTIALS') {
+      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
     } else {
       console.error('Login failure', processingError);
       uiState.loginError = $t.value.loginPage.loginError.generalFailure();
