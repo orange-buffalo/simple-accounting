@@ -90,6 +90,8 @@ export class ApiFieldLevelValidationError extends ServerApiError {
 export class ApiBusinessError extends ServerApiError {
   error: SaApiErrorDto;
 
+  extensions: Record<string, unknown>;
+
   constructor(error: SaApiErrorDto, response?: Response);
   constructor(response: Response, error: SaApiErrorDto);
   constructor(
@@ -105,6 +107,11 @@ export class ApiBusinessError extends ServerApiError {
       this.error = errorOrResponse;
     }
     this.name = 'ApiBusinessError';
+    this.extensions = {};
+  }
+
+  extensionsAs<T>(): T {
+    return this.extensions as T;
   }
 
   errorAs<T extends SaApiErrorDto>(): T {

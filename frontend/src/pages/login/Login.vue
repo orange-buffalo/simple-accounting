@@ -77,7 +77,11 @@
   import useNavigation from '@/services/use-navigation';
   import { useAuth, profileApi, handleGqlApiBusinessError } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
-  import { CreateAccessTokenByCredentialsErrorCodes } from '@/services/api/gql/graphql.ts';
+  import {
+    CreateAccessTokenByCredentialsErrorCodes,
+    type AccountLockedErrorExtensions,
+  } from '@/services/api/gql/graphql.ts';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -157,10 +161,10 @@
       CreateAccessTokenByCredentialsErrorCodes
     >(processingError);
     if (errorCode === CreateAccessTokenByCredentialsErrorCodes.AccountLocked
-      && (processingError as any).lockExpiresInSec !== undefined) {
-      accountLockTimer.start(
-        (processingError as any).lockExpiresInSec,
-      );
+      && processingError instanceof ApiBusinessError) {
+      const { lockExpiresInSec } = processingError
+        .extensionsAs<AccountLockedErrorExtensions>();
+      accountLockTimer.start(lockExpiresInSec);
     } else if (errorCode
       === CreateAccessTokenByCredentialsErrorCodes.LoginNotAvailable) {
       uiState.loginError = $t.value.loginPage.loginError.underAttack();

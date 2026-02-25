@@ -35,7 +35,7 @@ export async function executeRawGqlMutation<
         error: graphQLError.extensions.errorCode,
         message: graphQLError.message,
       });
-      Object.assign(businessError, graphQLError.extensions);
+      businessError.extensions = graphQLError.extensions;
       throw businessError;
     }
     throw new ApiError(graphQLError.message || 'GraphQL request failed');

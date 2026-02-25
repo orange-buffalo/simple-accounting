@@ -99,6 +99,7 @@ class AuthenticationApiTest(
     @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
     fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`() {
         runBlocking {
+            // Force preconditions evaluation before stubbing
             val validTill = preconditions.validAccessToken.validTill
 
             whenever(jwtService.buildJwtToken(argThat {
@@ -164,6 +165,7 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return a JWT token for valid workspace access token`() {
+        // Force preconditions evaluation before stubbing
         val tokenValue = preconditions.validAccessToken.token
         val validTill = preconditions.validAccessToken.validTill
 
