@@ -121,7 +121,7 @@ class BruteForceDefenseTest(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
                 path = "createAccessTokenByCredentials",
-                additionalExtensions = { put("lockExpiresInSec", 0) }
+                additionalExtensions = mapOf("lockExpiresInSec" to 0)
             )
 
         assertFryLoginStatistics {
@@ -145,7 +145,7 @@ class BruteForceDefenseTest(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
                 path = "createAccessTokenByCredentials",
-                additionalExtensions = { put("lockExpiresInSec", 4) }
+                additionalExtensions = mapOf("lockExpiresInSec" to 4)
             )
 
         assertFryLoginStatistics {
@@ -196,7 +196,7 @@ class BruteForceDefenseTest(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
                 path = "createAccessTokenByCredentials",
-                additionalExtensions = { put("lockExpiresInSec", 60) }
+                additionalExtensions = mapOf("lockExpiresInSec" to 60)
             )
 
         assertFryLoginStatistics {
@@ -222,7 +222,7 @@ class BruteForceDefenseTest(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
                 path = "createAccessTokenByCredentials",
-                additionalExtensions = { put("lockExpiresInSec", 135) }
+                additionalExtensions = mapOf("lockExpiresInSec" to 135)
             )
 
         assertFryLoginStatistics {
@@ -248,7 +248,7 @@ class BruteForceDefenseTest(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
                 path = "createAccessTokenByCredentials",
-                additionalExtensions = { put("lockExpiresInSec", 86400) }
+                additionalExtensions = mapOf("lockExpiresInSec" to 86400)
             )
 
         assertFryLoginStatistics {
@@ -292,10 +292,14 @@ class BruteForceDefenseTest(
                 }
         }
 
+        // we can't know how exactly each request is processed, but overall all issued requests must be responded
         assertThat(badCredentialsCount + loginNotAvailableCount + accountLockedCount).isEqualTo(10)
+        // at least one must go through and fail with Bad Credentials
         assertThat(badCredentialsCount).isGreaterThan(0)
 
         assertFryLoginStatistics {
+            // depending on how many requests we process to login, different number of failed attempts is possible
+            // but the number of Bad Credentials responses should be equal to failed attempts number
             if (accountLockedCount > 0) {
                 assertThat(failedAttemptsCount).isEqualTo(6)
             } else {
@@ -324,6 +328,10 @@ class BruteForceDefenseTest(
     private fun MutationProjection.loginMutation(): MutationProjection =
         createAccessTokenByCredentials(password = "qwerty", userName = "Fry") { accessToken }
 
+    /**
+     * We use raw WebTestClient here to issue truly parallel requests bypassing ApiTestClient's
+     * JWT-based authentication and single-threaded request processing.
+     */
     private fun WebTestClient.executeGraphqlLoginForFry(): WebTestClient.ResponseSpec = post()
         .uri("/api/graphql")
         .header("Content-Type", "application/json")

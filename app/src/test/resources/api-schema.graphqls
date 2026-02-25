@@ -62,6 +62,12 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
+"Additional error extensions for the ACCOUNT_LOCKED business error."
+type AccountLockedErrorExtensions {
+  "The remaining lock duration in seconds."
+  lockExpiresInSec: Int!
+}
+
 "Category of incomes or expenses."
 type CategoryGqlDto {
   "Name of the category."

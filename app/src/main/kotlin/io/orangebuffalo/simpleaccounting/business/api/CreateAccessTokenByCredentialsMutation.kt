@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
+import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountLockedErrorExtensions
 import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
@@ -50,6 +51,7 @@ class CreateAccessTokenByCredentialsMutation(
         errorCode = "ACCOUNT_LOCKED",
         description = "The account is temporarily locked due to too many failed login attempts. " +
                 "The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.",
+        extensionsType = AccountLockedErrorExtensions::class,
     )
     @BusinessError(
         exceptionClass = LoginUnavailableException::class,
@@ -82,7 +84,7 @@ class CreateAccessTokenByCredentialsMutation(
                     .from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .sameSite("Strict")
-                    .path("/api/auth/token")
+                    .path("/api")
                     // todo #67: secure based on configuration
                     .maxAge(Duration.ofDays(TOKEN_LIFETIME_IN_DAYS))
                     .build()

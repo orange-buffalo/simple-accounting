@@ -69,7 +69,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         refreshCookie.shouldNotBeNull()
         refreshCookie.value.shouldNotBeNull()
         refreshCookie.httpOnly.shouldBe(true)
-        refreshCookie.path.shouldBe("/api/auth/token")
+        refreshCookie.path.shouldBe("/api")
 
         // we do not set the browser time, so just verify that expiry is roughly correct
         val expectedExpires = (Instant.now().toEpochMilli() / 1000 + Duration.ofDays(30).seconds).toDouble()

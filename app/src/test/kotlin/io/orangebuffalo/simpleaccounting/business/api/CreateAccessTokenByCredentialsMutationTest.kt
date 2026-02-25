@@ -9,14 +9,13 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import net.javacrumbs.jsonunit.core.Configuration
-import net.javacrumbs.jsonunit.core.Option
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 
 class CreateAccessTokenByCredentialsMutationTest(
     @param:Autowired private val client: ApiTestClient,
@@ -24,6 +23,9 @@ class CreateAccessTokenByCredentialsMutationTest(
 
     @MockitoBean
     lateinit var refreshTokensService: RefreshTokensService
+
+    @MockitoSpyBean
+    lateinit var jwtService: JwtService
 
     private val preconditions by lazyPreconditions {
         object {
@@ -39,13 +41,16 @@ class CreateAccessTokenByCredentialsMutationTest(
     @Test
     fun `should return a JWT token for valid user login credentials`() {
         whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
+        doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(argThat {
+            userName == preconditions.fry.userName
+        }, isNull())
 
         client
             .graphqlMutation { loginMutation(preconditions.fry.userName, "qwerty") }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
                 "createAccessTokenByCredentials" to buildJsonObject {
-                    put("accessToken", "\${json-unit.any-string}")
+                    put("accessToken", "jwtTokenForFry")
                 }
             )
     }
@@ -53,13 +58,16 @@ class CreateAccessTokenByCredentialsMutationTest(
     @Test
     fun `should return a JWT token for valid admin login credentials`() {
         whenever(passwordEncoder.matches("\$&#@(@", preconditions.farnsworth.passwordHash)) doReturn true
+        doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(argThat {
+            userName == preconditions.farnsworth.userName
+        }, isNull())
 
         client
             .graphqlMutation { loginMutation(preconditions.farnsworth.userName, "\$&#@(@") }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
                 "createAccessTokenByCredentials" to buildJsonObject {
-                    put("accessToken", "\${json-unit.any-string}")
+                    put("accessToken", "jwtTokenForFarnsworth")
                 }
             )
     }
@@ -206,7 +214,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
                 assertThat(cookie).contains("refreshToken=refreshTokenForFry")
                     .contains("Max-Age=2592000")
-                    .contains("Path=/api/auth/token")
+                    .contains("Path=/api")
                     .contains("HttpOnly")
                     .contains("SameSite=Strict")
             }
@@ -215,13 +223,16 @@ class CreateAccessTokenByCredentialsMutationTest(
     @Test
     fun `should allow authenticated users to call the mutation`() {
         whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
+        doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(argThat {
+            userName == preconditions.fry.userName
+        }, isNull())
 
         client
             .graphqlMutation { loginMutation(preconditions.fry.userName, "qwerty") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
                 "createAccessTokenByCredentials" to buildJsonObject {
-                    put("accessToken", "\${json-unit.any-string}")
+                    put("accessToken", "jwtTokenForFry")
                 }
             )
     }

@@ -16,6 +16,13 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+/** Additional error extensions for the ACCOUNT_LOCKED business error. */
+export type AccountLockedErrorExtensions = {
+  __typename?: 'AccountLockedErrorExtensions';
+  /** The remaining lock duration in seconds. */
+  lockExpiresInSec: Scalars['Int']['output'];
+};
+
 /** Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive. */
 export enum AuthType {
   /** Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges. */

@@ -112,11 +112,16 @@ private class BusinessErrorGraphQLError(
             "errorCode" to errorCode
         )
         return if (exception is GraphQlBusinessErrorExtensionsProvider) {
-            baseExtensions + exception.getBusinessErrorExtensions()
+            baseExtensions + serializeExtensions(exception.getBusinessErrorExtensions())
         } else {
             baseExtensions
         }
     }
+
+    private fun serializeExtensions(extensions: Any): Map<String, Any> =
+        extensions::class.members
+            .filterIsInstance<kotlin.reflect.KProperty1<Any, *>>()
+            .associate { it.name to (it.get(extensions) ?: error("Null extension value for ${it.name}")) }
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

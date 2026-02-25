@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -176,6 +177,7 @@ class AuthenticationApiTest(
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=$tokenValue")
             .exchange()
             .expectStatus().isOk
+            .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
             .expectBody()
             .jsonPath("$.token").isEqualTo("jwtTokenForSharedWorkspace")
     }

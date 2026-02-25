@@ -39,6 +39,7 @@ class BusinessErrorRegistry(
                             exceptionClass = annotation.exceptionClass,
                             errorCode = annotation.errorCode,
                             description = annotation.description,
+                            extensionsType = annotation.extensionsType.takeIf { it != Unit::class },
                         )
                     }
                     mappings[function.name] = OperationBusinessErrors(
@@ -79,4 +80,5 @@ data class BusinessErrorMapping(
     val exceptionClass: KClass<out Exception>,
     val errorCode: String,
     val description: String,
+    val extensionsType: KClass<*>?,
 )
