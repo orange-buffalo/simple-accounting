@@ -58,6 +58,25 @@ export type CompleteOAuth2FlowResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+/** Possible business error codes for the createAccessTokenByCredentials operation. */
+export enum CreateAccessTokenByCredentialsErrorCodes {
+  /** The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds. */
+  AccountLocked = 'ACCOUNT_LOCKED',
+  /** The provided credentials are invalid. */
+  BadCredentials = 'BAD_CREDENTIALS',
+  /** Login is temporarily unavailable due to too many concurrent authentication requests for this user. */
+  LoginNotAvailable = 'LOGIN_NOT_AVAILABLE',
+  /** The user account has not been activated yet. */
+  UserNotActivated = 'USER_NOT_ACTIVATED'
+}
+
+/** Response for the createAccessTokenByCredentials mutation. */
+export type CreateAccessTokenByCredentialsResponse = {
+  __typename?: 'CreateAccessTokenByCredentialsResponse';
+  /** The JWT access token for the authenticated user. */
+  accessToken: Scalars['String']['output'];
+};
+
 /** Business expense. */
 export type ExpenseGqlDto = {
   __typename?: 'ExpenseGqlDto';
@@ -82,6 +101,8 @@ export type Mutation = {
   changePassword: ChangePasswordResponse;
   /** Completes the OAuth2 authorization flow by processing the authorization server callback. */
   completeOAuth2Flow: CompleteOAuth2FlowResponse;
+  /** Authenticates a user by username and password credentials and returns an access token. Optionally issues a refresh token cookie for persistent sessions. */
+  createAccessTokenByCredentials: CreateAccessTokenByCredentialsResponse;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
@@ -99,6 +120,13 @@ export type MutationCompleteOAuth2FlowArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   error?: InputMaybe<Scalars['String']['input']>;
   state: Scalars['String']['input'];
+};
+
+
+export type MutationCreateAccessTokenByCredentialsArgs = {
+  issueRefreshTokenCookie?: InputMaybe<Scalars['Boolean']['input']>;
+  password: Scalars['String']['input'];
+  userName: Scalars['String']['input'];
 };
 
 export type Query = {
