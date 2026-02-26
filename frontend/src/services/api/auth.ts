@@ -4,6 +4,14 @@ import { authApi } from '@/services/api/api-client';
 import { graphql } from '@/services/api/gql';
 import { executeRawGqlMutation } from '@/services/api/gql-raw-client';
 
+const refreshTokenMutation = graphql(/* GraphQL */ `
+    mutation refreshAccessToken {
+        refreshAccessToken {
+            accessToken
+        }
+    }
+`);
+
 interface ApiToken {
   jwtToken: string | null,
   isAdmin: boolean,
@@ -65,11 +73,13 @@ export async function tryAutoLogin() {
   cancelTokenRefresh();
 
   try {
-    const response = await authApi.refreshToken({}, {
-      credentials: 'include',
-    });
+    const data = await executeRawGqlMutation(refreshTokenMutation, {});
+    const accessToken = data.refreshAccessToken.accessToken;
+    if (!accessToken) {
+      return false;
+    }
 
-    updateApiToken(response.token);
+    updateApiToken(accessToken);
     scheduleTokenRefresh();
 
     return true;
