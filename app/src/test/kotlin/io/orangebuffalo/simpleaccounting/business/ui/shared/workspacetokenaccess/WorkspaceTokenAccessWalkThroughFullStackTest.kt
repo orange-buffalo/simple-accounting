@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOvervie
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.reporting.ReportingPage.Companion.shouldBeReportingPage
+import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.NavigationMenu.MenuItem
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
@@ -84,6 +85,10 @@ class WorkspaceTokenAccessWalkThroughFullStackTest : SaFullStackTestBase() {
         // Navigate back to Dashboard via menu to verify navigation works
         page.shouldHaveSideMenu().clickDashboard()
         page.shouldBeDashboardPage()
+
+        // Logout and verify navigation to login page
+        page.shouldHaveSideMenu().clickLogout()
+        page.shouldBeLoginPage {}
     }
 
     private val preconditions by lazyPreconditions {
