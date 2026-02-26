@@ -4,7 +4,7 @@ awaitility = "4.3.0"
 dsgCodegen = "8.3.0"
 # version pinned as newer has major JGit changed which is not compatible with jreleaser
 gitSemverPlugin = "0.13.0"
-graphqlKotlin = "8.8.1"
+graphqlKotlin = "9.0.0"
 guava = "33.4.8-jre"
 javaxEl = "3.0.1-b12"
 jib = "3.5.3"
