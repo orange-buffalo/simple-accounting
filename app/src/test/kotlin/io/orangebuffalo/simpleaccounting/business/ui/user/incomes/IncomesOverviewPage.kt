@@ -11,7 +11,7 @@ class IncomesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Incomes")
     val pageItems = components.overviewItems()
     val filterInput = components.textInputByPlaceholder("Search incomes")
-    val createButton = components.buttonByText("Create new income")
+    val createButton = components.buttonByText("Add new")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
