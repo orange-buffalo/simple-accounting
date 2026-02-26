@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.shouldBeCreateIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.openIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
@@ -422,6 +423,22 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTitles("Commission")
             }
         }
+    }
+
+    @Test
+    fun `should navigate from overview to create page`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openIncomesOverviewPage {
+            createButton.click()
+        }
+
+        page.shouldBeCreateIncomePage()
     }
 
     private val preconditionsAllStates by lazyPreconditions {
