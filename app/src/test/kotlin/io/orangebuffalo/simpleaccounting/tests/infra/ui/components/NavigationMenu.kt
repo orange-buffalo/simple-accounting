@@ -24,8 +24,33 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickDashboard(): NavigationMenu {
+        container.getByText("Dashboard").click()
+        return this
+    }
+
     fun clickExpenses(): NavigationMenu {
         container.getByText("Expenses").click()
+        return this
+    }
+
+    fun clickIncomes(): NavigationMenu {
+        container.getByText("Incomes").click()
+        return this
+    }
+
+    fun clickInvoices(): NavigationMenu {
+        container.getByText("Invoices").click()
+        return this
+    }
+
+    fun clickIncomeTaxPayments(): NavigationMenu {
+        container.getByText("Income Tax Payments").click()
+        return this
+    }
+
+    fun clickReporting(): NavigationMenu {
+        container.getByText("Reporting").click()
         return this
     }
 
