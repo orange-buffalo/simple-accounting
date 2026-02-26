@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.CreateInvoicePage.Companion.shouldBeCreateInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.openInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
@@ -410,6 +411,22 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTitles("Meals Invoice")
             }
         }
+    }
+
+    @Test
+    fun `should navigate from overview to create page`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openInvoicesOverviewPage {
+            createButton.click()
+        }
+
+        page.shouldBeCreateInvoicePage()
     }
 
     private val preconditionsAllStates by lazyPreconditions {
