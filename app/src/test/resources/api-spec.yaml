@@ -1350,24 +1350,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WorkspaceDto"
-  /api/auth/token:
-    post:
-      tags:
-      - authentication-api
-      operationId: refreshToken
-      parameters:
-      - name: refreshToken
-        in: cookie
-        required: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TokenResponse"
   /api/auth/login-by-token:
     post:
       tags:

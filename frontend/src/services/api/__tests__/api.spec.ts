@@ -59,8 +59,8 @@ describe('API Client', () => {
   });
 
   test('adds a token to headers after successful autologin', async () => {
-    fetchMock.post('/api/auth/token', {
-      token: TOKEN,
+    fetchMock.post('/api/graphql', {
+      data: { refreshAccessToken: { accessToken: TOKEN } },
     });
 
     fetchMock.get(apiCallPath, {
@@ -100,8 +100,8 @@ describe('API Client', () => {
           status: 401,
         };
     });
-    fetchMock.post('/api/auth/token', {
-      token: TOKEN,
+    fetchMock.post('/api/graphql', {
+      data: { refreshAccessToken: { accessToken: TOKEN } },
     });
 
     const { userName } = await apiCall();
@@ -115,15 +115,15 @@ describe('API Client', () => {
       .length(3);
     const paths = calls.map((call) => call.args[0]);
     expect(paths)
-      .toEqual([apiCallPath, '/api/auth/token', apiCallPath]);
+      .toEqual([apiCallPath, '/api/graphql', apiCallPath]);
   });
 
   test('throws ApiAuthError and triggers events when 401 is received', async () => {
     fetchMock.get(apiCallPath, {
       status: 401,
     });
-    fetchMock.post('/api/auth/token', {
-      status: 401,
+    fetchMock.post('/api/graphql', {
+      data: { refreshAccessToken: { accessToken: null } },
     });
 
     const error = await expectToFailWith<ApiAuthError>(async () => {
@@ -135,9 +135,9 @@ describe('API Client', () => {
     expect(loginRequiredEventMock)
       .toHaveBeenCalledOnce();
     expect(loadingStartedEventMock)
-      .toHaveBeenCalledTimes(2);
+      .toHaveBeenCalledOnce();
     expect(loadingFinishedEventMock)
-      .toHaveBeenCalledTimes(2);
+      .toHaveBeenCalledOnce();
   });
 
   test('fires events on successful responses', async () => {

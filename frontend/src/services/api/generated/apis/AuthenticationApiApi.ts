@@ -26,10 +26,6 @@ export interface LoginBySharedWorkspaceTokenRequest {
     sharedWorkspaceToken: string;
 }
 
-export interface RefreshTokenRequest {
-    refreshToken?: string;
-}
-
 /**
  * 
  */
@@ -67,30 +63,6 @@ export class AuthenticationApiApi extends runtime.BaseAPI {
      */
     async loginBySharedWorkspaceToken(requestParameters: LoginBySharedWorkspaceTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TokenResponse> {
         const response = await this.loginBySharedWorkspaceTokenRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async refreshTokenRaw(requestParameters: RefreshTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TokenResponse>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/api/auth/token`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async refreshToken(requestParameters: RefreshTokenRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TokenResponse> {
-        const response = await this.refreshTokenRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
