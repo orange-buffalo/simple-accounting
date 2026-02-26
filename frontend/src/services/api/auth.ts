@@ -1,6 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
-import { authApi } from '@/services/api/api-client';
 import { graphql } from '@/services/api/gql';
 import { executeRawGqlMutation } from '@/services/api/gql-raw-client';
 
@@ -147,19 +146,31 @@ async function logout() {
   }
 }
 
+const loginBySharedTokenMutation = graphql(/* GraphQL */ `
+  mutation createAccessTokenByWorkspaceAccessToken(
+    $workspaceAccessToken: String!
+  ) {
+    createAccessTokenByWorkspaceAccessToken(
+      workspaceAccessToken: $workspaceAccessToken
+    ) {
+      accessToken
+    }
+  }
+`);
+
 async function loginBySharedToken(sharedToken: string) {
   cancelTokenRefresh();
 
   try {
-    const tokenLoginResponse = await authApi.loginBySharedWorkspaceToken({
-      sharedWorkspaceToken: sharedToken,
+    const data = await executeRawGqlMutation(loginBySharedTokenMutation, {
+      workspaceAccessToken: sharedToken,
     });
 
-    updateApiToken(tokenLoginResponse.token);
+    updateApiToken(data.createAccessTokenByWorkspaceAccessToken.accessToken);
 
     return true;
   } catch (error: any) {
-    if (error.response && error.response.status === 401) {
+    if (error.extensions?.errorCode === 'INVALID_WORKSPACE_ACCESS_TOKEN') {
       return false;
     }
     throw error;
