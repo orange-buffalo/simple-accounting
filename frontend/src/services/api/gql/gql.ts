@@ -17,15 +17,15 @@ type Documents = {
     "\n    query userProfile {\n      userProfile {\n        documentsStorage\n        i18n {\n          language\n          locale\n        }\n        userName\n      }\n    }\n  ": typeof types.UserProfileDocument,
     "\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  ": typeof types.ChangePasswordDocument,
     "\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  ": typeof types.CompleteOAuth2FlowDocument,
-    "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": typeof types.CreateAccessTokenByCredentialsDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": typeof types.RefreshAccessTokenDocument,
+    "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": typeof types.CreateAccessTokenByCredentialsDocument,
 };
 const documents: Documents = {
     "\n    query userProfile {\n      userProfile {\n        documentsStorage\n        i18n {\n          language\n          locale\n        }\n        userName\n      }\n    }\n  ": types.UserProfileDocument,
     "\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  ": types.ChangePasswordDocument,
     "\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  ": types.CompleteOAuth2FlowDocument,
-    "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": types.CreateAccessTokenByCredentialsDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": types.RefreshAccessTokenDocument,
+    "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": types.CreateAccessTokenByCredentialsDocument,
 };
 
 /**
@@ -57,11 +57,11 @@ export function graphql(source: "\n    mutation completeOAuth2Flow($code: String
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n"): (typeof documents)["\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n"];
+export function graphql(source: "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n"): (typeof documents)["\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n"): (typeof documents)["\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n"];
+export function graphql(source: "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n"): (typeof documents)["\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
