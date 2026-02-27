@@ -4,7 +4,9 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.shouldBeCreateIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.CreateInvoicePage.Companion.shouldBeCreateInvoicePage
+import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePage.Companion.shouldBeEditInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.openInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
@@ -427,6 +429,182 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeCreateInvoicePage()
+    }
+
+    @Test
+    fun `should navigate to edit page via edit action`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
+                val generalTax = generalTax(workspace = workspace, title = "Galactic VAT", rateInBps = 1500)
+
+                init {
+                    invoice(
+                        customer = customer,
+                        title = "Spaceship parts delivery",
+                        currency = "USD",
+                        amount = 35000,
+                        dateIssued = LocalDate.of(3025, 3, 10),
+                        dueDate = LocalDate.of(3025, 4, 10),
+                        dateSent = LocalDate.of(3025, 3, 12),
+                        generalTax = generalTax,
+                        notes = "Good news, everyone! Delivery completed",
+                        status = InvoiceStatus.SENT
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Spaceship parts delivery")
+                staticItems[0].executeEditAction()
+            }
+        }
+
+        page.shouldBeEditInvoicePage {
+            customer {
+                input.shouldHaveSelectedValue("Mom's Friendly Robot Company")
+            }
+            title {
+                input.shouldHaveValue("Spaceship parts delivery")
+            }
+            currency {
+                input.shouldHaveSelectedValue("USD - US Dollar")
+            }
+            amount {
+                input.shouldHaveValue("350.00")
+            }
+            dateIssued {
+                input.shouldHaveValue("3025-03-10")
+            }
+            dueDate {
+                input.shouldHaveValue("3025-04-10")
+            }
+            generalTax {
+                input.shouldHaveSelectedValue("Galactic VAT")
+            }
+            notes {
+                input.shouldHaveValue("Good news, everyone! Delivery completed")
+            }
+
+            alreadySent().shouldBeChecked()
+            dateSent().shouldBeVisible()
+            dateSent().input.shouldHaveValue("3025-03-12")
+
+            alreadyPaid().shouldNotBeChecked()
+            datePaid().shouldBeHidden()
+        }
+    }
+
+    @Test
+    fun `should mark invoice as sent via sent today action`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val customer = customer(workspace = workspace, name = "Slurm Corp")
+
+                init {
+                    invoice(
+                        customer = customer,
+                        title = "Slurm supplies invoice",
+                        dateIssued = LocalDate.of(3025, 2, 1),
+                        dueDate = LocalDate.of(3025, 3, 1),
+                        amount = 5000,
+                        status = InvoiceStatus.DRAFT
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Slurm supplies invoice")
+                staticItems[0].executeMarkAsSentAction()
+            }
+
+            pageItems {
+                shouldHaveExactData(
+                    SaOverviewItemData(
+                        title = "Slurm supplies invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Slurm Corp")
+                        ),
+                        middleColumnContent = sentStatus(),
+                        lastColumnContent = "USD 50.00",
+                    )
+                )
+                staticItems[0].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = true),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to sentStatus("Sent"),
+                        "Customer" to "Slurm Corp",
+                        "Invoice Amount" to "USD 50.00",
+                        "Date Issued" to "1 Feb 3025",
+                        "Due Date" to "1 Mar 3025",
+                        "Date Sent" to "28 Mar 1999"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should navigate to create income page via paid action`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val customer = customer(workspace = workspace, name = "Omicronians Inc")
+                val generalTax = generalTax(workspace = workspace, title = "Space Tax", rateInBps = 1000)
+
+                init {
+                    invoice(
+                        customer = customer,
+                        title = "Interplanetary cargo delivery",
+                        dateIssued = LocalDate.of(3025, 5, 1),
+                        dueDate = LocalDate.of(3025, 6, 1),
+                        dateSent = LocalDate.of(3025, 5, 5),
+                        currency = "EUR",
+                        amount = 25000,
+                        generalTax = generalTax,
+                        status = InvoiceStatus.SENT
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Interplanetary cargo delivery")
+                staticItems[0].executeMarkAsPaidAction()
+            }
+        }
+
+        page.shouldBeCreateIncomePage {
+            title {
+                input.shouldHaveValue("Payment for Interplanetary cargo delivery")
+            }
+            currency {
+                input.shouldHaveSelectedValue("EUR - Euro")
+            }
+            originalAmount {
+                input.shouldHaveValue("250.00")
+            }
+            generalTax {
+                input.shouldHaveSelectedValue("Space Tax")
+            }
+            linkedInvoice {
+                input.shouldHaveSelectedValue("Interplanetary cargo delivery")
+            }
+        }
     }
 
     private val preconditionsAllStates by lazyPreconditions {

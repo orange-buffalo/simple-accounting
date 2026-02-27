@@ -125,6 +125,10 @@ class SaOverviewItem private constructor(
 
     fun executeCopyAction() = executeAction("Copy")
 
+    fun executeMarkAsSentAction() = executeAction("Sent today")
+
+    fun executeMarkAsPaidAction() = executeAction("Paid")
+
     companion object {
         fun ComponentsAccessors.overviewItems() =
             pageableItems(
