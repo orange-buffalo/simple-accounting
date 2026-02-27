@@ -103,12 +103,6 @@ export default function setupRouter() {
         component: Login,
       },
       {
-        path: '/login-by-link/:token',
-        name: 'login-by-link',
-        component: LoginByLink,
-        props: true,
-      },
-      {
         path: '/account-setup',
         name: 'account-setup',
         component: AccountSetupPage,
@@ -291,6 +285,12 @@ export default function setupRouter() {
         component: SaUnauthenticatedPage,
         children: [
           ...ANONYMOUS_PAGES,
+          {
+            path: '/login-by-link/:token',
+            name: 'login-by-link',
+            component: LoginByLink,
+            props: true,
+          },
         ],
       },
 
