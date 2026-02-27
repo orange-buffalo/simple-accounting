@@ -85,6 +85,12 @@ type CreateAccessTokenByCredentialsResponse {
   accessToken: String!
 }
 
+"Response for the createAccessTokenByWorkspaceAccessToken mutation."
+type CreateAccessTokenByWorkspaceAccessTokenResponse {
+  "The JWT access token for the authenticated user."
+  accessToken: String!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -127,6 +133,11 @@ type Mutation {
     "The username of the user."
     userName: String! @notBlank
   ): CreateAccessTokenByCredentialsResponse! @auth(type : ANONYMOUS) @businessError(description : "The provided credentials are invalid.", errorCode : "BAD_CREDENTIALS") @businessError(description : "The user account has not been activated yet.", errorCode : "USER_NOT_ACTIVATED") @businessError(description : "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.", errorCode : "ACCOUNT_LOCKED") @businessError(description : "Login is temporarily unavailable due to too many concurrent authentication requests for this user.", errorCode : "LOGIN_NOT_AVAILABLE")
+  "Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality."
+  createAccessTokenByWorkspaceAccessToken(
+    "The shared workspace access token."
+    workspaceAccessToken: String! @notBlank
+  ): CreateAccessTokenByWorkspaceAccessTokenResponse! @auth(type : ANONYMOUS) @businessError(description : "The provided workspace access token is not valid (unknown, expired, or revoked).", errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN")
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
@@ -216,6 +227,12 @@ enum CreateAccessTokenByCredentialsErrorCodes {
   LOGIN_NOT_AVAILABLE
   "The user account has not been activated yet."
   USER_NOT_ACTIVATED
+}
+
+"Possible business error codes for the createAccessTokenByWorkspaceAccessToken operation."
+enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
+  "The provided workspace access token is not valid (unknown, expired, or revoked)."
+  INVALID_WORKSPACE_ACCESS_TOKEN
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."

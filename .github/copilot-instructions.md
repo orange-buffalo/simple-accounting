@@ -837,3 +837,9 @@ The frontend uses a custom i18n framework for user-facing text translations.
 ## GraphQL queries/mutations
 - Use `useQuery` and `useMutation` from `use-gql-api.ts`.
 - Never set `undefined` to the variables - always use `null`.
+
+## Error handling
+- When handling GraphQL business errors in frontend code, always use `handleGqlApiBusinessError<T>()` from `api-utils.ts`
+  with the generated error codes enum (e.g., `CreateAccessTokenByCredentialsErrorCodes`) for type-safe error checking.
+- Never check error codes via raw string comparison (e.g., `error.extensions?.errorCode === '...'`).
+- Import error code enums from `@/services/api/gql/graphql`.

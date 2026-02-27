@@ -1350,24 +1350,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WorkspaceDto"
-  /api/auth/login-by-token:
-    post:
-      tags:
-      - authentication-api
-      operationId: loginBySharedWorkspaceToken
-      parameters:
-      - name: sharedWorkspaceToken
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TokenResponse"
   /api/workspaces/{workspaceId}/statistics/incomes:
     get:
       tags:
@@ -2412,13 +2394,6 @@ components:
         token:
           type: string
           minLength: 1
-      required:
-      - token
-    TokenResponse:
-      type: object
-      properties:
-        token:
-          type: string
       required:
       - token
     ApiPageWorkspaceAccessTokenDto:
