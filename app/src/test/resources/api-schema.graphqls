@@ -91,6 +91,12 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
   accessToken: String!
 }
 
+"Documents storage status for the current user."
+type DocumentsStorageStatusResponse {
+  "Whether the documents storage is active and available."
+  active: Boolean!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -142,9 +148,20 @@ type Mutation {
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
+  "Updates the current user profile information."
+  updateProfile(
+    "The identifier of the documents storage used by the user."
+    documentsStorage: String @size(max : 255, min : 0),
+    "The language of the user profile, e.g. 'en'."
+    language: String! @size(max : 36, min : 0),
+    "The locale of the user profile, e.g. 'en-US'."
+    locale: String! @size(max : 36, min : 0)
+  ): UserProfile! @auth(type : AUTHENTICATED_USER)
 }
 
 type Query {
+  "Returns the current user's documents storage status."
+  documentsStorageStatus: DocumentsStorageStatusResponse! @auth(type : AUTHENTICATED_USER)
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
   "Returns all workspaces accessible by the current user."
