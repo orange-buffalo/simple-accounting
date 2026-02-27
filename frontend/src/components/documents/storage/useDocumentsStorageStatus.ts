@@ -1,5 +1,6 @@
 import { ref } from 'vue';
-import { profileApi } from '@/services/api';
+import { graphql } from '@/services/api/gql';
+import { gqlClient } from '@/services/api/gql-api-client.ts';
 
 interface DocumentStorageStatusState {
   readonly loading: boolean,
@@ -12,11 +13,19 @@ export default function useDocumentsStorageStatus() {
     active: false,
   });
 
+  const documentsStorageStatusQuery = graphql(/* GraphQL */ `
+    query documentsStorageStatus {
+      documentsStorageStatus {
+        active
+      }
+    }
+  `);
+
   async function loadDocumentsStorageStatus() {
-    const storageStatus = await profileApi.getDocumentsStorageStatus();
+    const result = await gqlClient.query(documentsStorageStatusQuery, {});
     documentsStorageStatus.value = {
       loading: false,
-      active: storageStatus.active,
+      active: result.documentsStorageStatus.active,
     };
   }
 

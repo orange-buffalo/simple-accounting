@@ -1,7 +1,6 @@
 export * from './api-types';
 export {
   workspacesApi,
-  profileApi,
   customersApi,
   categoriesApi,
   statisticsApi,
