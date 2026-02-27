@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 
-class LoginByLinkPage private constructor(page: Page) : SaPageBase(page) {
+class LoginByLinkPage private constructor(page: Page) : SaPageBase(page, ".sa-page-without-side-menu__content") {
 
     val statusMessage = components.statusLabel()
 

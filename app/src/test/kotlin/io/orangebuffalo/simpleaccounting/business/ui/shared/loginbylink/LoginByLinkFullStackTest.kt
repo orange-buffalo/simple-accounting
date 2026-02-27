@@ -1,12 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.ui.shared.loginbylink
 
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.Route
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.shared.loginbylink.LoginByLinkPage.Companion.openLoginByLinkPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.loginbylink.LoginByLinkPage.Companion.shouldBeLoginByLinkPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -14,24 +15,27 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should display loading state and navigate to dashboard on success`(page: Page) {
-        page.withBlockedGqlApiResponse(
-            queryOrMutationName = "createAccessTokenByWorkspaceAccessToken",
-            initiator = {
-                page.openLoginByLinkPage(preconditions.validToken) {
-                    statusMessage {
-                        shouldBeRegular("We are verifying your access token...")
-                    }
-                    reportRendering("login-by-link.loading")
-                }
-            },
-            blockedRequestSpec = {
-                page.shouldBeLoginByLinkPage {
-                    statusMessage {
-                        shouldBeRegular("We are verifying your access token...")
-                    }
-                }
-            },
-        )
+        var pendingRoute: Route? = null
+        page.context().route("**/api/graphql") { route ->
+            val postData = route.request().postData()
+            if (postData != null && postData.contains("createAccessTokenByWorkspaceAccessToken")) {
+                pendingRoute = route
+            } else {
+                route.resume()
+            }
+        }
+
+        page.navigateAndDisableAnimations("/login-by-link/${preconditions.validToken}")
+
+        page.shouldBeLoginByLinkPage {
+            statusMessage {
+                shouldBeRegular("We are verifying your access token...")
+            }
+            reportRendering("login-by-link.loading")
+        }
+
+        pendingRoute!!.resume()
+        page.context().unroute("**/api/graphql")
 
         page.shouldBeLoginByLinkPage {
             statusMessage {
