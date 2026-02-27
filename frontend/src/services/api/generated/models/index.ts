@@ -50,7 +50,6 @@ export * from './PlatformUserDto';
 export * from './ProfileDto';
 export * from './SaApiErrorDto';
 export * from './SaveSharedWorkspaceRequestDto';
-export * from './TokenResponse';
 export * from './UpdateProfileRequestDto';
 export * from './UpdateUserRequestDto';
 export * from './UserActivationRequestDto';
