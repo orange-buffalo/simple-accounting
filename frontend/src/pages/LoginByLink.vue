@@ -76,7 +76,7 @@
       } else {
         status.value = 'ERROR';
       }
-    } catch (e) {
+    } catch (_e) {
       status.value = 'ERROR';
     }
   });
