@@ -75,13 +75,15 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi, handleGqlApiBusinessError } from '@/services/api';
+  import { useAuth, handleGqlApiBusinessError } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
   import {
     CreateAccessTokenByCredentialsErrorCodes,
     type AccountLockedErrorExtensions,
   } from '@/services/api/gql/graphql.ts';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { graphql } from '@/services/api/gql';
+  import { gqlClient } from '@/services/api/gql-api-client.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -217,14 +219,25 @@
     emit('login');
   }
 
+  const userProfileLoginQuery = graphql(/* GraphQL */ `
+    query userProfileLogin {
+      userProfile {
+        i18n {
+          language
+          locale
+        }
+      }
+    }
+  `);
+
   const executeLogin = async () => {
     uiState.loginError = null;
     uiState.loginInProgress = true;
     accountLockTimer.cancel();
     try {
       await login({ ...form });
-      const profile = await profileApi.getProfile();
-      await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+      const profileData = await gqlClient.query(userProfileLoginQuery, {});
+      await setLocaleFromProfile(profileData.userProfile.i18n.locale, profileData.userProfile.i18n.language);
 
       if (isAdmin()) {
         await onAdminLogin();
