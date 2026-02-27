@@ -13,14 +13,6 @@ directive @businessError(description: String!, errorCode: String!) repeatable on
 "Provides contact information of the owner responsible for this subgraph schema."
 directive @contact(description: String!, name: String!, url: String!) on SCHEMA
 
-"This directive allows results to be deferred during execution"
-directive @defer(
-    "Deferred behaviour is controlled by this argument"
-    if: Boolean! = true,
-    "A unique label that represents the fragment being deferred"
-    label: String
-  ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
-
 "Marks the field, argument, input field or enum value as deprecated"
 directive @deprecated(
     "The reason for the deprecation"
