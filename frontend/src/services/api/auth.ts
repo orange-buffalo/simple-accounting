@@ -2,6 +2,8 @@ import { jwtDecode } from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { graphql } from '@/services/api/gql';
 import { executeRawGqlMutation } from '@/services/api/gql-raw-client';
+import { handleGqlApiBusinessError } from '@/services/api/api-utils';
+import { CreateAccessTokenByWorkspaceAccessTokenErrorCodes } from '@/services/api/gql/graphql';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
@@ -170,7 +172,10 @@ async function loginBySharedToken(sharedToken: string) {
 
     return true;
   } catch (error: any) {
-    if (error.extensions?.errorCode === 'INVALID_WORKSPACE_ACCESS_TOKEN') {
+    const errorCode = handleGqlApiBusinessError<
+      CreateAccessTokenByWorkspaceAccessTokenErrorCodes
+    >(error);
+    if (errorCode === CreateAccessTokenByWorkspaceAccessTokenErrorCodes.InvalidWorkspaceAccessToken) {
       return false;
     }
     throw error;
