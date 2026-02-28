@@ -465,35 +465,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiUpdateUserErrors"
-  /api/profile:
-    get:
-      tags:
-      - profile-api
-      operationId: getProfile
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProfileDto"
-    put:
-      tags:
-      - profile-api
-      operationId: updateProfile
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateProfileRequestDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProfileDto"
   /api/workspaces:
     get:
       tags:
@@ -1610,18 +1581,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CurrentUserPushNotificationMessage"
-  /api/profile/documents-storage:
-    get:
-      tags:
-      - profile-api
-      operationId: getDocumentsStorageStatus
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DocumentsStorageStatus"
   /api/downloads:
     get:
       tags:
@@ -2229,43 +2188,6 @@ components:
       - admin
       - userName
       - version
-    I18nSettingsDto:
-      type: object
-      properties:
-        locale:
-          type: string
-          maxLength: 36
-          minLength: 0
-        language:
-          type: string
-          maxLength: 36
-          minLength: 0
-      required:
-      - language
-      - locale
-    UpdateProfileRequestDto:
-      type: object
-      properties:
-        documentsStorage:
-          type: string
-          maxLength: 255
-          minLength: 0
-        i18n:
-          $ref: "#/components/schemas/I18nSettingsDto"
-      required:
-      - i18n
-    ProfileDto:
-      type: object
-      properties:
-        userName:
-          type: string
-        documentsStorage:
-          type: string
-        i18n:
-          $ref: "#/components/schemas/I18nSettingsDto"
-      required:
-      - i18n
-      - userName
     CreateWorkspaceDto:
       type: object
       properties:
@@ -2747,13 +2669,6 @@ components:
         data: {}
       required:
       - eventName
-    DocumentsStorageStatus:
-      type: object
-      properties:
-        active:
-          type: boolean
-      required:
-      - active
     UserActivationTokensApiActivateUserErrors:
       type: object
       properties:

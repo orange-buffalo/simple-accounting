@@ -51,11 +51,12 @@
   import {
     $t, getSupportedLanguages, getSupportedLocales, localeIdToLanguageTag, languageTagToLocaleId, setLocaleFromProfile,
   } from '@/services/i18n';
-  import { ProfileDto, profileApi } from '@/services/api';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
   import useNotifications from '@/components/notifications/use-notifications';
   import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     profile?: UserProfileQuery["userProfile"],
@@ -63,7 +64,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'profile-updated', profile: ProfileDto): void,
+    (e: 'profile-updated', profile: UserProfileQuery['userProfile']): void,
   }>();
 
   const { showSuccessNotification } = useNotifications();
@@ -89,17 +90,24 @@
     immediate: true,
   });
 
+  const updateProfileMutation = useMutation(graphql(/* GraphQL */ `
+    mutation updateProfileLanguage($documentsStorage: String, $locale: String!, $language: String!) {
+      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language) {
+        documentsStorage
+        i18n {
+          language
+          locale
+        }
+        userName
+      }
+    }
+  `), 'updateProfile');
+
   const submitLanguagePreferences = async () => {
-    const updatedProfile: ProfileDto = {
-      documentsStorage: props.profile.documentsStorage,
-      userName: props.profile.userName,
-      i18n: {
-        language: languageTagToLocaleId(formValues.value.language),
-        locale: languageTagToLocaleId(formValues.value.locale),
-      },
-    };
-    await profileApi.updateProfile({
-      updateProfileRequestDto: updatedProfile,
+    const updatedProfile = await updateProfileMutation({
+      documentsStorage: props.profile!.documentsStorage ?? null,
+      locale: languageTagToLocaleId(formValues.value.locale),
+      language: languageTagToLocaleId(formValues.value.language),
     });
     await setLocaleFromProfile(
       languageTagToLocaleId(formValues.value.locale),
