@@ -1,5 +1,6 @@
-import { ref } from 'vue';
-import { profileApi } from '@/services/api';
+import { computed } from 'vue';
+import { graphql } from '@/services/api/gql';
+import { useQuery } from '@/services/api/use-gql-api.ts';
 
 interface DocumentStorageStatusState {
   readonly loading: boolean,
@@ -7,21 +8,18 @@ interface DocumentStorageStatusState {
 }
 
 export default function useDocumentsStorageStatus() {
-  const documentsStorageStatus = ref<DocumentStorageStatusState>({
-    loading: true,
-    active: false,
-  });
+  const [loading, storageStatus] = useQuery(graphql(/* GraphQL */ `
+    query documentsStorageStatus {
+      documentsStorageStatus {
+        active
+      }
+    }
+  `), 'documentsStorageStatus');
 
-  async function loadDocumentsStorageStatus() {
-    const storageStatus = await profileApi.getDocumentsStorageStatus();
-    documentsStorageStatus.value = {
-      loading: false,
-      active: storageStatus.active,
-    };
-  }
-
-  // noinspection JSIgnoredPromiseFromCall
-  loadDocumentsStorageStatus();
+  const documentsStorageStatus = computed<DocumentStorageStatusState>(() => ({
+    loading: loading.value,
+    active: storageStatus.value?.active ?? false,
+  }));
 
   return {
     documentsStorageStatus,

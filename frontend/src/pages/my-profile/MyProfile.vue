@@ -29,11 +29,12 @@
   import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
   import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
-  import { ProfileDto, useAuth } from '@/services/api';
+  import { useAuth } from '@/services/api';
   import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useQuery } from '@/services/api/use-gql-api.ts';
+  import type { UserProfileQuery } from '@/services/api/gql/graphql.ts';
 
   const { isAdmin } = useAuth();
 
@@ -50,7 +51,7 @@
     }
   `), 'userProfile');
 
-  const onProfileUpdated = (updatedProfile: ProfileDto) => {
+  const onProfileUpdated = (updatedProfile: UserProfileQuery['userProfile']) => {
     profile.value = updatedProfile;
   };
 </script>
