@@ -83,7 +83,7 @@
   } from '@/services/api/gql/graphql.ts';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
   import { graphql } from '@/services/api/gql';
-  import { gqlClient } from '@/services/api/gql-api-client.ts';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -219,7 +219,7 @@
     emit('login');
   }
 
-  const userProfileLoginQuery = graphql(/* GraphQL */ `
+  const fetchUserProfile = useLazyQuery(graphql(/* GraphQL */ `
     query userProfileLogin {
       userProfile {
         i18n {
@@ -228,7 +228,7 @@
         }
       }
     }
-  `);
+  `), 'userProfile');
 
   const executeLogin = async () => {
     uiState.loginError = null;
@@ -236,8 +236,8 @@
     accountLockTimer.cancel();
     try {
       await login({ ...form });
-      const profileData = await gqlClient.query(userProfileLoginQuery, {});
-      await setLocaleFromProfile(profileData.userProfile.i18n.locale, profileData.userProfile.i18n.language);
+      const profile = await fetchUserProfile({});
+      await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
       if (isAdmin()) {
         await onAdminLogin();

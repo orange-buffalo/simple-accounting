@@ -4,6 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -21,9 +22,11 @@ class UpdateUserProfileMutation(
         @Size(max = 255)
         documentsStorage: String?,
         @GraphQLDescription("The locale of the user profile, e.g. 'en-US'.")
+        @NotBlank
         @Size(max = 36)
         locale: String,
         @GraphQLDescription("The language of the user profile, e.g. 'en'.")
+        @NotBlank
         @Size(max = 36)
         language: String,
     ): UserProfileQuery.UserProfile {

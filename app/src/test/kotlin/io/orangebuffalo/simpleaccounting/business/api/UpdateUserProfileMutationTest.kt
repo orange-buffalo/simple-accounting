@@ -5,6 +5,7 @@ import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
@@ -52,7 +53,7 @@ class UpdateUserProfileMutationTest(
             .graphqlMutation { updateProfileMutation("new-storage", "uk", "el") }
             .fromAnonymous()
             .executeAndVerifyNotAuthorized(
-                path = "updateProfile"
+                path = DgsConstants.MUTATION.UpdateProfile
             )
     }
 
@@ -62,7 +63,7 @@ class UpdateUserProfileMutationTest(
             .graphqlMutation { updateProfileMutation("new-storage", "uk", "el") }
             .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
             .executeAndVerifyNotAuthorized(
-                path = "updateProfile"
+                path = DgsConstants.MUTATION.UpdateProfile
             )
     }
 
@@ -72,7 +73,7 @@ class UpdateUserProfileMutationTest(
             .graphqlMutation { updateProfileMutation("new-storage", "uk", "el") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "updateProfile" to buildJsonObject {
+                DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                     put("userName", "Fry")
                     put("documentsStorage", "new-storage")
                     put("i18n", buildJsonObject {
@@ -103,7 +104,7 @@ class UpdateUserProfileMutationTest(
             .graphqlMutation { updateProfileMutation("new-storage", "uk", "el") }
             .from(preconditions.farnsworth)
             .executeAndVerifySuccessResponse(
-                "updateProfile" to buildJsonObject {
+                DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                     put("userName", "Farnsworth")
                     put("documentsStorage", "new-storage")
                     put("i18n", buildJsonObject {
@@ -111,6 +112,20 @@ class UpdateUserProfileMutationTest(
                         put("language", "uk")
                     })
                 }
+            )
+
+        aggregateTemplate.findAll<PlatformUser>()
+            .filter { it.id == preconditions.farnsworth.id }
+            .shouldBeSingle()
+            .shouldBeEntityWithFields(
+                PlatformUser(
+                    documentsStorage = "new-storage",
+                    i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                    activated = preconditions.farnsworth.activated,
+                    userName = preconditions.farnsworth.userName,
+                    passwordHash = preconditions.farnsworth.passwordHash,
+                    isAdmin = preconditions.farnsworth.isAdmin,
+                )
             )
     }
 
@@ -120,7 +135,7 @@ class UpdateUserProfileMutationTest(
             .graphqlMutation { updateProfileMutation(null, "uk", "el") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "updateProfile" to buildJsonObject {
+                DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                     put("userName", "Fry")
                     put("documentsStorage", JsonNull)
                     put("i18n", buildJsonObject {
@@ -147,7 +162,7 @@ class UpdateUserProfileMutationTest(
                 violationPath = "documentsStorage",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 255",
-                path = "updateProfile",
+                path = DgsConstants.MUTATION.UpdateProfile,
                 params = mapOf("min" to "0", "max" to "255")
             )
     }
@@ -161,7 +176,7 @@ class UpdateUserProfileMutationTest(
                 violationPath = "locale",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 36",
-                path = "updateProfile",
+                path = DgsConstants.MUTATION.UpdateProfile,
                 params = mapOf("min" to "0", "max" to "36")
             )
     }
@@ -175,8 +190,34 @@ class UpdateUserProfileMutationTest(
                 violationPath = "language",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 36",
-                path = "updateProfile",
+                path = DgsConstants.MUTATION.UpdateProfile,
                 params = mapOf("min" to "0", "max" to "36")
+            )
+    }
+
+    @Test
+    fun `should return FIELD_VALIDATION_FAILURE when locale is blank`() {
+        client
+            .graphqlMutation { updateProfileMutation(null, "uk", "  ") }
+            .from(preconditions.fry)
+            .executeAndVerifyValidationError(
+                violationPath = "locale",
+                error = "MustNotBeBlank",
+                message = "must not be blank",
+                path = DgsConstants.MUTATION.UpdateProfile,
+            )
+    }
+
+    @Test
+    fun `should return FIELD_VALIDATION_FAILURE when language is blank`() {
+        client
+            .graphqlMutation { updateProfileMutation(null, "  ", "el") }
+            .from(preconditions.fry)
+            .executeAndVerifyValidationError(
+                violationPath = "language",
+                error = "MustNotBeBlank",
+                message = "must not be blank",
+                path = DgsConstants.MUTATION.UpdateProfile,
             )
     }
 

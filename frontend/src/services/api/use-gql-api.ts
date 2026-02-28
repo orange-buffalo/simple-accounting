@@ -86,3 +86,35 @@ export function useMutation<
     }
   };
 }
+
+export type LazyQueryExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
+  variables: Variables,
+) => Promise<GqlResponse[K]>;
+
+export function useLazyQuery<
+  GqlResponse = any,
+  K extends keyof GqlResponse = keyof GqlResponse,
+  Variables extends AnyVariables = AnyVariables,
+>(
+  query: DocumentInput<GqlResponse, Variables>,
+  queryName: K,
+): LazyQueryExecutor<GqlResponse, K, Variables> {
+  const { navigateByPath } = useNavigation();
+  const { showWarningNotification } = useNotifications();
+
+  return async (variables: Variables): Promise<GqlResponse[K]> => {
+    try {
+      const result = await gqlClient.query(query, variables);
+      return result[queryName];
+    } catch (e: unknown) {
+      if (e instanceof ApiAuthError) {
+        showWarningNotification($t.value.infra.sessionExpired(), {
+          duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+        });
+        await nextTick();
+        await navigateByPath('/login');
+      }
+      throw e;
+    }
+  };
+}
