@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -49,7 +50,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .graphqlMutation { loginMutation(preconditions.fry.userName, "qwerty") }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByCredentials" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByCredentials to buildJsonObject {
                     put("accessToken", "jwtTokenForFry")
                 }
             )
@@ -66,7 +67,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .graphqlMutation { loginMutation(preconditions.farnsworth.userName, "\$&#@(@") }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByCredentials" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByCredentials to buildJsonObject {
                     put("accessToken", "jwtTokenForFarnsworth")
                 }
             )
@@ -80,7 +81,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Invalid Credentials",
                 errorCode = "BAD_CREDENTIALS",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -94,7 +95,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Invalid Credentials",
                 errorCode = "BAD_CREDENTIALS",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -106,7 +107,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .executeAndVerifyBusinessError(
                 message = "User is not activated",
                 errorCode = "USER_NOT_ACTIVATED",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -119,7 +120,7 @@ class CreateAccessTokenByCredentialsMutationTest(
                 violationPath = "userName",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -132,7 +133,7 @@ class CreateAccessTokenByCredentialsMutationTest(
                 violationPath = "userName",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -145,7 +146,7 @@ class CreateAccessTokenByCredentialsMutationTest(
                 violationPath = "password",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -158,7 +159,7 @@ class CreateAccessTokenByCredentialsMutationTest(
                 violationPath = "password",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
     }
 
@@ -231,7 +232,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             .graphqlMutation { loginMutation(preconditions.fry.userName, "qwerty") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByCredentials" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByCredentials to buildJsonObject {
                     put("accessToken", "jwtTokenForFry")
                 }
             )
