@@ -29,9 +29,8 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     }
 
     fun selectDateRange(startDate: String, endDate: String) {
-        val inputs = reportingPanel.locator(".el-date-editor input")
-        val startInput = inputs.first()
-        val endInput = inputs.nth(1)
+        val startInput = reportingPanel.locator("input[placeholder='Start date']")
+        val endInput = reportingPanel.locator("input[placeholder='End date']")
         startInput.fill(startDate)
         endInput.click()
         endInput.fill(endDate)
