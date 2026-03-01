@@ -58,7 +58,17 @@ const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
     meta: {
       pathPrefix: '/activate-account',
     },
-  }];
+  },
+  {
+    path: '/login-by-link/:token',
+    name: 'login-by-link',
+    component: LoginByLink,
+    props: true,
+    meta: {
+      pathPrefix: '/login-by-link',
+    },
+  },
+];
 
 const ANONYMOUS_PAGES_NAMES = ANONYMOUS_PAGES.map((page) => page.name);
 export const ANONYMOUS_PAGES_PATH_PREFIXES = ANONYMOUS_PAGES
@@ -72,9 +82,7 @@ function setupAuthenticationHooks(router: Router) {
   } = useAuth();
   router.beforeEach(async (to, _, next) => {
     const { setLastView } = useLastView();
-    // todo #117: remove from the list of explicit checks
     if (to.name !== 'login'
-      && to.name !== 'login-by-link'
       && to.name !== 'oauth-callback'
       && !ANONYMOUS_PAGES_NAMES.includes(to.name)
       && !isLoggedIn()) {
@@ -101,12 +109,6 @@ export default function setupRouter() {
         path: '/login',
         name: 'login',
         component: Login,
-      },
-      {
-        path: '/login-by-link/:token',
-        name: 'login-by-link',
-        component: LoginByLink,
-        props: true,
       },
       {
         path: '/account-setup',

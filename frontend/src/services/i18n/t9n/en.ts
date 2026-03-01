@@ -1049,6 +1049,12 @@ export default {
     },
   },
 
+  loginByLinkPage: {
+    loading: () => 'We are verifying your access token...',
+    error: () => 'The access token is not valid. Please request a new link.',
+    success: () => 'Access granted. Redirecting to your workspace...',
+  },
+
   infra: {
     sessionExpired: () => 'Your session has expired. Please login again.',
   },

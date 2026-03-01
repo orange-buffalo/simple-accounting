@@ -32,8 +32,7 @@ export async function bootstrapApp() {
 
   const isAnonymousPage = ANONYMOUS_PAGES_PATH_PREFIXES
     .some((prefix) => targetRoute.startsWith(prefix));
-  // todo #117: remove from the list of explicit checks
-  if (targetRoute.includes('login-by-link') || isAnonymousPage) {
+  if (isAnonymousPage) {
     await setLocaleFromBrowser();
 
     if (router().currentRoute.value.path !== targetRoute) {

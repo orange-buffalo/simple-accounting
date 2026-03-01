@@ -1,16 +1,41 @@
 <template>
-  <div />
+  <SaStatusLabel
+    v-if="status === 'LOADING'"
+    status="regular"
+    custom-icon="loading"
+  >
+    {{ $t.loginByLinkPage.loading() }}
+  </SaStatusLabel>
+
+  <SaStatusLabel
+    v-if="status === 'ERROR'"
+    status="failure"
+  >
+    {{ $t.loginByLinkPage.error() }}
+  </SaStatusLabel>
+
+  <SaStatusLabel
+    v-if="status === 'SUCCESS'"
+    status="success"
+  >
+    {{ $t.loginByLinkPage.success() }}
+  </SaStatusLabel>
 </template>
 
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { initWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { useAuth, workspacesApi } from '@/services/api';
+  import { $t } from '@/services/i18n';
+  import SaStatusLabel from '@/components/SaStatusLabel.vue';
 
   const props = defineProps<{
     token?: string,
   }>();
+
+  type Status = 'LOADING' | 'ERROR' | 'SUCCESS';
+  const status = ref<Status>('LOADING');
 
   const { navigateByPath } = useNavigation();
 
@@ -25,6 +50,7 @@
     } = useAuth();
 
     try {
+      let loginSuccessful = false;
       if (isLoggedIn()) {
         const workspace = await workspacesApi.saveSharedWorkspace({
           saveSharedWorkspaceRequestDto: {
@@ -38,16 +64,20 @@
         } = useWorkspaces();
         setCurrentWorkspace(workspace);
         await loadWorkspaces();
-        await navigateByPath('/');
+        loginSuccessful = true;
       } else if (await loginBySharedToken(props.token)) {
         await initWorkspace();
-        await navigateByPath('/');
-      } else {
-        // todo #117 set login error and update ui accordingly
+        loginSuccessful = true;
       }
-    } catch (e) {
-      // todo #117: handle communication exception and update ui accordingly
-      console.log('error', e);
+
+      if (loginSuccessful) {
+        status.value = 'SUCCESS';
+        setTimeout(() => navigateByPath('/'), 1000);
+      } else {
+        status.value = 'ERROR';
+      }
+    } catch (_e) {
+      status.value = 'ERROR';
     }
   });
 </script>
