@@ -1689,7 +1689,7 @@ components:
         customer:
           type: integer
           format: int64
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         dateIssued:
@@ -1742,7 +1742,7 @@ components:
       - dueDate
       - id
       - status
-      - timeRecorded
+      - createdAt
       - title
       - version
     EditIncomeDto:
@@ -1809,7 +1809,7 @@ components:
           format: int64
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         dateReceived:
@@ -1866,7 +1866,7 @@ components:
       - incomeTaxableAmounts
       - originalAmount
       - status
-      - timeRecorded
+      - createdAt
       - title
       - useDifferentExchangeRateForIncomeTaxPurposes
       - version
@@ -1907,7 +1907,7 @@ components:
           format: int32
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         datePaid:
@@ -1932,7 +1932,7 @@ components:
       - datePaid
       - id
       - reportingDate
-      - timeRecorded
+      - createdAt
       - title
       - version
     EditGeneralTaxDto:
@@ -2036,7 +2036,7 @@ components:
           format: int64
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         datePaid:
@@ -2094,7 +2094,7 @@ components:
       - originalAmount
       - percentOnBusiness
       - status
-      - timeRecorded
+      - createdAt
       - title
       - useDifferentExchangeRateForIncomeTaxPurposes
       - version

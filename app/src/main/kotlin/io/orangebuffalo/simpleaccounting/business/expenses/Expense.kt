@@ -5,7 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import org.springframework.data.relational.core.mapping.Embedded
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
-import java.time.Instant
 import java.time.LocalDate
 
 @Table
@@ -13,7 +12,6 @@ class Expense(
     var categoryId: Long?,
     var workspaceId: Long,
     var title: String,
-    var timeRecorded: Instant,
     var datePaid: LocalDate,
 
     /**

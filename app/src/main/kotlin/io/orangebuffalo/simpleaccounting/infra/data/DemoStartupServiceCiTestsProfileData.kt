@@ -21,7 +21,6 @@ import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.time.LocalDate
 
 private val log = KotlinLogging.logger {}
@@ -84,7 +83,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = shipMaintenance.id,
             workspaceId = planetExpressWorkspace.id!!,
             title = "Dark Matter Fuel",
-            timeRecorded = Instant.now(),
             datePaid = LocalDate.now(),
             currency = "USD",
             originalAmount = 3000,
@@ -99,7 +97,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = shipMaintenance.id,
             workspaceId = planetExpressWorkspace.id!!,
             title = "Slurm Beverages for Crew",
-            timeRecorded = Instant.now(),
             datePaid = LocalDate.now(),
             currency = "USD",
             originalAmount = 50,
@@ -115,7 +112,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = delivery.id,
             workspaceId = planetExpressWorkspace.id!!,
             title = "Delivery to MomCorp",
-            timeRecorded = Instant.now(),
             dateReceived = LocalDate.now(),
             currency = "USD",
             originalAmount = 7000,
@@ -129,7 +125,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = delivery.id,
             workspaceId = planetExpressWorkspace.id!!,
             title = "Ransom from Omicronians",
-            timeRecorded = Instant.now(),
             dateReceived = LocalDate.now(),
             currency = "USD",
             originalAmount = 2000,
@@ -142,7 +137,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
 
         IncomeTaxPayment(
             workspaceId = planetExpressWorkspace.id!!,
-            timeRecorded = Instant.now(),
             datePaid = LocalDate.now(),
             reportingDate = LocalDate.now(),
             amount = 1200,
@@ -152,7 +146,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         Invoice(
             customerId = omicronians.id!!,
             title = "Delivery to Omicron Persei 8",
-            timeRecorded = Instant.now(),
             dateIssued = LocalDate.now().plusDays(2),
             dueDate = LocalDate.now().plusDays(30),
             currency = "USD",

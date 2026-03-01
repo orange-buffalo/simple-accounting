@@ -12,7 +12,6 @@ import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.time.LocalDate
 
 /**
@@ -64,7 +63,6 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
                 dateIssued = LocalDate.of(3000, 2, 10),
                 generalTaxId = null,
                 notes = null,
-                timeRecorded = Instant.now(),
                 title = "Stuffed Toys"
             )
         )

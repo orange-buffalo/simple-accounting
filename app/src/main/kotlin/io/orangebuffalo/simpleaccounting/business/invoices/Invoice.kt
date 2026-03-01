@@ -10,7 +10,6 @@ import java.time.LocalDate
 class Invoice(
     var customerId: Long,
     var title: String,
-    var timeRecorded: Instant,
     var dateIssued: LocalDate,
     var dateSent: LocalDate? = null,
     var datePaid: LocalDate? = null,

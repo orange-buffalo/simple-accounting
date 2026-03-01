@@ -43,7 +43,7 @@ export interface IncomeDto {
      * @type {string}
      * @memberof IncomeDto
      */
-    timeRecorded: string;
+    createdAt: string;
     /**
      * 
      * @type {string}
@@ -153,7 +153,7 @@ export type IncomeDtoStatusEnum = typeof IncomeDtoStatusEnum[keyof typeof Income
  */
 export function instanceOfIncomeDto(value: object): value is IncomeDto {
     if (!('title' in value) || value['title'] === undefined) return false;
-    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('dateReceived' in value) || value['dateReceived'] === undefined) return false;
     if (!('currency' in value) || value['currency'] === undefined) return false;
     if (!('originalAmount' in value) || value['originalAmount'] === undefined) return false;
@@ -179,7 +179,7 @@ export function IncomeDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         
         'category': json['category'] == null ? undefined : json['category'],
         'title': json['title'],
-        'timeRecorded': json['timeRecorded'],
+        'createdAt': json['createdAt'],
         'dateReceived': json['dateReceived'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
@@ -206,7 +206,7 @@ export function IncomeDtoToJSON(value?: IncomeDto | null): any {
         
         'category': value['category'],
         'title': value['title'],
-        'timeRecorded': value['timeRecorded'],
+        'createdAt': value['createdAt'],
         'dateReceived': value['dateReceived'],
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],

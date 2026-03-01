@@ -43,7 +43,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     amount = 150000,
                     datePaid = LocalDate.of(3025, 1, 15),
                     reportingDate = LocalDate.of(3025, 1, 15),
-                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                 )
             )
@@ -74,7 +73,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 2, 20),
                     reportingDate = LocalDate.of(3025, 2, 15),
                     notes = "# Important\nTax payment for fiscal year 3024",
-                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                 )
             )
@@ -113,7 +111,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     amount = 200000,
                     datePaid = LocalDate.of(3025, 4, 15),
                     reportingDate = LocalDate.of(3025, 4, 10),
-                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(
@@ -161,7 +158,6 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 12, 31),
                     reportingDate = LocalDate.of(3025, 12, 15),
                     notes = "# Corporate Tax\nFull year payment for Planet Express Inc",
-                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(
