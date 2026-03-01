@@ -23,7 +23,6 @@ class WorkspaceTokenAccessWalkThroughFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should walk through all pages with write access token`(page: Page) {
         page.navigate("/login-by-link/${preconditions.token}")
-        page.clock().runFor(1000)
         page.shouldBeDashboardPage()
 
         // Verify the menu structure - transient users should not see Settings or My Profile
