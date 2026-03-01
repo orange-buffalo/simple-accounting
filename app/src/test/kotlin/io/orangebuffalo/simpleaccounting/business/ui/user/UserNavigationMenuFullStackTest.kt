@@ -21,8 +21,9 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = fry()
-            val workspace = workspace(owner = fry, name = "Planet Express")
+            val fry = fry().also {
+                workspace(owner = it, name = "Planet Express")
+            }
         }
     }
 

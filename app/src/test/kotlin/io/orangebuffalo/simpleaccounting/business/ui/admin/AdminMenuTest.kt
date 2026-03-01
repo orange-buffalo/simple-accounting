@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.loginAs
+import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.Companion.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.NavigationMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
@@ -34,5 +35,8 @@ class AdminMenuTest : SaFullStackTestBase() {
 
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
+
+        page.shouldHaveSideMenu().clickLogout()
+        page.shouldBeLoginPage {}
     }
 }
