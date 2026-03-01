@@ -1,15 +1,19 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
+import io.kotest.matchers.collections.shouldContainExactly
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class Steps private constructor(
     private val container: Locator,
 ) : UiComponent<Steps>() {
 
-    fun shouldHaveStepDescription(stepIndex: Int, description: String) {
-        container.locator(".el-step").nth(stepIndex)
-            .locator(".el-step__description").shouldContainText(description)
+    fun shouldHaveStepDescriptions(vararg descriptions: String) {
+        shouldSatisfy("Steps should have expected descriptions") {
+            container.locator(".el-step .el-step__description")
+                .allInnerTexts()
+                .shouldContainExactly(*descriptions)
+        }
     }
 
     companion object {

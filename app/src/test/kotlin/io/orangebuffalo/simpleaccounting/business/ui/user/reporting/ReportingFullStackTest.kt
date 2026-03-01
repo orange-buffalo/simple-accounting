@@ -17,7 +17,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
         page.openReportingPage {
             selectGeneralTaxReport()
             steps {
-                shouldHaveStepDescription(0, "Tax Report")
+                shouldHaveStepDescriptions("Tax Report", "Please select reporting date range", "")
             }
 
             dateRangePicker {
@@ -26,7 +26,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
             nextButton.click()
 
             steps {
-                shouldHaveStepDescription(1, "3025-01-01 to 3025-12-31")
+                shouldHaveStepDescriptions("Tax Report", "3025-01-01 to 3025-12-31", "Ready")
             }
 
             // Collected section = from incomes
