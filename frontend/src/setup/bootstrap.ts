@@ -1,7 +1,20 @@
 import { removeLoader } from '@/setup/loader';
 import { ANONYMOUS_PAGES_PATH_PREFIXES } from '@/setup/setup-router.ts';
-import { profileApi, useAuth } from '@/services/api';
+import { useAuth } from '@/services/api';
 import { initWorkspace } from '@/services/workspaces.ts';
+import { graphql } from '@/services/api/gql';
+import { gqlClient } from '@/services/api/gql-api-client.ts';
+
+const userProfileQuery = graphql(/* GraphQL */ `
+  query userProfileBootstrap {
+    userProfile {
+      i18n {
+        language
+        locale
+      }
+    }
+  }
+`);
 
 export async function bootstrapApp() {
   const { tryAutoLogin } = useAuth();
@@ -27,8 +40,8 @@ export async function bootstrapApp() {
         .push(targetRoute);
     }
   } else if (await tryAutoLogin()) {
-    const profile = await profileApi.getProfile();
-    await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+    const profileData = await gqlClient.query(userProfileQuery, {});
+    await setLocaleFromProfile(profileData.userProfile.i18n.locale, profileData.userProfile.i18n.language);
 
     if (router().currentRoute.value.path !== targetRoute) {
       await router()

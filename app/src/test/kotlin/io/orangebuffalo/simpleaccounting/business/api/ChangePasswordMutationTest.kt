@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -44,7 +45,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .fromAnonymous()
             .executeAndVerifyNotAuthorized(
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -54,7 +55,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
             .executeAndVerifyNotAuthorized(
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -68,7 +69,7 @@ class ChangePasswordMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Invalid current password",
                 errorCode = "CURRENT_PASSWORD_MISMATCH",
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -81,7 +82,7 @@ class ChangePasswordMutationTest(
                 violationPath = "currentPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -94,7 +95,7 @@ class ChangePasswordMutationTest(
                 violationPath = "currentPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -107,7 +108,7 @@ class ChangePasswordMutationTest(
                 violationPath = "newPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -120,7 +121,7 @@ class ChangePasswordMutationTest(
                 violationPath = "newPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "changePassword"
+                path = DgsConstants.MUTATION.ChangePassword
             )
     }
 
@@ -134,7 +135,7 @@ class ChangePasswordMutationTest(
                 violationPath = "currentPassword",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 100",
-                path = "changePassword",
+                path = DgsConstants.MUTATION.ChangePassword,
                 params = mapOf("min" to "0", "max" to "100")
             )
     }
@@ -149,7 +150,7 @@ class ChangePasswordMutationTest(
                 violationPath = "newPassword",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 100",
-                path = "changePassword",
+                path = DgsConstants.MUTATION.ChangePassword,
                 params = mapOf("min" to "0", "max" to "100")
             )
     }
@@ -163,7 +164,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("a", "b") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "changePassword" to buildJsonObject {
+                DgsConstants.MUTATION.ChangePassword to buildJsonObject {
                     put("success", true)
                 }
             )
@@ -179,7 +180,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation(maxLengthPassword, maxLengthPassword) }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "changePassword" to buildJsonObject {
+                DgsConstants.MUTATION.ChangePassword to buildJsonObject {
                     put("success", true)
                 }
             )
@@ -193,7 +194,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .from(user)
             .executeAndVerifySuccessResponse(
-                "changePassword" to buildJsonObject {
+                DgsConstants.MUTATION.ChangePassword to buildJsonObject {
                     put("success", true)
                 }
             )

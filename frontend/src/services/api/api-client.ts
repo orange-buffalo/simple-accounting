@@ -1,7 +1,6 @@
 import qs from 'qs';
 import {
   Configuration,
-  ProfileApiApi,
   WorkspacesApiApi,
   CustomersApiApi,
   CategoriesApiApi,
@@ -38,7 +37,6 @@ const defaultConfigParameters: ConfigurationParameters = {
 const defaultConfig = new Configuration(defaultConfigParameters);
 
 export const workspacesApi = new WorkspacesApiApi(defaultConfig);
-export const profileApi = new ProfileApiApi(defaultConfig);
 export const customersApi = new CustomersApiApi(defaultConfig);
 export const categoriesApi = new CategoriesApiApi(defaultConfig);
 export const statisticsApi = new StatisticsApiApi(defaultConfig);

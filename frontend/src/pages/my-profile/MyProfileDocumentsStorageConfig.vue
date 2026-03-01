@@ -19,11 +19,12 @@
 
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
-  import { ProfileDto, profileApi } from '@/services/api';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
   import { $t } from '@/services/i18n';
   import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     storageName: string,
@@ -33,7 +34,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'profile-updated', profile: ProfileDto): void,
+    (e: 'profile-updated', profile: UserProfileQuery['userProfile']): void,
   }>();
 
   type StorageConfigFormValues = {
@@ -53,14 +54,24 @@
     immediate: true,
   });
 
+  const updateProfileMutation = useMutation(graphql(/* GraphQL */ `
+    mutation updateProfile($documentsStorage: String, $locale: String!, $language: String!) {
+      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language) {
+        documentsStorage
+        i18n {
+          language
+          locale
+        }
+        userName
+      }
+    }
+  `), 'updateProfile');
+
   const submitStorageConfig = async () => {
-    const updatedProfile: ProfileDto = {
-      documentsStorage: formValues.value.enabled ? props.storageId : undefined,
-      userName: props.profile.userName,
-      i18n: props.profile.i18n,
-    };
-    await profileApi.updateProfile({
-      updateProfileRequestDto: updatedProfile,
+    const updatedProfile = await updateProfileMutation({
+      documentsStorage: formValues.value.enabled ? props.storageId : null,
+      locale: props.profile!.i18n.locale,
+      language: props.profile!.i18n.language,
     });
     emit('profile-updated', updatedProfile);
   };

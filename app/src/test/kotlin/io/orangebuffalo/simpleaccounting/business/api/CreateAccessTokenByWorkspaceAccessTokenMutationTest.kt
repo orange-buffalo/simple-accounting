@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -63,7 +64,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
             .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByWorkspaceAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForSharedWorkspace")
                 }
             )
@@ -77,7 +78,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Token unknownToken is not valid",
                 errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = "createAccessTokenByWorkspaceAccessToken"
+                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
             )
     }
 
@@ -89,7 +90,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Token ${preconditions.revokedAccessToken.token} is not valid",
                 errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = "createAccessTokenByWorkspaceAccessToken"
+                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
             )
     }
 
@@ -101,7 +102,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
             .executeAndVerifyBusinessError(
                 message = "Token ${preconditions.expiredAccessToken.token} is not valid",
                 errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = "createAccessTokenByWorkspaceAccessToken"
+                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
             )
     }
 
@@ -114,7 +115,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
                 violationPath = "workspaceAccessToken",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByWorkspaceAccessToken"
+                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
             )
     }
 
@@ -127,7 +128,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
                 violationPath = "workspaceAccessToken",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
-                path = "createAccessTokenByWorkspaceAccessToken"
+                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
             )
     }
 
@@ -147,7 +148,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
             .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByWorkspaceAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForSharedWorkspace")
                 }
             )

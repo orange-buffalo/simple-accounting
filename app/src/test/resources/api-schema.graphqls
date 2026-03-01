@@ -48,6 +48,9 @@ directive @skip(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"Marks an operation as potentially slow, as it may interact with third-party systems. Clients are recommended to invoke such operations separately from other queries, with longer timeouts and appropriate long-running operation handling (e.g. loading indicators)."
+directive @slowOperation on FIELD_DEFINITION
+
 "Exposes a URL that specifies the behaviour of this scalar."
 directive @specifiedBy(
     "The URL that specifies the behaviour of this scalar."
@@ -89,6 +92,12 @@ type CreateAccessTokenByCredentialsResponse {
 type CreateAccessTokenByWorkspaceAccessTokenResponse {
   "The JWT access token for the authenticated user."
   accessToken: String!
+}
+
+"Documents storage status for the current user."
+type DocumentsStorageStatusResponse {
+  "Whether the documents storage is active and available."
+  active: Boolean!
 }
 
 "Business expense."
@@ -142,9 +151,20 @@ type Mutation {
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
+  "Updates the current user profile information."
+  updateProfile(
+    "The identifier of the documents storage used by the user."
+    documentsStorage: String @size(max : 255, min : 0),
+    "The language of the user profile, e.g. 'en'."
+    language: String! @notBlank @size(max : 36, min : 0),
+    "The locale of the user profile, e.g. 'en-US'."
+    locale: String! @notBlank @size(max : 36, min : 0)
+  ): UserProfile! @auth(type : AUTHENTICATED_USER)
 }
 
 type Query {
+  "Returns the current user's documents storage status."
+  documentsStorageStatus: DocumentsStorageStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
   "Returns all workspaces accessible by the current user."
