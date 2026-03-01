@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPr
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -60,7 +61,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", JsonNull)
                 }
             )
@@ -78,7 +79,7 @@ class RefreshAccessTokenMutationTest(
             .fromAnonymous()
             .cookie("refreshToken", "refreshTokenForFry")
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForFry")
                 }
             )
@@ -96,7 +97,7 @@ class RefreshAccessTokenMutationTest(
             .fromAnonymous()
             .cookie("refreshToken", "refreshTokenForFarnsworth")
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForFarnsworth")
                 }
             )
@@ -112,7 +113,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForFry")
                 }
             )
@@ -128,7 +129,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .from(preconditions.farnsworth)
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForFarnsworth")
                 }
             )
@@ -152,7 +153,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", "jwtTokenForTransientUser")
                 }
             )
@@ -171,7 +172,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", JsonNull)
                 }
             )
@@ -190,7 +191,7 @@ class RefreshAccessTokenMutationTest(
             .graphqlMutation { refreshAccessTokenMutation() }
             .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
-                "refreshAccessToken" to buildJsonObject {
+                DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
                     put("accessToken", JsonNull)
                 }
             )

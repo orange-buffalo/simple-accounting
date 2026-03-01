@@ -1,6 +1,7 @@
 import { ApiBusinessError, ApiError } from '@/services/api/api-errors';
 import { SaGrapQlErrorType } from '@/services/api/gql/graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import type { OperationDefinitionNode } from 'graphql';
 import { print } from 'graphql';
 
 /**
@@ -16,6 +17,11 @@ export async function executeRawGqlMutation<
   mutation: TypedDocumentNode<TData, TVariables>,
   variables: TVariables,
 ): Promise<TData> {
+  const operationDef = mutation.definitions.find(
+    (d): d is OperationDefinitionNode => d.kind === 'OperationDefinition',
+  );
+  const operationName = operationDef?.name?.value;
+
   const response = await fetch('/api/graphql', {
     method: 'POST',
     credentials: 'include',
@@ -23,6 +29,7 @@ export async function executeRawGqlMutation<
     body: JSON.stringify({
       query: print(mutation),
       variables,
+      ...(operationName && { operationName }),
     }),
   });
 

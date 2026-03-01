@@ -75,13 +75,15 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi, handleGqlApiBusinessError } from '@/services/api';
+  import { useAuth, handleGqlApiBusinessError } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
   import {
     CreateAccessTokenByCredentialsErrorCodes,
     type AccountLockedErrorExtensions,
   } from '@/services/api/gql/graphql.ts';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -217,13 +219,24 @@
     emit('login');
   }
 
+  const fetchUserProfile = useLazyQuery(graphql(/* GraphQL */ `
+    query userProfileLogin {
+      userProfile {
+        i18n {
+          language
+          locale
+        }
+      }
+    }
+  `), 'userProfile');
+
   const executeLogin = async () => {
     uiState.loginError = null;
     uiState.loginInProgress = true;
     accountLockTimer.cancel();
     try {
       await login({ ...form });
-      const profile = await profileApi.getProfile();
+      const profile = await fetchUserProfile({});
       await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
       if (isAdmin()) {

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
@@ -44,7 +45,7 @@ class InvalidateRefreshTokenMutationTest(
             .graphqlMutation { invalidateRefreshTokenMutation() }
             .from(preconditions.fry)
             .executeAndVerifyResponse(
-                "invalidateRefreshToken" to JsonPrimitive(true)
+                DgsConstants.MUTATION.InvalidateRefreshToken to JsonPrimitive(true)
             )
     }
 

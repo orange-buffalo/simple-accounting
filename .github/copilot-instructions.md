@@ -835,7 +835,12 @@ The frontend uses a custom i18n framework for user-facing text translations.
 
 # UI
 ## GraphQL queries/mutations
-- Use `useQuery` and `useMutation` from `use-gql-api.ts`.
+- **Always** use `useQuery`, `useLazyQuery` and `useMutation` from `use-gql-api.ts` for GraphQL operations. Never import or use
+  `gqlClient` directly from `gql-api-client.ts` - it is an internal implementation detail of the GraphQL infrastructure.
+- Use `useQuery` for queries that should execute immediately on component setup.
+- Use `useLazyQuery` for queries that should be executed imperatively (e.g. after a user action).
+- Use `useMutation` for mutations.
+- The only exception is `bootstrap.ts` and similar non-component initialization code where Vue composables cannot be used.
 - Never set `undefined` to the variables - always use `null`.
 
 ## Error handling

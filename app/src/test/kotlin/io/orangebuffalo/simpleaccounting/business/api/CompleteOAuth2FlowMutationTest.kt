@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2AuthorizationCallbackRequest
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2ClientAuthorizationProvider
@@ -33,7 +34,7 @@ class CompleteOAuth2FlowMutationTest(
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "completeOAuth2Flow" to buildJsonObject {
+                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
                     put("success", true)
                     put("errorId", JsonNull)
                 }
@@ -56,7 +57,7 @@ class CompleteOAuth2FlowMutationTest(
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "completeOAuth2Flow" to buildJsonObject {
+                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
                     put("success", true)
                     put("errorId", JsonNull)
                 }
@@ -74,7 +75,7 @@ class CompleteOAuth2FlowMutationTest(
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "unknown-state") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "completeOAuth2Flow" to buildJsonObject {
+                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
                     put("success", false)
                     put("errorId", "test-error-id")
                 }
@@ -92,7 +93,7 @@ class CompleteOAuth2FlowMutationTest(
             .graphqlMutation { completeOAuth2FlowMutation(code = null, error = "access_denied", state = "state") }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                "completeOAuth2Flow" to buildJsonObject {
+                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
                     put("success", false)
                     put("errorId", "test-error-id")
                 }

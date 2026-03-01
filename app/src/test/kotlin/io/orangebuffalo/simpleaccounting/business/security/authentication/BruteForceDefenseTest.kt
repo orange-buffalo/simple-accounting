@@ -11,6 +11,7 @@ import assertk.fail
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
@@ -50,7 +51,7 @@ class BruteForceDefenseTest(
             .graphqlMutation { loginMutation() }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByCredentials" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByCredentials to buildJsonObject {
                     put("accessToken", "\${json-unit.any-string}")
                 }
             )
@@ -72,7 +73,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Invalid Credentials",
                 errorCode = "BAD_CREDENTIALS",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
 
         assertFryLoginStatistics {
@@ -95,7 +96,7 @@ class BruteForceDefenseTest(
             .graphqlMutation { loginMutation() }
             .fromAnonymous()
             .executeAndVerifySuccessResponse(
-                "createAccessTokenByCredentials" to buildJsonObject {
+                DgsConstants.MUTATION.CreateAccessTokenByCredentials to buildJsonObject {
                     put("accessToken", "\${json-unit.any-string}")
                 }
             )
@@ -120,7 +121,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
-                path = "createAccessTokenByCredentials",
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
                 additionalExtensions = mapOf("lockExpiresInSec" to 0)
             )
 
@@ -144,7 +145,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
-                path = "createAccessTokenByCredentials",
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
                 additionalExtensions = mapOf("lockExpiresInSec" to 4)
             )
 
@@ -170,7 +171,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Invalid Credentials",
                 errorCode = "BAD_CREDENTIALS",
-                path = "createAccessTokenByCredentials"
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
             )
 
         assertFryLoginStatistics {
@@ -195,7 +196,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
-                path = "createAccessTokenByCredentials",
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
                 additionalExtensions = mapOf("lockExpiresInSec" to 60)
             )
 
@@ -221,7 +222,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
-                path = "createAccessTokenByCredentials",
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
                 additionalExtensions = mapOf("lockExpiresInSec" to 135)
             )
 
@@ -247,7 +248,7 @@ class BruteForceDefenseTest(
             .executeAndVerifyBusinessError(
                 message = "Account is temporary locked",
                 errorCode = "ACCOUNT_LOCKED",
-                path = "createAccessTokenByCredentials",
+                path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
                 additionalExtensions = mapOf("lockExpiresInSec" to 86400)
             )
 
