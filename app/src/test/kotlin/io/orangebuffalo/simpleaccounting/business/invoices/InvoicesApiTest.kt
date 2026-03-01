@@ -48,7 +48,7 @@ internal class InvoicesApiTest(
                         put("version", 0)
                         put("dateIssued", "3000-01-06")
                         put("dueDate", "3000-01-07")
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "DRAFT")
                     }
                     addJsonObject {
@@ -65,7 +65,7 @@ internal class InvoicesApiTest(
                         put("datePaid", "3000-01-04")
                         put("dateSent", "3000-01-03")
                         put("dueDate", "3000-01-05")
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "DRAFT")
                         put("notes", "space notes")
                         put("generalTax", preconditions.planetExpressTax.id)
@@ -115,7 +115,7 @@ internal class InvoicesApiTest(
                     version: 0,
                     dateIssued: "3000-01-06",
                     dueDate: "3000-01-07",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "DRAFT"
                 }"""
             )
@@ -187,7 +187,7 @@ internal class InvoicesApiTest(
                     datePaid: "3000-02-04",
                     dateSent: "3000-02-03",
                     dueDate: "3000-02-05",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "PAID",
                     notes: "new space notes",
                     generalTax: ${preconditions.planetExpressTax.id}
@@ -230,7 +230,7 @@ internal class InvoicesApiTest(
                     version: 0,
                     dateIssued: "3000-02-01",
                     dueDate: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "DRAFT"
                 }"""
             )
@@ -388,7 +388,7 @@ internal class InvoicesApiTest(
                     datePaid: "3000-02-04",
                     dateSent: "3000-02-03",
                     dueDate: "3000-02-05",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "PAID",
                     notes: "new space notes",
                     generalTax: ${preconditions.planetExpressTax.id}
@@ -422,7 +422,7 @@ internal class InvoicesApiTest(
                     version: 1,
                     dateIssued: "3000-02-01",
                     dueDate: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "DRAFT"
                 }"""
             )
@@ -612,7 +612,7 @@ internal class InvoicesApiTest(
                     datePaid: "3000-01-04",
                     dateSent: "3000-01-03",
                     dueDate: "3000-01-05",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "CANCELLED",
                     notes: "space notes",
                     generalTax: ${preconditions.planetExpressTax.id}

@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.expenses
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
@@ -25,7 +24,6 @@ import jakarta.validation.constraints.Size
 @RequestMapping("/api/workspaces/{workspaceId}/expenses")
 class ExpensesApi(
     private val expenseService: ExpenseService,
-    private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
@@ -40,7 +38,6 @@ class ExpensesApi(
                 workspaceId = workspaceId,
                 categoryId = request.category,
                 title = request.title,
-                timeRecorded = timeService.currentTime(),
                 datePaid = request.datePaid,
                 currency = request.currency,
                 originalAmount = request.originalAmount,
@@ -130,7 +127,7 @@ class ExpensesApi(
                     )
                 }
                 addDefaultSorting { root.datePaid.desc() }
-                addDefaultSorting { root.timeRecorded.asc() }
+                addDefaultSorting { root.createdAt.asc() }
                 workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
             }
             mapper { mapToExpenseDto() }
@@ -148,7 +145,7 @@ class ExpensesFilteringRequest : ApiPageRequest<NoOpSorting>() {
 data class ExpenseDto(
     val category: Long?,
     val title: String,
-    val timeRecorded: Instant,
+    val createdAt: Instant,
     val datePaid: LocalDate,
     val currency: String,
     val originalAmount: Long,
@@ -191,7 +188,7 @@ private fun Expense.mapToExpenseDto() = ExpenseDto(
     category = categoryId,
     title = title,
     datePaid = datePaid,
-    timeRecorded = timeRecorded,
+    createdAt = createdAt!!,
     currency = currency,
     originalAmount = originalAmount,
     convertedAmounts = convertedAmounts.mapToAmountsDto(),

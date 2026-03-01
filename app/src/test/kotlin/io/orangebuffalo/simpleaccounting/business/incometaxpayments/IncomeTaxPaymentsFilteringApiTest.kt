@@ -16,10 +16,10 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                 baseUrl = "income-tax-payments"
 
                 entityMatcher {
-                    responseFields("datePaid", "timeRecorded")
+                    responseFields("datePaid", "createdAt")
                     entityFields(
                         { incomeTaxPayment -> incomeTaxPayment.datePaid },
-                        { incomeTaxPayment -> incomeTaxPayment.timeRecorded }
+                        { incomeTaxPayment -> incomeTaxPayment.createdAt }
                     )
                 }
 
@@ -29,7 +29,6 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.incomeTaxPayment(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE.plusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -37,7 +36,7 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.incomeTaxPayment(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.minusMillis(1),
+                                createdAt = MOCK_TIME.minusMillis(1),
                             )
                         }
 
@@ -45,7 +44,6 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.incomeTaxPayment(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -53,7 +51,7 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.incomeTaxPayment(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.plusMillis(1),
+                                createdAt = MOCK_TIME.plusMillis(1),
                             )
                         }
 
@@ -61,7 +59,6 @@ class IncomeTaxPaymentsFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.incomeTaxPayment(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE.minusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
                     }

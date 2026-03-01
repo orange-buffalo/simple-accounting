@@ -49,7 +49,7 @@ internal class IncomeTaxPaymentsApiTest(
                         put("notes", "tax? hah?")
                         put("reportingDate", "1999-04-07")
                         put("datePaid", "1999-03-30")
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("version", 0)
                     }
                     addJsonObject {
@@ -59,7 +59,7 @@ internal class IncomeTaxPaymentsApiTest(
                         put("reportingDate", MOCK_DATE_VALUE)
                         put("id", preconditions.secondSpaceIncome.id)
                         put("version", 0)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         putJsonArray("attachments") {}
                     }
                 }
@@ -109,7 +109,7 @@ internal class IncomeTaxPaymentsApiTest(
                         put("notes", "tax? hah?")
                         put("reportingDate", "1999-04-07")
                         put("datePaid", "1999-03-30")
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("version", 0)
                     }
                 }
@@ -138,7 +138,7 @@ internal class IncomeTaxPaymentsApiTest(
                         put("reportingDate", MOCK_DATE_VALUE)
                         put("id", preconditions.secondSpaceIncome.id)
                         put("version", 0)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         putJsonArray("attachments") {}
                     }
                 }
@@ -167,7 +167,7 @@ internal class IncomeTaxPaymentsApiTest(
                     version: 0,
                     reportingDate: "1999-04-07",
                     datePaid: "1999-03-30",
-                    timeRecorded: "$MOCK_TIME_VALUE"
+                    createdAt: "$MOCK_TIME_VALUE"
                 }"""
             )
     }
@@ -230,7 +230,7 @@ internal class IncomeTaxPaymentsApiTest(
                     reportingDate: "$MOCK_DATE_VALUE",
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
-                    timeRecorded: "$MOCK_TIME_VALUE"
+                    createdAt: "$MOCK_TIME_VALUE"
                 }"""
             )
     }
@@ -266,7 +266,7 @@ internal class IncomeTaxPaymentsApiTest(
                     reportingDate: "$MOCK_DATE_VALUE",
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
-                    timeRecorded: "$MOCK_TIME_VALUE"
+                    createdAt: "$MOCK_TIME_VALUE"
                 }"""
             )
     }
@@ -334,7 +334,7 @@ internal class IncomeTaxPaymentsApiTest(
                     reportingDate: "$MOCK_DATE_VALUE",
                     id: ${preconditions.firstSpaceIncomeTaxPayment.id},
                     version: 1,
-                    timeRecorded: "$MOCK_TIME_VALUE"
+                    createdAt: "$MOCK_TIME_VALUE"
                 }"""
             )
     }
