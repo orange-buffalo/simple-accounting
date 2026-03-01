@@ -25,8 +25,18 @@ class DateRangePicker private constructor(
         actualEnd.shouldBe(endDate)
     }
 
+    fun fillDateRange(startDate: String, endDate: String) {
+        startInput.fill(startDate)
+        endInput.click()
+        endInput.fill(endDate)
+        endInput.press("Enter")
+    }
+
     companion object {
         fun ComponentsAccessors.dateRangePicker() =
             DateRangePicker(page.locator(".el-date-editor"))
+
+        fun ComponentsAccessors.dateRangePickerByContainer(container: Locator) =
+            DateRangePicker(container.locator(".el-date-editor"))
     }
 }

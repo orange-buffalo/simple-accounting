@@ -6,9 +6,11 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DateRangePicker.Companion.dateRangePickerByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
@@ -17,6 +19,8 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val reportingPanel = page.locator(".reporting-panel")
     private val reportSelector = reportingPanel.locator(".reporting-panel--report-selector")
     val nextButton = components.buttonByText("Next")
+    val dateRangePicker = components.dateRangePickerByContainer(reportingPanel)
+    val steps = components.stepsByContainer(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)
     val paidSection = TaxReportSection(components, "Paid", 1)
 
@@ -26,20 +30,6 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
 
     fun selectGeneralTaxReport() {
         reportSelector.click()
-    }
-
-    fun selectDateRange(startDate: String, endDate: String) {
-        val startInput = reportingPanel.locator("input[placeholder='Start date']")
-        val endInput = reportingPanel.locator("input[placeholder='End date']")
-        startInput.fill(startDate)
-        endInput.click()
-        endInput.fill(endDate)
-        endInput.press("Enter")
-    }
-
-    fun shouldHaveStepDescription(step: Int, description: String) {
-        val stepLocator = reportingPanel.locator(".el-step").nth(step)
-        stepLocator.locator(".el-step__description").shouldContainText(description)
     }
 
     companion object {

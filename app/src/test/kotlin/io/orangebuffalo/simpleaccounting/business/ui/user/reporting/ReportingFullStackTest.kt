@@ -16,12 +16,18 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            shouldHaveStepDescription(0, "Tax Report")
+            steps {
+                shouldHaveStepDescription(0, "Tax Report")
+            }
 
-            selectDateRange("3025-01-01", "3025-12-31")
+            dateRangePicker {
+                fillDateRange("3025-01-01", "3025-12-31")
+            }
             nextButton.click()
 
-            shouldHaveStepDescription(1, "3025-01-01 to 3025-12-31")
+            steps {
+                shouldHaveStepDescription(1, "3025-01-01 to 3025-12-31")
+            }
 
             // Collected section = from incomes
             collectedSection {
@@ -73,7 +79,9 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            selectDateRange("3025-01-01", "3025-12-31")
+            dateRangePicker {
+                fillDateRange("3025-01-01", "3025-12-31")
+            }
             nextButton.click()
 
             collectedSection {
@@ -105,7 +113,9 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            selectDateRange("3025-01-01", "3025-12-31")
+            dateRangePicker {
+                fillDateRange("3025-01-01", "3025-12-31")
+            }
             nextButton.click()
 
             collectedSection {
@@ -137,7 +147,9 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            selectDateRange("3025-01-01", "3025-12-31")
+            dateRangePicker {
+                fillDateRange("3025-01-01", "3025-12-31")
+            }
             nextButton.click()
 
             collectedSection {
