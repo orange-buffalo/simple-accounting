@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
@@ -25,7 +24,6 @@ import jakarta.validation.constraints.Size
 @RequestMapping("/api/workspaces/{workspaceId}/incomes")
 class IncomesApi(
     private val incomesService: IncomesService,
-    private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
@@ -40,7 +38,6 @@ class IncomesApi(
                 workspaceId = workspaceId,
                 categoryId = request.category,
                 title = request.title,
-                timeRecorded = timeService.currentTime(),
                 dateReceived = request.dateReceived,
                 currency = request.currency,
                 originalAmount = request.originalAmount,
@@ -125,7 +122,7 @@ class IncomesApi(
                     )
                 }
                 addDefaultSorting { root.dateReceived.desc() }
-                addDefaultSorting { root.timeRecorded.asc() }
+                addDefaultSorting { root.createdAt.asc() }
                 workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
             }
 
@@ -144,7 +141,7 @@ class IncomesFilteringRequest : ApiPageRequest<NoOpSorting>() {
 data class IncomeDto(
     val category: Long?,
     val title: String,
-    val timeRecorded: Instant,
+    val createdAt: Instant,
     val dateReceived: LocalDate,
     val currency: String,
     val originalAmount: Long,
@@ -190,7 +187,7 @@ private fun Income.mapToIncomeDto(): IncomeDto = IncomeDto(
     category = categoryId,
     title = title,
     dateReceived = dateReceived,
-    timeRecorded = timeRecorded,
+    createdAt = createdAt!!,
     currency = currency,
     originalAmount = originalAmount,
     convertedAmounts = convertedAmounts.mapToAmountsDto(),

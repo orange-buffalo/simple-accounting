@@ -36,7 +36,7 @@ export interface InvoiceDto {
      * @type {string}
      * @memberof InvoiceDto
      */
-    timeRecorded: string;
+    createdAt: string;
     /**
      * 
      * @type {string}
@@ -131,7 +131,7 @@ export type InvoiceDtoStatusEnum = typeof InvoiceDtoStatusEnum[keyof typeof Invo
 export function instanceOfInvoiceDto(value: object): value is InvoiceDto {
     if (!('title' in value) || value['title'] === undefined) return false;
     if (!('customer' in value) || value['customer'] === undefined) return false;
-    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('dateIssued' in value) || value['dateIssued'] === undefined) return false;
     if (!('dueDate' in value) || value['dueDate'] === undefined) return false;
     if (!('currency' in value) || value['currency'] === undefined) return false;
@@ -155,7 +155,7 @@ export function InvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'title': json['title'],
         'customer': json['customer'],
-        'timeRecorded': json['timeRecorded'],
+        'createdAt': json['createdAt'],
         'dateIssued': json['dateIssued'],
         'dateSent': json['dateSent'] == null ? undefined : json['dateSent'],
         'datePaid': json['datePaid'] == null ? undefined : json['datePaid'],
@@ -179,7 +179,7 @@ export function InvoiceDtoToJSON(value?: InvoiceDto | null): any {
         
         'title': value['title'],
         'customer': value['customer'],
-        'timeRecorded': value['timeRecorded'],
+        'createdAt': value['createdAt'],
         'dateIssued': value['dateIssued'],
         'dateSent': value['dateSent'],
         'datePaid': value['datePaid'],

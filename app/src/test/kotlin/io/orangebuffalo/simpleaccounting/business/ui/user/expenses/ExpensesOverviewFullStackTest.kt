@@ -829,7 +829,6 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 status = ExpenseStatus.FINALIZED,
                 percentOnBusiness = 80,
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
-                timeRecorded = MOCK_TIME,
                 workspaceId = preconditionsActions.workspace.id!!,
                 generalTaxId = preconditionsActions.generalTax.id,
                 generalTaxAmount = 8333,

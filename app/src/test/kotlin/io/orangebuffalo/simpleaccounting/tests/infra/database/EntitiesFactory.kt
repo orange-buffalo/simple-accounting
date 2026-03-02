@@ -205,7 +205,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         category: Category? = null,
         workspace: Workspace? = null,
         title: String = "Expense",
-        timeRecorded: Instant = MOCK_TIME,
+        createdAt: Instant = MOCK_TIME,
         datePaid: LocalDate = MOCK_DATE,
         currency: String = "USD",
         originalAmount: Long = 100,
@@ -226,7 +226,6 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             categoryId = category?.id,
             title = title,
             datePaid = datePaid,
-            timeRecorded = timeRecorded,
             currency = currency,
             originalAmount = originalAmount,
             convertedAmounts = convertedAmounts,
@@ -239,7 +238,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             generalTaxRateInBps = generalTaxRateInBps,
             notes = notes,
             status = status
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun amountsInDefaultCurrency(
@@ -255,7 +254,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         category: Category? = null,
         workspace: Workspace? = null,
         title: String = "Income",
-        timeRecorded: Instant = MOCK_TIME,
+        createdAt: Instant = MOCK_TIME,
         dateReceived: LocalDate = MOCK_DATE,
         currency: String = "USD",
         originalAmount: Long = 100,
@@ -286,10 +285,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             currency = currency,
             dateReceived = dateReceived,
             originalAmount = originalAmount,
-            timeRecorded = timeRecorded,
             title = title,
             linkedInvoiceId = linkedInvoice?.id
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun customer(
@@ -306,7 +304,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun invoice(
         customer: Customer? = null,
         title: String = "invoice",
-        timeRecorded: Instant = MOCK_TIME,
+        createdAt: Instant = MOCK_TIME,
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
         datePaid: LocalDate? = null,
@@ -323,7 +321,6 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         return Invoice(
             customerId = customerId!!,
             title = title,
-            timeRecorded = timeRecorded,
             dateIssued = dateIssued,
             dateSent = dateSent,
             datePaid = datePaid,
@@ -337,12 +334,12 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             notes = notes,
             generalTaxId = generalTax?.id,
             status = status
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun incomeTaxPayment(
         workspace: Workspace? = null,
-        timeRecorded: Instant = MOCK_TIME,
+        createdAt: Instant = MOCK_TIME,
         datePaid: LocalDate = MOCK_DATE,
         reportingDate: LocalDate = MOCK_DATE,
         amount: Long = 100,
@@ -353,14 +350,13 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return IncomeTaxPayment(
             workspaceId = workspaceId!!,
-            timeRecorded = timeRecorded,
             datePaid = datePaid,
             reportingDate = reportingDate,
             amount = amount,
             title = title,
             attachments = attachments.asSequence().map { IncomeTaxPaymentAttachment(it.id!!) }.toSet(),
             notes = notes
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }

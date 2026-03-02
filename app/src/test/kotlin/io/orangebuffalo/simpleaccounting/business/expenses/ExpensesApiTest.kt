@@ -55,7 +55,7 @@ internal class ExpensesApiTest(
                         put("id", preconditions.firstSlurm.id)
                         put("version", 0)
                         put("datePaid", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "FINALIZED")
                     }
                     addJsonObject {
@@ -78,7 +78,7 @@ internal class ExpensesApiTest(
                         put("id", preconditions.secondSlurm.id)
                         put("version", 0)
                         put("datePaid", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "FINALIZED")
                     }
                     addJsonObject {
@@ -97,7 +97,7 @@ internal class ExpensesApiTest(
                         put("id", preconditions.thirdSlurm.id)
                         put("version", 0)
                         put("datePaid", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "PENDING_CONVERSION_FOR_TAXATION_PURPOSES")
                         put("generalTax", preconditions.slurmTax.id)
                         put("generalTaxRateInBps", 1000)
@@ -116,7 +116,7 @@ internal class ExpensesApiTest(
                         put("id", preconditions.fourthSlurm.id)
                         put("version", 0)
                         put("datePaid", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "PENDING_CONVERSION")
                     }
                 }
@@ -173,7 +173,7 @@ internal class ExpensesApiTest(
                     id: ${preconditions.firstSlurm.id},
                     version: 0,
                     datePaid: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED"
                 }"""
             )
@@ -254,7 +254,7 @@ internal class ExpensesApiTest(
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     datePaid: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED",
                     generalTax: ${preconditions.slurmTax.id},
                     generalTaxRateInBps: 1000,
@@ -306,7 +306,7 @@ internal class ExpensesApiTest(
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     datePaid: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     attachments: [],
                     status: "FINALIZED"
                 }"""
@@ -472,7 +472,7 @@ internal class ExpensesApiTest(
                     id: ${preconditions.firstSlurm.id},
                     version: 1,
                     datePaid: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED",
                     generalTax: ${preconditions.slurmTax.id},
                     generalTaxRateInBps: 1000,
@@ -504,7 +504,7 @@ internal class ExpensesApiTest(
                     id: ${preconditions.firstSlurm.id},
                     version: 1,
                     datePaid: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "PENDING_CONVERSION",
                     convertedAmounts: {
                     },

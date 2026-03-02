@@ -165,7 +165,6 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     amount = 250000,
                     datePaid = LocalDate.of(3025, 1, 20),
                     reportingDate = LocalDate.of(3025, 1, 18),
-                    timeRecorded = MOCK_TIME,
                     workspaceId = testData.workspace.id!!,
                 )
             )
@@ -236,7 +235,6 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 4, 15),
                     reportingDate = LocalDate.of(3025, 4, 10),
                     notes = "# Updated\nAdding payment notes",
-                    timeRecorded = MOCK_TIME,
                     workspaceId = testData.workspace.id!!,
                 ),
                 ignoredProperties = arrayOf(

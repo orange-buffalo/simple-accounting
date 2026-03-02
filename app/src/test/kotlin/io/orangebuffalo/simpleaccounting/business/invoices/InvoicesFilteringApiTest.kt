@@ -16,13 +16,13 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                 baseUrl = "invoices"
 
                 entityMatcher {
-                    responseFields("title", "notes", "customer", "dateIssued", "timeRecorded")
+                    responseFields("title", "notes", "customer", "dateIssued", "createdAt")
                     entityFields(
                         { invoice -> invoice.title },
                         { invoice -> invoice.notes ?: "" },
                         { invoice -> invoice.customerId },
                         { invoice -> invoice.dateIssued },
-                        { invoice -> invoice.timeRecorded }
+                        { invoice -> invoice.createdAt }
                     )
                 }
 
@@ -210,7 +210,6 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.invoice(
                                 customer = entitiesFactory.customer(workspace = targetWorkspace),
                                 dateIssued = MOCK_DATE.plusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -218,7 +217,7 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.invoice(
                                 customer = entitiesFactory.customer(workspace = targetWorkspace),
                                 dateIssued = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.minusMillis(1),
+                                createdAt = MOCK_TIME.minusMillis(1),
                             )
                         }
 
@@ -226,7 +225,6 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.invoice(
                                 customer = entitiesFactory.customer(workspace = targetWorkspace),
                                 dateIssued = MOCK_DATE,
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -234,7 +232,7 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.invoice(
                                 customer = entitiesFactory.customer(workspace = targetWorkspace),
                                 dateIssued = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.plusMillis(1),
+                                createdAt = MOCK_TIME.plusMillis(1),
                             )
                         }
 
@@ -242,7 +240,6 @@ class InvoicesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.invoice(
                                 customer = entitiesFactory.customer(workspace = targetWorkspace),
                                 dateIssued = MOCK_DATE.minusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
                     }

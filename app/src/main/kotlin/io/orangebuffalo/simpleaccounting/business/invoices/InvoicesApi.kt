@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
@@ -24,7 +23,6 @@ import org.springdoc.core.annotations.ParameterObject
 @RequestMapping("/api/workspaces/{workspaceId}/invoices")
 class InvoicesApi(
     private val invoicesService: InvoicesService,
-    private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
@@ -37,7 +35,6 @@ class InvoicesApi(
         .saveInvoice(
             Invoice(
                 title = request.title,
-                timeRecorded = timeService.currentTime(),
                 customerId = request.customer,
                 currency = request.currency,
                 notes = request.notes,
@@ -134,7 +131,7 @@ class InvoicesApi(
                 onFilter(InvoicesFilteringRequest::statusIn) { statuses -> root.status.`in`(statuses) }
 
                 addDefaultSorting { root.dateIssued.desc() }
-                addDefaultSorting { root.timeRecorded.asc() }
+                addDefaultSorting { root.createdAt.asc() }
                 workspaceFilter { workspaceId -> customer.workspaceId.eq(workspaceId) }
             }
             mapper { mapToInvoiceDto() }
@@ -155,7 +152,7 @@ class InvoicesFilteringRequest : ApiPageRequest<NoOpSorting>() {
 data class InvoiceDto(
     val title: String,
     val customer: Long,
-    val timeRecorded: Instant,
+    val createdAt: Instant,
     val dateIssued: LocalDate,
     val dateSent: LocalDate?,
     val datePaid: LocalDate?,
@@ -188,7 +185,7 @@ data class EditInvoiceDto(
 private fun Invoice.mapToInvoiceDto() = InvoiceDto(
     title = title,
     customer = customerId,
-    timeRecorded = timeRecorded,
+    createdAt = createdAt!!,
     dateIssued = dateIssued,
     datePaid = datePaid,
     dateSent = dateSent,

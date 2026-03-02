@@ -50,7 +50,6 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
                     currency = "USD",
                     amount = 15000,
                     status = InvoiceStatus.DRAFT,
-                    timeRecorded = MOCK_TIME,
                     generalTaxId = null,
                 ),
                 ignoredProperties = arrayOf(

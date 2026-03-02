@@ -3,14 +3,12 @@ package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
-import java.time.Instant
 import java.time.LocalDate
 
 @Table
 class IncomeTaxPayment(
 
     var workspaceId: Long,
-    var timeRecorded: Instant,
     var datePaid: LocalDate,
     var reportingDate: LocalDate,
     var amount: Long,

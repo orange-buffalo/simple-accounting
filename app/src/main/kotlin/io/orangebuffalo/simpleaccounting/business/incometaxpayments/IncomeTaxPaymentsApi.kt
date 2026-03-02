@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
@@ -22,7 +21,6 @@ import jakarta.validation.constraints.NotBlank
 @RequestMapping("/api/workspaces/{workspaceId}/income-tax-payments")
 class IncomeTaxPaymentsApi(
     private val taxPaymentService: IncomeTaxPaymentService,
-    private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
@@ -34,7 +32,6 @@ class IncomeTaxPaymentsApi(
     ): IncomeTaxPaymentDto = taxPaymentService
         .saveTaxPayment(
             IncomeTaxPayment(
-                timeRecorded = timeService.currentTime(),
                 datePaid = request.datePaid,
                 reportingDate = request.reportingDate ?: request.datePaid,
                 notes = request.notes,
@@ -95,7 +92,7 @@ class IncomeTaxPaymentsApi(
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<IncomeTaxPayment, IncomeTaxPaymentDto, NoOpSorting, IncomeTaxPaymentsFilteringRequest> {
         query(Tables.INCOME_TAX_PAYMENT) {
             addDefaultSorting { root.datePaid.desc() }
-            addDefaultSorting { root.timeRecorded.asc() }
+            addDefaultSorting { root.createdAt.asc() }
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
         mapper { mapToIncomeTaxPaymentDto() }
@@ -111,7 +108,7 @@ data class IncomeTaxPaymentDto(
     val id: Long,
     val version: Int,
     val title: String,
-    val timeRecorded: Instant,
+    val createdAt: Instant,
     val datePaid: LocalDate,
     val reportingDate: LocalDate,
     val amount: Long,
@@ -131,7 +128,7 @@ data class EditIncomeTaxPaymentDto(
 private fun IncomeTaxPayment.mapToIncomeTaxPaymentDto() = IncomeTaxPaymentDto(
     id = id!!,
     version = version!!,
-    timeRecorded = timeRecorded,
+    createdAt = createdAt!!,
     datePaid = datePaid,
     reportingDate = reportingDate,
     amount = amount,

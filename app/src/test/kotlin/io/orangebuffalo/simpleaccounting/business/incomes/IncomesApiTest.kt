@@ -54,7 +54,7 @@ internal class IncomesApiTest(
                         put("id", preconditions.firstSpaceIncome.id)
                         put("version", 0)
                         put("dateReceived", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "FINALIZED")
                         put("generalTax", preconditions.spaceTax.id)
                         put("generalTaxAmount", 20)
@@ -79,7 +79,7 @@ internal class IncomesApiTest(
                         put("id", preconditions.secondSpaceIncome.id)
                         put("version", 0)
                         put("dateReceived", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "PENDING_CONVERSION_FOR_TAXATION_PURPOSES")
                     }
                     addJsonObject {
@@ -93,7 +93,7 @@ internal class IncomesApiTest(
                         put("id", preconditions.thirdSpaceIncome.id)
                         put("version", 0)
                         put("dateReceived", MOCK_DATE_VALUE)
-                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("createdAt", MOCK_TIME_VALUE)
                         put("status", "PENDING_CONVERSION")
                     }
                 }
@@ -149,7 +149,7 @@ internal class IncomesApiTest(
                     id: ${preconditions.firstSpaceIncome.id},
                     version: 0,
                     dateReceived: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED",
                     generalTax: ${preconditions.spaceTax.id},
                     generalTaxAmount: 20,
@@ -232,7 +232,7 @@ internal class IncomesApiTest(
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateReceived: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED",
                     generalTax: ${preconditions.planetExpressTax.id},
                     generalTaxRateInBps: 1000,
@@ -283,7 +283,7 @@ internal class IncomesApiTest(
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateReceived: "$MOCK_DATE_VALUE",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     attachments: [],
                     status: "FINALIZED"
                 }"""
@@ -460,7 +460,7 @@ internal class IncomesApiTest(
                     id: ${preconditions.firstSpaceIncome.id},
                     version: 1,
                     dateReceived: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "FINALIZED",
                     generalTax: ${preconditions.planetExpressTax.id},
                     generalTaxRateInBps: 1000,
@@ -493,7 +493,7 @@ internal class IncomesApiTest(
                     id: ${preconditions.firstSpaceIncome.id},
                     version: 1,
                     dateReceived: "3000-02-02",
-                    timeRecorded: "$MOCK_TIME_VALUE",
+                    createdAt: "$MOCK_TIME_VALUE",
                     status: "PENDING_CONVERSION",
                     convertedAmounts: {
                     },

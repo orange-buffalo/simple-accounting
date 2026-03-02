@@ -42,7 +42,7 @@ export interface IncomeTaxPaymentDto {
      * @type {string}
      * @memberof IncomeTaxPaymentDto
      */
-    timeRecorded: string;
+    createdAt: string;
     /**
      * 
      * @type {string}
@@ -82,7 +82,7 @@ export function instanceOfIncomeTaxPaymentDto(value: object): value is IncomeTax
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('version' in value) || value['version'] === undefined) return false;
     if (!('title' in value) || value['title'] === undefined) return false;
-    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('datePaid' in value) || value['datePaid'] === undefined) return false;
     if (!('reportingDate' in value) || value['reportingDate'] === undefined) return false;
     if (!('amount' in value) || value['amount'] === undefined) return false;
@@ -103,7 +103,7 @@ export function IncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscriminator:
         'id': json['id'],
         'version': json['version'],
         'title': json['title'],
-        'timeRecorded': json['timeRecorded'],
+        'createdAt': json['createdAt'],
         'datePaid': json['datePaid'],
         'reportingDate': json['reportingDate'],
         'amount': json['amount'],
@@ -121,7 +121,7 @@ export function IncomeTaxPaymentDtoToJSON(value?: IncomeTaxPaymentDto | null): a
         'id': value['id'],
         'version': value['version'],
         'title': value['title'],
-        'timeRecorded': value['timeRecorded'],
+        'createdAt': value['createdAt'],
         'datePaid': value['datePaid'],
         'reportingDate': value['reportingDate'],
         'amount': value['amount'],

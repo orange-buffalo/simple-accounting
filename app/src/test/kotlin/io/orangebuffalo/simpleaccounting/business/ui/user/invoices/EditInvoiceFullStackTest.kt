@@ -344,7 +344,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     currency = "USD",
                     amount = 25000,
                     status = InvoiceStatus.DRAFT,
-                    timeRecorded = MOCK_TIME,
                     generalTaxId = null,
                 ),
                 ignoredProperties = arrayOf(
@@ -671,7 +670,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 currency = "USD",
                 amount = 45000,
                 status = InvoiceStatus.DRAFT,
-                timeRecorded = MOCK_TIME,
                 generalTaxId = null,
             ),
             ignoredProperties = arrayOf(

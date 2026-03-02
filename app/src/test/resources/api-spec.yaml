@@ -1689,7 +1689,7 @@ components:
         customer:
           type: integer
           format: int64
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         dateIssued:
@@ -1736,13 +1736,13 @@ components:
       required:
       - amount
       - attachments
+      - createdAt
       - currency
       - customer
       - dateIssued
       - dueDate
       - id
       - status
-      - timeRecorded
       - title
       - version
     EditIncomeDto:
@@ -1809,7 +1809,7 @@ components:
           format: int64
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         dateReceived:
@@ -1860,13 +1860,13 @@ components:
       required:
       - attachments
       - convertedAmounts
+      - createdAt
       - currency
       - dateReceived
       - id
       - incomeTaxableAmounts
       - originalAmount
       - status
-      - timeRecorded
       - title
       - useDifferentExchangeRateForIncomeTaxPurposes
       - version
@@ -1907,7 +1907,7 @@ components:
           format: int32
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         datePaid:
@@ -1929,10 +1929,10 @@ components:
       required:
       - amount
       - attachments
+      - createdAt
       - datePaid
       - id
       - reportingDate
-      - timeRecorded
       - title
       - version
     EditGeneralTaxDto:
@@ -2036,7 +2036,7 @@ components:
           format: int64
         title:
           type: string
-        timeRecorded:
+        createdAt:
           type: string
           format: date-time
         datePaid:
@@ -2087,6 +2087,7 @@ components:
       required:
       - attachments
       - convertedAmounts
+      - createdAt
       - currency
       - datePaid
       - id
@@ -2094,7 +2095,6 @@ components:
       - originalAmount
       - percentOnBusiness
       - status
-      - timeRecorded
       - title
       - useDifferentExchangeRateForIncomeTaxPurposes
       - version

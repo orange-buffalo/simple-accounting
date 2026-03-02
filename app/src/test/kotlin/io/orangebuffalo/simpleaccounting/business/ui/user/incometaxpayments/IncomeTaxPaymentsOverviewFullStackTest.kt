@@ -140,7 +140,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
-        // Income tax payments are sorted by datePaid descending (newest first), then by timeRecorded descending
+        // Income tax payments are sorted by datePaid descending (newest first), then by createdAt descending
         // Payment 1 has date Jan 1 - 1 = Dec 31 (newest)
         // Payment 2 has date Jan 1 - 2 = Dec 30
         // ...

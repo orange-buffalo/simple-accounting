@@ -16,13 +16,13 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                 baseUrl = "incomes"
 
                 entityMatcher {
-                    responseFields("title", "notes", "category", "dateReceived", "timeRecorded")
+                    responseFields("title", "notes", "category", "dateReceived", "createdAt")
                     entityFields(
                         { income -> income.title },
                         { income -> income.notes },
                         { income -> income.categoryId },
                         { income -> income.dateReceived },
-                        { income -> income.timeRecorded }
+                        { income -> income.createdAt }
                     )
                 }
 
@@ -137,7 +137,6 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.income(
                                 workspace = targetWorkspace,
                                 dateReceived = MOCK_DATE.plusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -145,7 +144,7 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.income(
                                 workspace = targetWorkspace,
                                 dateReceived = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.minusMillis(1),
+                                createdAt = MOCK_TIME.minusMillis(1),
                             )
                         }
 
@@ -153,7 +152,6 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.income(
                                 workspace = targetWorkspace,
                                 dateReceived = MOCK_DATE,
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -161,7 +159,7 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.income(
                                 workspace = targetWorkspace,
                                 dateReceived = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.plusMillis(1),
+                                createdAt = MOCK_TIME.plusMillis(1),
                             )
                         }
 
@@ -169,7 +167,6 @@ class IncomesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.income(
                                 workspace = targetWorkspace,
                                 dateReceived = MOCK_DATE.minusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
                     }

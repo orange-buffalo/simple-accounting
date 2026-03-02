@@ -16,13 +16,13 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                 baseUrl = "expenses"
 
                 entityMatcher {
-                    responseFields("title", "notes", "category", "datePaid", "timeRecorded")
+                    responseFields("title", "notes", "category", "datePaid", "createdAt")
                     entityFields(
                         { expense -> expense.title },
                         { expense -> expense.notes },
                         { expense -> expense.categoryId },
                         { expense -> expense.datePaid },
-                        { expense -> expense.timeRecorded }
+                        { expense -> expense.createdAt }
                     )
                 }
 
@@ -137,7 +137,6 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.expense(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE.plusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -145,7 +144,7 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.expense(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.minusMillis(1),
+                                createdAt = MOCK_TIME.minusMillis(1),
                             )
                         }
 
@@ -153,7 +152,6 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.expense(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME,
                             )
                         }
 
@@ -161,7 +159,7 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.expense(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE,
-                                timeRecorded = MOCK_TIME.plusMillis(1),
+                                createdAt = MOCK_TIME.plusMillis(1),
                             )
                         }
 
@@ -169,7 +167,6 @@ class ExpensesFilteringApiTest : AbstractFilteringApiTest() {
                             entitiesFactory.expense(
                                 workspace = targetWorkspace,
                                 datePaid = MOCK_DATE.minusDays(1),
-                                timeRecorded = MOCK_TIME,
                             )
                         }
                     }
