@@ -1,8 +1,85 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
+import com.microsoft.playwright.Download
+import com.microsoft.playwright.Locator
+import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.visualToData
+import java.nio.file.Files
 
-class SaDocumentsList {
+class SaDocumentsList private constructor(
+    private val rootLocator: Locator,
+    private val page: Page,
+) : UiComponent<SaDocumentsList>() {
+
+    private val loadingPlaceholder = rootLocator.locator(".sa-documents-list__loading-placeholder")
+    private val storageErrorAlert = rootLocator.locator(".el-alert--error")
+
+    fun shouldBeVisible(): SaDocumentsList {
+        rootLocator.shouldBeVisible()
+        return this
+    }
+
+    fun shouldHaveStorageLoadingPlaceholder(): SaDocumentsList {
+        loadingPlaceholder.shouldBeVisible()
+        return this
+    }
+
+    fun shouldHaveStorageErrorMessage(expectedMessage: String): SaDocumentsList {
+        storageErrorAlert.shouldBeVisible()
+        storageErrorAlert.shouldSatisfy("Error message should contain expected text") {
+            textContent()?.contains(expectedMessage, ignoreCase = false) shouldBe true
+        }
+        return this
+    }
+
+    fun shouldHaveDocumentsLoading(count: Int): SaDocumentsList {
+        shouldSatisfy("$count loading document(s) should be visible") {
+            val loadingDocuments = rootLocator.locator(".sa-document__loader__file-icon").all()
+            loadingDocuments.size shouldBe count
+        }
+        return this
+    }
+
+    fun shouldHaveDocuments(vararg expectedNames: String): SaDocumentsList {
+        shouldSatisfy("Documents should match expected names") {
+            val documents = rootLocator.locator(".sa-document__file-description__header__file-name").all()
+            val actualNames = documents.map { it.textContent() ?: "" }
+            actualNames.shouldContainExactly(expectedNames.toList())
+        }
+        return this
+    }
+
+    fun downloadDocument(documentName: String): ByteArray {
+        val documentLocator = findDocumentByName(documentName)
+        val downloadLink = documentLocator.locator(".sa-document__file-description__file-extras__download-link button")
+        val download: Download = page.waitForDownload {
+            downloadLink.click()
+        }
+        val downloadPath = download.path()
+        val content = Files.readAllBytes(downloadPath)
+        Files.delete(downloadPath)
+        return content
+    }
+
+    fun reportRendering(name: String): SaDocumentsList {
+        rootLocator.reportRendering(name)
+        return this
+    }
+
+    private fun findDocumentByName(documentName: String): Locator {
+        return rootLocator.locator(".sa-document")
+            .filter(
+                Locator.FilterOptions().setHas(
+                    page.locator(".sa-document__file-description__header__file-name")
+                        .locator("text=$documentName")
+                )
+            )
+    }
 
     companion object {
 
@@ -59,5 +136,14 @@ class SaDocumentsList {
                 return utils.visualToData('$VISUAL_SEMANTIC', documentNames.join(', '));
             }
         """
+
+        fun byContainer(container: Locator): SaDocumentsList {
+            val page = container.page()
+            return SaDocumentsList(container.locator(".sa-documents-list"), page)
+        }
+
+        fun singleton(page: Page): SaDocumentsList {
+            return SaDocumentsList(page.locator(".sa-documents-list"), page)
+        }
     }
 }

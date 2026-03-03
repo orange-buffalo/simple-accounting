@@ -121,6 +121,11 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun openDetails(): Locator {
+        expandDetails()
+        return panel.locator("xpath=..").locator(".overview-item__details")
+    }
+
     fun executeEditAction() = executeAction("Edit")
 
     fun executeCopyAction() = executeAction("Copy")
