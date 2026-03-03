@@ -79,17 +79,11 @@ class CreateAccessTokenByCredentialsMutationTest(
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("testCases")
-        fun `should return FIELD_VALIDATION_FAILURE`(testCase: GraphqlValidationTestCase) {
+        fun `should validate inputs`(testCase: GraphqlMutationInputTestCase) {
             client
                 .graphqlMutation(testCase.mutation)
                 .fromAnonymous()
-                .executeAndVerifyValidationError(
-                    violationPath = testCase.violationPath,
-                    error = testCase.error,
-                    message = testCase.message,
-                    path = DgsConstants.MUTATION.CreateAccessTokenByCredentials,
-                    params = testCase.params,
-                )
+                .executeAndVerifyInputValidation(testCase, DgsConstants.MUTATION.CreateAccessTokenByCredentials)
         }
     }
 

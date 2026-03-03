@@ -346,5 +346,29 @@ class GraphqlClientRequestExecutor(
         )
     }
 
+    fun executeAndVerifyInputValidation(
+        testCase: GraphqlMutationInputTestCase,
+        path: String,
+    ) {
+        when (testCase) {
+            is GraphqlMutationValidationErrorTestCase -> executeAndVerifyValidationError(
+                violationPath = testCase.violationPath,
+                error = testCase.error,
+                message = testCase.message,
+                path = path,
+                params = testCase.params,
+            )
+            is GraphqlMutationValidBoundaryTestCase -> {
+                requestSpec
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody<String>()
+                    .consumeWith { body ->
+                        Assertions.assertThat(body.responseBody).doesNotContain("FIELD_VALIDATION_FAILURE")
+                    }
+            }
+        }
+    }
+
     fun execute(): WebTestClient.ResponseSpec = requestSpec.exchange()
 }

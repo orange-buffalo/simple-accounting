@@ -77,17 +77,11 @@ class ChangePasswordMutationTest(
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("testCases")
-        fun `should return FIELD_VALIDATION_FAILURE`(testCase: GraphqlValidationTestCase) {
+        fun `should validate inputs`(testCase: GraphqlMutationInputTestCase) {
             client
                 .graphqlMutation(testCase.mutation)
                 .from(preconditions.fry)
-                .executeAndVerifyValidationError(
-                    violationPath = testCase.violationPath,
-                    error = testCase.error,
-                    message = testCase.message,
-                    path = DgsConstants.MUTATION.ChangePassword,
-                    params = testCase.params,
-                )
+                .executeAndVerifyInputValidation(testCase, DgsConstants.MUTATION.ChangePassword)
         }
     }
 
@@ -115,37 +109,6 @@ class ChangePasswordMutationTest(
                     message = "Invalid current password",
                     errorCode = "CURRENT_PASSWORD_MISMATCH",
                     path = DgsConstants.MUTATION.ChangePassword
-                )
-        }
-
-        @Test
-        fun `should change password with minimum valid length`() {
-            whenever(passwordEncoder.matches("a", preconditions.fry.passwordHash)) doReturn true
-            whenever(passwordEncoder.encode("b")) doReturn "new password hash"
-
-            client
-                .graphqlMutation { changePasswordMutation("a", "b") }
-                .from(preconditions.fry)
-                .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.ChangePassword to buildJsonObject {
-                        put("success", true)
-                    }
-                )
-        }
-
-        @Test
-        fun `should change password with exactly max length`() {
-            val maxLengthPassword = "a".repeat(100)
-            whenever(passwordEncoder.matches(maxLengthPassword, preconditions.fry.passwordHash)) doReturn true
-            whenever(passwordEncoder.encode(maxLengthPassword)) doReturn "new password hash"
-
-            client
-                .graphqlMutation { changePasswordMutation(maxLengthPassword, maxLengthPassword) }
-                .from(preconditions.fry)
-                .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.ChangePassword to buildJsonObject {
-                        put("success", true)
-                    }
                 )
         }
 
