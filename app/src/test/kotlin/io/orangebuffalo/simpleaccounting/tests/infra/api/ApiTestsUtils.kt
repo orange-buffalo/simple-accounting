@@ -138,6 +138,23 @@ fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): Gra
 fun ApiTestClient.graphqlMutation(mutationSpec: MutationProjection.() -> MutationProjection): GraphqlClientRequestExecutor =
     buildGraphqlRequest { DgsClient.buildMutation(_projection = mutationSpec) }
 
+fun ApiTestClient.graphqlRawQuery(query: String): GraphqlClientRequestExecutor = this
+    .post()
+    .uri("/api/graphql")
+    .sendJson {
+        put("query", query)
+    }
+    .let {
+        GraphqlClientRequestExecutor(it)
+    }
+
+fun ApiTestClient.buildInputValidationRequest(testCase: GraphqlMutationInputTestCase): GraphqlClientRequestExecutor =
+    when (testCase) {
+        is GraphqlMutationValidationErrorTestCase -> graphqlMutation(testCase.mutation)
+        is GraphqlMutationRejectedInputTestCase -> graphqlRawQuery(testCase.rawQueryBuilder())
+        is GraphqlMutationValidBoundaryTestCase -> graphqlMutation(testCase.mutation)
+    }
+
 private fun ApiTestClient.buildGraphqlRequest(queryBuilder: () -> String): GraphqlClientRequestExecutor = this
     .post()
     .uri("/api/graphql")
@@ -358,13 +375,36 @@ class GraphqlClientRequestExecutor(
                 path = path,
                 params = testCase.params,
             )
+            is GraphqlMutationRejectedInputTestCase -> {
+                requestSpec
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody<String>()
+                    .consumeWith { body ->
+                        val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
+                        Assertions.assertThat(json.containsKey("errors"))
+                            .describedAs("Expected errors in response but got none: ${body.responseBody}")
+                            .isTrue()
+                    }
+            }
             is GraphqlMutationValidBoundaryTestCase -> {
                 requestSpec
                     .exchange()
                     .expectStatus().isOk
                     .expectBody<String>()
                     .consumeWith { body ->
-                        Assertions.assertThat(body.responseBody).doesNotContain("FIELD_VALIDATION_FAILURE")
+                        val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
+                        val errors = json["errors"]?.jsonArray ?: return@consumeWith
+                        val validationErrors = errors.filter { error ->
+                            error.jsonObject["extensions"]
+                                ?.jsonObject
+                                ?.get("errorType")
+                                ?.jsonPrimitive
+                                ?.content == "FIELD_VALIDATION_FAILURE"
+                        }
+                        Assertions.assertThat(validationErrors)
+                            .describedAs("Expected no validation errors but got: $validationErrors")
+                            .isEmpty()
                     }
             }
         }

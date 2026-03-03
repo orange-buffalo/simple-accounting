@@ -101,7 +101,7 @@ class UpdateUserProfileMutationTest(
         @MethodSource("testCases")
         fun `should validate inputs`(testCase: GraphqlMutationInputTestCase) {
             client
-                .graphqlMutation(testCase.mutation)
+                .buildInputValidationRequest(testCase)
                 .from(preconditions.fry)
                 .executeAndVerifyInputValidation(testCase, DgsConstants.MUTATION.UpdateProfile)
         }

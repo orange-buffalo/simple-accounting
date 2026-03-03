@@ -90,7 +90,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
         @MethodSource("testCases")
         fun `should validate inputs`(testCase: GraphqlMutationInputTestCase) {
             client
-                .graphqlMutation(testCase.mutation)
+                .buildInputValidationRequest(testCase)
                 .fromAnonymous()
                 .executeAndVerifyInputValidation(testCase, DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken)
         }
