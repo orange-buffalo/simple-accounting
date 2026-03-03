@@ -142,6 +142,7 @@ class RefreshAccessTokenMutationTest(
 
         @Test
         fun `should return JWT token when user is authenticated with transient user`() {
+            // Force preconditions evaluation before stubbing
             val tokenValue = preconditions.validAccessToken.token
             val validTill = preconditions.validAccessToken.validTill
 
@@ -164,6 +165,7 @@ class RefreshAccessTokenMutationTest(
 
         @Test
         fun `should return null token when transient user token is revoked`() {
+            // Force preconditions evaluation before stubbing
             val tokenValue = preconditions.revokedAccessToken.token
 
             whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
@@ -181,6 +183,7 @@ class RefreshAccessTokenMutationTest(
 
         @Test
         fun `should return null token when transient user token is expired`() {
+            // Force preconditions evaluation before stubbing
             val tokenValue = preconditions.expiredAccessToken.token
 
             whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
