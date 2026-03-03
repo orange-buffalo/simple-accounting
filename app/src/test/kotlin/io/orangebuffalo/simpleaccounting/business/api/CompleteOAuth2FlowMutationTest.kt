@@ -10,6 +10,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,76 +30,80 @@ class CompleteOAuth2FlowMutationTest(
         }
     }
 
-    @Test
-    fun `should complete OAuth2 flow successfully for anonymous user`() {
-        client
-            .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
-                    put("success", true)
-                    put("errorId", JsonNull)
-                }
-            )
-
-        verifyBlocking(authorizationProvider) {
-            handleAuthorizationResponse(
-                OAuth2AuthorizationCallbackRequest(
-                    code = "code",
-                    error = null,
-                    state = "state"
+    @Nested
+    @DisplayName("Business Flow")
+    inner class BusinessFlow {
+        @Test
+        fun `should complete OAuth2 flow successfully for anonymous user`() {
+            client
+                .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
+                        put("success", true)
+                        put("errorId", JsonNull)
+                    }
                 )
-            )
-        }
-    }
 
-    @Test
-    fun `should complete OAuth2 flow successfully for authenticated user`() {
-        client
-            .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
-                    put("success", true)
-                    put("errorId", JsonNull)
-                }
-            )
-    }
-
-    @Test
-    fun `should return failure response with errorId when provider throws exception`() {
-        whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
-        authorizationProvider.stub {
-            onBlocking { handleAuthorizationResponse(any()) } doThrow IllegalStateException("State is not known")
+            verifyBlocking(authorizationProvider) {
+                handleAuthorizationResponse(
+                    OAuth2AuthorizationCallbackRequest(
+                        code = "code",
+                        error = null,
+                        state = "state"
+                    )
+                )
+            }
         }
 
-        client
-            .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "unknown-state") }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
-                    put("success", false)
-                    put("errorId", "test-error-id")
-                }
-            )
-    }
-
-    @Test
-    fun `should return failure response with errorId when provider receives error response`() {
-        whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
-        authorizationProvider.stub {
-            onBlocking { handleAuthorizationResponse(any()) } doThrow RuntimeException("Authorization failed with error access_denied")
+        @Test
+        fun `should complete OAuth2 flow successfully for authenticated user`() {
+            client
+                .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
+                        put("success", true)
+                        put("errorId", JsonNull)
+                    }
+                )
         }
 
-        client
-            .graphqlMutation { completeOAuth2FlowMutation(code = null, error = "access_denied", state = "state") }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
-                    put("success", false)
-                    put("errorId", "test-error-id")
-                }
-            )
+        @Test
+        fun `should return failure response with errorId when provider throws exception`() {
+            whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
+            authorizationProvider.stub {
+                onBlocking { handleAuthorizationResponse(any()) } doThrow IllegalStateException("State is not known")
+            }
+
+            client
+                .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "unknown-state") }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
+                        put("success", false)
+                        put("errorId", "test-error-id")
+                    }
+                )
+        }
+
+        @Test
+        fun `should return failure response with errorId when provider receives error response`() {
+            whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
+            authorizationProvider.stub {
+                onBlocking { handleAuthorizationResponse(any()) } doThrow RuntimeException("Authorization failed with error access_denied")
+            }
+
+            client
+                .graphqlMutation { completeOAuth2FlowMutation(code = null, error = "access_denied", state = "state") }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CompleteOAuth2Flow to buildJsonObject {
+                        put("success", false)
+                        put("errorId", "test-error-id")
+                    }
+                )
+        }
     }
 
     private fun MutationProjection.completeOAuth2FlowMutation(

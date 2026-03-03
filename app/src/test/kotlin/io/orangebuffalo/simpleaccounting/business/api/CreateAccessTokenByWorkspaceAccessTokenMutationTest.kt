@@ -1,16 +1,20 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
-import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
-import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
@@ -48,110 +52,116 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
         }
     }
 
-    @Test
-    fun `should return a JWT token for valid workspace access token`() {
-        val tokenValue = preconditions.validAccessToken.token
-        val validTill = preconditions.validAccessToken.validTill
+    @Nested
+    @DisplayName("Authorization")
+    inner class Authorization {
+        @Test
+        fun `should allow authenticated users to call the mutation`() {
+            val tokenValue = preconditions.validAccessToken.token
+            val validTill = preconditions.validAccessToken.validTill
 
-        doReturn("jwtTokenForSharedWorkspace").whenever(jwtService).buildJwtToken(argThat {
-            userName == tokenValue
-                    && isTransient
-                    && roles.size == 1
-                    && roles.contains(SaUserRoles.USER)
-        }, eq(validTill))
+            doReturn("jwtTokenForSharedWorkspace").whenever(jwtService).buildJwtToken(argThat {
+                userName == tokenValue
+                        && isTransient
+                        && roles.size == 1
+                        && roles.contains(SaUserRoles.USER)
+            }, eq(validTill))
 
-        client
-            .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
-            .fromAnonymous()
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
-                    put("accessToken", "jwtTokenForSharedWorkspace")
-                }
-            )
+            client
+                .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
+                        put("accessToken", "jwtTokenForSharedWorkspace")
+                    }
+                )
+        }
     }
 
-    @Test
-    fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is not known`() {
-        client
-            .graphqlMutation { workspaceAccessTokenMutation("unknownToken") }
-            .fromAnonymous()
-            .executeAndVerifyBusinessError(
-                message = "Token unknownToken is not valid",
-                errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
-            )
+    @Nested
+    @DisplayName("Inputs Validation")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class InputsValidation {
+        fun testCases() = mustNotBeBlankTestCases("workspaceAccessToken") { value ->
+            { workspaceAccessTokenMutation(value) }
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("testCases")
+        fun `should return FIELD_VALIDATION_FAILURE`(testCase: GraphqlValidationTestCase) {
+            client
+                .graphqlMutation(testCase.mutation)
+                .fromAnonymous()
+                .executeAndVerifyValidationError(
+                    violationPath = testCase.violationPath,
+                    error = testCase.error,
+                    message = testCase.message,
+                    path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken,
+                    params = testCase.params,
+                )
+        }
     }
 
-    @Test
-    fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is revoked`() {
-        client
-            .graphqlMutation { workspaceAccessTokenMutation(preconditions.revokedAccessToken.token) }
-            .fromAnonymous()
-            .executeAndVerifyBusinessError(
-                message = "Token ${preconditions.revokedAccessToken.token} is not valid",
-                errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
-            )
-    }
+    @Nested
+    @DisplayName("Business Flow")
+    inner class BusinessFlow {
+        @Test
+        fun `should return a JWT token for valid workspace access token`() {
+            val tokenValue = preconditions.validAccessToken.token
+            val validTill = preconditions.validAccessToken.validTill
 
-    @Test
-    fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is expired`() {
-        client
-            .graphqlMutation { workspaceAccessTokenMutation(preconditions.expiredAccessToken.token) }
-            .fromAnonymous()
-            .executeAndVerifyBusinessError(
-                message = "Token ${preconditions.expiredAccessToken.token} is not valid",
-                errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
-            )
-    }
+            doReturn("jwtTokenForSharedWorkspace").whenever(jwtService).buildJwtToken(argThat {
+                userName == tokenValue
+                        && isTransient
+                        && roles.size == 1
+                        && roles.contains(SaUserRoles.USER)
+            }, eq(validTill))
 
-    @Test
-    fun `should return FIELD_VALIDATION_FAILURE when workspaceAccessToken is blank`() {
-        client
-            .graphqlMutation { workspaceAccessTokenMutation("  ") }
-            .fromAnonymous()
-            .executeAndVerifyValidationError(
-                violationPath = "workspaceAccessToken",
-                error = "MustNotBeBlank",
-                message = "must not be blank",
-                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
-            )
-    }
+            client
+                .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
+                .fromAnonymous()
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
+                        put("accessToken", "jwtTokenForSharedWorkspace")
+                    }
+                )
+        }
 
-    @Test
-    fun `should return FIELD_VALIDATION_FAILURE when workspaceAccessToken is empty`() {
-        client
-            .graphqlMutation { workspaceAccessTokenMutation("") }
-            .fromAnonymous()
-            .executeAndVerifyValidationError(
-                violationPath = "workspaceAccessToken",
-                error = "MustNotBeBlank",
-                message = "must not be blank",
-                path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
-            )
-    }
+        @Test
+        fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is not known`() {
+            client
+                .graphqlMutation { workspaceAccessTokenMutation("unknownToken") }
+                .fromAnonymous()
+                .executeAndVerifyBusinessError(
+                    message = "Token unknownToken is not valid",
+                    errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
+                    path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
+                )
+        }
 
-    @Test
-    fun `should allow authenticated users to call the mutation`() {
-        val tokenValue = preconditions.validAccessToken.token
-        val validTill = preconditions.validAccessToken.validTill
+        @Test
+        fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is revoked`() {
+            client
+                .graphqlMutation { workspaceAccessTokenMutation(preconditions.revokedAccessToken.token) }
+                .fromAnonymous()
+                .executeAndVerifyBusinessError(
+                    message = "Token ${preconditions.revokedAccessToken.token} is not valid",
+                    errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
+                    path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
+                )
+        }
 
-        doReturn("jwtTokenForSharedWorkspace").whenever(jwtService).buildJwtToken(argThat {
-            userName == tokenValue
-                    && isTransient
-                    && roles.size == 1
-                    && roles.contains(SaUserRoles.USER)
-        }, eq(validTill))
-
-        client
-            .graphqlMutation { workspaceAccessTokenMutation(tokenValue) }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
-                    put("accessToken", "jwtTokenForSharedWorkspace")
-                }
-            )
+        @Test
+        fun `should return INVALID_WORKSPACE_ACCESS_TOKEN error when token is expired`() {
+            client
+                .graphqlMutation { workspaceAccessTokenMutation(preconditions.expiredAccessToken.token) }
+                .fromAnonymous()
+                .executeAndVerifyBusinessError(
+                    message = "Token ${preconditions.expiredAccessToken.token} is not valid",
+                    errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
+                    path = DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken
+                )
+        }
     }
 
     private fun MutationProjection.workspaceAccessTokenMutation(
