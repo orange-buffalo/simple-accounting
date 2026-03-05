@@ -37,16 +37,16 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         val fileContent = "Spaceship fuel receipt from Mars".toByteArray()
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive")
-                val workspace = workspace(owner = fry)
-                val expense = expense(workspace = workspace).also {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
                     save(
                         GoogleDriveStorageIntegration(
-                            userId = fry.id!!,
+                            userId = it.id!!,
                             folderId = "root-folder-id",
                         )
                     )
                 }
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
             }
         }
 
@@ -114,16 +114,16 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
 
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive")
-                val workspace = workspace(owner = fry)
-                val expense = expense(workspace = workspace).also {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
                     save(
                         GoogleDriveStorageIntegration(
-                            userId = fry.id!!,
+                            userId = it.id!!,
                             folderId = "root-folder-id",
                         )
                     )
                 }
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
             }
         }
 
@@ -142,9 +142,11 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             responseFolderId = "workspace-folder-id",
             expectedAuthToken = accessToken,
         )
-        GoogleDriveApiMocks.mockUploadFile(
-            responseId = "gdrive-uploaded-file-id",
-            responseSize = file1Content.size.toLong(),
+        GoogleDriveApiMocks.mockUploadFileSequence(
+            responses = listOf(
+                GoogleDriveApiMocks.UploadFileResponse(id = "gdrive-file-id-1", size = file1Content.size.toLong()),
+                GoogleDriveApiMocks.UploadFileResponse(id = "gdrive-file-id-2", size = file2Content.size.toLong()),
+            ),
             expectedAuthToken = accessToken,
         )
 
@@ -177,11 +179,24 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         val documents = savedExpense.attachments.map { attachment ->
             aggregateTemplate.findSingle<Document>(attachment.documentId)
         }
+
+        val storageLocations = documents.map { it.storageLocation }.toSet()
+        storageLocations.shouldBe(setOf("gdrive-file-id-1", "gdrive-file-id-2"))
+
         documents.forEach { doc ->
-            doc.shouldWithClue("Document should be stored in Google Drive") {
+            doc.shouldWithClue("Document '${doc.name}' should be stored in Google Drive") {
                 storageId.shouldBe("google-drive")
-                storageLocation.shouldBe("gdrive-uploaded-file-id")
             }
+        }
+
+        val doc1 = documents.find { it.storageLocation == "gdrive-file-id-1" }!!
+        doc1.shouldWithClue("First uploaded document should have correct size") {
+            sizeInBytes.shouldBe(file1Content.size.toLong())
+        }
+
+        val doc2 = documents.find { it.storageLocation == "gdrive-file-id-2" }!!
+        doc2.shouldWithClue("Second uploaded document should have correct size") {
+            sizeInBytes.shouldBe(file2Content.size.toLong())
         }
     }
 
@@ -252,16 +267,16 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         val fileContent = "Slurm supplies order form".toByteArray()
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive")
-                val workspace = workspace(owner = fry)
-                val expense = expense(workspace = workspace).also {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
                     save(
                         GoogleDriveStorageIntegration(
-                            userId = fry.id!!,
+                            userId = it.id!!,
                             folderId = "root-folder-id",
                         )
                     )
                 }
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
             }
         }
 
@@ -319,6 +334,11 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             storageId.shouldBe("google-drive")
             storageLocation.shouldBe("gdrive-uploaded-file-id")
         }
+
+        GoogleDriveApiMocks.verifyCreateFolderRequest(
+            folderName = preconditions.workspace.id.toString(),
+            parentFolderId = "root-folder-id",
+        )
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
