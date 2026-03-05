@@ -17,6 +17,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -24,6 +25,9 @@ import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
 class EditInvoiceFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
 
     @Test
     fun `should load invoice with basic fields`(page: Page) {
@@ -1142,7 +1146,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = Files.createTempFile("test-upload-", "-$fileName")
+        val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
     }

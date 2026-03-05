@@ -34,6 +34,9 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
     @TempDir
     private lateinit var tempDir: Path
 
+    @TempDir
+    private lateinit var uploadTempDir: Path
+
     @BeforeEach
     fun setupLocalFsStorage() {
         whenever(localFsStorageProperties.baseDirectory) doReturn tempDir
@@ -191,7 +194,7 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = Files.createTempFile("test-upload-local-fs-", "-$fileName")
+        val testFile = Files.createTempFile(uploadTempDir, "test-upload-local-fs-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
     }
