@@ -16,7 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
-import java.nio.file.Files
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
@@ -31,6 +31,9 @@ import kotlin.io.path.writeBytes
  * for Google Drive setup and authorization flow tests.
  */
 class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
 
     @Test
     fun `should upload single file to Google Drive`(page: Page) {
@@ -348,7 +351,6 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val tempDir = Files.createTempDirectory("test-upload-gdrive-")
         val testFile = tempDir.resolve(fileName)
         testFile.writeBytes(content)
         return testFile
