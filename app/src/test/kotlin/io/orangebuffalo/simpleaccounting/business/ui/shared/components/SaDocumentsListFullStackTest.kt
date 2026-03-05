@@ -144,7 +144,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
             blockedRequestSpec = {
                 val documentsList = SaDocumentsList.singleton(page)
                 documentsList {
-                    shouldHaveDocumentsLoading(1)
+                    shouldHaveDocuments(SaDocumentsList.DocumentItem.Loading)
                     reportRendering("documents-list.documents-loading")
                 }
             }
@@ -186,7 +186,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         val documentsList = SaDocumentsList.singleton(page)
         documentsList {
-            shouldHaveDocuments("slurm-delivery-receipt.pdf")
+            shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready("slurm-delivery-receipt.pdf", "(30 byte)"))
             reportRendering("documents-list.single-document")
         }
     }
@@ -234,11 +234,11 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         val documentsList = SaDocumentsList.singleton(page)
         documentsList {
-            // Documents are sorted alphabetically by name
+            // Documents are sorted alphabetically by name; no sizeInBytes set so size = null
             shouldHaveDocuments(
-                "bender-receipt.jpg",
-                "leela-invoice.docx",
-                "zoidberg-contract.pdf"
+                SaDocumentsList.DocumentItem.Ready("bender-receipt.jpg"),
+                SaDocumentsList.DocumentItem.Ready("leela-invoice.docx"),
+                SaDocumentsList.DocumentItem.Ready("zoidberg-contract.pdf")
             )
             reportRendering("documents-list.multiple-documents-sorted")
         }
@@ -279,7 +279,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         val documentsList = SaDocumentsList.singleton(page)
         documentsList {
-            shouldHaveDocuments("slurm-receipt.pdf")
+            shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready("slurm-receipt.pdf", "(46 byte)"))
             val downloadedContent = downloadDocument("slurm-receipt.pdf")
             downloadedContent.shouldBe(documentContent)
         }

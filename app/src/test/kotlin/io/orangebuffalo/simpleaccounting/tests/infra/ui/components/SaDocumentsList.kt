@@ -37,21 +37,28 @@ class SaDocumentsList private constructor(
         return this
     }
 
-    fun shouldHaveDocumentsLoading(count: Int): SaDocumentsList {
-        shouldSatisfy("$count loading document(s) should be visible") {
-            val loadingDocuments = rootLocator.locator(".sa-document__loader__file-icon").all()
-            loadingDocuments.size shouldBe count
+    fun shouldHaveDocuments(vararg expected: DocumentItem): SaDocumentsList {
+        shouldSatisfy("Documents should match expected state") {
+            val documentLocators = rootLocator.locator(".sa-document").all()
+            val actualDocuments = documentLocators.map { documentLocator ->
+                extractDocumentInfo(documentLocator)
+            }
+            actualDocuments.shouldContainExactly(expected.toList())
         }
         return this
     }
 
-    fun shouldHaveDocuments(vararg expectedNames: String): SaDocumentsList {
-        shouldSatisfy("Documents should match expected names") {
-            val documents = rootLocator.locator(".sa-document__file-description__header__file-name").all()
-            val actualNames = documents.map { it.textContent() ?: "" }
-            actualNames.shouldContainExactly(expectedNames.toList())
+    private fun extractDocumentInfo(documentLocator: Locator): DocumentItem {
+        if (documentLocator.locator(".sa-document__loader__file-icon").isVisible) {
+            return DocumentItem.Loading
         }
-        return this
+        val name = documentLocator.locator(".sa-document__file-description__header__file-name")
+            .textContent() ?: ""
+        val sizeLocator = documentLocator.locator(
+            ".sa-document__file-description__file-extras > span:not(.sa-document__file-description__file-extras__download-link)"
+        )
+        val size = if (sizeLocator.isVisible) sizeLocator.textContent()?.trim()?.takeIf { it.isNotEmpty() } else null
+        return DocumentItem.Ready(name, size)
     }
 
     fun downloadDocument(documentName: String): ByteArray {
@@ -79,6 +86,14 @@ class SaDocumentsList private constructor(
                         .locator("text=$documentName")
                 )
             )
+    }
+
+    sealed class DocumentItem {
+        data object Loading : DocumentItem()
+        data class Ready(
+            val name: String,
+            val size: String? = null,
+        ) : DocumentItem()
     }
 
     companion object {
