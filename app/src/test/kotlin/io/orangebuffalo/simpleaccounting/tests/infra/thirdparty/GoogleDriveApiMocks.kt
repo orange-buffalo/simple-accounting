@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.thirdparty
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.stubbing.Scenario
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -109,40 +108,39 @@ object GoogleDriveApiMocks {
         )
     }
 
-    fun mockUploadFileSequence(
-        responses: List<UploadFileResponse>,
+    /**
+     * Mocks a Google Drive file upload, matching on the file name in the multipart metadata part.
+     * Unlike [mockUploadFile], this method is safe to use for concurrent uploads as each stub
+     * independently matches requests by file name, without relying on request ordering.
+     */
+    fun mockUploadFileForFileName(
+        fileName: String,
+        responseId: String,
+        responseSize: Long,
         expectedAuthToken: OAuthMocksToken,
     ) {
-        val scenarioName = "upload-file-sequence"
-        responses.forEachIndexed { index, response ->
-            val currentState = if (index == 0) Scenario.STARTED else "upload-$index"
-            val nextState = "upload-${index + 1}"
-            wireMockServer.stubFor(
-                post(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
-                    .inScenario(scenarioName)
-                    .whenScenarioStateIs(currentState)
-                    .willSetStateTo(nextState)
-                    .withQueryParam("fields", equalTo("id, size"))
-                    .withQueryParam("uploadType", equalTo("multipart"))
-                    .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
-                    .willReturn(
-                        aResponse()
-                            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                            .withBody(
-                                buildJsonObject {
-                                    put("id", response.id)
-                                    put("size", response.size)
-                                }.toString()
-                            )
-                    )
-            )
-        }
+        wireMockServer.stubFor(
+            post(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
+                .withQueryParam("fields", equalTo("id, size"))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .withMultipartRequestBody(
+                    aMultipart()
+                        .withName("metadata")
+                        .withBody(matchingJsonPath("$.name", equalTo(fileName)))
+                )
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(
+                            buildJsonObject {
+                                put("id", responseId)
+                                put("size", responseSize)
+                            }.toString()
+                        )
+                )
+        )
     }
-
-    data class UploadFileResponse(
-        val id: String,
-        val size: Long,
-    )
 
     fun mockDownloadFile(
         fileId: String,
