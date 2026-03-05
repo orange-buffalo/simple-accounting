@@ -245,6 +245,61 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should render document size in bytes, kilobytes, and megabytes`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val invoice = invoice(
+                    customer = customer(workspace = workspace),
+                    attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "bender-photo.jpg",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "bender-photo-location",
+                            sizeInBytes = 500,
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "leela-scan.pdf",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "leela-scan-location",
+                            sizeInBytes = 2048,
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "zoidberg-report.docx",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "zoidberg-report-location",
+                            sizeInBytes = 1024L * 1024 * 2,
+                        ),
+                    ),
+                    title = "Planet Express size test"
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "Planet Express size test" }
+                    .openDetails()
+            }
+        }
+
+        val documentsList = SaDocumentsList.singleton(page)
+        documentsList {
+            shouldHaveDocuments(
+                SaDocumentsList.DocumentItem.Ready("bender-photo.jpg", "(500 byte)"),
+                SaDocumentsList.DocumentItem.Ready("leela-scan.pdf", "(2 kB)"),
+                SaDocumentsList.DocumentItem.Ready("zoidberg-report.docx", "(2 MB)"),
+            )
+            reportRendering("documents-list.size-rendering")
+        }
+    }
+
+    @Test
     fun `should download document with correct content`(page: Page) {
         val documentContent = "Good news, everyone! Slurm delivery confirmed.".toByteArray()
         val preconditions = preconditions {
