@@ -16,7 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
-import java.nio.file.Files
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
@@ -31,6 +31,9 @@ import kotlin.io.path.writeBytes
  * for Google Drive setup and authorization flow tests.
  */
 class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
 
     @Test
     fun `should upload single file to Google Drive`(page: Page) {
@@ -142,16 +145,22 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             responseFolderId = "workspace-folder-id",
             expectedAuthToken = accessToken,
         )
-        GoogleDriveApiMocks.mockUploadFileSequence(
-            responses = listOf(
-                GoogleDriveApiMocks.UploadFileResponse(id = "gdrive-file-id-1", size = file1Content.size.toLong()),
-                GoogleDriveApiMocks.UploadFileResponse(id = "gdrive-file-id-2", size = file2Content.size.toLong()),
-            ),
-            expectedAuthToken = accessToken,
-        )
 
         val testFile1 = createTestFile("delivery-log.pdf", file1Content)
         val testFile2 = createTestFile("fuel-invoice.jpg", file2Content)
+
+        GoogleDriveApiMocks.mockUploadFileForFileName(
+            fileName = testFile1.name,
+            responseId = "gdrive-file-id-1",
+            responseSize = file1Content.size.toLong(),
+            expectedAuthToken = accessToken,
+        )
+        GoogleDriveApiMocks.mockUploadFileForFileName(
+            fileName = testFile2.name,
+            responseId = "gdrive-file-id-2",
+            responseSize = file2Content.size.toLong(),
+            expectedAuthToken = accessToken,
+        )
 
         page.authenticateViaCookie(preconditions.fry)
         page.navigate("/expenses/${preconditions.expense.id}/edit")
@@ -342,7 +351,7 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = Files.createTempFile("test-upload-gdrive-", "-$fileName")
+        val testFile = tempDir.resolve(fileName)
         testFile.writeBytes(content)
         return testFile
     }
