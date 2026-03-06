@@ -17,6 +17,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
@@ -351,7 +352,7 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = tempDir.resolve(fileName)
+        val testFile = Files.createTempFile(tempDir, "test-upload-gdrive-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
     }
