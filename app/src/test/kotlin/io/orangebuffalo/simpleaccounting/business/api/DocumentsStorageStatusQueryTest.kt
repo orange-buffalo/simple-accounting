@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -33,48 +35,56 @@ class DocumentsStorageStatusQueryTest(
         }
     }
 
-    @Test
-    fun `should return error when accessed anonymously`() {
-        client
-            .graphql { documentsStorageStatusQuery() }
-            .fromAnonymous()
-            .executeAndVerifyNotAuthorized(
-                path = DgsConstants.QUERY.DocumentsStorageStatus,
-            )
+    @Nested
+    @DisplayName("Authorization")
+    inner class Authorization {
+        @Test
+        fun `should return error when accessed anonymously`() {
+            client
+                .graphql { documentsStorageStatusQuery() }
+                .fromAnonymous()
+                .executeAndVerifyNotAuthorized(
+                    path = DgsConstants.QUERY.DocumentsStorageStatus,
+                )
+        }
+
+        @Test
+        fun `should prohibit access with workspace token`() {
+            client
+                .graphql { documentsStorageStatusQuery() }
+                .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
+                .executeAndVerifyNotAuthorized(
+                    path = DgsConstants.QUERY.DocumentsStorageStatus,
+                )
+        }
     }
 
-    @Test
-    fun `should prohibit access with workspace token`() {
-        client
-            .graphql { documentsStorageStatusQuery() }
-            .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
-            .executeAndVerifyNotAuthorized(
-                path = DgsConstants.QUERY.DocumentsStorageStatus,
-            )
-    }
+    @Nested
+    @DisplayName("Business Flow")
+    inner class BusinessFlow {
+        @Test
+        fun `should return active storage status when storage is configured`() {
+            client
+                .graphql { documentsStorageStatusQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.QUERY.DocumentsStorageStatus to buildJsonObject {
+                        put("active", true)
+                    }
+                )
+        }
 
-    @Test
-    fun `should return active storage status when storage is configured`() {
-        client
-            .graphql { documentsStorageStatusQuery() }
-            .from(preconditions.fry)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.QUERY.DocumentsStorageStatus to buildJsonObject {
-                    put("active", true)
-                }
-            )
-    }
-
-    @Test
-    fun `should return inactive storage status when storage is not configured`() {
-        client
-            .graphql { documentsStorageStatusQuery() }
-            .from(preconditions.zoidberg)
-            .executeAndVerifySuccessResponse(
-                DgsConstants.QUERY.DocumentsStorageStatus to buildJsonObject {
-                    put("active", false)
-                }
-            )
+        @Test
+        fun `should return inactive storage status when storage is not configured`() {
+            client
+                .graphql { documentsStorageStatusQuery() }
+                .from(preconditions.zoidberg)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.QUERY.DocumentsStorageStatus to buildJsonObject {
+                        put("active", false)
+                    }
+                )
+        }
     }
 
     private fun QueryProjection.documentsStorageStatusQuery(): QueryProjection =

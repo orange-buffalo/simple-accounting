@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
-import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -9,6 +9,8 @@ import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -34,86 +36,94 @@ class WorkspacesQueryTest(
         }
     }
 
-    @Test
-    fun `should return error when accessed anonymously`() {
-        client.graphql {
-            workspaces {
-                name
-            }
-        }
-            .fromAnonymous()
-            .executeAndVerifyNotAuthorized(
-                path = DgsConstants.QUERY.Workspaces,
-            )
-    }
-
-    @Test
-    fun `should prohibit access with workspace token`() {
-        client.graphql {
-            workspaces {
-                name
-            }
-        }
-            .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
-            .executeAndVerifyNotAuthorized(
-                path = DgsConstants.QUERY.Workspaces,
-            )
-    }
-
-    @Test
-    fun `should return only current user workspaces`() {
-        client.graphql {
-            workspaces {
-                name
-            }
-        }
-            .from(preconditions.fry)
-            .executeAndVerifyResponse(
-                "workspaces" to buildJsonArray {
-                    add(buildJsonObject {
-                        put("name", "Planet Express")
-                    })
-                }
-            )
-    }
-
-    @Test
-    fun `should return workspaces with categories and expenses with categories`() {
-        client.graphql {
-            workspaces {
-                name
-                categories { name }
-                expenses {
-                    title
-                    category { name }
+    @Nested
+    @DisplayName("Authorization")
+    inner class Authorization {
+        @Test
+        fun `should return error when accessed anonymously`() {
+            client.graphql {
+                workspaces {
+                    name
                 }
             }
+                .fromAnonymous()
+                .executeAndVerifyNotAuthorized(
+                    path = DgsConstants.QUERY.Workspaces,
+                )
         }
-            .from(preconditions.fry)
-            .executeAndVerifyResponse(
-                "workspaces" to buildJsonArray {
-                    add(buildJsonObject {
-                        put("name", "Planet Express")
-                        putJsonArray("categories") {
-                            add(buildJsonObject { put("name", "Delivery") })
-                            add(buildJsonObject { put("name", "Robot maintenance") })
-                        }
-                        putJsonArray("expenses") {
-                            add(buildJsonObject {
-                                put("title", "Slurm supplies")
-                                put("category", buildJsonObject { put("name", "Delivery") })
-                            })
-                            add(buildJsonObject {
-                                put("title", "Robot oil")
-                                put("category", buildJsonObject { put("name", "Robot maintenance") })
-                            })
-                            add(buildJsonObject {
-                                put("title", "Spaceship parts")
-                                put("category", null as String?)
-                            })
-                        }
-                    })
+
+        @Test
+        fun `should prohibit access with workspace token`() {
+            client.graphql {
+                workspaces {
+                    name
                 }
-            )
+            }
+                .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
+                .executeAndVerifyNotAuthorized(
+                    path = DgsConstants.QUERY.Workspaces,
+                )
+        }
+    }
+
+    @Nested
+    @DisplayName("Business Flow")
+    inner class BusinessFlow {
+        @Test
+        fun `should return only current user workspaces`() {
+            client.graphql {
+                workspaces {
+                    name
+                }
+            }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspaces" to buildJsonArray {
+                        add(buildJsonObject {
+                            put("name", "Planet Express")
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return workspaces with categories and expenses with categories`() {
+            client.graphql {
+                workspaces {
+                    name
+                    categories { name }
+                    expenses {
+                        title
+                        category { name }
+                    }
+                }
+            }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspaces" to buildJsonArray {
+                        add(buildJsonObject {
+                            put("name", "Planet Express")
+                            putJsonArray("categories") {
+                                add(buildJsonObject { put("name", "Delivery") })
+                                add(buildJsonObject { put("name", "Robot maintenance") })
+                            }
+                            putJsonArray("expenses") {
+                                add(buildJsonObject {
+                                    put("title", "Slurm supplies")
+                                    put("category", buildJsonObject { put("name", "Delivery") })
+                                })
+                                add(buildJsonObject {
+                                    put("title", "Robot oil")
+                                    put("category", buildJsonObject { put("name", "Robot maintenance") })
+                                })
+                                add(buildJsonObject {
+                                    put("title", "Spaceship parts")
+                                    put("category", null as String?)
+                                })
+                            }
+                        })
+                    }
+                )
+        }
     }
 }
