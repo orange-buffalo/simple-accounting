@@ -39,8 +39,8 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
 
         withHint("Should show loading indicator when turned on") {
-            page.withBlockedApiResponse(
-                "**/status",
+            page.withBlockedGqlApiResponse(
+                "googleDriveStorageIntegrationStatus",
                 initiator = {
                     switch.toggle()
                 },

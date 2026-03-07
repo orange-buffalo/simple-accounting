@@ -34,7 +34,6 @@ export * from './FinalizedTaxSummaryItemDto';
 export * from './GeneralTaxDto';
 export * from './GeneralTaxReportDto';
 export * from './GetDownloadTokenResponse';
-export * from './GoogleDriveStorageIntegrationStatus';
 export * from './IncomeAmountsDto';
 export * from './IncomeDto';
 export * from './IncomeExpensesStatisticsItemDto';
