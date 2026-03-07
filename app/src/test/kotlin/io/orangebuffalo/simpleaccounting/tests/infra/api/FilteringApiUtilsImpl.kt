@@ -1,9 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.api
 
-import assertk.assertThat
-import assertk.assertions.containsExactly
-import assertk.assertions.containsOnly
-import assertk.assertions.isTrue
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainOnly
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -269,7 +268,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         }
 
         override fun assertResults(responseEntitiesDesc: List<String>, expectedEntitiesDesc: List<String>) {
-            assertThat(responseEntitiesDesc).containsOnly(*expectedEntitiesDesc.toTypedArray())
+            responseEntitiesDesc.shouldContainOnly(*expectedEntitiesDesc.toTypedArray())
         }
 
         override fun equals(other: Any?) = kotlinEquals(other, equalsHashCodeProperties)
@@ -299,7 +298,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         }
 
         override fun assertResults(responseEntitiesDesc: List<String>, expectedEntitiesDesc: List<String>) {
-            assertThat(responseEntitiesDesc).containsExactly(*expectedEntitiesDesc.toTypedArray())
+            responseEntitiesDesc.shouldContainExactly(*expectedEntitiesDesc.toTypedArray())
         }
     }
 
@@ -349,7 +348,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
                     val jsonResponse = objectMapper.readTree(body)
 
                     val data = jsonResponse.get("data")
-                    assertThat(data.isArray).isTrue()
+                    data.isArray.shouldBeTrue()
 
                     val responseEntities = (data as ArrayNode).asSequence()
                         .map { node ->

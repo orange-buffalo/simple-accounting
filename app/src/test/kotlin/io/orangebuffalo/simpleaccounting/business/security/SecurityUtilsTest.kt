@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.security
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isTrue
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.runBlocking
@@ -14,12 +13,12 @@ class SecurityUtilsTest {
     fun `should propagate security principal via runAs`() {
         val result = runBlocking {
             runAs(fry().toSecurityPrincipal()) {
-                assertThat(getCurrentPrincipal().userName).isEqualTo("Fry")
-                assertThat(getAuthentication().isAuthenticated).isTrue()
+                getCurrentPrincipal().userName.shouldBe("Fry")
+                getAuthentication().isAuthenticated.shouldBeTrue()
                 "result"
             }
         }
-        assertThat(result).isEqualTo("result")
+        result.shouldBe("result")
     }
 
     private fun fry() = PlatformUser(
