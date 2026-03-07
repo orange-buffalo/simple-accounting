@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -69,13 +70,18 @@ class CreateAccessTokenByCredentialsMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
-            mustNotBeBlankTestCases("userName") { value ->
-                { loginMutation(value, "qwerty") }
+            mustNotBeBlankTestCases("userName", boundarySetup = ::setupBoundaryData) { value ->
+                loginMutation(value, "qwerty")
             },
-            mustNotBeBlankTestCases("password") { value ->
-                { loginMutation(preconditions.fry.userName, value) }
+            mustNotBeBlankTestCases("password", boundarySetup = ::setupBoundaryData) { value ->
+                loginMutation(preconditions.fry.userName, value)
             },
         ).flatten()
+
+        private fun setupBoundaryData() {
+            preconditions
+            EntitiesFactory(entitiesFactoryInfra).platformUser(userName = "a", activated = true)
+        }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("testCases")

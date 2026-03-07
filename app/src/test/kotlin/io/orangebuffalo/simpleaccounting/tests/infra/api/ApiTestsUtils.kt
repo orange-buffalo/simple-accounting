@@ -148,6 +148,12 @@ fun ApiTestClient.graphqlRawQuery(query: String): GraphqlClientRequestExecutor =
         GraphqlClientRequestExecutor(it)
     }
 
+/**
+ * Builds a [GraphqlClientRequestExecutor] for the given input validation test case.
+ * Dispatches to the appropriate request builder based on the test case type:
+ * - [GraphqlMutationValidationErrorTestCase] and [GraphqlMutationValidBoundaryTestCase] use DGS mutation projections
+ * - [GraphqlMutationRejectedInputTestCase] uses a raw GraphQL query (for null inputs)
+ */
 fun ApiTestClient.buildInputValidationRequest(testCase: GraphqlMutationInputTestCase): GraphqlClientRequestExecutor =
     when (testCase) {
         is GraphqlMutationValidationErrorTestCase -> graphqlMutation(testCase.mutation)
@@ -363,6 +369,12 @@ class GraphqlClientRequestExecutor(
         )
     }
 
+    /**
+     * Executes the request and verifies the response based on the [GraphqlMutationInputTestCase] type:
+     * - [GraphqlMutationValidationErrorTestCase] — verifies exact `FIELD_VALIDATION_FAILURE` error structure
+     * - [GraphqlMutationRejectedInputTestCase] — verifies GraphQL `ValidationError` for the null field
+     * - [GraphqlMutationValidBoundaryTestCase] — verifies fully successful execution with no errors
+     */
     fun executeAndVerifyInputValidation(
         testCase: GraphqlMutationInputTestCase,
         path: String,
@@ -382,29 +394,28 @@ class GraphqlClientRequestExecutor(
                     .expectBody<String>()
                     .consumeWith { body ->
                         val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        Assertions.assertThat(json.containsKey("errors"))
-                            .describedAs("Expected errors in response but got none: ${body.responseBody}")
-                            .isTrue()
+                        val errors = json["errors"]?.jsonArray
+                        Assertions.assertThat(errors)
+                            .describedAs("Expected errors in response for null ${testCase.fieldName} but got none: ${body.responseBody}")
+                            .isNotNull
+                        Assertions.assertThat(errors!!).isNotEmpty
+                        val errorMessages = errors.map { it.jsonObject["message"]?.jsonPrimitive?.content.orEmpty() }
+                        Assertions.assertThat(errorMessages)
+                            .describedAs("At least one error message should mention the field name '${testCase.fieldName}'")
+                            .anyMatch { it.contains(testCase.fieldName, ignoreCase = true) }
                     }
             }
             is GraphqlMutationValidBoundaryTestCase -> {
+                testCase.setup()
                 requestSpec
                     .exchange()
                     .expectStatus().isOk
                     .expectBody<String>()
                     .consumeWith { body ->
                         val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        val errors = json["errors"]?.jsonArray ?: return@consumeWith
-                        val validationErrors = errors.filter { error ->
-                            error.jsonObject["extensions"]
-                                ?.jsonObject
-                                ?.get("errorType")
-                                ?.jsonPrimitive
-                                ?.content == "FIELD_VALIDATION_FAILURE"
-                        }
-                        Assertions.assertThat(validationErrors)
-                            .describedAs("Expected no validation errors but got: $validationErrors")
-                            .isEmpty()
+                        Assertions.assertThat(json.containsKey("errors"))
+                            .describedAs("Expected no errors at all but got: ${json["errors"]}")
+                            .isFalse()
                     }
             }
         }

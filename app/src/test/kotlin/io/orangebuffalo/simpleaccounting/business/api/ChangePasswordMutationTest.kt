@@ -62,16 +62,16 @@ class ChangePasswordMutationTest(
     inner class InputsValidation {
         fun testCases() = listOf(
             mustNotBeBlankTestCases("currentPassword") { value ->
-                { changePasswordMutation(value, "new-password") }
+                changePasswordMutation(value, "new-password")
             },
             mustNotBeBlankTestCases("newPassword") { value ->
-                { changePasswordMutation("current-password", value) }
+                changePasswordMutation("current-password", value)
             },
             sizeConstraintTestCases("currentPassword", maxLength = 100) { value ->
-                { changePasswordMutation(value, "new-password") }
+                changePasswordMutation(value, "new-password")
             },
             sizeConstraintTestCases("newPassword", maxLength = 100) { value ->
-                { changePasswordMutation("current-password", value) }
+                changePasswordMutation("current-password", value)
             },
         ).flatten()
 

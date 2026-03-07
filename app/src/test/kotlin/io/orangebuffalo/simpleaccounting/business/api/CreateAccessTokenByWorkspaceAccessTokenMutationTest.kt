@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -82,8 +83,16 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
     @DisplayName("Inputs Validation")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
-        fun testCases() = mustNotBeBlankTestCases("workspaceAccessToken") { value ->
-            { workspaceAccessTokenMutation(value) }
+        fun testCases() = mustNotBeBlankTestCases("workspaceAccessToken", boundarySetup = ::setupBoundaryData) { value ->
+            workspaceAccessTokenMutation(value)
+        }
+
+        private fun setupBoundaryData() {
+            EntitiesFactory(entitiesFactoryInfra).workspaceAccessToken(
+                workspace = preconditions.fryWorkspace,
+                token = "a",
+                validTill = MOCK_TIME.plus(Duration.ofDays(42)),
+            )
         }
 
         @ParameterizedTest(name = "{0}")

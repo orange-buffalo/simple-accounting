@@ -81,19 +81,19 @@ class UpdateUserProfileMutationTest(
     inner class InputsValidation {
         fun testCases() = listOf(
             sizeConstraintTestCases("documentsStorage", maxLength = 255) { value ->
-                { updateProfileMutation(value, "uk", "el") }
+                updateProfileMutation(value, "uk", "el")
             },
             mustNotBeBlankTestCases("locale") { value ->
-                { updateProfileMutation(null, "uk", value) }
+                updateProfileMutation(null, "uk", value)
             },
             sizeConstraintTestCases("locale", maxLength = 36) { value ->
-                { updateProfileMutation(null, "uk", value) }
+                updateProfileMutation(null, "uk", value)
             },
             mustNotBeBlankTestCases("language") { value ->
-                { updateProfileMutation(null, value, "el") }
+                updateProfileMutation(null, value, "el")
             },
             sizeConstraintTestCases("language", maxLength = 36) { value ->
-                { updateProfileMutation(null, value, "el") }
+                updateProfileMutation(null, value, "el")
             },
         ).flatten()
 
