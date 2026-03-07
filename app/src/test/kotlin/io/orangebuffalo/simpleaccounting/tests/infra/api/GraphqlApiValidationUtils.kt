@@ -192,6 +192,7 @@ private fun buildRawMutationQueryWithNullField(
         .filter { it.trim() != "__typename" }
         .joinToString("\n")
     return query.replace(
+        // Matches fieldName followed by any scalar value: strings ("..."), numbers, booleans, or enum identifiers
         Regex("""(\b${Regex.escape(fieldName)}\s*:\s*)(?:"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|\w+)"""),
         "$1null"
     )
