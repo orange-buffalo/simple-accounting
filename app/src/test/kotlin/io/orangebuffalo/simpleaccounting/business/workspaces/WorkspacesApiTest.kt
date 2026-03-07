@@ -16,7 +16,8 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonArray
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -173,7 +174,7 @@ internal class WorkspacesApiTest(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${preconditions.fryWorkspace.id} is not found")
+                it.responseBody.shouldNotBeNull().shouldContain("Workspace ${preconditions.fryWorkspace.id} is not found")
             }
     }
 

@@ -10,7 +10,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -85,7 +86,7 @@ internal class CategoriesApiTest(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
+                it.responseBody.shouldNotBeNull().shouldContain("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
             }
     }
 
@@ -137,7 +138,7 @@ internal class CategoriesApiTest(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
+                it.responseBody.shouldNotBeNull().shouldContain("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
             }
     }
 }

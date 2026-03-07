@@ -5,7 +5,8 @@ import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import org.assertj.core.api.Assertions
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import org.junit.jupiter.api.extension.*
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.annotation.MergedAnnotations
@@ -18,7 +19,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 fun assertNumberOfReceivedWireMockRequests(requestsNumber: Int) {
-    Assertions.assertThat(WireMock.getAllServeEvents()).hasSize(requestsNumber)
+    WireMock.getAllServeEvents().shouldHaveSize(requestsNumber)
 }
 
 fun urlEncodeParameter(parameter: Pair<String, String>): String {
@@ -88,7 +89,7 @@ class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterE
 
     override fun afterEach(context: ExtensionContext?) {
         try {
-            Assertions.assertThat(WireMock.findUnmatchedRequests()).isEmpty()
+            WireMock.findUnmatchedRequests().shouldBeEmpty()
         } finally {
             WireMock.removeAllMappings()
             WireMock.resetAllRequests()

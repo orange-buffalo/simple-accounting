@@ -1,7 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.ui
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.string.shouldNotBeBlank
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.CacheControl
@@ -22,7 +23,7 @@ internal class WebUiConfigTest(
             .expectHeader().contentType("image/x-icon")
             .expectBody()
             .consumeWith {
-                assertThat(it.responseBody).isNotEmpty()
+                it.responseBody.shouldNotBeEmpty()
             }
     }
 
@@ -35,7 +36,7 @@ internal class WebUiConfigTest(
             .expectHeader().cacheControl(CacheControl.maxAge(Duration.ofDays(365)))
             .expectBody()
             .consumeWith {
-                assertThat(it.responseBody).isNotEmpty()
+                it.responseBody.shouldNotBeEmpty()
             }
     }
 
@@ -48,7 +49,7 @@ internal class WebUiConfigTest(
             .expectHeader().cacheControl(CacheControl.noCache())
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).isNotBlank()
+                it.responseBody.shouldNotBeBlank()
             }
     }
 
@@ -61,7 +62,7 @@ internal class WebUiConfigTest(
             .expectHeader().cacheControl(CacheControl.noCache())
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).isNotBlank()
+                it.responseBody.shouldNotBeBlank()
             }
     }
 
@@ -74,7 +75,7 @@ internal class WebUiConfigTest(
             .expectHeader().cacheControl(CacheControl.noCache())
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).isNotBlank()
+                it.responseBody.shouldNotBeBlank()
             }
     }
 }

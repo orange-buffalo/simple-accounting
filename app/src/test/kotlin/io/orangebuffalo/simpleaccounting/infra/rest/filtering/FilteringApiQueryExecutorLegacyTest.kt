@@ -3,8 +3,9 @@ package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
@@ -226,16 +227,16 @@ internal class FilteringApiQueryExecutorLegacyTest(
 
     private fun executeSuccessTest(useCase: FilteringApiQueryExecutorUseCase) {
         val page = runBlocking { filteringApiQueryExecutor.executeFilteringQuery(useCase.request) }
-        assertThat(page.pageNumber).isEqualTo(useCase.request.pageNumber)
-        assertThat(page.pageSize).isEqualTo(useCase.request.pageSize)
-        assertThat(page.totalElements).isEqualTo(useCase.expectedTotalRecordsCount)
-        assertThat(page.data).containsExactly(*useCase.expectedRecords!!.toTypedArray())
+        page.pageNumber.shouldBe(useCase.request.pageNumber)
+        page.pageSize.shouldBe(useCase.request.pageSize)
+        page.totalElements.shouldBe(useCase.expectedTotalRecordsCount)
+        page.data.shouldContainExactly(*useCase.expectedRecords!!.toTypedArray())
     }
 
     private fun executeErrorTest(useCase: FilteringApiQueryExecutorUseCase) {
-        assertThatThrownBy {
+        shouldThrow<ApiValidationException> {
             runBlocking { filteringApiQueryExecutor.executeFilteringQuery(useCase.request) }
-        }.isInstanceOf(ApiValidationException::class.java).hasMessage(useCase.expectedError)
+        }.message.shouldBe(useCase.expectedError)
     }
 
     class TestDummyTable : TableImpl<TestDummyRecord>(DSL.name("FILTERING_API_QUERY_DUMMY")) {

@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
@@ -25,8 +24,8 @@ class OAuth2SucceededEventTest {
             principal = getCurrentPrincipal()
         }
 
-        assertThat(principal).isNotNull()
-        assertThat(principal!!.userName).isEqualTo("Fry")
+        principal.shouldNotBeNull()
+        principal!!.userName.shouldBe("Fry")
     }
 
     private fun fry() = PlatformUser(

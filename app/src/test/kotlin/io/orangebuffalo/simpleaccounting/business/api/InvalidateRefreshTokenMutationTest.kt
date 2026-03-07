@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import kotlinx.serialization.json.JsonPrimitive
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,11 +28,11 @@ class InvalidateRefreshTokenMutationTest(
                 .execute()
                 .expectStatus().isOk
                 .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
-                    assertThat(cookie).contains("refreshToken=")
-                        .contains("Max-Age=0")
-                        .contains("Path=/api")
-                        .contains("HttpOnly")
-                        .contains("SameSite=Strict")
+                    cookie.shouldContain("refreshToken=")
+                    cookie.shouldContain("Max-Age=0")
+                    cookie.shouldContain("Path=/api")
+                    cookie.shouldContain("HttpOnly")
+                    cookie.shouldContain("SameSite=Strict")
                 }
                 .expectBody()
                 .jsonPath("$.data.invalidateRefreshToken").isEqualTo(true)

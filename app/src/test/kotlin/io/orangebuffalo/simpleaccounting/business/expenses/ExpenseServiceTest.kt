@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -598,14 +598,13 @@ internal class ExpenseServiceTest(
             expenseService.saveExpense(expense)
         }
 
-        assertThat(actualExpense.originalAmount).isEqualTo(expectedOriginalAmount)
-        assertThat(actualExpense.status).isEqualTo(expectedStatus)
-        assertThat(actualExpense.convertedAmounts).isEqualTo(expectedConvertedAmounts)
-        assertThat(actualExpense.incomeTaxableAmounts).isEqualTo(expectedIncomeTaxableAmounts)
-        assertThat(actualExpense.generalTaxId).isEqualTo(expectedGeneralTax?.id)
-        assertThat(actualExpense.generalTaxAmount).isEqualTo(expectedGeneralTaxAmount)
-        assertThat(actualExpense.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
-        assertThat(actualExpense.useDifferentExchangeRateForIncomeTaxPurposes)
-            .isEqualTo(expectedUseDifferentExchangeRates)
+        actualExpense.originalAmount.shouldBe(expectedOriginalAmount)
+        actualExpense.status.shouldBe(expectedStatus)
+        actualExpense.convertedAmounts.shouldBe(expectedConvertedAmounts)
+        actualExpense.incomeTaxableAmounts.shouldBe(expectedIncomeTaxableAmounts)
+        actualExpense.generalTaxId.shouldBe(expectedGeneralTax?.id)
+        actualExpense.generalTaxAmount.shouldBe(expectedGeneralTaxAmount)
+        actualExpense.generalTaxRateInBps.shouldBe(expectedGeneralTaxRateInBps)
+        actualExpense.useDifferentExchangeRateForIncomeTaxPurposes.shouldBe(expectedUseDifferentExchangeRates)
     }
 }

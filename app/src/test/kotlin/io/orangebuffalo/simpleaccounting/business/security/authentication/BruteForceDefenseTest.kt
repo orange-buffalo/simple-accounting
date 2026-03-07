@@ -2,12 +2,10 @@
 
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isNull
-import assertk.assertions.isZero
-import assertk.fail
+import io.kotest.assertions.fail
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
@@ -57,8 +55,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isZero()
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(0)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -77,8 +75,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(1)
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(1)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -102,8 +100,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isZero()
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(0)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -126,8 +124,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(5)
-            assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME)
+            failedAttemptsCount.shouldBe(5)
+            temporaryLockExpirationTime.shouldBe(CURRENT_TIME)
         }
     }
 
@@ -150,8 +148,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(5)
-            assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(4500))
+            failedAttemptsCount.shouldBe(5)
+            temporaryLockExpirationTime.shouldBe(CURRENT_TIME.plusMillis(4500))
         }
     }
 
@@ -175,8 +173,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(5)
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(5)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -201,8 +199,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(6)
-            assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusSeconds(60))
+            failedAttemptsCount.shouldBe(6)
+            temporaryLockExpirationTime.shouldBe(CURRENT_TIME.plusSeconds(60))
         }
     }
 
@@ -227,8 +225,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(8)
-            assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(135_000))
+            failedAttemptsCount.shouldBe(8)
+            temporaryLockExpirationTime.shouldBe(CURRENT_TIME.plusMillis(135_000))
         }
     }
 
@@ -253,8 +251,8 @@ class BruteForceDefenseTest(
             )
 
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(101)
-            assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(86_400_000))
+            failedAttemptsCount.shouldBe(101)
+            temporaryLockExpirationTime.shouldBe(CURRENT_TIME.plusMillis(86_400_000))
         }
     }
 
@@ -294,17 +292,17 @@ class BruteForceDefenseTest(
         }
 
         // we can't know how exactly each request is processed, but overall all issued requests must be responded
-        assertThat(badCredentialsCount + loginNotAvailableCount + accountLockedCount).isEqualTo(10)
+        (badCredentialsCount + loginNotAvailableCount + accountLockedCount).shouldBe(10)
         // at least one must go through and fail with Bad Credentials
-        assertThat(badCredentialsCount).isGreaterThan(0)
+        badCredentialsCount.shouldBeGreaterThan(0)
 
         assertFryLoginStatistics {
             // depending on how many requests we process to login, different number of failed attempts is possible
             // but the number of Bad Credentials responses should be equal to failed attempts number
             if (accountLockedCount > 0) {
-                assertThat(failedAttemptsCount).isEqualTo(6)
+                failedAttemptsCount.shouldBe(6)
             } else {
-                assertThat(failedAttemptsCount).isEqualTo(badCredentialsCount)
+                failedAttemptsCount.shouldBe(badCredentialsCount)
             }
         }
     }

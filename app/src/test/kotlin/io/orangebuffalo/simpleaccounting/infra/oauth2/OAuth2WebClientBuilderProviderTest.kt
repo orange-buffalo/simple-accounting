@@ -5,7 +5,10 @@ import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2Autho
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
-import org.assertj.core.api.Assertions.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ranges.shouldBeIn
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
@@ -20,8 +23,6 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.server.ServerWebExchange
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit.SECONDS
-import java.util.function.Consumer
 
 @TestPropertySource(
     properties = [
@@ -46,10 +47,8 @@ class OAuth2WebClientBuilderProviderTest(
     fun `should fail if client authorization does not exist`() {
         // trigger preconditions to be prepared - should be removed when JWT token client is used
         preconditions.fry
-        assertThatThrownBy { executeResourceRequest() }
-            .isInstanceOfSatisfying(ClientAuthorizationRequiredException::class.java) { exception ->
-                assertThat(exception.clientRegistrationId).isEqualTo("test-client")
-            }
+        val exception = shouldThrow<ClientAuthorizationRequiredException> { executeResourceRequest() }
+        exception.clientRegistrationId.shouldBe("test-client")
     }
 
     @Test
@@ -77,10 +76,10 @@ class OAuth2WebClientBuilderProviderTest(
 
         val response = executeResourceRequest()
 
-        assertThat(response?.statusCode()).isEqualTo(HttpStatus.OK)
+        response?.statusCode().shouldBe(HttpStatus.OK)
         assertNumberOfReceivedWireMockRequests(1)
         // ensure client is not removed
-        assertThat(getPersistedClientsCount()).isOne()
+        getPersistedClientsCount().shouldBe(1)
     }
 
     @Test
@@ -109,9 +108,9 @@ class OAuth2WebClientBuilderProviderTest(
 
         val response = executeResourceRequest()
 
-        assertThat(response?.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        response?.statusCode().shouldBe(HttpStatus.UNAUTHORIZED)
         // should remove the persisted client
-        assertThat(getPersistedClientsCount()).isZero()
+        getPersistedClientsCount().shouldBe(0)
     }
 
     @Test
@@ -151,15 +150,14 @@ class OAuth2WebClientBuilderProviderTest(
 
         val response = executeResourceRequest()
 
-        assertThat(response?.statusCode()).isEqualTo(HttpStatus.OK)
+        response?.statusCode().shouldBe(HttpStatus.OK)
         assertNumberOfReceivedWireMockRequests(2)
 
-        val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).singleElement().satisfies(Consumer { persistedClient ->
-            assertThat(persistedClient.accessToken).isEqualTo("newAccessToken")
-            assertThat(persistedClient.accessTokenExpiresAt)
-                .isCloseTo(Instant.now().plusSeconds(3600), within(20, SECONDS))
-        })
+        val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java).toList()
+        persistedClients.shouldHaveSize(1)
+        val persistedClient = persistedClients.first()
+        persistedClient.accessToken.shouldBe("newAccessToken")
+        persistedClient.accessTokenExpiresAt!!.shouldBeIn(Instant.now().plusSeconds(3580)..Instant.now().plusSeconds(3620))
     }
 
     private fun getPersistedClientsCount() = jdbcAggregateTemplate.count(PersistentOAuth2AuthorizedClient::class.java)

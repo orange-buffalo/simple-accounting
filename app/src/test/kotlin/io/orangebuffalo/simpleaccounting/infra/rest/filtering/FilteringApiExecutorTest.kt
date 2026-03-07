@@ -2,7 +2,8 @@ package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import org.jooq.Field
 import org.jooq.Record2
 import org.jooq.Row2
@@ -130,10 +131,10 @@ internal class FilteringApiExecutorTest(
     @MethodSource("getUseCases")
     fun testExecuteFilteringQuery(useCase: FilteringApiQueryExecutorUseCase) {
         val page = runBlocking { filteringApiExecutor.executeFiltering(useCase.request) }
-        assertThat(page.pageNumber).isEqualTo(useCase.request.pageNumber ?: 1)
-        assertThat(page.pageSize).isEqualTo(useCase.request.pageSize ?: 10)
-        assertThat(page.totalElements).isEqualTo(useCase.expectedTotalRecordsCount)
-        assertThat(page.data).containsExactly(*useCase.expectedRecords.toTypedArray())
+        page.pageNumber.shouldBe(useCase.request.pageNumber ?: 1)
+        page.pageSize.shouldBe(useCase.request.pageSize ?: 10)
+        page.totalElements.shouldBe(useCase.expectedTotalRecordsCount)
+        page.data.shouldContainExactly(*useCase.expectedRecords.toTypedArray())
     }
 
     class TestDummyTable : TableImpl<TestDummyRecord>(DSL.name("FILTERING_API_QUERY_DUMMY")) {
