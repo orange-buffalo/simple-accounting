@@ -3,7 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.common.pesistence
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 class TimestampsTest(
@@ -13,9 +14,8 @@ class TimestampsTest(
     @Test
     fun `should store and load timestamp with time zone`() {
         val documentFromDb = documentRepository.findById(preconditions.slurmReceipt.id!!)
-        assertThat(documentFromDb).hasValueSatisfying {
-            assertThat(it.timeUploaded).isEqualTo(MOCK_TIME)
-        }
+        documentFromDb.isPresent.shouldBeTrue()
+        documentFromDb.get().timeUploaded.shouldBe(MOCK_TIME)
     }
 
     private val preconditions by lazyPreconditions {

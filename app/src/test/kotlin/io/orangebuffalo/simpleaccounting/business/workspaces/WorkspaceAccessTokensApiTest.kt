@@ -13,7 +13,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
@@ -49,7 +50,7 @@ class WorkspaceAccessTokensApiTest(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${preconditions.fryWorkspace.id} is not found")
+                it.responseBody.shouldNotBeNull().shouldContain("Workspace ${preconditions.fryWorkspace.id} is not found")
             }
     }
 
@@ -114,7 +115,7 @@ class WorkspaceAccessTokensApiTest(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${preconditions.fryWorkspace.id} is not found")
+                it.responseBody.shouldNotBeNull().shouldContain("Workspace ${preconditions.fryWorkspace.id} is not found")
             }
     }
 

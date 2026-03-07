@@ -1,14 +1,14 @@
 package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 
 internal class AbstractEntityTest {
 
     @Test
     fun `new objects without IDs should not be equal`() {
-        assertThat(TestEntity())
-            .isNotEqualTo(TestEntity())
+        TestEntity().shouldNotBe(TestEntity())
     }
 
     @Test
@@ -18,8 +18,7 @@ internal class AbstractEntityTest {
 
         testEntity.id = 42
 
-        assertThat(testEntity.hashCode())
-            .isEqualTo(initialHashcode)
+        testEntity.hashCode().shouldBe(initialHashcode)
     }
 
     @Test
@@ -30,8 +29,7 @@ internal class AbstractEntityTest {
         val secondEntity = TestEntity()
         secondEntity.id = 42
 
-        assertThat(firstEntity)
-            .isEqualTo(secondEntity)
+        firstEntity.shouldBe(secondEntity)
     }
 
     @Test
@@ -42,8 +40,7 @@ internal class AbstractEntityTest {
         val secondEntity = TestEntity()
         secondEntity.id = 42
 
-        assertThat(firstEntity.hashCode())
-            .isEqualTo(secondEntity.hashCode())
+        firstEntity.hashCode().shouldBe(secondEntity.hashCode())
     }
 }
 

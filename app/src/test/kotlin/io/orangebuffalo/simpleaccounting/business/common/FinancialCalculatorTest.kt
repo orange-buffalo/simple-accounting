@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.common
 
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
@@ -10,19 +10,19 @@ internal class FinancialCalculatorTest {
     @ParameterizedTest
     @MethodSource("percentPartTestData")
     fun testPercentPartCalculation(testData: PercentPartData) {
-        assertThat(testData.input.percentPart(testData.percent)).isEqualTo(testData.expectedOutput)
+        testData.input.percentPart(testData.percent).shouldBe(testData.expectedOutput)
     }
 
     @ParameterizedTest
     @MethodSource("bpsPartTestData")
     fun testBpsPartCalculation(testData: BpsPartData) {
-        assertThat(testData.input.bpsPart(testData.bps)).isEqualTo(testData.expectedOutput)
+        testData.input.bpsPart(testData.bps).shouldBe(testData.expectedOutput)
     }
 
     @ParameterizedTest
     @MethodSource("bpsBasePartTestData")
     fun testBpsBasePartCalculation(testData: BpsPartData) {
-        assertThat(testData.input.bpsBasePart(testData.bps)).isEqualTo(testData.expectedOutput)
+        testData.input.bpsBasePart(testData.bps).shouldBe(testData.expectedOutput)
     }
 
     @Suppress("unused")
