@@ -1,5 +1,10 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.api
 
+import io.kotest.assertions.withClue
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -9,7 +14,6 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import kotlinx.serialization.json.*
 import net.javacrumbs.jsonunit.core.Configuration
 import net.javacrumbs.jsonunit.kotest.equalJson
-import org.assertj.core.api.Assertions
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -92,7 +96,7 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
     .expectBody<String>()
     .consumeWith { response ->
         val body = response.responseBody
-        Assertions.assertThat(body).isNotBlank()
+        body.shouldNotBeBlank()
         spec(body!!)
     }
 
@@ -113,7 +117,7 @@ fun <T> StepVerifier.Step<T>.assertNextJsonIs(
     jsonObject: String
 ): StepVerifier.Step<T> {
     return assertNext { data ->
-        Assertions.assertThat(data).isNotNull
+        data.shouldNotBeNull()
         data.should(equalJson(jsonObject))
     }
 }
@@ -394,15 +398,14 @@ class GraphqlClientRequestExecutor(
                     .expectBody<String>()
                     .consumeWith { body ->
                         val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        val errors = json["errors"]?.jsonArray
-                        Assertions.assertThat(errors)
-                            .describedAs("Expected errors in response for null ${testCase.fieldName} but got none: ${body.responseBody}")
-                            .isNotNull
-                        Assertions.assertThat(errors!!).isNotEmpty
+                        val errors = withClue("Expected errors in response for null ${testCase.fieldName} but got none: ${body.responseBody}") {
+                            json["errors"]?.jsonArray.shouldNotBeNull()
+                        }
+                        errors.shouldNotBeEmpty()
                         val errorMessages = errors.map { it.jsonObject["message"]?.jsonPrimitive?.content.orEmpty() }
-                        Assertions.assertThat(errorMessages)
-                            .describedAs("At least one error message should mention the field name '${testCase.fieldName}'")
-                            .anyMatch { it.contains(testCase.fieldName, ignoreCase = true) }
+                        withClue("At least one error message should mention the field name '${testCase.fieldName}'") {
+                            errorMessages.any { it.contains(testCase.fieldName, ignoreCase = true) }.shouldBeTrue()
+                        }
                     }
             }
             is GraphqlMutationValidBoundaryTestCase -> {
@@ -413,9 +416,9 @@ class GraphqlClientRequestExecutor(
                     .expectBody<String>()
                     .consumeWith { body ->
                         val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        Assertions.assertThat(json.containsKey("errors"))
-                            .describedAs("Expected no errors at all but got: ${json["errors"]}")
-                            .isFalse()
+                        withClue("Expected no errors at all but got: ${json["errors"]}") {
+                            json.containsKey("errors").shouldBeFalse()
+                        }
                     }
             }
         }

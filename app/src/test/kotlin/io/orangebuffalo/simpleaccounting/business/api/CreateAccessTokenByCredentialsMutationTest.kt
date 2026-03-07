@@ -6,7 +6,6 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -81,7 +80,9 @@ class CreateAccessTokenByCredentialsMutationTest(
         private fun setupBoundaryData() {
             // ensure lazy preconditions are initialized before creating additional entities
             preconditions
-            EntitiesFactory(entitiesFactoryInfra).platformUser(userName = "a", activated = true)
+            preconditions {
+                platformUser(userName = "a", activated = true)
+            }
         }
 
         @ParameterizedTest(name = "{0}")

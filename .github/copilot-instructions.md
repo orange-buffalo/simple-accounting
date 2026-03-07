@@ -226,6 +226,11 @@ When migrating a REST endpoint to GraphQL, follow these steps:
 
 # Testing
 
+## Assertion Library
+
+Use **kotest** as the primary assertion library for backend tests. Do **not** use assertj.
+Use the regular method call notation — `actual.shouldBe(expected)` — not the postfix notation (`actual shouldBe expected`).
+
 ## Preconditions setup
 
 To set up test preconditions, you should use either `preconditions` or `lazyPreconditions` method from the base class. The letter is particularly useful for preconditions that are shared across multiple test methods.
