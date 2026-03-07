@@ -10,8 +10,11 @@ import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import mu.KotlinLogging
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.SoftAssertions.assertSoftly
+import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
@@ -81,11 +84,8 @@ class ApiSpecTest(
                     committedSpec.writeText(currentApiSpec)
                 }
 
-                assertThat(schemaDiff).isInstanceOfSatisfying(ArrayNode::class.java) { changes ->
-                    assertThat(changes.size())
-                        .withFailMessage { schemaDiff.toPrettyString() }
-                        .isZero()
-                }
+                val changes = schemaDiff.shouldBeInstanceOf<ArrayNode>()
+                withClue(schemaDiff.toPrettyString()) { changes.size().shouldBe(0) }
             }
     }
 
@@ -112,18 +112,13 @@ class ApiSpecTest(
         generatedFiles.remove(".openapi-generator/FILES")
         generatedFiles.remove(".openapi-generator/VERSION")
 
-        assertSoftly { softly ->
+        assertSoftly {
             val deletedFiles = committedFiles.subtract(generatedFiles)
             val addedFiles = generatedFiles.subtract(committedFiles)
             val existingFiles = generatedFiles.intersect(committedFiles)
 
-            softly.assertThat(deletedFiles)
-                .`as`("Some files are no longer generated")
-                .isEmpty()
-
-            softly.assertThat(addedFiles)
-                .`as`("New files have been generated")
-                .isEmpty()
+            withClue("Some files are no longer generated") { deletedFiles.shouldBeEmpty() }
+            withClue("New files have been generated") { addedFiles.shouldBeEmpty() }
 
             val changedFiles = mutableMapOf<String, String>()
             existingFiles.forEach { relativePath ->
@@ -132,9 +127,7 @@ class ApiSpecTest(
                 if (committedContent != generatedContent) {
                     changedFiles[relativePath] = generatedContent
                 }
-                softly.assertThat(committedContent)
-                    .`as`("$relativePath has different content")
-                    .isEqualTo(generatedContent)
+                withClue("$relativePath has different content") { committedContent.shouldBe(generatedContent) }
             }
 
             if (shouldOverrideCommittedFiles()) {

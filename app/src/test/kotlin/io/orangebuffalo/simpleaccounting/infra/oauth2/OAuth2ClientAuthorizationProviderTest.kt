@@ -12,7 +12,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ranges.shouldBeIn
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
@@ -25,8 +30,6 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.net.URI
 import java.time.Instant
-import java.time.temporal.ChronoUnit.SECONDS
-import java.util.function.Consumer
 
 @TestPropertySource(
     properties = [
@@ -73,17 +76,19 @@ internal class OAuth2ClientAuthorizationProviderTest(
 
         val actualUri = URI(actualUrl)
         val savedRequest = savedRequestCaptor.value
-        assertThat(actualUri)
-            .hasAuthority("test-provider.com")
-            .hasPath("/auth")
-            .hasParameter("state", savedRequest.state)
-            .hasParameter("redirect_uri", "http://test-host/auth-callback")
-            .hasParameter("response_type", "code")
-            .hasParameter("client_id", "Client_ID")
-            .hasParameter("scope", "scope2 scope1")
+        actualUri.host.shouldBe("test-provider.com")
+        actualUri.path.shouldBe("/auth")
+        val params = actualUri.query.split("&").associate {
+            it.substringBefore("=") to java.net.URLDecoder.decode(it.substringAfter("="), "UTF-8")
+        }
+        params["state"].shouldBe(savedRequest.state)
+        params["redirect_uri"].shouldBe("http://test-host/auth-callback")
+        params["response_type"].shouldBe("code")
+        params["client_id"].shouldBe("Client_ID")
+        params["scope"].shouldBe("scope2 scope1")
 
-        assertThat(savedRequest.request.scopes).contains("scope1", "scope2")
-        assertThat(savedRequest.request.clientId).isEqualTo("Client_ID")
+        savedRequest.request.scopes.shouldContainAll(listOf("scope1", "scope2"))
+        savedRequest.request.clientId.shouldBe("Client_ID")
     }
 
     @Test
@@ -97,22 +102,24 @@ internal class OAuth2ClientAuthorizationProviderTest(
         }
 
         val actualUri = URI(actualUrl)
-        assertThat(actualUri)
-            .hasAuthority("test-provider.com")
-            .hasPath("/auth")
-            .hasParameter("state")
-            .hasParameter("redirect_uri")
-            .hasParameter("response_type")
-            .hasParameter("client_id")
-            .hasParameter("scope")
-            .hasParameter("param1", "value1")
+        actualUri.host.shouldBe("test-provider.com")
+        actualUri.path.shouldBe("/auth")
+        val params = actualUri.query.split("&").associate {
+            it.substringBefore("=") to java.net.URLDecoder.decode(it.substringAfter("="), "UTF-8")
+        }
+        params.keys.shouldContain("state")
+        params.keys.shouldContain("redirect_uri")
+        params.keys.shouldContain("response_type")
+        params.keys.shouldContain("client_id")
+        params.keys.shouldContain("scope")
+        params["param1"].shouldBe("value1")
     }
 
     @Test
     fun `should emit OAuth2FailedEvent and throw exception if error is provided in the response`() {
         mockSavedRequest(preconditions.fry)
 
-        assertThatThrownBy {
+        shouldThrow<Exception> {
             handleAuthorizationResponse(
                 callbackRequestProto().copy(
                     code = null,
@@ -128,7 +135,7 @@ internal class OAuth2ClientAuthorizationProviderTest(
     fun `should emit OAuth2FailedEvent and throw exception if code is not provided in the response`() {
         mockSavedRequest(preconditions.fry)
 
-        assertThatThrownBy {
+        shouldThrow<Exception> {
             handleAuthorizationResponse(
                 callbackRequestProto().copy(
                     code = null,
@@ -147,7 +154,7 @@ internal class OAuth2ClientAuthorizationProviderTest(
             willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
         }
 
-        assertThatThrownBy { handleAuthorizationResponse(callbackRequestProto()) }
+        shouldThrow<Exception> { handleAuthorizationResponse(callbackRequestProto()) }
 
         verifyAuthFailedEvent(preconditions.fry)
     }
@@ -195,25 +202,25 @@ internal class OAuth2ClientAuthorizationProviderTest(
 
         verify(authEventTestListener).onSucceededAuth(capture(authSucceededEventCaptor))
         val succeededEvent = authSucceededEventCaptor.value
-        assertThat(succeededEvent.clientRegistrationId).isEqualTo("test-client")
-        assertThat(succeededEvent.user).isEqualTo(preconditions.fry)
+        succeededEvent.clientRegistrationId.shouldBe("test-client")
+        succeededEvent.user.shouldBe(preconditions.fry)
 
-        val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).singleElement().satisfies(Consumer { client ->
-            assertThat(client.accessToken).isEqualTo("MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3")
-            assertThat(client.refreshToken).isEqualTo("IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk")
-            assertThat(client.accessTokenScopes).contains(ClientTokenScope("scope1"), ClientTokenScope("scope2"))
-            assertThat(client.accessTokenExpiresAt).isCloseTo(Instant.now().plusSeconds(3600), within(20, SECONDS))
-            assertThat(client.clientRegistrationId).isEqualTo("test-client")
-            assertThat(client.userName).isEqualTo("Fry")
-        })
+        val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java).toList()
+        persistedClients.shouldHaveSize(1)
+        val client = persistedClients.first()
+        client.accessToken.shouldBe("MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3")
+        client.refreshToken.shouldBe("IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk")
+        client.accessTokenScopes.shouldContainAll(listOf(ClientTokenScope("scope1"), ClientTokenScope("scope2")))
+        client.accessTokenExpiresAt!!.shouldBeIn(Instant.now().plusSeconds(3580)..Instant.now().plusSeconds(3620))
+        client.clientRegistrationId.shouldBe("test-client")
+        client.userName.shouldBe("Fry")
     }
 
     private fun verifyAuthFailedEvent(fry: PlatformUser) {
         verify(authEventTestListener).onFailedAuth(capture(authFailedEventCaptor))
         val authFailedEvent = authFailedEventCaptor.value
-        assertThat(authFailedEvent.clientRegistrationId).isEqualTo("test-client")
-        assertThat(authFailedEvent.user).isEqualTo(fry)
+        authFailedEvent.clientRegistrationId.shouldBe("test-client")
+        authFailedEvent.user.shouldBe(fry)
     }
 
     private fun callbackRequestProto() = OAuth2AuthorizationCallbackRequest(
