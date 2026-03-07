@@ -8,5 +8,7 @@ import java.nio.file.Path
 @Component
 class LocalFileSystemDocumentsStorageProperties {
 
+    var enabled: Boolean = false
+
     lateinit var baseDirectory: Path
 }
