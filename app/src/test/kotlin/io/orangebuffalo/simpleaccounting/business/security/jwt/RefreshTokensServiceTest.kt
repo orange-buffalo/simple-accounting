@@ -6,8 +6,11 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -16,7 +19,6 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.function.Consumer
 
 class RefreshTokensServiceTest(
     @Autowired private val refreshTokensService: RefreshTokensService,
@@ -34,13 +36,13 @@ class RefreshTokensServiceTest(
             refreshTokensService.generateRefreshToken(preconditions.fry.userName)
         }
 
-        assertThat(token).isNotNull().startsWith("${preconditions.fry.id}:")
+        token.shouldNotBeNull().shouldStartWith("${preconditions.fry.id}:")
 
         val refreshToken = refreshTokensRepository.findByToken(token)
-        assertThat(refreshToken).isNotNull.satisfies(Consumer {
-            assertThat(it!!.userId).isEqualTo(preconditions.fry.id)
-            assertThat(it.expirationTime).isEqualTo(expirationTime)
-        })
+        refreshToken.shouldNotBeNull().also {
+            it.userId.shouldBe(preconditions.fry.id)
+            it.expirationTime.shouldBe(expirationTime)
+        }
     }
 
     @Test
@@ -51,28 +53,25 @@ class RefreshTokensServiceTest(
             refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token)
         }
 
-        assertThat(userDetails).isNotNull.satisfies(Consumer {
-            assertThat(it.username).isEqualTo("Fry")
-            assertThat(it.authorities).contains(SimpleGrantedAuthority("ROLE_USER"))
-        })
+        userDetails.shouldNotBeNull().also {
+            it.username.shouldBe("Fry")
+            it.authorities.shouldContain(SimpleGrantedAuthority("ROLE_USER"))
+        }
     }
 
     @Test
     fun `should fail on validation if token is expired`() {
         whenever(timeService.currentTime()) doReturn MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)
 
-        assertThatThrownBy {
+        shouldThrow<BadCredentialsException> {
             runBlocking { refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token) }
-        }
-            .isInstanceOf(BadCredentialsException::class.java)
-            .hasMessage("Token expired")
+        }.message.shouldBe("Token expired")
     }
 
     @Test
     fun `should fail on validation if token is not found`() {
-        assertThatThrownBy { runBlocking { refreshTokensService.validateTokenAndBuildUserDetails("??") } }
-            .isInstanceOf(BadCredentialsException::class.java)
-            .hasMessage("Bad token")
+        shouldThrow<BadCredentialsException> { runBlocking { refreshTokensService.validateTokenAndBuildUserDetails("??") } }
+            .message.shouldBe("Bad token")
     }
 
     @Test
@@ -83,10 +82,10 @@ class RefreshTokensServiceTest(
             refreshTokensService.prolongToken(preconditions.refreshToken.token)
         }
 
-        assertThat(updatedTokenString).isEqualTo(preconditions.refreshToken.token)
+        updatedTokenString.shouldBe(preconditions.refreshToken.token)
 
         val updatedToken = refreshTokensRepository.findByToken(updatedTokenString)!!
-        assertThat(updatedToken.expirationTime).isEqualTo(MOCK_TIME.minus(70, ChronoUnit.DAYS))
+        updatedToken.expirationTime.shouldBe(MOCK_TIME.minus(70, ChronoUnit.DAYS))
     }
 
     private val preconditions by lazyPreconditions {

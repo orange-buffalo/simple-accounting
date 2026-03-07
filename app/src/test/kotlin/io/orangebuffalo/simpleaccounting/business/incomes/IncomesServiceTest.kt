@@ -7,9 +7,9 @@ import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.assertj.core.groups.Tuple.tuple
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -369,7 +369,7 @@ internal class IncomesServiceTest(
     @Test
     @WithMockFryUser
     fun `should validate invoice if provided`() {
-        assertThatThrownBy {
+        shouldThrow<EntityNotFoundException> {
             runBlocking {
                 incomesService.saveIncome(
                     Income(
@@ -390,7 +390,7 @@ internal class IncomesServiceTest(
                     ),
                 )
             }
-        }.isInstanceOf(EntityNotFoundException::class.java).hasMessage("Invoice 100 is not found")
+        }.message.shouldBe("Invoice 100 is not found")
     }
 
     @Test
@@ -419,10 +419,10 @@ internal class IncomesServiceTest(
             )
         }
 
-        assertThat(aggregateTemplate.findAll(Invoice::class.java))
-            .filteredOn { it.id == invoiceId }
-            .extracting(Invoice::datePaid)
-            .containsExactly(tuple(LocalDate.of(3000, 5, 13)))
+        aggregateTemplate.findAll(Invoice::class.java)
+            .filter { it.id == invoiceId }
+            .map { it.datePaid }
+            .shouldContainExactly(LocalDate.of(3000, 5, 13))
     }
 
     private fun executeSaveIncomeAndAssert(
@@ -440,14 +440,13 @@ internal class IncomesServiceTest(
             incomesService.saveIncome(income)
         }
 
-        assertThat(actualIncome.originalAmount).isEqualTo(expectedOriginalAmount)
-        assertThat(actualIncome.status).isEqualTo(expectedStatus)
-        assertThat(actualIncome.convertedAmounts).isEqualTo(expectedConvertedAmounts)
-        assertThat(actualIncome.incomeTaxableAmounts).isEqualTo(expectedIncomeTaxableAmounts)
-        assertThat(actualIncome.generalTaxId).isEqualTo(expectedGeneralTax?.id)
-        assertThat(actualIncome.generalTaxAmount).isEqualTo(expectedGeneralTaxAmount)
-        assertThat(actualIncome.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
-        assertThat(actualIncome.useDifferentExchangeRateForIncomeTaxPurposes)
-            .isEqualTo(expectedUseDifferentExchangeRates)
+        actualIncome.originalAmount.shouldBe(expectedOriginalAmount)
+        actualIncome.status.shouldBe(expectedStatus)
+        actualIncome.convertedAmounts.shouldBe(expectedConvertedAmounts)
+        actualIncome.incomeTaxableAmounts.shouldBe(expectedIncomeTaxableAmounts)
+        actualIncome.generalTaxId.shouldBe(expectedGeneralTax?.id)
+        actualIncome.generalTaxAmount.shouldBe(expectedGeneralTaxAmount)
+        actualIncome.generalTaxRateInBps.shouldBe(expectedGeneralTaxRateInBps)
+        actualIncome.useDifferentExchangeRateForIncomeTaxPurposes.shouldBe(expectedUseDifferentExchangeRates)
     }
 }

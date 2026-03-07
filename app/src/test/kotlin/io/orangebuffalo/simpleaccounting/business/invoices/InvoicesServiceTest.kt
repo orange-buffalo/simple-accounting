@@ -6,7 +6,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInf
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -27,16 +29,14 @@ class InvoicesServiceTest(
 
         testData.overdueInvoices.forEach {
             val maybeInvoice = invoiceRepository.findById(it.id!!)
-            assertThat(maybeInvoice).hasValueSatisfying { invoice ->
-                assertThat(invoice.status).isEqualTo(InvoiceStatus.OVERDUE)
-            }
+            maybeInvoice.isPresent.shouldBeTrue()
+            maybeInvoice.get().status.shouldBe(InvoiceStatus.OVERDUE)
         }
 
         testData.unchangedInvoices.forEach {
             val maybeInvoice = invoiceRepository.findById(it.id!!)
-            assertThat(maybeInvoice).hasValueSatisfying { invoice ->
-                assertThat(invoice.status).isNotEqualTo(InvoiceStatus.OVERDUE)
-            }
+            maybeInvoice.isPresent.shouldBeTrue()
+            maybeInvoice.get().status.shouldNotBe(InvoiceStatus.OVERDUE)
         }
     }
 
@@ -108,8 +108,8 @@ class InvoicesServiceTest(
             )
         }
 
-        assertThat(savedInvoice.id).isEqualTo(testData.invoice.id)
-        assertThat(savedInvoice.status).isEqualTo(testData.expectedStatus)
+        savedInvoice.id.shouldBe(testData.invoice.id)
+        savedInvoice.status.shouldBe(testData.expectedStatus)
     }
 
     companion object TestDataHolder {

@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -220,11 +220,11 @@ class CreateAccessTokenByCredentialsMutationTest(
                 .execute()
                 .expectStatus().isOk
                 .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
-                    assertThat(cookie).contains("refreshToken=refreshTokenForFry")
-                        .contains("Max-Age=2592000")
-                        .contains("Path=/api")
-                        .contains("HttpOnly")
-                        .contains("SameSite=Strict")
+                    cookie.shouldContain("refreshToken=refreshTokenForFry")
+                    cookie.shouldContain("Max-Age=2592000")
+                    cookie.shouldContain("Path=/api")
+                    cookie.shouldContain("HttpOnly")
+                    cookie.shouldContain("SameSite=Strict")
                 }
         }
     }

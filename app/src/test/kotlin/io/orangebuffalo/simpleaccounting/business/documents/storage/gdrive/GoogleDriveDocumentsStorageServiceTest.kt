@@ -16,8 +16,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -33,7 +34,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.io.ByteArrayInputStream
-import java.util.function.Consumer
 
 private val bufferFactory = DefaultDataBufferFactory()
 
@@ -102,7 +102,7 @@ class GoogleDriveDocumentsStorageServiceTest(
     }
 
     private fun assertUnauthorizedIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
-        assertThat(status).isEqualTo(
+        status.shouldBe(
             GoogleDriveStorageIntegrationStatus(
                 folderName = null,
                 folderId = "fryFolderId",
@@ -125,7 +125,7 @@ class GoogleDriveDocumentsStorageServiceTest(
     }
 
     private fun assertExistingIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
-        assertThat(status).isEqualTo(
+        status.shouldBe(
             GoogleDriveStorageIntegrationStatus(
                 folderName = "fryFolder",
                 folderId = "fryFolderId",
@@ -197,9 +197,9 @@ class GoogleDriveDocumentsStorageServiceTest(
     fun `should fail on getting content if OAuth2 client is not authorized`() {
         webClientBuilderProvider.mockAuthorizationFailure()
 
-        assertThatThrownBy {
+        shouldThrow<StorageAuthorizationRequiredException> {
             whenDownloadingDocumentContent(preconditions.workspace)
-        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+        }
     }
 
     @Test
@@ -217,15 +217,15 @@ class GoogleDriveDocumentsStorageServiceTest(
 
         val contentBuffers = whenDownloadingDocumentContent(preconditions.workspace)
 
-        assertThat(contentBuffers.consumeToString()).isEqualTo("Test Content")
+        contentBuffers.consumeToString().shouldBe("Test Content")
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should fail on saving content if integration is not configured`() {
-        assertThatThrownBy {
+        shouldThrow<StorageAuthorizationRequiredException> {
             whenSavingDocument(preconditions.workspace)
-        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+        }
     }
 
     @Test
@@ -234,9 +234,9 @@ class GoogleDriveDocumentsStorageServiceTest(
         givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAuthorizationFailure()
 
-        assertThatThrownBy {
+        shouldThrow<StorageAuthorizationRequiredException> {
             whenSavingDocument(preconditions.workspace)
-        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+        }
     }
 
     @Test
@@ -257,7 +257,7 @@ class GoogleDriveDocumentsStorageServiceTest(
 
         val documentResponse = whenSavingDocument(preconditions.workspace)
 
-        assertThat(documentResponse).isEqualTo(
+        documentResponse.shouldBe(
             SaveDocumentResponse(
                 storageLocation = "newFryFileId",
                 sizeInBytes = 42
@@ -294,7 +294,7 @@ class GoogleDriveDocumentsStorageServiceTest(
 
         val documentResponse = whenSavingDocument(preconditions.workspace)
 
-        assertThat(documentResponse).isEqualTo(
+        documentResponse.shouldBe(
             SaveDocumentResponse(
                 storageLocation = "newFryFileId",
                 sizeInBytes = 42
@@ -443,7 +443,7 @@ class GoogleDriveDocumentsStorageServiceTest(
     }
 
     private fun assertNewIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
-        assertThat(status).isEqualTo(
+        status.shouldBe(
             GoogleDriveStorageIntegrationStatus(
                 folderName = "newFolder",
                 folderId = "newFolderId",
@@ -479,11 +479,11 @@ class GoogleDriveDocumentsStorageServiceTest(
         runBlocking { documentsStorage.getCurrentUserIntegrationStatus() }
 
     private fun assertNewIntegration(fry: PlatformUser) {
-        assertThat(jdbcAggregateTemplate.findAll(GoogleDriveStorageIntegration::class.java))
-            .singleElement().satisfies(Consumer { integration ->
-                assertThat(integration.userId).isEqualTo(fry.id!!)
-                assertThat(integration.folderId).isEqualTo("newFolderId")
-            })
+        jdbcAggregateTemplate.findAll(GoogleDriveStorageIntegration::class.java).toList()
+            .shouldBeSingleton { integration ->
+                integration.userId.shouldBe(fry.id!!)
+                integration.folderId.shouldBe("newFolderId")
+            }
     }
 
     private fun givenExistingDriveIntegration(fry: PlatformUser) {
