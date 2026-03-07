@@ -1,5 +1,4 @@
 [versions]
-assertk = "0.28.1"
 awaitility = "4.3.0"
 dsgCodegen = "8.3.0"
 # version pinned as newer has major JGit changed which is not compatible with jreleaser
@@ -34,7 +33,6 @@ wireMock = "3.13.2"
 zjsonpatch = "0.4.16"
 
 [libraries]
-assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 dsgCodegen-gradle = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-gradle", version.ref = "dsgCodegen" }
 dsgCodegen-core = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-shared-core", version.ref = "dsgCodegen" }

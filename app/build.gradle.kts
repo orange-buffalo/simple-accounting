@@ -77,7 +77,6 @@ dependencies {
     testImplementation(libs.mockito.subclass)
     testImplementation("org.flywaydb:flyway-core")
     testImplementation(libs.guava)
-    testImplementation(libs.assertk)
     testImplementation(libs.wiremock.standalone)
     testImplementation(libs.awaitility)
     testImplementation(libs.zjsonpatch)
