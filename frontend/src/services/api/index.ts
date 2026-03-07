@@ -7,7 +7,6 @@ export {
   invoicesApi,
   documentsApi,
   generalTaxesApi,
-  googleDriveStorageApi,
   expensesApi,
   incomesApi,
   incomeTaxPaymentsApi,

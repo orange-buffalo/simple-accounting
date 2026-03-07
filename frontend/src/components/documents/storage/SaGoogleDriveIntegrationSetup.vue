@@ -81,8 +81,9 @@
   import SaI18n from '@/components/SaI18n.vue';
   import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '@/services/push-notifications';
   import { $t } from '@/services/i18n';
-  import { googleDriveStorageApi } from '@/services/api';
-  import type { GoogleDriveStorageIntegrationStatus } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import type { GoogleDriveStorageIntegrationStatusResponse } from '@/services/api/gql/graphql';
 
   class IntegrationStatus {
     status: 'unknown' | 'authorizationInProgress' | 'authorizationRequired'
@@ -121,17 +122,29 @@
 
   const integrationStatus = ref(new IntegrationStatus());
 
+  const loadIntegrationStatusQuery = useLazyQuery(graphql(/* GraphQL */ `
+    query googleDriveStorageIntegrationStatus {
+      googleDriveStorageIntegrationStatus {
+        authorizationRequired
+        authorizationUrl
+        folderId
+        folderName
+      }
+    }
+  `), 'googleDriveStorageIntegrationStatus');
+
   async function loadIntegrationStatus() {
+    const status = await loadIntegrationStatusQuery({});
     const {
       folderId,
       folderName,
       authorizationRequired,
       authorizationUrl,
-    } = await googleDriveStorageApi.getIntegrationStatus();
+    } = status;
     if (authorizationRequired) {
-      integrationStatus.value.onAuthorizationRequired(authorizationUrl);
+      integrationStatus.value.onAuthorizationRequired(authorizationUrl ?? undefined);
     } else {
-      integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
+      integrationStatus.value.onAuthorizationSuccess(folderId ?? undefined, folderName ?? undefined);
     }
   }
 
@@ -190,11 +203,11 @@
       folderName,
       authorizationRequired,
       authorizationUrl,
-    }: GoogleDriveStorageIntegrationStatus) => {
+    }: GoogleDriveStorageIntegrationStatusResponse) => {
       if (authorizationRequired) {
-        integrationStatus.value.onAuthorizationFailed(authorizationUrl);
+        integrationStatus.value.onAuthorizationFailed(authorizationUrl ?? undefined);
       } else {
-        integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
+        integrationStatus.value.onAuthorizationSuccess(folderId ?? undefined, folderName ?? undefined);
         if (gdrivePopup) {
           gdrivePopup.close();
         }
