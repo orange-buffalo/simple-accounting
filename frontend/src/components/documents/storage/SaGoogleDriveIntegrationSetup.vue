@@ -135,7 +135,6 @@
 
   async function loadIntegrationStatus() {
     const status = await loadIntegrationStatusQuery({});
-    if (status === null) return;
     const {
       folderId,
       folderName,

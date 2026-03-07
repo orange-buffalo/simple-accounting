@@ -27,16 +27,16 @@ class GoogleDriveStorageIntegrationStatusQuery(
 
     @GraphQLDescription("Google Drive storage integration status for the current user.")
     data class GoogleDriveStorageIntegrationStatusResponse(
-        @param:GraphQLDescription("The ID of the Google Drive folder used for storing documents.")
-        val folderId: String?,
-        @param:GraphQLDescription("The name of the Google Drive folder used for storing documents.")
-        val folderName: String?,
+        @param:GraphQLDescription("Whether Google Drive authorization is required to use the storage.")
+        val authorizationRequired: Boolean,
         @param:GraphQLDescription(
             "The URL to authorize access to Google Drive. " +
                     "Present only when authorization is required."
         )
         val authorizationUrl: String?,
-        @param:GraphQLDescription("Whether Google Drive authorization is required to use the storage.")
-        val authorizationRequired: Boolean,
+        @param:GraphQLDescription("The ID of the Google Drive folder used for storing documents.")
+        val folderId: String?,
+        @param:GraphQLDescription("The name of the Google Drive folder used for storing documents.")
+        val folderName: String?,
     )
 }
