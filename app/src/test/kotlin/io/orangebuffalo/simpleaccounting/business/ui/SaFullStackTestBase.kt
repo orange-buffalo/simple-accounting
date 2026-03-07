@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.ui
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.Cookie
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.documents.storage.local.LocalFileSystemDocumentsStorageProperties
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import java.time.Instant
 
 /**
@@ -41,6 +43,9 @@ abstract class SaFullStackTestBase : SaIntegrationTestBase() {
 
     @Autowired
     protected lateinit var testDocumentsStorage: TestDocumentsStorage
+
+    @MockitoSpyBean
+    protected lateinit var localFsStorageProperties: LocalFileSystemDocumentsStorageProperties
 
     protected fun Page.authenticateViaCookie(user: PlatformUser) {
         val tokenValue = "test-refresh-token:${user.userName}"

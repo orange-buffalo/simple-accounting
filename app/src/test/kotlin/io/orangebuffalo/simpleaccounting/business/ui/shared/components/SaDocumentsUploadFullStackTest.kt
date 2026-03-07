@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -24,6 +25,9 @@ import kotlin.io.path.writeBytes
  * Uses Edit Expense page as testing grounds.
  */
 class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
 
     @Test
     fun `should display error when storage is not configured`(page: Page) {
@@ -360,7 +364,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = Files.createTempFile("test-upload-", "-$fileName")
+        val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
     }

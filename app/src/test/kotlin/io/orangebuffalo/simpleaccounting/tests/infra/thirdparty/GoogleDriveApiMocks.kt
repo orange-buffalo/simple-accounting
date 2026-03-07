@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.thirdparty
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -33,7 +35,7 @@ object GoogleDriveApiMocks {
                         buildJsonObject {
                             put("name", requestName)
                             putJsonArray("parents") {
-                                requestParents.forEach { put(it) }
+                                requestParents.forEach { add(it) }
                             }
                             put("mimeType", "application/vnd.google-apps.folder")
                         }.toString()
@@ -83,11 +85,137 @@ object GoogleDriveApiMocks {
         )
     }
 
+    fun mockUploadFile(
+        responseId: String,
+        responseSize: Long,
+        expectedAuthToken: OAuthMocksToken,
+    ) {
+        wireMockServer.stubFor(
+            post(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
+                .withQueryParam("fields", equalTo("id, size"))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(
+                            buildJsonObject {
+                                put("id", responseId)
+                                put("size", responseSize)
+                            }.toString()
+                        )
+                )
+        )
+    }
+
+    /**
+     * Mocks a Google Drive file upload, matching on the file name in the multipart metadata part.
+     * Unlike [mockUploadFile], this method is safe to use for concurrent uploads as each stub
+     * independently matches requests by file name, without relying on request ordering.
+     */
+    fun mockUploadFileForFileName(
+        fileName: String,
+        responseId: String,
+        responseSize: Long,
+        expectedAuthToken: OAuthMocksToken,
+    ) {
+        wireMockServer.stubFor(
+            post(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
+                .withQueryParam("fields", equalTo("id, size"))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .withMultipartRequestBody(
+                    aMultipart()
+                        .withName("metadata")
+                        .withBody(matchingJsonPath("$.name", equalTo(fileName)))
+                )
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(
+                            buildJsonObject {
+                                put("id", responseId)
+                                put("size", responseSize)
+                            }.toString()
+                        )
+                )
+        )
+    }
+
+    fun mockDownloadFile(
+        fileId: String,
+        content: ByteArray,
+        expectedAuthToken: OAuthMocksToken,
+    ) {
+        wireMockServer.stubFor(
+            get(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files/$fileId"))
+                .withQueryParam("alt", equalTo("media"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                        .withBody(content)
+                )
+        )
+    }
+
+    fun mockFindFolder(
+        parentFolderId: String,
+        folderName: String,
+        responseFolderId: String? = null,
+        expectedAuthToken: OAuthMocksToken,
+    ) {
+        wireMockServer.stubFor(
+            get(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files"))
+                .withQueryParam(
+                    "q",
+                    equalTo("'$parentFolderId' in parents and name = '$folderName' and trashed = false")
+                )
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(
+                            buildJsonObject {
+                                putJsonArray("files") {
+                                    if (responseFolderId != null) {
+                                        addJsonObject {
+                                            put("id", responseFolderId)
+                                        }
+                                    }
+                                }
+                            }.toString()
+                        )
+                )
+        )
+    }
+
     fun verifyFindFileRequest(
         fileId: String,
     ) {
         wireMockServer.verify(
             getRequestedFor(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files/$fileId"))
+        )
+    }
+
+    fun verifyUploadFileRequest() {
+        wireMockServer.verify(
+            postRequestedFor(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
+        )
+    }
+
+    fun verifyCreateFolderRequest(
+        folderName: String,
+        parentFolderId: String,
+    ) {
+        wireMockServer.verify(
+            postRequestedFor(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files"))
+                .withRequestBody(
+                    matchingJsonPath("$.name", equalTo(folderName))
+                )
+                .withRequestBody(
+                    matchingJsonPath("$.parents[0]", equalTo(parentFolderId))
+                )
         )
     }
 }

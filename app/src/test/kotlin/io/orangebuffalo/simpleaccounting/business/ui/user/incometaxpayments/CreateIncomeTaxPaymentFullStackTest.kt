@@ -15,6 +15,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -22,6 +23,9 @@ import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
 class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
 
     @Test
     fun `should create income tax payment with required fields only`(page: Page) {
@@ -178,7 +182,7 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
-        val testFile = Files.createTempFile("test-upload-", "-$fileName")
+        val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
     }
