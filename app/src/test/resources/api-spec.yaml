@@ -1555,18 +1555,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserActivationTokenDto"
-  /api/storage/google-drive/status:
-    get:
-      tags:
-      - google-drive-storage-api
-      operationId: getIntegrationStatus
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GoogleDriveStorageIntegrationStatus"
   /api/push-notifications:
     get:
       tags:
@@ -2648,19 +2636,6 @@ components:
       - pageNumber
       - pageSize
       - totalElements
-    GoogleDriveStorageIntegrationStatus:
-      type: object
-      properties:
-        folderId:
-          type: string
-        folderName:
-          type: string
-        authorizationUrl:
-          type: string
-        authorizationRequired:
-          type: boolean
-      required:
-      - authorizationRequired
     CurrentUserPushNotificationMessage:
       type: object
       properties:

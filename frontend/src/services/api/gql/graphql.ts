@@ -113,6 +113,19 @@ export type ExpenseGqlDto = {
   title: Scalars['String']['output'];
 };
 
+/** Google Drive storage integration status for the current user. */
+export type GoogleDriveStorageIntegrationStatusResponse = {
+  __typename?: 'GoogleDriveStorageIntegrationStatusResponse';
+  /** Whether Google Drive authorization is required to use the storage. */
+  authorizationRequired: Scalars['Boolean']['output'];
+  /** The URL to authorize access to Google Drive. Present only when authorization is required. */
+  authorizationUrl?: Maybe<Scalars['String']['output']>;
+  /** The ID of the Google Drive folder used for storing documents. */
+  folderId?: Maybe<Scalars['String']['output']>;
+  /** The name of the Google Drive folder used for storing documents. */
+  folderName?: Maybe<Scalars['String']['output']>;
+};
+
 /** Internationalization settings of the user profile. */
 export type I18nSettings = {
   __typename?: 'I18nSettings';
@@ -176,6 +189,8 @@ export type Query = {
   __typename?: 'Query';
   /** Returns the current user's documents storage status. */
   documentsStorageStatus: DocumentsStorageStatusResponse;
+  /** Returns the current user's Google Drive storage integration status. */
+  googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
   /** Returns all workspaces accessible by the current user. */
@@ -250,6 +265,11 @@ export type WorkspaceGqlDto = {
   /** Name of the workspace. */
   name: Scalars['String']['output'];
 };
+
+export type GoogleDriveStorageIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleDriveStorageIntegrationStatusQuery = { __typename?: 'Query', googleDriveStorageIntegrationStatus: { __typename?: 'GoogleDriveStorageIntegrationStatusResponse', authorizationRequired: boolean, authorizationUrl?: string | null, folderId?: string | null, folderName?: string | null } };
 
 export type DocumentsStorageStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -328,6 +348,7 @@ export type UserProfileBootstrapQueryVariables = Exact<{ [key: string]: never; }
 export type UserProfileBootstrapQuery = { __typename?: 'Query', userProfile: { __typename?: 'UserProfile', i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
 
 
+export const GoogleDriveStorageIntegrationStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorizationRequired"}},{"kind":"Field","name":{"kind":"Name","value":"authorizationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"folderId"}},{"kind":"Field","name":{"kind":"Name","value":"folderName"}}]}}]}}]} as unknown as DocumentNode<GoogleDriveStorageIntegrationStatusQuery, GoogleDriveStorageIntegrationStatusQueryVariables>;
 export const DocumentsStorageStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}}]}}]}}]} as unknown as DocumentNode<DocumentsStorageStatusQuery, DocumentsStorageStatusQueryVariables>;
 export const UserProfileLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userProfileLogin"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18n"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}}]}}]}}]}}]} as unknown as DocumentNode<UserProfileLoginQuery, UserProfileLoginQueryVariables>;
 export const UserProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentsStorage"}},{"kind":"Field","name":{"kind":"Name","value":"i18n"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userName"}}]}}]}}]} as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>;
