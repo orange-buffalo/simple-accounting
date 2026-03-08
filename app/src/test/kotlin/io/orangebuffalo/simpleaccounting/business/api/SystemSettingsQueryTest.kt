@@ -11,6 +11,8 @@ import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 
 class SystemSettingsQueryTest(
@@ -20,12 +22,10 @@ class SystemSettingsQueryTest(
     private val preconditions by lazyPreconditions {
         object {
             val fry = platformUser(userName = "Fry")
-            val workspaceToken = workspace(owner = fry).let { ws ->
-                workspaceAccessToken(
-                    workspace = ws,
-                    validTill = MOCK_TIME.plusSeconds(10000),
-                )
-            }
+            val workspaceToken = workspaceAccessToken(
+                workspace = workspace(owner = fry),
+                validTill = MOCK_TIME.plusSeconds(10000),
+            )
         }
     }
 
@@ -64,6 +64,20 @@ class SystemSettingsQueryTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.SystemSettings to buildJsonObject {
                         put("localFileSystemDocumentsStorageEnabled", false)
+                    }
+                )
+        }
+
+        @Test
+        fun `should return localFileSystemDocumentsStorageEnabled as true when enabled`() {
+            whenever(localFsStorageProperties.enabled) doReturn true
+
+            client
+                .graphql { systemSettingsQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.QUERY.SystemSettings to buildJsonObject {
+                        put("localFileSystemDocumentsStorageEnabled", true)
                     }
                 )
         }
