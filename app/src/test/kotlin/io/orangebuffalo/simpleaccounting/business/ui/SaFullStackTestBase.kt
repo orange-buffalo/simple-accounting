@@ -44,9 +44,6 @@ abstract class SaFullStackTestBase : SaIntegrationTestBase() {
     @Autowired
     protected lateinit var testDocumentsStorage: TestDocumentsStorage
 
-    @MockitoSpyBean
-    protected lateinit var localFsStorageProperties: LocalFileSystemDocumentsStorageProperties
-
     protected fun Page.authenticateViaCookie(user: PlatformUser) {
         val tokenValue = "test-refresh-token:${user.userName}"
         val refreshToken = RefreshToken(

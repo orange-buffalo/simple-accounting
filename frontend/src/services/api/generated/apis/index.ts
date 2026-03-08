@@ -6,7 +6,6 @@ export * from './DocumentsApiApi';
 export * from './DownloadsApiApi';
 export * from './ExpensesApiApi';
 export * from './GeneralTaxesApiApi';
-export * from './GoogleDriveStorageApiApi';
 export * from './IncomeTaxPaymentsApiApi';
 export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
