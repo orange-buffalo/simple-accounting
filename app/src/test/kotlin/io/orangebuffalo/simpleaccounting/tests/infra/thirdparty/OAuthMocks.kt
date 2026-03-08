@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.thirdparty
 
-import assertk.fail
+import io.kotest.assertions.fail
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

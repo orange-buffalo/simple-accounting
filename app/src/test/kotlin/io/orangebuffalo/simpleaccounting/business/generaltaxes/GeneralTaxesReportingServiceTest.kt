@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.generaltaxes
 
-import assertk.assertThat
-import assertk.assertions.containsOnly
+import io.kotest.matchers.collections.shouldContainOnly
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
@@ -25,7 +24,7 @@ internal class GeneralTaxesReportingServiceTest(
             )
         }
 
-        assertThat(actualReport.finalizedCollectedTaxes).containsOnly(
+        actualReport.finalizedCollectedTaxes.shouldContainOnly(
             FinalizedGeneralTaxSummaryItem(
                 tax = preconditions.generalTax.id!!,
                 includedItemsNumber = 1,
@@ -40,7 +39,7 @@ internal class GeneralTaxesReportingServiceTest(
             )
         )
 
-        assertThat(actualReport.finalizedPaidTaxes).containsOnly(
+        actualReport.finalizedPaidTaxes.shouldContainOnly(
             FinalizedGeneralTaxSummaryItem(
                 tax = preconditions.generalTax.id!!,
                 includedItemsNumber = 1,
@@ -56,14 +55,14 @@ internal class GeneralTaxesReportingServiceTest(
             )
         )
 
-        assertThat(actualReport.pendingCollectedTaxes).containsOnly(
+        actualReport.pendingCollectedTaxes.shouldContainOnly(
             PendingGeneralTaxSummaryItem(
                 tax = preconditions.paidTax1.id!!,
                 includedItemsNumber = 2
             )
         )
 
-        assertThat(actualReport.pendingPaidTaxes).containsOnly(
+        actualReport.pendingPaidTaxes.shouldContainOnly(
             PendingGeneralTaxSummaryItem(
                 tax = preconditions.collectedTax1.id!!,
                 includedItemsNumber = 1

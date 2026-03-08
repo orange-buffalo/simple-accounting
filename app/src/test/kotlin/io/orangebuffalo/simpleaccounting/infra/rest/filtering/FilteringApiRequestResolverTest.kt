@@ -3,8 +3,10 @@ package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -294,23 +296,22 @@ class FilteringApiRequestResolverTest {
 
         when {
             useCase.expectedError != null -> {
-                assertThatThrownBy { apiPageRequestResolver.resolveRequest(exchange) }
-                    .isInstanceOf(ApiValidationException::class.java)
-                    .hasMessage(useCase.expectedError)
+                shouldThrow<ApiValidationException> { apiPageRequestResolver.resolveRequest(exchange) }
+                    .message.shouldBe(useCase.expectedError)
             }
 
             useCase.expectedRequest != null -> {
                 val expectedRequest = useCase.expectedRequest
                 val resolvedPageRequest = apiPageRequestResolver.resolveRequest(exchange)
 
-                assertThat(resolvedPageRequest).isNotNull
-                assertThat(resolvedPageRequest.pageSize).isEqualTo(expectedRequest.pageSize)
-                assertThat(resolvedPageRequest.pageNumber).isEqualTo(expectedRequest.pageNumber)
-                assertThat(resolvedPageRequest.sortBy).isEqualTo(expectedRequest.sortBy)
-                assertThat(resolvedPageRequest.sortDirection).isEqualTo(expectedRequest.sortDirection)
-                assertThat(resolvedPageRequest.predicates).isNotNull
-                assertThat(resolvedPageRequest.predicates)
-                    .containsExactlyInAnyOrder(*expectedRequest.predicates.toTypedArray())
+                resolvedPageRequest.shouldNotBeNull()
+                resolvedPageRequest.pageSize.shouldBe(expectedRequest.pageSize)
+                resolvedPageRequest.pageNumber.shouldBe(expectedRequest.pageNumber)
+                resolvedPageRequest.sortBy.shouldBe(expectedRequest.sortBy)
+                resolvedPageRequest.sortDirection.shouldBe(expectedRequest.sortDirection)
+                resolvedPageRequest.predicates.shouldNotBeNull()
+                resolvedPageRequest.predicates
+                    .shouldContainExactlyInAnyOrder(*expectedRequest.predicates.toTypedArray())
             }
 
             else -> {

@@ -21,7 +21,8 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import net.javacrumbs.jsonunit.kotest.inPath
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -37,7 +38,6 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
-import java.util.function.Consumer
 
 @DisplayName("Documents API ")
 class DocumentsApiTest(
@@ -130,10 +130,10 @@ class DocumentsApiTest(
             //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull.satisfies(Consumer { body ->
+                exchange.responseBody.shouldNotBeNull().also { body ->
                     val text = String(body, StandardCharsets.UTF_8)
-                    assertThat(text).isEqualTo("test-content")
-                })
+                    text.shouldBe("test-content")
+                }
             }
     }
 

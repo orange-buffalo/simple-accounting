@@ -14,7 +14,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.kotest.configuration
-import org.assertj.core.matcher.AssertionMatcher
+import org.hamcrest.BaseMatcher
+import org.hamcrest.Description
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -386,11 +387,14 @@ class UserActivationTokensApiTest(
     }
 
     private fun withDbTokenValueForUserMatcher(user: PlatformUser) = configuration {
-        withMatcher("dbTokenValue", object : AssertionMatcher<String>() {
-            override fun assertion(actual: String?) {
+        withMatcher("dbTokenValue", object : BaseMatcher<String>() {
+            override fun matches(actual: Any?): Boolean {
                 val token = aggregateTemplate.findAll(UserActivationToken::class.java)
                     .single { it.userId == user.id }
-                actual.shouldBe(token.token)
+                return actual == token.token
+            }
+            override fun describeTo(description: Description) {
+                description.appendText("db token value for user")
             }
         })
     }

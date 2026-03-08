@@ -10,7 +10,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +32,7 @@ class DocumentsServiceTest(
         val storageStatus = runBlocking {
             documentsService.getCurrentUserStorageStatus()
         }
-        assertThat(storageStatus.active).isTrue()
+        storageStatus.active.shouldBeTrue()
     }
 
     @Test
@@ -47,9 +48,9 @@ class DocumentsServiceTest(
             documentsService.getContent(DocumentDownloadMetadata(preconditions.document.id!!))
         }
 
-        assertThat(contentResponse.fileName).isEqualTo("document.pdf")
-        assertThat(contentResponse.sizeInBytes).isEqualTo(42)
-        assertThat(contentResponse.content.consumeToString()).isEqualTo("test-content")
+        contentResponse.fileName.shouldBe("document.pdf")
+        contentResponse.sizeInBytes.shouldBe(42)
+        contentResponse.content.consumeToString().shouldBe("test-content")
         // todo #108: verify content type
     }
 

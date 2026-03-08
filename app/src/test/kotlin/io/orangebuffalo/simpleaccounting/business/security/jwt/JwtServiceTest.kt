@@ -16,7 +16,9 @@ import net.javacrumbs.jsonunit.kotest.inPath
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonArray
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonBoolean
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.string.shouldMatch
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,7 +52,7 @@ class JwtServiceTest {
 
         val actualToken = jwtService.buildJwtToken(securityPrincipal)
 
-        assertThat(actualToken).matches(""".+\..+\..+""")
+        actualToken.shouldMatch(""".+\..+\..+""".toRegex())
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
@@ -70,7 +72,7 @@ class JwtServiceTest {
         val securityPrincipal = createTransientUserPrincipal("workspaceAccessToken", "")
 
         val actualToken = jwtService.buildJwtToken(securityPrincipal)
-        assertThat(actualToken).matches(".+\\..+\\..+")
+        actualToken.shouldMatch(".+\\..+\\..+".toRegex())
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
@@ -89,7 +91,7 @@ class JwtServiceTest {
 
         val actualToken = jwtService.buildJwtToken(securityPrincipal, VALID_TILL)
 
-        assertThat(actualToken).matches(""".+\..+\..+""")
+        actualToken.shouldMatch(""".+\..+\..+""".toRegex())
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
@@ -111,17 +113,15 @@ class JwtServiceTest {
 
         val userDetails = jwtService.validateTokenAndBuildUserDetails(token)
 
-        assertThat(userDetails).isNotNull
-        assertThat(userDetails.username).isEqualTo("Fry")
-        assertThat(userDetails.authorities.map { it.authority }).containsExactlyInAnyOrder("ROLE_DELIVERY_BOY")
-        assertThat(userDetails.password).isEqualTo(token)
-        assertThat(userDetails.isAccountNonExpired).isTrue()
-        assertThat(userDetails.isAccountNonLocked).isTrue()
-        assertThat(userDetails.isCredentialsNonExpired).isTrue()
-        assertThat(userDetails.isEnabled).isTrue()
-        assertThat(userDetails).isInstanceOfSatisfying(SecurityPrincipal::class.java) {
-            assertThat(it.isTransient).isFalse()
-        }
+        userDetails.shouldNotBeNull()
+        userDetails.username.shouldBe("Fry")
+        userDetails.authorities.map { it.authority }.shouldContainExactlyInAnyOrder("ROLE_DELIVERY_BOY")
+        userDetails.password.shouldBe(token)
+        userDetails.isAccountNonExpired.shouldBeTrue()
+        userDetails.isAccountNonLocked.shouldBeTrue()
+        userDetails.isCredentialsNonExpired.shouldBeTrue()
+        userDetails.isEnabled.shouldBeTrue()
+        userDetails.shouldBeInstanceOf<SecurityPrincipal>().isTransient.shouldBeFalse()
     }
 
     @Test
@@ -133,17 +133,15 @@ class JwtServiceTest {
 
         val userDetails = jwtService.validateTokenAndBuildUserDetails(token)
 
-        assertThat(userDetails).isNotNull
-        assertThat(userDetails.username).isEqualTo("workspaceAccessToken")
-        assertThat(userDetails.authorities.map { it.authority }).containsExactlyInAnyOrder("ROLE_USER")
-        assertThat(userDetails.password).isEqualTo(token)
-        assertThat(userDetails.isAccountNonExpired).isTrue()
-        assertThat(userDetails.isAccountNonLocked).isTrue()
-        assertThat(userDetails.isCredentialsNonExpired).isTrue()
-        assertThat(userDetails.isEnabled).isTrue()
-        assertThat(userDetails).isInstanceOfSatisfying(SecurityPrincipal::class.java) {
-            assertThat(it.isTransient).isTrue()
-        }
+        userDetails.shouldNotBeNull()
+        userDetails.username.shouldBe("workspaceAccessToken")
+        userDetails.authorities.map { it.authority }.shouldContainExactlyInAnyOrder("ROLE_USER")
+        userDetails.password.shouldBe(token)
+        userDetails.isAccountNonExpired.shouldBeTrue()
+        userDetails.isAccountNonLocked.shouldBeTrue()
+        userDetails.isCredentialsNonExpired.shouldBeTrue()
+        userDetails.isEnabled.shouldBeTrue()
+        userDetails.shouldBeInstanceOf<SecurityPrincipal>().isTransient.shouldBeTrue()
     }
 
     @Test
@@ -151,6 +149,6 @@ class JwtServiceTest {
         val actualException = assertThrows<BadCredentialsException> {
             jwtService.validateTokenAndBuildUserDetails(BAD_TOKEN)
         }
-        assertThat(actualException.message).isEqualTo("Bad token $BAD_TOKEN")
+        actualException.message.shouldBe("Bad token $BAD_TOKEN")
     }
 }

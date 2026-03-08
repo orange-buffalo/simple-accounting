@@ -1,16 +1,14 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
-import assertk.Assert
-import assertk.assertThat
-import assertk.assertions.isEqualTo
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.AbstractThrowableAssert
-import org.assertj.core.api.Assertions.assertThatCode
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,32 +21,32 @@ internal class WorkspacesServiceTest(
 
     @Test
     fun `should fail to provide admin workspace access if user is not authenticated`() {
-        assertThatThrownBy {
+        shouldThrow<Exception> {
             runBlocking {
                 workspacesService.getAccessibleWorkspace(preconditions.fryWorkspace.id!!, WorkspaceAccessMode.ADMIN)
             }
-        }.hasMessage("Authentication is not set")
+        }.message.shouldBe("Authentication is not set")
     }
 
     @Test
     fun `should fail to provide read-write workspace access if user is not authenticated`() {
-        assertThatThrownBy {
+        shouldThrow<Exception> {
             runBlocking {
                 workspacesService.getAccessibleWorkspace(
                     preconditions.fryWorkspace.id!!,
                     WorkspaceAccessMode.READ_WRITE
                 )
             }
-        }.hasMessage("Authentication is not set")
+        }.message.shouldBe("Authentication is not set")
     }
 
     @Test
     fun `should fail to provide read-only workspace access if user is not authenticated`() {
-        assertThatThrownBy {
+        shouldThrow<Exception> {
             runBlocking {
                 workspacesService.getAccessibleWorkspace(preconditions.fryWorkspace.id!!, WorkspaceAccessMode.READ_ONLY)
             }
-        }.hasMessage("Authentication is not set")
+        }.message.shouldBe("Authentication is not set")
     }
 
     @WithMockFryUser
@@ -220,11 +218,13 @@ internal class WorkspacesServiceTest(
     ) {
         assertThatGetAccessibleWorkspace(
             fryWorkspace,
-            mode, {
-                isInstanceOf(EntityNotFoundException::class.java)
-                    .hasMessage("Workspace ${fryWorkspace.id} is not found")
+            mode,
+            { e ->
+                e.shouldBeInstanceOf<EntityNotFoundException>()
+                e.message.shouldBe("Workspace ${fryWorkspace.id} is not found")
             },
-            {})
+            { it.shouldBeNull() }
+        )
     }
 
     private fun assertSuccessfulGetAccessibleWorkspace(
@@ -234,28 +234,28 @@ internal class WorkspacesServiceTest(
         assertThatGetAccessibleWorkspace(
             fryWorkspace,
             mode,
-            { doesNotThrowAnyException() },
-            { isEqualTo(fryWorkspace) })
+            { it.shouldBeNull() },
+            { it.shouldBe(fryWorkspace) }
+        )
     }
 
     private fun assertThatGetAccessibleWorkspace(
         fryWorkspace: Workspace,
         mode: WorkspaceAccessMode,
-        exceptionAssertions: AbstractThrowableAssert<*, *>.() -> Unit,
-        workspaceAssertions: Assert<Workspace?>.() -> Unit
+        exceptionAssertions: (Throwable?) -> Unit,
+        workspaceAssertions: (Workspace?) -> Unit
     ) {
-
         var workspace: Workspace? = null
-
-        val thrownBy = assertThatCode {
+        var exception: Throwable? = null
+        try {
             workspace = runBlocking {
                 workspacesService.getAccessibleWorkspace(fryWorkspace.id!!, mode)
             }
+        } catch (e: Throwable) {
+            exception = e
         }
-
-        exceptionAssertions(thrownBy)
-
-        workspaceAssertions(assertThat(workspace))
+        exceptionAssertions(exception)
+        workspaceAssertions(workspace)
     }
 
     private val preconditions by lazyPreconditions {

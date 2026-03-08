@@ -7,7 +7,8 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +16,6 @@ import org.springframework.http.ContentDisposition
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
-import java.util.function.Consumer
 
 @DisplayName("Downloads API")
 class DownloadsApiTest(
@@ -60,10 +60,10 @@ class DownloadsApiTest(
             //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull.satisfies(Consumer { body ->
+                exchange.responseBody.shouldNotBeNull().also { body ->
                     val text = String(body, StandardCharsets.UTF_8)
-                    assertThat(text).isEqualTo("test-content")
-                })
+                    text.shouldBe("test-content")
+                }
             }
     }
 

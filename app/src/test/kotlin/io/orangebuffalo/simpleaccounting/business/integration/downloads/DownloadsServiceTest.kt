@@ -8,8 +8,10 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotBeBlank
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -28,16 +30,17 @@ class DownloadsServiceTest(
             }
         }
 
-        assertThat(token).isNotBlank().hasSizeGreaterThanOrEqualTo(20)
+        token.shouldNotBeBlank()
+        token.length.shouldBeGreaterThanOrEqualTo(20)
     }
 
     @Test
     fun `should fail with EntityNotFoundException if token is not known`() {
-        assertThatThrownBy {
+        shouldThrow<EntityNotFoundException> {
             runBlocking {
                 downloadsService.getContentByToken("42")
             }
-        }.isInstanceOf(EntityNotFoundException::class.java).hasMessage("Token 42 is not found")
+        }.message.shouldBe("Token 42 is not found")
     }
 
     @Test
@@ -51,10 +54,10 @@ class DownloadsServiceTest(
             downloadsService.getContentByToken(token)
         }
 
-        assertThat(contentResponse.sizeInBytes).isEqualTo(42)
-        assertThat(contentResponse.content.consumeToString()).isEqualTo("test content")
-        assertThat(contentResponse.contentType).isEqualTo("content type")
-        assertThat(contentResponse.fileName).isEqualTo("file name")
+        contentResponse.sizeInBytes.shouldBe(42)
+        contentResponse.content.consumeToString().shouldBe("test content")
+        contentResponse.contentType.shouldBe("content type")
+        contentResponse.fileName.shouldBe("file name")
     }
 
     data class TestContentMetadata(
@@ -65,7 +68,7 @@ class DownloadsServiceTest(
         override fun getId() = "test-provider"
 
         override suspend fun getContent(metadata: TestContentMetadata): DownloadContentResponse {
-            assertThat(getCurrentPrincipal().userName).isEqualTo("Fry")
+            getCurrentPrincipal().userName.shouldBe("Fry")
 
             return DownloadContentResponse(
                 fileName = "file name",

@@ -1,7 +1,13 @@
 package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.swagger.v3.oas.annotations.Parameter
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.boot.convert.ApplicationConversionService
@@ -23,12 +29,12 @@ class ParameterObjectArgumentResolverTest {
 
     @Test
     fun `should not support parameters not annotated with @ParameterObject`() {
-        assertThat(resolver.supportsParameter(getMethodParameter(index = 1))).isFalse
+        resolver.supportsParameter(getMethodParameter(index = 1)).shouldBeFalse()
     }
 
     @Test
     fun `should support parameters annotated with @ParameterObject`() {
-        assertThat(resolver.supportsParameter(getMethodParameter())).isTrue
+        resolver.supportsParameter(getMethodParameter()).shouldBeTrue()
     }
 
     @Test
@@ -38,14 +44,13 @@ class ParameterObjectArgumentResolverTest {
         )
 
         val resolvedValue = resolver.resolveArgumentValue(getMethodParameter(), BindingContext(), exchange)
-        assertThat(resolvedValue).isNotNull.isInstanceOfSatisfying(CustomPageRequest::class.java) { request ->
-            assertThat(request.pageNumber).isEqualTo(4)
-            assertThat(request.pageSize).isNull()
-            assertThat(request.sortOrder).isNull()
-            assertThat(request.sortBy).isEqualTo(CustomSortFields.NAME)
-            assertThat(request.search).isEqualTo("hello")
-            assertThat(request.valueIn).containsExactlyInAnyOrder(1, 2)
-        }
+        val request = resolvedValue.shouldNotBeNull().shouldBeInstanceOf<CustomPageRequest>()
+        request.pageNumber.shouldBe(4)
+        request.pageSize.shouldBeNull()
+        request.sortOrder.shouldBeNull()
+        request.sortBy.shouldBe(CustomSortFields.NAME)
+        request.search.shouldBe("hello")
+        request.valueIn.shouldContainExactlyInAnyOrder(1, 2)
 
     }
 
