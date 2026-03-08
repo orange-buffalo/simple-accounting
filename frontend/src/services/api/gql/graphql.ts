@@ -191,6 +191,8 @@ export type Query = {
   documentsStorageStatus: DocumentsStorageStatusResponse;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
+  /** Returns the system settings. */
+  systemSettings: SystemSettings;
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
   /** Returns all workspaces accessible by the current user. */
@@ -213,6 +215,13 @@ export enum SaGrapQlErrorType {
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
   NotAuthorized = 'NOT_AUTHORIZED'
 }
+
+/** System-wide settings. */
+export type SystemSettings = {
+  __typename?: 'SystemSettings';
+  /** Whether local file system documents storage is enabled. */
+  localFileSystemDocumentsStorageEnabled: Scalars['Boolean']['output'];
+};
 
 /** Information about the user profile. */
 export type UserProfile = {
