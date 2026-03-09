@@ -89,7 +89,8 @@ class GoogleDriveDocumentsStorage(
         return try {
             ensureRootFolder(integration)
             true
-        } catch (_: StorageAuthorizationRequiredException) {
+        } catch (e: StorageAuthorizationRequiredException) {
+            log.debug(e) { "Google Drive download not available for user $userId: authorization required" }
             false
         }
     }
