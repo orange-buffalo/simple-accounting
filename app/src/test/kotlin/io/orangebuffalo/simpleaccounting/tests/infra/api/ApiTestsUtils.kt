@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
@@ -377,6 +376,7 @@ class GraphqlClientRequestExecutor(
 
     fun executeAndVerifyEntityNotFoundError(
         path: String,
+        errorCode: String,
         locationColumn: Int = 3,
         locationLine: Int = 2,
     ) {
@@ -392,9 +392,8 @@ class GraphqlClientRequestExecutor(
                 withClue("Expected errorType to be BUSINESS_ERROR") {
                     extensions["errorType"]?.jsonPrimitive?.content.shouldBe("BUSINESS_ERROR")
                 }
-                val errorCode = extensions["errorCode"]?.jsonPrimitive?.content.shouldNotBeNull()
-                withClue("Expected errorCode to end with _NOT_FOUND") {
-                    errorCode.shouldEndWith("_NOT_FOUND")
+                withClue("Expected errorCode to be $errorCode") {
+                    extensions["errorCode"]?.jsonPrimitive?.content.shouldBe(errorCode)
                 }
                 val locations = error["locations"]?.jsonArray.shouldNotBeNull()
                 locations.shouldNotBeEmpty()
