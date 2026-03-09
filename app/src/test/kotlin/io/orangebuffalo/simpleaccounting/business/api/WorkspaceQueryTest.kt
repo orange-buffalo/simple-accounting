@@ -81,7 +81,6 @@ class WorkspaceQueryTest(
             }
                 .usingSharedWorkspaceToken(preconditions.zoidbergWorkspaceToken.token)
                 .executeAndVerifyEntityNotFoundError(
-                    errorCode = "WORKSPACE_NOT_FOUND",
                     path = DgsConstants.QUERY.Workspace,
                 )
         }
@@ -152,7 +151,6 @@ class WorkspaceQueryTest(
             }
                 .from(preconditions.zoidberg)
                 .executeAndVerifyEntityNotFoundError(
-                    errorCode = "WORKSPACE_NOT_FOUND",
                     path = DgsConstants.QUERY.Workspace,
                 )
         }
@@ -166,7 +164,6 @@ class WorkspaceQueryTest(
             }
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(
-                    errorCode = "WORKSPACE_NOT_FOUND",
                     path = DgsConstants.QUERY.Workspace,
                 )
         }

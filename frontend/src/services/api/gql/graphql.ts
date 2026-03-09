@@ -217,6 +217,8 @@ export type RefreshAccessTokenResponse = {
 export enum SaGrapQlErrorType {
   /** Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`. */
   BusinessError = 'BUSINESS_ERROR',
+  /** Indicates that the requested entity was not found or is not accessible by the current user. */
+  EntityNotFound = 'ENTITY_NOT_FOUND',
   /** Indicates that one or more input fields failed validation constraints. */
   FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
@@ -270,12 +272,6 @@ export type ValidationErrorParam = {
   /** The parameter value. */
   value: Scalars['String']['output'];
 };
-
-/** Possible business error codes for the workspace operation. */
-export enum WorkspaceErrorCodes {
-  /** The workspace with the given ID is not found or not accessible by the current user. */
-  WorkspaceNotFound = 'WORKSPACE_NOT_FOUND'
-}
 
 /** Workspace of a user. */
 export type WorkspaceGqlDto = {

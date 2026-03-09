@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.business.api.errors.GraphQlBusinessErro
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
@@ -46,6 +47,12 @@ class SaDataFetcherExceptionHandler(
         if (exception is SaGrapQlException) {
             return DataFetcherExceptionHandlerResult.newResult()
                 .error(SaGrapQlError(exception, handlerParameters))
+                .build()
+        }
+
+        if (exception is EntityNotFoundException) {
+            return DataFetcherExceptionHandlerResult.newResult()
+                .error(EntityNotFoundGraphQLError(exception, handlerParameters))
                 .build()
         }
 
@@ -181,4 +188,24 @@ private class ValidationErrorGraphQLError(
             params = mapping.paramsExtractor?.invoke(violation)?.takeIf { it.isNotEmpty() }
         )
     }
+}
+
+/**
+ * GraphQL error for [EntityNotFoundException].
+ * Handles entity not found as a generic error (similar to authorization errors),
+ * not a per-operation business error.
+ */
+private class EntityNotFoundGraphQLError(
+    private val exception: EntityNotFoundException,
+    private val handlerParameters: DataFetcherExceptionHandlerParameters,
+) : GraphQLError {
+    override fun getMessage(): String = exception.message ?: "Entity not found"
+
+    override fun getLocations(): List<SourceLocation> = listOf(handlerParameters.sourceLocation)
+
+    override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
+
+    override fun getExtensions(): Map<String, Any> = mapOf("errorType" to SaGrapQlErrorType.ENTITY_NOT_FOUND)
+
+    override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

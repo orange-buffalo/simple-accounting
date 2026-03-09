@@ -376,7 +376,6 @@ class GraphqlClientRequestExecutor(
 
     fun executeAndVerifyEntityNotFoundError(
         path: String,
-        errorCode: String,
         locationColumn: Int = 3,
         locationLine: Int = 2,
     ) {
@@ -389,11 +388,8 @@ class GraphqlClientRequestExecutor(
                 errors.shouldNotBeEmpty()
                 val error = errors[0].jsonObject
                 val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
-                withClue("Expected errorType to be BUSINESS_ERROR") {
-                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("BUSINESS_ERROR")
-                }
-                withClue("Expected errorCode to be $errorCode") {
-                    extensions["errorCode"]?.jsonPrimitive?.content.shouldBe(errorCode)
+                withClue("Expected errorType to be ENTITY_NOT_FOUND") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("ENTITY_NOT_FOUND")
                 }
                 val locations = error["locations"]?.jsonArray.shouldNotBeNull()
                 locations.shouldNotBeEmpty()

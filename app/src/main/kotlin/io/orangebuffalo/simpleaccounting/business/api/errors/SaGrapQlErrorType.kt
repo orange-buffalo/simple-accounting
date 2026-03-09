@@ -14,4 +14,6 @@ enum class SaGrapQlErrorType {
     @GraphQLDescription("Indicates that a business error occurred during the operation. " +
             "The specific error code will be provided in `extensions.errorCode`.")
     BUSINESS_ERROR,
+    @GraphQLDescription("Indicates that the requested entity was not found or is not accessible by the current user.")
+    ENTITY_NOT_FOUND,
 }

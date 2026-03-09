@@ -187,7 +187,7 @@ type Query {
   workspace(
     "ID of the workspace."
     id: Int!
-  ): WorkspaceGqlDto! @auth(type : AUTHENTICATED_ACTOR) @businessError(description : "The workspace with the given ID is not found or not accessible by the current user.", errorCode : "WORKSPACE_NOT_FOUND")
+  ): WorkspaceGqlDto! @auth(type : AUTHENTICATED_ACTOR)
   "Returns all workspaces accessible by the current user."
   workspaces: [WorkspaceGqlDto!]! @auth(type : REGULAR_USER)
 }
@@ -286,6 +286,8 @@ enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
 enum SaGrapQlErrorType {
   "Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`."
   BUSINESS_ERROR
+  "Indicates that the requested entity was not found or is not accessible by the current user."
+  ENTITY_NOT_FOUND
   "Indicates that one or more input fields failed validation constraints."
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
@@ -298,10 +300,4 @@ enum ValidationErrorCode {
   MustNotBeBlank
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
-}
-
-"Possible business error codes for the workspace operation."
-enum WorkspaceErrorCodes {
-  "The workspace with the given ID is not found or not accessible by the current user."
-  WORKSPACE_NOT_FOUND
 }
