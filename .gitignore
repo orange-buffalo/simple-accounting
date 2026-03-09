@@ -23,6 +23,9 @@ frontend/coverage
 
 **/.kotlin/sessions
 
+# Compiled class files
+*.class
+
 # Workaround for https://github.com/codecov/codecov-action/issues/1851
 codecov
 codecov.SHA256SUM
