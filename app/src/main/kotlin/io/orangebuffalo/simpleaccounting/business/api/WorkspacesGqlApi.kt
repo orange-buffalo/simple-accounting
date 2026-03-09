@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryBy
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -28,6 +29,19 @@ class WorkspacesQuery(
                 name = workspace.name,
             )
         }
+    }
+
+    @Suppress("unused")
+    @GraphQLDescription("Returns a workspace by its ID, if accessible by the current user.")
+    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
+    suspend fun workspace(
+        @GraphQLDescription("ID of the workspace.") id: Int,
+    ): WorkspaceGqlDto {
+        val workspace = workspacesService.getAccessibleWorkspace(id.toLong(), WorkspaceAccessMode.READ_ONLY)
+        return WorkspaceGqlDto(
+            id = workspace.id!!,
+            name = workspace.name,
+        )
     }
 }
 

@@ -195,8 +195,15 @@ export type Query = {
   systemSettings: SystemSettings;
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
+  /** Returns a workspace by its ID, if accessible by the current user. */
+  workspace: WorkspaceGqlDto;
   /** Returns all workspaces accessible by the current user. */
   workspaces: Array<WorkspaceGqlDto>;
+};
+
+
+export type QueryWorkspaceArgs = {
+  id: Scalars['Int']['input'];
 };
 
 /** Response for refreshing access token. */
@@ -210,6 +217,8 @@ export type RefreshAccessTokenResponse = {
 export enum SaGrapQlErrorType {
   /** Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`. */
   BusinessError = 'BUSINESS_ERROR',
+  /** Indicates that the requested entity was not found or is not accessible by the current user. */
+  EntityNotFound = 'ENTITY_NOT_FOUND',
   /** Indicates that one or more input fields failed validation constraints. */
   FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
