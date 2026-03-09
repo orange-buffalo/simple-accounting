@@ -6,6 +6,8 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
@@ -371,6 +373,44 @@ class GraphqlClientRequestExecutor(
             locationLine = locationLine,
             path = path,
         )
+    }
+
+    fun executeAndVerifyEntityNotFoundError(
+        path: String,
+        locationColumn: Int = 3,
+        locationLine: Int = 2,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                val json = Json.parseToJsonElement(this).jsonObject
+                val errors = json["errors"]?.jsonArray.shouldNotBeNull()
+                errors.shouldNotBeEmpty()
+                val error = errors[0].jsonObject
+                val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
+                withClue("Expected errorType to be BUSINESS_ERROR") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("BUSINESS_ERROR")
+                }
+                val errorCode = extensions["errorCode"]?.jsonPrimitive?.content.shouldNotBeNull()
+                withClue("Expected errorCode to end with _NOT_FOUND") {
+                    errorCode.shouldEndWith("_NOT_FOUND")
+                }
+                val locations = error["locations"]?.jsonArray.shouldNotBeNull()
+                locations.shouldNotBeEmpty()
+                val location = locations[0].jsonObject
+                withClue("Expected location column") {
+                    location["column"]?.jsonPrimitive?.int.shouldBe(locationColumn)
+                }
+                withClue("Expected location line") {
+                    location["line"]?.jsonPrimitive?.int.shouldBe(locationLine)
+                }
+                val pathArray = error["path"]?.jsonArray.shouldNotBeNull()
+                pathArray.shouldNotBeEmpty()
+                withClue("Expected path") {
+                    pathArray[0].jsonPrimitive.content.shouldBe(path)
+                }
+            }
     }
 
     /**

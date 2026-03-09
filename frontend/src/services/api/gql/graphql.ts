@@ -195,8 +195,15 @@ export type Query = {
   systemSettings: SystemSettings;
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
+  /** Returns a workspace by its ID, if accessible by the current user. */
+  workspace: WorkspaceGqlDto;
   /** Returns all workspaces accessible by the current user. */
   workspaces: Array<WorkspaceGqlDto>;
+};
+
+
+export type QueryWorkspaceArgs = {
+  id: Scalars['Int']['input'];
 };
 
 /** Response for refreshing access token. */
@@ -263,6 +270,12 @@ export type ValidationErrorParam = {
   /** The parameter value. */
   value: Scalars['String']['output'];
 };
+
+/** Possible business error codes for the workspace operation. */
+export enum WorkspaceErrorCodes {
+  /** The workspace with the given ID is not found or not accessible by the current user. */
+  WorkspaceNotFound = 'WORKSPACE_NOT_FOUND'
+}
 
 /** Workspace of a user. */
 export type WorkspaceGqlDto = {

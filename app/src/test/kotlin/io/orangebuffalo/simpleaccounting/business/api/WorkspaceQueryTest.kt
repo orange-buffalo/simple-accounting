@@ -1,10 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
-import io.kotest.matchers.string.shouldContain
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
-import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
@@ -29,9 +27,15 @@ class WorkspaceQueryTest(
                 expense(title = "Robot oil", workspace = it, category = maintenance)
                 expense(title = "Spaceship parts", workspace = it, category = null)
             }
-            val zoidberg = zoidberg().withWorkspace()
-            val workspaceToken = workspaceAccessToken(
+            val zoidberg = zoidberg()
+            val zoidbergWorkspace = workspace(owner = zoidberg, name = "Zoidberg Clinic")
+            val fryWorkspaceToken = workspaceAccessToken(
                 workspace = fryWorkspace,
+                validTill = MOCK_TIME.plusSeconds(10000),
+            )
+            val zoidbergWorkspaceToken = workspaceAccessToken(
+                workspace = zoidbergWorkspace,
+                token = "zoidbergToken",
                 validTill = MOCK_TIME.plusSeconds(10000),
             )
         }
@@ -54,14 +58,29 @@ class WorkspaceQueryTest(
         }
 
         @Test
-        fun `should prohibit access with workspace token`() {
+        fun `should allow access with workspace token for the token workspace`() {
             client.graphql {
                 workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
                     name
                 }
             }
-                .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
-                .executeAndVerifyNotAuthorized(
+                .usingSharedWorkspaceToken(preconditions.fryWorkspaceToken.token)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("name", "Planet Express")
+                    }
+                )
+        }
+
+        @Test
+        fun `should return error when workspace token is for a different workspace`() {
+            client.graphql {
+                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                    name
+                }
+            }
+                .usingSharedWorkspaceToken(preconditions.zoidbergWorkspaceToken.token)
+                .executeAndVerifyEntityNotFoundError(
                     path = DgsConstants.QUERY.Workspace,
                 )
         }
@@ -131,12 +150,9 @@ class WorkspaceQueryTest(
                 }
             }
                 .from(preconditions.zoidberg)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    shouldContain("errors")
-                    shouldContain("is not found")
-                }
+                .executeAndVerifyEntityNotFoundError(
+                    path = DgsConstants.QUERY.Workspace,
+                )
         }
 
         @Test
@@ -147,12 +163,9 @@ class WorkspaceQueryTest(
                 }
             }
                 .from(preconditions.fry)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    shouldContain("errors")
-                    shouldContain("is not found")
-                }
+                .executeAndVerifyEntityNotFoundError(
+                    path = DgsConstants.QUERY.Workspace,
+                )
         }
     }
 }

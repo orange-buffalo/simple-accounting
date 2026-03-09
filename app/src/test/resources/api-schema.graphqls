@@ -187,7 +187,7 @@ type Query {
   workspace(
     "ID of the workspace."
     id: Int!
-  ): WorkspaceGqlDto! @auth(type : REGULAR_USER)
+  ): WorkspaceGqlDto! @auth(type : AUTHENTICATED_ACTOR) @businessError(description : "The workspace with the given ID is not found or not accessible by the current user.", errorCode : "WORKSPACE_NOT_FOUND")
   "Returns all workspaces accessible by the current user."
   workspaces: [WorkspaceGqlDto!]! @auth(type : REGULAR_USER)
 }
@@ -298,4 +298,10 @@ enum ValidationErrorCode {
   MustNotBeBlank
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
+}
+
+"Possible business error codes for the workspace operation."
+enum WorkspaceErrorCodes {
+  "The workspace with the given ID is not found or not accessible by the current user."
+  WORKSPACE_NOT_FOUND
 }
