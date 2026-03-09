@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
@@ -81,6 +82,23 @@ class DocumentsService(
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
         val userStorage = getDocumentStorageByUser(platformUsersService.getCurrentUser().id!!)
         return userStorage?.getCurrentUserStorageStatus() ?: DocumentsStorageStatus(false)
+    }
+
+    suspend fun getDownloadAvailableStorages(): List<String> {
+        val ownerId = resolveCurrentOwnerId()
+        return documentsStorages
+            .filter { it.isDownloadAvailableForUser(ownerId) }
+            .map { it.getId() }
+    }
+
+    private suspend fun resolveCurrentOwnerId(): Long {
+        val principal = getCurrentPrincipal()
+        return if (principal.isTransient) {
+            val workspace = workspacesService.getWorkspaceByValidAccessToken(principal.userName)
+            workspace.ownerId
+        } else {
+            platformUsersService.getCurrentUser().id!!
+        }
     }
 
     suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {

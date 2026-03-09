@@ -14,6 +14,8 @@ interface DocumentsStorage {
     suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer>
 
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus
+
+    suspend fun isDownloadAvailableForUser(userId: Long): Boolean
 }
 
 data class SaveDocumentResponse(val storageLocation: String, val sizeInBytes: Long?)
