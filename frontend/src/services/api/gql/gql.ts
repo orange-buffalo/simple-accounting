@@ -14,6 +14,8 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
+    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DocumentsUploadStorageStatusDocument,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": typeof types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsStorageStatusDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": typeof types.UserProfileLoginDocument,
@@ -28,6 +30,8 @@ type Documents = {
     "\n  query userProfileBootstrap {\n    userProfile {\n      i18n {\n        language\n        locale\n      }\n    }\n  }\n": typeof types.UserProfileBootstrapDocument,
 };
 const documents: Documents = {
+    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
+    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DocumentsUploadStorageStatusDocument,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsStorageStatusDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": types.UserProfileLoginDocument,
@@ -56,6 +60,14 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

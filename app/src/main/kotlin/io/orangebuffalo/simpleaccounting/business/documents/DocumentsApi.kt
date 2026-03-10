@@ -99,7 +99,8 @@ data class DocumentDto(
     var version: Int,
     var name: String,
     var timeUploaded: Instant,
-    var sizeInBytes: Long?
+    var sizeInBytes: Long?,
+    var storageId: String,
 )
 
 private fun mapDocumentDto(source: Document) =
@@ -108,7 +109,8 @@ private fun mapDocumentDto(source: Document) =
         timeUploaded = source.timeUploaded,
         id = source.id!!,
         version = source.version!!,
-        sizeInBytes = source.sizeInBytes
+        sizeInBytes = source.sizeInBytes,
+        storageId = source.storageId,
     )
 
 data class GetDownloadTokenResponse(val token: String)

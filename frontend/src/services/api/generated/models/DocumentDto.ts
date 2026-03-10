@@ -49,6 +49,12 @@ export interface DocumentDto {
      * @memberof DocumentDto
      */
     sizeInBytes?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof DocumentDto
+     */
+    storageId: string;
 }
 
 /**
@@ -59,6 +65,7 @@ export function instanceOfDocumentDto(value: object): value is DocumentDto {
     if (!('version' in value) || value['version'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('timeUploaded' in value) || value['timeUploaded'] === undefined) return false;
+    if (!('storageId' in value) || value['storageId'] === undefined) return false;
     return true;
 }
 
@@ -77,6 +84,7 @@ export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'name': json['name'],
         'timeUploaded': json['timeUploaded'],
         'sizeInBytes': json['sizeInBytes'] == null ? undefined : json['sizeInBytes'],
+        'storageId': json['storageId'],
     };
 }
 
@@ -91,6 +99,7 @@ export function DocumentDtoToJSON(value?: DocumentDto | null): any {
         'name': value['name'],
         'timeUploaded': value['timeUploaded'],
         'sizeInBytes': value['sizeInBytes'],
+        'storageId': value['storageId'],
     };
 }
 
