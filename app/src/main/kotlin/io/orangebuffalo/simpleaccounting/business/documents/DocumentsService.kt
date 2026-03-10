@@ -89,6 +89,7 @@ class DocumentsService(
         return documentsStorages
             .filter { it.isDownloadAvailableForUser(ownerId) }
             .map { it.getId() }
+            .sorted()
     }
 
     private suspend fun resolveCurrentOwnerId(): Long {

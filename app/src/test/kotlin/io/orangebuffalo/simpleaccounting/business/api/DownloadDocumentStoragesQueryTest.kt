@@ -1,24 +1,32 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
-import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.TestExecutionListeners
 
+@TestExecutionListeners(
+    listeners = [ThirdPartyApisMocksListener::class],
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS,
+)
+@ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 class DownloadDocumentStoragesQueryTest(
     @param:Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
@@ -71,11 +79,9 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .from(preconditions.fry)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    extractStorageIds(this).shouldNotBeNull()
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
 
         @Test
@@ -83,11 +89,9 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .from(preconditions.farnsworth)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    extractStorageIds(this).shouldNotBeNull()
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
 
         @Test
@@ -95,11 +99,9 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .usingSharedWorkspaceToken(preconditions.fryWorkspaceToken.token)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    extractStorageIds(this).shouldNotBeNull()
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
     }
 
@@ -111,25 +113,9 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .from(preconditions.fry)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldContainAll("local-fs", "noop")
-                }
-        }
-
-        @Test
-        fun `should return storages available for download for admin user`() {
-            client
-                .graphql { downloadDocumentStoragesQuery() }
-                .from(preconditions.farnsworth)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldContainAll("local-fs", "noop")
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
 
         @Test
@@ -137,38 +123,9 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .usingSharedWorkspaceToken(preconditions.fryWorkspaceToken.token)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldContainAll("local-fs", "noop")
-                }
-        }
-
-        @Test
-        fun `should not include Google Drive when user has no integration`() {
-            client
-                .graphql { downloadDocumentStoragesQuery() }
-                .from(preconditions.fry)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldNotContain("google-drive")
-                }
-        }
-
-        @Test
-        fun `should not include Google Drive for workspace token when owner has no integration`() {
-            client
-                .graphql { downloadDocumentStoragesQuery() }
-                .usingSharedWorkspaceToken(preconditions.fryWorkspaceToken.token)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldNotContain("google-drive")
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
 
         @Test
@@ -176,21 +133,101 @@ class DownloadDocumentStoragesQueryTest(
             client
                 .graphql { downloadDocumentStoragesQuery() }
                 .usingSharedWorkspaceToken(preconditions.zoidbergWorkspaceToken.token)
-                .execute()
-                .expectStatus().isOk
-                .expectThatJsonBody {
-                    val storageIds = extractStorageIds(this)
-                    storageIds.shouldContainAll("local-fs", "noop")
-                    storageIds.shouldNotContain("google-drive")
-                }
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
         }
     }
 
-    private fun extractStorageIds(responseBody: String): Set<String> {
-        val json = Json.parseToJsonElement(responseBody).jsonObject
-        val data = json["data"]?.jsonObject.shouldNotBeNull()
-        val storages = data["getDownloadDocumentStorages"]?.jsonArray.shouldNotBeNull()
-        return storages.map { it.jsonObject["id"]!!.jsonPrimitive.content }.toSet()
+    @Nested
+    @DisplayName("Google Drive Storage Availability")
+    inner class GoogleDriveStorageAvailability {
+
+        @Test
+        fun `should include Google Drive when integration is configured and folder is accessible`() {
+            val accessToken = GoogleOAuthMocks.token().persist(preconditions.fry)
+            preconditions {
+                save(
+                    GoogleDriveStorageIntegration(
+                        userId = preconditions.fry.id!!,
+                        folderId = "fry-root-folder-id",
+                    )
+                )
+            }
+            GoogleDriveApiMocks.mockFindFile(
+                fileId = "fry-root-folder-id",
+                fileName = "simple-accounting",
+                expectedAuthToken = accessToken,
+            )
+
+            client
+                .graphql { downloadDocumentStoragesQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithGoogleDrive()
+                )
+        }
+
+        @Test
+        fun `should not include Google Drive when user has no integration record`() {
+            client
+                .graphql { downloadDocumentStoragesQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
+        }
+
+        @Test
+        fun `should not include Google Drive when integration has no folder id`() {
+            preconditions {
+                save(
+                    GoogleDriveStorageIntegration(
+                        userId = preconditions.fry.id!!,
+                        folderId = null,
+                    )
+                )
+            }
+
+            client
+                .graphql { downloadDocumentStoragesQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
+        }
+
+        @Test
+        fun `should not include Google Drive when OAuth authorization is missing`() {
+            preconditions {
+                save(
+                    GoogleDriveStorageIntegration(
+                        userId = preconditions.fry.id!!,
+                        folderId = "fry-root-folder-id",
+                    )
+                )
+            }
+
+            client
+                .graphql { downloadDocumentStoragesQuery() }
+                .from(preconditions.fry)
+                .executeAndVerifyResponse(
+                    DgsConstants.QUERY.GetDownloadDocumentStorages to storagesWithoutGoogleDrive()
+                )
+        }
+    }
+
+    private fun storagesWithoutGoogleDrive(): JsonElement = buildJsonArray {
+        add(buildJsonObject { put("id", "local-fs") })
+        add(buildJsonObject { put("id", "noop") })
+        add(buildJsonObject { put("id", "test-storage") })
+    }
+
+    private fun storagesWithGoogleDrive(): JsonElement = buildJsonArray {
+        add(buildJsonObject { put("id", "google-drive") })
+        add(buildJsonObject { put("id", "local-fs") })
+        add(buildJsonObject { put("id", "noop") })
+        add(buildJsonObject { put("id", "test-storage") })
     }
 
     private fun QueryProjection.downloadDocumentStoragesQuery(): QueryProjection =
