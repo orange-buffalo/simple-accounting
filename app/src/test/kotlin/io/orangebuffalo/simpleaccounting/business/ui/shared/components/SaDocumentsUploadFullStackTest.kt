@@ -363,6 +363,75 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
         testDocumentsStorage.getUploadedContent(doc3.storageLocation!!).shouldBe(file3Content)
     }
 
+    @Test
+    fun `should display error when existing document has unsupported storage even if upload storage is active`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val expense = expense(
+                    workspace = workspace, attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "old-receipt.pdf",
+                            storageId = "unavailable-storage",
+                            storageLocation = "old-location",
+                            timeUploaded = MOCK_TIME
+                        )
+                    )
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveStorageErrorMessage("Documents storage is not active")
+                this@shouldBeEditExpensePage.reportRendering("documents-upload.unsupported-existing-storage")
+            }
+        }
+    }
+
+    @Test
+    fun `should display error when any existing document has unsupported storage in a mixed list`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val expense = expense(
+                    workspace = workspace, attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "supported-doc.pdf",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "supported-location",
+                            timeUploaded = MOCK_TIME
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "unsupported-doc.pdf",
+                            storageId = "unavailable-storage",
+                            storageLocation = "unsupported-location",
+                            timeUploaded = MOCK_TIME
+                        )
+                    )
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveStorageErrorMessage("Documents storage is not active")
+                this@shouldBeEditExpensePage.reportRendering("documents-upload.mixed-unsupported-storage")
+            }
+        }
+    }
+
     private fun createTestFile(fileName: String, content: ByteArray): Path {
         val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)

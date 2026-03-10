@@ -73,6 +73,7 @@ class DocumentsApiTest(
                         put("version", 0)
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", JsonNull)
+                        put("storageId", "test-storage")
                     }
                     addJsonObject {
                         put("name", "100_cups.pdf")
@@ -80,6 +81,7 @@ class DocumentsApiTest(
                         put("version", 0)
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", 42)
+                        put("storageId", "mocked-storage")
                     }
                 }
             }
@@ -193,6 +195,7 @@ class DocumentsApiTest(
                 put("version", 0)
                 put("timeUploaded", MOCK_TIME_VALUE)
                 put("sizeInBytes", 42)
+                put("storageId", "mocked-storage")
             }
     }
 
@@ -227,6 +230,7 @@ class DocumentsApiTest(
                         put("version", 0)
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", JsonNull)
+                        put("storageId", "test-storage")
                     }
                 }
             }

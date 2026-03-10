@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should display storage loading placeholder while storage status is loading`(page: Page) {
+    fun `should display storage loading placeholder while download storages query is loading`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
@@ -35,7 +35,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
 
         page.withBlockedGqlApiResponse(
-            "documentsStorageStatus",
+            "downloadDocumentStorages",
             initiator = {
                 page.openInvoicesOverviewPage {
                     pageItems {
@@ -55,43 +55,16 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should display error when storage is not configured`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", documentsStorage = null)
-                val workspace = workspace(owner = fry)
-                val doc = document(workspace = workspace)
-                val invoice = invoice(
-                    customer = customer(workspace = workspace),
-                    attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
-                )
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openInvoicesOverviewPage {
-            pageItems {
-                shouldHaveItemSatisfying { it.title == "Slurm delivery invoice" }
-                    .openDetails()
-            }
-        }
-
-        SaDocumentsList.singleton(page).apply {
-            shouldHaveStorageErrorMessage("Documents storage is not active")
-            reportRendering("documents-list.storage-not-configured")
-        }
-    }
-
-    @Test
-    fun `should display error when storage is not active`(page: Page) {
-        testDocumentsStorage.setStorageStatus(active = false)
-
+    fun `should display error when document has unsupported storage`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
-                val doc = document(workspace = workspace)
+                val doc = document(
+                    workspace = workspace,
+                    storageId = "unavailable-storage",
+                    storageLocation = "some-location"
+                )
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
@@ -110,7 +83,88 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         SaDocumentsList.singleton(page).apply {
             shouldHaveStorageErrorMessage("Documents storage is not active")
-            reportRendering("documents-list.storage-not-active")
+            reportRendering("documents-list.unsupported-storage")
+        }
+    }
+
+    @Test
+    fun `should display error when any document has unsupported storage in a mixed list`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val invoice = invoice(
+                    customer = customer(workspace = workspace),
+                    attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "supported-doc.pdf",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "supported-location"
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "unsupported-doc.pdf",
+                            storageId = "unavailable-storage",
+                            storageLocation = "unsupported-location"
+                        )
+                    ),
+                    title = "Planet Express mixed delivery"
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "Planet Express mixed delivery" }
+                    .openDetails()
+            }
+        }
+
+        SaDocumentsList.singleton(page).apply {
+            shouldHaveStorageErrorMessage("Documents storage is not active")
+            reportRendering("documents-list.mixed-unsupported-storage")
+        }
+    }
+
+    @Test
+    fun `should display documents when storage is not configured in profile but documents use supported storage`(page: Page) {
+        val documentContent = "Slurm receipt from the past".toByteArray()
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = null)
+                val workspace = workspace(owner = fry)
+                val doc = document(
+                    workspace = workspace,
+                    name = "past-receipt.pdf",
+                    storageId = TestDocumentsStorage.STORAGE_ID,
+                    storageLocation = "past-receipt-location",
+                    sizeInBytes = documentContent.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val invoice = invoice(
+                    customer = customer(workspace = workspace),
+                    attachments = setOf(doc),
+                    title = "Slurm delivery invoice"
+                )
+            }
+        }
+
+        testDocumentsStorage.mockDocumentContent("past-receipt-location", documentContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "Slurm delivery invoice" }
+                    .openDetails()
+            }
+        }
+
+        val documentsList = SaDocumentsList.singleton(page)
+        documentsList {
+            shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready("past-receipt.pdf", "(27 byte)"))
+            reportRendering("documents-list.no-profile-storage-but-supported")
         }
     }
 
