@@ -83,6 +83,18 @@ class GoogleDriveDocumentsStorage(
         )
     }
 
+    override suspend fun isDownloadAvailableForUser(userId: Long): Boolean {
+        val integration = withDbContext { repository.findByUserId(userId) } ?: return false
+        if (integration.folderId == null) return false
+        return try {
+            ensureRootFolder(integration)
+            true
+        } catch (e: StorageAuthorizationRequiredException) {
+            log.debug(e) { "Google Drive download not available for user $userId: authorization required" }
+            false
+        }
+    }
+
     private suspend fun buildAuthorizationUrl(): String = clientAuthorizationProvider
         .buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))
 

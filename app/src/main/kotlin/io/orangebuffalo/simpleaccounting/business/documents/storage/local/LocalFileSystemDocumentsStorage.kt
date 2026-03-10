@@ -41,6 +41,8 @@ class LocalFileSystemDocumentsStorage(
 
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
+    override suspend fun isDownloadAvailableForUser(userId: Long) = true
+
     override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse =
         withContext(localFsStorageContext) {
             val documentDir = File(config.baseDirectory.toFile(), request.workspace.id.toString()).apply { mkdirs() }

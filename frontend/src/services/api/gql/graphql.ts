@@ -104,6 +104,13 @@ export type DocumentsStorageStatusResponse = {
   active: Scalars['Boolean']['output'];
 };
 
+/** A document storage available for downloading documents. */
+export type DownloadDocumentStorageResponse = {
+  __typename?: 'DownloadDocumentStorageResponse';
+  /** The identifier of the document storage. */
+  id: Scalars['String']['output'];
+};
+
 /** Business expense. */
 export type ExpenseGqlDto = {
   __typename?: 'ExpenseGqlDto';
@@ -189,6 +196,8 @@ export type Query = {
   __typename?: 'Query';
   /** Returns the current user's documents storage status. */
   documentsStorageStatus: DocumentsStorageStatusResponse;
+  /** Returns document storages that are currently available for downloading documents. Iterates over all storage implementations and checks their download availability for the current user context. */
+  getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
   /** Returns the system settings. */

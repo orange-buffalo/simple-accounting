@@ -100,6 +100,12 @@ type DocumentsStorageStatusResponse {
   active: Boolean!
 }
 
+"A document storage available for downloading documents."
+type DownloadDocumentStorageResponse {
+  "The identifier of the document storage."
+  id: String!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -177,6 +183,8 @@ type Mutation {
 type Query {
   "Returns the current user's documents storage status."
   documentsStorageStatus: DocumentsStorageStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
+  "Returns document storages that are currently available for downloading documents. Iterates over all storage implementations and checks their download availability for the current user context."
+  getDownloadDocumentStorages: [DownloadDocumentStorageResponse!]! @auth(type : AUTHENTICATED_ACTOR) @slowOperation
   "Returns the current user's Google Drive storage integration status."
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
   "Returns the system settings."
