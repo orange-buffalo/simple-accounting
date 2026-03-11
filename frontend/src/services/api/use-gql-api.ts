@@ -64,33 +64,6 @@ export function useQuery<
   return [loading, data];
 }
 
-export function useMultiQuery<
-  GqlResponse = any,
-  Variables extends AnyVariables = AnyVariables,
->(
-  query: DocumentInput<GqlResponse, Variables>,
-  options: UseGqlOptions<Variables> = {},
-): UseGqlQueryType<GqlResponse> {
-  const loading: Ref<boolean> = ref(true);
-  const data: Ref<GqlResponse | null> = ref(null);
-  const handleError = useGqlErrorHandler();
-
-  const doLoad = async () => {
-    try {
-      data.value = await gqlClient.query(query, options.variables);
-    } catch (e: unknown) {
-      await handleError(e);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  // noinspection JSIgnoredPromiseFromCall
-  doLoad();
-
-  return [loading, data];
-}
-
 export type MutationExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
   variables: Variables,
 ) => Promise<GqlResponse[K]>;
