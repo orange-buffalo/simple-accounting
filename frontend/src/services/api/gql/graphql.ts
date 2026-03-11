@@ -293,6 +293,16 @@ export type WorkspaceGqlDto = {
   name: Scalars['String']['output'];
 };
 
+export type DownloadDocumentStoragesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DownloadDocumentStoragesQuery = { __typename?: 'Query', getDownloadDocumentStorages: Array<{ __typename?: 'DownloadDocumentStorageResponse', id: string }> };
+
+export type DocumentsUploadStorageStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DocumentsUploadStorageStatusQuery = { __typename?: 'Query', documentsStorageStatus: { __typename?: 'DocumentsStorageStatusResponse', active: boolean }, getDownloadDocumentStorages: Array<{ __typename?: 'DownloadDocumentStorageResponse', id: string }> };
+
 export type GoogleDriveStorageIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -375,6 +385,8 @@ export type UserProfileBootstrapQueryVariables = Exact<{ [key: string]: never; }
 export type UserProfileBootstrapQuery = { __typename?: 'Query', userProfile: { __typename?: 'UserProfile', i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
 
 
+export const DownloadDocumentStoragesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"downloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getDownloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DownloadDocumentStoragesQuery, DownloadDocumentStoragesQueryVariables>;
+export const DocumentsUploadStorageStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"documentsUploadStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}}]}},{"kind":"Field","name":{"kind":"Name","value":"getDownloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DocumentsUploadStorageStatusQuery, DocumentsUploadStorageStatusQueryVariables>;
 export const GoogleDriveStorageIntegrationStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorizationRequired"}},{"kind":"Field","name":{"kind":"Name","value":"authorizationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"folderId"}},{"kind":"Field","name":{"kind":"Name","value":"folderName"}}]}}]}}]} as unknown as DocumentNode<GoogleDriveStorageIntegrationStatusQuery, GoogleDriveStorageIntegrationStatusQueryVariables>;
 export const DocumentsStorageStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}}]}}]}}]} as unknown as DocumentNode<DocumentsStorageStatusQuery, DocumentsStorageStatusQueryVariables>;
 export const UserProfileLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userProfileLogin"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18n"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}}]}}]}}]}}]} as unknown as DocumentNode<UserProfileLoginQuery, UserProfileLoginQueryVariables>;

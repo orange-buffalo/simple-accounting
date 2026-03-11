@@ -2237,9 +2237,12 @@ components:
         sizeInBytes:
           type: integer
           format: int64
+        storageId:
+          type: string
       required:
       - id
       - name
+      - storageId
       - timeUploaded
       - version
     CreateCategoryDto:

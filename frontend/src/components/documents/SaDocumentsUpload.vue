@@ -5,7 +5,10 @@
       class="sa-documents-upload__loading-placeholder"
     />
 
-    <SaFailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
+    <SaFailedDocumentsStorageMessage
+      v-else-if="!uiState.storageActive"
+      :reason="uiState.storageErrorReason"
+    />
 
     <template v-else-if="uiState.documentsLoading">
       <SaDocument
@@ -37,11 +40,12 @@
   import { computed, ref, watch } from 'vue';
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
   import SaDocument from '@/components/documents/SaDocument.vue';
-  import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { DocumentDto } from '@/services/api';
   import { consumeAllPages, documentsApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useMultiQuery } from '@/services/api/use-gql-api';
 
   type DocumentAggregateState = 'empty' | 'pending' | 'upload-failed' | 'upload-completed';
 
@@ -94,9 +98,27 @@
     (e: 'uploads-completed'): void,
   }>();
 
-  const { documentsStorageStatus } = useDocumentsStorageStatus();
+  const [storageQueryLoading, storageQueryData] = useMultiQuery(graphql(/* GraphQL */ `
+    query documentsUploadStorageStatus {
+      documentsStorageStatus {
+        active
+      }
+      getDownloadDocumentStorages {
+        id
+      }
+    }
+  `));
+
+  const uploadStorageActive = computed(
+    () => storageQueryData.value?.documentsStorageStatus?.active ?? false,
+  );
+
+  const downloadStorageIds = computed(
+    () => new Set((storageQueryData.value?.getDownloadDocumentStorages ?? []).map((s) => s.id)),
+  );
 
   const documentsAggregates = ref<DocumentAggregate[]>([]);
+  const hasUnsupportedStorages = ref(false);
 
   const addEmptyDocumentAggregateIfNecessary = () => {
     const emptyUpload = documentsAggregates.value
@@ -158,6 +180,11 @@
         idIn: props.documentsIds,
         workspaceId: currentWorkspaceId,
       }));
+
+      hasUnsupportedStorages.value = documents.some(
+        (doc) => !downloadStorageIds.value.has(doc.storageId),
+      );
+
       documentsAggregates.value = documents
         .sort((a, b) => {
           return a.name.localeCompare(b.name);
@@ -191,12 +218,17 @@
       initialLoading: false,
       documentsLoading: false,
       storageActive: true,
+      storageErrorReason: 'storage-not-configured' as 'storage-not-configured' | 'unsupported-documents',
     };
 
-    if (documentsStorageStatus.value.loading) {
+    if (storageQueryLoading.value) {
       state.initialLoading = true;
-    } else if (!documentsStorageStatus.value.active) {
+    } else if (!uploadStorageActive.value) {
       state.storageActive = false;
+      state.storageErrorReason = 'storage-not-configured';
+    } else if (hasUnsupportedStorages.value) {
+      state.storageActive = false;
+      state.storageErrorReason = 'unsupported-documents';
     } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
       state.initialLoading = true;
     } else if (documentsLoading.value) {
