@@ -15,8 +15,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  */
 type Documents = {
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
-    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsUploadStorageStatusDocument,
-    "\n    query documentsUploadDownloadStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DocumentsUploadDownloadStoragesDocument,
+    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DocumentsUploadStorageStatusDocument,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": typeof types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsStorageStatusDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": typeof types.UserProfileLoginDocument,
@@ -32,8 +31,7 @@ type Documents = {
 };
 const documents: Documents = {
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
-    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsUploadStorageStatusDocument,
-    "\n    query documentsUploadDownloadStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DocumentsUploadDownloadStoragesDocument,
+    "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DocumentsUploadStorageStatusDocument,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsStorageStatusDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": types.UserProfileLoginDocument,
@@ -69,11 +67,7 @@ export function graphql(source: "\n    query downloadDocumentStorages {\n      g
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  "): (typeof documents)["\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  "];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n    query documentsUploadDownloadStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query documentsUploadDownloadStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
+export function graphql(source: "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

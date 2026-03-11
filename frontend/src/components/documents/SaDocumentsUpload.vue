@@ -45,7 +45,7 @@
   import type { DocumentDto } from '@/services/api';
   import { consumeAllPages, documentsApi } from '@/services/api';
   import { graphql } from '@/services/api/gql';
-  import { useQuery } from '@/services/api/use-gql-api';
+  import { useMultiQuery } from '@/services/api/use-gql-api';
 
   type DocumentAggregateState = 'empty' | 'pending' | 'upload-failed' | 'upload-completed';
 
@@ -98,28 +98,23 @@
     (e: 'uploads-completed'): void,
   }>();
 
-  const [uploadStorageLoading, uploadStorageData] = useQuery(graphql(/* GraphQL */ `
+  const [storageQueryLoading, storageQueryData] = useMultiQuery(graphql(/* GraphQL */ `
     query documentsUploadStorageStatus {
       documentsStorageStatus {
         active
       }
-    }
-  `), 'documentsStorageStatus');
-
-  const [downloadStoragesLoading, downloadStoragesData] = useQuery(graphql(/* GraphQL */ `
-    query documentsUploadDownloadStorages {
       getDownloadDocumentStorages {
         id
       }
     }
-  `), 'getDownloadDocumentStorages');
+  `));
 
   const uploadStorageActive = computed(
-    () => uploadStorageData.value?.active ?? false,
+    () => storageQueryData.value?.documentsStorageStatus?.active ?? false,
   );
 
   const downloadStorageIds = computed(
-    () => new Set((downloadStoragesData.value ?? []).map((s) => s.id)),
+    () => new Set((storageQueryData.value?.getDownloadDocumentStorages ?? []).map((s) => s.id)),
   );
 
   const documentsAggregates = ref<DocumentAggregate[]>([]);
@@ -226,7 +221,7 @@
       storageErrorReason: 'storage-not-configured' as 'storage-not-configured' | 'unsupported-documents',
     };
 
-    if (uploadStorageLoading.value || downloadStoragesLoading.value) {
+    if (storageQueryLoading.value) {
       state.initialLoading = true;
     } else if (!uploadStorageActive.value) {
       state.storageActive = false;
