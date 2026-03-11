@@ -9,6 +9,8 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPag
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePage.Companion.shouldBeEditInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
@@ -33,88 +35,23 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
     @TempDir
     private lateinit var tempDir: Path
 
+    private val documentContent = "Dark matter delivery receipt from Omicron Persei 8".toByteArray()
+
     @Test
     fun `should download document via workspace access token when using test storage`(page: Page) {
-        val documentContent = "Dark matter delivery receipt from Omicron Persei 8".toByteArray()
-        val testPreconditions = preconditions {
-            val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
-            val workspace = workspace(owner = fry)
-            val customer = customer(workspace = workspace, name = "Mom")
-            val invoice = invoice(
-                customer = customer,
-                title = "Dark matter shipment",
-                dateIssued = LocalDate.of(3025, 1, 1),
-                dueDate = LocalDate.of(3025, 2, 1),
-                currency = "USD",
-                amount = 50000,
-                status = InvoiceStatus.DRAFT,
-            )
-            val workspaceToken = workspaceAccessToken(
-                workspace = workspace,
-                token = "planet-express-token",
-                validTill = Instant.parse("9999-12-31T23:59:59Z"),
-                timeCreated = MOCK_TIME,
-            ).token
-            object {
-                val fry = fry
-                val invoice = invoice
-                val workspaceToken = workspaceToken
-            }
-        }
-
-        val testFile = createTestFile("dark-matter-receipt.pdf", documentContent)
-
-        uploadDocumentAndDownloadByWorkspaceToken(
-            page = page,
-            user = testPreconditions.fry,
-            invoiceId = testPreconditions.invoice.id!!,
-            invoiceTitle = "Dark matter shipment",
-            workspaceToken = testPreconditions.workspaceToken,
-            uploadFile = testFile,
-            expectedContent = documentContent,
-        )
+        val testData = createTestData(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+        verifyDocumentUploadAndDownloadByWorkspaceToken(page, testData)
     }
 
     @Test
     fun `should download document via workspace access token when using Google Drive`(page: Page) {
-        val documentContent = "Slurm supplies order for Planet Express".toByteArray()
-        val testPreconditions = preconditions {
-            val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
-                save(
-                    GoogleDriveStorageIntegration(
-                        userId = it.id!!,
-                        folderId = "root-folder-id",
-                    )
-                )
-            }
-            val workspace = workspace(owner = fry)
-            val customer = customer(workspace = workspace, name = "Mom")
-            val invoice = invoice(
-                customer = customer,
-                title = "Slurm supplies order",
-                dateIssued = LocalDate.of(3025, 1, 1),
-                dueDate = LocalDate.of(3025, 2, 1),
-                currency = "USD",
-                amount = 30000,
-                status = InvoiceStatus.DRAFT,
-            )
-            val workspaceToken = workspaceAccessToken(
-                workspace = workspace,
-                token = "planet-express-token",
-                validTill = Instant.parse("9999-12-31T23:59:59Z"),
-                timeCreated = MOCK_TIME,
-            ).token
-            object {
-                val fry = fry
-                val workspace = workspace
-                val invoice = invoice
-                val workspaceToken = workspaceToken
-            }
+        val testData = createTestData(documentsStorage = "google-drive") {
+            save(GoogleDriveStorageIntegration(userId = it.id!!, folderId = "root-folder-id"))
         }
 
         val accessToken = GoogleOAuthMocks.token()
             .enqueue()
-            .persist(testPreconditions.fry)
+            .persist(testData.fry)
 
         GoogleDriveApiMocks.mockFindFile(
             fileId = "root-folder-id",
@@ -123,7 +60,7 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
         )
         GoogleDriveApiMocks.mockFindFolder(
             parentFolderId = "root-folder-id",
-            folderName = testPreconditions.workspace.id.toString(),
+            folderName = testData.workspace.id.toString(),
             responseFolderId = "workspace-folder-id",
             expectedAuthToken = accessToken,
         )
@@ -138,35 +75,45 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
             expectedAuthToken = accessToken,
         )
 
-        val testFile = createTestFile("slurm-order.pdf", documentContent)
-
-        uploadDocumentAndDownloadByWorkspaceToken(
-            page = page,
-            user = testPreconditions.fry,
-            invoiceId = testPreconditions.invoice.id!!,
-            invoiceTitle = "Slurm supplies order",
-            workspaceToken = testPreconditions.workspaceToken,
-            uploadFile = testFile,
-            expectedContent = documentContent,
-        )
+        verifyDocumentUploadAndDownloadByWorkspaceToken(page, testData)
     }
 
-    private fun uploadDocumentAndDownloadByWorkspaceToken(
-        page: Page,
-        user: PlatformUser,
-        invoiceId: Long,
-        invoiceTitle: String,
-        workspaceToken: String,
-        uploadFile: Path,
-        expectedContent: ByteArray,
-    ) {
-        page.authenticateViaCookie(user)
-        page.navigate("/invoices/$invoiceId/edit")
+    private fun createTestData(
+        documentsStorage: String,
+        additionalUserSetup: EntitiesFactory.(PlatformUser) -> Unit = {},
+    ) = preconditions {
+        val fry = platformUser(userName = "Fry", documentsStorage = documentsStorage).also {
+            additionalUserSetup(it)
+        }
+        val workspace = workspace(owner = fry)
+        val invoice = invoice(
+            customer = customer(workspace = workspace, name = "Mom"),
+            title = INVOICE_TITLE,
+            dateIssued = LocalDate.of(3025, 1, 1),
+            dueDate = LocalDate.of(3025, 2, 1),
+            currency = "USD",
+            amount = 50000,
+            status = InvoiceStatus.DRAFT,
+        )
+        val workspaceToken = workspaceAccessToken(
+            workspace = workspace,
+            token = "planet-express-token",
+            validTill = Instant.parse("9999-12-31T23:59:59Z"),
+            timeCreated = MOCK_TIME,
+        ).token
+        TestData(fry = fry, workspace = workspace, invoiceId = invoice.id!!, workspaceToken = workspaceToken)
+    }
+
+    private fun verifyDocumentUploadAndDownloadByWorkspaceToken(page: Page, testData: TestData) {
+        val testFile = createTestFile("dark-matter-receipt.pdf", documentContent)
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/invoices/${testData.invoiceId}/edit")
         page.shouldBeEditInvoicePage {
             documentsUpload {
-                selectFileForUpload(uploadFile)
+                selectFileForUpload(testFile)
                 shouldHaveDocuments(
-                    DocumentsUpload.UploadedDocument(uploadFile.fileName.toString(), DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument(testFile.fileName.toString(), DocumentsUpload.DocumentState.PENDING),
                     DocumentsUpload.EmptyDocument,
                 )
             }
@@ -174,20 +121,20 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
         }
         page.shouldBeInvoicesOverviewPage()
 
-        page.navigate("/login-by-link/$workspaceToken")
+        page.navigate("/login-by-link/${testData.workspaceToken}")
         page.shouldBeDashboardPage()
 
         page.shouldHaveSideMenu().clickInvoices()
         page.shouldBeInvoicesOverviewPage {
             pageItems {
-                shouldHaveItemSatisfying { it.title == invoiceTitle }
+                shouldHaveItemSatisfying { it.title == INVOICE_TITLE }
                     .openDetails()
             }
         }
 
         SaDocumentsList.singleton(page).apply {
-            val downloadedContent = downloadDocument(uploadFile.fileName.toString())
-            downloadedContent.shouldBe(expectedContent)
+            val downloadedContent = downloadDocument(testFile.fileName.toString())
+            downloadedContent.shouldBe(documentContent)
         }
     }
 
@@ -195,5 +142,16 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
         val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
+    }
+
+    private data class TestData(
+        val fry: PlatformUser,
+        val workspace: Workspace,
+        val invoiceId: Long,
+        val workspaceToken: String,
+    )
+
+    companion object {
+        private const val INVOICE_TITLE = "Dark matter shipment"
     }
 }
