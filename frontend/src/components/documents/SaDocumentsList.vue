@@ -14,7 +14,10 @@
       />
     </template>
 
-    <SaFailedDocumentsStorageMessage v-else-if="hasUnsupportedStorages" />
+    <SaFailedDocumentsStorageMessage
+      v-else-if="hasUnsupportedStorages"
+      reason="unsupported-documents"
+    />
 
     <template v-else>
       <SaDocument

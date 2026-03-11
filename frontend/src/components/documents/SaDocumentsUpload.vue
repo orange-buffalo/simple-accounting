@@ -5,7 +5,10 @@
       class="sa-documents-upload__loading-placeholder"
     />
 
-    <SaFailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
+    <SaFailedDocumentsStorageMessage
+      v-else-if="!uiState.storageActive"
+      :reason="uiState.storageErrorReason"
+    />
 
     <template v-else-if="uiState.documentsLoading">
       <SaDocument
@@ -215,12 +218,17 @@
       initialLoading: false,
       documentsLoading: false,
       storageActive: true,
+      storageErrorReason: 'storage-not-configured' as 'storage-not-configured' | 'unsupported-documents',
     };
 
     if (storageQueryLoading.value) {
       state.initialLoading = true;
-    } else if (!uploadStorageActive.value || hasUnsupportedStorages.value) {
+    } else if (!uploadStorageActive.value) {
       state.storageActive = false;
+      state.storageErrorReason = 'storage-not-configured';
+    } else if (hasUnsupportedStorages.value) {
+      state.storageActive = false;
+      state.storageErrorReason = 'unsupported-documents';
     } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
       state.initialLoading = true;
     } else if (documentsLoading.value) {

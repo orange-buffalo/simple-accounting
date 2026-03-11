@@ -82,7 +82,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
         }
 
         SaDocumentsList.singleton(page).apply {
-            shouldHaveStorageErrorMessage("Documents storage is not active")
+            shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
             reportRendering("documents-list.unsupported-storage")
         }
     }
@@ -123,7 +123,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
         }
 
         SaDocumentsList.singleton(page).apply {
-            shouldHaveStorageErrorMessage("Documents storage is not active")
+            shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
             reportRendering("documents-list.mixed-unsupported-storage")
         }
     }

@@ -388,7 +388,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Documents storage is not active")
+                shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.unsupported-existing-storage")
             }
         }
@@ -426,7 +426,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Documents storage is not active")
+                shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.mixed-unsupported-storage")
             }
         }
