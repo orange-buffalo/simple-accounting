@@ -37,25 +37,28 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
     fun `should download document via workspace access token when using test storage`(page: Page) {
         val documentContent = "Dark matter delivery receipt from Omicron Persei 8".toByteArray()
         val testPreconditions = preconditions {
+            val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+            val workspace = workspace(owner = fry)
+            val customer = customer(workspace = workspace, name = "Mom")
+            val invoice = invoice(
+                customer = customer,
+                title = "Dark matter shipment",
+                dateIssued = LocalDate.of(3025, 1, 1),
+                dueDate = LocalDate.of(3025, 2, 1),
+                currency = "USD",
+                amount = 50000,
+                status = InvoiceStatus.DRAFT,
+            )
+            val workspaceToken = workspaceAccessToken(
+                workspace = workspace,
+                token = "planet-express-token",
+                validTill = Instant.parse("9999-12-31T23:59:59Z"),
+                timeCreated = MOCK_TIME,
+            ).token
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
-                val workspace = workspace(owner = fry)
-                val customer = customer(workspace = workspace, name = "Mom")
-                val invoice = invoice(
-                    customer = customer,
-                    title = "Dark matter shipment",
-                    dateIssued = LocalDate.of(3025, 1, 1),
-                    dueDate = LocalDate.of(3025, 2, 1),
-                    currency = "USD",
-                    amount = 50000,
-                    status = InvoiceStatus.DRAFT,
-                )
-                val workspaceToken = workspaceAccessToken(
-                    workspace = workspace,
-                    token = "planet-express-token",
-                    validTill = Instant.parse("9999-12-31T23:59:59Z"),
-                    timeCreated = MOCK_TIME,
-                ).token
+                val fry = fry
+                val invoice = invoice
+                val workspaceToken = workspaceToken
             }
         }
 
@@ -76,32 +79,36 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
     fun `should download document via workspace access token when using Google Drive`(page: Page) {
         val documentContent = "Slurm supplies order for Planet Express".toByteArray()
         val testPreconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
-                    save(
-                        GoogleDriveStorageIntegration(
-                            userId = it.id!!,
-                            folderId = "root-folder-id",
-                        )
+            val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
+                save(
+                    GoogleDriveStorageIntegration(
+                        userId = it.id!!,
+                        folderId = "root-folder-id",
                     )
-                }
-                val workspace = workspace(owner = fry)
-                val customer = customer(workspace = workspace, name = "Mom")
-                val invoice = invoice(
-                    customer = customer,
-                    title = "Slurm supplies order",
-                    dateIssued = LocalDate.of(3025, 1, 1),
-                    dueDate = LocalDate.of(3025, 2, 1),
-                    currency = "USD",
-                    amount = 30000,
-                    status = InvoiceStatus.DRAFT,
                 )
-                val workspaceToken = workspaceAccessToken(
-                    workspace = workspace,
-                    token = "planet-express-token",
-                    validTill = Instant.parse("9999-12-31T23:59:59Z"),
-                    timeCreated = MOCK_TIME,
-                ).token
+            }
+            val workspace = workspace(owner = fry)
+            val customer = customer(workspace = workspace, name = "Mom")
+            val invoice = invoice(
+                customer = customer,
+                title = "Slurm supplies order",
+                dateIssued = LocalDate.of(3025, 1, 1),
+                dueDate = LocalDate.of(3025, 2, 1),
+                currency = "USD",
+                amount = 30000,
+                status = InvoiceStatus.DRAFT,
+            )
+            val workspaceToken = workspaceAccessToken(
+                workspace = workspace,
+                token = "planet-express-token",
+                validTill = Instant.parse("9999-12-31T23:59:59Z"),
+                timeCreated = MOCK_TIME,
+            ).token
+            object {
+                val fry = fry
+                val workspace = workspace
+                val invoice = invoice
+                val workspaceToken = workspaceToken
             }
         }
 
