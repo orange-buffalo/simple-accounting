@@ -13,6 +13,8 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
@@ -106,7 +108,15 @@ class DocumentsService(
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
-        return downloadsService.createDownloadToken(this, DocumentDownloadMetadata(documentId))
+        val principal = getCurrentPrincipal()
+        return if (principal.isTransient) {
+            val owner = platformUsersService.getUserByUserId(resolveCurrentOwnerId())
+            runAs(owner.toSecurityPrincipal()) {
+                downloadsService.createDownloadToken(this@DocumentsService, DocumentDownloadMetadata(documentId))
+            }
+        } else {
+            downloadsService.createDownloadToken(this, DocumentDownloadMetadata(documentId))
+        }
     }
 
     override fun getId(): String = DocumentsService::class.simpleName!!
