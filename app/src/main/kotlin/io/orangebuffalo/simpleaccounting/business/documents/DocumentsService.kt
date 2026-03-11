@@ -13,6 +13,8 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
@@ -84,29 +86,32 @@ class DocumentsService(
         return userStorage?.getCurrentUserStorageStatus() ?: DocumentsStorageStatus(false)
     }
 
-    suspend fun getDownloadAvailableStorages(): List<String> {
-        val ownerId = resolveCurrentOwnerId()
-        return documentsStorages
+    suspend fun getDownloadAvailableStorages(): List<String> = runAsWorkspaceOwnerIfTransient {
+        val ownerId = platformUsersService.getCurrentUser().id!!
+        documentsStorages
             .filter { it.isDownloadAvailableForUser(ownerId) }
             .map { it.getId() }
             .sorted()
-    }
-
-    private suspend fun resolveCurrentOwnerId(): Long {
-        val principal = getCurrentPrincipal()
-        return if (principal.isTransient) {
-            val workspace = workspacesService.getWorkspaceByValidAccessToken(principal.userName)
-            workspace.ownerId
-        } else {
-            platformUsersService.getCurrentUser().id!!
-        }
     }
 
     suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
-        return downloadsService.createDownloadToken(this, DocumentDownloadMetadata(documentId))
+        return runAsWorkspaceOwnerIfTransient {
+            downloadsService.createDownloadToken(this@DocumentsService, DocumentDownloadMetadata(documentId))
+        }
+    }
+
+    private suspend fun <T> runAsWorkspaceOwnerIfTransient(block: suspend () -> T): T {
+        val principal = getCurrentPrincipal()
+        return if (principal.isTransient) {
+            val workspace = workspacesService.getWorkspaceByValidAccessToken(principal.userName)
+            val owner = platformUsersService.getUserByUserId(workspace.ownerId)
+            runAs(owner.toSecurityPrincipal()) { block() }
+        } else {
+            block()
+        }
     }
 
     override fun getId(): String = DocumentsService::class.simpleName!!
