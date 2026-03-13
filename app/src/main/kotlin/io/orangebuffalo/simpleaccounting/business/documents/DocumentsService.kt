@@ -86,6 +86,13 @@ class DocumentsService(
         return userStorage?.getCurrentUserStorageStatus() ?: DocumentsStorageStatus(false)
     }
 
+    suspend fun getDocumentsStorageStatistics(): List<DocumentStorageStatisticsRecord> {
+        val currentUser = platformUsersService.getCurrentUser()
+        return withDbContext {
+            documentRepository.getStorageStatsByOwner(currentUser.id!!)
+        }
+    }
+
     suspend fun getDownloadAvailableStorages(): List<String> = runAsWorkspaceOwnerIfTransient {
         val ownerId = platformUsersService.getCurrentUser().id!!
         documentsStorages
