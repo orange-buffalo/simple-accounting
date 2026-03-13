@@ -94,6 +94,14 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
   accessToken: String!
 }
 
+"Statistics about document storage usage."
+type DocumentsStorageStatisticsItem {
+  "The total number of documents stored in this storage across all workspaces of the current user."
+  documentsCount: Int!
+  "The identifier of the document storage."
+  storageId: String!
+}
+
 "Documents storage status for the current user."
 type DocumentsStorageStatusResponse {
   "Whether the documents storage is active and available."
@@ -181,6 +189,8 @@ type Mutation {
 }
 
 type Query {
+  "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
+  documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
   "Returns the current user's documents storage status."
   documentsStorageStatus: DocumentsStorageStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
   "Returns document storages that are currently available for downloading documents. Iterates over all storage implementations and checks their download availability for the current user context."

@@ -56,7 +56,7 @@
     "@types/sinonjs__fake-timers": "15.0.1",
     "@typescript-eslint/eslint-plugin": "8.57.0",
     "@typescript-eslint/parser": "8.57.0",
-    "@vitejs/plugin-vue": "6.0.4",
+    "@vitejs/plugin-vue": "6.0.5",
     "@vue/eslint-config-airbnb": "8.0.0",
     "@vue/eslint-config-typescript": "13.0.0",
     "@vue/test-utils": "2.4.6",
@@ -75,7 +75,7 @@
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vite-svg-loader": "5.1.1",
-    "vitest": "4.0.18",
+    "vitest": "4.1.0",
     "vue-eslint-parser": "10.4.0",
     "vue-tsc": "3.2.5",
     "whatwg-fetch": "3.6.20"
