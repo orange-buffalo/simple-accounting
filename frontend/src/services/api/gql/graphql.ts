@@ -97,6 +97,15 @@ export type CreateAccessTokenByWorkspaceAccessTokenResponse = {
   accessToken: Scalars['String']['output'];
 };
 
+/** Statistics about document storage usage. */
+export type DocumentsStorageStatisticsItem = {
+  __typename?: 'DocumentsStorageStatisticsItem';
+  /** The total number of documents stored in this storage across all workspaces of the current user. */
+  documentsCount: Scalars['Int']['output'];
+  /** The identifier of the document storage. */
+  storageId: Scalars['String']['output'];
+};
+
 /** Documents storage status for the current user. */
 export type DocumentsStorageStatusResponse = {
   __typename?: 'DocumentsStorageStatusResponse';
@@ -194,6 +203,8 @@ export type MutationUpdateProfileArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
+  documentsStorageStatistics: Array<DocumentsStorageStatisticsItem>;
   /** Returns the current user's documents storage status. */
   documentsStorageStatus: DocumentsStorageStatusResponse;
   /** Returns document storages that are currently available for downloading documents. Iterates over all storage implementations and checks their download availability for the current user context. */

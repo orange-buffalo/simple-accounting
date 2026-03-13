@@ -8,4 +8,10 @@ interface DocumentsRepository : AbstractEntityRepository<Document>, DocumentsRep
 
 interface DocumentsRepositoryExt {
     fun findValidIds(ids: Collection<Long>, workspaceId: Long): Collection<Long>
+    fun getStorageStatsByOwner(ownerId: Long): List<DocumentStorageStatisticsRecord>
 }
+
+data class DocumentStorageStatisticsRecord(
+    val storageId: String,
+    val documentsCount: Int,
+)
