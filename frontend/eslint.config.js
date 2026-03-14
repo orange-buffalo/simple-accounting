@@ -89,13 +89,18 @@ export default [
     },
   },
 
-  // Node.js configuration for config files
+  // Node.js/Bun configuration for config and build files
   {
     files: ['**/build-config/**/*.{js,ts}', 'vite.config.ts', 'eslint.config.js'],
     languageOptions: {
       globals: {
         ...globals.node,
+        Bun: 'readonly',
       },
+    },
+    rules: {
+      // Build plugins may use transitive dependencies (e.g., @vue/compiler-sfc from vue)
+      'import/no-extraneous-dependencies': 'off',
     },
   },
 

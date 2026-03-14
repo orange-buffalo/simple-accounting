@@ -21,7 +21,12 @@ const result = await Bun.build({
   target: 'browser',
   sourcemap: 'inline',
   splitting: true,
-  publicPath: '/',
+  publicPath: '/assets/',
+  naming: {
+    chunk: '[name]-[hash].[ext]',
+    entry: '[name]-[hash].[ext]',
+    asset: '[name]-[hash].[ext]',
+  },
   plugins: [
     rawImportPlugin,
     globImportPlugin,
@@ -42,7 +47,28 @@ if (!result.success) {
   process.exit(1);
 }
 
-// Copy remaining public assets (Bun processes referenced ones, but we copy extras)
+// Reorganize output: move non-HTML assets to assets/ subdirectory,
+// keep index.html at root (required by Spring Boot SPA setup)
+const assetsDir = path.join(outDir, 'assets');
+if (!fs.existsSync(assetsDir)) {
+  fs.mkdirSync(assetsDir, { recursive: true });
+}
+
+const outputFiles = fs.readdirSync(outDir);
+for (const file of outputFiles) {
+  const filePath = path.join(outDir, file);
+  if (fs.statSync(filePath).isDirectory()) continue;
+
+  if (file.endsWith('.html')) {
+    // Rename hashed HTML back to index.html
+    fs.renameSync(filePath, path.join(outDir, 'index.html'));
+  } else {
+    // Move all other files to assets/ subdirectory
+    fs.renameSync(filePath, path.join(assetsDir, file));
+  }
+}
+
+// Copy remaining public assets
 const publicDir = './public';
 if (fs.existsSync(publicDir)) {
   const publicFiles = fs.readdirSync(publicDir);
@@ -54,11 +80,7 @@ if (fs.existsSync(publicDir)) {
   }
 }
 
-const outputFiles = result.outputs.map((o) => `  ${path.relative(outDir, o.path)} (${(o.size / 1024).toFixed(1)} KB)`);
-console.log(`Build completed successfully. ${result.outputs.length} files written to ${outDir}:`);
-for (const line of outputFiles.slice(0, 10)) {
-  console.log(line);
-}
-if (outputFiles.length > 10) {
-  console.log(`  ... and ${outputFiles.length - 10} more files`);
-}
+const finalFiles = fs.readdirSync(assetsDir);
+console.log(
+  `Build completed successfully. ${finalFiles.length} asset files + index.html written to ${outDir}`,
+);

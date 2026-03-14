@@ -88,7 +88,8 @@ export const vueSfcPlugin: BunPlugin = {
         });
         if (templateResult.errors.length > 0) {
           throw new Error(
-            `Vue template compile errors in ${shortName}: ${templateResult.errors.map((e) => (typeof e === 'string' ? e : e.message)).join('\n')}`,
+            `Vue template compile errors in ${shortName}: `
+            + `${templateResult.errors.map((e) => (typeof e === 'string' ? e : e.message)).join('\n')}`,
           );
         }
         templateCode = templateResult.code;
@@ -101,7 +102,11 @@ export const vueSfcPlugin: BunPlugin = {
         if (style.lang === 'scss' || style.lang === 'sass') {
           const compiled = sass.compileString(css, {
             syntax: style.lang === 'sass' ? 'indented' : 'scss',
-            loadPaths: [path.dirname(filename), path.resolve(process.cwd(), 'src'), path.resolve(process.cwd(), 'node_modules')],
+            loadPaths: [
+              path.dirname(filename),
+              path.resolve(process.cwd(), 'src'),
+              path.resolve(process.cwd(), 'node_modules'),
+            ],
             importers: [createSassImporter()],
             quietDeps: true,
           });
