@@ -365,6 +365,12 @@ export default {
     documentsStorage: {
       header: () => 'Сховище документів',
       googleDrive: () => 'Google Drive',
+      localStorage: () => 'Локальне сховище',
+      usedForUploads: () => 'Використовується для завантажень',
+      useForUploads: () => 'Використовувати для завантажень',
+      localStorageDisabledStatus: () => 'Недоступно',
+      localStorageDisabledDetails: () => 'Локальне сховище не було увімкнено системним адміністратором.',
+      googleDriveDocumentsNotice: (count: number) => `${count} документ${count === 1 ? '' : 'ів'} було завантажено через Google Drive. Необхідно підтримувати авторизацію активною для можливості їх завантаження.`,
     },
     languagePreferences: {
       header: () => 'Мовні Уподобання',

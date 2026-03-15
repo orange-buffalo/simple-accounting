@@ -4,16 +4,12 @@
       <h1>{{ $t.myProfile.pageHeader() }}</h1>
     </div>
 
-    <MyProfileDocumentsStorageConfig
+    <MyProfileDocumentsStorage
       v-if="!isAdmin()"
-      :storage-name="$t.myProfile.documentsStorage.googleDrive()"
-      storage-id="google-drive"
       :profile="profile"
       :loading="loading"
       @profile-updated="onProfileUpdated"
-    >
-      <SaGoogleDriveIntegrationSetup />
-    </MyProfileDocumentsStorageConfig>
+    />
 
     <MyProfileLanguagePreferences
       :profile="profile"
@@ -26,9 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-  import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
+  import MyProfileDocumentsStorage from '@/pages/my-profile/MyProfileDocumentsStorage.vue';
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
-  import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
   import { useAuth } from '@/services/api';
   import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
   import { $t } from '@/services/i18n';
