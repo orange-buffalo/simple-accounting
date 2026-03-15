@@ -3,15 +3,16 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.profile
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
-import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.DocumentStorageConfig
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.GoogleDriveSettings
+import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.StorageSubSection
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.OAuthAuthorizationPopup.Companion.setupErrorIdForOAuthAuthorizationFailure
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.OAuthAuthorizationPopup.Companion.shouldHaveAuthorizationPopupOpenBy
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test
  * Tests Google Drive document storage integration on My Profile page.
  * See also:
  * - [UserProfileFullStackTest] for basic My Profile page rendering
+ * - [UserProfileLocalDocumentStorageFullStackTest] for Local storage integration
  * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.PasswordChangeFullStackTest] for password change functionality
  * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.LanguagePreferencesFullStackTest] for language and locale preferences
  */
@@ -33,16 +35,16 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
     fun `should enable Google Drive storage if was not previously configured`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.scruffy) {
-        withHint("Google Drive should be turned off") {
-            switch.shouldBeSwitchedOff()
+        withHint("Google Drive should show 'Use for uploads' action") {
+            shouldHaveUseForUploadsAction()
             settings.shouldBeHidden()
         }
 
-        withHint("Should show loading indicator when turned on") {
+        withHint("Should show loading indicator when 'Use for uploads' clicked") {
             page.withBlockedGqlApiResponse(
                 "googleDriveStorageIntegrationStatus",
                 initiator = {
-                    switch.toggle()
+                    clickUseForUploads()
                 },
                 blockedRequestSpec = {
                     settings.status.shouldBeRegular("Verifying integration status...")
@@ -59,6 +61,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         withHint("Should have unauthorized status until configured") {
             settings.shouldBeVisible()
             assertAuthorizationRequiredStatus()
+            shouldHaveUsedForUploadsStatus()
             reportRendering("profile.documents-storage.google.authorization-required")
         }
     }
@@ -66,28 +69,10 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
     @Test
     fun `should show current status when GDrive is enabled`(page: Page) =
         page.onGoogleDriveSection(preconditions.calculon) {
-            switch.shouldBeSwitchedOn()
+            shouldHaveUsedForUploadsStatus()
             settings.shouldBeVisible()
             assertAuthorizationRequiredStatus()
         }
-
-    @Test
-    fun `should disable Google Drive storage if was previously configured`(
-        page: Page
-    ) = page.onGoogleDriveSection(preconditions.calculon) {
-        withHint("Google Drive should be turned on") {
-            switch.shouldBeSwitchedOn()
-            settings.shouldBeVisible()
-        }
-
-        switch.toggle()
-        settings.shouldBeHidden()
-
-        shouldEventually("Should save settings") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.calculon.id!!)
-                .documentsStorage.shouldBeNull()
-        }
-    }
 
     @Test
     fun `should fail on OAuth authorization if GDrive fails`(
@@ -117,7 +102,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
     fun `should create new root folder if not created before`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.scruffy) {
-        switch.toggle()
+        clickUseForUploads()
         assertAuthorizationRequiredStatus()
 
         GoogleDriveApiMocks.mockCreateFolder(
@@ -350,7 +335,38 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    private fun DocumentStorageConfig<GoogleDriveSettings>.assertAuthorizationRequiredStatus() {
+    @Test
+    fun `should show Google Drive details with notice when not used for uploads but has documents`(
+        page: Page
+    ) = page.onGoogleDriveSection(preconditions.nibbler) {
+        withHint("Should show 'Use for uploads' action since not used for uploads") {
+            shouldHaveUseForUploadsAction()
+        }
+
+        withHint("Should show Google Drive details since there are documents") {
+            settings.shouldBeVisible()
+            infoMessage.shouldBeVisible()
+            infoMessage.shouldHaveText(
+                "3 documents have been uploaded with Google Drive. " +
+                    "You need to keep the authorization active in order to download them."
+            )
+        }
+    }
+
+    @Test
+    fun `should hide Google Drive details when not used for uploads and no documents`(
+        page: Page
+    ) = page.onGoogleDriveSection(preconditions.scruffy) {
+        withHint("Should show 'Use for uploads' action since not used for uploads") {
+            shouldHaveUseForUploadsAction()
+        }
+
+        withHint("Should hide Google Drive details since there are no documents") {
+            settings.shouldBeHidden()
+        }
+    }
+
+    private fun StorageSubSection<GoogleDriveSettings>.assertAuthorizationRequiredStatus() {
         withHint("Should have authorization required status") {
             settings {
                 shouldBeVisible()
@@ -359,13 +375,13 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    private fun DocumentStorageConfig<GoogleDriveSettings>.startAuthorization(
+    private fun StorageSubSection<GoogleDriveSettings>.startAuthorization(
         page: Page,
     ) = page.shouldHaveAuthorizationPopupOpenBy {
         settings.startAuthorizationButton.click()
     }
 
-    private fun DocumentStorageConfig<GoogleDriveSettings>.assertSuccessStatus(
+    private fun StorageSubSection<GoogleDriveSettings>.assertSuccessStatus(
         folderName: String,
     ) {
         withHint("Should have success status with the correct folder name") {
@@ -407,7 +423,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
 
     private fun Page.onGoogleDriveSection(
         user: PlatformUser,
-        spec: DocumentStorageConfig<GoogleDriveSettings>.() -> Unit
+        spec: StorageSubSection<GoogleDriveSettings>.() -> Unit
     ) {
         authenticateViaCookie(user)
         openMyProfilePage {
@@ -447,6 +463,16 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
                         folderId = "previously-created-folder-id",
                     )
                 )
+            }
+
+            val nibbler = platformUser(
+                userName = "nibbler",
+                documentsStorage = null,
+            ).also {
+                val ws = workspace(owner = it)
+                document(workspace = ws, storageId = "google-drive")
+                document(workspace = ws, storageId = "google-drive")
+                document(workspace = ws, storageId = "google-drive")
             }
         }
     }
