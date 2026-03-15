@@ -33,13 +33,6 @@ the Spring Boot application running on `9393` port (unless test configs states t
 
 With Vite dev server, your frontend code will hot-reload on changes.
 
-### Storybook
-
-We are using Storybook for developing generic components that are aimed to be reused in multiple places. We then
-also test the Storybook pages with screenshot testing (see below) to ensure visual stability e.g. on library updates.
-
-Start the Storybook with `bun storybook` in `frontend` module.
-
 ### Testing
 
 #### General approach
@@ -112,21 +105,6 @@ To enable this mode:
 
 Once the test is started, changing any code and compiling the project will reload the changes. In most cases,
 they will be picked up on the next test loop iteration.
-
-#### Screenshot tests
-
-As mentioned above, we use Storybook for commonly used components and test their appearance stability with
-screenshot tests. Similarly to full stack tests, we use Playwright for this. See `UiComponentsScreenshotsIT`.
-
-By default, the tests will run against compiled Storybook and will just fail on broken comparison. However, this
-can be customized via `.test-config.yaml` file:
-* Provide `screenshots.replaceCommittedFiles: true` to override committed screenshots with the new ones. The tests will
-  still fail if the new screenshots are different from the committed ones.
-* Provide `screenshots.useCompliedStorybook: false` to use local Storybook instead of compiled one. This is useful
-  for developing UI components to save time on rebuilding the Storybook.
-
-You can run the screenshot tests with `./gradlew screenshotsTest`. `.test-config.yaml` will take effect here as well,
-and your Storybook code will not be built automatically unless `CI=true` is set in environment variables.
 
 ### GraphQL Schema Management
 
