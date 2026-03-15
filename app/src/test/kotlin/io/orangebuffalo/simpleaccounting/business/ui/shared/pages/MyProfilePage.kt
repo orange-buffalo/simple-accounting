@@ -99,7 +99,8 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         ) : UiComponent<StorageSubSection<T>>() {
             private val container = components.page.locator("#storage-config_$storageId")
             private val nameEl = container.locator(".sa-documents-storage-section__storage-name")
-            val uploadStatusLabel = components.statusLabel(container)
+            private val headerEl = container.locator(".sa-documents-storage-section__storage-header")
+            val uploadStatusLabel = components.statusLabel(headerEl)
             val useForUploadsButton = container.locator(".sa-documents-storage-section__use-action")
             val settings = settingsProvider(container)
             val infoMessage = container.locator(".sa-documents-storage-section__storage-info")

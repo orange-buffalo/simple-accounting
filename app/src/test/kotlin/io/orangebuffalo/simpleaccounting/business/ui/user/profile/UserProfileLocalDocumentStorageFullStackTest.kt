@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.profile
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.LocalStorageSettings
@@ -10,56 +12,30 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import org.junit.jupiter.api.Test
+import org.springframework.test.context.TestPropertySource
 
 /**
- * Tests Local document storage integration on My Profile page.
+ * Tests Local document storage integration on My Profile page when local storage is not enabled.
  * See also:
  * - [UserProfileFullStackTest] for basic My Profile page rendering
+ * - [UserProfileLocalDocumentStorageEnabledFullStackTest] for local storage when enabled
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
- * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.PasswordChangeFullStackTest] for password change functionality
- * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.LanguagePreferencesFullStackTest] for language and locale preferences
  */
 class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should show local storage as available with 'Use for uploads' action when not selected`(
+    fun `should show local storage as not available when system setting is disabled`(
         page: Page
     ) = page.onLocalStorageSection(preconditions.scruffy) {
-        withHint("Local storage should show 'Use for uploads' action") {
-            shouldHaveUseForUploadsAction()
+        withHint("Local storage should show 'Not available' status") {
+            shouldHaveNotAvailableStatus()
         }
 
-        withHint("Should not show any info message") {
-            infoMessage.shouldBeHidden()
-        }
-    }
-
-    @Test
-    fun `should show local storage with 'Used for uploads' status when selected`(
-        page: Page
-    ) = page.onLocalStorageSection(preconditions.bender) {
-        withHint("Local storage should show 'Used for uploads' status") {
-            shouldHaveUsedForUploadsStatus()
-        }
-    }
-
-    @Test
-    fun `should enable local storage for uploads when clicking action link`(
-        page: Page
-    ) = page.onLocalStorageSection(preconditions.scruffy) {
-        withHint("Local storage should show 'Use for uploads' action") {
-            shouldHaveUseForUploadsAction()
-        }
-
-        clickUseForUploads()
-
-        shouldEventually("Should show 'Used for uploads' status after clicking") {
-            shouldHaveUsedForUploadsStatus()
-        }
-
-        withHint("Should save settings") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.scruffy.id!!)
-                .documentsStorage.shouldBe("local-fs")
+        withHint("Should show disabled explanation") {
+            infoMessage.shouldBeVisible()
+            infoMessage.shouldHaveText(
+                "Local storage has not been enabled by the system administrator."
+            )
         }
     }
 
@@ -82,11 +58,6 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
             val scruffy = platformUser(
                 userName = "scruffy",
                 documentsStorage = null,
-            ).withWorkspace()
-
-            val bender = platformUser(
-                userName = "bender",
-                documentsStorage = "local-fs",
             ).withWorkspace()
         }
     }
