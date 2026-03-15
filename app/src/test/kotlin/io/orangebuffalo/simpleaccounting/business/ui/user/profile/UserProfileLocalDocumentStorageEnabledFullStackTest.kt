@@ -10,10 +10,10 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.StorageSubSection
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.whenever
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+import org.springframework.beans.factory.annotation.Autowired
 
 /**
  * Tests Local document storage integration on My Profile page when local storage is enabled by administrator.
@@ -23,12 +23,17 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
  */
 class UserProfileLocalDocumentStorageEnabledFullStackTest : SaFullStackTestBase() {
 
-    @MockitoSpyBean
+    @Autowired
     private lateinit var localFsProperties: LocalFileSystemDocumentsStorageProperties
 
     @BeforeEach
     fun enableLocalFs() {
-        whenever(localFsProperties.enabled).thenReturn(true)
+        localFsProperties.enabled = true
+    }
+
+    @AfterEach
+    fun disableLocalFs() {
+        localFsProperties.enabled = false
     }
 
     @Test
