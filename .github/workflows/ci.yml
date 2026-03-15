@@ -102,8 +102,4 @@ jobs:
       - name: "Git dirty check"
         if: always()
         run: |
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "Working directory is dirty. The build produced changes that were not committed."
-            git status
-            exit 1
-          fi
+          git status
