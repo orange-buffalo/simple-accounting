@@ -365,6 +365,7 @@ export default {
     pageHeader: () => 'My Profile',
     documentsStorage: {
       header: () => 'Documents Storage',
+      description: () => 'Select a storage for uploading new documents. Previously used storages must remain configured to allow downloading files uploaded to them.',
       googleDrive: () => 'Google Drive',
       localStorage: () => 'Local Storage',
       usedForUploads: () => 'Used for uploads',

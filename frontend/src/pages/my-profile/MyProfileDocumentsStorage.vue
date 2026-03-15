@@ -2,6 +2,10 @@
   <div class="sa-documents-storage-section">
     <h2>{{ $t.myProfile.documentsStorage.header() }}</h2>
 
+    <p class="sa-documents-storage-section__description">
+      {{ $t.myProfile.documentsStorage.description() }}
+    </p>
+
     <div
       v-if="loading"
       class="sa-documents-storage-section__loading"
@@ -11,14 +15,11 @@
     </div>
 
     <template v-else>
-      <div
-        class="sa-documents-storage-section__storage"
-        id="storage-config_google-drive"
+      <MyProfileDocumentsStorageItem
+        storage-id="google-drive"
+        :name="$t.myProfile.documentsStorage.googleDrive()"
       >
-        <div class="sa-documents-storage-section__storage-header">
-          <span class="sa-documents-storage-section__storage-name">
-            {{ $t.myProfile.documentsStorage.googleDrive() }}
-          </span>
+        <template #status>
           <SaStatusLabel
             v-if="isGoogleDriveUsedForUploads"
             status="success"
@@ -33,31 +34,30 @@
           >
             {{ $t.myProfile.documentsStorage.useForUploads() }}
           </ElButton>
-        </div>
-        <div
-          v-if="showGoogleDriveDetails"
-          class="sa-documents-storage-section__storage-details"
-        >
-          <p
-            v-if="!isGoogleDriveUsedForUploads && googleDriveDocumentsCount > 0"
-            class="sa-documents-storage-section__storage-info"
+        </template>
+        <template #details>
+          <div
+            v-if="showGoogleDriveDetails"
+            class="sa-documents-storage-section__storage-details"
           >
-            {{ $t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount) }}
-          </p>
-          <SaGoogleDriveIntegrationSetup />
-        </div>
-      </div>
+            <p
+              v-if="!isGoogleDriveUsedForUploads && googleDriveDocumentsCount > 0"
+              class="sa-documents-storage-section__storage-info"
+            >
+              {{ $t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount) }}
+            </p>
+            <SaGoogleDriveIntegrationSetup />
+          </div>
+        </template>
+      </MyProfileDocumentsStorageItem>
 
       <div class="sa-documents-storage-section__divider" />
 
-      <div
-        class="sa-documents-storage-section__storage"
-        id="storage-config_local-fs"
+      <MyProfileDocumentsStorageItem
+        storage-id="local-fs"
+        :name="$t.myProfile.documentsStorage.localStorage()"
       >
-        <div class="sa-documents-storage-section__storage-header">
-          <span class="sa-documents-storage-section__storage-name">
-            {{ $t.myProfile.documentsStorage.localStorage() }}
-          </span>
+        <template #status>
           <template v-if="localStorageEnabled">
             <SaStatusLabel
               v-if="isLocalFsUsedForUploads"
@@ -80,14 +80,16 @@
           >
             {{ $t.myProfile.documentsStorage.localStorageDisabledStatus() }}
           </SaStatusLabel>
-        </div>
-        <p
-          v-if="!localStorageEnabled"
-          class="sa-documents-storage-section__storage-info"
-        >
-          {{ $t.myProfile.documentsStorage.localStorageDisabledDetails() }}
-        </p>
-      </div>
+        </template>
+        <template #details>
+          <p
+            v-if="!localStorageEnabled"
+            class="sa-documents-storage-section__storage-info"
+          >
+            {{ $t.myProfile.documentsStorage.localStorageDisabledDetails() }}
+          </p>
+        </template>
+      </MyProfileDocumentsStorageItem>
     </template>
   </div>
 </template>
@@ -101,6 +103,7 @@
   import { graphql } from '@/services/api/gql';
   import { useMultiQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import type { UserProfileQuery } from '@/services/api/gql/graphql.ts';
+  import MyProfileDocumentsStorageItem from '@/pages/my-profile/impl/MyProfileDocumentsStorageItem.vue';
 
   const props = defineProps<{
     profile?: UserProfileQuery['userProfile'],
@@ -172,7 +175,18 @@
   @use "@/styles/mixins.scss" as *;
 
   .sa-documents-storage-section {
-    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid $secondary-grey;
+    background-color: $white;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 30px;
+
+    &__description {
+      font-size: 90%;
+      color: $secondary-text-color;
+      margin: 0 0 16px;
+    }
 
     &__loading {
       display: flex;
@@ -189,21 +203,6 @@
     &__divider {
       border-top: 1px solid $secondary-grey;
       margin: 16px 0;
-    }
-
-    &__storage {
-      margin-bottom: 4px;
-    }
-
-    &__storage-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    &__storage-name {
-      font-weight: 600;
-      color: $primary-text-color;
     }
 
     &__use-action {

@@ -14,10 +14,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import org.junit.jupiter.api.Test
 
 /**
- * Tests Local document storage integration on My Profile page when local storage is disabled by administrator.
+ * Tests Local document storage integration on My Profile page.
  * See also:
  * - [UserProfileFullStackTest] for basic My Profile page rendering
- * - [UserProfileLocalDocumentStorageEnabledFullStackTest] for local storage when enabled
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
  */
 class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
@@ -35,6 +34,57 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
             infoMessage.shouldHaveText(
                 "Local storage has not been enabled by the system administrator."
             )
+        }
+    }
+
+    @Test
+    fun `should show local storage with 'Use for uploads' action when enabled but not selected`(
+        page: Page
+    ) {
+        localFsStorageProperties.enabled = true
+        page.onLocalStorageSection(preconditions.scruffy) {
+            withHint("Local storage should show 'Use for uploads' action") {
+                shouldHaveUseForUploadsAction()
+            }
+
+            withHint("Should not show disabled explanation") {
+                infoMessage.shouldBeHidden()
+            }
+        }
+    }
+
+    @Test
+    fun `should show local storage with 'Used for uploads' status when selected`(
+        page: Page
+    ) {
+        localFsStorageProperties.enabled = true
+        page.onLocalStorageSection(preconditions.bender) {
+            withHint("Local storage should show 'Used for uploads' status") {
+                shouldHaveUsedForUploadsStatus()
+            }
+        }
+    }
+
+    @Test
+    fun `should enable local storage for uploads when clicking action link`(
+        page: Page
+    ) {
+        localFsStorageProperties.enabled = true
+        page.onLocalStorageSection(preconditions.scruffy) {
+            withHint("Local storage should show 'Use for uploads' action") {
+                shouldHaveUseForUploadsAction()
+            }
+
+            clickUseForUploads()
+
+            shouldEventually("Should show 'Used for uploads' status after clicking") {
+                shouldHaveUsedForUploadsStatus()
+            }
+
+            withHint("Should save settings") {
+                aggregateTemplate.findSingle<PlatformUser>(preconditions.scruffy.id!!)
+                    .documentsStorage.shouldBe("local-fs")
+            }
         }
     }
 
@@ -57,6 +107,11 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
             val scruffy = platformUser(
                 userName = "scruffy",
                 documentsStorage = null,
+            ).withWorkspace()
+
+            val bender = platformUser(
+                userName = "bender",
+                documentsStorage = "local-fs",
             ).withWorkspace()
         }
     }
