@@ -10,12 +10,21 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.writeBytes
 
 /**
  * Comprehensive full stack tests for DocumentsList component (SaDocumentsList).
  * Uses Invoice Overview panel as testing grounds.
  */
 class SaDocumentsListFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var localFsDir: Path
 
     @Test
     fun `should display storage loading placeholder while download storages query is loading`(page: Page) {
@@ -391,6 +400,67 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
             shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready("slurm-receipt.pdf", "(46 byte)"))
             val downloadedContent = downloadDocument("slurm-receipt.pdf")
             downloadedContent.shouldBe(documentContent)
+        }
+    }
+
+    @Test
+    fun `should download documents from multiple different storages`(page: Page) {
+        val testStorageContent = "Slurm tax receipt".toByteArray()
+        val localFsContent = "Moon cargo invoice".toByteArray()
+
+        whenever(localFsStorageProperties.baseDirectory) doReturn localFsDir
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val invoice = invoice(
+                    customer = customer(workspace = workspace),
+                    attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "slurm-receipt.pdf",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "slurm-receipt-location",
+                            sizeInBytes = testStorageContent.size.toLong(),
+                            timeUploaded = MOCK_TIME
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "moon-cargo-invoice.pdf",
+                            storageId = "local-fs",
+                            storageLocation = "${workspace.id}/moon-cargo-invoice.pdf",
+                            sizeInBytes = localFsContent.size.toLong(),
+                            timeUploaded = MOCK_TIME
+                        )
+                    ),
+                    title = "Planet Express multi-storage delivery"
+                )
+            }
+        }
+
+        testDocumentsStorage.mockDocumentContent("slurm-receipt-location", testStorageContent)
+
+        val storedFile = localFsDir.resolve("${preconditions.workspace.id}/moon-cargo-invoice.pdf")
+        Files.createDirectories(storedFile.parent)
+        storedFile.writeBytes(localFsContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openInvoicesOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "Planet Express multi-storage delivery" }
+                    .openDetails()
+            }
+        }
+
+        val documentsList = SaDocumentsList.singleton(page)
+        documentsList {
+            shouldHaveDocuments(
+                SaDocumentsList.DocumentItem.Ready("moon-cargo-invoice.pdf", "(18 byte)"),
+                SaDocumentsList.DocumentItem.Ready("slurm-receipt.pdf", "(17 byte)")
+            )
+            downloadDocument("slurm-receipt.pdf").shouldBe(testStorageContent)
+            downloadDocument("moon-cargo-invoice.pdf").shouldBe(localFsContent)
         }
     }
 }

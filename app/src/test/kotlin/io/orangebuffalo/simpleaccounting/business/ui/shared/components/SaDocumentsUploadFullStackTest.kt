@@ -15,6 +15,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -28,6 +30,9 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @TempDir
+    private lateinit var localFsDir: Path
 
     @Test
     fun `should display error when storage is not configured`(page: Page) {
@@ -428,6 +433,63 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
             documentsUpload {
                 shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.mixed-unsupported-storage")
+            }
+        }
+    }
+
+    @Test
+    fun `should download pre-existing documents from multiple different storages`(page: Page) {
+        val testStorageContent = "Slurm tax receipt".toByteArray()
+        val localFsContent = "Moon cargo invoice".toByteArray()
+
+        whenever(localFsStorageProperties.baseDirectory) doReturn localFsDir
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val expense = expense(
+                    workspace = workspace,
+                    attachments = setOf(
+                        document(
+                            workspace = workspace,
+                            name = "slurm-receipt.pdf",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
+                            storageLocation = "slurm-receipt-location",
+                            sizeInBytes = testStorageContent.size.toLong(),
+                            timeUploaded = MOCK_TIME
+                        ),
+                        document(
+                            workspace = workspace,
+                            name = "moon-cargo-invoice.pdf",
+                            storageId = "local-fs",
+                            storageLocation = "${workspace.id}/moon-cargo-invoice.pdf",
+                            sizeInBytes = localFsContent.size.toLong(),
+                            timeUploaded = MOCK_TIME
+                        )
+                    )
+                )
+            }
+        }
+
+        testDocumentsStorage.mockDocumentContent("slurm-receipt-location", testStorageContent)
+
+        val storedFile = localFsDir.resolve("${preconditions.workspace.id}/moon-cargo-invoice.pdf")
+        Files.createDirectories(storedFile.parent)
+        storedFile.writeBytes(localFsContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("moon-cargo-invoice.pdf", DocumentsUpload.DocumentState.COMPLETED),
+                    DocumentsUpload.UploadedDocument("slurm-receipt.pdf", DocumentsUpload.DocumentState.COMPLETED),
+                    DocumentsUpload.EmptyDocument
+                )
+                downloadDocument("slurm-receipt.pdf").shouldBe(testStorageContent)
+                downloadDocument("moon-cargo-invoice.pdf").shouldBe(localFsContent)
             }
         }
     }
