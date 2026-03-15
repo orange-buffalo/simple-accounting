@@ -14,9 +14,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import org.junit.jupiter.api.Test
 
 /**
- * Tests Local document storage integration on My Profile page when local storage is not enabled by administrator.
+ * Tests Local document storage integration on My Profile page when local storage is disabled by administrator.
  * See also:
  * - [UserProfileFullStackTest] for basic My Profile page rendering
+ * - [UserProfileLocalDocumentStorageEnabledFullStackTest] for local storage when enabled
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
  */
 class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
