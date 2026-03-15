@@ -11,8 +11,9 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.StorageSubSection
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 
 /**
  * Tests Local document storage integration on My Profile page.
@@ -21,11 +22,6 @@ import org.junit.jupiter.api.Test
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
  */
 class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun resetLocalFsState() {
-        localFsStorageProperties.enabled = false
-    }
 
     @Test
     fun `should show local storage as not available when system setting is disabled`(
@@ -47,7 +43,7 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
     fun `should show local storage with 'Use for uploads' action when enabled but not selected`(
         page: Page
     ) {
-        localFsStorageProperties.enabled = true
+        whenever(localFsStorageProperties.enabled) doReturn true
         page.onLocalStorageSection(preconditions.scruffy) {
             withHint("Local storage should show 'Use for uploads' action") {
                 shouldHaveUseForUploadsAction()
@@ -63,7 +59,7 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
     fun `should show local storage with 'Used for uploads' status when selected`(
         page: Page
     ) {
-        localFsStorageProperties.enabled = true
+        whenever(localFsStorageProperties.enabled) doReturn true
         page.onLocalStorageSection(preconditions.bender) {
             withHint("Local storage should show 'Used for uploads' status") {
                 shouldHaveUsedForUploadsStatus()
@@ -75,7 +71,7 @@ class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
     fun `should enable local storage for uploads when clicking action link`(
         page: Page
     ) {
-        localFsStorageProperties.enabled = true
+        whenever(localFsStorageProperties.enabled) doReturn true
         page.onLocalStorageSection(preconditions.scruffy) {
             withHint("Local storage should show 'Use for uploads' action") {
                 shouldHaveUseForUploadsAction()

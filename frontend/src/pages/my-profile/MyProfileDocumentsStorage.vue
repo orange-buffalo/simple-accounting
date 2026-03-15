@@ -18,23 +18,9 @@
       <MyProfileDocumentsStorageItem
         storage-id="google-drive"
         :name="$t.myProfile.documentsStorage.googleDrive()"
+        :used-for-uploads="isGoogleDriveUsedForUploads"
+        @use-for-uploads="useForUploads('google-drive')"
       >
-        <template #status>
-          <SaStatusLabel
-            v-if="isGoogleDriveUsedForUploads"
-            status="success"
-          >
-            {{ $t.myProfile.documentsStorage.usedForUploads() }}
-          </SaStatusLabel>
-          <ElButton
-            v-else
-            link
-            class="sa-documents-storage-section__use-action"
-            @click="useForUploads('google-drive')"
-          >
-            {{ $t.myProfile.documentsStorage.useForUploads() }}
-          </ElButton>
-        </template>
         <template #details>
           <div
             v-if="showGoogleDriveDetails"
@@ -56,28 +42,12 @@
       <MyProfileDocumentsStorageItem
         storage-id="local-fs"
         :name="$t.myProfile.documentsStorage.localStorage()"
+        :used-for-uploads="isLocalFsUsedForUploads"
+        :available="localStorageEnabled"
+        @use-for-uploads="useForUploads('local-fs')"
       >
-        <template #status>
-          <template v-if="localStorageEnabled">
-            <SaStatusLabel
-              v-if="isLocalFsUsedForUploads"
-              status="success"
-            >
-              {{ $t.myProfile.documentsStorage.usedForUploads() }}
-            </SaStatusLabel>
-            <ElButton
-              v-else
-              link
-              class="sa-documents-storage-section__use-action"
-              @click="useForUploads('local-fs')"
-            >
-              {{ $t.myProfile.documentsStorage.useForUploads() }}
-            </ElButton>
-          </template>
-          <SaStatusLabel
-            v-else
-            status="regular"
-          >
+        <template #unavailable-status>
+          <SaStatusLabel status="regular">
             {{ $t.myProfile.documentsStorage.localStorageDisabledStatus() }}
           </SaStatusLabel>
         </template>
@@ -203,10 +173,6 @@
     &__divider {
       border-top: 1px solid $secondary-grey;
       margin: 16px 0;
-    }
-
-    &__use-action {
-      padding: 0;
     }
 
     &__storage-details {

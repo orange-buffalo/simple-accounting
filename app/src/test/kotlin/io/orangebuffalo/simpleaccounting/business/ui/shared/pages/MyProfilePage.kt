@@ -101,7 +101,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
             private val nameEl = container.locator(".sa-documents-storage-item__name")
             private val headerEl = container.locator(".sa-documents-storage-item__header")
             val uploadStatusLabel = components.statusLabel(headerEl)
-            val useForUploadsButton = container.locator(".sa-documents-storage-section__use-action")
+            val useForUploadsButton = container.locator(".sa-documents-storage-item__use-action")
             val settings = settingsProvider(container)
             val infoMessage = container.locator(".sa-documents-storage-section__storage-info")
 
