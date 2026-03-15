@@ -118,7 +118,13 @@
   );
 
   const documentsAggregates = ref<DocumentAggregate[]>([]);
-  const hasUnsupportedStorages = ref(false);
+  const loadedDocumentStorageIds = ref<string[]>([]);
+  const hasUnsupportedStorages = computed(() => {
+    if (storageQueryLoading.value || loadedDocumentStorageIds.value.length === 0) return false;
+    return loadedDocumentStorageIds.value.some(
+      (storageId) => !downloadStorageIds.value.has(storageId),
+    );
+  });
 
   const addEmptyDocumentAggregateIfNecessary = () => {
     const emptyUpload = documentsAggregates.value
@@ -181,9 +187,7 @@
         workspaceId: currentWorkspaceId,
       }));
 
-      hasUnsupportedStorages.value = documents.some(
-        (doc) => !downloadStorageIds.value.has(doc.storageId),
-      );
+      loadedDocumentStorageIds.value = documents.map((doc) => doc.storageId);
 
       documentsAggregates.value = documents
         .sort((a, b) => {
@@ -204,6 +208,7 @@
       await loadDocuments();
     } else {
       documentsAggregates.value = [];
+      loadedDocumentStorageIds.value = [];
     }
     addEmptyDocumentAggregateIfNecessary();
   }, { immediate: true });
