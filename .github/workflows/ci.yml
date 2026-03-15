@@ -98,3 +98,8 @@ jobs:
           ./gradlew jib jreleaserFullRelease --scan --console=plain --build-cache \
                 -Djib.to.auth.username=orangebuffalo \
                 -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
+
+      - name: "Git dirty check"
+        if: always()
+        run: |
+          git status
