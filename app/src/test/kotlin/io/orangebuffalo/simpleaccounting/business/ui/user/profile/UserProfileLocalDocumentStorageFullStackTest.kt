@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.DocumentStorageSection.StorageSubSection
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
@@ -20,6 +21,11 @@ import org.junit.jupiter.api.Test
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
  */
 class UserProfileLocalDocumentStorageFullStackTest : SaFullStackTestBase() {
+
+    @BeforeEach
+    fun resetLocalFsState() {
+        localFsStorageProperties.enabled = false
+    }
 
     @Test
     fun `should show local storage as not available when system setting is disabled`(
