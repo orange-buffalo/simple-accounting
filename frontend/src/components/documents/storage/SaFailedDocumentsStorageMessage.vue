@@ -6,31 +6,15 @@
   >
     <template #title>
       <SaIcon icon="error" />
-      {{ reason === 'unsupported-documents'
-        ? $t.saFailedDocumentsStorageMessage.unsupportedDocuments.title()
-        : $t.saFailedDocumentsStorageMessage.storageNotConfigured.title() }}
+      {{ $t.saFailedDocumentsStorageMessage.title() }}
     </template>
     <template #default>
-      <SaI18n
-        v-if="reason === 'unsupported-documents'"
-        :message="$t.saFailedDocumentsStorageMessage.unsupportedDocuments.message()"
-      >
+      <SaI18n :message="$t.saFailedDocumentsStorageMessage.message()">
         <ElButton
           link
           @click="navigateToProfileSettings"
         >
-          {{ $t.saFailedDocumentsStorageMessage.unsupportedDocuments.profileLink() }}
-        </ElButton>
-      </SaI18n>
-      <SaI18n
-        v-else
-        :message="$t.saFailedDocumentsStorageMessage.storageNotConfigured.message()"
-      >
-        <ElButton
-          link
-          @click="navigateToProfileSettings"
-        >
-          {{ $t.saFailedDocumentsStorageMessage.storageNotConfigured.profileLink() }}
+          {{ $t.saFailedDocumentsStorageMessage.profileLink() }}
         </ElButton>
       </SaI18n>
     </template>
