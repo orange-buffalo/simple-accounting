@@ -39,6 +39,21 @@ Use these URLs (based on your host) as the authorized redirect URIs:
 
 Enable Google Drive API for you project.
 
+### Local file system storage
+
+As a simpler alternative to Google Drive, Simple Accounting can store uploaded documents directly on the host file
+system. This is well-suited for self-hosted deployments where all data should remain on a single server without
+requiring any third-party service.
+
+The documents are organised under a configurable base directory, with one sub-directory per workspace. Make sure the
+base directory is on a persistent volume (for example under `/data`, which is already mounted for the database).
+
+The feature is disabled by default. Enable it and set the base directory with these environment parameters:
+
+* `SIMPLEACCOUNTING_DOCUMENTS_STORAGE_LOCAL_FS_ENABLED` = `true` — enable local file system storage (default: `false`).
+* `SIMPLEACCOUNTING_DOCUMENTS_STORAGE_LOCAL_FS_BASE_DIRECTORY` — absolute path to the directory where documents will
+  be stored. There is no default; this property must be set when the feature is enabled.
+
 ### Enabling backups
 
 Simple Accounting can automatically backup the database to Dropbox. To enable this feature, you need to provide
