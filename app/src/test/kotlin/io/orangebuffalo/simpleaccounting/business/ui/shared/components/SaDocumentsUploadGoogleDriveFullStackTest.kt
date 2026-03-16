@@ -22,6 +22,8 @@ import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
+private val MOCK_EPOCH_MILLIS = MOCK_TIME.toEpochMilli()
+
 /**
  * Full stack tests for DocumentsUpload component (SaDocumentsUpload) with Google Drive document storage integration.
  * Unlike [SaDocumentsUploadFullStackTest] that uses a test storage, this test verifies the real Google Drive
@@ -151,13 +153,13 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         val testFile2 = createTestFile("fuel-invoice.jpg", file2Content)
 
         GoogleDriveApiMocks.mockUploadFileForFileName(
-            fileName = testFile1.name,
+            fileName = expectedStorageFileName(testFile1.name),
             responseId = "gdrive-file-id-1",
             responseSize = file1Content.size.toLong(),
             expectedAuthToken = accessToken,
         )
         GoogleDriveApiMocks.mockUploadFileForFileName(
-            fileName = testFile2.name,
+            fileName = expectedStorageFileName(testFile2.name),
             responseId = "gdrive-file-id-2",
             responseSize = file2Content.size.toLong(),
             expectedAuthToken = accessToken,
@@ -351,9 +353,121 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         )
     }
 
+    @Test
+    fun `should append epoch millis to storage filename while preserving original name in document`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
+                    save(
+                        GoogleDriveStorageIntegration(
+                            userId = it.id!!,
+                            folderId = "root-folder-id",
+                        )
+                    )
+                }
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
+            }
+        }
+
+        val accessToken = GoogleOAuthMocks.token()
+            .enqueue()
+            .persist(preconditions.fry)
+
+        GoogleDriveApiMocks.mockFindFile(
+            fileId = "root-folder-id",
+            fileName = "simple-accounting",
+            expectedAuthToken = accessToken,
+        )
+        GoogleDriveApiMocks.mockFindFolder(
+            parentFolderId = "root-folder-id",
+            folderName = preconditions.workspace.id.toString(),
+            responseFolderId = "workspace-folder-id",
+            expectedAuthToken = accessToken,
+        )
+
+        // File with extension: slurm-can.pdf → storage name: slurm-can_<epochMillis>.pdf
+        val fileWithExtContent = "Slurm delivery receipt".toByteArray()
+        val fileWithExt = createNamedTestFile("slurm-can.pdf", fileWithExtContent)
+        // File without extension: dark-matter-invoice → storage name: dark-matter-invoice_<epochMillis>
+        val fileWithoutExtContent = "Dark matter fuel costs".toByteArray()
+        val fileWithoutExt = createNamedTestFile("dark-matter-invoice", fileWithoutExtContent)
+        // File with leading dot only (no real extension): .bender-config → storage name: .bender-config_<epochMillis>
+        val fileWithLeadingDotContent = "Bender robot config".toByteArray()
+        val fileWithLeadingDot = createNamedTestFile(".bender-config", fileWithLeadingDotContent)
+
+        GoogleDriveApiMocks.mockUploadFileForFileName(
+            fileName = "slurm-can_${MOCK_EPOCH_MILLIS}.pdf",
+            responseId = "gdrive-id-with-ext",
+            responseSize = fileWithExtContent.size.toLong(),
+            expectedAuthToken = accessToken,
+        )
+        GoogleDriveApiMocks.mockUploadFileForFileName(
+            fileName = "dark-matter-invoice_${MOCK_EPOCH_MILLIS}",
+            responseId = "gdrive-id-without-ext",
+            responseSize = fileWithoutExtContent.size.toLong(),
+            expectedAuthToken = accessToken,
+        )
+        GoogleDriveApiMocks.mockUploadFileForFileName(
+            fileName = ".bender-config_${MOCK_EPOCH_MILLIS}",
+            responseId = "gdrive-id-leading-dot",
+            responseSize = fileWithLeadingDotContent.size.toLong(),
+            expectedAuthToken = accessToken,
+        )
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                selectFileForUpload(fileWithExt)
+                selectFileForUpload(fileWithoutExt)
+                selectFileForUpload(fileWithLeadingDot)
+            }
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have three attachments") {
+            attachments.shouldHaveSize(3)
+        }
+
+        val documentsByLocation = savedExpense.attachments
+            .map { aggregateTemplate.findSingle<Document>(it.documentId) }
+            .associateBy { it.storageLocation }
+
+        documentsByLocation["gdrive-id-with-ext"]!!.shouldWithClue("File with extension: original name preserved") {
+            name.shouldBe("slurm-can.pdf")
+            storageId.shouldBe("google-drive")
+        }
+        documentsByLocation["gdrive-id-without-ext"]!!.shouldWithClue("File without extension: original name preserved") {
+            name.shouldBe("dark-matter-invoice")
+            storageId.shouldBe("google-drive")
+        }
+        documentsByLocation["gdrive-id-leading-dot"]!!.shouldWithClue("File with leading dot: original name preserved") {
+            name.shouldBe(".bender-config")
+            storageId.shouldBe("google-drive")
+        }
+    }
+
     private fun createTestFile(fileName: String, content: ByteArray): Path {
         val testFile = Files.createTempFile(tempDir, "test-upload-gdrive-", "-$fileName")
         testFile.writeBytes(content)
         return testFile
+    }
+
+    private fun createNamedTestFile(fileName: String, content: ByteArray): Path {
+        return tempDir.resolve(fileName).also { it.writeBytes(content) }
+    }
+
+    private fun expectedStorageFileName(originalFileName: String): String {
+        val dotIndex = originalFileName.lastIndexOf('.')
+        return if (dotIndex > 0 && dotIndex < originalFileName.length - 1) {
+            "${originalFileName.substring(0, dotIndex)}_${MOCK_EPOCH_MILLIS}${originalFileName.substring(dotIndex)}"
+        } else {
+            "${originalFileName}_${MOCK_EPOCH_MILLIS}"
+        }
     }
 }
