@@ -84,7 +84,6 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
             name.shouldBe(testFile.name)
             sizeInBytes.shouldBe(fileContent.size.toLong())
             storageId.shouldBe("local-fs")
-            storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
         }
 
         val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
@@ -137,7 +136,6 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
         documents.forEach { doc ->
             doc.shouldWithClue("Document '${doc.name}' should be stored in local file system") {
                 storageId.shouldBe("local-fs")
-                storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
             }
         }
 
@@ -194,6 +192,38 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
                 downloadedContent.shouldBe(documentContent)
             }
         }
+    }
+
+    @Test
+    fun `should store uploaded document in year-month subfolder`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "local-fs")
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
+            }
+        }
+
+        val testFile = createTestFile("robot-oil-receipt.pdf", "Robot oil receipt".toByteArray())
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                selectFileForUpload(testFile)
+            }
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        val documentId = savedExpense.attachments.first().documentId
+        val savedDocument = aggregateTemplate.findSingle<Document>(documentId)
+        savedDocument.storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
+        val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
+        storedFile.readBytes().shouldBe("Robot oil receipt".toByteArray())
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
