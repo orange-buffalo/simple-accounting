@@ -394,6 +394,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditExpensePage {
             documentsUpload {
                 shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+                shouldHaveStorageErrorMessage("profile settings")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.unsupported-existing-storage")
             }
         }
@@ -432,6 +433,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditExpensePage {
             documentsUpload {
                 shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+                shouldHaveStorageErrorMessage("profile settings")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.mixed-unsupported-storage")
             }
         }

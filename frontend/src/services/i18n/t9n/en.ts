@@ -859,7 +859,8 @@ export default {
     },
     unsupportedDocuments: {
       title: () => 'Some uploaded documents cannot be processed',
-      message: () => 'Please contact your administrator for assistance.',
+      message: () => 'Please navigate to your {default} to reconfigure the document storage.',
+      profileLink: () => 'profile settings',
     },
   },
 

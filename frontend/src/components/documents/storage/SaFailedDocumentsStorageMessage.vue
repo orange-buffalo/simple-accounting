@@ -2,6 +2,7 @@
   <ElAlert
     type="error"
     :closable="false"
+    class="sa-failed-documents-storage-message"
   >
     <template #title>
       <SaIcon icon="error" />
@@ -10,9 +11,17 @@
         : $t.saFailedDocumentsStorageMessage.storageNotConfigured.title() }}
     </template>
     <template #default>
-      <template v-if="reason === 'unsupported-documents'">
-        {{ $t.saFailedDocumentsStorageMessage.unsupportedDocuments.message() }}
-      </template>
+      <SaI18n
+        v-if="reason === 'unsupported-documents'"
+        :message="$t.saFailedDocumentsStorageMessage.unsupportedDocuments.message()"
+      >
+        <ElButton
+          link
+          @click="navigateToProfileSettings"
+        >
+          {{ $t.saFailedDocumentsStorageMessage.unsupportedDocuments.profileLink() }}
+        </ElButton>
+      </SaI18n>
       <SaI18n
         v-else
         :message="$t.saFailedDocumentsStorageMessage.storageNotConfigured.message()"
@@ -44,3 +53,14 @@
     navigateByViewName('my-profile');
   };
 </script>
+
+<style lang="scss">
+  .sa-failed-documents-storage-message {
+    .el-alert__description .el-button.is-link {
+      vertical-align: middle;
+      padding: 0;
+      height: auto;
+      font-size: inherit;
+    }
+  }
+</style>

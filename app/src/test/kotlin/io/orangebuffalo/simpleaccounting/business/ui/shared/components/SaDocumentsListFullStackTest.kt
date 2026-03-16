@@ -92,6 +92,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         SaDocumentsList.singleton(page).apply {
             shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+            shouldHaveStorageErrorMessage("profile settings")
             reportRendering("documents-list.unsupported-storage")
         }
     }
@@ -133,6 +134,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
 
         SaDocumentsList.singleton(page).apply {
             shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+            shouldHaveStorageErrorMessage("profile settings")
             reportRendering("documents-list.mixed-unsupported-storage")
         }
     }
