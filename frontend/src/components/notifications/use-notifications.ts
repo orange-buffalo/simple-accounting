@@ -46,7 +46,6 @@ function showNotification(
     message,
     duration: type.duration,
     type: type.elPlusType,
-    grouping: true,
     icon: h(SaIcon, {
       icon: type.icon,
       size: 18,

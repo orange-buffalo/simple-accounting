@@ -10,16 +10,23 @@ import { $t } from '@/services/i18n';
 
 type ErrorHandler = (e: unknown) => Promise<never>;
 
+let authErrorHandling: Promise<void> | null = null;
+
 function useGqlErrorHandler(): ErrorHandler {
   const { navigateByPath } = useNavigation();
   const { showWarningNotification } = useNotifications();
   return async (e: unknown): Promise<never> => {
     if (e instanceof ApiAuthError) {
-      showWarningNotification($t.value.infra.sessionExpired(), {
-        duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
-      });
-      await nextTick();
-      await navigateByPath('/login');
+      if (!authErrorHandling) {
+        authErrorHandling = (async () => {
+          showWarningNotification($t.value.infra.sessionExpired(), {
+            duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+          });
+          await nextTick();
+          await navigateByPath('/login');
+        })();
+      }
+      await authErrorHandling;
     }
     throw e;
   };
