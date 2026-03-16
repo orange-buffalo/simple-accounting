@@ -12,7 +12,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
@@ -67,39 +66,65 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     @UiComponentMarker
     class DocumentStorageSection(components: ComponentsAccessors) {
         private val documentStorageSectionHeader = components.sectionHeader("Documents Storage")
-        private val googleDriveConfig =
-            DocumentStorageConfig(components, "google-drive", "Google Drive") { container ->
-                GoogleDriveSettings(components, container)
-            }
+        val googleDriveConfig = StorageSubSection(components, "google-drive", "Google Drive") { container ->
+            GoogleDriveSettings(components, container)
+        }
+        val localStorageConfig = StorageSubSection(components, "local-fs", "Local Storage") { container ->
+            LocalStorageSettings(container)
+        }
 
         fun shouldBeVisible() {
             documentStorageSectionHeader.shouldBeVisible()
-        }
-
-        fun shouldHaveGoogleDriveConfigVisible(spec: DocumentStorageConfig<GoogleDriveSettings>.() -> Unit) {
-            googleDriveConfig.shouldBeVisible()
-            googleDriveConfig.spec()
         }
 
         fun shouldBeHidden() {
             documentStorageSectionHeader.shouldBeHidden()
         }
 
-        class DocumentStorageConfig<T>(
+        fun shouldHaveGoogleDriveConfigVisible(spec: StorageSubSection<GoogleDriveSettings>.() -> Unit) {
+            googleDriveConfig.shouldBeVisible()
+            googleDriveConfig.spec()
+        }
+
+        fun shouldHaveLocalStorageConfigVisible(spec: StorageSubSection<LocalStorageSettings>.() -> Unit) {
+            localStorageConfig.shouldBeVisible()
+            localStorageConfig.spec()
+        }
+
+        class StorageSubSection<T>(
             components: ComponentsAccessors,
             storageId: String,
             private val title: String,
             settingsProvider: (Locator) -> T,
-        ) : UiComponent<DocumentStorageConfig<T>>() {
+        ) : UiComponent<StorageSubSection<T>>() {
             private val container = components.page.locator("#storage-config_$storageId")
-            private val header = container.locator("h4")
-            val switch = components.switchByContainer(container)
+            private val nameEl = container.locator(".sa-documents-storage-item__name")
+            private val headerEl = container.locator(".sa-documents-storage-item__header")
+            val uploadStatusLabel = components.statusLabel(headerEl)
+            val useForUploadsButton = container.locator(".sa-documents-storage-item__use-action")
             val settings = settingsProvider(container)
+            val infoMessage = container.locator(".sa-documents-storage-section__storage-info")
 
             fun shouldBeVisible() {
                 container.shouldBeVisible()
-                header.shouldHaveText(title)
-                switch.shouldBeVisible()
+                nameEl.shouldHaveText(title)
+            }
+
+            fun shouldHaveUsedForUploadsStatus() {
+                uploadStatusLabel.shouldBeSuccess("Used for uploads")
+            }
+
+            fun shouldHaveUseForUploadsAction() {
+                useForUploadsButton.shouldBeVisible()
+                useForUploadsButton.shouldHaveText("Use for uploads")
+            }
+
+            fun clickUseForUploads() {
+                useForUploadsButton.click()
+            }
+
+            fun shouldHaveNotAvailableStatus() {
+                uploadStatusLabel.shouldBeRegular("Not available")
             }
 
             fun reportRendering(name: String) {
@@ -109,7 +134,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
         class GoogleDriveSettings(
             components: ComponentsAccessors,
-            parentEl: Locator
+            parentEl: Locator,
         ) : UiComponent<GoogleDriveSettings>() {
             private val container = parentEl.locator(".sa-gdrive-integration")
             val status = components.statusLabel(container)
@@ -123,6 +148,13 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
             fun shouldBeVisible() {
                 container.shouldBeVisible()
             }
+        }
+
+        @UiComponentMarker
+        class LocalStorageSettings(
+            parentEl: Locator,
+        ) {
+            private val container = parentEl
         }
     }
 

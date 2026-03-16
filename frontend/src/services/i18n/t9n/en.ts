@@ -365,7 +365,14 @@ export default {
     pageHeader: () => 'My Profile',
     documentsStorage: {
       header: () => 'Documents Storage',
+      description: () => 'Select a storage for uploading new documents. Previously used storages must remain configured to allow downloading files uploaded to them.',
       googleDrive: () => 'Google Drive',
+      localStorage: () => 'Local Storage',
+      usedForUploads: () => 'Used for uploads',
+      useForUploads: () => 'Use for uploads',
+      localStorageDisabledStatus: () => 'Not available',
+      localStorageDisabledDetails: () => 'Local storage has not been enabled by the system administrator.',
+      googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them.`,
     },
     languagePreferences: {
       header: () => 'Language Preferences',

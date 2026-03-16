@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
  * See also:
  * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.PasswordChangeFullStackTest] for password change functionality
  * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
+ * - [UserProfileLocalDocumentStorageFullStackTest] for Local storage integration
  * - [io.orangebuffalo.simpleaccounting.business.ui.shared.profile.LanguagePreferencesFullStackTest] for language and locale preferences
  * - [io.orangebuffalo.simpleaccounting.business.ui.admin.profile.AdminProfileFullStackTest] for admin profile specifics
  */
