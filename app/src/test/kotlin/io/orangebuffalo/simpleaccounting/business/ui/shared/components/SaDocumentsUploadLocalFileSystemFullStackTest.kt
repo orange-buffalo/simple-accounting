@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.ui.shared.components
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
@@ -83,6 +84,7 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
             name.shouldBe(testFile.name)
             sizeInBytes.shouldBe(fileContent.size.toLong())
             storageId.shouldBe("local-fs")
+            storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
         }
 
         val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
@@ -135,6 +137,7 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
         documents.forEach { doc ->
             doc.shouldWithClue("Document '${doc.name}' should be stored in local file system") {
                 storageId.shouldBe("local-fs")
+                storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
             }
         }
 
