@@ -149,17 +149,17 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             expectedAuthToken = accessToken,
         )
 
-        val testFile1 = createTestFile("delivery-log.pdf", file1Content)
-        val testFile2 = createTestFile("fuel-invoice.jpg", file2Content)
+        val testFile1 = createNamedTestFile("delivery-log.pdf", file1Content)
+        val testFile2 = createNamedTestFile("fuel-invoice.jpg", file2Content)
 
         GoogleDriveApiMocks.mockUploadFileForFileName(
-            fileName = expectedStorageFileName(testFile1.name),
+            fileName = "delivery-log_${MOCK_EPOCH_MILLIS}.pdf",
             responseId = "gdrive-file-id-1",
             responseSize = file1Content.size.toLong(),
             expectedAuthToken = accessToken,
         )
         GoogleDriveApiMocks.mockUploadFileForFileName(
-            fileName = expectedStorageFileName(testFile2.name),
+            fileName = "fuel-invoice_${MOCK_EPOCH_MILLIS}.jpg",
             responseId = "gdrive-file-id-2",
             responseSize = file2Content.size.toLong(),
             expectedAuthToken = accessToken,
@@ -460,14 +460,5 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
 
     private fun createNamedTestFile(fileName: String, content: ByteArray): Path {
         return tempDir.resolve(fileName).also { it.writeBytes(content) }
-    }
-
-    private fun expectedStorageFileName(originalFileName: String): String {
-        val dotIndex = originalFileName.lastIndexOf('.')
-        return if (dotIndex > 0 && dotIndex < originalFileName.length - 1) {
-            "${originalFileName.substring(0, dotIndex)}_${MOCK_EPOCH_MILLIS}${originalFileName.substring(dotIndex)}"
-        } else {
-            "${originalFileName}_${MOCK_EPOCH_MILLIS}"
-        }
     }
 }
