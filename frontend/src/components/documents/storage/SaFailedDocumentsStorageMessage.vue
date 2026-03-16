@@ -27,10 +27,6 @@
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
 
-  defineProps<{
-    reason: 'storage-not-configured' | 'unsupported-documents'
-  }>();
-
   const { navigateByViewName } = useNavigation();
 
   const navigateToProfileSettings = () => {
