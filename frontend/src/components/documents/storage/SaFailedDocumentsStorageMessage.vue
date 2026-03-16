@@ -2,26 +2,19 @@
   <ElAlert
     type="error"
     :closable="false"
+    class="sa-failed-documents-storage-message"
   >
     <template #title>
       <SaIcon icon="error" />
-      {{ reason === 'unsupported-documents'
-        ? $t.saFailedDocumentsStorageMessage.unsupportedDocuments.title()
-        : $t.saFailedDocumentsStorageMessage.storageNotConfigured.title() }}
+      {{ $t.saFailedDocumentsStorageMessage.title() }}
     </template>
     <template #default>
-      <template v-if="reason === 'unsupported-documents'">
-        {{ $t.saFailedDocumentsStorageMessage.unsupportedDocuments.message() }}
-      </template>
-      <SaI18n
-        v-else
-        :message="$t.saFailedDocumentsStorageMessage.storageNotConfigured.message()"
-      >
+      <SaI18n :message="$t.saFailedDocumentsStorageMessage.message()">
         <ElButton
           link
           @click="navigateToProfileSettings"
         >
-          {{ $t.saFailedDocumentsStorageMessage.storageNotConfigured.profileLink() }}
+          {{ $t.saFailedDocumentsStorageMessage.profileLink() }}
         </ElButton>
       </SaI18n>
     </template>
@@ -34,13 +27,20 @@
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
 
-  defineProps<{
-    reason: 'storage-not-configured' | 'unsupported-documents'
-  }>();
-
   const { navigateByViewName } = useNavigation();
 
   const navigateToProfileSettings = () => {
     navigateByViewName('my-profile');
   };
 </script>
+
+<style lang="scss">
+  .sa-failed-documents-storage-message {
+    .el-alert__description .el-button.is-link {
+      vertical-align: middle;
+      padding: 0;
+      height: auto;
+      font-size: inherit;
+    }
+  }
+</style>

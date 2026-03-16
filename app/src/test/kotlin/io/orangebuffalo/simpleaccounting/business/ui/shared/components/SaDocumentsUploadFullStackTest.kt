@@ -48,7 +48,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Documents storage is not active")
+                shouldHaveStorageErrorMessage("Configuration is missing to process documents")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.storage-not-configured")
             }
         }
@@ -70,7 +70,7 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Documents storage is not active")
+                shouldHaveStorageErrorMessage("Configuration is missing to process documents")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.storage-not-ready")
             }
         }
@@ -393,7 +393,8 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+                shouldHaveStorageErrorMessage("Configuration is missing to process documents")
+                shouldHaveStorageErrorMessage("profile settings")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.unsupported-existing-storage")
             }
         }
@@ -431,7 +432,8 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage("Some uploaded documents cannot be processed")
+                shouldHaveStorageErrorMessage("Configuration is missing to process documents")
+                shouldHaveStorageErrorMessage("profile settings")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.mixed-unsupported-storage")
             }
         }

@@ -16,7 +16,6 @@
 
     <SaFailedDocumentsStorageMessage
       v-else-if="hasUnsupportedStorages"
-      reason="unsupported-documents"
     />
 
     <template v-else>

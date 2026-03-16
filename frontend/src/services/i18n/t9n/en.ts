@@ -852,15 +852,9 @@ export default {
   },
 
   saFailedDocumentsStorageMessage: {
-    storageNotConfigured: {
-      title: () => 'Documents storage is not active',
-      message: () => 'Please navigate to your {default} and complete the configuration.',
-      profileLink: () => 'profile settings',
-    },
-    unsupportedDocuments: {
-      title: () => 'Some uploaded documents cannot be processed',
-      message: () => 'Please contact your administrator for assistance.',
-    },
+    title: () => 'Configuration is missing to process documents',
+    message: () => 'Please navigate to your {default} to complete the setup.',
+    profileLink: () => 'profile settings',
   },
 
   errorHandler: {
