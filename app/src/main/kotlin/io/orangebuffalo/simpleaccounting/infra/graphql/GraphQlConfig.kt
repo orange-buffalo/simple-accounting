@@ -6,7 +6,6 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
-import com.expediagroup.graphql.generator.federation.directives.ContactDirective
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
@@ -27,11 +26,6 @@ import org.springframework.stereotype.Component
 import java.util.*
 import kotlin.reflect.full.createType
 
-@ContactDirective(
-    name = "Simple Accounting",
-    url = "https://github.com/orange-buffalo/simple-accounting/issues",
-    description = "For any questions, issues or feature requests, please open an issue or discussion on GitHub."
-)
 @GraphQLDescription("GraphQL schema for Simple Accounting application")
 @Component
 class SaGraphQlSchema : Schema
