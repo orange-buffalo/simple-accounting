@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2FailedEvent
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2SucceededEvent
@@ -29,7 +30,8 @@ class GoogleDriveDocumentsStorage(
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService,
     private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
-    private val googleDriveApi: GoogleDriveApiAdapter
+    private val googleDriveApi: GoogleDriveApiAdapter,
+    private val timeService: TimeService
 ) : DocumentsStorage {
 
     private val workspaceFolderMutex = Mutex()
@@ -42,7 +44,7 @@ class GoogleDriveDocumentsStorage(
 
         val newFile = googleDriveApi.uploadFile(
             content = request.content,
-            fileName = request.fileName,
+            fileName = buildStorageFileName(request.fileName),
             parentFolderId = workspaceFolder
         )
 
@@ -50,6 +52,16 @@ class GoogleDriveDocumentsStorage(
             storageLocation = newFile.id,
             sizeInBytes = newFile.sizeInBytes
         )
+    }
+
+    private fun buildStorageFileName(originalFileName: String): String {
+        val epochMillis = timeService.currentTime().toEpochMilli()
+        val dotIndex = originalFileName.lastIndexOf('.')
+        return if (dotIndex > 0 && dotIndex < originalFileName.length - 1) {
+            "${originalFileName.substring(0, dotIndex)}_$epochMillis${originalFileName.substring(dotIndex)}"
+        } else {
+            "${originalFileName}_$epochMillis"
+        }
     }
 
     private suspend fun getOrCreateWorkspaceFolder(
