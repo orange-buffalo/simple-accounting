@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.ui.shared.components
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
@@ -191,6 +192,38 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
                 downloadedContent.shouldBe(documentContent)
             }
         }
+    }
+
+    @Test
+    fun `should store uploaded document in year-month subfolder`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "local-fs")
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
+            }
+        }
+
+        val testFile = createTestFile("robot-oil-receipt.pdf", "Robot oil receipt".toByteArray())
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                selectFileForUpload(testFile)
+            }
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        val documentId = savedExpense.attachments.first().documentId
+        val savedDocument = aggregateTemplate.findSingle<Document>(documentId)
+        savedDocument.storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
+        val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
+        storedFile.readBytes().shouldBe("Robot oil receipt".toByteArray())
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
