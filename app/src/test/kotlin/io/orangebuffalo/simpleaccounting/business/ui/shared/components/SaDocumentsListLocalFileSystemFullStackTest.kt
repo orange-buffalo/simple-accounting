@@ -49,7 +49,8 @@ class SaDocumentsListLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             storageId = "local-fs",
                             storageLocation = "${workspace.id}/fuel-receipt.pdf",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     ),
                     title = "Spaceship fuel delivery"
@@ -148,7 +149,8 @@ class SaDocumentsListLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             storageId = "local-fs",
                             storageLocation = "${workspace.id}/delivery-contract.pdf",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     ),
                     title = "Omicron Persei 8 delivery"

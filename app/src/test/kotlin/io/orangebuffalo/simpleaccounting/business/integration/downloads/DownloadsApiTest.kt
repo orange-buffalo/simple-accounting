@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ContentDisposition
+import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
@@ -56,8 +57,7 @@ class DownloadsApiTest(
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"file.pdf\""))
             .expectHeader().contentLength(77)
-            // todo: #108
-            //.expectHeader().contentType(MediaType.APPLICATION_PDF)
+            .expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
                 exchange.responseBody.shouldNotBeNull().also { body ->
@@ -72,7 +72,8 @@ class DownloadsApiTest(
             onBlocking { getContentByToken("42") } doReturn DownloadContentResponse(
                 fileName = "file.pdf",
                 content = "test-content".toDataBuffers(),
-                sizeInBytes = 77
+                sizeInBytes = 77,
+                contentType = "application/pdf"
             )
         }
     }

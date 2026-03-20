@@ -156,7 +156,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         timeUploaded: Instant = MOCK_TIME,
         storageId: String = TestDocumentsStorage.STORAGE_ID,
         storageLocation: String? = "test-location",
-        sizeInBytes: Long? = null
+        sizeInBytes: Long? = null,
+        mimeType: String = "application/octet-stream"
     ): Document {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return Document(
@@ -165,7 +166,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             storageId = storageId,
             storageLocation = storageLocation,
             timeUploaded = timeUploaded,
-            sizeInBytes = sizeInBytes
+            sizeInBytes = sizeInBytes,
+            mimeType = mimeType
         ).save()
     }
 
