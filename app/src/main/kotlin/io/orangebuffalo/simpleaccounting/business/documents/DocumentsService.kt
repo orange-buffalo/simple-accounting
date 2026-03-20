@@ -43,7 +43,7 @@ class DocumentsService(
                     storageId = documentStorage.getId(),
                     storageLocation = response.storageLocation,
                     sizeInBytes = response.sizeInBytes,
-                    mimeType = getMimeTypeByFileName(request.fileName)
+                    mimeType = request.contentType ?: DEFAULT_MIME_TYPE
                 )
             )
         }

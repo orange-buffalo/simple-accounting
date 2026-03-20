@@ -24,7 +24,7 @@ private val mimeTypesByExtension = mapOf(
     "htm" to "text/html",
 )
 
-private const val DEFAULT_MIME_TYPE = "application/octet-stream"
+const val DEFAULT_MIME_TYPE = "application/octet-stream"
 
 fun getMimeTypeByFileName(fileName: String): String {
     val extension = fileName.substringAfterLast('.', "").lowercase()

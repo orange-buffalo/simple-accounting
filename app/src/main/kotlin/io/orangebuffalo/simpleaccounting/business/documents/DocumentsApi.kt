@@ -39,7 +39,8 @@ class DocumentsApi(
                 SaveDocumentRequest(
                     fileName = filePart.filename(),
                     workspace = workspace,
-                    content = filePart.content()
+                    content = filePart.content(),
+                    contentType = filePart.headers().contentType?.toString()
                 )
             )
             .let(::mapDocumentDto)
