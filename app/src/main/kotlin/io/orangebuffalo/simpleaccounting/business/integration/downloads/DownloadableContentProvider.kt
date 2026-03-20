@@ -39,6 +39,6 @@ data class DownloadContentResponse(
      */
     val content: Flow<DataBuffer>,
 
-    val contentType: String? = null
+    val contentType: String
 )
 

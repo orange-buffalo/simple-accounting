@@ -22,7 +22,7 @@ class DownloadsApi(
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${contentResponse.fileName}\"")
             .contentLength(contentResponse.sizeInBytes ?: -1)
-            .apply { contentResponse.contentType?.let { contentType(MediaType.parseMediaType(it)) } }
+            .contentType(MediaType.parseMediaType(contentResponse.contentType))
             .body(contentResponse.content)
     }
 }

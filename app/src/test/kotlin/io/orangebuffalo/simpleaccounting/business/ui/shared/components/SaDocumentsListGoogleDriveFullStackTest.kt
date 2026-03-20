@@ -44,7 +44,8 @@ class SaDocumentsListGoogleDriveFullStackTest : SaFullStackTestBase() {
                             storageId = "google-drive",
                             storageLocation = "gdrive-file-id-1",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     ),
                     title = "Spaceship fuel delivery"
@@ -167,7 +168,8 @@ class SaDocumentsListGoogleDriveFullStackTest : SaFullStackTestBase() {
                             storageId = "google-drive",
                             storageLocation = "gdrive-existing-file-id",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     ),
                     title = "Omicron Persei 8 delivery"
