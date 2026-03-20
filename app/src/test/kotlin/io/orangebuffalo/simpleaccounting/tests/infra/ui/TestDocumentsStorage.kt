@@ -14,10 +14,11 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Component
 import java.io.ByteArrayOutputStream
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class TestDocumentsStorage : DocumentsStorage {
-    private val uploadedDocuments = mutableMapOf<String, ByteArray>()
+    private val uploadedDocuments: MutableMap<String, ByteArray> = ConcurrentHashMap()
     private var storageStatus = DocumentsStorageStatus(active = true)
 
     override fun getId(): String = STORAGE_ID
