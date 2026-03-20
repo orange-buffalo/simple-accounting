@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.integration.downloads
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,9 +19,10 @@ class DownloadsApi(
     @GetMapping(params = ["token"])
     suspend fun getContent(@RequestParam token: String): ResponseEntity<Flow<DataBuffer>> {
         val contentResponse = downloadsService.getContentByToken(token)
-        return ResponseEntity.ok()
+        val responseBuilder = ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${contentResponse.fileName}\"")
             .contentLength(contentResponse.sizeInBytes ?: -1)
-            .body(contentResponse.content)
+        contentResponse.contentType?.let { responseBuilder.contentType(MediaType.parseMediaType(it)) }
+        return responseBuilder.body(contentResponse.content)
     }
 }

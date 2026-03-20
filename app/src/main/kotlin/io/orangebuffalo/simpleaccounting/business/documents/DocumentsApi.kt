@@ -65,6 +65,7 @@ class DocumentsApi(
             .let { fileContent ->
                 ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
+                    .contentType(MediaType.parseMediaType(document.mimeType))
                     .contentLength(document.sizeInBytes ?: -1)
                     .body(fileContent)
             }
@@ -101,6 +102,7 @@ data class DocumentDto(
     var timeUploaded: Instant,
     var sizeInBytes: Long?,
     var storageId: String,
+    var mimeType: String,
 )
 
 private fun mapDocumentDto(source: Document) =
@@ -111,6 +113,7 @@ private fun mapDocumentDto(source: Document) =
         version = source.version!!,
         sizeInBytes = source.sizeInBytes,
         storageId = source.storageId,
+        mimeType = source.mimeType,
     )
 
 data class GetDownloadTokenResponse(val token: String)

@@ -74,6 +74,7 @@ class DocumentsApiTest(
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", JsonNull)
                         put("storageId", "test-storage")
+                        put("mimeType", "application/octet-stream")
                     }
                     addJsonObject {
                         put("name", "100_cups.pdf")
@@ -82,6 +83,7 @@ class DocumentsApiTest(
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", 42)
                         put("storageId", "mocked-storage")
+                        put("mimeType", "application/pdf")
                     }
                 }
             }
@@ -128,8 +130,7 @@ class DocumentsApiTest(
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"100_cups.pdf\""))
             .expectHeader().contentLength(42)
-            // todo: #108
-            //.expectHeader().contentType(MediaType.APPLICATION_PDF)
+            .expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
                 exchange.responseBody.shouldNotBeNull().also { body ->
@@ -196,6 +197,7 @@ class DocumentsApiTest(
                 put("timeUploaded", MOCK_TIME_VALUE)
                 put("sizeInBytes", 42)
                 put("storageId", "mocked-storage")
+                put("mimeType", "text/plain")
             }
     }
 
@@ -231,6 +233,7 @@ class DocumentsApiTest(
                         put("timeUploaded", MOCK_TIME_VALUE)
                         put("sizeInBytes", JsonNull)
                         put("storageId", "test-storage")
+                        put("mimeType", "application/octet-stream")
                     }
                 }
             }
@@ -292,7 +295,8 @@ class DocumentsApiTest(
                 storageId = "mocked-storage",
                 storageLocation = "test-location",
                 timeUploaded = MOCK_TIME,
-                sizeInBytes = 42
+                sizeInBytes = 42,
+                mimeType = "application/pdf"
             )
             val cheesePizzaAndALargeSodaReceipt = document(
                 name = "unknown",

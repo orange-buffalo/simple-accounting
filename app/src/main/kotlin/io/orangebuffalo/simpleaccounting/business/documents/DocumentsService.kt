@@ -42,7 +42,8 @@ class DocumentsService(
                     workspaceId = request.workspace.id!!,
                     storageId = documentStorage.getId(),
                     storageLocation = response.storageLocation,
-                    sizeInBytes = response.sizeInBytes
+                    sizeInBytes = response.sizeInBytes,
+                    mimeType = getMimeTypeByFileName(request.fileName)
                 )
             )
         }
@@ -132,8 +133,7 @@ class DocumentsService(
             content = getDocumentContent(document),
             fileName = document.name,
             sizeInBytes = document.sizeInBytes,
-            // todo #108
-            contentType = null
+            contentType = document.mimeType
         )
     }
 }

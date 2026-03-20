@@ -11,5 +11,6 @@ class Document(
     val timeUploaded: Instant,
     var storageId: String,
     var storageLocation: String?,
-    val sizeInBytes: Long?
+    val sizeInBytes: Long?,
+    val mimeType: String
 ) : AbstractEntity()
