@@ -19,10 +19,10 @@ class DownloadsApi(
     @GetMapping(params = ["token"])
     suspend fun getContent(@RequestParam token: String): ResponseEntity<Flow<DataBuffer>> {
         val contentResponse = downloadsService.getContentByToken(token)
-        val responseBuilder = ResponseEntity.ok()
+        return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${contentResponse.fileName}\"")
             .contentLength(contentResponse.sizeInBytes ?: -1)
-        contentResponse.contentType?.let { responseBuilder.contentType(MediaType.parseMediaType(it)) }
-        return responseBuilder.body(contentResponse.content)
+            .apply { contentResponse.contentType?.let { contentType(MediaType.parseMediaType(it)) } }
+            .body(contentResponse.content)
     }
 }
