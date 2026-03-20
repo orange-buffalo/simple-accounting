@@ -2239,8 +2239,11 @@ components:
           format: int64
         storageId:
           type: string
+        mimeType:
+          type: string
       required:
       - id
+      - mimeType
       - name
       - storageId
       - timeUploaded

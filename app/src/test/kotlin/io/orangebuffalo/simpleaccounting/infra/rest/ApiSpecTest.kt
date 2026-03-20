@@ -34,6 +34,7 @@ private val logger = KotlinLogging.logger {}
 
 @TestPropertySource(
     properties = [
+        "springdoc.api-docs.enabled=true",
         "springdoc.api-docs.path=/api-docs",
         "springdoc.default-produces-media-type=application/json",
         "springdoc.remove-broken-reference-definitions=false",

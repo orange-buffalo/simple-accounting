@@ -23,7 +23,8 @@ data class SaveDocumentResponse(val storageLocation: String, val sizeInBytes: Lo
 data class SaveDocumentRequest(
     val fileName: String,
     val content: Flux<DataBuffer>,
-    val workspace: Workspace
+    val workspace: Workspace,
+    val contentType: String? = null
 )
 
 open class DocumentStorageException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause)
