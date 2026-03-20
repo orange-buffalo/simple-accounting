@@ -108,6 +108,7 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             sizeInBytes.shouldBe(fileContent.size.toLong())
             storageId.shouldBe("google-drive")
             storageLocation.shouldBe("gdrive-uploaded-file-id")
+            mimeType.shouldBe("application/pdf")
         }
 
         GoogleDriveApiMocks.verifyUploadFileRequest()
@@ -202,13 +203,15 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         }
 
         val doc1 = documents.find { it.storageLocation == "gdrive-file-id-1" }!!
-        doc1.shouldWithClue("First uploaded document should have correct size") {
+        doc1.shouldWithClue("First uploaded document should have correct size and content type") {
             sizeInBytes.shouldBe(file1Content.size.toLong())
+            mimeType.shouldBe("application/pdf")
         }
 
         val doc2 = documents.find { it.storageLocation == "gdrive-file-id-2" }!!
-        doc2.shouldWithClue("Second uploaded document should have correct size") {
+        doc2.shouldWithClue("Second uploaded document should have correct size and content type") {
             sizeInBytes.shouldBe(file2Content.size.toLong())
+            mimeType.shouldBe("image/jpeg")
         }
     }
 
@@ -236,7 +239,8 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
                             storageId = "google-drive",
                             storageLocation = "gdrive-existing-file-id",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     )
                 )
@@ -345,6 +349,7 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             name.shouldBe(testFile.name)
             storageId.shouldBe("google-drive")
             storageLocation.shouldBe("gdrive-uploaded-file-id")
+            mimeType.shouldBe("application/pdf")
         }
 
         GoogleDriveApiMocks.verifyCreateFolderRequest(
@@ -441,14 +446,17 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
         documentsByLocation["gdrive-id-with-ext"]!!.shouldWithClue("File with extension: original name preserved") {
             name.shouldBe("slurm-can.pdf")
             storageId.shouldBe("google-drive")
+            mimeType.shouldBe("application/pdf")
         }
         documentsByLocation["gdrive-id-without-ext"]!!.shouldWithClue("File without extension: original name preserved") {
             name.shouldBe("dark-matter-invoice")
             storageId.shouldBe("google-drive")
+            mimeType.shouldBe("application/octet-stream")
         }
         documentsByLocation["gdrive-id-leading-dot"]!!.shouldWithClue("File with leading dot: original name preserved") {
             name.shouldBe(".bender-config")
             storageId.shouldBe("google-drive")
+            mimeType.shouldBe("application/octet-stream")
         }
     }
 

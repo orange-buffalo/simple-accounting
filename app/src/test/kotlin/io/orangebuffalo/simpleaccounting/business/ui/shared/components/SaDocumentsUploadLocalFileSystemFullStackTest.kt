@@ -84,6 +84,7 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
             name.shouldBe(testFile.name)
             sizeInBytes.shouldBe(fileContent.size.toLong())
             storageId.shouldBe("local-fs")
+            mimeType.shouldBe("application/pdf")
         }
 
         val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
@@ -140,13 +141,15 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
         }
 
         val doc1 = documents.find { it.name == testFile1.name }!!
-        doc1.shouldWithClue("First uploaded document should have correct content") {
+        doc1.shouldWithClue("First uploaded document should have correct content and content type") {
             tempDir.resolve(storageLocation!!).readBytes().shouldBe(file1Content)
+            mimeType.shouldBe("application/pdf")
         }
 
         val doc2 = documents.find { it.name == testFile2.name }!!
-        doc2.shouldWithClue("Second uploaded document should have correct content") {
+        doc2.shouldWithClue("Second uploaded document should have correct content and content type") {
             tempDir.resolve(storageLocation!!).readBytes().shouldBe(file2Content)
+            mimeType.shouldBe("image/jpeg")
         }
     }
 
@@ -167,7 +170,8 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             storageId = "local-fs",
                             storageLocation = "${workspace.id}/existing-file.pdf",
                             sizeInBytes = documentContent.size.toLong(),
-                            timeUploaded = MOCK_TIME
+                            timeUploaded = MOCK_TIME,
+                            mimeType = "application/pdf"
                         )
                     )
                 )
@@ -222,6 +226,7 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
         val documentId = savedExpense.attachments.first().documentId
         val savedDocument = aggregateTemplate.findSingle<Document>(documentId)
         savedDocument.storageLocation!!.shouldStartWith("${preconditions.workspace.id}/1999-03/")
+        savedDocument.mimeType.shouldBe("application/pdf")
         val storedFile = tempDir.resolve(savedDocument.storageLocation!!)
         storedFile.readBytes().shouldBe("Robot oil receipt".toByteArray())
     }

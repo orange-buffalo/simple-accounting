@@ -51,7 +51,7 @@ class DocumentsServiceTest(
         contentResponse.fileName.shouldBe("document.pdf")
         contentResponse.sizeInBytes.shouldBe(42)
         contentResponse.content.consumeToString().shouldBe("test-content")
-        // todo #108: verify content type
+        contentResponse.contentType.shouldBe("application/pdf")
     }
 
     @TestConfiguration
@@ -80,7 +80,8 @@ class DocumentsServiceTest(
                 workspace = fryWorkspace,
                 storageId = "mock-storage",
                 timeUploaded = MOCK_TIME,
-                sizeInBytes = 42
+                sizeInBytes = 42,
+                mimeType = "application/pdf"
             )
         }
     }
