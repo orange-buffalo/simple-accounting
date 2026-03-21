@@ -18,9 +18,11 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.stereotype.Component
+import org.springframework.validation.annotation.Validated
 import java.util.concurrent.CompletableFuture
 
 @Component
+@Validated
 class WorkspacesQuery(
     private val workspacesService: WorkspacesService,
 ) : Query {
