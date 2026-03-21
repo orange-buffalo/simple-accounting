@@ -27,7 +27,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutation(
     @BusinessError(
         exceptionClass = InvalidWorkspaceAccessTokenException::class,
         errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
-        errorCodeDescription = "The provided workspace access token is not valid (unknown, expired, or revoked).",
+        description = "The provided workspace access token is not valid (unknown, expired, or revoked).",
     )
     suspend fun createAccessTokenByWorkspaceAccessToken(
         @GraphQLDescription("The shared workspace access token.")
