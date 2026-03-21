@@ -39,24 +39,24 @@ class CreateAccessTokenByCredentialsMutation(
     @BusinessError(
         exceptionClass = BadCredentialsException::class,
         errorCode = "BAD_CREDENTIALS",
-        description = "The provided credentials are invalid.",
+        errorCodeDescription = "The provided credentials are invalid.",
     )
     @BusinessError(
         exceptionClass = UserNotActivatedException::class,
         errorCode = "USER_NOT_ACTIVATED",
-        description = "The user account has not been activated yet.",
+        errorCodeDescription = "The user account has not been activated yet.",
     )
     @BusinessError(
         exceptionClass = AccountIsTemporaryLockedException::class,
         errorCode = "ACCOUNT_LOCKED",
-        description = "The account is temporarily locked due to too many failed login attempts. " +
+        errorCodeDescription = "The account is temporarily locked due to too many failed login attempts. " +
                 "The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.",
         extensionsType = AccountLockedErrorExtensions::class,
     )
     @BusinessError(
         exceptionClass = LoginUnavailableException::class,
         errorCode = "LOGIN_NOT_AVAILABLE",
-        description = "Login is temporarily unavailable due to too many concurrent authentication requests for this user.",
+        errorCodeDescription = "Login is temporarily unavailable due to too many concurrent authentication requests for this user.",
     )
     suspend fun createAccessTokenByCredentials(
         @GraphQLDescription("The username of the user.")

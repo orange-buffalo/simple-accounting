@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.api.errors
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import graphql.introspection.Introspection
-import org.springframework.core.annotation.AliasFor
 import kotlin.reflect.KClass
 
 /**
@@ -44,12 +43,8 @@ annotation class BusinessError(
     val errorCode: String,
     /**
      * Description of the error code for the GraphQL schema documentation.
-     * The @AliasFor declaration is required to avoid Spring's deprecated convention-based annotation
-     * attribute override warning (same attribute name as the @GraphQLDirective meta-annotation).
-     * Spring processes this as an explicit override; graphql-kotlin still reads it as a directive argument.
      */
-    @get:AliasFor(annotation = GraphQLDirective::class, attribute = "description")
-    val description: String = "",
+    val errorCodeDescription: String = "",
     /**
      * Optional type for additional error extensions that will be included in the GraphQL error response.
      * When specified, the type will be registered as an additional type in the GraphQL schema
