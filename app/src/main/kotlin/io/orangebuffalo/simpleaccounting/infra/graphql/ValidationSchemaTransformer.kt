@@ -9,6 +9,8 @@ import graphql.schema.*
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import jakarta.validation.ConstraintViolation
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -88,6 +90,68 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
             listOf(
                 ValidationErrorParam("min", attributes["min"]?.toString() ?: "0"),
                 ValidationErrorParam("max", attributes["max"]?.toString() ?: "2147483647")
+            )
+        }
+    ),
+    ValidationDirectiveMapping(
+        annotationClass = Max::class,
+        directiveName = "max",
+        directiveDescription = "Validates that the value is at most the specified maximum",
+        directiveArgumentsBuilder = { builder ->
+            builder.argument(
+                GraphQLArgument.newArgument()
+                    .name("value")
+                    .type(GraphQLNonNull(Scalars.GraphQLInt))
+                    .description("Maximum value")
+                    .build()
+            )
+        },
+        appliedDirectiveArgumentsBuilder = { builder, annotation ->
+            val max = annotation as Max
+            builder.argument(
+                GraphQLAppliedDirectiveArgument.newArgument()
+                    .name("value")
+                    .valueLiteral(IntValue.newIntValue(max.value.toBigInteger()).build())
+                    .type(Scalars.GraphQLInt)
+                    .build()
+            )
+        },
+        errorCode = ValidationErrorCode.MaxConstraintViolated,
+        paramsExtractor = { violation ->
+            val attributes = violation.constraintDescriptor.attributes
+            listOf(
+                ValidationErrorParam("value", attributes["value"]?.toString() ?: "")
+            )
+        }
+    ),
+    ValidationDirectiveMapping(
+        annotationClass = Min::class,
+        directiveName = "min",
+        directiveDescription = "Validates that the value is at least the specified minimum",
+        directiveArgumentsBuilder = { builder ->
+            builder.argument(
+                GraphQLArgument.newArgument()
+                    .name("value")
+                    .type(GraphQLNonNull(Scalars.GraphQLInt))
+                    .description("Minimum value")
+                    .build()
+            )
+        },
+        appliedDirectiveArgumentsBuilder = { builder, annotation ->
+            val min = annotation as Min
+            builder.argument(
+                GraphQLAppliedDirectiveArgument.newArgument()
+                    .name("value")
+                    .valueLiteral(IntValue.newIntValue(min.value.toBigInteger()).build())
+                    .type(Scalars.GraphQLInt)
+                    .build()
+            )
+        },
+        errorCode = ValidationErrorCode.MinConstraintViolated,
+        paramsExtractor = { violation ->
+            val attributes = violation.constraintDescriptor.attributes
+            listOf(
+                ValidationErrorParam("value", attributes["value"]?.toString() ?: "")
             )
         }
     )

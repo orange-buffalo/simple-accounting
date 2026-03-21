@@ -11,6 +11,12 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.buildConnection
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeCursor
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -19,16 +25,19 @@ class WorkspacesQuery(
     private val workspacesService: WorkspacesService,
 ) : Query {
     @Suppress("unused")
-    @GraphQLDescription("Returns all workspaces accessible by the current user.")
+    @GraphQLDescription("Returns all workspaces accessible by the current user with cursor-based pagination.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun workspaces(): List<WorkspaceGqlDto> {
+    suspend fun workspaces(
+        @GraphQLDescription("The maximum number of items to return.") @Min(1) @Max(500) first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+    ): WorkspacesConnectionGqlDto {
         val principal = ensureRegularUserPrincipal()
-        return workspacesService.getUserWorkspaces(principal.userName).map { workspace ->
-            WorkspaceGqlDto(
-                id = workspace.id!!,
-                name = workspace.name,
-            )
-        }
+        val cursorPage = decodeCursor(after)
+        return workspacesService.getUserWorkspacesPaginated(
+            userName = principal.userName,
+            first = first,
+            cursorPage = cursorPage,
+        )
     }
 
     @Suppress("unused")
@@ -44,6 +53,27 @@ class WorkspacesQuery(
         )
     }
 }
+
+@GraphQLDescription("A paginated connection of workspaces following the GraphQL Cursor Connections Specification.")
+data class WorkspacesConnectionGqlDto(
+    @GraphQLDescription("The list of edges in the current page.")
+    val edges: List<WorkspaceEdgeGqlDto>,
+
+    @GraphQLDescription("Pagination information about the current page.")
+    val pageInfo: PageInfoGqlDto,
+
+    @GraphQLDescription("The total number of items in the connection across all pages.")
+    val totalCount: Int,
+)
+
+@GraphQLDescription("An edge in a workspaces connection.")
+data class WorkspaceEdgeGqlDto(
+    @GraphQLDescription("The cursor of this edge, which can be used for pagination.")
+    val cursor: String,
+
+    @GraphQLDescription("The workspace at the end of this edge.")
+    val node: WorkspaceGqlDto,
+)
 
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
