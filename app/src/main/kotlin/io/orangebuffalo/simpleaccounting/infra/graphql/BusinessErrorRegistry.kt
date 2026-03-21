@@ -38,7 +38,7 @@ class BusinessErrorRegistry(
                         BusinessErrorMapping(
                             exceptionClass = annotation.exceptionClass,
                             errorCode = annotation.errorCode,
-                            description = annotation.description,
+                            description = annotation.errorCodeDescription,
                             extensionsType = annotation.extensionsType.takeIf { it != Unit::class },
                         )
                     }

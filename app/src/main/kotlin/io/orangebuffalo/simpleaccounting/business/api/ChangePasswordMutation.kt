@@ -22,7 +22,7 @@ class ChangePasswordMutation(
     @BusinessError(
         exceptionClass = PasswordChangeException.InvalidCurrentPasswordException::class,
         errorCode = "CURRENT_PASSWORD_MISMATCH",
-        description = "The provided current password does not match the user's actual password.",
+        errorCodeDescription = "The provided current password does not match the user's actual password.",
     )
     suspend fun changePassword(
         @GraphQLDescription("The current password of the user.")

@@ -44,7 +44,7 @@ annotation class BusinessError(
     /**
      * Description of the error code for the GraphQL schema documentation.
      */
-    val description: String = "",
+    val errorCodeDescription: String = "",
     /**
      * Optional type for additional error extensions that will be included in the GraphQL error response.
      * When specified, the type will be registered as an additional type in the GraphQL schema
