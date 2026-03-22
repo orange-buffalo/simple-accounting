@@ -26,22 +26,22 @@ class UserProfileQuery(
 
     @GraphQLDescription("Information about the user profile.")
     data class UserProfile(
-        @param:GraphQLDescription("The user name / login of the user.")
+        @GraphQLDescription("The user name / login of the user.")
         val userName: String,
-        @param:GraphQLDescription("The identifier of the documents storage used by the user.")
+        @GraphQLDescription("The identifier of the documents storage used by the user.")
         val documentsStorage: String?,
-        @param:GraphQLDescription("Internationalization settings of the user.")
+        @GraphQLDescription("Internationalization settings of the user.")
         val i18n: I18nSettings
     )
 
     @GraphQLDescription("Internationalization settings of the user profile.")
     data class I18nSettings(
-        @param:GraphQLDescription(
+        @GraphQLDescription(
             "The locale of the user profile, e.g. 'en-US'. " +
                     "Used for formatting dates, numbers, etc."
         )
         @field:Size(max = 36) val locale: String,
-        @param:GraphQLDescription("The language of the user profile, e.g. 'en'. Used for translations.")
+        @GraphQLDescription("The language of the user profile, e.g. 'en'. Used for translations.")
         @field:Size(max = 36) val language: String
     )
 

@@ -45,7 +45,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutation(
 
     @GraphQLDescription("Response for the createAccessTokenByWorkspaceAccessToken mutation.")
     data class CreateAccessTokenByWorkspaceAccessTokenResponse(
-        @param:GraphQLDescription("The JWT access token for the authenticated user.")
+        @GraphQLDescription("The JWT access token for the authenticated user.")
         val accessToken: String,
     )
 }

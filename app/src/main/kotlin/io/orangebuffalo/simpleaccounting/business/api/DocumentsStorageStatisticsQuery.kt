@@ -23,9 +23,9 @@ class DocumentsStorageStatisticsQuery(
 
     @GraphQLDescription("Statistics about document storage usage.")
     data class DocumentsStorageStatisticsItem(
-        @param:GraphQLDescription("The identifier of the document storage.")
+        @GraphQLDescription("The identifier of the document storage.")
         val storageId: String,
-        @param:GraphQLDescription("The total number of documents stored in this storage across all workspaces of the current user.")
+        @GraphQLDescription("The total number of documents stored in this storage across all workspaces of the current user.")
         val documentsCount: Int,
     )
 }

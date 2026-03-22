@@ -26,7 +26,7 @@ class DownloadDocumentStoragesQuery(
 
     @GraphQLDescription("A document storage available for downloading documents.")
     data class DownloadDocumentStorageResponse(
-        @param:GraphQLDescription("The identifier of the document storage.")
+        @GraphQLDescription("The identifier of the document storage.")
         val id: String,
     )
 }
