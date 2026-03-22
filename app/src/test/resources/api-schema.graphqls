@@ -76,7 +76,7 @@ type AccountLockedErrorExtensions {
 }
 
 "Category of incomes or expenses."
-type CategoryGqlDto {
+type Category {
   "Name of the category."
   name: String!
 }
@@ -127,9 +127,9 @@ type DownloadDocumentStorageResponse {
 }
 
 "Business expense."
-type ExpenseGqlDto {
+type Expense {
   "Category of the expense."
-  category: CategoryGqlDto
+  category: Category
   "Title of the expense."
   title: String!
 }
@@ -201,7 +201,7 @@ type Mutation {
 }
 
 "Pagination information following the GraphQL Cursor Connections Specification."
-type PageInfoGqlDto {
+type PageInfo {
   "Cursor of the last edge in the page."
   endCursor: String
   "Whether there are more items when paginating forwards."
@@ -229,14 +229,14 @@ type Query {
   workspace(
     "ID of the workspace."
     id: Int!
-  ): WorkspaceGqlDto! @auth(type : AUTHENTICATED_ACTOR)
+  ): Workspace! @auth(type : AUTHENTICATED_ACTOR)
   "Returns all workspaces accessible by the current user with cursor-based pagination."
   workspaces(
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
     first: Int! @max(value : 500) @min(value : 1)
-  ): WorkspacesConnectionGqlDto! @auth(type : REGULAR_USER)
+  ): WorkspacesConnection! @auth(type : REGULAR_USER)
 }
 
 "Response for refreshing access token."
@@ -281,30 +281,30 @@ type ValidationErrorParam {
   value: String!
 }
 
-"An edge in a workspaces connection."
-type WorkspaceEdgeGqlDto {
-  "The cursor of this edge, which can be used for pagination."
-  cursor: String!
-  "The workspace at the end of this edge."
-  node: WorkspaceGqlDto!
-}
-
 "Workspace of a user."
-type WorkspaceGqlDto {
+type Workspace {
   "Categories in this workspace."
-  categories: [CategoryGqlDto!]!
+  categories: [Category!]!
   "Expenses in this workspace."
-  expenses: [ExpenseGqlDto!]!
+  expenses: [Expense!]!
   "Name of the workspace."
   name: String!
 }
 
+"An edge in a workspaces connection."
+type WorkspaceEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The workspace at the end of this edge."
+  node: Workspace!
+}
+
 "A paginated connection of workspaces following the GraphQL Cursor Connections Specification."
-type WorkspacesConnectionGqlDto {
+type WorkspacesConnection {
   "The list of edges in the current page."
-  edges: [WorkspaceEdgeGqlDto!]!
+  edges: [WorkspaceEdge!]!
   "Pagination information about the current page."
-  pageInfo: PageInfoGqlDto!
+  pageInfo: PageInfo!
   "The total number of items in the connection across all pages."
   totalCount: Int!
 }
