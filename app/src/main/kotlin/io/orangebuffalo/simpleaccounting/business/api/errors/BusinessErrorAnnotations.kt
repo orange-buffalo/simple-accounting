@@ -39,7 +39,7 @@ annotation class BusinessError(
      * This will be included in the schema directive, in a dynamically generated enum type,
      * and in the error extensions at runtime.
      */
-    @param:GraphQLDescription("The error code that will be returned in the GraphQL error response.")
+    @GraphQLDescription("The error code that will be returned in the GraphQL error response.")
     val errorCode: String,
     /**
      * Description of the error code for the GraphQL schema documentation.

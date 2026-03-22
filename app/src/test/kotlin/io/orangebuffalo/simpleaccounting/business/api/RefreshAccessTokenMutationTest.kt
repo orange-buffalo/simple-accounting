@@ -22,7 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.Duration
 
 class RefreshAccessTokenMutationTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     @MockitoBean

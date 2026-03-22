@@ -77,7 +77,7 @@ class RefreshAccessTokenMutation(
 
     @GraphQLDescription("Response for refreshing access token.")
     data class RefreshAccessTokenResponse(
-        @param:GraphQLDescription(
+        @GraphQLDescription(
             "The new access token if authentication was successful, null otherwise."
         )
         val accessToken: String?

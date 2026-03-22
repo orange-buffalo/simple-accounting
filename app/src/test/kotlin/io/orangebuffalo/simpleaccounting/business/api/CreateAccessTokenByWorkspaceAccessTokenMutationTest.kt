@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import java.time.Duration
 
 class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     @MockitoSpyBean

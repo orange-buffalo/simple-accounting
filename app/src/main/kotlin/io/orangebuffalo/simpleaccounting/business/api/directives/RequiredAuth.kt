@@ -16,7 +16,7 @@ const val REQUIRED_AUTH_DIRECTIVE_NAME = "auth"
     ]
 )
 annotation class RequiredAuth(
-    @param:GraphQLDescription(
+    @GraphQLDescription(
         "The required authorization to execute the request."
     )
     val type: AuthType,

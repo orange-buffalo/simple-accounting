@@ -28,7 +28,7 @@ import org.springframework.test.context.TestExecutionListeners
 )
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 class DownloadDocumentStoragesQueryTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {

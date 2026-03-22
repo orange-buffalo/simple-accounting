@@ -31,7 +31,7 @@ subprojects {
     tasks {
         withType<KotlinCompile> {
             compilerOptions {
-                freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+                freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn", "-Xannotation-default-target=param-property")
                 jvmTarget.set(JvmTarget.fromTarget(Config.JVM_VERSION.toString()))
             }
         }

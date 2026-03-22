@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * - [LanguagePreferencesFullStackTest] for language and locale preferences
  */
 class PasswordChangeFullStackTest(
-    @param:Autowired private val repository: PlatformUsersRepository,
+    @Autowired private val repository: PlatformUsersRepository,
 ) : SaFullStackTestBase() {
 
     @Test

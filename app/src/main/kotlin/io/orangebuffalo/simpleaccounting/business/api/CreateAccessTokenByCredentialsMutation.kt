@@ -96,7 +96,7 @@ class CreateAccessTokenByCredentialsMutation(
 
     @GraphQLDescription("Response for the createAccessTokenByCredentials mutation.")
     data class CreateAccessTokenByCredentialsResponse(
-        @param:GraphQLDescription("The JWT access token for the authenticated user.")
+        @GraphQLDescription("The JWT access token for the authenticated user.")
         val accessToken: String,
     )
 }
