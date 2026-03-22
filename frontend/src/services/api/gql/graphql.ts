@@ -201,6 +201,19 @@ export type MutationUpdateProfileArgs = {
   locale: Scalars['String']['input'];
 };
 
+/** Pagination information following the GraphQL Cursor Connections Specification. */
+export type PageInfoGqlDto = {
+  __typename?: 'PageInfoGqlDto';
+  /** Cursor of the last edge in the page. */
+  endCursor?: Maybe<Scalars['String']['output']>;
+  /** Whether there are more items when paginating forwards. */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** Whether there are more items when paginating backwards. */
+  hasPreviousPage: Scalars['Boolean']['output'];
+  /** Cursor of the first edge in the page. */
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -217,13 +230,19 @@ export type Query = {
   userProfile: UserProfile;
   /** Returns a workspace by its ID, if accessible by the current user. */
   workspace: WorkspaceGqlDto;
-  /** Returns all workspaces accessible by the current user. */
-  workspaces: Array<WorkspaceGqlDto>;
+  /** Returns all workspaces accessible by the current user with cursor-based pagination. */
+  workspaces: WorkspacesConnectionGqlDto;
 };
 
 
 export type QueryWorkspaceArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type QueryWorkspacesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 /** Response for refreshing access token. */
@@ -265,6 +284,10 @@ export type UserProfile = {
 
 /** Error codes for validation failures, matching REST API constraint violation error keys. */
 export enum ValidationErrorCode {
+  /** The field value must be less than or equal to the specified maximum. */
+  MaxConstraintViolated = 'MaxConstraintViolated',
+  /** The field value must be greater than or equal to the specified minimum. */
+  MinConstraintViolated = 'MinConstraintViolated',
   /** The field must not be null, empty, or blank. */
   MustNotBeBlank = 'MustNotBeBlank',
   /** The field size must be within the specified min/max bounds. */
@@ -293,6 +316,15 @@ export type ValidationErrorParam = {
   value: Scalars['String']['output'];
 };
 
+/** An edge in a workspaces connection. */
+export type WorkspaceEdgeGqlDto = {
+  __typename?: 'WorkspaceEdgeGqlDto';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The workspace at the end of this edge. */
+  node: WorkspaceGqlDto;
+};
+
 /** Workspace of a user. */
 export type WorkspaceGqlDto = {
   __typename?: 'WorkspaceGqlDto';
@@ -302,6 +334,17 @@ export type WorkspaceGqlDto = {
   expenses: Array<ExpenseGqlDto>;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+};
+
+/** A paginated connection of workspaces following the GraphQL Cursor Connections Specification. */
+export type WorkspacesConnectionGqlDto = {
+  __typename?: 'WorkspacesConnectionGqlDto';
+  /** The list of edges in the current page. */
+  edges: Array<WorkspaceEdgeGqlDto>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfoGqlDto;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
 };
 
 export type DownloadDocumentStoragesQueryVariables = Exact<{ [key: string]: never; }>;

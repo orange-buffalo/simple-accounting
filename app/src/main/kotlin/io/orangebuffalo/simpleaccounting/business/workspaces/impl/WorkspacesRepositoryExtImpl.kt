@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesRepositoryExt
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
+import java.time.Instant
 
 @Repository
 class WorkspacesRepositoryExtImpl(
@@ -36,5 +37,37 @@ class WorkspacesRepositoryExtImpl(
                 workspace.id.eq(workspaceId)
             )
             .fetchOneOrNull()
+    }
+
+    override fun findByOwnerUserNamePaginated(
+        userName: String,
+        limit: Int,
+        afterCreatedAt: Instant?,
+    ): List<Workspace> {
+        val owner = Tables.PLATFORM_USER
+        var query = dslContext
+            .select(*workspace.fields())
+            .from(workspace)
+            .join(owner).on(owner.id.eq(workspace.ownerId))
+            .where(owner.userName.eq(userName))
+
+        if (afterCreatedAt != null) {
+            query = query.and(workspace.createdAt.gt(afterCreatedAt))
+        }
+
+        return query
+            .orderBy(workspace.createdAt.asc())
+            .limit(limit + 1)
+            .fetchListOf()
+    }
+
+    override fun countByOwnerUserName(userName: String): Int {
+        val owner = Tables.PLATFORM_USER
+        return dslContext
+            .selectCount()
+            .from(workspace)
+            .join(owner).on(owner.id.eq(workspace.ownerId))
+            .where(owner.userName.eq(userName))
+            .fetchOne(0, Int::class.java)!!
     }
 }

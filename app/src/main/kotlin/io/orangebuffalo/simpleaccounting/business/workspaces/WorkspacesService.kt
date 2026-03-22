@@ -1,7 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import io.orangebuffalo.simpleaccounting.business.api.WorkspacesConnectionGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.WorkspaceEdgeGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.WorkspaceGqlDto
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.CursorPage
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.buildConnection
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.infra.withDbContextAsync
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
@@ -20,6 +26,35 @@ class WorkspacesService(
 
     suspend fun getUserWorkspaces(userName: String): List<Workspace> = withDbContext {
         workspacesRepository.findAllByOwnerUserName(userName)
+    }
+
+    suspend fun getUserWorkspacesPaginated(
+        userName: String,
+        first: Int,
+        cursorPage: CursorPage,
+    ): WorkspacesConnectionGqlDto = withDbContext {
+        val items = workspacesRepository.findByOwnerUserNamePaginated(
+            userName = userName,
+            limit = first,
+            afterCreatedAt = cursorPage.createdAtAfter,
+        )
+        val totalCount = workspacesRepository.countByOwnerUserName(userName)
+        buildConnection(
+            items = items,
+            requestedPageSize = first,
+            totalCount = totalCount,
+            cursorPage = cursorPage,
+            mapper = { workspace ->
+                WorkspaceEdgeGqlDto(
+                    cursor = encodeCursor(workspace.createdAt!!),
+                    node = WorkspaceGqlDto(
+                        id = workspace.id!!,
+                        name = workspace.name,
+                    ),
+                )
+            },
+            connectionFactory = ::WorkspacesConnectionGqlDto,
+        )
     }
 
     suspend fun createWorkspace(workspace: Workspace): Workspace = withDbContext {

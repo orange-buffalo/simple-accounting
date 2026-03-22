@@ -28,6 +28,18 @@ directive @include(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"Validates that the value is at most the specified maximum"
+directive @max(
+    "Maximum value"
+    value: Int!
+  ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+"Validates that the value is at least the specified minimum"
+directive @min(
+    "Minimum value"
+    value: Int!
+  ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 "Validates that the string is not null, empty, or blank"
 directive @notBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
@@ -188,6 +200,18 @@ type Mutation {
   ): UserProfile! @auth(type : AUTHENTICATED_USER)
 }
 
+"Pagination information following the GraphQL Cursor Connections Specification."
+type PageInfoGqlDto {
+  "Cursor of the last edge in the page."
+  endCursor: String
+  "Whether there are more items when paginating forwards."
+  hasNextPage: Boolean!
+  "Whether there are more items when paginating backwards."
+  hasPreviousPage: Boolean!
+  "Cursor of the first edge in the page."
+  startCursor: String
+}
+
 type Query {
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
@@ -206,8 +230,13 @@ type Query {
     "ID of the workspace."
     id: Int!
   ): WorkspaceGqlDto! @auth(type : AUTHENTICATED_ACTOR)
-  "Returns all workspaces accessible by the current user."
-  workspaces: [WorkspaceGqlDto!]! @auth(type : REGULAR_USER)
+  "Returns all workspaces accessible by the current user with cursor-based pagination."
+  workspaces(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int! @max(value : 500) @min(value : 1)
+  ): WorkspacesConnectionGqlDto! @auth(type : REGULAR_USER)
 }
 
 "Response for refreshing access token."
@@ -252,6 +281,14 @@ type ValidationErrorParam {
   value: String!
 }
 
+"An edge in a workspaces connection."
+type WorkspaceEdgeGqlDto {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The workspace at the end of this edge."
+  node: WorkspaceGqlDto!
+}
+
 "Workspace of a user."
 type WorkspaceGqlDto {
   "Categories in this workspace."
@@ -260,6 +297,16 @@ type WorkspaceGqlDto {
   expenses: [ExpenseGqlDto!]!
   "Name of the workspace."
   name: String!
+}
+
+"A paginated connection of workspaces following the GraphQL Cursor Connections Specification."
+type WorkspacesConnectionGqlDto {
+  "The list of edges in the current page."
+  edges: [WorkspaceEdgeGqlDto!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfoGqlDto!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 "Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive."
@@ -314,6 +361,10 @@ enum SaGrapQlErrorType {
 
 "Error codes for validation failures, matching REST API constraint violation error keys."
 enum ValidationErrorCode {
+  "The field value must be less than or equal to the specified maximum."
+  MaxConstraintViolated
+  "The field value must be greater than or equal to the specified minimum."
+  MinConstraintViolated
   "The field must not be null, empty, or blank."
   MustNotBeBlank
   "The field size must be within the specified min/max bounds."
