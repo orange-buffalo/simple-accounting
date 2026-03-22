@@ -38,8 +38,8 @@ export enum AuthType {
 }
 
 /** Category of incomes or expenses. */
-export type CategoryGqlDto = {
-  __typename?: 'CategoryGqlDto';
+export type Category = {
+  __typename?: 'Category';
   /** Name of the category. */
   name: Scalars['String']['output'];
 };
@@ -121,10 +121,10 @@ export type DownloadDocumentStorageResponse = {
 };
 
 /** Business expense. */
-export type ExpenseGqlDto = {
-  __typename?: 'ExpenseGqlDto';
+export type Expense = {
+  __typename?: 'Expense';
   /** Category of the expense. */
-  category?: Maybe<CategoryGqlDto>;
+  category?: Maybe<Category>;
   /** Title of the expense. */
   title: Scalars['String']['output'];
 };
@@ -202,8 +202,8 @@ export type MutationUpdateProfileArgs = {
 };
 
 /** Pagination information following the GraphQL Cursor Connections Specification. */
-export type PageInfoGqlDto = {
-  __typename?: 'PageInfoGqlDto';
+export type PageInfo = {
+  __typename?: 'PageInfo';
   /** Cursor of the last edge in the page. */
   endCursor?: Maybe<Scalars['String']['output']>;
   /** Whether there are more items when paginating forwards. */
@@ -229,9 +229,9 @@ export type Query = {
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
   /** Returns a workspace by its ID, if accessible by the current user. */
-  workspace: WorkspaceGqlDto;
+  workspace: Workspace;
   /** Returns all workspaces accessible by the current user with cursor-based pagination. */
-  workspaces: WorkspacesConnectionGqlDto;
+  workspaces: WorkspacesConnection;
 };
 
 
@@ -316,33 +316,33 @@ export type ValidationErrorParam = {
   value: Scalars['String']['output'];
 };
 
-/** An edge in a workspaces connection. */
-export type WorkspaceEdgeGqlDto = {
-  __typename?: 'WorkspaceEdgeGqlDto';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The workspace at the end of this edge. */
-  node: WorkspaceGqlDto;
-};
-
 /** Workspace of a user. */
-export type WorkspaceGqlDto = {
-  __typename?: 'WorkspaceGqlDto';
+export type Workspace = {
+  __typename?: 'Workspace';
   /** Categories in this workspace. */
-  categories: Array<CategoryGqlDto>;
+  categories: Array<Category>;
   /** Expenses in this workspace. */
-  expenses: Array<ExpenseGqlDto>;
+  expenses: Array<Expense>;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
 };
 
+/** An edge in a workspaces connection. */
+export type WorkspaceEdge = {
+  __typename?: 'WorkspaceEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The workspace at the end of this edge. */
+  node: Workspace;
+};
+
 /** A paginated connection of workspaces following the GraphQL Cursor Connections Specification. */
-export type WorkspacesConnectionGqlDto = {
-  __typename?: 'WorkspacesConnectionGqlDto';
+export type WorkspacesConnection = {
+  __typename?: 'WorkspacesConnection';
   /** The list of edges in the current page. */
-  edges: Array<WorkspaceEdgeGqlDto>;
+  edges: Array<WorkspaceEdge>;
   /** Pagination information about the current page. */
-  pageInfo: PageInfoGqlDto;
+  pageInfo: PageInfo;
   /** The total number of items in the connection across all pages. */
   totalCount: Scalars['Int']['output'];
 };
