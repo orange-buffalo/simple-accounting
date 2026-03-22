@@ -4,29 +4,23 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 import java.time.Instant
 import java.util.Base64
 
-private const val CURSOR_DELIMITER = ":"
 private val encoder = Base64.getEncoder()
 private val decoder = Base64.getDecoder()
 
 data class CursorPage(
     val createdAtAfter: Instant?,
-    val idAfter: Long?,
 )
 
 fun decodeCursor(cursor: String?): CursorPage {
-    if (cursor == null) return CursorPage(createdAtAfter = null, idAfter = null)
+    if (cursor == null) return CursorPage(createdAtAfter = null)
     val decoded = String(decoder.decode(cursor))
-    val parts = decoded.split(CURSOR_DELIMITER, limit = 2)
-    require(parts.size == 2) { "Invalid cursor format" }
     return CursorPage(
-        createdAtAfter = Instant.ofEpochMilli(parts[0].toLong()),
-        idAfter = parts[1].toLong(),
+        createdAtAfter = Instant.ofEpochMilli(decoded.toLong()),
     )
 }
 
-fun encodeCursor(createdAt: Instant, id: Long): String {
-    val raw = "${createdAt.toEpochMilli()}$CURSOR_DELIMITER$id"
-    return encoder.encodeToString(raw.toByteArray())
+fun encodeCursor(createdAt: Instant): String {
+    return encoder.encodeToString(createdAt.toEpochMilli().toString().toByteArray())
 }
 
 /**
@@ -53,8 +47,8 @@ fun <T : AbstractEntity, E, C> buildConnection(
 
     val edges = pageItems.map(mapper)
 
-    val startCursor = pageItems.firstOrNull()?.let { encodeCursor(it.createdAt!!, it.id!!) }
-    val endCursor = pageItems.lastOrNull()?.let { encodeCursor(it.createdAt!!, it.id!!) }
+    val startCursor = pageItems.firstOrNull()?.let { encodeCursor(it.createdAt!!) }
+    val endCursor = pageItems.lastOrNull()?.let { encodeCursor(it.createdAt!!) }
 
     val pageInfo = PageInfoGqlDto(
         startCursor = startCursor,

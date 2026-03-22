@@ -3,7 +3,18 @@ package io.orangebuffalo.simpleaccounting.infra.graphql.connections
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 
 /**
- * Page info for cursor-based pagination following the GraphQL Cursor Connections Specification.
+ * Pagination constants for cursor-based connections.
+ * See [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
+ * and [GraphQL Pagination Guide](https://graphql.org/learn/pagination/).
+ */
+object GraphqlPaginationConstants {
+    const val PAGE_SIZE_MIN = 1L
+    const val PAGE_SIZE_MAX = 500L
+}
+
+/**
+ * Page info for cursor-based pagination following the
+ * [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm).
  * Reusable across all connection types.
  */
 @GraphQLDescription("Pagination information following the GraphQL Cursor Connections Specification.")

@@ -14,7 +14,6 @@ interface WorkspacesRepositoryExt {
         userName: String,
         limit: Int,
         afterCreatedAt: Instant?,
-        afterId: Long?,
     ): List<Workspace>
 
     fun countByOwnerUserName(userName: String): Int

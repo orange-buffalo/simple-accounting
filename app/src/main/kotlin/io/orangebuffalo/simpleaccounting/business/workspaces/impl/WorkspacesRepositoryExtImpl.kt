@@ -43,7 +43,6 @@ class WorkspacesRepositoryExtImpl(
         userName: String,
         limit: Int,
         afterCreatedAt: Instant?,
-        afterId: Long?,
     ): List<Workspace> {
         val owner = Tables.PLATFORM_USER
         var query = dslContext
@@ -52,15 +51,12 @@ class WorkspacesRepositoryExtImpl(
             .join(owner).on(owner.id.eq(workspace.ownerId))
             .where(owner.userName.eq(userName))
 
-        if (afterCreatedAt != null && afterId != null) {
-            query = query.and(
-                workspace.createdAt.gt(afterCreatedAt)
-                    .or(workspace.createdAt.eq(afterCreatedAt).and(workspace.id.gt(afterId)))
-            )
+        if (afterCreatedAt != null) {
+            query = query.and(workspace.createdAt.gt(afterCreatedAt))
         }
 
         return query
-            .orderBy(workspace.createdAt.asc(), workspace.id.asc())
+            .orderBy(workspace.createdAt.asc())
             .limit(limit + 1)
             .fetchListOf()
     }

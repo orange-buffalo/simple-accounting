@@ -1,12 +1,15 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -86,15 +89,8 @@ class WorkspacesQueryTest(
             }
                 .from(preconditions.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {
-                            add(buildJsonObject {
-                                put("node", buildJsonObject {
-                                    put("name", "Planet Express")
-                                })
-                            })
-                        }
-                        put("totalCount", 1)
+                    "workspaces" to workspacesConnection(totalCount = 1) {
+                        workspaceEdge(name = "Planet Express")
                     }
                 )
         }
@@ -151,25 +147,26 @@ class WorkspacesQueryTest(
     @Nested
     @DisplayName("Pagination")
     inner class Pagination {
+
+        private fun EntitiesFactory.threeWorkspaces() = object {
+            val fry = fry()
+            val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
+                it.createdAt = MOCK_TIME.plusSeconds(100)
+                it.save()
+            }
+            val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
+                it.createdAt = MOCK_TIME.plusSeconds(200)
+                it.save()
+            }
+            val ws3 = workspace(owner = fry, name = "Delivery to Mars").also {
+                it.createdAt = MOCK_TIME.plusSeconds(300)
+                it.save()
+            }
+        }
+
         @Test
         fun `should return first page with pageInfo`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
-                    val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(200)
-                        it.save()
-                    }
-                    val ws3 = workspace(owner = fry, name = "Delivery to Mars").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(300)
-                        it.save()
-                    }
-                }
-            }
+            val testData = preconditions { threeWorkspaces() }
             client.graphql {
                 workspaces(first = 2) {
                     edges {
@@ -190,17 +187,17 @@ class WorkspacesQueryTest(
                     "workspaces" to buildJsonObject {
                         putJsonArray("edges") {
                             add(buildJsonObject {
-                                put("cursor", encodeCursor(testData.ws1.createdAt!!, testData.ws1.id!!))
+                                put("cursor", encodeCursor(testData.ws1.createdAt!!))
                                 put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
                             })
                             add(buildJsonObject {
-                                put("cursor", encodeCursor(testData.ws2.createdAt!!, testData.ws2.id!!))
+                                put("cursor", encodeCursor(testData.ws2.createdAt!!))
                                 put("node", buildJsonObject { put("name", "Delivery to Omicron Persei 8") })
                             })
                         }
                         put("pageInfo", buildJsonObject {
-                            put("startCursor", encodeCursor(testData.ws1.createdAt!!, testData.ws1.id!!))
-                            put("endCursor", encodeCursor(testData.ws2.createdAt!!, testData.ws2.id!!))
+                            put("startCursor", encodeCursor(testData.ws1.createdAt!!))
+                            put("endCursor", encodeCursor(testData.ws2.createdAt!!))
                             put("hasPreviousPage", false)
                             put("hasNextPage", true)
                         })
@@ -211,24 +208,8 @@ class WorkspacesQueryTest(
 
         @Test
         fun `should return second page using after cursor`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
-                    val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(200)
-                        it.save()
-                    }
-                    val ws3 = workspace(owner = fry, name = "Delivery to Mars").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(300)
-                        it.save()
-                    }
-                }
-            }
-            val afterCursor = encodeCursor(testData.ws2.createdAt!!, testData.ws2.id!!)
+            val testData = preconditions { threeWorkspaces() }
+            val afterCursor = encodeCursor(testData.ws2.createdAt!!)
             client.graphql {
                 workspaces(first = 10, after = afterCursor) {
                     edges {
@@ -249,13 +230,13 @@ class WorkspacesQueryTest(
                     "workspaces" to buildJsonObject {
                         putJsonArray("edges") {
                             add(buildJsonObject {
-                                put("cursor", encodeCursor(testData.ws3.createdAt!!, testData.ws3.id!!))
+                                put("cursor", encodeCursor(testData.ws3.createdAt!!))
                                 put("node", buildJsonObject { put("name", "Delivery to Mars") })
                             })
                         }
                         put("pageInfo", buildJsonObject {
-                            put("startCursor", encodeCursor(testData.ws3.createdAt!!, testData.ws3.id!!))
-                            put("endCursor", encodeCursor(testData.ws3.createdAt!!, testData.ws3.id!!))
+                            put("startCursor", encodeCursor(testData.ws3.createdAt!!))
+                            put("endCursor", encodeCursor(testData.ws3.createdAt!!))
                             put("hasPreviousPage", true)
                             put("hasNextPage", false)
                         })
@@ -288,16 +269,12 @@ class WorkspacesQueryTest(
             }
                 .from(testData.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {}
-                        put("pageInfo", buildJsonObject {
-                            put("startCursor", null as String?)
-                            put("endCursor", null as String?)
-                            put("hasPreviousPage", false)
-                            put("hasNextPage", false)
-                        })
-                        put("totalCount", 0)
-                    }
+                    "workspaces" to workspacesConnection(
+                        totalCount = 0,
+                        hasPreviousPage = false,
+                        hasNextPage = false,
+                        includePageInfo = true,
+                    )
                 )
         }
 
@@ -312,7 +289,7 @@ class WorkspacesQueryTest(
                     }
                 }
             }
-            val afterCursor = encodeCursor(testData.ws1.createdAt!!, testData.ws1.id!!)
+            val afterCursor = encodeCursor(testData.ws1.createdAt!!)
             client.graphql {
                 workspaces(first = 10, after = afterCursor) {
                     edges {
@@ -330,36 +307,20 @@ class WorkspacesQueryTest(
             }
                 .from(testData.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {}
-                        put("pageInfo", buildJsonObject {
-                            put("startCursor", null as String?)
-                            put("endCursor", null as String?)
-                            put("hasPreviousPage", true)
-                            put("hasNextPage", false)
-                        })
-                        put("totalCount", 1)
-                    }
+                    "workspaces" to workspacesConnection(
+                        totalCount = 1,
+                        hasPreviousPage = true,
+                        hasNextPage = false,
+                        includePageInfo = true,
+                    )
                 )
         }
 
         @Test
         fun `should return all items when first equals total count`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
-                    val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(200)
-                        it.save()
-                    }
-                }
-            }
+            val testData = preconditions { threeWorkspaces() }
             client.graphql {
-                workspaces(first = 2) {
+                workspaces(first = 3) {
                     edges {
                         node { name }
                     }
@@ -372,20 +333,10 @@ class WorkspacesQueryTest(
             }
                 .from(testData.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
-                            })
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Omicron Persei 8") })
-                            })
-                        }
-                        put("pageInfo", buildJsonObject {
-                            put("hasNextPage", false)
-                            put("hasPreviousPage", false)
-                        })
-                        put("totalCount", 2)
+                    "workspaces" to workspacesConnection(totalCount = 3, includePageInfo = true) {
+                        workspaceEdge(name = "Delivery to Luna Park")
+                        workspaceEdge(name = "Delivery to Omicron Persei 8")
+                        workspaceEdge(name = "Delivery to Mars")
                     }
                 )
         }
@@ -399,11 +350,8 @@ class WorkspacesQueryTest(
                         it.createdAt = MOCK_TIME.plusSeconds(100)
                         it.save()
                     }
-                    val zoidberg = zoidberg()
-                    val zoidbergWs = workspace(owner = zoidberg, name = "Zoidberg clinic").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(150)
-                        it.save()
-                    }
+                }.also {
+                    zoidberg().withWorkspace()
                 }
             }
             client.graphql {
@@ -416,13 +364,8 @@ class WorkspacesQueryTest(
             }
                 .from(testData.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
-                            })
-                        }
-                        put("totalCount", 1)
+                    "workspaces" to workspacesConnection(totalCount = 1) {
+                        workspaceEdge(name = "Delivery to Luna Park")
                     }
                 )
         }
@@ -470,17 +413,18 @@ class WorkspacesQueryTest(
             val testData = preconditions {
                 object {
                     val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Mars").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(300)
-                        it.save()
+                }.also {
+                    workspace(owner = it.fry, name = "Delivery to Mars").also { ws ->
+                        ws.createdAt = MOCK_TIME.plusSeconds(300)
+                        ws.save()
                     }
-                    val ws2 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
+                    workspace(owner = it.fry, name = "Delivery to Luna Park").also { ws ->
+                        ws.createdAt = MOCK_TIME.plusSeconds(100)
+                        ws.save()
                     }
-                    val ws3 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(200)
-                        it.save()
+                    workspace(owner = it.fry, name = "Delivery to Omicron Persei 8").also { ws ->
+                        ws.createdAt = MOCK_TIME.plusSeconds(200)
+                        ws.save()
                     }
                 }
             }
@@ -493,20 +437,45 @@ class WorkspacesQueryTest(
             }
                 .from(testData.fry)
                 .executeAndVerifyResponse(
-                    "workspaces" to buildJsonObject {
-                        putJsonArray("edges") {
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
-                            })
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Omicron Persei 8") })
-                            })
-                            add(buildJsonObject {
-                                put("node", buildJsonObject { put("name", "Delivery to Mars") })
-                            })
-                        }
+                    "workspaces" to workspacesConnection {
+                        workspaceEdge(name = "Delivery to Luna Park")
+                        workspaceEdge(name = "Delivery to Omicron Persei 8")
+                        workspaceEdge(name = "Delivery to Mars")
                     }
                 )
         }
     }
+}
+
+private fun workspacesConnection(
+    totalCount: Int? = null,
+    hasPreviousPage: Boolean = false,
+    hasNextPage: Boolean = false,
+    includePageInfo: Boolean = false,
+    edgesSpec: (kotlinx.serialization.json.JsonArrayBuilder.() -> Unit)? = null,
+): JsonElement = buildJsonObject {
+    putJsonArray("edges") {
+        if (edgesSpec != null) {
+            edgesSpec()
+        }
+    }
+    if (totalCount != null) {
+        put("totalCount", totalCount)
+    }
+    if (includePageInfo) {
+        put("pageInfo", buildJsonObject {
+            put("hasPreviousPage", hasPreviousPage)
+            put("hasNextPage", hasNextPage)
+            if (edgesSpec == null) {
+                put("startCursor", null as String?)
+                put("endCursor", null as String?)
+            }
+        })
+    }
+}
+
+private fun kotlinx.serialization.json.JsonArrayBuilder.workspaceEdge(name: String) {
+    add(buildJsonObject {
+        put("node", buildJsonObject { put("name", name) })
+    })
 }

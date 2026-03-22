@@ -37,7 +37,6 @@ class WorkspacesService(
             userName = userName,
             limit = first,
             afterCreatedAt = cursorPage.createdAtAfter,
-            afterId = cursorPage.idAfter,
         )
         val totalCount = workspacesRepository.countByOwnerUserName(userName)
         buildConnection(
@@ -47,7 +46,7 @@ class WorkspacesService(
             cursorPage = cursorPage,
             mapper = { workspace ->
                 WorkspaceEdgeGqlDto(
-                    cursor = encodeCursor(workspace.createdAt!!, workspace.id!!),
+                    cursor = encodeCursor(workspace.createdAt!!),
                     node = WorkspaceGqlDto(
                         id = workspace.id!!,
                         name = workspace.name,
