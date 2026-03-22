@@ -157,12 +157,11 @@
         after,
       } as PaginationVariables);
 
-      const typedConnection = connection as GqlConnectionOf<TNode>;
-      data.value = typedConnection.edges.map((edge) => edge.node);
-      totalElements.value = typedConnection.totalCount;
+      data.value = connection.edges.map((edge) => edge.node);
+      totalElements.value = connection.totalCount;
 
-      if (typedConnection.pageInfo.endCursor) {
-        cursorsByPage.set(pageNumber.value, typedConnection.pageInfo.endCursor);
+      if (connection.pageInfo.endCursor) {
+        cursorsByPage.set(pageNumber.value, connection.pageInfo.endCursor);
       }
 
       stopLoading();
