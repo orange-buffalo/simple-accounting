@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.graphql.connections
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 
 /**
  * Pagination constants for cursor-based connections.
@@ -42,6 +43,7 @@ interface EdgeGqlDto {
  * [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm).
  * Reusable across all connection types.
  */
+@GraphQLName("PageInfo")
 @GraphQLDescription("Pagination information following the GraphQL Cursor Connections Specification.")
 data class PageInfoGqlDto(
     @GraphQLDescription("Cursor of the first edge in the page.")

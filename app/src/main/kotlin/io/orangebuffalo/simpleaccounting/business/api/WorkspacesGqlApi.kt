@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoriesByWorkspaceId
@@ -65,6 +66,7 @@ class WorkspacesQuery(
  * [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm).
  * See also [GraphQL Pagination Guide](https://graphql.org/learn/pagination/).
  */
+@GraphQLName("WorkspacesConnection")
 @GraphQLDescription("A paginated connection of workspaces following the GraphQL Cursor Connections Specification.")
 data class WorkspacesConnectionGqlDto(
     @GraphQLDescription("The list of edges in the current page.")
@@ -77,6 +79,7 @@ data class WorkspacesConnectionGqlDto(
     override val totalCount: Int,
 ) : ConnectionGqlDto
 
+@GraphQLName("WorkspaceEdge")
 @GraphQLDescription("An edge in a workspaces connection.")
 data class WorkspaceEdgeGqlDto(
     @GraphQLDescription("The cursor of this edge, which can be used for pagination.")
@@ -86,6 +89,7 @@ data class WorkspaceEdgeGqlDto(
     override val node: WorkspaceGqlDto,
 ) : EdgeGqlDto
 
+@GraphQLName("Workspace")
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
     @property:GraphQLIgnore val id: Long,
@@ -100,12 +104,14 @@ data class WorkspaceGqlDto(
     fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id)
 }
 
+@GraphQLName("Category")
 @GraphQLDescription("Category of incomes or expenses.")
 data class CategoryGqlDto(
     @GraphQLDescription("Name of the category.")
     val name: String,
 )
 
+@GraphQLName("Expense")
 @GraphQLDescription("Business expense.")
 data class ExpenseGqlDto(
     @GraphQLDescription("Title of the expense.")
