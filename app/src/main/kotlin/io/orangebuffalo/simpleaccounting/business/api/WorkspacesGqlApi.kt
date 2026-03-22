@@ -90,7 +90,7 @@ data class WorkspaceEdgeGqlDto(
 data class WorkspaceGqlDto(
     @property:GraphQLIgnore val id: Long,
 
-    @param:GraphQLDescription("Name of the workspace.")
+    @GraphQLDescription("Name of the workspace.")
     val name: String,
 ) {
     @GraphQLDescription("Categories in this workspace.")
@@ -102,13 +102,13 @@ data class WorkspaceGqlDto(
 
 @GraphQLDescription("Category of incomes or expenses.")
 data class CategoryGqlDto(
-    @param:GraphQLDescription("Name of the category.")
+    @GraphQLDescription("Name of the category.")
     val name: String,
 )
 
 @GraphQLDescription("Business expense.")
 data class ExpenseGqlDto(
-    @param:GraphQLDescription("Title of the expense.")
+    @GraphQLDescription("Title of the expense.")
     val title: String,
 
     @property:GraphQLIgnore val categoryId: Long?,

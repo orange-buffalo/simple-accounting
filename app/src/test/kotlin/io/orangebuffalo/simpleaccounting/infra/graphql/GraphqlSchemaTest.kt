@@ -16,7 +16,7 @@ private const val COMMITTED_SCHEMA_PATH = "src/test/resources/api-schema.graphql
 private val logger = KotlinLogging.logger {}
 
 class GraphqlSchemaTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     @Test

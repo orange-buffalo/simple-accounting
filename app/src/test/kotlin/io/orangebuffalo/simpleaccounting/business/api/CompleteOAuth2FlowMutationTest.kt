@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 class CompleteOAuth2FlowMutationTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     @MockitoBean

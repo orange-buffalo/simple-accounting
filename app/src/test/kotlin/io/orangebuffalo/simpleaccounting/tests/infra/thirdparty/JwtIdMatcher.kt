@@ -21,7 +21,7 @@ private val log = KotlinLogging.logger { }
  * of the mock server.
  */
 internal class JwtIdMatcher(
-    @param:JsonProperty("jwtId") private val expectedJwtId: String,
+    @JsonProperty("jwtId") private val expectedJwtId: String,
 ) : StringValuePattern("JWT token having jti=$expectedJwtId") {
     override fun match(value: String?): MatchResult {
         if (value == null) {

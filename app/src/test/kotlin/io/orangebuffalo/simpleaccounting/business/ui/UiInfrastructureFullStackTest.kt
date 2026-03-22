@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.deleteAll
 
 class UiInfrastructureFullStackTest(
-    @param:Autowired private val jwtService: JwtService,
+    @Autowired private val jwtService: JwtService,
 ) : SaFullStackTestBase() {
 
     @Test

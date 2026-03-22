@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 
 class AccountActivationFullStackTest(
-    @param:Autowired private val timeServiceSpy: TimeService,
+    @Autowired private val timeServiceSpy: TimeService,
 ) : SaFullStackTestBase() {
     private val preconditions by lazyPreconditions {
         object {

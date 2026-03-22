@@ -29,7 +29,7 @@ class InvoicesService(
     private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService,
     private val timeService: TimeService,
-    @param:Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
+    @Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     private val taskExecutor: AsyncTaskExecutor
 ) {
 

@@ -21,7 +21,7 @@ class SystemSettingsQuery(
 
     @GraphQLDescription("System-wide settings.")
     data class SystemSettings(
-        @param:GraphQLDescription("Whether local file system documents storage is enabled.")
+        @GraphQLDescription("Whether local file system documents storage is enabled.")
         val localFileSystemDocumentsStorageEnabled: Boolean,
     )
 }

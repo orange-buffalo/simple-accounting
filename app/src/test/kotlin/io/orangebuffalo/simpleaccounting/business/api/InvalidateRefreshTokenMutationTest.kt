@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 
 class InvalidateRefreshTokenMutationTest(
-    @param:Autowired private val client: ApiTestClient,
+    @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
     @Nested

@@ -22,7 +22,7 @@ class DocumentsStorageStatusQuery(
 
     @GraphQLDescription("Documents storage status for the current user.")
     data class DocumentsStorageStatusResponse(
-        @param:GraphQLDescription("Whether the documents storage is active and available.")
+        @GraphQLDescription("Whether the documents storage is active and available.")
         val active: Boolean,
     )
 }
