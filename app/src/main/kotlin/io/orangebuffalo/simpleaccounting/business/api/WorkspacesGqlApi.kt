@@ -11,6 +11,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeCursor
@@ -73,7 +75,7 @@ data class WorkspacesConnectionGqlDto(
 
     @GraphQLDescription("The total number of items in the connection across all pages.")
     override val totalCount: Int,
-) : ConnectionGqlDtoBase()
+) : ConnectionGqlDto
 
 @GraphQLDescription("An edge in a workspaces connection.")
 data class WorkspaceEdgeGqlDto(
@@ -82,31 +84,7 @@ data class WorkspaceEdgeGqlDto(
 
     @GraphQLDescription("The workspace at the end of this edge.")
     override val node: WorkspaceGqlDto,
-) : EdgeGqlDtoBase()
-
-/**
- * Base class for connection DTOs ensuring a consistent structure across all paginated connections.
- * Concrete connection types must override all properties.
- *
- * Note: graphql-kotlin does not support generic type parameters in schema generation,
- * so this uses abstract properties to enforce the contract at compile time.
- * The base class is excluded from the schema via `@GraphQLIgnore`.
- */
-@GraphQLIgnore
-abstract class ConnectionGqlDtoBase {
-    abstract val edges: List<*>
-    abstract val pageInfo: PageInfoGqlDto
-    abstract val totalCount: Int
-}
-
-/**
- * Base class for edge DTOs ensuring a consistent structure across all paginated edges.
- */
-@GraphQLIgnore
-abstract class EdgeGqlDtoBase {
-    abstract val cursor: String
-    abstract val node: Any
-}
+) : EdgeGqlDto
 
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
