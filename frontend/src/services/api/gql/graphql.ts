@@ -373,7 +373,7 @@ export type WorkspacesPageQueryVariables = Exact<{
 }>;
 
 
-export type WorkspacesPageQuery = { __typename?: 'Query', workspaces: { __typename?: 'WorkspacesConnectionGqlDto', totalCount: number, edges: Array<{ __typename?: 'WorkspaceEdgeGqlDto', cursor: string, node: { __typename?: 'WorkspaceGqlDto', name: string } }>, pageInfo: { __typename?: 'PageInfoGqlDto', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type WorkspacesPageQuery = { __typename?: 'Query', workspaces: { __typename?: 'WorkspacesConnection', totalCount: number, edges: Array<{ __typename?: 'WorkspaceEdge', cursor: string, node: { __typename?: 'Workspace', name: string } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type UserProfileLoginQueryVariables = Exact<{ [key: string]: never; }>;
 

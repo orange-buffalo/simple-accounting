@@ -58,7 +58,7 @@
 <script
   lang="ts"
   setup
-  generic="TNode, TPath extends string"
+  generic="TNode, TPath extends string, TVariables extends GqlPaginationVariables = GqlPaginationVariables"
 >
   import {
     computed, ref, shallowRef, watch,
@@ -68,22 +68,9 @@
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
   import { useLazyQuery } from '@/services/api/use-gql-api';
+  import type { GqlConnection, GqlPaginationVariables } from '@/components/pageable-items/pageable-items-gql-types';
 
-  type GqlConnectionOf<N> = {
-    edges: Array<{ node: N; cursor: string }>;
-    pageInfo: {
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-    totalCount: number;
-  };
-
-  type PaginationVariables = {
-    first: number;
-    after?: string | null;
-  };
+  type ExtraArgs<T extends GqlPaginationVariables> = Omit<T, keyof GqlPaginationVariables>;
 
   function useLoading() {
     let loadingRequestsCount = 0;
@@ -117,9 +104,9 @@
   }
 
   const props = defineProps<{
-    pageQuery: TypedDocumentNode<Record<TPath, GqlConnectionOf<TNode>>, PaginationVariables>,
+    pageQuery: TypedDocumentNode<Record<TPath, GqlConnection<TNode>>, TVariables>,
     path: TPath,
-    reloadOn?: Array<unknown>,
+    pageQueryArguments?: ExtraArgs<TVariables>,
   }>();
 
   defineSlots<{
@@ -141,7 +128,7 @@
 
   const executeQuery = useLazyQuery(
     props.pageQuery,
-    props.path as string & keyof Record<TPath, GqlConnectionOf<TNode>>,
+    props.path as string & keyof Record<TPath, GqlConnection<TNode>>,
   );
 
   const reloadData = throttle(async () => {
@@ -153,9 +140,10 @@
 
     try {
       const connection = await executeQuery({
+        ...props.pageQueryArguments,
         first: pageSize.value,
         after,
-      } as PaginationVariables);
+      } as TVariables);
 
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;
@@ -174,11 +162,18 @@
     leading: false,
   });
 
-  watch(() => [pageNumber, ...(props.reloadOn || [])], () => {
+  watch(() => props.pageQueryArguments, () => {
+    cursorsByPage.clear();
+    pageNumber.value = 1;
+    reloadData();
+  }, {
+    deep: true,
+  });
+
+  watch(pageNumber, () => {
     reloadData();
   }, {
     immediate: true,
-    deep: true,
   });
 
   const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
