@@ -69,6 +69,14 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
+"Base interface for cursor-based paginated connections providing pagination information and total count."
+interface PaginatedConnection {
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Additional error extensions for the ACCOUNT_LOCKED business error."
 type AccountLockedErrorExtensions {
   "The remaining lock duration in seconds."
@@ -300,7 +308,7 @@ type WorkspaceEdge {
 }
 
 "A paginated connection of workspaces following the GraphQL Cursor Connections Specification."
-type WorkspacesConnection {
+type WorkspacesConnection implements PaginatedConnection {
   "The list of edges in the current page."
   edges: [WorkspaceEdge!]!
   "Pagination information about the current page."

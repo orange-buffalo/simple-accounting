@@ -24,10 +24,7 @@
             name
           }
         }
-        pageInfo {
-          ...PaginationPageInfo
-        }
-        totalCount
+        ...PaginationInfo
       }
     }
   `);

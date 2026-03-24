@@ -78,7 +78,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api';
   import { useFragment } from '@/services/api/gql/fragment-masking';
   import {
-    PaginationPageInfoFragment,
+    PaginationInfoFragment,
     type GqlConnection,
     type GqlPaginationVariables,
   } from '@/components/pageable-items/pageable-items-gql-types';
@@ -144,14 +144,16 @@
     props.path as string & keyof Record<TPath, GqlConnection<TNode>>,
   );
 
-  const cursorsByPage = new Map<number, string>();
+  // Stores the endCursor from each visited page for backward navigation.
+  // endCursors[0] = endCursor of page 1, endCursors[1] = endCursor of page 2, etc.
+  let endCursors: string[] = [];
 
   const reloadData = throttle(async () => {
     startLoading();
 
-    const after = pageNumber.value === 1
+    const after = pageNumber.value <= 1
       ? null
-      : cursorsByPage.get(pageNumber.value - 1) ?? null;
+      : endCursors[pageNumber.value - 2] ?? null;
 
     try {
       const connection = await executeQuery({
@@ -161,11 +163,12 @@
       } as TVariables);
 
       data.value = connection.edges.map((edge) => edge.node);
-      totalElements.value = connection.totalCount;
 
-      const pageInfo = useFragment(PaginationPageInfoFragment, connection.pageInfo);
-      if (pageInfo.endCursor) {
-        cursorsByPage.set(pageNumber.value, pageInfo.endCursor);
+      const paginationInfo = useFragment(PaginationInfoFragment, connection);
+      totalElements.value = paginationInfo.totalCount;
+
+      if (paginationInfo.pageInfo.endCursor) {
+        endCursors[pageNumber.value - 1] = paginationInfo.pageInfo.endCursor;
       }
 
       stopLoading();
@@ -179,7 +182,7 @@
   });
 
   watch(() => props.pageQueryArguments, () => {
-    cursorsByPage.clear();
+    endCursors = [];
     pageNumber.value = 1;
     reloadData();
   }, {
