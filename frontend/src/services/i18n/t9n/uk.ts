@@ -1022,6 +1022,7 @@ export default {
 
   saPageableItems: {
     emptyResults: () => 'Тут немає результатів',
+    pageIndicator: (current: number, total: number) => format('{0, number} з {1, number}', [current, total]),
   },
 
   customersOverview: {
