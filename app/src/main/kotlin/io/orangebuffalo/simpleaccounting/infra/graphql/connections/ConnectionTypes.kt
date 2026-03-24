@@ -15,23 +15,6 @@ object GraphqlPaginationConstants {
 }
 
 /**
- * GraphQL-visible interface providing pagination info and total count for all cursor-based connections.
- * Concrete connection types implement this to enable reusable fragments on the shared interface.
- *
- * Note: this interface deliberately excludes [ConnectionGqlDto.edges] because graphql-kotlin
- * does not support generic type parameters (`List<*>`) in schema generation.
- */
-@GraphQLName("PaginatedConnection")
-@GraphQLDescription("Base interface for cursor-based paginated connections providing pagination information and total count.")
-interface PaginatedConnectionGqlDto {
-    @GraphQLDescription("Pagination information about the current page.")
-    val pageInfo: PageInfoGqlDto
-
-    @GraphQLDescription("The total number of items in the connection across all pages.")
-    val totalCount: Int
-}
-
-/**
  * Contract for connection DTOs ensuring a consistent structure across all paginated connections.
  * Concrete connection types must override all properties.
  *
@@ -40,8 +23,10 @@ interface PaginatedConnectionGqlDto {
  * The interface is excluded from the schema via `@GraphQLIgnore`.
  */
 @GraphQLIgnore
-interface ConnectionGqlDto : PaginatedConnectionGqlDto {
+interface ConnectionGqlDto {
     val edges: List<*>
+    val pageInfo: PageInfoGqlDto
+    val totalCount: Int
 }
 
 /**

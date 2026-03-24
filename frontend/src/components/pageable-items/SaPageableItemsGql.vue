@@ -78,7 +78,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api';
   import { useFragment } from '@/services/api/gql/fragment-masking';
   import {
-    PaginationInfoFragment,
+    PaginationPageInfoFragment,
     type GqlConnection,
     type GqlPaginationVariables,
   } from '@/components/pageable-items/pageable-items-gql-types';
@@ -163,12 +163,11 @@
       } as TVariables);
 
       data.value = connection.edges.map((edge) => edge.node);
+      totalElements.value = connection.totalCount;
 
-      const paginationInfo = useFragment(PaginationInfoFragment, connection);
-      totalElements.value = paginationInfo.totalCount;
-
-      if (paginationInfo.pageInfo.endCursor) {
-        endCursors[pageNumber.value - 1] = paginationInfo.pageInfo.endCursor;
+      const pageInfo = useFragment(PaginationPageInfoFragment, connection.pageInfo);
+      if (pageInfo.endCursor) {
+        endCursors[pageNumber.value - 1] = pageInfo.endCursor;
       }
 
       stopLoading();
