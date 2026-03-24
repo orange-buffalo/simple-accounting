@@ -1,11 +1,18 @@
+import { graphql } from '@/services/api/gql';
+import type { FragmentType } from '@/services/api/gql/fragment-masking';
+
+export const PaginationPageInfoFragment = graphql(`
+  fragment PaginationPageInfo on PageInfo {
+    endCursor
+    hasNextPage
+    hasPreviousPage
+    startCursor
+  }
+`);
+
 export type GqlConnection<N> = {
   edges: Array<{ node: N; cursor: string }>;
-  pageInfo: {
-    endCursor?: string | null;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-    startCursor?: string | null;
-  };
+  pageInfo: FragmentType<typeof PaginationPageInfoFragment>;
   totalCount: number;
 };
 

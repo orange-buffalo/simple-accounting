@@ -4,9 +4,13 @@
       v-if="paginatorVisible"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
-      layout="prev, pager, next"
+      layout="prev, slot, next"
       :total="totalElements"
-    />
+    >
+      <span class="sa-pageable-items__page-indicator">
+        {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
+      </span>
+    </ElPagination>
 
     <div
       v-if="!loading"
@@ -49,9 +53,13 @@
       v-if="paginatorVisible"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
-      layout="prev, pager, next"
+      layout="prev, slot, next"
       :total="totalElements"
-    />
+    >
+      <span class="sa-pageable-items__page-indicator">
+        {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
+      </span>
+    </ElPagination>
   </div>
 </template>
 
@@ -68,7 +76,12 @@
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
   import { useLazyQuery } from '@/services/api/use-gql-api';
-  import type { GqlConnection, GqlPaginationVariables } from '@/components/pageable-items/pageable-items-gql-types';
+  import { useFragment } from '@/services/api/gql/fragment-masking';
+  import {
+    PaginationPageInfoFragment,
+    type GqlConnection,
+    type GqlPaginationVariables,
+  } from '@/components/pageable-items/pageable-items-gql-types';
 
   type ExtraArgs<T extends GqlPaginationVariables> = Omit<T, keyof GqlPaginationVariables>;
 
@@ -118,18 +131,20 @@
   const pageSize = ref(10);
   const data = shallowRef<TNode[]>([]);
 
-  const cursorsByPage = new Map<number, string>();
-
   const {
     loading,
     stopLoading,
     startLoading,
   } = useLoading();
 
+  const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
+
   const executeQuery = useLazyQuery(
     props.pageQuery,
     props.path as string & keyof Record<TPath, GqlConnection<TNode>>,
   );
+
+  const cursorsByPage = new Map<number, string>();
 
   const reloadData = throttle(async () => {
     startLoading();
@@ -148,8 +163,9 @@
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;
 
-      if (connection.pageInfo.endCursor) {
-        cursorsByPage.set(pageNumber.value, connection.pageInfo.endCursor);
+      const pageInfo = useFragment(PaginationPageInfoFragment, connection.pageInfo);
+      if (pageInfo.endCursor) {
+        cursorsByPage.set(pageNumber.value, pageInfo.endCursor);
       }
 
       stopLoading();

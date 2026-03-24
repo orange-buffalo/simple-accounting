@@ -1023,6 +1023,7 @@ export default {
 
   saPageableItems: {
     emptyResults: () => 'No results here',
+    pageIndicator: (current: number, total: number) => format('{0, number} of {1, number}', [current, total]),
   },
 
   customersOverview: {

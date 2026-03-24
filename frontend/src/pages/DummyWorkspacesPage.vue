@@ -25,10 +25,7 @@
           }
         }
         pageInfo {
-          endCursor
-          hasNextPage
-          hasPreviousPage
-          startCursor
+          ...PaginationPageInfo
         }
         totalCount
       }
