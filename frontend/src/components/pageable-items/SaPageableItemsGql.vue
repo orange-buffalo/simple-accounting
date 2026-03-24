@@ -151,7 +151,7 @@
   const reloadData = throttle(async () => {
     startLoading();
 
-    const after = pageNumber.value <= 1
+    const after = pageNumber.value === 1
       ? null
       : endCursors[pageNumber.value - 2] ?? null;
 
