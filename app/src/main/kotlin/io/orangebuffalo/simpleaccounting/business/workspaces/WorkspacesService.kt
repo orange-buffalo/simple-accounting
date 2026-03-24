@@ -48,8 +48,9 @@ class WorkspacesService(
                 WorkspaceEdgeGqlDto(
                     cursor = encodeCursor(workspace.createdAt!!),
                     node = WorkspaceGqlDto(
-                        id = workspace.id!!,
+                        id = workspace.id!!.toInt(),
                         name = workspace.name,
+                        defaultCurrency = workspace.defaultCurrency,
                     ),
                 )
             },

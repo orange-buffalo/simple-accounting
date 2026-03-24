@@ -285,8 +285,12 @@ type ValidationErrorParam {
 type Workspace {
   "Categories in this workspace."
   categories: [Category!]!
+  "Default currency of the workspace."
+  defaultCurrency: String!
   "Expenses in this workspace."
   expenses: [Expense!]!
+  "ID of the workspace."
+  id: Int!
   "Name of the workspace."
   name: String!
 }

@@ -77,14 +77,19 @@
   import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
-  import type { WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
+  import type { WorkspaceAccessTokenDto } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import { workspaceAccessTokensApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
   import { $t } from '@/services/i18n';
 
+  type WorkspaceInfo = {
+    id: number;
+    name: string;
+    defaultCurrency: string;
+  };
+
   const props = defineProps<{
-    workspace: WorkspaceDto,
+    workspace: WorkspaceInfo,
   }>();
 
   const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
@@ -98,7 +103,7 @@
   const reloadAccessTokens = async () => {
     // TODO #463: consumeAllPages
     const response = await workspaceAccessTokensApi.getAccessTokens({
-      workspaceId: ensureDefined(props.workspace.id),
+      workspaceId: props.workspace.id,
     });
     accessTokens.value = response.data;
   };
@@ -115,13 +120,19 @@
 
   const switchToWorkspace = () => {
     useWorkspaces()
-      .setCurrentWorkspace(props.workspace);
+      .setCurrentWorkspace({
+        id: props.workspace.id,
+        name: props.workspace.name,
+        defaultCurrency: props.workspace.defaultCurrency,
+        version: 0,
+        editable: true,
+      });
     navigateByPath('/');
   };
 
   const shareWorkspace = async () => {
     await workspaceAccessTokensApi.createAccessToken({
-      workspaceId: ensureDefined(props.workspace.id),
+      workspaceId: props.workspace.id,
       createWorkspaceAccessTokenDto: {
         validTill: newShareValidTill.value.toISOString(),
       },

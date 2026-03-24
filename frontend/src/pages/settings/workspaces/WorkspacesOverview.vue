@@ -16,56 +16,43 @@
       </div>
     </div>
 
-    <h2>Current Workspace</h2>
-    <WorkspacesOverviewItemPanel :workspace="currentWorkspace" />
-
-    <template v-if="hasOtherOwnWorkspaces">
-      <h2>My Other Workspaces</h2>
-      <WorkspacesOverviewItemPanel
-        v-for="workspace in ownOtherWorkspaces"
-        :key="workspace.id"
-        :workspace="workspace"
-      />
-    </template>
-
-    <template v-if="hasSharedWorkspaces">
-      <h2>Workspaces Shared With Me</h2>
-      <WorkspacesOverviewItemPanel
-        v-for="workspace in sharedWorkspaces"
-        :key="`${workspace.id}-shared`"
-        :workspace="workspace"
-      />
-    </template>
+    <SaPageableItemsGql
+      ref="pageableItems"
+      :page-query="workspacesPageQuery"
+      path="workspaces"
+      #default="{ item }"
+    >
+      <WorkspacesOverviewItemPanel :workspace="item" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { WorkspaceDto } from '@/services/api';
-  import { workspacesApi } from '@/services/api';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
+  import { graphql } from '@/services/api/gql';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
 
-  const sharedWorkspaces = ref<WorkspaceDto[]>([]);
-  const loadSharedWorkspaces = async () => {
-    sharedWorkspaces.value = await workspacesApi.getSharedWorkspaces();
-  };
-  loadSharedWorkspaces();
-
-  const workspaces = ref<WorkspaceDto[]>([]);
-  const loadWorkspaces = async () => {
-    workspaces.value = await workspacesApi.getWorkspaces();
-  };
-  loadWorkspaces();
+  const workspacesPageQuery = graphql(`
+    query workspacesPage($first: Int!, $after: String) {
+      workspaces(first: $first, after: $after) {
+        edges {
+          cursor
+          node {
+            id
+            name
+            defaultCurrency
+          }
+        }
+        pageInfo {
+          ...PaginationPageInfo
+        }
+        totalCount
+      }
+    }
+  `);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateWorkspace = () => navigateByViewName('create-new-workspace');
-
-  const hasSharedWorkspaces = computed(() => sharedWorkspaces.value.length);
-
-  const { currentWorkspace } = useCurrentWorkspace();
-  const ownOtherWorkspaces = computed(() => workspaces.value.filter((it) => it.id !== currentWorkspace.id));
-  const hasOtherOwnWorkspaces = computed(() => ownOtherWorkspaces.value.length);
 </script>
