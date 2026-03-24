@@ -10,15 +10,17 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverv
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceEditorPage.Companion.shouldBeCreateWorkspacePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.openWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import org.junit.jupiter.api.Test
 
 class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should display single current workspace`(page: Page) {
+    fun `should display single workspace`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry().also {
@@ -29,11 +31,12 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            shouldHaveCurrentWorkspace {
+            shouldHaveWorkspaces("Planet Express")
+
+            getWorkspacePanelByName("Planet Express").apply {
                 shouldHaveTitle("Planet Express")
                 shouldNotHaveSwitchButton()
             }
-            shouldNotHaveOtherWorkspaces()
 
             reportRendering("workspaces-overview.single-workspace")
         }
@@ -53,18 +56,19 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            shouldHaveCurrentWorkspace {
+            shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company", "Slurm Corp")
+
+            getWorkspacePanelByName("Planet Express").apply {
                 shouldHaveTitle("Planet Express")
                 shouldNotHaveSwitchButton()
             }
 
-            // Verify both other workspaces with their actual titles and that they have switch buttons
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
+            getWorkspacePanelByName("Mom's Friendly Robot Company").apply {
                 shouldHaveTitle("Mom's Friendly Robot Company")
                 shouldHaveSwitchButton()
             }
 
-            getOtherWorkspaceByName("Slurm Corp").apply {
+            getWorkspacePanelByName("Slurm Corp").apply {
                 shouldHaveTitle("Slurm Corp")
                 shouldHaveSwitchButton()
             }
@@ -83,15 +87,12 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        // Navigate to create page via button click
         page.openWorkspacesOverviewPage {
             createButton.click()
         }
 
-        // Verify navigation to create page
         page.shouldBeCreateWorkspacePage()
 
-        // Fill and save the form
         page.shouldBeCreateWorkspacePage {
             name {
                 input.fill("Mom's Friendly Robot Company")
@@ -102,14 +103,12 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        // Verify navigation back to overview and new workspace appears
         page.shouldBeWorkspacesOverviewPage {
-            shouldHaveCurrentWorkspace {
+            getWorkspacePanelByName("Planet Express").apply {
                 shouldHaveTitle("Planet Express")
             }
 
-            // Verify the newly created workspace appears in other workspaces
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
+            getWorkspacePanelByName("Mom's Friendly Robot Company").apply {
                 shouldHaveTitle("Mom's Friendly Robot Company")
                 shouldHaveSwitchButton()
             }
@@ -122,7 +121,6 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry().also {
                     workspace(owner = it, name = "Planet Express").also { ws ->
-                        // Create an expense in Planet Express workspace
                         val expenseCategory = category(workspace = ws)
                         expense(
                             workspace = ws,
@@ -141,23 +139,18 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        // Verify Planet Express has expense
         page.openExpensesOverviewPage {
             pageItems.shouldHaveTitles("Slurm supplies")
         }
 
-        // Switch to Mom's workspace
         page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
+            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
-        // Verify navigation menu updated with new workspace name
         page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
 
-        // Navigate to expenses in switched workspace
         page.shouldHaveSideMenu().clickExpenses()
 
-        // Verify expenses list is empty - data isolation works
         page.shouldBeExpensesOverviewPage {
             pageItems.shouldHaveTitles()
             this.reportRendering("workspaces.switched-workspace-expenses-empty")
@@ -170,10 +163,8 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry().also {
                     workspace(owner = it, name = "Planet Express")
-
                 }
                 val moms = workspace(owner = fry, name = "Mom's Friendly Robot Company", defaultCurrency = "USD").also {
-                    // Create category in Mom's workspace for the test
                     category(workspace = it, name = "Robot maintenance")
                 }
             }
@@ -181,12 +172,10 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        // Switch to Mom's workspace
         page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
+            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
-        // Navigate to create expense page
         page.shouldHaveSideMenu().clickExpenses()
         page.openCreateExpensePage {
             category {
@@ -201,13 +190,56 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        // Verify navigation to overview
         page.shouldBeExpensesOverviewPage()
 
-        // Verify expense is created and linked to Mom's workspace
         val createdExpense = aggregateTemplate.findSingle<Expense>()
         createdExpense.workspaceId.shouldBe(testData.moms.id)
         createdExpense.originalAmount.shouldBe(10000)
         createdExpense.title.shouldBe("Robot oil")
+    }
+
+    @Test
+    fun `should support pagination`(page: Page) {
+        page.authenticateViaCookie(preconditionsPagination.fry)
+
+        val firstPageWorkspaces = (1..10).map { "Workspace $it" }
+        val secondPageWorkspaces = (11..15).map { "Workspace $it" }
+
+        page.openWorkspacesOverviewPage {
+            shouldHaveWorkspaces(*firstPageWorkspaces.toTypedArray())
+            paginator {
+                shouldHaveActivePage(1)
+                shouldHaveTotalPages(2)
+                next()
+                shouldHaveActivePage(2)
+                shouldHaveTotalPages(2)
+            }
+            shouldHaveWorkspaces(*secondPageWorkspaces.toTypedArray())
+            paginator {
+                previous()
+                shouldHaveActivePage(1)
+                shouldHaveTotalPages(2)
+            }
+            shouldHaveWorkspaces(*firstPageWorkspaces.toTypedArray())
+        }
+    }
+
+    private val preconditionsPagination by lazyPreconditions {
+        object {
+            val fry = fry()
+
+            init {
+                val baseTime = MOCK_TIME.plusSeconds(100)
+                (1..15).forEach { index ->
+                    Workspace(
+                        name = "Workspace $index",
+                        ownerId = fry.id!!,
+                        defaultCurrency = "USD",
+                    ).also {
+                        it.createdAt = baseTime.plusSeconds(index.toLong())
+                    }.save()
+                }
+            }
+        }
     }
 }

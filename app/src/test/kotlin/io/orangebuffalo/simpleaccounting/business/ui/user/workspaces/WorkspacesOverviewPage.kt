@@ -2,14 +2,16 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 @UiComponentMarker
 class WorkspacePanel(
@@ -42,45 +44,34 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
     private val header = components.pageHeader("Workspaces")
     val createButton = components.buttonByText("Create new workspace")
 
-    private val currentWorkspaceHeaderLocator = page.locator("//h2[${XPath.hasText("Current Workspace")}]")
-    private val myOtherWorkspacesHeaderLocator = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]")
+    private val pageableItemsContainer = page.locator(".sa-pageable-items")
+    val paginator = components.twoSyncedPaginators(pageableItemsContainer)
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
     }
 
-    fun shouldHaveCurrentWorkspace(spec: WorkspacePanel.() -> Unit = {}): WorkspacesOverviewPage {
-        currentWorkspaceHeaderLocator.shouldBeVisible()
-        // The panel is a sibling following the h2
-        val currentWorkspacePanel = WorkspacePanel(
-            currentWorkspaceHeaderLocator.locator("+ .workspace-panel")
-        )
-        currentWorkspacePanel.spec()
-        return this
+    fun getWorkspacePanelByName(name: String): WorkspacePanel {
+        val panel = pageableItemsContainer.locator(".sa-pageable-items__item .workspace-panel")
+            .filter(Locator.FilterOptions().setHasText(name))
+            .first()
+        return WorkspacePanel(panel)
     }
 
-    fun shouldHaveOtherWorkspaces(count: Int, spec: (WorkspacePanel) -> Unit = {}): WorkspacesOverviewPage {
-        myOtherWorkspacesHeaderLocator.shouldBeVisible()
-        // Get all workspace panels that come after "My Other Workspaces" header
-        val otherWorkspacePanels = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]/following-sibling::div[@class='workspace-panel']")
-            .all()
-        otherWorkspacePanels.shouldHaveSize(count)
-        otherWorkspacePanels.forEach { panel: Locator ->
-            WorkspacePanel(panel).apply(spec)
+    fun shouldHaveWorkspaces(vararg names: String): WorkspacesOverviewPage {
+        shouldSatisfy("Workspaces should match expected names") {
+            pageableItemsContainer
+                .locator(".sa-pageable-items__item .workspace-panel__info-panel__name h3")
+                .all()
+                .map { it.innerText() }
+                .shouldContainExactly(*names)
         }
         return this
     }
 
-    fun shouldNotHaveOtherWorkspaces(): WorkspacesOverviewPage {
-        myOtherWorkspacesHeaderLocator.shouldBeHidden()
+    fun shouldHaveNoWorkspaces(): WorkspacesOverviewPage {
+        pageableItemsContainer.locator(".sa-pageable-items__empty-results").shouldBeVisible()
         return this
-    }
-
-    fun getOtherWorkspaceByName(name: String): WorkspacePanel {
-        val panel = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]/following-sibling::div[@class='workspace-panel']")
-            .filter(Locator.FilterOptions().setHasText(name))
-            .first()
-        return WorkspacePanel(panel)
     }
 
     companion object {
