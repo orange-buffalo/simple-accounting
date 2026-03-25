@@ -31,12 +31,13 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            shouldHaveWorkspaces("Planet Express")
-
-            getWorkspacePanelByName("Planet Express").apply {
-                shouldHaveTitle("Planet Express")
-                shouldNotHaveSwitchButton()
-            }
+            pageItems.shouldHaveExactData(
+                WorkspacePanelData(
+                    title = "Planet Express",
+                    switchButtonVisible = false,
+                    defaultCurrency = "USD",
+                ),
+            )
 
             reportRendering("workspaces-overview.single-workspace")
         }
@@ -56,22 +57,23 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company", "Slurm Corp")
-
-            getWorkspacePanelByName("Planet Express").apply {
-                shouldHaveTitle("Planet Express")
-                shouldNotHaveSwitchButton()
-            }
-
-            getWorkspacePanelByName("Mom's Friendly Robot Company").apply {
-                shouldHaveTitle("Mom's Friendly Robot Company")
-                shouldHaveSwitchButton()
-            }
-
-            getWorkspacePanelByName("Slurm Corp").apply {
-                shouldHaveTitle("Slurm Corp")
-                shouldHaveSwitchButton()
-            }
+            pageItems.shouldHaveExactData(
+                WorkspacePanelData(
+                    title = "Planet Express",
+                    switchButtonVisible = false,
+                    defaultCurrency = "USD",
+                ),
+                WorkspacePanelData(
+                    title = "Mom's Friendly Robot Company",
+                    switchButtonVisible = true,
+                    defaultCurrency = "EUR",
+                ),
+                WorkspacePanelData(
+                    title = "Slurm Corp",
+                    switchButtonVisible = true,
+                    defaultCurrency = "GBP",
+                ),
+            )
 
             reportRendering("workspaces-overview.multiple-workspaces")
         }
@@ -104,14 +106,18 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeWorkspacesOverviewPage {
-            getWorkspacePanelByName("Planet Express").apply {
-                shouldHaveTitle("Planet Express")
-            }
-
-            getWorkspacePanelByName("Mom's Friendly Robot Company").apply {
-                shouldHaveTitle("Mom's Friendly Robot Company")
-                shouldHaveSwitchButton()
-            }
+            pageItems.shouldHaveExactData(
+                WorkspacePanelData(
+                    title = "Planet Express",
+                    switchButtonVisible = false,
+                    defaultCurrency = "USD",
+                ),
+                WorkspacePanelData(
+                    title = "Mom's Friendly Robot Company",
+                    switchButtonVisible = true,
+                    defaultCurrency = "EUR",
+                ),
+            )
         }
     }
 
@@ -144,6 +150,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.openWorkspacesOverviewPage {
+            shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company")
             getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
@@ -173,6 +180,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
 
         page.openWorkspacesOverviewPage {
+            shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company")
             getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
@@ -207,7 +215,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.openWorkspacesOverviewPage {
             shouldHaveWorkspaces(*firstPageWorkspaces.toTypedArray())
-            paginator {
+            pageItems.paginator {
                 shouldHaveActivePage(1)
                 shouldHaveTotalPages(2)
                 next()
@@ -215,7 +223,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTotalPages(2)
             }
             shouldHaveWorkspaces(*secondPageWorkspaces.toTypedArray())
-            paginator {
+            pageItems.paginator {
                 previous()
                 shouldHaveActivePage(1)
                 shouldHaveTotalPages(2)

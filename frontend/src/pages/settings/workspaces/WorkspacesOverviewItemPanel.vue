@@ -81,15 +81,12 @@
   import useNavigation from '@/services/use-navigation';
   import { workspaceAccessTokensApi } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import type { WorkspacesPageQuery } from '@/services/api/gql/graphql';
 
-  type WorkspaceInfo = {
-    id: number;
-    name: string;
-    defaultCurrency: string;
-  };
+  type WorkspaceNode = WorkspacesPageQuery['workspaces']['edges'][0]['node'];
 
   const props = defineProps<{
-    workspace: WorkspaceInfo,
+    workspace: WorkspaceNode,
   }>();
 
   const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
