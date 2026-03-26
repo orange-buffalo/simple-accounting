@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategories
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -107,6 +108,20 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Expenses in this workspace.")
     fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
+
+    @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
+    suspend fun documents(
+        @GraphQLDescription("The maximum number of items to return.") first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): DocumentsConnectionGqlDto {
+        val cursorPage = decodeCursor(after)
+        return env.graphQlContext.get<DocumentsService>(DocumentsService::class).getDocumentsPaginated(
+            workspaceId = id.toLong(),
+            first = first,
+            cursorPage = cursorPage,
+        )
+    }
 }
 
 @GraphQLName("Category")
