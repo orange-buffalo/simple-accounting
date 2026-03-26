@@ -55,8 +55,9 @@ class WorkspacesQuery(
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id.toLong(), WorkspaceAccessMode.READ_ONLY)
         return WorkspaceGqlDto(
-            id = workspace.id!!,
+            id = workspace.id!!.toInt(),
             name = workspace.name,
+            defaultCurrency = workspace.defaultCurrency,
         )
     }
 }
@@ -92,16 +93,20 @@ data class WorkspaceEdgeGqlDto(
 @GraphQLName("Workspace")
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
-    @property:GraphQLIgnore val id: Long,
+    @GraphQLDescription("ID of the workspace.")
+    val id: Int,
 
     @GraphQLDescription("Name of the workspace.")
     val name: String,
+
+    @GraphQLDescription("Default currency of the workspace.")
+    val defaultCurrency: String,
 ) {
     @GraphQLDescription("Categories in this workspace.")
-    fun categories(env: DataFetchingEnvironment) = env.loadCategoriesByWorkspaceId(id)
+    fun categories(env: DataFetchingEnvironment) = env.loadCategoriesByWorkspaceId(id.toLong())
 
     @GraphQLDescription("Expenses in this workspace.")
-    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id)
+    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
 }
 
 @GraphQLName("Category")

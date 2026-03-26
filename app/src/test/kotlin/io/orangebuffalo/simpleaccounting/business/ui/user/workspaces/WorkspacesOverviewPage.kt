@@ -2,36 +2,55 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldHaveSize
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
-import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
+
+/* language=javascript */
+private const val WORKSPACE_PANEL_DATA_JS = """
+    (panel) => {
+        const workspacePanel = panel.querySelector('.workspace-panel');
+        if (!workspacePanel) return null;
+        const nameEl = workspacePanel.querySelector('.workspace-panel__info-panel__name h3');
+        const switchButton = workspacePanel.querySelector('.workspace-panel__info-panel__name button');
+        const switchButtonVisible = switchButton !== null
+            && switchButton.textContent.trim() === 'Switch to this workspace'
+            && switchButton.offsetParent !== null;
+        let defaultCurrency = null;
+        const labels = workspacePanel.querySelectorAll('.sa-attribute-value__label');
+        for (const label of labels) {
+            if (label.textContent.trim() === 'Default Currency') {
+                const valueEl = label.nextElementSibling;
+                if (valueEl) {
+                    defaultCurrency = valueEl.textContent.trim();
+                }
+            }
+        }
+        return {
+            title: nameEl ? nameEl.textContent.trim() : null,
+            switchButtonVisible: switchButtonVisible,
+            defaultCurrency: defaultCurrency
+        };
+    };
+"""
+
+@Serializable
+data class WorkspacePanelData(
+    val title: String? = null,
+    val switchButtonVisible: Boolean = false,
+    val defaultCurrency: String? = null,
+)
 
 @UiComponentMarker
 class WorkspacePanel(
     private val container: Locator
 ) {
-    private val nameElement = container.locator(".workspace-panel__info-panel__name h3")
     private val switchButtonLocator = container.locator("xpath=//button[${XPath.hasText("Switch to this workspace")}]")
-
-    fun shouldHaveTitle(title: String): WorkspacePanel {
-        nameElement.shouldHaveText(title)
-        return this
-    }
-
-    fun shouldHaveSwitchButton(): WorkspacePanel {
-        switchButtonLocator.shouldBeVisible()
-        return this
-    }
-
-    fun shouldNotHaveSwitchButton(): WorkspacePanel {
-        switchButtonLocator.shouldBeHidden()
-        return this
-    }
 
     fun clickSwitchButton() {
         switchButtonLocator.click()
@@ -42,45 +61,25 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
     private val header = components.pageHeader("Workspaces")
     val createButton = components.buttonByText("Create new workspace")
 
-    private val currentWorkspaceHeaderLocator = page.locator("//h2[${XPath.hasText("Current Workspace")}]")
-    private val myOtherWorkspacesHeaderLocator = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]")
+    val pageItems = components.workspacePanelItems()
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
     }
 
-    fun shouldHaveCurrentWorkspace(spec: WorkspacePanel.() -> Unit = {}): WorkspacesOverviewPage {
-        currentWorkspaceHeaderLocator.shouldBeVisible()
-        // The panel is a sibling following the h2
-        val currentWorkspacePanel = WorkspacePanel(
-            currentWorkspaceHeaderLocator.locator("+ .workspace-panel")
-        )
-        currentWorkspacePanel.spec()
-        return this
+    fun getWorkspacePanelByName(name: String): WorkspacePanel {
+        val item = pageItems.shouldHaveItemSatisfying { wrapper ->
+            wrapper.container.locator(".workspace-panel__info-panel__name h3")
+                .innerText().trim() == name
+        }
+        return WorkspacePanel(item.container.locator(".workspace-panel"))
     }
 
-    fun shouldHaveOtherWorkspaces(count: Int, spec: (WorkspacePanel) -> Unit = {}): WorkspacesOverviewPage {
-        myOtherWorkspacesHeaderLocator.shouldBeVisible()
-        // Get all workspace panels that come after "My Other Workspaces" header
-        val otherWorkspacePanels = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]/following-sibling::div[@class='workspace-panel']")
-            .all()
-        otherWorkspacePanels.shouldHaveSize(count)
-        otherWorkspacePanels.forEach { panel: Locator ->
-            WorkspacePanel(panel).apply(spec)
+    fun shouldHaveWorkspaces(vararg names: String): WorkspacesOverviewPage {
+        pageItems.shouldHaveDataSatisfying { items ->
+            items.map { it.title }.shouldContainExactly(*names)
         }
         return this
-    }
-
-    fun shouldNotHaveOtherWorkspaces(): WorkspacesOverviewPage {
-        myOtherWorkspacesHeaderLocator.shouldBeHidden()
-        return this
-    }
-
-    fun getOtherWorkspaceByName(name: String): WorkspacePanel {
-        val panel = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]/following-sibling::div[@class='workspace-panel']")
-            .filter(Locator.FilterOptions().setHasText(name))
-            .first()
-        return WorkspacePanel(panel)
     }
 
     companion object {
@@ -97,3 +96,12 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
         }
     }
 }
+
+class WorkspacePanelItemWrapper(val container: Locator)
+
+private fun ComponentsAccessors.workspacePanelItems() =
+    pageableItems(
+        itemDataJs = WORKSPACE_PANEL_DATA_JS,
+        itemDataSerializer = serializer<WorkspacePanelData>(),
+    ) { container -> WorkspacePanelItemWrapper(container) }
+

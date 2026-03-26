@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
@@ -23,17 +24,33 @@ class Paginator private constructor(
 
     fun shouldHaveTotalPages(expected: Int) = shouldSatisfy {
         instances.forEach {
-            it.locator(".el-pager > li")
-                .all()
-                .shouldHaveSize(expected)
+            val pageIndicator = it.locator(".sa-pageable-items__page-indicator")
+            if (pageIndicator.count() > 0) {
+                val text = pageIndicator.innerTextOrNull()
+                text.shouldNotBe(null)
+                val totalPages = text!!.substringAfterLast(" ").trim().toInt()
+                totalPages.shouldBe(expected)
+            } else {
+                it.locator(".el-pager > li")
+                    .all()
+                    .shouldHaveSize(expected)
+            }
         }
     }
 
     fun shouldHaveActivePage(expected: Int) = shouldSatisfy {
         instances.forEach {
-            it.locator(".el-pager > li.is-active")
-                .innerTextOrNull()
-                .shouldBe(expected.toString())
+            val pageIndicator = it.locator(".sa-pageable-items__page-indicator")
+            if (pageIndicator.count() > 0) {
+                val text = pageIndicator.innerTextOrNull()
+                text.shouldNotBe(null)
+                val activePage = text!!.substringBefore(" ").trim().toInt()
+                activePage.shouldBe(expected)
+            } else {
+                it.locator(".el-pager > li.is-active")
+                    .innerTextOrNull()
+                    .shouldBe(expected.toString())
+            }
         }
     }
 

@@ -33,7 +33,7 @@ class UserPreferencesAcceptanceFullStackTest : SaFullStackTestBase() {
         page.shouldHaveSideMenu().clickWorkspacesUk()
 
         page.shouldBeWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
+            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
         page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
