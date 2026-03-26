@@ -10,12 +10,12 @@
         :amountInCents="expenses.totalAmount"
       />
 
-      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.expenses.totalHeader(expenses.finalizedCount) }}</span>
+      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.expenses.totalHeader(expenses.finalizedCount ?? 0) }}</span>
 
       <span
         v-if="expenses.pendingCount"
         class="sa-dashboard__card__header__pending"
-      >{{ $t.dashboard.cards.expenses.pendingHeader(expenses.pendingCount) }}</span>
+      >{{ $t.dashboard.cards.expenses.pendingHeader(expenses.pendingCount ?? 0) }}</span>
       <span
         v-if="!expenses.pendingCount"
         class="sa-dashboard__card__header__pending"

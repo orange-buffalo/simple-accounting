@@ -50,7 +50,7 @@ export const errorHandlingInterceptor: Middleware = {
   }): Promise<Response | void> {
     if (error instanceof DOMException) {
       if (error.name === 'AbortError') {
-        const { reason } = init.signal;
+        const reason = init.signal?.reason;
         if (reason instanceof ApiRequestCancelledError) {
           // see useRequestConfig for the reason
           throw reason;

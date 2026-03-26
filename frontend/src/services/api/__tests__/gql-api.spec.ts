@@ -511,8 +511,7 @@ async function expectToFailWith<T>(
       .toHaveProperty('name', expectedErrorName);
     return e as T;
   }
-  expect('API call expected to fail', 'API call expected to fail')
-    .toBeDefined();
+  throw new Error('API call expected to fail');
 }
 
 function validationFailureResponse(validationErrors: Array<{

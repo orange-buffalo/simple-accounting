@@ -117,7 +117,7 @@ export function useMutation<
       const result = await gqlClient.mutation(mutation, variables);
       return result[mutationName];
     } catch (e: unknown) {
-      await handleError(e);
+      return await handleError(e);
     }
   };
 }
@@ -141,7 +141,7 @@ export function useLazyQuery<
       const result = await gqlClient.query(query, variables);
       return result[queryName];
     } catch (e: unknown) {
-      await handleError(e);
+      return await handleError(e);
     }
   };
 }

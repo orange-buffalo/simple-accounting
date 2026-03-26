@@ -129,7 +129,7 @@ describe('API Client', () => {
     const error = await expectToFailWith<ApiAuthError>(async () => {
       await apiCall();
     }, 'ApiAuthError');
-    expect(error.response.status)
+    expect(error.response!.status)
       .toBe(401);
 
     expect(loginRequiredEventMock)
@@ -156,7 +156,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<FatalApiError>(async () => {
       await apiCall();
     }, 'FatalApiError');
-    expect(apiError.response.status)
+    expect(apiError.response!.status)
       .toBe(500);
 
     assertRegularRequestEvents();
@@ -170,7 +170,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ResourceNotFoundError>(async () => {
       await apiCall();
     }, 'ResourceNotFoundError');
-    expect(apiError.response.status)
+    expect(apiError.response!.status)
       .toBe(404);
 
     assertRegularRequestEvents();
@@ -193,7 +193,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
       await apiCall();
     }, 'ApiFieldLevelValidationError');
-    expect(apiError.response.status)
+    expect(apiError.response!.status)
       .toBe(400);
     expect(apiError.fieldErrors)
       .toEqual([
@@ -218,7 +218,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ApiBusinessError>(async () => {
       await apiCall();
     }, 'ApiBusinessError');
-    expect(apiError.response.status)
+    expect(apiError.response!.status)
       .toBe(400);
     expect(apiError.errorAs<TestBusinessErrorDto>())
       .toEqual({
@@ -238,7 +238,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<FatalApiError>(async () => {
       await apiCall();
     }, 'FatalApiError');
-    expect(apiError.response.status)
+    expect(apiError.response!.status)
       .toBe(400);
 
     assertRegularRequestEvents();
@@ -368,6 +368,5 @@ async function expectToFailWith<T>(
       .toHaveProperty('name', expectedErrorName);
     return e as T;
   }
-  expect('API call expected to fail', 'API call expected to fail')
-      .toBeDefined();
+  throw new Error('API call expected to fail');
 }
