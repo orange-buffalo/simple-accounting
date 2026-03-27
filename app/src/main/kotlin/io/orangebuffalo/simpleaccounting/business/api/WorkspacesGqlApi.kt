@@ -18,6 +18,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeCursor
+import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.stereotype.Component
@@ -111,12 +112,15 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(
-        @GraphQLDescription("The maximum number of items to return.") first: Int,
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): DocumentsConnectionGqlDto {
         val cursorPage = decodeCursor(after)
-        return env.graphQlContext.get<DocumentsService>(DocumentsService::class).getDocumentsPaginated(
+        return env.graphQlContext.getBean<DocumentsService>().getDocumentsPaginated(
             workspaceId = id.toLong(),
             first = first,
             cursorPage = cursorPage,

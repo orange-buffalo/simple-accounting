@@ -135,7 +135,7 @@ class DocumentsService(
         first: Int,
         cursorPage: CursorPage,
     ): DocumentsConnectionGqlDto = withDbContext {
-        val items = documentRepository.findByWorkspaceIdPaginatedWithUsages(
+        val items = documentRepository.findByWorkspaceIdPaginated(
             workspaceId = workspaceId,
             limit = first,
             afterCreatedAt = cursorPage.createdAtAfter,
@@ -144,6 +144,8 @@ class DocumentsService(
 
         val hasNextPage = items.size > first
         val pageItems = if (hasNextPage) items.dropLast(1) else items
+
+        val usagesByDocId = documentRepository.findUsagesByDocumentIds(pageItems.map { it.id })
 
         val edges = pageItems.map { item ->
             DocumentEdgeGqlDto(
@@ -156,7 +158,7 @@ class DocumentsService(
                     sizeInBytes = item.sizeInBytes?.toInt(),
                     storageId = item.storageId,
                     mimeType = item.mimeType,
-                    usedBy = item.usages,
+                    usedBy = usagesByDocId[item.id] ?: emptyList(),
                 ),
             )
         }

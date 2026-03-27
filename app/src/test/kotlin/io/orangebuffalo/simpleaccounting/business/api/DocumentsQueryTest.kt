@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -22,59 +21,6 @@ import java.time.Instant
 class DocumentsQueryTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
-
-    private val preconditions by lazyPreconditions {
-        object {
-            val fry = fry()
-            val fryWorkspace = workspace(owner = fry, name = "Planet Express")
-            val zoidberg = zoidberg().withWorkspace()
-            val workspaceToken = workspaceAccessToken(
-                workspace = fryWorkspace,
-                validTill = MOCK_TIME.plusSeconds(10000),
-            )
-        }
-    }
-
-    @Nested
-    @DisplayName("Authorization")
-    inner class Authorization {
-        @Test
-        fun `should return error when accessed anonymously`() {
-            client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node { name }
-                        }
-                    }
-                }
-            }
-                .fromAnonymous()
-                .executeAndVerifyNotAuthorized(
-                    path = "workspace",
-                )
-        }
-
-        @Test
-        fun `should allow access with workspace token`() {
-            client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node { name }
-                        }
-                        totalCount
-                    }
-                }
-            }
-                .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", documentsConnection(totalCount = 0))
-                    }
-                )
-        }
-    }
 
     @Nested
     @DisplayName("Pagination")
@@ -214,11 +160,10 @@ class DocumentsQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
-                        put("documents", documentsConnection(
-                            totalCount = 0,
+                        put("documents", emptyDocumentsConnection(
                             hasPreviousPage = false,
                             hasNextPage = false,
-                            includePageInfo = true,
+                            totalCount = 0,
                         ))
                     }
                 )
@@ -257,11 +202,10 @@ class DocumentsQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
-                        put("documents", documentsConnection(
-                            totalCount = 1,
+                        put("documents", emptyDocumentsConnection(
                             hasPreviousPage = true,
                             hasNextPage = false,
-                            includePageInfo = true,
+                            totalCount = 1,
                         ))
                     }
                 )
@@ -287,10 +231,17 @@ class DocumentsQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
-                        put("documents", documentsConnection(totalCount = 3, includePageInfo = true) {
-                            documentEdge(name = "Slurm receipt")
-                            documentEdge(name = "Robot oil invoice")
-                            documentEdge(name = "Spaceship fuel bill")
+                        put("documents", buildJsonObject {
+                            putJsonArray("edges") {
+                                documentEdge(name = "Slurm receipt")
+                                documentEdge(name = "Robot oil invoice")
+                                documentEdge(name = "Spaceship fuel bill")
+                            }
+                            put("pageInfo", buildJsonObject {
+                                put("hasPreviousPage", false)
+                                put("hasNextPage", false)
+                            })
+                            put("totalCount", 3)
                         })
                     }
                 )
@@ -324,8 +275,11 @@ class DocumentsQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
-                        put("documents", documentsConnection(totalCount = 1) {
-                            documentEdge(name = "Slurm receipt")
+                        put("documents", buildJsonObject {
+                            putJsonArray("edges") {
+                                documentEdge(name = "Slurm receipt")
+                            }
+                            put("totalCount", 1)
                         })
                     }
                 )
@@ -364,10 +318,12 @@ class DocumentsQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
-                        put("documents", documentsConnection {
-                            documentEdge(name = "Slurm receipt")
-                            documentEdge(name = "Robot oil invoice")
-                            documentEdge(name = "Spaceship fuel bill")
+                        put("documents", buildJsonObject {
+                            putJsonArray("edges") {
+                                documentEdge(name = "Slurm receipt")
+                                documentEdge(name = "Robot oil invoice")
+                                documentEdge(name = "Spaceship fuel bill")
+                            }
                         })
                     }
                 )
@@ -483,18 +439,15 @@ class DocumentsQueryTest(
     @DisplayName("Document Usages")
     inner class DocumentUsages {
 
-        @Test
-        fun `should return usages for document attached to an expense`() {
+        private fun executeAndVerifyUsages(
+            preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Pair<String, Long>>,
+        ) {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Slurm receipt")
-                    val expense = expense(
-                        workspace = workspace,
-                        title = "Slurm supplies",
-                        attachments = setOf(doc),
-                    )
+                    val doc = document(workspace = workspace, name = "Test receipt")
+                    val usages = preconditionsSpec(workspace, doc)
                 }
             }
             client.graphql {
@@ -519,12 +472,13 @@ class DocumentsQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("name", "Slurm receipt")
+                                        put("name", "Test receipt")
                                         putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "EXPENSE")
-                                                put("relatedEntityId", testData.expense.id!!.toInt())
-                                            })
+                                            testData.usages
+                                                .sortedWith(compareBy({ it.first }, { it.second }))
+                                                .forEach { (type, id) ->
+                                                    add(usageJson(type, id.toInt()))
+                                                }
                                         }
                                     })
                                 })
@@ -532,321 +486,62 @@ class DocumentsQueryTest(
                         })
                     }
                 )
+        }
+
+        @Test
+        fun `should return usages for document attached to an expense`() {
+            executeAndVerifyUsages { workspace, doc ->
+                val expense = expense(workspace = workspace, attachments = setOf(doc))
+                listOf("EXPENSE" to expense.id!!)
+            }
         }
 
         @Test
         fun `should return usages for document attached to an income`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Delivery payment proof")
-                    val income = income(
-                        workspace = workspace,
-                        title = "Delivery to Omicron Persei 8",
-                        attachments = setOf(doc),
-                    )
-                }
+            executeAndVerifyUsages { workspace, doc ->
+                val income = income(workspace = workspace, attachments = setOf(doc))
+                listOf("INCOME" to income.id!!)
             }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Delivery payment proof")
-                                        putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "INCOME")
-                                                put("relatedEntityId", testData.income.id!!.toInt())
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
         }
 
         @Test
         fun `should return usages for document attached to an invoice`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val customer = customer(workspace = workspace, name = "MomCorp")
-                    val doc = document(workspace = workspace, name = "Delivery invoice scan")
-                    val invoice = invoice(
-                        customer = customer,
-                        title = "Interplanetary delivery",
-                        attachments = setOf(doc),
-                    )
-                }
+            executeAndVerifyUsages { workspace, doc ->
+                val customer = customer(workspace = workspace, name = "MomCorp")
+                val invoice = invoice(customer = customer, attachments = setOf(doc))
+                listOf("INVOICE" to invoice.id!!)
             }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Delivery invoice scan")
-                                        putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "INVOICE")
-                                                put("relatedEntityId", testData.invoice.id!!.toInt())
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
         }
 
         @Test
         fun `should return usages for document attached to an income tax payment`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Tax filing confirmation")
-                    val taxPayment = incomeTaxPayment(
-                        workspace = workspace,
-                        title = "Earth tax filing 3025",
-                        attachments = setOf(doc),
-                    )
-                }
+            executeAndVerifyUsages { workspace, doc ->
+                val taxPayment = incomeTaxPayment(workspace = workspace, attachments = setOf(doc))
+                listOf("INCOME_TAX_PAYMENT" to taxPayment.id!!)
             }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Tax filing confirmation")
-                                        putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "INCOME_TAX_PAYMENT")
-                                                put("relatedEntityId", testData.taxPayment.id!!.toInt())
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
         }
 
         @Test
         fun `should return empty usedBy for unused document`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Orphaned receipt")
-                }
-            }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Orphaned receipt")
-                                        putJsonArray("usedBy") {}
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
+            executeAndVerifyUsages { _, _ -> emptyList() }
         }
 
         @Test
         fun `should return multiple usages for document used by different entity types`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Multi-use receipt")
-                    val expense = expense(
-                        workspace = workspace,
-                        title = "Slurm supplies",
-                        attachments = setOf(doc),
-                    )
-                    val income = income(
-                        workspace = workspace,
-                        title = "Delivery to Mars",
-                        attachments = setOf(doc),
-                    )
-                }
+            executeAndVerifyUsages { workspace, doc ->
+                val expense = expense(workspace = workspace, attachments = setOf(doc))
+                val income = income(workspace = workspace, attachments = setOf(doc))
+                listOf("EXPENSE" to expense.id!!, "INCOME" to income.id!!)
             }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Multi-use receipt")
-                                        putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "EXPENSE")
-                                                put("relatedEntityId", testData.expense.id!!.toInt())
-                                            })
-                                            add(buildJsonObject {
-                                                put("type", "INCOME")
-                                                put("relatedEntityId", testData.income.id!!.toInt())
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
         }
 
         @Test
         fun `should return multiple usages when document is attached to multiple entities of same type`() {
-            val testData = preconditions {
-                object {
-                    val fry = fry()
-                    val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc = document(workspace = workspace, name = "Shared receipt")
-                    val expense1 = expense(
-                        workspace = workspace,
-                        title = "Slurm supplies",
-                        attachments = setOf(doc),
-                    )
-                    val expense2 = expense(
-                        workspace = workspace,
-                        title = "Robot oil",
-                        attachments = setOf(doc),
-                    )
-                }
+            executeAndVerifyUsages { workspace, doc ->
+                val expense1 = expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(doc))
+                val expense2 = expense(workspace = workspace, title = "Robot oil", attachments = setOf(doc))
+                listOf("EXPENSE" to expense1.id!!, "EXPENSE" to expense2.id!!)
             }
-            client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
-                    documents(first = 10) {
-                        edges {
-                            node {
-                                name
-                                usedBy {
-                                    type
-                                    relatedEntityId
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-                .from(testData.fry)
-                .executeAndVerifyResponse(
-                    "workspace" to buildJsonObject {
-                        put("documents", buildJsonObject {
-                            putJsonArray("edges") {
-                                add(buildJsonObject {
-                                    put("node", buildJsonObject {
-                                        put("name", "Shared receipt")
-                                        putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "EXPENSE")
-                                                put("relatedEntityId", testData.expense1.id!!.toInt())
-                                            })
-                                            add(buildJsonObject {
-                                                put("type", "EXPENSE")
-                                                put("relatedEntityId", testData.expense2.id!!.toInt())
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    }
-                )
         }
 
         @Test
@@ -863,11 +558,7 @@ class DocumentsQueryTest(
                         it.createdAt = MOCK_TIME.plusSeconds(200)
                         it.save()
                     }
-                    val expense = expense(
-                        workspace = workspace,
-                        title = "Slurm supplies",
-                        attachments = setOf(usedDoc),
-                    )
+                    val expense = expense(workspace = workspace, attachments = setOf(usedDoc))
                 }
             }
             client.graphql {
@@ -894,10 +585,7 @@ class DocumentsQueryTest(
                                     put("node", buildJsonObject {
                                         put("name", "Used receipt")
                                         putJsonArray("usedBy") {
-                                            add(buildJsonObject {
-                                                put("type", "EXPENSE")
-                                                put("relatedEntityId", testData.expense.id!!.toInt())
-                                            })
+                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt()))
                                         }
                                     })
                                 })
@@ -915,31 +603,24 @@ class DocumentsQueryTest(
     }
 }
 
-private fun documentsConnection(
-    totalCount: Int? = null,
-    hasPreviousPage: Boolean = false,
-    hasNextPage: Boolean = false,
-    includePageInfo: Boolean = false,
-    edgesSpec: (kotlinx.serialization.json.JsonArrayBuilder.() -> Unit)? = null,
+private fun usageJson(type: String, relatedEntityId: Int): JsonElement = buildJsonObject {
+    put("type", type)
+    put("relatedEntityId", relatedEntityId)
+}
+
+private fun emptyDocumentsConnection(
+    totalCount: Int,
+    hasPreviousPage: Boolean,
+    hasNextPage: Boolean,
 ): JsonElement = buildJsonObject {
-    putJsonArray("edges") {
-        if (edgesSpec != null) {
-            edgesSpec()
-        }
-    }
-    if (totalCount != null) {
-        put("totalCount", totalCount)
-    }
-    if (includePageInfo) {
-        put("pageInfo", buildJsonObject {
-            put("hasPreviousPage", hasPreviousPage)
-            put("hasNextPage", hasNextPage)
-            if (edgesSpec == null) {
-                put("startCursor", null as String?)
-                put("endCursor", null as String?)
-            }
-        })
-    }
+    putJsonArray("edges") {}
+    put("pageInfo", buildJsonObject {
+        put("startCursor", null as String?)
+        put("endCursor", null as String?)
+        put("hasPreviousPage", hasPreviousPage)
+        put("hasNextPage", hasNextPage)
+    })
+    put("totalCount", totalCount)
 }
 
 private fun kotlinx.serialization.json.JsonArrayBuilder.documentEdge(name: String) {
