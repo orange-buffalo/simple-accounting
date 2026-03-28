@@ -97,6 +97,68 @@ export type CreateAccessTokenByWorkspaceAccessTokenResponse = {
   accessToken: Scalars['String']['output'];
 };
 
+/** A document in a workspace. */
+export type Document = {
+  __typename?: 'Document';
+  /** ID of the document. */
+  id: Scalars['Int']['output'];
+  /** MIME type of the document. */
+  mimeType: Scalars['String']['output'];
+  /** Name of the document. */
+  name: Scalars['String']['output'];
+  /** Size of the document in bytes. */
+  sizeInBytes?: Maybe<Scalars['Int']['output']>;
+  /** ID of the storage where the document is stored. */
+  storageId: Scalars['String']['output'];
+  /** Time when the document was uploaded, as ISO 8601 timestamp. */
+  timeUploaded: Scalars['String']['output'];
+  /** Entities that use this document. */
+  usedBy: Array<DocumentUsage>;
+  /** Version of the document for optimistic locking. */
+  version: Scalars['Int']['output'];
+};
+
+/** An edge in a documents connection. */
+export type DocumentEdge = {
+  __typename?: 'DocumentEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The document at the end of this edge. */
+  node: Document;
+};
+
+/** Describes usage of a document by another entity. */
+export type DocumentUsage = {
+  __typename?: 'DocumentUsage';
+  /** ID of the entity using the document. */
+  relatedEntityId: Scalars['Int']['output'];
+  /** Type of entity using the document. */
+  type: DocumentUsageType;
+};
+
+/** Type of entity that uses a document. */
+export enum DocumentUsageType {
+  /** Document is used by an expense. */
+  Expense = 'EXPENSE',
+  /** Document is used by an income. */
+  Income = 'INCOME',
+  /** Document is used by an income tax payment. */
+  IncomeTaxPayment = 'INCOME_TAX_PAYMENT',
+  /** Document is used by an invoice. */
+  Invoice = 'INVOICE'
+}
+
+/** A paginated connection of documents following the GraphQL Cursor Connections Specification. */
+export type DocumentsConnection = {
+  __typename?: 'DocumentsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<DocumentEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Statistics about document storage usage. */
 export type DocumentsStorageStatisticsItem = {
   __typename?: 'DocumentsStorageStatisticsItem';
@@ -323,12 +385,21 @@ export type Workspace = {
   categories: Array<Category>;
   /** Default currency of the workspace. */
   defaultCurrency: Scalars['String']['output'];
+  /** Documents in this workspace with cursor-based pagination. */
+  documents: DocumentsConnection;
   /** Expenses in this workspace. */
   expenses: Array<Expense>;
   /** ID of the workspace. */
   id: Scalars['Int']['output'];
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceDocumentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 /** An edge in a workspaces connection. */
