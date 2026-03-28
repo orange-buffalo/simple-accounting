@@ -45,9 +45,9 @@ export function setFieldErrorsFromClientSideValidation(
 function getApiFieldErrorMessage(fieldError: FieldErrorDto) {
   switch (fieldError.error) {
   case 'SizeConstraintViolated':
-    return (fieldError.params.min && (Number(fieldError.params.min) > 1))
+    return (fieldError.params?.min && (Number(fieldError.params.min) > 1))
       ? $t.value.formValidationMessages.sizeMinMax(Number(fieldError.params.min), Number(fieldError.params.max))
-      : $t.value.formValidationMessages.sizeMax(Number(fieldError.params.max));
+      : $t.value.formValidationMessages.sizeMax(Number(fieldError.params?.max));
   case 'MustNotBeBlank':
     return $t.value.formValidationMessages.notBlank();
   default:

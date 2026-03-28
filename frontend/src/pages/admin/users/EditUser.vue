@@ -95,7 +95,7 @@
         const createdUser = await usersApi.createUser({
           createUserRequestDto: formValues.value,
         });
-        await navigateToEditUser(createdUser.id);
+        await navigateToEditUser(createdUser.id!);
       }
       showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
     } catch (e: unknown) {

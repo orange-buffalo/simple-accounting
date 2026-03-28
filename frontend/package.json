@@ -30,7 +30,7 @@
     "imask": "7.6.1",
     "jwt-decode": "4.0.0",
     "lodash": "4.17.23",
-    "marked": "17.0.4",
+    "marked": "17.0.5",
     "qs": "6.15.0",
     "vue": "3.5.31",
     "vue-router": "5.0.4"
@@ -72,10 +72,10 @@
     "jsdom": "29.0.1",
     "rollup-plugin-visualizer": "7.0.1",
     "sass": "1.98.0",
-    "typescript": "5.9.3",
-    "vite": "8.0.2",
+    "typescript": "6.0.2",
+    "vite": "8.0.3",
     "vite-svg-loader": "5.1.1",
-    "vitest": "4.1.1",
+    "vitest": "4.1.2",
     "vue-eslint-parser": "10.4.0",
     "vue-tsc": "3.2.6",
     "whatwg-fetch": "3.6.20"

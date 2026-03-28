@@ -10,12 +10,12 @@
         :amountInCents="incomes.totalAmount"
       />
 
-      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.incomes.totalHeader(incomes.finalizedCount) }}</span>
+      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.incomes.totalHeader(incomes.finalizedCount ?? 0) }}</span>
 
       <span
         v-if="incomes.pendingCount"
         class="sa-dashboard__card__header__pending"
-      >{{ $t.dashboard.cards.incomes.pendingHeader(incomes.pendingCount) }}</span>
+      >{{ $t.dashboard.cards.incomes.pendingHeader(incomes.pendingCount ?? 0) }}</span>
       <span
         v-if="!incomes.pendingCount"
         class="sa-dashboard__card__header__pending"

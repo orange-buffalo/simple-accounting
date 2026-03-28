@@ -153,7 +153,7 @@ async function executeGqlRequestAndHandleErrors<Data>(
     throw new ApiError(
       `Unsupported error received: ${JSON.stringify(graphQLError)}`);
   }
-  return result.data;
+  return result.data!;
 }
 
 export const gqlClient: GrapQlClient = {

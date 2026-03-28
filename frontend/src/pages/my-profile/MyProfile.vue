@@ -6,13 +6,13 @@
 
     <MyProfileDocumentsStorage
       v-if="!isAdmin()"
-      :profile="profile"
+      :profile="profile ?? undefined"
       :loading="loading"
       @profile-updated="onProfileUpdated"
     />
 
     <MyProfileLanguagePreferences
-      :profile="profile"
+      :profile="profile ?? undefined"
       :loading="loading"
       @profile-updated="onProfileUpdated"
     />
