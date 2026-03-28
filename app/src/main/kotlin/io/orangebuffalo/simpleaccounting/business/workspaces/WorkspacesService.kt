@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.business.api.WorkspacesConnectionGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.WorkspaceEdgeGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.WorkspaceGqlDto
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.CursorPage
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.buildConnection
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
@@ -32,7 +32,7 @@ class WorkspacesService(
         userName: String,
         first: Int,
         cursorPage: CursorPage,
-    ): WorkspacesConnectionGqlDto = withDbContext {
+    ): ConnectionGqlDto<WorkspaceGqlDto> = withDbContext {
         val items = workspacesRepository.findByOwnerUserNamePaginated(
             userName = userName,
             limit = first,
@@ -45,7 +45,7 @@ class WorkspacesService(
             totalCount = totalCount,
             cursorPage = cursorPage,
             mapper = { workspace ->
-                WorkspaceEdgeGqlDto(
+                EdgeGqlDto(
                     cursor = encodeCursor(workspace.createdAt!!),
                     node = WorkspaceGqlDto(
                         id = workspace.id!!.toInt(),
@@ -54,7 +54,6 @@ class WorkspacesService(
                     ),
                 )
             },
-            connectionFactory = ::WorkspacesConnectionGqlDto,
         )
     }
 

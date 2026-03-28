@@ -13,18 +13,21 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
+import graphql.schema.GraphQLType
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionSchemaGenerationSupport
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 import java.util.*
+import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 @ContactDirective(
@@ -45,6 +48,14 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
     )
     override val wiringFactory: KotlinDirectiveWiringFactory
         get() = directiveWiringFactory
+
+    val connectionSchemaGenerationSupport = ConnectionSchemaGenerationSupport()
+
+    override fun willGenerateGraphQLType(type: KType): GraphQLType? =
+        connectionSchemaGenerationSupport.willGenerateGraphQLType(type)
+
+    override fun didBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder =
+        connectionSchemaGenerationSupport.addEdgeTypesToSchema(builder)
 }
 
 /**
@@ -66,8 +77,13 @@ class SaGraphQlSchemaConfig {
         schemaObject: Optional<Schema>,
         validationSchemaTransformer: ValidationSchemaTransformer,
         businessErrorSchemaTransformer: BusinessErrorSchemaTransformer,
+        schemaGeneratorHooks: SaSchemaGeneratorHooks,
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
+
+        val allOperations = queries.orElse(emptyList()) + mutations.orElse(emptyList())
+        val connectionNodeTypes = schemaGeneratorHooks.connectionSchemaGenerationSupport
+            .collectAdditionalTypes(allOperations)
         
         val baseSchema = generator.use {
             it.generateSchema(
@@ -81,6 +97,7 @@ class SaGraphQlSchemaConfig {
                     ValidationErrorDetails::class.createType(),
                     ValidationErrorParam::class.createType(),
                 ) + businessErrorSchemaTransformer.extensionTypes.map { it.createType() }
+                  + connectionNodeTypes
             )
         }
         

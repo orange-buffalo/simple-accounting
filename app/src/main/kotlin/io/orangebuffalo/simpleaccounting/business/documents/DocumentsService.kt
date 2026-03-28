@@ -1,8 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import io.orangebuffalo.simpleaccounting.business.api.DocumentEdgeGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.DocumentGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.DocumentsConnectionGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.CursorPage
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -11,9 +14,6 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.CursorPage
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
@@ -134,7 +134,7 @@ class DocumentsService(
         workspaceId: Long,
         first: Int,
         cursorPage: CursorPage,
-    ): DocumentsConnectionGqlDto = withDbContext {
+    ): ConnectionGqlDto<DocumentGqlDto> = withDbContext {
         val items = documentRepository.findByWorkspaceIdPaginated(
             workspaceId = workspaceId,
             limit = first,
@@ -148,7 +148,7 @@ class DocumentsService(
         val usagesByDocId = documentRepository.findUsagesByDocumentIds(pageItems.map { it.id })
 
         val edges = pageItems.map { item ->
-            DocumentEdgeGqlDto(
+            EdgeGqlDto(
                 cursor = encodeCursor(item.createdAt),
                 node = DocumentGqlDto(
                     id = item.id.toInt(),
@@ -166,7 +166,7 @@ class DocumentsService(
         val startCursor = pageItems.firstOrNull()?.let { encodeCursor(it.createdAt) }
         val endCursor = pageItems.lastOrNull()?.let { encodeCursor(it.createdAt) }
 
-        DocumentsConnectionGqlDto(
+        ConnectionGqlDto(
             edges = edges,
             pageInfo = PageInfoGqlDto(
                 startCursor = startCursor,

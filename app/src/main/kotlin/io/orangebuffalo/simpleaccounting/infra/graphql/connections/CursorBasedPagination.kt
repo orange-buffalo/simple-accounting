@@ -31,17 +31,15 @@ fun encodeCursor(createdAt: Instant): String {
  * @param requestedPageSize the `first` argument from the query
  * @param totalCount total number of items matching the filter
  * @param cursorPage the decoded cursor from the `after` argument
- * @param mapper maps each entity to an edge (cursor + node DTO)
- * @param connectionFactory constructs the final connection DTO
+ * @param mapper maps each entity to an edge DTO
  */
-fun <T : AbstractEntity, E, C> buildConnection(
+fun <T : AbstractEntity, N : Any> buildConnection(
     items: List<T>,
     requestedPageSize: Int,
     totalCount: Int,
     cursorPage: CursorPage,
-    mapper: (T) -> E,
-    connectionFactory: (edges: List<E>, pageInfo: PageInfoGqlDto, totalCount: Int) -> C,
-): C {
+    mapper: (T) -> EdgeGqlDto<N>,
+): ConnectionGqlDto<N> {
     val hasNextPage = items.size > requestedPageSize
     val pageItems = if (hasNextPage) items.dropLast(1) else items
 
@@ -57,6 +55,6 @@ fun <T : AbstractEntity, E, C> buildConnection(
         hasNextPage = hasNextPage,
     )
 
-    return connectionFactory(edges, pageInfo, totalCount)
+    return ConnectionGqlDto(edges = edges, pageInfo = pageInfo, totalCount = totalCount)
 }
 
