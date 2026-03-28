@@ -8,6 +8,10 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepositoryE
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.field
+import org.jooq.impl.DSL.inline
+import org.jooq.impl.DSL.name
+import org.jooq.impl.DSL.select
 import org.springframework.stereotype.Repository
 import java.time.Instant
 
@@ -85,35 +89,56 @@ class DocumentsRepositoryExtImpl(
     override fun findUsagesByDocumentIds(documentIds: Collection<Long>): Map<Long, List<DocumentUsageGqlDto>> {
         if (documentIds.isEmpty()) return emptyMap()
 
-        val usages = mutableListOf<Pair<Long, DocumentUsageGqlDto>>()
+        val docIdField = field(name("doc_id"), Long::class.java)
+        val entityIdField = field(name("entity_id"), Long::class.java)
+        val usageTypeField = field(name("usage_type"), String::class.java)
 
-        dslContext.select(ea.documentId, ea.expenseId)
+        return dslContext
+            .select(
+                ea.documentId.`as`("doc_id"),
+                ea.expenseId.`as`("entity_id"),
+                inline("EXPENSE").`as`("usage_type"),
+            )
             .from(ea)
             .where(ea.documentId.`in`(documentIds))
+            .unionAll(
+                select(
+                    ia.documentId.`as`("doc_id"),
+                    ia.incomeId.`as`("entity_id"),
+                    inline("INCOME").`as`("usage_type"),
+                )
+                    .from(ia)
+                    .where(ia.documentId.`in`(documentIds))
+            )
+            .unionAll(
+                select(
+                    iva.documentId.`as`("doc_id"),
+                    iva.invoiceId.`as`("entity_id"),
+                    inline("INVOICE").`as`("usage_type"),
+                )
+                    .from(iva)
+                    .where(iva.documentId.`in`(documentIds))
+            )
+            .unionAll(
+                select(
+                    itpa.documentId.`as`("doc_id"),
+                    itpa.incomeTaxPaymentId.`as`("entity_id"),
+                    inline("INCOME_TAX_PAYMENT").`as`("usage_type"),
+                )
+                    .from(itpa)
+                    .where(itpa.documentId.`in`(documentIds))
+            )
+            .orderBy(docIdField, usageTypeField, entityIdField)
             .fetch()
-            .forEach { r -> usages.add(r[ea.documentId]!! to DocumentUsageGqlDto(DocumentUsageType.EXPENSE, r[ea.expenseId]!!.toInt())) }
-
-        dslContext.select(ia.documentId, ia.incomeId)
-            .from(ia)
-            .where(ia.documentId.`in`(documentIds))
-            .fetch()
-            .forEach { r -> usages.add(r[ia.documentId]!! to DocumentUsageGqlDto(DocumentUsageType.INCOME, r[ia.incomeId]!!.toInt())) }
-
-        dslContext.select(iva.documentId, iva.invoiceId)
-            .from(iva)
-            .where(iva.documentId.`in`(documentIds))
-            .fetch()
-            .forEach { r -> usages.add(r[iva.documentId]!! to DocumentUsageGqlDto(DocumentUsageType.INVOICE, r[iva.invoiceId]!!.toInt())) }
-
-        dslContext.select(itpa.documentId, itpa.incomeTaxPaymentId)
-            .from(itpa)
-            .where(itpa.documentId.`in`(documentIds))
-            .fetch()
-            .forEach { r -> usages.add(r[itpa.documentId]!! to DocumentUsageGqlDto(DocumentUsageType.INCOME_TAX_PAYMENT, r[itpa.incomeTaxPaymentId]!!.toInt())) }
-
-        return usages
-            .groupBy({ it.first }, { it.second })
-            .mapValues { (_, v) -> v.sortedBy { it.relatedEntityId } }
+            .groupBy(
+                { r -> r[docIdField]!! },
+                { r ->
+                    DocumentUsageGqlDto(
+                        type = DocumentUsageType.valueOf(r[usageTypeField]!!),
+                        relatedEntityId = r[entityIdField]!!.toInt(),
+                    )
+                }
+            )
     }
 
     override fun countByWorkspaceId(workspaceId: Long): Int = dslContext

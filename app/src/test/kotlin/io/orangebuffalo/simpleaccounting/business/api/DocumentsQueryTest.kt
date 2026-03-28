@@ -475,7 +475,6 @@ class DocumentsQueryTest(
                                         put("name", "Test receipt")
                                         putJsonArray("usedBy") {
                                             testData.usages
-                                                .sortedWith(compareBy({ it.first }, { it.second }))
                                                 .forEach { (type, id) ->
                                                     add(usageJson(type, id.toInt()))
                                                 }
@@ -507,8 +506,7 @@ class DocumentsQueryTest(
         @Test
         fun `should return usages for document attached to an invoice`() {
             executeAndVerifyUsages { workspace, doc ->
-                val customer = customer(workspace = workspace, name = "MomCorp")
-                val invoice = invoice(customer = customer, attachments = setOf(doc))
+                val invoice = invoice(attachments = setOf(doc))
                 listOf("INVOICE" to invoice.id!!)
             }
         }
