@@ -59,7 +59,7 @@ class ConnectionSchemaGenerationSupport {
             type.arguments.firstOrNull()?.type?.let { nodeTypes.add(it) }
             return
         }
-        if (classifier.qualifiedName?.startsWith("io.orangebuffalo") == true) {
+        if (classifier.qualifiedName?.startsWith("io.orangebuffalo.simpleaccounting") == true) {
             collectFromClass(classifier, nodeTypes, processed)
         }
         type.arguments.forEach { arg ->
