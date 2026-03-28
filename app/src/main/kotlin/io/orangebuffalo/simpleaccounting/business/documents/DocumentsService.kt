@@ -1,5 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
+import io.orangebuffalo.simpleaccounting.business.api.DocumentEdgeGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.DocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.DocumentsConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -8,6 +11,9 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.CursorPage
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
@@ -123,6 +129,54 @@ class DocumentsService(
     }
 
     override fun getId(): String = DocumentsService::class.simpleName!!
+
+    suspend fun getDocumentsPaginated(
+        workspaceId: Long,
+        first: Int,
+        cursorPage: CursorPage,
+    ): DocumentsConnectionGqlDto = withDbContext {
+        val items = documentRepository.findByWorkspaceIdPaginated(
+            workspaceId = workspaceId,
+            limit = first,
+            afterCreatedAt = cursorPage.createdAtAfter,
+        )
+        val totalCount = documentRepository.countByWorkspaceId(workspaceId)
+
+        val hasNextPage = items.size > first
+        val pageItems = if (hasNextPage) items.dropLast(1) else items
+
+        val usagesByDocId = documentRepository.findUsagesByDocumentIds(pageItems.map { it.id })
+
+        val edges = pageItems.map { item ->
+            DocumentEdgeGqlDto(
+                cursor = encodeCursor(item.createdAt),
+                node = DocumentGqlDto(
+                    id = item.id.toInt(),
+                    version = item.version,
+                    name = item.name,
+                    timeUploaded = item.timeUploaded.toString(),
+                    sizeInBytes = item.sizeInBytes?.toInt(),
+                    storageId = item.storageId,
+                    mimeType = item.mimeType,
+                    usedBy = usagesByDocId[item.id] ?: emptyList(),
+                ),
+            )
+        }
+
+        val startCursor = pageItems.firstOrNull()?.let { encodeCursor(it.createdAt) }
+        val endCursor = pageItems.lastOrNull()?.let { encodeCursor(it.createdAt) }
+
+        DocumentsConnectionGqlDto(
+            edges = edges,
+            pageInfo = PageInfoGqlDto(
+                startCursor = startCursor,
+                endCursor = endCursor,
+                hasPreviousPage = cursorPage.createdAtAfter != null,
+                hasNextPage = hasNextPage,
+            ),
+            totalCount = totalCount,
+        )
+    }
 
     override suspend fun getContent(metadata: DocumentDownloadMetadata): DownloadContentResponse {
         val document = withDbContext {

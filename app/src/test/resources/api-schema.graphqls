@@ -106,6 +106,52 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
   accessToken: String!
 }
 
+"A document in a workspace."
+type Document {
+  "ID of the document."
+  id: Int!
+  "MIME type of the document."
+  mimeType: String!
+  "Name of the document."
+  name: String!
+  "Size of the document in bytes."
+  sizeInBytes: Int
+  "ID of the storage where the document is stored."
+  storageId: String!
+  "Time when the document was uploaded, as ISO 8601 timestamp."
+  timeUploaded: String!
+  "Entities that use this document."
+  usedBy: [DocumentUsage!]!
+  "Version of the document for optimistic locking."
+  version: Int!
+}
+
+"An edge in a documents connection."
+type DocumentEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The document at the end of this edge."
+  node: Document!
+}
+
+"Describes usage of a document by another entity."
+type DocumentUsage {
+  "ID of the entity using the document."
+  relatedEntityId: Int!
+  "Type of entity using the document."
+  type: DocumentUsageType!
+}
+
+"A paginated connection of documents following the GraphQL Cursor Connections Specification."
+type DocumentsConnection {
+  "The list of edges in the current page."
+  edges: [DocumentEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Statistics about document storage usage."
 type DocumentsStorageStatisticsItem {
   "The total number of documents stored in this storage across all workspaces of the current user."
@@ -287,6 +333,13 @@ type Workspace {
   categories: [Category!]!
   "Default currency of the workspace."
   defaultCurrency: String!
+  "Documents in this workspace with cursor-based pagination."
+  documents(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): DocumentsConnection!
   "Expenses in this workspace."
   expenses: [Expense!]!
   "ID of the workspace."
@@ -349,6 +402,18 @@ enum CreateAccessTokenByCredentialsErrorCodes {
 enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
   "The provided workspace access token is not valid (unknown, expired, or revoked)."
   INVALID_WORKSPACE_ACCESS_TOKEN
+}
+
+"Type of entity that uses a document."
+enum DocumentUsageType {
+  "Document is used by an expense."
+  EXPENSE
+  "Document is used by an income."
+  INCOME
+  "Document is used by an income tax payment."
+  INCOME_TAX_PAYMENT
+  "Document is used by an invoice."
+  INVOICE
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."

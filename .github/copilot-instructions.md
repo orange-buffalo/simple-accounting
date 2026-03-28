@@ -302,6 +302,15 @@ val preconditions = preconditions {
 
 This keeps preconditions clean and makes it clear what data the test actually depends on.
 
+### Important: Only Provide Values Required by the Test
+
+**Only provide parameter values that are directly relevant to what the test verifies.** Rely on factory method defaults for all other parameters. This keeps tests focused and readable.
+
+- ❌ Bad: `customer(workspace = workspace, name = "MomCorp")` followed by `invoice(customer = customer, ...)` — when only the invoice attachment matters
+- ✅ Good: `invoice(attachments = setOf(doc))` — the factory creates a default customer automatically
+
+If a factory method creates dependent entities by default (e.g., `invoice()` creates a `customer()` if none is provided), do not explicitly create those dependencies unless the test needs to reference or verify them.
+
 ## Test Data Conventions
 
 All test data should follow the **Futurama theme** for consistency across the codebase:
