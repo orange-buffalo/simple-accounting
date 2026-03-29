@@ -37,8 +37,8 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         )
 
         page.shouldBeDocumentsOverviewPage {
+            page.clock().fastForward(1000)
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveExactData(
                     SaOverviewItemData(
                         title = "Unused Receipt.pdf",
@@ -171,23 +171,22 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         val firstPageDocuments = (1..10).map { "Document $it.pdf" }
         val secondPageDocuments = (11..15).map { "Document $it.pdf" }
 
-        page.openDocumentsOverviewPage {
+        page.navigate("/documents")
+        page.shouldBeDocumentsOverviewPage {
+            page.clock().fastForward(1000)
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles(firstPageDocuments)
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                     next()
                 }
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles(secondPageDocuments)
                 paginator {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                     previous()
                 }
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles(firstPageDocuments)
                 paginator {
                     shouldHaveActivePage(1)
