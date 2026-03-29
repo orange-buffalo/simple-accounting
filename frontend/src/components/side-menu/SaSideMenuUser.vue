@@ -35,6 +35,11 @@
     :title="$t.navigationMenu.reporting()"
     icon="reporting"
   />
+  <SaSideMenuLink
+    to="/documents"
+    :title="$t.navigationMenu.documents()"
+    icon="attachment"
+  />
 
   <template v-if="isCurrentUserRegular()">
     <span class="side-menu__category">{{ $t.navigationMenu.settings.header() }}</span>

@@ -139,9 +139,12 @@
 
   const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
 
-  const executeQuery = useLazyQuery(
-    props.pageQuery,
-    props.path as string & keyof Record<TPath, GqlConnection<TNode>>,
+  // Support dot-separated path (e.g., "workspace.documents") for nested queries
+  const pathSegments = (props.path as string).split('.');
+
+  const executeTopLevelQuery = useLazyQuery(
+    props.pageQuery as TypedDocumentNode<Record<string, any>, TVariables>,
+    pathSegments[0] as string & keyof Record<string, any>,
   );
 
   // Stores the endCursor from each visited page for backward navigation.
@@ -156,11 +159,15 @@
       : endCursors[pageNumber.value - 2] ?? null;
 
     try {
-      const connection = await executeQuery({
+      let connectionResult: any = await executeTopLevelQuery({
         ...props.pageQueryArguments,
         first: pageSize.value,
         after,
       } as TVariables);
+      for (let i = 1; i < pathSegments.length; i++) {
+        connectionResult = connectionResult[pathSegments[i]];
+      }
+      const connection = connectionResult as GqlConnection<TNode>;
 
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;
