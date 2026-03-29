@@ -39,6 +39,9 @@ data class DocumentUsageGqlDto(
 
     @GraphQLDescription("ID of the entity using the document.")
     val relatedEntityId: Int,
+
+    @GraphQLDescription("Display name of the entity using the document.")
+    val displayName: String,
 )
 
 @GraphQLName("DocumentUsageType")

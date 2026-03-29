@@ -136,6 +136,8 @@ type DocumentEdge {
 
 "Describes usage of a document by another entity."
 type DocumentUsage {
+  "Display name of the entity using the document."
+  displayName: String!
   "ID of the entity using the document."
   relatedEntityId: Int!
   "Type of entity using the document."

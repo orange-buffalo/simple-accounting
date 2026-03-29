@@ -130,6 +130,8 @@ export type DocumentEdge = {
 /** Describes usage of a document by another entity. */
 export type DocumentUsage = {
   __typename?: 'DocumentUsage';
+  /** Display name of the entity using the document. */
+  displayName: Scalars['String']['output'];
   /** ID of the entity using the document. */
   relatedEntityId: Scalars['Int']['output'];
   /** Type of entity using the document. */

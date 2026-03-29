@@ -363,6 +363,7 @@ class DocumentsQueryTest(
                                 usedBy {
                                     type
                                     relatedEntityId
+                                    displayName
                                 }
                             }
                         }
@@ -440,7 +441,7 @@ class DocumentsQueryTest(
     inner class DocumentUsages {
 
         private fun executeAndVerifyUsages(
-            preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Pair<String, Long>>,
+            preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Triple<String, Long, String>>,
         ) {
             val testData = preconditions {
                 object {
@@ -459,6 +460,7 @@ class DocumentsQueryTest(
                                 usedBy {
                                     type
                                     relatedEntityId
+                                    displayName
                                 }
                             }
                         }
@@ -475,8 +477,8 @@ class DocumentsQueryTest(
                                         put("name", "Test receipt")
                                         putJsonArray("usedBy") {
                                             testData.usages
-                                                .forEach { (type, id) ->
-                                                    add(usageJson(type, id.toInt()))
+                                                .forEach { (type, id, displayName) ->
+                                                    add(usageJson(type, id.toInt(), displayName))
                                                 }
                                         }
                                     })
@@ -490,32 +492,32 @@ class DocumentsQueryTest(
         @Test
         fun `should return usages for document attached to an expense`() {
             executeAndVerifyUsages { workspace, doc ->
-                val expense = expense(workspace = workspace, attachments = setOf(doc))
-                listOf("EXPENSE" to expense.id!!)
+                val expense = expense(workspace = workspace, title = "Slurm can receipt", attachments = setOf(doc))
+                listOf(Triple("EXPENSE", expense.id!!, "Slurm can receipt"))
             }
         }
 
         @Test
         fun `should return usages for document attached to an income`() {
             executeAndVerifyUsages { workspace, doc ->
-                val income = income(workspace = workspace, attachments = setOf(doc))
-                listOf("INCOME" to income.id!!)
+                val income = income(workspace = workspace, title = "Delivery payment", attachments = setOf(doc))
+                listOf(Triple("INCOME", income.id!!, "Delivery payment"))
             }
         }
 
         @Test
         fun `should return usages for document attached to an invoice`() {
             executeAndVerifyUsages { workspace, doc ->
-                val invoice = invoice(attachments = setOf(doc))
-                listOf("INVOICE" to invoice.id!!)
+                val invoice = invoice(title = "Planet Express invoice", attachments = setOf(doc))
+                listOf(Triple("INVOICE", invoice.id!!, "Planet Express invoice"))
             }
         }
 
         @Test
         fun `should return usages for document attached to an income tax payment`() {
             executeAndVerifyUsages { workspace, doc ->
-                val taxPayment = incomeTaxPayment(workspace = workspace, attachments = setOf(doc))
-                listOf("INCOME_TAX_PAYMENT" to taxPayment.id!!)
+                val taxPayment = incomeTaxPayment(workspace = workspace, title = "Mars colony tax", attachments = setOf(doc))
+                listOf(Triple("INCOME_TAX_PAYMENT", taxPayment.id!!, "Mars colony tax"))
             }
         }
 
@@ -527,9 +529,9 @@ class DocumentsQueryTest(
         @Test
         fun `should return multiple usages for document used by different entity types`() {
             executeAndVerifyUsages { workspace, doc ->
-                val expense = expense(workspace = workspace, attachments = setOf(doc))
-                val income = income(workspace = workspace, attachments = setOf(doc))
-                listOf("EXPENSE" to expense.id!!, "INCOME" to income.id!!)
+                val expense = expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(doc))
+                val income = income(workspace = workspace, title = "Delivery payment", attachments = setOf(doc))
+                listOf(Triple("EXPENSE", expense.id!!, "Slurm supplies"), Triple("INCOME", income.id!!, "Delivery payment"))
             }
         }
 
@@ -538,7 +540,7 @@ class DocumentsQueryTest(
             executeAndVerifyUsages { workspace, doc ->
                 val expense1 = expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(doc))
                 val expense2 = expense(workspace = workspace, title = "Robot oil", attachments = setOf(doc))
-                listOf("EXPENSE" to expense1.id!!, "EXPENSE" to expense2.id!!)
+                listOf(Triple("EXPENSE", expense1.id!!, "Slurm supplies"), Triple("EXPENSE", expense2.id!!, "Robot oil"))
             }
         }
 
@@ -556,7 +558,7 @@ class DocumentsQueryTest(
                         it.createdAt = MOCK_TIME.plusSeconds(200)
                         it.save()
                     }
-                    val expense = expense(workspace = workspace, attachments = setOf(usedDoc))
+                    val expense = expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(usedDoc))
                 }
             }
             client.graphql {
@@ -568,6 +570,7 @@ class DocumentsQueryTest(
                                 usedBy {
                                     type
                                     relatedEntityId
+                                    displayName
                                 }
                             }
                         }
@@ -583,7 +586,7 @@ class DocumentsQueryTest(
                                     put("node", buildJsonObject {
                                         put("name", "Used receipt")
                                         putJsonArray("usedBy") {
-                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt()))
+                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt(), "Slurm supplies"))
                                         }
                                     })
                                 })
@@ -601,9 +604,10 @@ class DocumentsQueryTest(
     }
 }
 
-private fun usageJson(type: String, relatedEntityId: Int): JsonElement = buildJsonObject {
+private fun usageJson(type: String, relatedEntityId: Int, displayName: String): JsonElement = buildJsonObject {
     put("type", type)
     put("relatedEntityId", relatedEntityId)
+    put("displayName", displayName)
 }
 
 private fun emptyDocumentsConnection(

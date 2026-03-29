@@ -26,6 +26,10 @@ class DocumentsRepositoryExtImpl(
     private val ia = Tables.INCOME_ATTACHMENTS
     private val iva = Tables.INVOICE_ATTACHMENTS
     private val itpa = Tables.INCOME_TAX_PAYMENT_ATTACHMENTS
+    private val expense = Tables.EXPENSE
+    private val income = Tables.INCOME
+    private val invoice = Tables.INVOICE
+    private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
 
     override fun findValidIds(ids: Collection<Long>, workspaceId: Long): Collection<Long> = dslContext
         .select(document.id)
@@ -92,22 +96,27 @@ class DocumentsRepositoryExtImpl(
         val docIdField = field(name("doc_id"), Long::class.java)
         val entityIdField = field(name("entity_id"), Long::class.java)
         val usageTypeField = field(name("usage_type"), String::class.java)
+        val displayNameField = field(name("display_name"), String::class.java)
 
         return dslContext
             .select(
                 ea.documentId.`as`("doc_id"),
                 ea.expenseId.`as`("entity_id"),
                 inline("EXPENSE").`as`("usage_type"),
+                expense.title.`as`("display_name"),
             )
             .from(ea)
+            .join(expense).on(expense.id.eq(ea.expenseId))
             .where(ea.documentId.`in`(documentIds))
             .unionAll(
                 select(
                     ia.documentId.`as`("doc_id"),
                     ia.incomeId.`as`("entity_id"),
                     inline("INCOME").`as`("usage_type"),
+                    income.title.`as`("display_name"),
                 )
                     .from(ia)
+                    .join(income).on(income.id.eq(ia.incomeId))
                     .where(ia.documentId.`in`(documentIds))
             )
             .unionAll(
@@ -115,8 +124,10 @@ class DocumentsRepositoryExtImpl(
                     iva.documentId.`as`("doc_id"),
                     iva.invoiceId.`as`("entity_id"),
                     inline("INVOICE").`as`("usage_type"),
+                    invoice.title.`as`("display_name"),
                 )
                     .from(iva)
+                    .join(invoice).on(invoice.id.eq(iva.invoiceId))
                     .where(iva.documentId.`in`(documentIds))
             )
             .unionAll(
@@ -124,8 +135,10 @@ class DocumentsRepositoryExtImpl(
                     itpa.documentId.`as`("doc_id"),
                     itpa.incomeTaxPaymentId.`as`("entity_id"),
                     inline("INCOME_TAX_PAYMENT").`as`("usage_type"),
+                    incomeTaxPayment.title.`as`("display_name"),
                 )
                     .from(itpa)
+                    .join(incomeTaxPayment).on(incomeTaxPayment.id.eq(itpa.incomeTaxPaymentId))
                     .where(itpa.documentId.`in`(documentIds))
             )
             .orderBy(docIdField, usageTypeField, entityIdField)
@@ -136,6 +149,7 @@ class DocumentsRepositoryExtImpl(
                     DocumentUsageGqlDto(
                         type = DocumentUsageType.valueOf(r[usageTypeField]!!),
                         relatedEntityId = r[entityIdField]!!.toInt(),
+                        displayName = r[displayNameField]!!,
                     )
                 }
             )
