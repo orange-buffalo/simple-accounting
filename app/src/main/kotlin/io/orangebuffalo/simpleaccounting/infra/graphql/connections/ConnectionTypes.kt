@@ -15,28 +15,30 @@ object GraphqlPaginationConstants {
 }
 
 /**
- * Contract for connection DTOs ensuring a consistent structure across all paginated connections.
- * Concrete connection types must override all properties.
+ * Generic connection DTO for cursor-based pagination following the
+ * [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm).
  *
- * Note: graphql-kotlin does not support generic type parameters in schema generation,
- * so this uses abstract properties to enforce the contract at compile time.
- * The interface is excluded from the schema via `@GraphQLIgnore`.
+ * graphql-kotlin does not support generic type parameters in schema generation,
+ * so [ConnectionSchemaGenerationSupport] intercepts this type and generates
+ * concrete schema types (e.g., `WorkspacesConnection`, `DocumentsConnection`)
+ * based on the node type parameter [N].
  */
 @GraphQLIgnore
-interface ConnectionGqlDto {
-    val edges: List<*>
-    val pageInfo: PageInfoGqlDto
-    val totalCount: Int
-}
+data class ConnectionGqlDto<N : Any>(
+    val edges: List<EdgeGqlDto<N>>,
+    val pageInfo: PageInfoGqlDto,
+    val totalCount: Int,
+)
 
 /**
- * Contract for edge DTOs ensuring a consistent structure across all paginated edges.
+ * Generic edge DTO for cursor-based pagination.
+ * See [ConnectionGqlDto] for details on schema generation.
  */
 @GraphQLIgnore
-interface EdgeGqlDto {
-    val cursor: String
-    val node: Any
-}
+data class EdgeGqlDto<N : Any>(
+    val cursor: String,
+    val node: N,
+)
 
 /**
  * Page info for cursor-based pagination following the

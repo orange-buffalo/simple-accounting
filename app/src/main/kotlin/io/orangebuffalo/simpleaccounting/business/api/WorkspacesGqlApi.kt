@@ -14,9 +14,7 @@ import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrin
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeCursor
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import jakarta.validation.constraints.Max
@@ -39,7 +37,7 @@ class WorkspacesQuery(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
-    ): WorkspacesConnectionGqlDto {
+    ): ConnectionGqlDto<WorkspaceGqlDto> {
         val principal = ensureRegularUserPrincipal()
         val cursorPage = decodeCursor(after)
         return workspacesService.getUserWorkspacesPaginated(
@@ -63,34 +61,6 @@ class WorkspacesQuery(
         )
     }
 }
-
-/**
- * A paginated connection following the
- * [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm).
- * See also [GraphQL Pagination Guide](https://graphql.org/learn/pagination/).
- */
-@GraphQLName("WorkspacesConnection")
-@GraphQLDescription("A paginated connection of workspaces following the GraphQL Cursor Connections Specification.")
-data class WorkspacesConnectionGqlDto(
-    @GraphQLDescription("The list of edges in the current page.")
-    override val edges: List<WorkspaceEdgeGqlDto>,
-
-    @GraphQLDescription("Pagination information about the current page.")
-    override val pageInfo: PageInfoGqlDto,
-
-    @GraphQLDescription("The total number of items in the connection across all pages.")
-    override val totalCount: Int,
-) : ConnectionGqlDto
-
-@GraphQLName("WorkspaceEdge")
-@GraphQLDescription("An edge in a workspaces connection.")
-data class WorkspaceEdgeGqlDto(
-    @GraphQLDescription("The cursor of this edge, which can be used for pagination.")
-    override val cursor: String,
-
-    @GraphQLDescription("The workspace at the end of this edge.")
-    override val node: WorkspaceGqlDto,
-) : EdgeGqlDto
 
 @GraphQLName("Workspace")
 @GraphQLDescription("Workspace of a user.")
@@ -118,7 +88,7 @@ data class WorkspaceGqlDto(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
-    ): DocumentsConnectionGqlDto {
+    ): ConnectionGqlDto<DocumentGqlDto> {
         val cursorPage = decodeCursor(after)
         return env.graphQlContext.getBean<DocumentsService>().getDocumentsPaginated(
             workspaceId = id.toLong(),
