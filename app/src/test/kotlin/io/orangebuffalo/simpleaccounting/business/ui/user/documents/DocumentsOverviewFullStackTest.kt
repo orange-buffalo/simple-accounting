@@ -38,11 +38,12 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveExactData(
                     SaOverviewItemData(
                         title = "Unused Receipt.pdf",
                         primaryAttributes = primaryAttributes(
-                            "Mar 28, 1999, 11:01 PM",
+                            "28 Mar 1999, 11:01 pm",
                             "Internal System"
                         ),
                         middleColumnContent = SaStatusLabel.pendingStatusValue() + "Unused",
@@ -51,7 +52,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "Jan 15, 3025, 10:30 AM",
+                            "15 Jan 3025, 10:30 am",
                             "Internal System"
                         ),
                         hasDetails = false,
@@ -59,7 +60,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Multi Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "Jan 14, 3025, 9:00 AM",
+                            "14 Jan 3025, 9:00 am",
                             "Internal System"
                         ),
                         hasDetails = false,
@@ -67,7 +68,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Google Drive Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "Jan 13, 3025, 8:00 AM",
+                            "13 Jan 3025, 8:00 am",
                             "Google Drive"
                         ),
                         hasDetails = false,
@@ -93,6 +94,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsNavigation.fry)
         page.openDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Expense Receipt.pdf")
                 val middleColumn = staticItems[0].locator(".overview-item__middle-column")
                 middleColumn.locator("a").first().click()
@@ -111,6 +113,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsNavigationIncome.fry)
         page.openDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Income Receipt.pdf")
                 val middleColumn = staticItems[0].locator(".overview-item__middle-column")
                 middleColumn.locator("a").first().click()
@@ -129,6 +132,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsNavigationInvoice.fry)
         page.openDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Invoice Attachment.pdf")
                 val middleColumn = staticItems[0].locator(".overview-item__middle-column")
                 middleColumn.locator("a").first().click()
@@ -147,6 +151,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsNavigationTaxPayment.fry)
         page.openDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Tax Payment Receipt.pdf")
                 val middleColumn = staticItems[0].locator(".overview-item__middle-column")
                 middleColumn.locator("a").first().click()
@@ -168,21 +173,26 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
         page.openDocumentsOverviewPage {
             pageItems {
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles(firstPageDocuments)
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                     next()
-                    shouldHaveActivePage(2)
-                    shouldHaveTotalPages(2)
                 }
+                finishLoadingWhenTimeMocked()
                 shouldHaveTitles(secondPageDocuments)
                 paginator {
+                    shouldHaveActivePage(2)
+                    shouldHaveTotalPages(2)
                     previous()
+                }
+                finishLoadingWhenTimeMocked()
+                shouldHaveTitles(firstPageDocuments)
+                paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveTitles(firstPageDocuments)
             }
         }
     }
@@ -292,7 +302,12 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     name = "Invoice Attachment.pdf",
                 )
+                val customer = customer(
+                    workspace = workspace,
+                    name = "MomCorp",
+                )
                 invoice(
+                    customer = customer,
                     title = "Delivery to Omicron Persei 8",
                     attachments = setOf(doc),
                 )
