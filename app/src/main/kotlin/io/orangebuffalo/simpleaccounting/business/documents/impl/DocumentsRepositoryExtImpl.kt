@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.documents.impl
 
 import io.orangebuffalo.simpleaccounting.business.api.DocumentUsageGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.DocumentUsageType
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentRecord
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentStorageStatisticsRecord
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
@@ -13,7 +12,6 @@ import org.jooq.impl.DSL.inline
 import org.jooq.impl.DSL.name
 import org.jooq.impl.DSL.select
 import org.springframework.stereotype.Repository
-import java.time.Instant
 
 @Repository
 class DocumentsRepositoryExtImpl(
@@ -53,42 +51,6 @@ class DocumentsRepositoryExtImpl(
                 documentsCount = record.get(count(document.id)),
             )
         }
-
-    override fun findByWorkspaceIdPaginated(
-        workspaceId: Long,
-        limit: Int,
-        afterCreatedAt: Instant?,
-    ): List<DocumentRecord> {
-        var query = dslContext
-            .select(
-                document.id, document.version, document.name,
-                document.timeUploaded, document.sizeInBytes,
-                document.storageId, document.mimeType, document.createdAt,
-            )
-            .from(document)
-            .where(document.workspaceId.eq(workspaceId))
-
-        if (afterCreatedAt != null) {
-            query = query.and(document.createdAt.gt(afterCreatedAt))
-        }
-
-        return query
-            .orderBy(document.createdAt.asc())
-            .limit(limit + 1)
-            .fetch()
-            .map { r ->
-                DocumentRecord(
-                    id = r[document.id]!!,
-                    version = r[document.version]!!,
-                    name = r[document.name]!!,
-                    timeUploaded = r[document.timeUploaded]!!,
-                    sizeInBytes = r[document.sizeInBytes],
-                    storageId = r[document.storageId]!!,
-                    mimeType = r[document.mimeType]!!,
-                    createdAt = r[document.createdAt]!!,
-                )
-            }
-    }
 
     override fun findUsagesByDocumentIds(documentIds: Collection<Long>): Map<Long, List<DocumentUsageGqlDto>> {
         if (documentIds.isEmpty()) return emptyMap()
@@ -154,10 +116,4 @@ class DocumentsRepositoryExtImpl(
                 }
             )
     }
-
-    override fun countByWorkspaceId(workspaceId: Long): Int = dslContext
-        .selectCount()
-        .from(document)
-        .where(document.workspaceId.eq(workspaceId))
-        .fetchOne(0, Int::class.java)!!
 }
