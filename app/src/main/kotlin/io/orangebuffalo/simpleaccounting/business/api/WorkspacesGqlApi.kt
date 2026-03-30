@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategories
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -91,6 +92,23 @@ data class WorkspaceGqlDto(
     ): ConnectionGqlDto<DocumentGqlDto> {
         val cursorPage = decodeCursor(after)
         return env.graphQlContext.getBean<DocumentsService>().getDocumentsPaginated(
+            workspaceId = id.toLong(),
+            first = first,
+            cursorPage = cursorPage,
+        )
+    }
+
+    @GraphQLDescription("Customers in this workspace with cursor-based pagination.")
+    suspend fun customers(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<CustomerGqlDto> {
+        val cursorPage = decodeCursor(after)
+        return env.graphQlContext.getBean<CustomersService>().getCustomersPaginated(
             workspaceId = id.toLong(),
             first = first,
             cursorPage = cursorPage,
