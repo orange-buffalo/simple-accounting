@@ -97,6 +97,35 @@ export type CreateAccessTokenByWorkspaceAccessTokenResponse = {
   accessToken: Scalars['String']['output'];
 };
 
+/** A customer in a workspace. */
+export type Customer = {
+  __typename?: 'Customer';
+  /** ID of the customer. */
+  id: Scalars['Int']['output'];
+  /** Name of the customer. */
+  name: Scalars['String']['output'];
+};
+
+/** An edge in a customers connection. */
+export type CustomerEdge = {
+  __typename?: 'CustomerEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The customer at the end of this edge. */
+  node: Customer;
+};
+
+/** A paginated connection of customers following the GraphQL Cursor Connections Specification. */
+export type CustomersConnection = {
+  __typename?: 'CustomersConnection';
+  /** The list of edges in the current page. */
+  edges: Array<CustomerEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** A document in a workspace. */
 export type Document = {
   __typename?: 'Document';
@@ -385,6 +414,8 @@ export type Workspace = {
   __typename?: 'Workspace';
   /** Categories in this workspace. */
   categories: Array<Category>;
+  /** Customers in this workspace with cursor-based pagination. */
+  customers: CustomersConnection;
   /** Default currency of the workspace. */
   defaultCurrency: Scalars['String']['output'];
   /** Documents in this workspace with cursor-based pagination. */
@@ -395,6 +426,13 @@ export type Workspace = {
   id: Scalars['Int']['output'];
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceCustomersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 

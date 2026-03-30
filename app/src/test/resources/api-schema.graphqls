@@ -106,6 +106,32 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
   accessToken: String!
 }
 
+"A customer in a workspace."
+type Customer {
+  "ID of the customer."
+  id: Int!
+  "Name of the customer."
+  name: String!
+}
+
+"An edge in a customers connection."
+type CustomerEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The customer at the end of this edge."
+  node: Customer!
+}
+
+"A paginated connection of customers following the GraphQL Cursor Connections Specification."
+type CustomersConnection {
+  "The list of edges in the current page."
+  edges: [CustomerEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "A document in a workspace."
 type Document {
   "ID of the document."
@@ -333,6 +359,13 @@ type ValidationErrorParam {
 type Workspace {
   "Categories in this workspace."
   categories: [Category!]!
+  "Customers in this workspace with cursor-based pagination."
+  customers(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): CustomersConnection!
   "Default currency of the workspace."
   defaultCurrency: String!
   "Documents in this workspace with cursor-based pagination."
