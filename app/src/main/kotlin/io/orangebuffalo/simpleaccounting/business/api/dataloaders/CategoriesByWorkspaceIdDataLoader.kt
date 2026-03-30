@@ -24,7 +24,15 @@ class CategoriesByWorkspaceIdDataLoader(
             val categories = categoriesRepository.findAllByWorkspaceIdIn(workspaceIds)
             val grouped = categories.groupBy { it.workspaceId }
             workspaceIds.associateWith { wsId ->
-                grouped[wsId]?.map { CategoryGqlDto(name = it.name) } ?: emptyList()
+                grouped[wsId]?.map {
+                    CategoryGqlDto(
+                        id = it.id!!.toInt(),
+                        name = it.name,
+                        description = it.description,
+                        income = it.income,
+                        expense = it.expense,
+                    )
+                } ?: emptyList()
             }
         }
 }
