@@ -1,58 +1,50 @@
 <template>
-  <div class="categories-overview">
-    <div class="sa-page-header">
-      <h1>Categories</h1>
-    </div>
-
-    <div class="top-buttons-bar">
-      <ElButton
-        round
-        @click="navigateToNewCategoryView"
-      >
-        <SaIcon icon="plus-thin" />
-        Add new
-      </ElButton>
-    </div>
-
-    <SaPageableItems
-      :page-provider="categoriesProvider"
-      :api-path="`/workspaces/${currentWorkspace.id}/categories`"
-      #default="{ item }"
-    >
-      <CategoriesOverviewPanel :category="item as CategoryDto" />
-    </SaPageableItems>
-  </div>
+  <SaOverviewPanelGql
+    :header-text="$t.categoriesOverview.header()"
+    :create-button-text="$t.categoriesOverview.create()"
+    :page-query="categoriesPageQuery"
+    path="categories"
+    :page-query-arguments="{ workspaceId: currentWorkspaceId }"
+    @create="navigateToNewCategoryView"
+    #default="{ item }"
+  >
+    <CategoriesOverviewPanel :category="item" />
+  </SaOverviewPanelGql>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
+  import SaOverviewPanelGql from '@/components/overview-item/SaOverviewPanelGql.vue';
   import CategoriesOverviewPanel from '@/pages/settings/categories/CategoriesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, CategoryDto } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { $t } from '@/services/i18n';
 
-  const {
-    currentWorkspace,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
-  const categoriesProvider = async (request: ApiPageRequest, config: RequestInit) => categoriesApi.getCategories({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
+  const { currentWorkspaceId } = useCurrentWorkspace();
+
+  const categoriesPageQuery = graphql(`
+    query categoriesPage($first: Int!, $after: String, $workspaceId: Int!) {
+      categories(first: $first, after: $after, workspaceId: $workspaceId) {
+        edges {
+          cursor
+          node {
+            id
+            name
+            description
+            income
+            expense
+          }
+        }
+        pageInfo {
+          ...PaginationPageInfo
+        }
+        totalCount
+      }
+    }
+  `);
 
   const { navigateByViewName } = useNavigation();
   const navigateToNewCategoryView = () => {
     navigateByViewName('create-new-category');
   };
 </script>
-
-<style lang="scss">
-  .categories-overview {
-    .top-buttons-bar {
-      margin-bottom: 30px;
-      margin-top: -10px;
-    }
-  }
-</style>

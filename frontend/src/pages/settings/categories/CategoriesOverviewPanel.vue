@@ -13,7 +13,7 @@
         icon="pencil-solid"
         @click="navigateToCategoryEdit"
       >
-        Edit
+        {{ $t.categoriesOverview.edit() }}
       </SaActionLink>
     </template>
   </SaOverviewItem>
@@ -23,10 +23,13 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { CategoryDto } from '@/services/api';
+  import type { CategoriesPageQuery } from '@/services/api/gql/graphql';
+  import { $t } from '@/services/i18n';
+
+  type CategoryNode = CategoriesPageQuery['categories']['edges'][0]['node'];
 
   const props = defineProps<{
-    category: CategoryDto
+    category: CategoryNode
   }>();
 
   const { navigateToView } = useNavigation();

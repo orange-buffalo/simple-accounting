@@ -1034,6 +1034,12 @@ export default {
     edit: () => 'Редагувати',
   },
 
+  categoriesOverview: {
+    header: () => 'Категорії',
+    create: () => 'Додати нову',
+    edit: () => 'Редагувати',
+  },
+
   generalTaxReport: {
     emptyData: () => 'Немає даних для відображення',
     columns: {

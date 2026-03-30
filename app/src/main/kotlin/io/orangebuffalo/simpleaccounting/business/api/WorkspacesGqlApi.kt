@@ -130,25 +130,6 @@ data class WorkspaceGqlDto(
     }
 }
 
-@GraphQLName("Category")
-@GraphQLDescription("Category of incomes or expenses.")
-data class CategoryGqlDto(
-    @GraphQLDescription("ID of the category.")
-    val id: Int,
-
-    @GraphQLDescription("Name of the category.")
-    val name: String,
-
-    @GraphQLDescription("Description of the category.")
-    val description: String?,
-
-    @GraphQLDescription("Whether this category applies to incomes.")
-    val income: Boolean,
-
-    @GraphQLDescription("Whether this category applies to expenses.")
-    val expense: Boolean,
-)
-
 @GraphQLName("Expense")
 @GraphQLDescription("Business expense.")
 data class ExpenseGqlDto(

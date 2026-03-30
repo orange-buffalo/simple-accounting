@@ -1035,6 +1035,12 @@ export default {
     edit: () => 'Edit',
   },
 
+  categoriesOverview: {
+    header: () => 'Categories',
+    create: () => 'Add new',
+    edit: () => 'Edit',
+  },
+
   generalTaxReport: {
     emptyData: () => 'No data to show',
     columns: {
