@@ -15,11 +15,13 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { CustomerDto } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import type { CustomersPageQuery } from '@/services/api/gql/graphql';
+
+  type CustomerNode = CustomersPageQuery['customers']['edges'][0]['node'];
 
   const props = defineProps<{
-    customer: CustomerDto
+    customer: CustomerNode
   }>();
 
   const { navigateToView } = useNavigation();

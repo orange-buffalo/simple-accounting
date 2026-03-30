@@ -287,6 +287,15 @@ type PageInfo {
 }
 
 type Query {
+  "Returns all customers in a workspace with cursor-based pagination."
+  customers(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int! @max(value : 500) @min(value : 1),
+    "ID of the workspace."
+    workspaceId: Int!
+  ): CustomersConnection! @auth(type : REGULAR_USER)
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
   "Returns the current user's documents storage status."
