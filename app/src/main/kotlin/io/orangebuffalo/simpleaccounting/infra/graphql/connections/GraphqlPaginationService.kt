@@ -65,6 +65,9 @@ class PaginationQueryBuilder<R : Record>(
 
         val mappedNodes = pageRecords.map(mapRecord)
         val processedNodes = postProcess(mappedNodes)
+        require(processedNodes.size == mappedNodes.size) {
+            "postProcess must return the same number of items as the input"
+        }
 
         val edges = pageRecords.zip(processedNodes).map { (record, node) ->
             val createdAt = record.get(createdAtField)!!
