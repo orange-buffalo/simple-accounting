@@ -1,5 +1,8 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql.connections
 
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
@@ -9,14 +12,16 @@ import java.time.Instant
 @Service
 class GraphqlPaginationService(
     private val dslContext: DSLContext,
+    private val platformUsersService: PlatformUsersService,
 ) {
     fun <R : Record> forTable(table: TableImpl<R>): PaginationQueryBuilder<R> {
-        return PaginationQueryBuilder(dslContext, table)
+        return PaginationQueryBuilder(dslContext, platformUsersService, table)
     }
 }
 
 class PaginationQueryBuilder<R : Record>(
     private val dslContext: DSLContext,
+    private val platformUsersService: PlatformUsersService,
     private val table: TableImpl<R>,
 ) {
     private val queryCustomizers = mutableListOf<(SelectJoinStep<*>) -> SelectJoinStep<*>>()
@@ -37,11 +42,20 @@ class PaginationQueryBuilder<R : Record>(
         return this
     }
 
-    fun <N : Any> page(
+    suspend fun applyCurrentUserFiltering(
+        predicateProvider: (PlatformUser) -> Condition,
+    ): PaginationQueryBuilder<R> {
+        val user = platformUsersService.getCurrentUser()
+        predicates.add(predicateProvider(user))
+        return this
+    }
+
+    suspend fun <N : Any> page(
         first: Int,
         after: String?,
         mapRecord: (Record) -> N,
-    ): ConnectionGqlDto<N> {
+        postProcess: (List<N>) -> List<N> = { it },
+    ): ConnectionGqlDto<N> = withDbContext {
         val cursorPage = decodeCursor(after)
         val dataRecords = executeDataQuery(first, cursorPage)
         val totalCount = executeCountQuery()
@@ -49,51 +63,10 @@ class PaginationQueryBuilder<R : Record>(
         val hasNextPage = dataRecords.size > first
         val pageRecords = if (hasNextPage) dataRecords.dropLast(1) else dataRecords
 
-        val edges = pageRecords.map { record ->
-            val createdAt = record.get(createdAtField)!!
-            EdgeGqlDto(
-                cursor = encodeCursor(createdAt),
-                node = mapRecord(record),
-            )
-        }
+        val mappedNodes = pageRecords.map(mapRecord)
+        val processedNodes = postProcess(mappedNodes)
 
-        val startCursor = pageRecords.firstOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
-        val endCursor = pageRecords.lastOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
-
-        return ConnectionGqlDto(
-            edges = edges,
-            pageInfo = PageInfoGqlDto(
-                startCursor = startCursor,
-                endCursor = endCursor,
-                hasPreviousPage = cursorPage.createdAtAfter != null,
-                hasNextPage = hasNextPage,
-            ),
-            totalCount = totalCount,
-        )
-    }
-
-    fun <N : Any, Q : Any> page(
-        first: Int,
-        after: String?,
-        mapQueryRecord: (Record) -> Q,
-        postProcess: (List<Q>) -> List<N>,
-    ): ConnectionGqlDto<N> {
-        val cursorPage = decodeCursor(after)
-        val dataRecords = executeDataQuery(first, cursorPage)
-        val totalCount = executeCountQuery()
-
-        val hasNextPage = dataRecords.size > first
-        val pageRecords = if (hasNextPage) dataRecords.dropLast(1) else dataRecords
-
-        val queryResults = pageRecords.map { record ->
-            mapQueryRecord(record)
-        }
-        val enrichedResults = postProcess(queryResults)
-        require(enrichedResults.size == pageRecords.size) {
-            "postProcess must return the same number of items as the input"
-        }
-
-        val edges = pageRecords.zip(enrichedResults).map { (record, node) ->
+        val edges = pageRecords.zip(processedNodes).map { (record, node) ->
             val createdAt = record.get(createdAtField)!!
             EdgeGqlDto(
                 cursor = encodeCursor(createdAt),
@@ -104,7 +77,7 @@ class PaginationQueryBuilder<R : Record>(
         val startCursor = pageRecords.firstOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
         val endCursor = pageRecords.lastOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
 
-        return ConnectionGqlDto(
+        ConnectionGqlDto(
             edges = edges,
             pageInfo = PageInfoGqlDto(
                 startCursor = startCursor,

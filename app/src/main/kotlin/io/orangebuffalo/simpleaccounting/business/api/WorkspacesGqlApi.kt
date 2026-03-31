@@ -10,20 +10,17 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryBy
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
-import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
-import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 @Component
@@ -42,21 +39,16 @@ class WorkspacesQuery(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
     ): ConnectionGqlDto<WorkspaceGqlDto> {
-        val principal = ensureRegularUserPrincipal()
         val workspace = Tables.WORKSPACE
-        val owner = Tables.PLATFORM_USER
-        return withDbContext {
-            paginationService.forTable(workspace)
-                .onQuery { query -> query.join(owner).on(owner.id.eq(workspace.ownerId)) }
-                .addPredicate(owner.userName.eq(principal.userName))
-                .page(first, after) { record ->
-                    WorkspaceGqlDto(
-                        id = record[workspace.id]!!.toInt(),
-                        name = record[workspace.name]!!,
-                        defaultCurrency = record[workspace.defaultCurrency]!!,
-                    )
-                }
-        }
+        return paginationService.forTable(workspace)
+            .applyCurrentUserFiltering { user -> workspace.ownerId.eq(user.id) }
+            .page(first, after, mapRecord = { record ->
+                WorkspaceGqlDto(
+                    id = record[workspace.id]!!.toInt(),
+                    name = record[workspace.name]!!,
+                    defaultCurrency = record[workspace.defaultCurrency]!!,
+                )
+            })
     }
 
     @Suppress("unused")
@@ -100,40 +92,30 @@ data class WorkspaceGqlDto(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
-    ): ConnectionGqlDto<DocumentGqlDto> = withDbContext {
+    ): ConnectionGqlDto<DocumentGqlDto> {
         val document = Tables.DOCUMENT
         val paginationService = env.graphQlContext.getBean<GraphqlPaginationService>()
         val documentsRepository = env.graphQlContext.getBean<DocumentsRepository>()
-        paginationService.forTable(document)
+        return paginationService.forTable(document)
             .addPredicate(document.workspaceId.eq(id.toLong()))
             .page(
                 first = first,
                 after = after,
-                mapQueryRecord = { record ->
-                    DocumentQueryRecord(
-                        id = record[document.id]!!,
+                mapRecord = { record ->
+                    DocumentGqlDto(
+                        id = record[document.id]!!.toInt(),
                         version = record[document.version]!!,
                         name = record[document.name]!!,
-                        timeUploaded = record[document.timeUploaded]!!,
-                        sizeInBytes = record[document.sizeInBytes],
+                        timeUploaded = record[document.timeUploaded]!!.toString(),
+                        sizeInBytes = record[document.sizeInBytes]?.toInt(),
                         storageId = record[document.storageId]!!,
                         mimeType = record[document.mimeType]!!,
+                        usedBy = emptyList(),
                     )
                 },
                 postProcess = { records ->
-                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id })
-                    records.map { item ->
-                        DocumentGqlDto(
-                            id = item.id.toInt(),
-                            version = item.version,
-                            name = item.name,
-                            timeUploaded = item.timeUploaded.toString(),
-                            sizeInBytes = item.sizeInBytes?.toInt(),
-                            storageId = item.storageId,
-                            mimeType = item.mimeType,
-                            usedBy = usagesByDocId[item.id] ?: emptyList(),
-                        )
-                    }
+                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id.toLong() })
+                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id.toLong()] ?: emptyList()) }
                 },
             )
     }
@@ -146,17 +128,17 @@ data class WorkspaceGqlDto(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
-    ): ConnectionGqlDto<CustomerGqlDto> = withDbContext {
+    ): ConnectionGqlDto<CustomerGqlDto> {
         val customer = Tables.CUSTOMER
-        env.graphQlContext.getBean<GraphqlPaginationService>()
+        return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(customer)
             .addPredicate(customer.workspaceId.eq(id.toLong()))
-            .page(first, after) { record ->
+            .page(first, after, mapRecord = { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!.toInt(),
                     name = record[customer.name]!!,
                 )
-            }
+            })
     }
 }
 
@@ -181,13 +163,3 @@ data class ExpenseGqlDto(
         return env.loadCategoryById(catId)
     }
 }
-
-private data class DocumentQueryRecord(
-    val id: Long,
-    val version: Int,
-    val name: String,
-    val timeUploaded: Instant,
-    val sizeInBytes: Long?,
-    val storageId: String,
-    val mimeType: String,
-)
