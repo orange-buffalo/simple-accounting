@@ -143,8 +143,9 @@
 
   const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
 
-  const rootKey = props.path.split('.')[0] as RootKey<TPath> & keyof TResponse;
-  const subPath = props.path.split('.').slice(1);
+  const pathParts = props.path.split('.');
+  const rootKey = pathParts[0] as RootKey<TPath> & keyof TResponse;
+  const subPath = pathParts.slice(1);
 
   const executeQuery = useLazyQuery(
     props.pageQuery,
