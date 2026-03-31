@@ -18,7 +18,7 @@
   import { $t } from '@/services/i18n';
   import type { CustomersPageQuery } from '@/services/api/gql/graphql';
 
-  type CustomerNode = CustomersPageQuery['customers']['edges'][0]['node'];
+  type CustomerNode = CustomersPageQuery['workspace']['customers']['edges'][0]['node'];
 
   const props = defineProps<{
     customer: CustomerNode

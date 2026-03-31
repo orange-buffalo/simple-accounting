@@ -19,10 +19,11 @@
     </div>
 
     <SaPageableItemsGql
-      :page-query="customersPageQuery"
-      path="customers"
+      :page-query="(customersPageQuery as any)"
+      path="workspace"
+      :connection-accessor="connectionAccessor"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
-      #default="{ item }"
+      #default="{ item }: { item: CustomerNode }"
     >
       <CustomersOverviewPanel :customer="item" />
     </SaPageableItemsGql>
@@ -37,24 +38,32 @@
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import type { CustomersPageQuery } from '@/services/api/gql/graphql';
 
   const customersPageQuery = graphql(`
     query customersPage($workspaceId: Int!, $first: Int!, $after: String) {
-      customers(workspaceId: $workspaceId, first: $first, after: $after) {
-        edges {
-          cursor
-          node {
-            id
-            name
+      workspace(id: $workspaceId) {
+        customers(first: $first, after: $after) {
+          edges {
+            cursor
+            node {
+              id
+              name
+            }
           }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
         }
-        pageInfo {
-          ...PaginationPageInfo
-        }
-        totalCount
       }
     }
   `);
+
+  type CustomerNode = CustomersPageQuery['workspace']['customers']['edges'][0]['node'];
+
+  const connectionAccessor = (workspace: unknown) =>
+    (workspace as CustomersPageQuery['workspace']).customers;
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');

@@ -22,7 +22,6 @@ import kotlin.reflect.full.memberProperties
 class ConnectionSchemaGenerationSupport {
 
     private val pendingEdgeTypes = mutableListOf<GraphQLObjectType>()
-    private val generatedConnectionTypes = mutableMapOf<KClass<*>, GraphQLType>()
 
     /**
      * Pre-scans query and mutation classes to find all node types used in [ConnectionGqlDto]
@@ -78,9 +77,6 @@ class ConnectionSchemaGenerationSupport {
         if (classifier != ConnectionGqlDto::class) return null
 
         val nodeClass = type.arguments.firstOrNull()?.type?.classifier as? KClass<*> ?: return null
-
-        generatedConnectionTypes[nodeClass]?.let { return it }
-
         val nodeName = getGraphQLName(nodeClass)
         val connectionName = "${nodeName}sConnection"
         val edgeName = "${nodeName}Edge"
@@ -107,7 +103,7 @@ class ConnectionSchemaGenerationSupport {
 
         pendingEdgeTypes.add(edgeType)
 
-        val connectionType = GraphQLObjectType.newObject()
+        return GraphQLObjectType.newObject()
             .name(connectionName)
             .description("A paginated connection of ${nodeNameLower}s following the GraphQL Cursor Connections Specification.")
             .field(
@@ -132,9 +128,6 @@ class ConnectionSchemaGenerationSupport {
                     .build()
             )
             .build()
-
-        generatedConnectionTypes[nodeClass] = connectionType
-        return connectionType
     }
 
     /**

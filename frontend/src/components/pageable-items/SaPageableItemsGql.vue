@@ -119,6 +119,7 @@
   const props = defineProps<{
     pageQuery: TypedDocumentNode<Record<TPath, GqlConnection<TNode>>, TVariables>,
     path: TPath,
+    connectionAccessor?: (queryResult: unknown) => GqlConnection<TNode>,
     pageQueryArguments?: ExtraArgs<TVariables>,
   }>();
 
@@ -156,11 +157,15 @@
       : endCursors[pageNumber.value - 2] ?? null;
 
     try {
-      const connection = await executeQuery({
+      const queryResult = await executeQuery({
         ...props.pageQueryArguments,
         first: pageSize.value,
         after,
       } as TVariables);
+
+      const connection = props.connectionAccessor
+        ? props.connectionAccessor(queryResult)
+        : queryResult as unknown as GqlConnection<TNode>;
 
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;
