@@ -66,7 +66,7 @@
 <script
   lang="ts"
   setup
-  generic="TNode, TPath extends string, TVariables extends GqlPaginationVariables = GqlPaginationVariables"
+  generic="TResponse, TPath extends string, TVariables extends PageVars = PageVars"
 >
   import {
     computed, ref, shallowRef, watch,
@@ -80,10 +80,14 @@
   import {
     PaginationPageInfoFragment,
     type GqlConnection,
-    type GqlPaginationVariables,
+    type GqlPaginationVariables as PageVars,
+    type NodeOf,
+    type DeepAccess,
   } from '@/components/pageable-items/pageable-items-gql-types';
 
-  type ExtraArgs<T extends GqlPaginationVariables> = Omit<T, keyof GqlPaginationVariables>;
+  type ExtraArgs<T extends PageVars> = Omit<T, keyof PageVars>;
+  type RootKey<P extends string> = P extends `${infer K}.${string}` ? K : P;
+  type TNode = NodeOf<DeepAccess<TResponse, TPath>>;
 
   function useLoading() {
     let loadingRequestsCount = 0;
@@ -117,9 +121,8 @@
   }
 
   const props = defineProps<{
-    pageQuery: TypedDocumentNode<Record<TPath, GqlConnection<TNode>>, TVariables>,
+    pageQuery: TypedDocumentNode<TResponse, TVariables>,
     path: TPath,
-    connectionAccessor?: (queryResult: unknown) => GqlConnection<TNode>,
     pageQueryArguments?: ExtraArgs<TVariables>,
   }>();
 
@@ -140,9 +143,12 @@
 
   const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
 
+  const rootKey = props.path.split('.')[0] as RootKey<TPath> & keyof TResponse;
+  const subPath = props.path.split('.').slice(1);
+
   const executeQuery = useLazyQuery(
     props.pageQuery,
-    props.path as string & keyof Record<TPath, GqlConnection<TNode>>,
+    rootKey,
   );
 
   // Stores the endCursor from each visited page for backward navigation.
@@ -163,9 +169,11 @@
         after,
       } as TVariables);
 
-      const connection = props.connectionAccessor
-        ? props.connectionAccessor(queryResult)
-        : queryResult as unknown as GqlConnection<TNode>;
+      let connectionValue: unknown = queryResult;
+      for (const key of subPath) {
+        connectionValue = (connectionValue as Record<string, unknown>)[key];
+      }
+      const connection = connectionValue as GqlConnection<TNode>;
 
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;
