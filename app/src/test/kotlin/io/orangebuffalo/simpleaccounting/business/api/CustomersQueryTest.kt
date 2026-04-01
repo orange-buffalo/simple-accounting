@@ -370,6 +370,12 @@ class CustomersQueryTest(
     }
 }
 
+private fun kotlinx.serialization.json.JsonArrayBuilder.customerEdge(name: String) {
+    add(buildJsonObject {
+        put("node", buildJsonObject { put("name", name) })
+    })
+}
+
 private fun emptyCustomersConnection(
     totalCount: Int,
     hasPreviousPage: Boolean,
@@ -383,10 +389,4 @@ private fun emptyCustomersConnection(
         put("hasNextPage", hasNextPage)
     })
     put("totalCount", totalCount)
-}
-
-private fun kotlinx.serialization.json.JsonArrayBuilder.customerEdge(name: String) {
-    add(buildJsonObject {
-        put("node", buildJsonObject { put("name", name) })
-    })
 }
