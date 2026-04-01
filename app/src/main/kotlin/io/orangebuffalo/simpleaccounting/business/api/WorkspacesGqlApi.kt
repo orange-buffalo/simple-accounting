@@ -9,15 +9,14 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategories
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
-import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeCursor
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.stereotype.Component
@@ -28,6 +27,7 @@ import java.util.concurrent.CompletableFuture
 @Validated
 class WorkspacesQuery(
     private val workspacesService: WorkspacesService,
+    private val paginationService: GraphqlPaginationService,
 ) : Query {
     @Suppress("unused")
     @GraphQLDescription("Returns all workspaces accessible by the current user with cursor-based pagination.")
@@ -39,13 +39,16 @@ class WorkspacesQuery(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
     ): ConnectionGqlDto<WorkspaceGqlDto> {
-        val principal = ensureRegularUserPrincipal()
-        val cursorPage = decodeCursor(after)
-        return workspacesService.getUserWorkspacesPaginated(
-            userName = principal.userName,
-            first = first,
-            cursorPage = cursorPage,
-        )
+        val workspace = Tables.WORKSPACE
+        return paginationService.forTable(workspace)
+            .applyCurrentUserFiltering { user -> workspace.ownerId.eq(user.id) }
+            .page(first, after) { record ->
+                WorkspaceGqlDto(
+                    id = record[workspace.id]!!.toInt(),
+                    name = record[workspace.name]!!,
+                    defaultCurrency = record[workspace.defaultCurrency]!!,
+                )
+            }
     }
 
     @Suppress("unused")
@@ -90,12 +93,31 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<DocumentGqlDto> {
-        val cursorPage = decodeCursor(after)
-        return env.graphQlContext.getBean<DocumentsService>().getDocumentsPaginated(
-            workspaceId = id.toLong(),
-            first = first,
-            cursorPage = cursorPage,
-        )
+        val document = Tables.DOCUMENT
+        val paginationService = env.graphQlContext.getBean<GraphqlPaginationService>()
+        val documentsRepository = env.graphQlContext.getBean<DocumentsRepository>()
+        return paginationService.forTable(document)
+            .addPredicate(document.workspaceId.eq(id.toLong()))
+            .page(
+                first = first,
+                after = after,
+                mapQueryRecord = { record ->
+                    DocumentGqlDto(
+                        id = record[document.id]!!.toInt(),
+                        version = record[document.version]!!,
+                        name = record[document.name]!!,
+                        timeUploaded = record[document.timeUploaded]!!.toString(),
+                        sizeInBytes = record[document.sizeInBytes]?.toInt(),
+                        storageId = record[document.storageId]!!,
+                        mimeType = record[document.mimeType]!!,
+                        usedBy = emptyList(),
+                    )
+                },
+                postProcess = { records ->
+                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id.toLong() })
+                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id.toLong()] ?: emptyList()) }
+                },
+            )
     }
 
     @GraphQLDescription("Customers in this workspace with cursor-based pagination.")
@@ -107,12 +129,16 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CustomerGqlDto> {
-        val cursorPage = decodeCursor(after)
-        return env.graphQlContext.getBean<CustomersService>().getCustomersPaginated(
-            workspaceId = id.toLong(),
-            first = first,
-            cursorPage = cursorPage,
-        )
+        val customer = Tables.CUSTOMER
+        return env.graphQlContext.getBean<GraphqlPaginationService>()
+            .forTable(customer)
+            .addPredicate(customer.workspaceId.eq(id.toLong()))
+            .page(first, after) { record ->
+                CustomerGqlDto(
+                    id = record[customer.id]!!.toInt(),
+                    name = record[customer.name]!!,
+                )
+            }
     }
 }
 
