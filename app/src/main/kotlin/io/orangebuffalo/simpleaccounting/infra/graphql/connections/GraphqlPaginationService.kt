@@ -54,7 +54,13 @@ class PaginationQueryBuilder<R : Record>(
         first: Int,
         after: String?,
         mapRecord: (Record) -> N,
-        postProcess: (List<N>) -> List<N> = { it },
+    ): ConnectionGqlDto<N> = page(first, after, mapQueryRecord = mapRecord, postProcess = { it })
+
+    suspend fun <Q : Any, N : Any> page(
+        first: Int,
+        after: String?,
+        mapQueryRecord: (Record) -> Q,
+        postProcess: (List<Q>) -> List<N>,
     ): ConnectionGqlDto<N> = withDbContext {
         val cursorPage = decodeCursor(after)
         val dataRecords = executeDataQuery(first, cursorPage)
@@ -63,7 +69,7 @@ class PaginationQueryBuilder<R : Record>(
         val hasNextPage = dataRecords.size > first
         val pageRecords = if (hasNextPage) dataRecords.dropLast(1) else dataRecords
 
-        val mappedNodes = pageRecords.map(mapRecord)
+        val mappedNodes = pageRecords.map(mapQueryRecord)
         val processedNodes = postProcess(mappedNodes)
         require(processedNodes.size == mappedNodes.size) {
             "postProcess must return the same number of items as the input"

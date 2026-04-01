@@ -42,13 +42,13 @@ class WorkspacesQuery(
         val workspace = Tables.WORKSPACE
         return paginationService.forTable(workspace)
             .applyCurrentUserFiltering { user -> workspace.ownerId.eq(user.id) }
-            .page(first, after, mapRecord = { record ->
+            .page(first, after) { record ->
                 WorkspaceGqlDto(
                     id = record[workspace.id]!!.toInt(),
                     name = record[workspace.name]!!,
                     defaultCurrency = record[workspace.defaultCurrency]!!,
                 )
-            })
+            }
     }
 
     @Suppress("unused")
@@ -101,7 +101,7 @@ data class WorkspaceGqlDto(
             .page(
                 first = first,
                 after = after,
-                mapRecord = { record ->
+                mapQueryRecord = { record ->
                     DocumentGqlDto(
                         id = record[document.id]!!.toInt(),
                         version = record[document.version]!!,
@@ -133,12 +133,12 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(customer)
             .addPredicate(customer.workspaceId.eq(id.toLong()))
-            .page(first, after, mapRecord = { record ->
+            .page(first, after) { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!.toInt(),
                     name = record[customer.name]!!,
                 )
-            })
+            }
     }
 }
 
