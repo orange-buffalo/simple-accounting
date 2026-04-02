@@ -5,7 +5,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoriesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
@@ -78,8 +77,29 @@ data class WorkspaceGqlDto(
     @GraphQLDescription("Default currency of the workspace.")
     val defaultCurrency: String,
 ) {
-    @GraphQLDescription("Categories in this workspace.")
-    fun categories(env: DataFetchingEnvironment) = env.loadCategoriesByWorkspaceId(id.toLong())
+    @GraphQLDescription("Categories in this workspace with cursor-based pagination.")
+    suspend fun categories(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<CategoryGqlDto> {
+        val category = Tables.CATEGORY
+        return env.graphQlContext.getBean<GraphqlPaginationService>()
+            .forTable(category)
+            .addPredicate(category.workspaceId.eq(id.toLong()))
+            .page(first, after) { record ->
+                CategoryGqlDto(
+                    id = record[category.id]!!.toInt(),
+                    name = record[category.name]!!,
+                    description = record[category.description],
+                    income = record[category.income]!!,
+                    expense = record[category.expense]!!,
+                )
+            }
+    }
 
     @GraphQLDescription("Expenses in this workspace.")
     fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
@@ -145,8 +165,20 @@ data class WorkspaceGqlDto(
 @GraphQLName("Category")
 @GraphQLDescription("Category of incomes or expenses.")
 data class CategoryGqlDto(
+    @GraphQLDescription("ID of the category.")
+    val id: Int,
+
     @GraphQLDescription("Name of the category.")
     val name: String,
+
+    @GraphQLDescription("Description of the category.")
+    val description: String?,
+
+    @GraphQLDescription("Whether this category is used for incomes.")
+    val income: Boolean,
+
+    @GraphQLDescription("Whether this category is used for expenses.")
+    val expense: Boolean,
 )
 
 @GraphQLName("Expense")

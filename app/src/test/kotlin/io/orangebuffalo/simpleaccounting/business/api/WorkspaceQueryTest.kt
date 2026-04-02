@@ -109,7 +109,11 @@ class WorkspaceQueryTest(
             client.graphql {
                 workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
                     name
-                    categories { name }
+                    categories(first = 10) {
+                        edges {
+                            node { name }
+                        }
+                    }
                     expenses {
                         title
                         category { name }
@@ -120,10 +124,12 @@ class WorkspaceQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("name", "Planet Express")
-                        putJsonArray("categories") {
-                            add(buildJsonObject { put("name", "Delivery") })
-                            add(buildJsonObject { put("name", "Robot maintenance") })
-                        }
+                        put("categories", buildJsonObject {
+                            putJsonArray("edges") {
+                                add(buildJsonObject { put("node", buildJsonObject { put("name", "Delivery") }) })
+                                add(buildJsonObject { put("node", buildJsonObject { put("name", "Robot maintenance") }) })
+                            }
+                        })
                         putJsonArray("expenses") {
                             add(buildJsonObject {
                                 put("title", "Slurm supplies")

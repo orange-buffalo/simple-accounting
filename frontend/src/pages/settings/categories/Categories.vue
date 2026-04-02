@@ -14,33 +14,49 @@
       </ElButton>
     </div>
 
-    <SaPageableItems
-      :page-provider="categoriesProvider"
-      :api-path="`/workspaces/${currentWorkspace.id}/categories`"
+    <SaPageableItemsGql
+      :page-query="categoriesPageQuery"
+      path="workspace.categories"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item }"
     >
-      <CategoriesOverviewPanel :category="item as CategoryDto" />
-    </SaPageableItems>
+      <CategoriesOverviewPanel :category="item" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import CategoriesOverviewPanel from '@/pages/settings/categories/CategoriesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, CategoryDto } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
 
-  const {
-    currentWorkspace,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
-  const categoriesProvider = async (request: ApiPageRequest, config: RequestInit) => categoriesApi.getCategories({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
+  const categoriesPageQuery = graphql(`
+    query categoriesPage($workspaceId: Int!, $first: Int!, $after: String) {
+      workspace(id: $workspaceId) {
+        categories(first: $first, after: $after) {
+          edges {
+            cursor
+            node {
+              id
+              name
+              description
+              income
+              expense
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
+
+  const { currentWorkspaceId } = useCurrentWorkspace();
 
   const { navigateByViewName } = useNavigation();
   const navigateToNewCategoryView = () => {
