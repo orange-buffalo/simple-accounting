@@ -75,6 +75,16 @@ type AccountLockedErrorExtensions {
   lockExpiresInSec: Int!
 }
 
+"A paginated connection of categories following the GraphQL Cursor Connections Specification."
+type CategoriesConnection {
+  "The list of edges in the current page."
+  edges: [CategoryEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Category of incomes or expenses."
 type Category {
   "Description of the category."
@@ -89,22 +99,12 @@ type Category {
   name: String!
 }
 
-"An edge in a categorys connection."
+"An edge in a categories connection."
 type CategoryEdge {
   "The cursor of this edge, which can be used for pagination."
   cursor: String!
   "The category at the end of this edge."
   node: Category!
-}
-
-"A paginated connection of categorys following the GraphQL Cursor Connections Specification."
-type CategorysConnection {
-  "The list of edges in the current page."
-  edges: [CategoryEdge!]!
-  "Pagination information about the current page."
-  pageInfo: PageInfo!
-  "The total number of items in the connection across all pages."
-  totalCount: Int!
 }
 
 "Response for the changePassword mutation. Always succeeds if no error is returned by standard GraphQL error response structure."
@@ -389,7 +389,7 @@ type Workspace {
     after: String,
     "The maximum number of items to return."
     first: Int!
-  ): CategorysConnection!
+  ): CategoriesConnection!
   "Customers in this workspace with cursor-based pagination."
   customers(
     "Cursor after which to return items."

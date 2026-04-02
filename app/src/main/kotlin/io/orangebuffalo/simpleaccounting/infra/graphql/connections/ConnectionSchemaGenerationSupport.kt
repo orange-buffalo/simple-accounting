@@ -78,13 +78,15 @@ class ConnectionSchemaGenerationSupport {
 
         val nodeClass = type.arguments.firstOrNull()?.type?.classifier as? KClass<*> ?: return null
         val nodeName = getGraphQLName(nodeClass)
-        val connectionName = "${nodeName}sConnection"
+        val nodePluralName = pluralize(nodeName)
+        val connectionName = "${nodePluralName}Connection"
         val edgeName = "${nodeName}Edge"
         val nodeNameLower = nodeName.lowercase()
+        val nodePluralNameLower = nodePluralName.lowercase()
 
         val edgeType = GraphQLObjectType.newObject()
             .name(edgeName)
-            .description("An edge in a ${nodeNameLower}s connection.")
+            .description("An edge in a $nodePluralNameLower connection.")
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name("cursor")
@@ -105,7 +107,7 @@ class ConnectionSchemaGenerationSupport {
 
         return GraphQLObjectType.newObject()
             .name(connectionName)
-            .description("A paginated connection of ${nodeNameLower}s following the GraphQL Cursor Connections Specification.")
+            .description("A paginated connection of $nodePluralNameLower following the GraphQL Cursor Connections Specification.")
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name("edges")
@@ -143,4 +145,9 @@ class ConnectionSchemaGenerationSupport {
         kClass.findAnnotation<GraphQLName>()?.value
             ?: kClass.simpleName?.removeSuffix("GqlDto")
             ?: error("Cannot determine GraphQL name for ${kClass.qualifiedName}")
+
+    private fun pluralize(name: String): String = when {
+        name.endsWith("y") -> "${name.dropLast(1)}ies"
+        else -> "${name}s"
+    }
 }

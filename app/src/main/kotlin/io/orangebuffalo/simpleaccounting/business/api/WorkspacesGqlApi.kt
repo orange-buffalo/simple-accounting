@@ -86,17 +86,17 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CategoryGqlDto> {
-        val category = Tables.CATEGORY
+        val categoryTable = Tables.CATEGORY
         return env.graphQlContext.getBean<GraphqlPaginationService>()
-            .forTable(category)
-            .addPredicate(category.workspaceId.eq(id.toLong()))
+            .forTable(categoryTable)
+            .addPredicate(categoryTable.workspaceId.eq(id.toLong()))
             .page(first, after) { record ->
                 CategoryGqlDto(
-                    id = record[category.id]!!.toInt(),
-                    name = record[category.name]!!,
-                    description = record[category.description],
-                    income = record[category.income]!!,
-                    expense = record[category.expense]!!,
+                    id = record[categoryTable.id]!!.toInt(),
+                    name = record[categoryTable.name]!!,
+                    description = record[categoryTable.description],
+                    income = record[categoryTable.income]!!,
+                    expense = record[categoryTable.expense]!!,
                 )
             }
     }

@@ -37,6 +37,17 @@ export enum AuthType {
   RegularUser = 'REGULAR_USER'
 }
 
+/** A paginated connection of categories following the GraphQL Cursor Connections Specification. */
+export type CategoriesConnection = {
+  __typename?: 'CategoriesConnection';
+  /** The list of edges in the current page. */
+  edges: Array<CategoryEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Category of incomes or expenses. */
 export type Category = {
   __typename?: 'Category';
@@ -52,24 +63,13 @@ export type Category = {
   name: Scalars['String']['output'];
 };
 
-/** An edge in a categorys connection. */
+/** An edge in a categories connection. */
 export type CategoryEdge = {
   __typename?: 'CategoryEdge';
   /** The cursor of this edge, which can be used for pagination. */
   cursor: Scalars['String']['output'];
   /** The category at the end of this edge. */
   node: Category;
-};
-
-/** A paginated connection of categorys following the GraphQL Cursor Connections Specification. */
-export type CategorysConnection = {
-  __typename?: 'CategorysConnection';
-  /** The list of edges in the current page. */
-  edges: Array<CategoryEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
 };
 
 /** Possible business error codes for the changePassword operation. */
@@ -441,7 +441,7 @@ export type ValidationErrorParam = {
 export type Workspace = {
   __typename?: 'Workspace';
   /** Categories in this workspace with cursor-based pagination. */
-  categories: CategorysConnection;
+  categories: CategoriesConnection;
   /** Customers in this workspace with cursor-based pagination. */
   customers: CustomersConnection;
   /** Default currency of the workspace. */
@@ -576,7 +576,7 @@ export type CategoriesPageQueryVariables = Exact<{
 }>;
 
 
-export type CategoriesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', categories: { __typename?: 'CategorysConnection', totalCount: number, edges: Array<{ __typename?: 'CategoryEdge', cursor: string, node: { __typename?: 'Category', id: number, name: string, description?: string | null, income: boolean, expense: boolean } }>, pageInfo: (
+export type CategoriesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', categories: { __typename?: 'CategoriesConnection', totalCount: number, edges: Array<{ __typename?: 'CategoryEdge', cursor: string, node: { __typename?: 'Category', id: number, name: string, description?: string | null, income: boolean, expense: boolean } }>, pageInfo: (
         { __typename?: 'PageInfo' }
         & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
       ) } } };
