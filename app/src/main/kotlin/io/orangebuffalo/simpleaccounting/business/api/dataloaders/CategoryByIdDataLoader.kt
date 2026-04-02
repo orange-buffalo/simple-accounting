@@ -22,7 +22,15 @@ class CategoryByIdDataLoader(
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<Long, CategoryGqlDto?> =
         newAsyncMappedDataLoader { categoryIds ->
             val categories = categoriesRepository.findAllById(categoryIds)
-            categories.associate { it.id!! to CategoryGqlDto(name = it.name) }
+            categories.associate {
+                it.id!! to CategoryGqlDto(
+                    id = it.id!!.toInt(),
+                    name = it.name,
+                    description = it.description,
+                    income = it.income,
+                    expense = it.expense,
+                )
+            }
         }
 }
 

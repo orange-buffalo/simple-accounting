@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.categories.EditCategor
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
@@ -31,8 +31,8 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        page.withBlockedApiResponse(
-            "**/categories*",
+        page.withBlockedGqlApiResponse(
+            "categoriesPage",
             initiator = {
                 page.openCategoriesOverviewPage { }
             },
@@ -48,7 +48,7 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "Delivery",
+                        title = "Slurm supplies",
                         hasDetails = false,
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
@@ -58,7 +58,7 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
                     SaOverviewItemData(
-                        title = "Slurm supplies",
+                        title = "Delivery",
                         hasDetails = false,
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     )
