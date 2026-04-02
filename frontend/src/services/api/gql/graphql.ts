@@ -250,6 +250,39 @@ export type Expense = {
   title: Scalars['String']['output'];
 };
 
+/** General tax applicable to incomes or expenses. */
+export type GeneralTax = {
+  __typename?: 'GeneralTax';
+  /** Description of the general tax. */
+  description?: Maybe<Scalars['String']['output']>;
+  /** ID of the general tax. */
+  id: Scalars['Int']['output'];
+  /** Rate of the general tax in basis points (1/100 of a percent). */
+  rateInBps: Scalars['Int']['output'];
+  /** Title of the general tax. */
+  title: Scalars['String']['output'];
+};
+
+/** An edge in a general taxes connection. */
+export type GeneralTaxEdge = {
+  __typename?: 'GeneralTaxEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The general tax at the end of this edge. */
+  node: GeneralTax;
+};
+
+/** A paginated connection of general taxes following the GraphQL Cursor Connections Specification. */
+export type GeneralTaxesConnection = {
+  __typename?: 'GeneralTaxesConnection';
+  /** The list of edges in the current page. */
+  edges: Array<GeneralTaxEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Google Drive storage integration status for the current user. */
 export type GoogleDriveStorageIntegrationStatusResponse = {
   __typename?: 'GoogleDriveStorageIntegrationStatusResponse';
@@ -450,6 +483,8 @@ export type Workspace = {
   documents: DocumentsConnection;
   /** Expenses in this workspace. */
   expenses: Array<Expense>;
+  /** General taxes in this workspace with cursor-based pagination. */
+  generalTaxes: GeneralTaxesConnection;
   /** ID of the workspace. */
   id: Scalars['Int']['output'];
   /** Name of the workspace. */
@@ -473,6 +508,13 @@ export type WorkspaceCustomersArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceDocumentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceGeneralTaxesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
 };
