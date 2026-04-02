@@ -160,6 +160,29 @@ data class WorkspaceGqlDto(
                 )
             }
     }
+
+    @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
+    suspend fun generalTaxes(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<GeneralTaxGqlDto> {
+        val generalTax = Tables.GENERAL_TAX
+        return env.graphQlContext.getBean<GraphqlPaginationService>()
+            .forTable(generalTax)
+            .addPredicate(generalTax.workspaceId.eq(id.toLong()))
+            .page(first, after) { record ->
+                GeneralTaxGqlDto(
+                    id = record[generalTax.id]!!.toInt(),
+                    title = record[generalTax.title]!!,
+                    description = record[generalTax.description],
+                    rateInBps = record[generalTax.rateInBps]!!,
+                )
+            }
+    }
 }
 
 @GraphQLName("Category")

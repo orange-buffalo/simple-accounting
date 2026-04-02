@@ -234,6 +234,36 @@ type Expense {
   title: String!
 }
 
+"General tax applicable to incomes or expenses."
+type GeneralTax {
+  "Description of the general tax."
+  description: String
+  "ID of the general tax."
+  id: Int!
+  "Rate of the general tax in basis points (1/100 of a percent)."
+  rateInBps: Int!
+  "Title of the general tax."
+  title: String!
+}
+
+"An edge in a generaltaxes connection."
+type GeneralTaxEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The generaltax at the end of this edge."
+  node: GeneralTax!
+}
+
+"A paginated connection of generaltaxes following the GraphQL Cursor Connections Specification."
+type GeneralTaxesConnection {
+  "The list of edges in the current page."
+  edges: [GeneralTaxEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Google Drive storage integration status for the current user."
 type GoogleDriveStorageIntegrationStatusResponse {
   "Whether Google Drive authorization is required to use the storage."
@@ -408,6 +438,13 @@ type Workspace {
   ): DocumentsConnection!
   "Expenses in this workspace."
   expenses: [Expense!]!
+  "General taxes in this workspace with cursor-based pagination."
+  generalTaxes(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Int!
   "Name of the workspace."

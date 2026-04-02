@@ -148,6 +148,7 @@ class ConnectionSchemaGenerationSupport {
 
     private fun pluralize(name: String): String = when {
         name.endsWith("y") -> "${name.dropLast(1)}ies"
+        name.endsWith("x") -> "${name}es"
         else -> "${name}s"
     }
 }
