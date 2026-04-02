@@ -246,15 +246,15 @@ type GeneralTax {
   title: String!
 }
 
-"An edge in a generaltaxes connection."
+"An edge in a general taxes connection."
 type GeneralTaxEdge {
   "The cursor of this edge, which can be used for pagination."
   cursor: String!
-  "The generaltax at the end of this edge."
+  "The general tax at the end of this edge."
   node: GeneralTax!
 }
 
-"A paginated connection of generaltaxes following the GraphQL Cursor Connections Specification."
+"A paginated connection of general taxes following the GraphQL Cursor Connections Specification."
 type GeneralTaxesConnection {
   "The list of edges in the current page."
   edges: [GeneralTaxEdge!]!
