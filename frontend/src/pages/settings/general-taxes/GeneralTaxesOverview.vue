@@ -18,30 +18,49 @@
       </div>
     </div>
 
-    <SaPageableItems
-      :page-provider="taxesProvider"
-      #default="{ item: tax }"
+    <SaPageableItemsGql
+      :page-query="generalTaxesPageQuery"
+      path="workspace.generalTaxes"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId }"
+      #default="{ item }"
     >
-      <GeneralTaxOverviewPanel :tax="tax as GeneralTaxDto" />
-    </SaPageableItems>
+      <GeneralTaxOverviewPanel :tax="item" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
-  import type { ApiPageRequest, GeneralTaxDto } from '@/services/api';
-  import { generalTaxesApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+
+  const generalTaxesPageQuery = graphql(`
+    query generalTaxesPage($workspaceId: Int!, $first: Int!, $after: String) {
+      workspace(id: $workspaceId) {
+        generalTaxes(first: $first, after: $after) {
+          edges {
+            cursor
+            node {
+              id
+              title
+              description
+              rateInBps
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
-  const taxesProvider = async (request: ApiPageRequest, config: RequestInit) => generalTaxesApi.getTaxes({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
 </script>
