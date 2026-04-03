@@ -35,6 +35,7 @@ class CategoriesMutationTest(
             )
             val zoidberg = zoidberg()
             val zoidbergWorkspace = workspace(owner = zoidberg)
+            val fryCategory = category(workspace = fryWorkspace)
         }
     }
 
@@ -127,7 +128,7 @@ class CategoriesMutationTest(
                     )
 
                 aggregateTemplate.findAll<Category>()
-                    .filter { it.workspaceId == preconditions.fryWorkspace.id }
+                    .filter { it.workspaceId == preconditions.fryWorkspace.id && it.name == "Robot oil" }
                     .shouldBeSingle()
                     .also {
                         it.name.shouldBe("Robot oil")
@@ -227,21 +228,21 @@ class CategoriesMutationTest(
                 mustNotBeBlankTestCases("name") { value ->
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = category(workspace = preconditions.fryWorkspace).id!!.toInt(),
+                        id = preconditions.fryCategory.id!!.toInt(),
                         name = value,
                     )
                 },
                 sizeConstraintTestCases("name", maxLength = 255) { value ->
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = category(workspace = preconditions.fryWorkspace).id!!.toInt(),
+                        id = preconditions.fryCategory.id!!.toInt(),
                         name = value,
                     )
                 },
                 sizeConstraintTestCases("description", maxLength = 1000) { value ->
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = category(workspace = preconditions.fryWorkspace).id!!.toInt(),
+                        id = preconditions.fryCategory.id!!.toInt(),
                         description = value,
                     )
                 },
@@ -318,7 +319,11 @@ class CategoriesMutationTest(
                     .from(preconditions.fry)
                     .executeAndVerifySuccessResponse(
                         DgsConstants.MUTATION.EditCategory to buildJsonObject {
+                            put("id", category.id!!.toInt())
+                            put("name", "Slurm supplies")
                             put("description", JsonNull)
+                            put("income", true)
+                            put("expense", true)
                         }
                     )
             }
@@ -366,7 +371,6 @@ class CategoriesMutationTest(
         income = income,
         expense = expense,
     ) {
-        id
         this.name
         this.description
         this.income

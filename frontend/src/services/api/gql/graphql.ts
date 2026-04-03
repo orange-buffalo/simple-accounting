@@ -356,6 +356,10 @@ export type Mutation = {
   createAccessTokenByCredentials: CreateAccessTokenByCredentialsResponse;
   /** Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality. */
   createAccessTokenByWorkspaceAccessToken: CreateAccessTokenByWorkspaceAccessTokenResponse;
+  /** Creates a new category in the specified workspace. */
+  createCategory: Category;
+  /** Updates an existing category in the specified workspace. */
+  editCategory: Category;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
@@ -387,6 +391,25 @@ export type MutationCreateAccessTokenByCredentialsArgs = {
 
 export type MutationCreateAccessTokenByWorkspaceAccessTokenArgs = {
   workspaceAccessToken: Scalars['String']['input'];
+};
+
+
+export type MutationCreateCategoryArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  expense: Scalars['Boolean']['input'];
+  income: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  workspaceId: Scalars['Int']['input'];
+};
+
+
+export type MutationEditCategoryArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  expense: Scalars['Boolean']['input'];
+  id: Scalars['Int']['input'];
+  income: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  workspaceId: Scalars['Int']['input'];
 };
 
 
