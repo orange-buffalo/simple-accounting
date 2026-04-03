@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.GeneralTa
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
@@ -36,8 +36,8 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        page.withBlockedApiResponse(
-            "**/general-taxes*",
+        page.withBlockedGqlApiResponse(
+            "generalTaxesPage",
             initiator = {
                 page.openGeneralTaxesOverviewPage { }
             },
@@ -53,7 +53,7 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "GST (10%)",
+                        title = "VAT (20%)",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
                     SaOverviewItemData(
@@ -62,7 +62,7 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
-                        title = "VAT (20%)",
+                        title = "GST (10%)",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     )
                 )
