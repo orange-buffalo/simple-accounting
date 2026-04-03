@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -8,6 +7,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
@@ -130,12 +131,15 @@ class CategoriesMutationTest(
                 aggregateTemplate.findAll<Category>()
                     .filter { it.workspaceId == preconditions.fryWorkspace.id && it.name == "Robot oil" }
                     .shouldBeSingle()
-                    .also {
-                        it.name.shouldBe("Robot oil")
-                        it.description.shouldBe("Maintenance supplies for Bender")
-                        it.income.shouldBe(false)
-                        it.expense.shouldBe(true)
-                    }
+                    .shouldBeEntityWithFields(
+                        Category(
+                            name = "Robot oil",
+                            workspaceId = preconditions.fryWorkspace.id!!,
+                            description = "Maintenance supplies for Bender",
+                            income = false,
+                            expense = true,
+                        )
+                    )
             }
 
             @Test
@@ -288,15 +292,16 @@ class CategoriesMutationTest(
                         }
                     )
 
-                aggregateTemplate.findAll<Category>()
-                    .filter { it.id == category.id }
-                    .shouldBeSingle()
-                    .also {
-                        it.name.shouldBe("Spaceship fuel")
-                        it.description.shouldBe("Delivery to Omicron Persei 8")
-                        it.income.shouldBe(false)
-                        it.expense.shouldBe(true)
-                    }
+                aggregateTemplate.findSingle<Category>(category.id!!)
+                    .shouldBeEntityWithFields(
+                        Category(
+                            name = "Spaceship fuel",
+                            workspaceId = preconditions.fryWorkspace.id!!,
+                            description = "Delivery to Omicron Persei 8",
+                            income = false,
+                            expense = true,
+                        )
+                    )
             }
 
             @Test

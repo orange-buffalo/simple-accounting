@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -32,10 +31,8 @@ class CategoriesMutation(
         @Size(max = 1000)
         description: String?,
         @GraphQLDescription("Whether this category is used for incomes.")
-        @NotNull
         income: Boolean,
         @GraphQLDescription("Whether this category is used for expenses.")
-        @NotNull
         expense: Boolean,
     ): CategoryGqlDto {
         val category = categoriesService.createCategory(
@@ -66,10 +63,8 @@ class CategoriesMutation(
         @Size(max = 1000)
         description: String?,
         @GraphQLDescription("Whether this category is used for incomes.")
-        @NotNull
         income: Boolean,
         @GraphQLDescription("Whether this category is used for expenses.")
-        @NotNull
         expense: Boolean,
     ): CategoryGqlDto {
         val category = categoriesService.getCategoryByIdAndWorkspace(id.toLong(), workspaceId.toLong())
