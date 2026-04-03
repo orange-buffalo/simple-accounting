@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -410,6 +411,120 @@ class IncomeTaxPaymentsQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("notes", null as String?)
+                                    })
+                                })
+                            }
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return empty attachments when none are set`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val payment = incomeTaxPayment(workspace = workspace, title = "Slurm Tax")
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!.toInt()) {
+                    incomeTaxPayments(first = 10) {
+                        edges {
+                            node { attachments }
+                        }
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("incomeTaxPayments", buildJsonObject {
+                            putJsonArray("edges") {
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        putJsonArray("attachments") {}
+                                    })
+                                })
+                            }
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return single attachment`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val doc = document(workspace = workspace)
+                    val payment = incomeTaxPayment(workspace = workspace, title = "Slurm Tax", attachments = setOf(doc))
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!.toInt()) {
+                    incomeTaxPayments(first = 10) {
+                        edges {
+                            node { attachments }
+                        }
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("incomeTaxPayments", buildJsonObject {
+                            putJsonArray("edges") {
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        putJsonArray("attachments") {
+                                            add(JsonPrimitive(testData.doc.id!!.toInt()))
+                                        }
+                                    })
+                                })
+                            }
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return multiple attachments`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val doc1 = document(workspace = workspace, name = "Robot oil receipt")
+                    val doc2 = document(workspace = workspace, name = "Slurm delivery receipt")
+                    val payment = incomeTaxPayment(
+                        workspace = workspace,
+                        title = "Slurm Tax",
+                        attachments = setOf(doc1, doc2),
+                    )
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!.toInt()) {
+                    incomeTaxPayments(first = 10) {
+                        edges {
+                            node { attachments }
+                        }
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("incomeTaxPayments", buildJsonObject {
+                            putJsonArray("edges") {
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        putJsonArray("attachments") {
+                                            add(JsonPrimitive(testData.doc1.id!!.toInt()))
+                                            add(JsonPrimitive(testData.doc2.id!!.toInt()))
+                                        }
                                     })
                                 })
                             }
