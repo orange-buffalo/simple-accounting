@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.Inco
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -20,8 +20,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
         // Capture loading state by blocking API response
-        page.withBlockedApiResponse(
-            "**/income-tax-payments*",
+        page.withBlockedGqlApiResponse(
+            "incomeTaxPaymentsPage",
             initiator = {
                 page.openIncomeTaxPaymentsOverviewPage { }
             },

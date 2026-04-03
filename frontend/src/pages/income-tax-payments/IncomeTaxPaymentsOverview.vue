@@ -19,24 +19,50 @@
       </div>
     </div>
 
-    <SaPageableItems
+    <SaPageableItemsGql
+      :page-query="incomeTaxPaymentsPageQuery"
+      path="workspace.incomeTaxPayments"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item: taxPayment }"
-      :page-provider="taxPaymentsProvider"
     >
-      <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment as IncomeTaxPaymentDto" />
-    </SaPageableItems>
+      <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { ApiPageRequest, IncomeTaxPaymentDto } from '@/services/api';
   import { $t } from '@/services/i18n';
-  import { incomeTaxPaymentsApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+
+  const incomeTaxPaymentsPageQuery = graphql(`
+    query incomeTaxPaymentsPage($workspaceId: Int!, $first: Int!, $after: String) {
+      workspace(id: $workspaceId) {
+        incomeTaxPayments(first: $first, after: $after) {
+          edges {
+            cursor
+            node {
+              id
+              title
+              datePaid
+              reportingDate
+              amount
+              attachments
+              notes
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateTaxPaymentView = () => navigateByViewName('create-new-income-tax-payment');
@@ -44,12 +70,4 @@
     currentWorkspace,
     currentWorkspaceId,
   } = useCurrentWorkspace();
-
-  const taxPaymentsProvider = async (
-    request: ApiPageRequest,
-    config: RequestInit,
-  ) => incomeTaxPaymentsApi.getTaxPayments({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
 </script>

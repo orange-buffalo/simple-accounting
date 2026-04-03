@@ -24,4 +24,7 @@ data class IncomeTaxPaymentGqlDto(
 
     @GraphQLDescription("Optional notes for the income tax payment.")
     val notes: String?,
+
+    @GraphQLDescription("IDs of documents attached to this income tax payment.")
+    val attachments: List<Int>,
 )
