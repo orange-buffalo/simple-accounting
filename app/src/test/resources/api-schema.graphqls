@@ -284,6 +284,40 @@ type I18nSettings {
   locale: String!
 }
 
+"An income tax payment in a workspace."
+type IncomeTaxPayment {
+  "Amount of the tax payment in cents."
+  amount: Long!
+  "Date when the tax payment was made."
+  datePaid: LocalDate!
+  "ID of the income tax payment."
+  id: Int!
+  "Optional notes for the income tax payment."
+  notes: String
+  "Date used for reporting purposes."
+  reportingDate: LocalDate!
+  "Title of the income tax payment."
+  title: String!
+}
+
+"An edge in a income tax payments connection."
+type IncomeTaxPaymentEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The income tax payment at the end of this edge."
+  node: IncomeTaxPayment!
+}
+
+"A paginated connection of income tax payments following the GraphQL Cursor Connections Specification."
+type IncomeTaxPaymentsConnection {
+  "The list of edges in the current page."
+  edges: [IncomeTaxPaymentEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 type Mutation {
   "Changes the password of the current user."
   changePassword(
@@ -447,6 +481,13 @@ type Workspace {
   ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Int!
+  "Income tax payments in this workspace with cursor-based pagination."
+  incomeTaxPayments(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): IncomeTaxPaymentsConnection!
   "Name of the workspace."
   name: String!
 }
@@ -542,3 +583,9 @@ enum ValidationErrorCode {
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
 }
+
+"A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15')."
+scalar LocalDate
+
+"A 64-bit signed integer."
+scalar Long
