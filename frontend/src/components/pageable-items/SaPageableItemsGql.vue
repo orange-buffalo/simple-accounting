@@ -66,7 +66,7 @@
 <script
   lang="ts"
   setup
-  generic="TNode, TPath extends string, TVariables extends GqlPaginationVariables = GqlPaginationVariables"
+  generic="TResponse, TPath extends string, TVariables extends PageVars = PageVars"
 >
   import {
     computed, ref, shallowRef, watch,
@@ -80,10 +80,14 @@
   import {
     PaginationPageInfoFragment,
     type GqlConnection,
-    type GqlPaginationVariables,
+    type GqlPaginationVariables as PageVars,
+    type NodeOf,
+    type DeepAccess,
   } from '@/components/pageable-items/pageable-items-gql-types';
 
-  type ExtraArgs<T extends GqlPaginationVariables> = Omit<T, keyof GqlPaginationVariables>;
+  type ExtraArgs<T extends PageVars> = Omit<T, keyof PageVars>;
+  type RootKey<P extends string> = P extends `${infer K}.${string}` ? K : P;
+  type TNode = NodeOf<DeepAccess<TResponse, TPath>>;
 
   function useLoading() {
     let loadingRequestsCount = 0;
@@ -117,7 +121,7 @@
   }
 
   const props = defineProps<{
-    pageQuery: TypedDocumentNode<Record<TPath, GqlConnection<TNode>>, TVariables>,
+    pageQuery: TypedDocumentNode<TResponse, TVariables>,
     path: TPath,
     pageQueryArguments?: ExtraArgs<TVariables>,
   }>();
@@ -139,12 +143,13 @@
 
   const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
 
-  // Support dot-separated path (e.g., "workspace.documents") for nested queries
-  const pathSegments = (props.path as string).split('.');
+  const pathParts = props.path.split('.');
+  const rootKey = pathParts[0] as RootKey<TPath> & keyof TResponse;
+  const subPath = pathParts.slice(1);
 
-  const executeTopLevelQuery = useLazyQuery(
-    props.pageQuery as TypedDocumentNode<Record<string, any>, TVariables>,
-    pathSegments[0] as string & keyof Record<string, any>,
+  const executeQuery = useLazyQuery(
+    props.pageQuery,
+    rootKey,
   );
 
   // Stores the endCursor from each visited page for backward navigation.
@@ -159,15 +164,17 @@
       : endCursors[pageNumber.value - 2] ?? null;
 
     try {
-      let connectionResult: any = await executeTopLevelQuery({
+      const queryResult = await executeQuery({
         ...props.pageQueryArguments,
         first: pageSize.value,
         after,
       } as TVariables);
-      for (let i = 1; i < pathSegments.length; i++) {
-        connectionResult = connectionResult[pathSegments[i]];
+
+      let connectionValue: unknown = queryResult;
+      for (const key of subPath) {
+        connectionValue = (connectionValue as Record<string, unknown>)[key];
       }
-      const connection = connectionResult as GqlConnection<TNode>;
+      const connection = connectionValue as GqlConnection<TNode>;
 
       data.value = connection.edges.map((edge) => edge.node);
       totalElements.value = connection.totalCount;

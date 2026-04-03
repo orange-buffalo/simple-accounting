@@ -23,10 +23,12 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { CategoryDto } from '@/services/api';
+  import type { CategoriesPageQuery } from '@/services/api/gql/graphql';
+
+  type CategoryNode = CategoriesPageQuery['workspace']['categories']['edges'][0]['node'];
 
   const props = defineProps<{
-    category: CategoryDto
+    category: CategoryNode
   }>();
 
   const { navigateToView } = useNavigation();

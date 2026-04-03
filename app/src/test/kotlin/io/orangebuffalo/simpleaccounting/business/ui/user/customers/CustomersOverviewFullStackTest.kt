@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.customers.EditCustomer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 class CustomersOverviewFullStackTest : SaFullStackTestBase() {
@@ -31,8 +31,8 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
 
-        page.withBlockedApiResponse(
-            "**/customers*",
+        page.withBlockedGqlApiResponse(
+            "customersPage",
             initiator = {
                 page.openCustomersOverviewPage { }
             },
@@ -48,7 +48,7 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "Planet Express Competitors Inc",
+                        title = "Slurm Corp",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     ),
@@ -58,7 +58,7 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
-                        title = "Slurm Corp",
+                        title = "Planet Express Competitors Inc",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     )

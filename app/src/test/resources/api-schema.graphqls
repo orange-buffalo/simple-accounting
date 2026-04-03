@@ -75,10 +75,36 @@ type AccountLockedErrorExtensions {
   lockExpiresInSec: Int!
 }
 
+"A paginated connection of categories following the GraphQL Cursor Connections Specification."
+type CategoriesConnection {
+  "The list of edges in the current page."
+  edges: [CategoryEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Category of incomes or expenses."
 type Category {
+  "Description of the category."
+  description: String
+  "Whether this category is used for expenses."
+  expense: Boolean!
+  "ID of the category."
+  id: Int!
+  "Whether this category is used for incomes."
+  income: Boolean!
   "Name of the category."
   name: String!
+}
+
+"An edge in a categories connection."
+type CategoryEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The category at the end of this edge."
+  node: Category!
 }
 
 "Response for the changePassword mutation. Always succeeds if no error is returned by standard GraphQL error response structure."
@@ -104,6 +130,32 @@ type CreateAccessTokenByCredentialsResponse {
 type CreateAccessTokenByWorkspaceAccessTokenResponse {
   "The JWT access token for the authenticated user."
   accessToken: String!
+}
+
+"A customer in a workspace."
+type Customer {
+  "ID of the customer."
+  id: Int!
+  "Name of the customer."
+  name: String!
+}
+
+"An edge in a customers connection."
+type CustomerEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The customer at the end of this edge."
+  node: Customer!
+}
+
+"A paginated connection of customers following the GraphQL Cursor Connections Specification."
+type CustomersConnection {
+  "The list of edges in the current page."
+  edges: [CustomerEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 "A document in a workspace."
@@ -182,6 +234,36 @@ type Expense {
   title: String!
 }
 
+"General tax applicable to incomes or expenses."
+type GeneralTax {
+  "Description of the general tax."
+  description: String
+  "ID of the general tax."
+  id: Int!
+  "Rate of the general tax in basis points (1/100 of a percent)."
+  rateInBps: Int!
+  "Title of the general tax."
+  title: String!
+}
+
+"An edge in a general taxes connection."
+type GeneralTaxEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The general tax at the end of this edge."
+  node: GeneralTax!
+}
+
+"A paginated connection of general taxes following the GraphQL Cursor Connections Specification."
+type GeneralTaxesConnection {
+  "The list of edges in the current page."
+  edges: [GeneralTaxEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Google Drive storage integration status for the current user."
 type GoogleDriveStorageIntegrationStatusResponse {
   "Whether Google Drive authorization is required to use the storage."
@@ -200,6 +282,40 @@ type I18nSettings {
   language: String!
   "The locale of the user profile, e.g. 'en-US'. Used for formatting dates, numbers, etc."
   locale: String!
+}
+
+"An income tax payment in a workspace."
+type IncomeTaxPayment {
+  "Amount of the tax payment in cents."
+  amount: Long!
+  "Date when the tax payment was made."
+  datePaid: LocalDate!
+  "ID of the income tax payment."
+  id: Int!
+  "Optional notes for the income tax payment."
+  notes: String
+  "Date used for reporting purposes."
+  reportingDate: LocalDate!
+  "Title of the income tax payment."
+  title: String!
+}
+
+"An edge in a income tax payments connection."
+type IncomeTaxPaymentEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The income tax payment at the end of this edge."
+  node: IncomeTaxPayment!
+}
+
+"A paginated connection of income tax payments following the GraphQL Cursor Connections Specification."
+type IncomeTaxPaymentsConnection {
+  "The list of edges in the current page."
+  edges: [IncomeTaxPaymentEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 type Mutation {
@@ -331,8 +447,20 @@ type ValidationErrorParam {
 
 "Workspace of a user."
 type Workspace {
-  "Categories in this workspace."
-  categories: [Category!]!
+  "Categories in this workspace with cursor-based pagination."
+  categories(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): CategoriesConnection!
+  "Customers in this workspace with cursor-based pagination."
+  customers(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): CustomersConnection!
   "Default currency of the workspace."
   defaultCurrency: String!
   "Documents in this workspace with cursor-based pagination."
@@ -344,8 +472,22 @@ type Workspace {
   ): DocumentsConnection!
   "Expenses in this workspace."
   expenses: [Expense!]!
+  "General taxes in this workspace with cursor-based pagination."
+  generalTaxes(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Int!
+  "Income tax payments in this workspace with cursor-based pagination."
+  incomeTaxPayments(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): IncomeTaxPaymentsConnection!
   "Name of the workspace."
   name: String!
 }
@@ -441,3 +583,9 @@ enum ValidationErrorCode {
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
 }
+
+"A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15')."
+scalar LocalDate
+
+"A 64-bit signed integer."
+scalar Long

@@ -23,10 +23,12 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { GeneralTaxDto } from '@/services/api';
+  import type { GeneralTaxesPageQuery } from '@/services/api/gql/graphql';
+
+  type GeneralTaxNode = GeneralTaxesPageQuery['workspace']['generalTaxes']['edges'][0]['node'];
 
   const props = defineProps<{
-    tax: GeneralTaxDto,
+    tax: GeneralTaxNode,
   }>();
 
   const { navigateToView } = useNavigation();

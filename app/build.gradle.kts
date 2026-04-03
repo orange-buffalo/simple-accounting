@@ -262,6 +262,10 @@ tasks.withType<GenerateJavaTask> {
     generateClient = true
     generateKotlinNullableClasses = true
     generateKotlinClosureProjections = true
+    typeMapping = mutableMapOf(
+        "LocalDate" to "java.time.LocalDate",
+        "Long" to "kotlin.Long",
+    )
 }
 
 tasks.compileTestKotlin {
