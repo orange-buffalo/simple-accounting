@@ -14,6 +14,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15'). */
+  LocalDate: { input: string; output: string; }
+  /** A 64-bit signed integer. */
+  Long: { input: number; output: number; }
 };
 
 /** Additional error extensions for the ACCOUNT_LOCKED business error. */
@@ -305,6 +309,43 @@ export type I18nSettings = {
   locale: Scalars['String']['output'];
 };
 
+/** An income tax payment in a workspace. */
+export type IncomeTaxPayment = {
+  __typename?: 'IncomeTaxPayment';
+  /** Amount of the tax payment in cents. */
+  amount: Scalars['Long']['output'];
+  /** Date when the tax payment was made. */
+  datePaid: Scalars['LocalDate']['output'];
+  /** ID of the income tax payment. */
+  id: Scalars['Int']['output'];
+  /** Optional notes for the income tax payment. */
+  notes?: Maybe<Scalars['String']['output']>;
+  /** Date used for reporting purposes. */
+  reportingDate: Scalars['LocalDate']['output'];
+  /** Title of the income tax payment. */
+  title: Scalars['String']['output'];
+};
+
+/** An edge in a income tax payments connection. */
+export type IncomeTaxPaymentEdge = {
+  __typename?: 'IncomeTaxPaymentEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The income tax payment at the end of this edge. */
+  node: IncomeTaxPayment;
+};
+
+/** A paginated connection of income tax payments following the GraphQL Cursor Connections Specification. */
+export type IncomeTaxPaymentsConnection = {
+  __typename?: 'IncomeTaxPaymentsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<IncomeTaxPaymentEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Changes the password of the current user. */
@@ -487,6 +528,8 @@ export type Workspace = {
   generalTaxes: GeneralTaxesConnection;
   /** ID of the workspace. */
   id: Scalars['Int']['output'];
+  /** Income tax payments in this workspace with cursor-based pagination. */
+  incomeTaxPayments: IncomeTaxPaymentsConnection;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
 };
@@ -515,6 +558,13 @@ export type WorkspaceDocumentsArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceGeneralTaxesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceIncomeTaxPaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
 };

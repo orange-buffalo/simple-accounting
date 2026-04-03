@@ -10,6 +10,10 @@ const config: CodegenConfig = {
       preset: 'client',
       config: {
         useTypeImports: true,
+        scalars: {
+          LocalDate: 'string',
+          Long: 'number',
+        },
       },
       plugins: [],
     },
