@@ -13,6 +13,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -21,7 +22,61 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should display documents with all possible attribute variations`(page: Page) {
-        page.authenticateViaCookie(preconditionsAllStates.fry)
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    isAdmin = false,
+                    activated = true,
+                    documentsStorage = "noop"
+                )
+
+                init {
+                    val workspace = workspace(owner = fry)
+
+                    document(
+                        workspace = workspace,
+                        name = "Unused Receipt.pdf",
+                    )
+
+                    val singleUsageDoc = document(
+                        workspace = workspace,
+                        name = "Single Usage Doc.pdf",
+                        timeUploaded = Instant.parse("3025-01-15T10:30:00Z"),
+                    )
+                    expense(
+                        workspace = workspace,
+                        title = "Slurm supplies",
+                        attachments = setOf(singleUsageDoc),
+                    )
+
+                    val multiUsageDoc = document(
+                        workspace = workspace,
+                        name = "Multi Usage Doc.pdf",
+                        timeUploaded = Instant.parse("3025-01-14T09:00:00Z"),
+                    )
+                    expense(
+                        workspace = workspace,
+                        title = "Robot oil",
+                        attachments = setOf(multiUsageDoc),
+                    )
+                    income(
+                        workspace = workspace,
+                        title = "Delivery commission",
+                        attachments = setOf(multiUsageDoc),
+                    )
+
+                    document(
+                        workspace = workspace,
+                        name = "Google Drive Doc.pdf",
+                        timeUploaded = Instant.parse("3025-01-13T08:00:00Z"),
+                        storageId = "google-drive",
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
 
         page.withBlockedGqlApiResponse(
             "documentsPage",
@@ -37,32 +92,33 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         )
 
         page.shouldBeDocumentsOverviewPage {
-            page.clock().fastForward(1000)
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
                         title = "Unused Receipt.pdf",
                         primaryAttributes = primaryAttributes(
                             "28 Mar 1999, 11:01 pm",
-                            "Internal System"
+                            "Unknown"
                         ),
-                        middleColumnContent = SaStatusLabel.pendingStatusValue() + "Unused",
+                        middleColumnContent = unusedStatus(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
                             "15 Jan 3025, 10:30 am",
-                            "Internal System"
+                            "Unknown"
                         ),
+                        middleColumnContent = "Slurm supplies",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Multi Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
                             "14 Jan 3025, 9:00 am",
-                            "Internal System"
+                            "Unknown"
                         ),
+                        middleColumnContent = "Robot oilDelivery commission",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -89,15 +145,32 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         primaryAttribute(SaIconType.UPLOAD, text = storage),
     )
 
+    private fun unusedStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Unused")
+
     @Test
     fun `should navigate to edit expense page from usage link`(page: Page) {
-        page.authenticateViaCookie(preconditionsNavigation.fry)
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val doc = document(
+                        workspace = workspace,
+                        name = "Expense Receipt.pdf",
+                    )
+                    expense(
+                        workspace = workspace,
+                        title = "Slurm supplies",
+                        attachments = setOf(doc),
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Expense Receipt.pdf")
-                val middleColumn = staticItems[0].locator(".overview-item__middle-column")
-                middleColumn.locator("a").first().click()
+                staticItems[0].clickMiddleColumnLink("Slurm supplies")
             }
         }
 
@@ -110,13 +183,28 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should navigate to edit income page from usage link`(page: Page) {
-        page.authenticateViaCookie(preconditionsNavigationIncome.fry)
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val doc = document(
+                        workspace = workspace,
+                        name = "Income Receipt.pdf",
+                    )
+                    income(
+                        workspace = workspace,
+                        title = "Delivery commission",
+                        attachments = setOf(doc),
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Income Receipt.pdf")
-                val middleColumn = staticItems[0].locator(".overview-item__middle-column")
-                middleColumn.locator("a").first().click()
+                staticItems[0].clickMiddleColumnLink("Delivery commission")
             }
         }
 
@@ -129,13 +217,27 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should navigate to edit invoice page from usage link`(page: Page) {
-        page.authenticateViaCookie(preconditionsNavigationInvoice.fry)
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val doc = document(
+                        workspace = workspace,
+                        name = "Invoice Attachment.pdf",
+                    )
+                    invoice(
+                        title = "Delivery to Omicron Persei 8",
+                        attachments = setOf(doc),
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Invoice Attachment.pdf")
-                val middleColumn = staticItems[0].locator(".overview-item__middle-column")
-                middleColumn.locator("a").first().click()
+                staticItems[0].clickMiddleColumnLink("Delivery to Omicron Persei 8")
             }
         }
 
@@ -148,13 +250,28 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should navigate to edit income tax payment page from usage link`(page: Page) {
-        page.authenticateViaCookie(preconditionsNavigationTaxPayment.fry)
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val doc = document(
+                        workspace = workspace,
+                        name = "Tax Payment Receipt.pdf",
+                    )
+                    incomeTaxPayment(
+                        workspace = workspace,
+                        title = "Q1 Corporate Tax",
+                        attachments = setOf(doc),
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             pageItems {
-                finishLoadingWhenTimeMocked()
                 shouldHaveTitles("Tax Payment Receipt.pdf")
-                val middleColumn = staticItems[0].locator(".overview-item__middle-column")
-                middleColumn.locator("a").first().click()
+                staticItems[0].clickMiddleColumnLink("Q1 Corporate Tax")
             }
         }
 
@@ -167,13 +284,27 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should support pagination`(page: Page) {
-        page.authenticateViaCookie(preconditionsPagination.fry)
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    (1..15).forEach { index ->
+                        document(
+                            workspace = workspace,
+                            name = "Document $index.pdf",
+                            timeUploaded = Instant.parse("3025-01-01T00:00:00Z").minusSeconds(index.toLong()),
+                        )
+                    }
+                }
+            }
+        }
+
         val firstPageDocuments = (1..10).map { "Document $it.pdf" }
         val secondPageDocuments = (11..15).map { "Document $it.pdf" }
 
+        page.authenticateViaCookie(testData.fry)
         page.navigate("/documents")
         page.shouldBeDocumentsOverviewPage {
-            page.clock().fastForward(1000)
             pageItems {
                 shouldHaveTitles(firstPageDocuments)
                 paginator {
@@ -191,160 +322,6 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
-                }
-            }
-        }
-    }
-
-    private val preconditionsAllStates by lazyPreconditions {
-        object {
-            val fry = platformUser(
-                userName = "Fry",
-                isAdmin = false,
-                activated = true,
-                documentsStorage = "noop"
-            )
-            val workspace = workspace(owner = fry)
-
-            init {
-                // 1. Unused document (no usages)
-                document(
-                    workspace = workspace,
-                    name = "Unused Receipt.pdf",
-                )
-
-                // 2. Document with single usage (expense)
-                val singleUsageDoc = document(
-                    workspace = workspace,
-                    name = "Single Usage Doc.pdf",
-                    timeUploaded = Instant.parse("3025-01-15T10:30:00Z"),
-                )
-                expense(
-                    workspace = workspace,
-                    title = "Slurm supplies",
-                    attachments = setOf(singleUsageDoc),
-                )
-
-                // 3. Document with multiple usages (expense + income)
-                val multiUsageDoc = document(
-                    workspace = workspace,
-                    name = "Multi Usage Doc.pdf",
-                    timeUploaded = Instant.parse("3025-01-14T09:00:00Z"),
-                )
-                expense(
-                    workspace = workspace,
-                    title = "Robot oil",
-                    attachments = setOf(multiUsageDoc),
-                )
-                income(
-                    workspace = workspace,
-                    title = "Delivery commission",
-                    attachments = setOf(multiUsageDoc),
-                )
-
-                // 4. Document stored in Google Drive
-                document(
-                    workspace = workspace,
-                    name = "Google Drive Doc.pdf",
-                    timeUploaded = Instant.parse("3025-01-13T08:00:00Z"),
-                    storageId = "google-drive",
-                )
-            }
-        }
-    }
-
-    private val preconditionsNavigation by lazyPreconditions {
-        object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
-
-            init {
-                val doc = document(
-                    workspace = workspace,
-                    name = "Expense Receipt.pdf",
-                )
-                expense(
-                    workspace = workspace,
-                    title = "Slurm supplies",
-                    attachments = setOf(doc),
-                )
-            }
-        }
-    }
-
-    private val preconditionsNavigationIncome by lazyPreconditions {
-        object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
-
-            init {
-                val doc = document(
-                    workspace = workspace,
-                    name = "Income Receipt.pdf",
-                )
-                income(
-                    workspace = workspace,
-                    title = "Delivery commission",
-                    attachments = setOf(doc),
-                )
-            }
-        }
-    }
-
-    private val preconditionsNavigationInvoice by lazyPreconditions {
-        object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
-
-            init {
-                val doc = document(
-                    workspace = workspace,
-                    name = "Invoice Attachment.pdf",
-                )
-                val customer = customer(
-                    workspace = workspace,
-                    name = "MomCorp",
-                )
-                invoice(
-                    customer = customer,
-                    title = "Delivery to Omicron Persei 8",
-                    attachments = setOf(doc),
-                )
-            }
-        }
-    }
-
-    private val preconditionsNavigationTaxPayment by lazyPreconditions {
-        object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
-
-            init {
-                val doc = document(
-                    workspace = workspace,
-                    name = "Tax Payment Receipt.pdf",
-                )
-                incomeTaxPayment(
-                    workspace = workspace,
-                    title = "Q1 Corporate Tax",
-                    attachments = setOf(doc),
-                )
-            }
-        }
-    }
-
-    private val preconditionsPagination by lazyPreconditions {
-        object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
-
-            init {
-                (1..15).forEach { index ->
-                    document(
-                        workspace = workspace,
-                        name = "Document $index.pdf",
-                        timeUploaded = Instant.parse("3025-01-01T00:00:00Z").minusSeconds(index.toLong()),
-                    )
                 }
             }
         }

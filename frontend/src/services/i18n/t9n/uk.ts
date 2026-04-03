@@ -376,6 +376,7 @@ export default {
       label: () => 'Сховище',
       googleDrive: () => 'Google Drive',
       internalSystem: () => 'Внутрішня система',
+      unknown: () => 'Невідомо',
     },
     unused: () => 'Не використовується',
   },

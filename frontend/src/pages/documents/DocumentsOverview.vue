@@ -13,10 +13,10 @@
     </div>
 
     <SaPageableItemsGql
-      :page-query="(documentsPageQuery as any)"
+      :page-query="documentsPageQuery"
       path="workspace.documents"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
-      #default="{ item }: { item: any }"
+      #default="{ item }"
     >
       <DocumentsOverviewPanel :document="item" />
     </SaPageableItemsGql>

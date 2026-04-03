@@ -21,15 +21,15 @@
         v-if="document.usedBy.length > 0"
         class="documents-overview-panel__usages"
       >
-        <a
+        <ElButton
           v-for="usage in document.usedBy"
           :key="`${usage.type}-${usage.relatedEntityId}`"
+          link
           class="documents-overview-panel__usage-link"
-          href="#"
-          @click.prevent="navigateToUsage(usage)"
+          @click="navigateToUsage(usage)"
         >
           {{ usage.displayName }}
-        </a>
+        </ElButton>
       </div>
       <SaStatusLabel
         v-else
@@ -74,8 +74,10 @@
     switch (props.document.storageId) {
     case 'google-drive':
       return $t.value.documentsOverviewPanel.storage.googleDrive();
-    default:
+    case 'local-fs':
       return $t.value.documentsOverviewPanel.storage.internalSystem();
+    default:
+      return $t.value.documentsOverviewPanel.storage.unknown();
     }
   });
 
@@ -101,16 +103,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    &__usage-link {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-
-      &:hover {
-        text-decoration: underline;
-      }
     }
   }
 </style>

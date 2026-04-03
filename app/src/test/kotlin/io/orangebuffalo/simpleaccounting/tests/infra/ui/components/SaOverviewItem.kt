@@ -16,7 +16,7 @@ private const val DATA_JS = """
             primaryAttributes: Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
               return utils.getDynamicContent(attr);
             }),
-            middleColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__middle-column .sa-status-label')),
+            middleColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__middle-column')),
             lastColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__last-column')),
             attributePreviewIcons: Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
               return utils.getDynamicContent(icon);
@@ -133,6 +133,12 @@ class SaOverviewItem private constructor(
     fun executeMarkAsSentAction() = executeAction("Sent today")
 
     fun executeMarkAsPaidAction() = executeAction("Paid")
+
+    fun clickMiddleColumnLink(linkText: String) {
+        panel.locator(".overview-item__middle-column")
+            .locator("xpath=.//*[${XPath.hasText(linkText)}]")
+            .click()
+    }
 
     companion object {
         fun ComponentsAccessors.overviewItems() =

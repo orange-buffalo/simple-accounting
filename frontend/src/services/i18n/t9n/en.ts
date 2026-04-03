@@ -377,6 +377,7 @@ export default {
       label: () => 'Storage',
       googleDrive: () => 'Google Drive',
       internalSystem: () => 'Internal System',
+      unknown: () => 'Unknown',
     },
     unused: () => 'Unused',
   },
