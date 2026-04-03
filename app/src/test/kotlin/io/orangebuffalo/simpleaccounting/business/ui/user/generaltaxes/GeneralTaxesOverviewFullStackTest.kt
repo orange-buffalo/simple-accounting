@@ -53,7 +53,7 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "GST (10%)",
+                        title = "VAT (20%)",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     ),
                     SaOverviewItemData(
@@ -62,7 +62,7 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
-                        title = "VAT (20%)",
+                        title = "GST (10%)",
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                     )
                 )
