@@ -15,9 +15,9 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   /** A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15'). */
-  LocalDate: { input: any; output: any; }
+  LocalDate: { input: string; output: string; }
   /** A 64-bit signed integer. */
-  Long: { input: any; output: any; }
+  Long: { input: number; output: number; }
 };
 
 /** Additional error extensions for the ACCOUNT_LOCKED business error. */
