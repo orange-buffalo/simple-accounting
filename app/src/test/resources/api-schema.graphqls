@@ -349,6 +349,34 @@ type Mutation {
     "The shared workspace access token."
     workspaceAccessToken: String! @notBlank
   ): CreateAccessTokenByWorkspaceAccessTokenResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
+  "Creates a new category in the specified workspace."
+  createCategory(
+    "Description of the category."
+    description: String @size(max : 1000, min : 0),
+    "Whether this category is used for expenses."
+    expense: Boolean!,
+    "Whether this category is used for incomes."
+    income: Boolean!,
+    "Name of the category."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the category in."
+    workspaceId: Int!
+  ): Category! @auth(type : REGULAR_USER)
+  "Updates an existing category in the specified workspace."
+  editCategory(
+    "New description of the category."
+    description: String @size(max : 1000, min : 0),
+    "Whether this category is used for expenses."
+    expense: Boolean!,
+    "ID of the category to update."
+    id: Int!,
+    "Whether this category is used for incomes."
+    income: Boolean!,
+    "New name of the category."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the category belongs to."
+    workspaceId: Int!
+  ): Category! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
