@@ -25,7 +25,6 @@
           v-for="usage in document.usedBy"
           :key="`${usage.type}-${usage.relatedEntityId}`"
           link
-          class="documents-overview-panel__usage-link"
           @click="navigateToUsage(usage)"
         >
           {{ usage.displayName }}

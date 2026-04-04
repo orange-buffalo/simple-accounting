@@ -13,6 +13,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
@@ -293,8 +294,10 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         document(
                             workspace = workspace,
                             name = "Document $index.pdf",
-                            timeUploaded = Instant.parse("3025-01-01T00:00:00Z").minusSeconds(index.toLong()),
-                        )
+                        ).also { d ->
+                            d.createdAt = MOCK_TIME.plusSeconds(index.toLong())
+                            d.save()
+                        }
                     }
                 }
             }
