@@ -231,7 +231,9 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         workspace = workspace,
                         name = "Invoice Attachment.pdf",
                     )
+                    val customer = customer(workspace = workspace)
                     invoice(
+                        customer = customer,
                         title = "Delivery to Omicron Persei 8",
                         attachments = setOf(doc),
                     )
