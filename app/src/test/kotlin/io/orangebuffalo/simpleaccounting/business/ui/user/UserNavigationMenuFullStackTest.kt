@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.
 import io.orangebuffalo.simpleaccounting.business.ui.user.categories.CategoriesOverviewPage.Companion.shouldBeCategoriesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.customers.CustomersOverviewPage.Companion.shouldBeCustomersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.GeneralTaxesOverviewPage.Companion.shouldBeGeneralTaxesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
@@ -43,6 +44,7 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
                 MenuItem("Invoices", false),
                 MenuItem("Income Tax Payments", false),
                 MenuItem("Reporting", false),
+                MenuItem("Documents", false),
                 MenuItem("SETTINGS", true),
                 MenuItem("Customers", false),
                 MenuItem("Categories", false),
@@ -68,6 +70,9 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
 
         page.shouldHaveSideMenu().clickReporting()
         page.shouldBeReportingPage()
+
+        page.shouldHaveSideMenu().clickDocuments()
+        page.shouldBeDocumentsOverviewPage()
 
         page.shouldHaveSideMenu().clickCustomers()
         page.shouldBeCustomersOverviewPage()

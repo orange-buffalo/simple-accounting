@@ -26,18 +26,9 @@ class GeneralTaxesQueryTest(
         private fun EntitiesFactory.threeTaxes() = object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val tax1 = generalTax(workspace = workspace, title = "VAT").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val tax2 = generalTax(workspace = workspace, title = "Sales Tax").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val tax3 = generalTax(workspace = workspace, title = "Slurm Tax").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val tax1 = generalTax(workspace = workspace, title = "VAT", createdAt = MOCK_TIME.plusSeconds(100))
+            val tax2 = generalTax(workspace = workspace, title = "Sales Tax", createdAt = MOCK_TIME.plusSeconds(200))
+            val tax3 = generalTax(workspace = workspace, title = "Slurm Tax", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -66,8 +57,8 @@ class GeneralTaxesQueryTest(
                         put("generalTaxes", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.tax1.createdAt!!))
-                                    put("node", buildJsonObject { put("title", "VAT") })
+                                    put("cursor", encodeCursor(testData.tax3.createdAt!!))
+                                    put("node", buildJsonObject { put("title", "Slurm Tax") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", encodeCursor(testData.tax2.createdAt!!))
@@ -75,7 +66,7 @@ class GeneralTaxesQueryTest(
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.tax1.createdAt!!))
+                                put("startCursor", encodeCursor(testData.tax3.createdAt!!))
                                 put("endCursor", encodeCursor(testData.tax2.createdAt!!))
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
@@ -113,13 +104,13 @@ class GeneralTaxesQueryTest(
                         put("generalTaxes", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.tax3.createdAt!!))
-                                    put("node", buildJsonObject { put("title", "Slurm Tax") })
+                                    put("cursor", encodeCursor(testData.tax1.createdAt!!))
+                                    put("node", buildJsonObject { put("title", "VAT") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.tax3.createdAt!!))
-                                put("endCursor", encodeCursor(testData.tax3.createdAt!!))
+                                put("startCursor", encodeCursor(testData.tax1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.tax1.createdAt!!))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -172,10 +163,7 @@ class GeneralTaxesQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val tax1 = generalTax(workspace = workspace, title = "VAT").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val tax1 = generalTax(workspace = workspace, title = "VAT", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.tax1.createdAt!!)
@@ -230,9 +218,9 @@ class GeneralTaxesQueryTest(
                     "workspace" to buildJsonObject {
                         put("generalTaxes", buildJsonObject {
                             putJsonArray("edges") {
-                                generalTaxEdge(title = "VAT")
-                                generalTaxEdge(title = "Sales Tax")
                                 generalTaxEdge(title = "Slurm Tax")
+                                generalTaxEdge(title = "Sales Tax")
+                                generalTaxEdge(title = "VAT")
                             }
                             put("pageInfo", buildJsonObject {
                                 put("hasPreviousPage", false)
@@ -250,10 +238,7 @@ class GeneralTaxesQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val tax1 = generalTax(workspace = workspace, title = "VAT").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val tax1 = generalTax(workspace = workspace, title = "VAT", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg())
                     generalTax(workspace = otherWorkspace, title = "Omicron Tax")
@@ -283,24 +268,15 @@ class GeneralTaxesQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                 }.also {
-                    generalTax(workspace = it.workspace, title = "Slurm Tax").also { t ->
-                        t.createdAt = MOCK_TIME.plusSeconds(300)
-                        t.save()
-                    }
-                    generalTax(workspace = it.workspace, title = "VAT").also { t ->
-                        t.createdAt = MOCK_TIME.plusSeconds(100)
-                        t.save()
-                    }
-                    generalTax(workspace = it.workspace, title = "Sales Tax").also { t ->
-                        t.createdAt = MOCK_TIME.plusSeconds(200)
-                        t.save()
-                    }
+                    generalTax(workspace = it.workspace, title = "Slurm Tax", createdAt = MOCK_TIME.plusSeconds(300))
+                    generalTax(workspace = it.workspace, title = "VAT", createdAt = MOCK_TIME.plusSeconds(100))
+                    generalTax(workspace = it.workspace, title = "Sales Tax", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -317,9 +293,9 @@ class GeneralTaxesQueryTest(
                     "workspace" to buildJsonObject {
                         put("generalTaxes", buildJsonObject {
                             putJsonArray("edges") {
-                                generalTaxEdge(title = "VAT")
-                                generalTaxEdge(title = "Sales Tax")
                                 generalTaxEdge(title = "Slurm Tax")
+                                generalTaxEdge(title = "Sales Tax")
+                                generalTaxEdge(title = "VAT")
                             }
                         })
                     }
