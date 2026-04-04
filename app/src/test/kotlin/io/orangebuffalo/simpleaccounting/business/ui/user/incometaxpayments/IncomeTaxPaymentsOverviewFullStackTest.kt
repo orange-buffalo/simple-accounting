@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.Inco
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -140,11 +141,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
-        // Income tax payments are sorted by datePaid descending (newest first), then by createdAt descending
-        // Payment 1 has date Jan 1 - 1 = Dec 31 (newest)
-        // Payment 2 has date Jan 1 - 2 = Dec 30
-        // ...
-        // Payment 15 has date Jan 1 - 15 = Dec 17 (oldest)
+        // Income tax payments are sorted by createdAt descending (newest first).
+        // Payment 1 has the highest createdAt, Payment 15 has the lowest.
         val firstPagePayments = listOf(
             "Payment 1", "Payment 2", "Payment 3", "Payment 4", "Payment 5",
             "Payment 6", "Payment 7", "Payment 8", "Payment 9", "Payment 10"
@@ -186,13 +184,16 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
             val document2 = document(workspace = workspace, name = "Receipt 2")
 
             init {
+                // Payments are sorted by createdAt descending, so assign distinct createdAt values
+                // to guarantee the expected display order: Basic Payment first, With All Attributes last.
                 // 1. Basic payment with minimum data
                 incomeTaxPayment(
                     workspace = workspace,
                     title = "Basic Payment",
                     datePaid = LocalDate.of(3025, 1, 15),
                     reportingDate = LocalDate.of(3025, 1, 15),
-                    amount = 10000
+                    amount = 10000,
+                    createdAt = MOCK_TIME.plusSeconds(400)
                 )
 
                 // 2. Payment with notes
@@ -202,7 +203,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 1, 14),
                     reportingDate = LocalDate.of(3025, 1, 14),
                     amount = 5000,
-                    notes = "Critical tax payment notes"
+                    notes = "Critical tax payment notes",
+                    createdAt = MOCK_TIME.plusSeconds(300)
                 )
 
                 // 3. Payment with attachments (multiple)
@@ -212,7 +214,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 1, 13),
                     reportingDate = LocalDate.of(3025, 1, 13),
                     amount = 7500,
-                    attachments = setOf(document1, document2)
+                    attachments = setOf(document1, document2),
+                    createdAt = MOCK_TIME.plusSeconds(200)
                 )
 
                 // 4. Payment with all attributes
@@ -223,7 +226,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     reportingDate = LocalDate.of(3025, 1, 12),
                     amount = 20000,
                     attachments = setOf(document1),
-                    notes = "Planet Express tax payment with all attributes"
+                    notes = "Planet Express tax payment with all attributes",
+                    createdAt = MOCK_TIME.plusSeconds(100)
                 )
             }
         }
@@ -237,12 +241,14 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
             init {
                 val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
+                    // Assign createdAt values so that Payment 1 appears first in DESC sort
                     incomeTaxPayment(
                         workspace = workspace,
                         title = "Payment $index",
                         datePaid = baseDate.minusDays(index.toLong()),
                         reportingDate = baseDate.minusDays(index.toLong()),
-                        amount = 1000 * index.toLong()
+                        amount = 1000 * index.toLong(),
+                        createdAt = MOCK_TIME.plusSeconds((16 - index).toLong())
                     )
                 }
             }
