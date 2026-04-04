@@ -127,6 +127,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "13 Jan 3025, 8:00 am",
                             "Google Drive"
                         ),
+                        middleColumnContent = unusedStatus(),
                         hasDetails = false,
                     ),
                 )

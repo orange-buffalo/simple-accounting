@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -136,7 +137,7 @@ class SaOverviewItem private constructor(
 
     fun clickMiddleColumnLink(linkText: String) {
         panel.locator(".overview-item__middle-column")
-            .locator("xpath=.//*[${XPath.hasText(linkText)}]")
+            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(linkText).setExact(true))
             .click()
     }
 
