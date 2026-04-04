@@ -153,6 +153,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun document(
         name: String = "Slurm Receipt",
         workspace: Workspace? = null,
+        createdAt: Instant = MOCK_TIME,
         timeUploaded: Instant = MOCK_TIME,
         storageId: String = TestDocumentsStorage.STORAGE_ID,
         storageLocation: String? = "test-location",
@@ -168,7 +169,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             timeUploaded = timeUploaded,
             sizeInBytes = sizeInBytes,
             mimeType = mimeType
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun category(

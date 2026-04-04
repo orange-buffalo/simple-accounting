@@ -38,12 +38,14 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     document(
                         workspace = workspace,
                         name = "Unused Receipt.pdf",
+                        createdAt = MOCK_TIME,
                     )
 
                     val singleUsageDoc = document(
                         workspace = workspace,
                         name = "Single Usage Doc.pdf",
-                        timeUploaded = Instant.parse("3025-01-15T10:30:00Z"),
+                        createdAt = MOCK_TIME.plusSeconds(1),
+                        timeUploaded = Instant.parse("3025-01-15T21:30:00Z"),
                     )
                     expense(
                         workspace = workspace,
@@ -54,6 +56,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     val multiUsageDoc = document(
                         workspace = workspace,
                         name = "Multi Usage Doc.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(2),
                         timeUploaded = Instant.parse("3025-01-14T09:00:00Z"),
                     )
                     expense(
@@ -70,6 +73,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     document(
                         workspace = workspace,
                         name = "Google Drive Doc.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(3),
                         timeUploaded = Instant.parse("3025-01-13T08:00:00Z"),
                         storageId = "google-drive",
                     )
@@ -107,7 +111,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "15 Jan 3025, 10:30 am",
+                            "15 Jan 3025, 9:30 pm",
                             "Unknown"
                         ),
                         middleColumnContent = "Slurm supplies",
