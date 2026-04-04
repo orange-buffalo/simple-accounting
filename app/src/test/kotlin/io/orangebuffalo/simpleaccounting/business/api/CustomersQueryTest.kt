@@ -26,18 +26,9 @@ class CustomersQueryTest(
         private fun EntitiesFactory.threeCustomers() = object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val customer1 = customer(workspace = workspace, name = "MomCorp").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val customer2 = customer(workspace = workspace, name = "Planet Express").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val customer3 = customer(workspace = workspace, name = "Slurm Inc").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val customer1 = customer(workspace = workspace, name = "MomCorp", createdAt = MOCK_TIME.plusSeconds(100))
+            val customer2 = customer(workspace = workspace, name = "Planet Express", createdAt = MOCK_TIME.plusSeconds(200))
+            val customer3 = customer(workspace = workspace, name = "Slurm Inc", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -66,8 +57,8 @@ class CustomersQueryTest(
                         put("customers", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.customer1.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "MomCorp") })
+                                    put("cursor", encodeCursor(testData.customer3.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "Slurm Inc") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", encodeCursor(testData.customer2.createdAt!!))
@@ -75,7 +66,7 @@ class CustomersQueryTest(
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.customer1.createdAt!!))
+                                put("startCursor", encodeCursor(testData.customer3.createdAt!!))
                                 put("endCursor", encodeCursor(testData.customer2.createdAt!!))
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
@@ -113,13 +104,13 @@ class CustomersQueryTest(
                         put("customers", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.customer3.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "Slurm Inc") })
+                                    put("cursor", encodeCursor(testData.customer1.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "MomCorp") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.customer3.createdAt!!))
-                                put("endCursor", encodeCursor(testData.customer3.createdAt!!))
+                                put("startCursor", encodeCursor(testData.customer1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.customer1.createdAt!!))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -172,10 +163,7 @@ class CustomersQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val customer1 = customer(workspace = workspace, name = "MomCorp").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val customer1 = customer(workspace = workspace, name = "MomCorp", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.customer1.createdAt!!)
@@ -230,9 +218,9 @@ class CustomersQueryTest(
                     "workspace" to buildJsonObject {
                         put("customers", buildJsonObject {
                             putJsonArray("edges") {
-                                customerEdge(name = "MomCorp")
-                                customerEdge(name = "Planet Express")
                                 customerEdge(name = "Slurm Inc")
+                                customerEdge(name = "Planet Express")
+                                customerEdge(name = "MomCorp")
                             }
                             put("pageInfo", buildJsonObject {
                                 put("hasPreviousPage", false)
@@ -250,10 +238,7 @@ class CustomersQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val customer1 = customer(workspace = workspace, name = "MomCorp").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val customer1 = customer(workspace = workspace, name = "MomCorp", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg())
                     customer(workspace = otherWorkspace, name = "Fishy Joe's")
@@ -283,24 +268,15 @@ class CustomersQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                 }.also {
-                    customer(workspace = it.workspace, name = "Slurm Inc").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(300)
-                        c.save()
-                    }
-                    customer(workspace = it.workspace, name = "MomCorp").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(100)
-                        c.save()
-                    }
-                    customer(workspace = it.workspace, name = "Planet Express").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(200)
-                        c.save()
-                    }
+                    customer(workspace = it.workspace, name = "Slurm Inc", createdAt = MOCK_TIME.plusSeconds(300))
+                    customer(workspace = it.workspace, name = "MomCorp", createdAt = MOCK_TIME.plusSeconds(100))
+                    customer(workspace = it.workspace, name = "Planet Express", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -317,9 +293,9 @@ class CustomersQueryTest(
                     "workspace" to buildJsonObject {
                         put("customers", buildJsonObject {
                             putJsonArray("edges") {
-                                customerEdge(name = "MomCorp")
-                                customerEdge(name = "Planet Express")
                                 customerEdge(name = "Slurm Inc")
+                                customerEdge(name = "Planet Express")
+                                customerEdge(name = "MomCorp")
                             }
                         })
                     }

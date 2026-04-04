@@ -14,6 +14,7 @@ import EditIncome from '@/pages/incomes/EditIncome.vue';
 import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
 import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 import Reporting from '@/pages/reporting/Reporting.vue';
+import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
 import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 import EditCategory from '@/pages/settings/categories/EditCategory.vue';
@@ -268,6 +269,11 @@ export default function setupRouter() {
             path: 'reporting',
             name: 'reporting',
             component: Reporting,
+          },
+          {
+            path: 'documents',
+            name: 'documents-overview',
+            component: DocumentsOverview,
           },
           {
             path: 'admin/users',

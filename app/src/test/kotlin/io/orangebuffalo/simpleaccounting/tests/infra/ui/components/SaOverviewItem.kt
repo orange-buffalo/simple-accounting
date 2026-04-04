@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -16,7 +17,7 @@ private const val DATA_JS = """
             primaryAttributes: Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
               return utils.getDynamicContent(attr);
             }),
-            middleColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__middle-column .sa-status-label')),
+            middleColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__middle-column')),
             lastColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__last-column')),
             attributePreviewIcons: Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
               return utils.getDynamicContent(icon);
@@ -133,6 +134,12 @@ class SaOverviewItem private constructor(
     fun executeMarkAsSentAction() = executeAction("Sent today")
 
     fun executeMarkAsPaidAction() = executeAction("Paid")
+
+    fun clickMiddleColumnLink(linkText: String) {
+        panel.locator(".overview-item__middle-column")
+            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(linkText).setExact(true))
+            .click()
+    }
 
     companion object {
         fun ComponentsAccessors.overviewItems() =

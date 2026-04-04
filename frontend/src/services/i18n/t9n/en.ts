@@ -51,6 +51,7 @@ export default {
     invoices: () => 'Invoices',
     taxPayments: () => 'Income Tax Payments',
     reporting: () => 'Reporting',
+    documents: () => 'Documents',
     settings: {
       header: () => 'Settings',
       customers: () => 'Customers',
@@ -359,6 +360,26 @@ export default {
       announcement: () => 'Filters coming soon',
     },
     create: () => 'Add new',
+  },
+
+  documentsOverview: {
+    header: () => 'Documents',
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
+  },
+
+  documentsOverviewPanel: {
+    timeUploaded: {
+      label: () => 'Uploaded',
+    },
+    storage: {
+      label: () => 'Storage',
+      googleDrive: () => 'Google Drive',
+      internalSystem: () => 'Internal System',
+      unknown: () => 'Unknown',
+    },
+    unused: () => 'Unused',
   },
 
   myProfile: {

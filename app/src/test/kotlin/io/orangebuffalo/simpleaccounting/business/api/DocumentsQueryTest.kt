@@ -29,18 +29,9 @@ class DocumentsQueryTest(
         private fun EntitiesFactory.threeDocuments() = object {
             val fry = fry()
             val workspace = workspace(owner = fry, name = "Planet Express")
-            val doc1 = document(workspace = workspace, name = "Slurm receipt").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val doc2 = document(workspace = workspace, name = "Robot oil invoice").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val doc3 = document(workspace = workspace, name = "Spaceship fuel bill").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val doc1 = document(workspace = workspace, name = "Slurm receipt", createdAt = MOCK_TIME.plusSeconds(100))
+            val doc2 = document(workspace = workspace, name = "Robot oil invoice", createdAt = MOCK_TIME.plusSeconds(200))
+            val doc3 = document(workspace = workspace, name = "Spaceship fuel bill", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -69,8 +60,8 @@ class DocumentsQueryTest(
                         put("documents", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.doc1.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "Slurm receipt") })
+                                    put("cursor", encodeCursor(testData.doc3.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "Spaceship fuel bill") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", encodeCursor(testData.doc2.createdAt!!))
@@ -78,7 +69,7 @@ class DocumentsQueryTest(
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.doc1.createdAt!!))
+                                put("startCursor", encodeCursor(testData.doc3.createdAt!!))
                                 put("endCursor", encodeCursor(testData.doc2.createdAt!!))
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
@@ -116,13 +107,13 @@ class DocumentsQueryTest(
                         put("documents", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.doc3.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "Spaceship fuel bill") })
+                                    put("cursor", encodeCursor(testData.doc1.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "Slurm receipt") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.doc3.createdAt!!))
-                                put("endCursor", encodeCursor(testData.doc3.createdAt!!))
+                                put("startCursor", encodeCursor(testData.doc1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.doc1.createdAt!!))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -175,10 +166,7 @@ class DocumentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc1 = document(workspace = workspace, name = "Slurm receipt").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val doc1 = document(workspace = workspace, name = "Slurm receipt", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.doc1.createdAt!!)
@@ -233,9 +221,9 @@ class DocumentsQueryTest(
                     "workspace" to buildJsonObject {
                         put("documents", buildJsonObject {
                             putJsonArray("edges") {
-                                documentEdge(name = "Slurm receipt")
-                                documentEdge(name = "Robot oil invoice")
                                 documentEdge(name = "Spaceship fuel bill")
+                                documentEdge(name = "Robot oil invoice")
+                                documentEdge(name = "Slurm receipt")
                             }
                             put("pageInfo", buildJsonObject {
                                 put("hasPreviousPage", false)
@@ -253,10 +241,7 @@ class DocumentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry, name = "Planet Express")
-                    val doc1 = document(workspace = workspace, name = "Slurm receipt").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val doc1 = document(workspace = workspace, name = "Slurm receipt", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg(), name = "Zoidberg's Clinic")
                     document(workspace = otherWorkspace, name = "Crab food receipt")
@@ -286,24 +271,15 @@ class DocumentsQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry, name = "Planet Express")
                 }.also {
-                    document(workspace = it.workspace, name = "Spaceship fuel bill").also { doc ->
-                        doc.createdAt = MOCK_TIME.plusSeconds(300)
-                        doc.save()
-                    }
-                    document(workspace = it.workspace, name = "Slurm receipt").also { doc ->
-                        doc.createdAt = MOCK_TIME.plusSeconds(100)
-                        doc.save()
-                    }
-                    document(workspace = it.workspace, name = "Robot oil invoice").also { doc ->
-                        doc.createdAt = MOCK_TIME.plusSeconds(200)
-                        doc.save()
-                    }
+                    document(workspace = it.workspace, name = "Spaceship fuel bill", createdAt = MOCK_TIME.plusSeconds(300))
+                    document(workspace = it.workspace, name = "Slurm receipt", createdAt = MOCK_TIME.plusSeconds(100))
+                    document(workspace = it.workspace, name = "Robot oil invoice", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -320,9 +296,9 @@ class DocumentsQueryTest(
                     "workspace" to buildJsonObject {
                         put("documents", buildJsonObject {
                             putJsonArray("edges") {
-                                documentEdge(name = "Slurm receipt")
-                                documentEdge(name = "Robot oil invoice")
                                 documentEdge(name = "Spaceship fuel bill")
+                                documentEdge(name = "Robot oil invoice")
+                                documentEdge(name = "Slurm receipt")
                             }
                         })
                     }
@@ -550,14 +526,8 @@ class DocumentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry, name = "Planet Express")
-                    val usedDoc = document(workspace = workspace, name = "Used receipt").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
-                    val unusedDoc = document(workspace = workspace, name = "Unused receipt").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(200)
-                        it.save()
-                    }
+                    val usedDoc = document(workspace = workspace, name = "Used receipt", createdAt = MOCK_TIME.plusSeconds(100))
+                    val unusedDoc = document(workspace = workspace, name = "Unused receipt", createdAt = MOCK_TIME.plusSeconds(200))
                     val expense = expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(usedDoc))
                 }
             }
@@ -584,16 +554,16 @@ class DocumentsQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("name", "Used receipt")
-                                        putJsonArray("usedBy") {
-                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt(), "Slurm supplies"))
-                                        }
+                                        put("name", "Unused receipt")
+                                        putJsonArray("usedBy") {}
                                     })
                                 })
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("name", "Unused receipt")
-                                        putJsonArray("usedBy") {}
+                                        put("name", "Used receipt")
+                                        putJsonArray("usedBy") {
+                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt(), "Slurm supplies"))
+                                        }
                                     })
                                 })
                             }

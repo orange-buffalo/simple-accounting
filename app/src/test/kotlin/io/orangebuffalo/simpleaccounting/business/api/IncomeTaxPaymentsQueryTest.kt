@@ -27,18 +27,9 @@ class IncomeTaxPaymentsQueryTest(
         private fun EntitiesFactory.threePayments() = object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val payment2 = incomeTaxPayment(workspace = workspace, title = "Q2 Tax").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val payment3 = incomeTaxPayment(workspace = workspace, title = "Q3 Tax").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax", createdAt = MOCK_TIME.plusSeconds(100))
+            val payment2 = incomeTaxPayment(workspace = workspace, title = "Q2 Tax", createdAt = MOCK_TIME.plusSeconds(200))
+            val payment3 = incomeTaxPayment(workspace = workspace, title = "Q3 Tax", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -67,8 +58,8 @@ class IncomeTaxPaymentsQueryTest(
                         put("incomeTaxPayments", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.payment1.createdAt!!))
-                                    put("node", buildJsonObject { put("title", "Q1 Tax") })
+                                    put("cursor", encodeCursor(testData.payment3.createdAt!!))
+                                    put("node", buildJsonObject { put("title", "Q3 Tax") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", encodeCursor(testData.payment2.createdAt!!))
@@ -76,7 +67,7 @@ class IncomeTaxPaymentsQueryTest(
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.payment1.createdAt!!))
+                                put("startCursor", encodeCursor(testData.payment3.createdAt!!))
                                 put("endCursor", encodeCursor(testData.payment2.createdAt!!))
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
@@ -114,13 +105,13 @@ class IncomeTaxPaymentsQueryTest(
                         put("incomeTaxPayments", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.payment3.createdAt!!))
-                                    put("node", buildJsonObject { put("title", "Q3 Tax") })
+                                    put("cursor", encodeCursor(testData.payment1.createdAt!!))
+                                    put("node", buildJsonObject { put("title", "Q1 Tax") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.payment3.createdAt!!))
-                                put("endCursor", encodeCursor(testData.payment3.createdAt!!))
+                                put("startCursor", encodeCursor(testData.payment1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.payment1.createdAt!!))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -173,10 +164,7 @@ class IncomeTaxPaymentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.payment1.createdAt!!)
@@ -231,9 +219,9 @@ class IncomeTaxPaymentsQueryTest(
                     "workspace" to buildJsonObject {
                         put("incomeTaxPayments", buildJsonObject {
                             putJsonArray("edges") {
-                                incomeTaxPaymentEdge(title = "Q1 Tax")
-                                incomeTaxPaymentEdge(title = "Q2 Tax")
                                 incomeTaxPaymentEdge(title = "Q3 Tax")
+                                incomeTaxPaymentEdge(title = "Q2 Tax")
+                                incomeTaxPaymentEdge(title = "Q1 Tax")
                             }
                             put("pageInfo", buildJsonObject {
                                 put("hasPreviousPage", false)
@@ -251,10 +239,7 @@ class IncomeTaxPaymentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val payment1 = incomeTaxPayment(workspace = workspace, title = "Q1 Tax", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg())
                     incomeTaxPayment(workspace = otherWorkspace, title = "Zoidberg Tax")
@@ -284,24 +269,15 @@ class IncomeTaxPaymentsQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                 }.also {
-                    incomeTaxPayment(workspace = it.workspace, title = "Q3 Tax").also { p ->
-                        p.createdAt = MOCK_TIME.plusSeconds(300)
-                        p.save()
-                    }
-                    incomeTaxPayment(workspace = it.workspace, title = "Q1 Tax").also { p ->
-                        p.createdAt = MOCK_TIME.plusSeconds(100)
-                        p.save()
-                    }
-                    incomeTaxPayment(workspace = it.workspace, title = "Q2 Tax").also { p ->
-                        p.createdAt = MOCK_TIME.plusSeconds(200)
-                        p.save()
-                    }
+                    incomeTaxPayment(workspace = it.workspace, title = "Q3 Tax", createdAt = MOCK_TIME.plusSeconds(300))
+                    incomeTaxPayment(workspace = it.workspace, title = "Q1 Tax", createdAt = MOCK_TIME.plusSeconds(100))
+                    incomeTaxPayment(workspace = it.workspace, title = "Q2 Tax", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -318,9 +294,9 @@ class IncomeTaxPaymentsQueryTest(
                     "workspace" to buildJsonObject {
                         put("incomeTaxPayments", buildJsonObject {
                             putJsonArray("edges") {
-                                incomeTaxPaymentEdge(title = "Q1 Tax")
-                                incomeTaxPaymentEdge(title = "Q2 Tax")
                                 incomeTaxPaymentEdge(title = "Q3 Tax")
+                                incomeTaxPaymentEdge(title = "Q2 Tax")
+                                incomeTaxPaymentEdge(title = "Q1 Tax")
                             }
                         })
                     }
