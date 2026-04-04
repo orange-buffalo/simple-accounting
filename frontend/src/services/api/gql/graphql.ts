@@ -539,6 +539,8 @@ export type Workspace = {
   __typename?: 'Workspace';
   /** Categories in this workspace with cursor-based pagination. */
   categories: CategoriesConnection;
+  /** Returns a category by its ID if it belongs to this workspace, or null if not found. */
+  category?: Maybe<Category>;
   /** Customers in this workspace with cursor-based pagination. */
   customers: CustomersConnection;
   /** Default currency of the workspace. */
@@ -562,6 +564,12 @@ export type Workspace = {
 export type WorkspaceCategoriesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceCategoryArgs = {
+  id: Scalars['Int']['input'];
 };
 
 

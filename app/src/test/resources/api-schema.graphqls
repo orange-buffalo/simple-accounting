@@ -482,6 +482,11 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): CategoriesConnection!
+  "Returns a category by its ID if it belongs to this workspace, or null if not found."
+  category(
+    "ID of the category."
+    id: Int!
+  ): Category
   "Customers in this workspace with cursor-based pagination."
   customers(
     "Cursor after which to return items."
