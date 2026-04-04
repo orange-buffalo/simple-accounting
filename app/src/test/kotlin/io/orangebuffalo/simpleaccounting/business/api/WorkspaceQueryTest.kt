@@ -184,16 +184,10 @@ class WorkspaceQueryTest(
             object {
                 val fry = fry()
                 val fryWorkspace = workspace(owner = fry)
-                val deliveryCategory = category(
-                    workspace = fryWorkspace,
-                    name = "Delivery",
-                    description = "Interplanetary delivery expenses",
-                    income = false,
-                    expense = true,
-                )
+                val deliveryCategory = category(workspace = fryWorkspace, name = "Delivery")
                 val zoidberg = zoidberg()
                 val zoidbergWorkspace = workspace(owner = zoidberg)
-                val zoidbergCategory = category(workspace = zoidbergWorkspace, name = "Medical supplies")
+                val zoidbergCategory = category(workspace = zoidbergWorkspace)
             }
         }
 
@@ -204,9 +198,6 @@ class WorkspaceQueryTest(
                     category(id = categoryPreconditions.deliveryCategory.id!!.toInt()) {
                         id
                         name
-                        description
-                        income
-                        expense
                     }
                 }
             }
@@ -216,9 +207,6 @@ class WorkspaceQueryTest(
                         put("category", buildJsonObject {
                             put("id", categoryPreconditions.deliveryCategory.id!!.toInt())
                             put("name", "Delivery")
-                            put("description", "Interplanetary delivery expenses")
-                            put("income", false)
-                            put("expense", true)
                         })
                     }
                 )
