@@ -54,6 +54,11 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickDocuments(): NavigationMenu {
+        container.getByText("Documents").click()
+        return this
+    }
+
     fun clickWorkspaces(): NavigationMenu {
         container.getByText("Workspaces").click()
         return this

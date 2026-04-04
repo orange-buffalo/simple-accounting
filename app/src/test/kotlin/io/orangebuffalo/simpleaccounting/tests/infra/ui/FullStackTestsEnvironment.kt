@@ -38,6 +38,7 @@ private fun createStandardContextOptions(): Browser.NewContextOptions {
     return Browser.NewContextOptions()
         .setBaseURL(browserUrl)
         .setViewportSize(1920, 1080)
+        .setTimezoneId("UTC")
 }
 
 /**
@@ -289,6 +290,7 @@ private class PersistentPageContextStrategy(
                 .setViewportSize(null)
                 // auto open devtools for better developer experience
                 .setArgs(listOf("--auto-open-devtools-for-tabs"))
+                .setTimezoneId("UTC")
             
             browserContext = playwright.chromium().launchPersistentContext(
                 userDataDir,

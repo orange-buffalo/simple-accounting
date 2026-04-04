@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.injectJsUtils
@@ -81,6 +82,7 @@ class SaPageableItems<I, D : Any> private constructor(
 
     /**
      * Asserts that the pageable items have the given data, in exact order.
+     * We prefer using exact order match, as it provides an easier debugging experience when the assertion fails.
      */
     fun shouldHaveExactData(vararg expectedData: D) {
         shouldHaveDataSatisfying { data ->

@@ -51,6 +51,7 @@ export default {
     invoices: () => 'Рахунки-фактури',
     taxPayments: () => 'Податок на прибуток',
     reporting: () => 'Репорти',
+    documents: () => 'Документи',
     settings: {
       header: () => 'Параметри',
       customers: () => 'Клієнти',
@@ -358,6 +359,26 @@ export default {
       announcement: () => 'Фільтри будуть незабаром',
     },
     create: () => 'Додати новий',
+  },
+
+  documentsOverview: {
+    header: () => 'Документи',
+    filters: {
+      announcement: () => 'Фільтри будуть незабаром',
+    },
+  },
+
+  documentsOverviewPanel: {
+    timeUploaded: {
+      label: () => 'Завантажено',
+    },
+    storage: {
+      label: () => 'Сховище',
+      googleDrive: () => 'Google Drive',
+      internalSystem: () => 'Внутрішня система',
+      unknown: () => 'Невідомо',
+    },
+    unused: () => 'Не використовується',
   },
 
   myProfile: {
