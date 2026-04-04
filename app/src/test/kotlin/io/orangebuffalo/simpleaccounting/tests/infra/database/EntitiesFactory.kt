@@ -123,14 +123,15 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun workspace(
         name: String = "Planet Express",
         owner: PlatformUser? = null,
-        defaultCurrency: String = "USD"
+        defaultCurrency: String = "USD",
+        createdAt: Instant = MOCK_TIME,
     ): Workspace {
         val ownerId = if (owner == null) platformUser().id else owner.id
         return Workspace(
             name = name,
             ownerId = ownerId!!,
             defaultCurrency = defaultCurrency
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun workspaceAccessToken(
@@ -177,7 +178,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         description: String? = null,
         workspace: Workspace? = null,
         income: Boolean = true,
-        expense: Boolean = true
+        expense: Boolean = true,
+        createdAt: Instant = MOCK_TIME,
     ): Category {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return Category(
@@ -186,7 +188,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             income = income,
             expense = expense,
             description = description
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun generalTax(
@@ -194,6 +196,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         rateInBps: Int = 10_00,
         description: String? = null,
         workspace: Workspace? = null,
+        createdAt: Instant = MOCK_TIME,
     ): GeneralTax {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return GeneralTax(
@@ -201,7 +204,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             workspaceId = workspaceId!!,
             rateInBps = rateInBps,
             description = description
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun expense(
@@ -296,12 +299,13 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun customer(
         name: String = "customer",
         workspace: Workspace? = null,
+        createdAt: Instant = MOCK_TIME,
     ): Customer {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return Customer(
             name = name,
             workspaceId = workspaceId!!,
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun invoice(

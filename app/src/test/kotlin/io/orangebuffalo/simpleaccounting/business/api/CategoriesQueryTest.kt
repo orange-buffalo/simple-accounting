@@ -26,18 +26,9 @@ class CategoriesQueryTest(
         private fun EntitiesFactory.threeCategories() = object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val category1 = category(workspace = workspace, name = "Delivery").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val category2 = category(workspace = workspace, name = "Robot maintenance").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val category3 = category(workspace = workspace, name = "Spaceship fuel").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val category1 = category(workspace = workspace, name = "Delivery", createdAt = MOCK_TIME.plusSeconds(100))
+            val category2 = category(workspace = workspace, name = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
+            val category3 = category(workspace = workspace, name = "Spaceship fuel", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -66,8 +57,8 @@ class CategoriesQueryTest(
                         put("categories", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.category1.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "Delivery") })
+                                    put("cursor", encodeCursor(testData.category3.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "Spaceship fuel") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", encodeCursor(testData.category2.createdAt!!))
@@ -75,7 +66,7 @@ class CategoriesQueryTest(
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.category1.createdAt!!))
+                                put("startCursor", encodeCursor(testData.category3.createdAt!!))
                                 put("endCursor", encodeCursor(testData.category2.createdAt!!))
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
@@ -113,13 +104,13 @@ class CategoriesQueryTest(
                         put("categories", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeCursor(testData.category3.createdAt!!))
-                                    put("node", buildJsonObject { put("name", "Spaceship fuel") })
+                                    put("cursor", encodeCursor(testData.category1.createdAt!!))
+                                    put("node", buildJsonObject { put("name", "Delivery") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeCursor(testData.category3.createdAt!!))
-                                put("endCursor", encodeCursor(testData.category3.createdAt!!))
+                                put("startCursor", encodeCursor(testData.category1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.category1.createdAt!!))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -172,10 +163,7 @@ class CategoriesQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val category1 = category(workspace = workspace, name = "Delivery").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val category1 = category(workspace = workspace, name = "Delivery", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.category1.createdAt!!)
@@ -230,9 +218,9 @@ class CategoriesQueryTest(
                     "workspace" to buildJsonObject {
                         put("categories", buildJsonObject {
                             putJsonArray("edges") {
-                                categoryEdge(name = "Delivery")
-                                categoryEdge(name = "Robot maintenance")
                                 categoryEdge(name = "Spaceship fuel")
+                                categoryEdge(name = "Robot maintenance")
+                                categoryEdge(name = "Delivery")
                             }
                             put("pageInfo", buildJsonObject {
                                 put("hasPreviousPage", false)
@@ -250,10 +238,7 @@ class CategoriesQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val category1 = category(workspace = workspace, name = "Delivery").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val category1 = category(workspace = workspace, name = "Delivery", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg())
                     category(workspace = otherWorkspace, name = "Planet Express expenses")
@@ -283,24 +268,15 @@ class CategoriesQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                 }.also {
-                    category(workspace = it.workspace, name = "Spaceship fuel").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(300)
-                        c.save()
-                    }
-                    category(workspace = it.workspace, name = "Delivery").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(100)
-                        c.save()
-                    }
-                    category(workspace = it.workspace, name = "Robot maintenance").also { c ->
-                        c.createdAt = MOCK_TIME.plusSeconds(200)
-                        c.save()
-                    }
+                    category(workspace = it.workspace, name = "Spaceship fuel", createdAt = MOCK_TIME.plusSeconds(300))
+                    category(workspace = it.workspace, name = "Delivery", createdAt = MOCK_TIME.plusSeconds(100))
+                    category(workspace = it.workspace, name = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -317,9 +293,9 @@ class CategoriesQueryTest(
                     "workspace" to buildJsonObject {
                         put("categories", buildJsonObject {
                             putJsonArray("edges") {
-                                categoryEdge(name = "Delivery")
-                                categoryEdge(name = "Robot maintenance")
                                 categoryEdge(name = "Spaceship fuel")
+                                categoryEdge(name = "Robot maintenance")
+                                categoryEdge(name = "Delivery")
                             }
                         })
                     }
