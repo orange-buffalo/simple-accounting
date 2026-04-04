@@ -156,18 +156,9 @@ class WorkspacesQueryTest(
 
         private fun EntitiesFactory.threeWorkspaces() = object {
             val fry = fry()
-            val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                it.createdAt = MOCK_TIME.plusSeconds(100)
-                it.save()
-            }
-            val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8").also {
-                it.createdAt = MOCK_TIME.plusSeconds(200)
-                it.save()
-            }
-            val ws3 = workspace(owner = fry, name = "Delivery to Mars").also {
-                it.createdAt = MOCK_TIME.plusSeconds(300)
-                it.save()
-            }
+            val ws1 = workspace(owner = fry, name = "Delivery to Luna Park", createdAt = MOCK_TIME.plusSeconds(100))
+            val ws2 = workspace(owner = fry, name = "Delivery to Omicron Persei 8", createdAt = MOCK_TIME.plusSeconds(200))
+            val ws3 = workspace(owner = fry, name = "Delivery to Mars", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -193,8 +184,8 @@ class WorkspacesQueryTest(
                     "workspaces" to buildJsonObject {
                         putJsonArray("edges") {
                             add(buildJsonObject {
-                                put("cursor", encodeCursor(testData.ws1.createdAt!!))
-                                put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
+                                put("cursor", encodeCursor(testData.ws3.createdAt!!))
+                                put("node", buildJsonObject { put("name", "Delivery to Mars") })
                             })
                             add(buildJsonObject {
                                 put("cursor", encodeCursor(testData.ws2.createdAt!!))
@@ -202,7 +193,7 @@ class WorkspacesQueryTest(
                             })
                         }
                         put("pageInfo", buildJsonObject {
-                            put("startCursor", encodeCursor(testData.ws1.createdAt!!))
+                            put("startCursor", encodeCursor(testData.ws3.createdAt!!))
                             put("endCursor", encodeCursor(testData.ws2.createdAt!!))
                             put("hasPreviousPage", false)
                             put("hasNextPage", true)
@@ -236,13 +227,13 @@ class WorkspacesQueryTest(
                     "workspaces" to buildJsonObject {
                         putJsonArray("edges") {
                             add(buildJsonObject {
-                                put("cursor", encodeCursor(testData.ws3.createdAt!!))
-                                put("node", buildJsonObject { put("name", "Delivery to Mars") })
+                                put("cursor", encodeCursor(testData.ws1.createdAt!!))
+                                put("node", buildJsonObject { put("name", "Delivery to Luna Park") })
                             })
                         }
                         put("pageInfo", buildJsonObject {
-                            put("startCursor", encodeCursor(testData.ws3.createdAt!!))
-                            put("endCursor", encodeCursor(testData.ws3.createdAt!!))
+                            put("startCursor", encodeCursor(testData.ws1.createdAt!!))
+                            put("endCursor", encodeCursor(testData.ws1.createdAt!!))
                             put("hasPreviousPage", true)
                             put("hasNextPage", false)
                         })
@@ -289,10 +280,7 @@ class WorkspacesQueryTest(
             val testData = preconditions {
                 object {
                     val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
             val afterCursor = encodeCursor(testData.ws1.createdAt!!)
@@ -340,9 +328,9 @@ class WorkspacesQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspaces" to workspacesConnection(totalCount = 3, includePageInfo = true) {
-                        workspaceEdge(name = "Delivery to Luna Park")
-                        workspaceEdge(name = "Delivery to Omicron Persei 8")
                         workspaceEdge(name = "Delivery to Mars")
+                        workspaceEdge(name = "Delivery to Omicron Persei 8")
+                        workspaceEdge(name = "Delivery to Luna Park")
                     }
                 )
         }
@@ -352,10 +340,7 @@ class WorkspacesQueryTest(
             val testData = preconditions {
                 object {
                     val fry = fry()
-                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park").also {
-                        it.createdAt = MOCK_TIME.plusSeconds(100)
-                        it.save()
-                    }
+                    val ws1 = workspace(owner = fry, name = "Delivery to Luna Park", createdAt = MOCK_TIME.plusSeconds(100))
                 }.also {
                     zoidberg().withWorkspace()
                 }
@@ -415,23 +400,14 @@ class WorkspacesQueryTest(
         }
 
         @Test
-        fun `should order by createdAt ascending`() {
+        fun `should order by createdAt descending`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                 }.also {
-                    workspace(owner = it.fry, name = "Delivery to Mars").also { ws ->
-                        ws.createdAt = MOCK_TIME.plusSeconds(300)
-                        ws.save()
-                    }
-                    workspace(owner = it.fry, name = "Delivery to Luna Park").also { ws ->
-                        ws.createdAt = MOCK_TIME.plusSeconds(100)
-                        ws.save()
-                    }
-                    workspace(owner = it.fry, name = "Delivery to Omicron Persei 8").also { ws ->
-                        ws.createdAt = MOCK_TIME.plusSeconds(200)
-                        ws.save()
-                    }
+                    workspace(owner = it.fry, name = "Delivery to Mars", createdAt = MOCK_TIME.plusSeconds(300))
+                    workspace(owner = it.fry, name = "Delivery to Luna Park", createdAt = MOCK_TIME.plusSeconds(100))
+                    workspace(owner = it.fry, name = "Delivery to Omicron Persei 8", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
@@ -444,9 +420,9 @@ class WorkspacesQueryTest(
                 .from(testData.fry)
                 .executeAndVerifyResponse(
                     "workspaces" to workspacesConnection {
-                        workspaceEdge(name = "Delivery to Luna Park")
-                        workspaceEdge(name = "Delivery to Omicron Persei 8")
                         workspaceEdge(name = "Delivery to Mars")
+                        workspaceEdge(name = "Delivery to Omicron Persei 8")
+                        workspaceEdge(name = "Delivery to Luna Park")
                     }
                 )
         }

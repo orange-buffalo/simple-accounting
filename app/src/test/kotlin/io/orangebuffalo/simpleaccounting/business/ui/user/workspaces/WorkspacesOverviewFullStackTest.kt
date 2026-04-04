@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverv
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceEditorPage.Companion.shouldBeCreateWorkspacePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.openWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
-import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -210,8 +209,8 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
 
-        val firstPageWorkspaces = (1..10).map { "Workspace $it" }
-        val secondPageWorkspaces = (11..15).map { "Workspace $it" }
+        val firstPageWorkspaces = (15 downTo 6).map { "Workspace $it" }
+        val secondPageWorkspaces = (5 downTo 1).map { "Workspace $it" }
 
         page.openWorkspacesOverviewPage {
             shouldHaveWorkspaces(*firstPageWorkspaces.toTypedArray())
@@ -239,13 +238,11 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             init {
                 val baseTime = MOCK_TIME.plusSeconds(100)
                 (1..15).forEach { index ->
-                    Workspace(
+                    workspace(
+                        owner = fry,
                         name = "Workspace $index",
-                        ownerId = fry.id!!,
-                        defaultCurrency = "USD",
-                    ).also {
-                        it.createdAt = baseTime.plusSeconds(index.toLong())
-                    }.save()
+                        createdAt = baseTime.plusSeconds(index.toLong()),
+                    )
                 }
             }
         }

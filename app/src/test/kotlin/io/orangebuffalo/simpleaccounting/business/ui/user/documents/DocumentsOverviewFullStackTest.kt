@@ -100,21 +100,12 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "Unused Receipt.pdf",
+                        title = "Google Drive Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "28 Mar 1999, 11:01 pm",
-                            "Unknown"
+                            "13 Jan 3025, 8:00 am",
+                            "Google Drive"
                         ),
                         middleColumnContent = unusedStatus(),
-                        hasDetails = false,
-                    ),
-                    SaOverviewItemData(
-                        title = "Single Usage Doc.pdf",
-                        primaryAttributes = primaryAttributes(
-                            "15 Jan 3025, 9:30 pm",
-                            "Unknown"
-                        ),
-                        middleColumnContent = "Slurm supplies",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -127,10 +118,19 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
-                        title = "Google Drive Doc.pdf",
+                        title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "13 Jan 3025, 8:00 am",
-                            "Google Drive"
+                            "15 Jan 3025, 9:30 pm",
+                            "Unknown"
+                        ),
+                        middleColumnContent = "Slurm supplies",
+                        hasDetails = false,
+                    ),
+                    SaOverviewItemData(
+                        title = "Unused Receipt.pdf",
+                        primaryAttributes = primaryAttributes(
+                            "28 Mar 1999, 11:01 pm",
+                            "Unknown"
                         ),
                         middleColumnContent = unusedStatus(),
                         hasDetails = false,
@@ -300,17 +300,15 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         document(
                             workspace = workspace,
                             name = "Document $index.pdf",
-                        ).also { d ->
-                            d.createdAt = MOCK_TIME.plusSeconds(index.toLong())
-                            d.save()
-                        }
+                            createdAt = MOCK_TIME.plusSeconds(index.toLong()),
+                        )
                     }
                 }
             }
         }
 
-        val firstPageDocuments = (1..10).map { "Document $it.pdf" }
-        val secondPageDocuments = (11..15).map { "Document $it.pdf" }
+        val firstPageDocuments = (15 downTo 6).map { "Document $it.pdf" }
+        val secondPageDocuments = (5 downTo 1).map { "Document $it.pdf" }
 
         page.authenticateViaCookie(testData.fry)
         page.navigate("/documents")

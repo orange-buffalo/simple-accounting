@@ -110,11 +110,11 @@ class PaginationQueryBuilder<R : Record>(
         var conditioned: SelectConditionStep<*> = query.where(predicates)
 
         if (cursorPage.createdAtAfter != null) {
-            conditioned = conditioned.and(createdAtField.gt(cursorPage.createdAtAfter))
+            conditioned = conditioned.and(createdAtField.lt(cursorPage.createdAtAfter))
         }
 
         return conditioned
-            .orderBy(createdAtField.asc())
+            .orderBy(createdAtField.desc())
             .limit(first + 1)
             .fetch()
     }
