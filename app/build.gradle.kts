@@ -265,6 +265,7 @@ tasks.withType<GenerateJavaTask> {
     typeMapping = mutableMapOf(
         "LocalDate" to "java.time.LocalDate",
         "Long" to "kotlin.Long",
+        "DateTime" to "java.time.Instant",
     )
 }
 

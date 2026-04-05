@@ -7,7 +7,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 @GraphQLDescription("General tax applicable to incomes or expenses.")
 data class GeneralTaxGqlDto(
     @GraphQLDescription("ID of the general tax.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Title of the general tax.")
     val title: String,

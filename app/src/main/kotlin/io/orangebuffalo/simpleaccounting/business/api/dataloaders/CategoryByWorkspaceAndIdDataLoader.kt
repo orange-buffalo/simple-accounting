@@ -29,7 +29,7 @@ class CategoryByWorkspaceAndIdDataLoader(
             keys.associateWith { key ->
                 categoryMap[key]?.let { category ->
                     CategoryGqlDto(
-                        id = category.id!!.toInt(),
+                        id = category.id!!,
                         name = category.name,
                         description = category.description,
                         income = category.income,

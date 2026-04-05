@@ -34,7 +34,7 @@
   import { graphql } from '@/services/api/gql';
 
   const categoriesPageQuery = graphql(`
-    query categoriesPage($workspaceId: Int!, $first: Int!, $after: String) {
+    query categoriesPage($workspaceId: Long!, $first: Int!, $after: String) {
       workspace(id: $workspaceId) {
         categories(first: $first, after: $after) {
           edges {

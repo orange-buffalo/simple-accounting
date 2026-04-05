@@ -33,7 +33,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const documentsPageQuery = graphql(`
-    query documentsPage($workspaceId: Int!, $first: Int!, $after: String) {
+    query documentsPage($workspaceId: Long!, $first: Int!, $after: String) {
       workspace(id: $workspaceId) {
         documents(first: $first, after: $after) {
           edges {

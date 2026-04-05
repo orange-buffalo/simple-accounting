@@ -24,7 +24,7 @@ class CategoryByIdDataLoader(
             val categories = categoriesRepository.findAllById(categoryIds)
             categories.associate {
                 it.id!! to CategoryGqlDto(
-                    id = it.id!!.toInt(),
+                    id = it.id!!,
                     name = it.name,
                     description = it.description,
                     income = it.income,

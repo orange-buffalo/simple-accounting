@@ -33,6 +33,7 @@ import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 import kotlin.reflect.KType
@@ -62,6 +63,7 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
     override fun willGenerateGraphQLType(type: KType): GraphQLType? {
         if (type.classifier == Long::class) return GraphQLLongScalar
         if (type.classifier == LocalDate::class) return GraphQLLocalDateScalar
+        if (type.classifier == Instant::class) return GraphQLDateTimeScalar
         return connectionSchemaGenerationSupport.willGenerateGraphQLType(type)
     }
 
@@ -98,6 +100,34 @@ private val GraphQLLongScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
             is IntValue -> input.value.toLong()
             is StringValue -> input.value.toLong()
             else -> throw CoercingParseLiteralException("Expected IntValue or StringValue but got: $input")
+        }
+    })
+    .build()
+
+private val GraphQLDateTimeScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
+    .name("DateTime")
+    .description("A date-time instant, serialized as an ISO-8601 string (e.g. '2025-01-15T10:30:00Z').")
+    .coercing(object : graphql.schema.Coercing<Instant, String> {
+        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): String =
+            when (input) {
+                is Instant -> input.toString()
+                else -> throw CoercingSerializeException("Expected an Instant but got: $input")
+            }
+
+        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): Instant =
+            when (input) {
+                is String -> Instant.parse(input)
+                else -> throw CoercingParseValueException("Expected a String for DateTime but got: $input")
+            }
+
+        override fun parseLiteral(
+            input: Value<*>,
+            variables: graphql.execution.CoercedVariables,
+            graphQLContext: graphql.GraphQLContext,
+            locale: java.util.Locale
+        ): Instant = when (input) {
+            is StringValue -> Instant.parse(input.value)
+            else -> throw CoercingParseLiteralException("Expected StringValue for DateTime but got: $input")
         }
     })
     .build()

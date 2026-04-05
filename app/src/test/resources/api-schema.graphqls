@@ -92,7 +92,7 @@ type Category {
   "Whether this category is used for expenses."
   expense: Boolean!
   "ID of the category."
-  id: Int!
+  id: Long!
   "Whether this category is used for incomes."
   income: Boolean!
   "Name of the category."
@@ -135,7 +135,7 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
 "A customer in a workspace."
 type Customer {
   "ID of the customer."
-  id: Int!
+  id: Long!
   "Name of the customer."
   name: String!
 }
@@ -161,17 +161,17 @@ type CustomersConnection {
 "A document in a workspace."
 type Document {
   "ID of the document."
-  id: Int!
+  id: Long!
   "MIME type of the document."
   mimeType: String!
   "Name of the document."
   name: String!
   "Size of the document in bytes."
-  sizeInBytes: Int
+  sizeInBytes: Long
   "ID of the storage where the document is stored."
   storageId: String!
   "Time when the document was uploaded, as ISO 8601 timestamp."
-  timeUploaded: String!
+  timeUploaded: DateTime!
   "Entities that use this document."
   usedBy: [DocumentUsage!]!
   "Version of the document for optimistic locking."
@@ -191,7 +191,7 @@ type DocumentUsage {
   "Display name of the entity using the document."
   displayName: String!
   "ID of the entity using the document."
-  relatedEntityId: Int!
+  relatedEntityId: Long!
   "Type of entity using the document."
   type: DocumentUsageType!
 }
@@ -239,7 +239,7 @@ type GeneralTax {
   "Description of the general tax."
   description: String
   "ID of the general tax."
-  id: Int!
+  id: Long!
   "Rate of the general tax in basis points (1/100 of a percent)."
   rateInBps: Int!
   "Title of the general tax."
@@ -289,11 +289,11 @@ type IncomeTaxPayment {
   "Amount of the tax payment in cents."
   amount: Long!
   "IDs of documents attached to this income tax payment."
-  attachments: [Int!]!
+  attachments: [Long!]!
   "Date when the tax payment was made."
   datePaid: LocalDate!
   "ID of the income tax payment."
-  id: Int!
+  id: Long!
   "Optional notes for the income tax payment."
   notes: String
   "Date used for reporting purposes."
@@ -362,7 +362,7 @@ type Mutation {
     "Name of the category."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the category in."
-    workspaceId: Int!
+    workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
@@ -371,13 +371,13 @@ type Mutation {
     "Whether this category is used for expenses."
     expense: Boolean!,
     "ID of the category to update."
-    id: Int!,
+    id: Long!,
     "Whether this category is used for incomes."
     income: Boolean!,
     "New name of the category."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the category belongs to."
-    workspaceId: Int!
+    workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
@@ -422,7 +422,7 @@ type Query {
   "Returns a workspace by its ID, if accessible by the current user."
   workspace(
     "ID of the workspace."
-    id: Int!
+    id: Long!
   ): Workspace! @auth(type : AUTHENTICATED_ACTOR)
   "Returns all workspaces accessible by the current user with cursor-based pagination."
   workspaces(
@@ -487,7 +487,7 @@ type Workspace {
   "Returns a category by its ID if it belongs to this workspace, or null if not found."
   category(
     "ID of the category."
-    id: Int!
+    id: Long!
   ): Category
   "Customers in this workspace with cursor-based pagination."
   customers(
@@ -515,7 +515,7 @@ type Workspace {
     first: Int!
   ): GeneralTaxesConnection!
   "ID of the workspace."
-  id: Int!
+  id: Long!
   "Income tax payments in this workspace with cursor-based pagination."
   incomeTaxPayments(
     "Cursor after which to return items."
@@ -618,6 +618,9 @@ enum ValidationErrorCode {
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
 }
+
+"A date-time instant, serialized as an ISO-8601 string (e.g. '2025-01-15T10:30:00Z')."
+scalar DateTime
 
 "A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15')."
 scalar LocalDate
