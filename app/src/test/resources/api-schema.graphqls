@@ -364,6 +364,13 @@ type Mutation {
     "ID of the workspace to create the category in."
     workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
+  "Creates a new customer in the specified workspace."
+  createCustomer(
+    "Name of the customer."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the customer in."
+    workspaceId: Long!
+  ): Customer! @auth(type : REGULAR_USER)
   "Creates a new general tax in the specified workspace."
   createGeneralTax(
     "Description of the general tax."
@@ -375,6 +382,13 @@ type Mutation {
     "ID of the workspace to create the general tax in."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Creates a new workspace for the current user."
+  createWorkspace(
+    "Default currency code of the workspace (ISO 4217, 3 characters)."
+    defaultCurrency: String! @notBlank @size(max : 3, min : 0),
+    "Name of the workspace."
+    name: String! @notBlank @size(max : 255, min : 0)
+  ): Workspace! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
     "New description of the category."
@@ -390,6 +404,15 @@ type Mutation {
     "ID of the workspace the category belongs to."
     workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
+  "Updates an existing customer in the specified workspace."
+  editCustomer(
+    "ID of the customer to update."
+    id: Long!,
+    "New name of the customer."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the customer belongs to."
+    workspaceId: Long!
+  ): Customer! @auth(type : REGULAR_USER)
   "Updates an existing general tax in the specified workspace."
   editGeneralTax(
     "New description of the general tax."
@@ -403,6 +426,13 @@ type Mutation {
     "ID of the workspace the general tax belongs to."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Updates an existing workspace."
+  editWorkspace(
+    "ID of the workspace to update."
+    id: Long!,
+    "New name of the workspace."
+    name: String! @notBlank @size(max : 255, min : 0)
+  ): Workspace! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
@@ -513,6 +543,11 @@ type Workspace {
     "ID of the category."
     id: Long!
   ): Category
+  "Returns a customer by its ID if it belongs to this workspace, or null if not found."
+  customer(
+    "ID of the customer."
+    id: Long!
+  ): Customer
   "Customers in this workspace with cursor-based pagination."
   customers(
     "Cursor after which to return items."

@@ -362,12 +362,20 @@ export type Mutation = {
   createAccessTokenByWorkspaceAccessToken: CreateAccessTokenByWorkspaceAccessTokenResponse;
   /** Creates a new category in the specified workspace. */
   createCategory: Category;
+  /** Creates a new customer in the specified workspace. */
+  createCustomer: Customer;
   /** Creates a new general tax in the specified workspace. */
   createGeneralTax: GeneralTax;
+  /** Creates a new workspace for the current user. */
+  createWorkspace: Workspace;
   /** Updates an existing category in the specified workspace. */
   editCategory: Category;
+  /** Updates an existing customer in the specified workspace. */
+  editCustomer: Customer;
   /** Updates an existing general tax in the specified workspace. */
   editGeneralTax: GeneralTax;
+  /** Updates an existing workspace. */
+  editWorkspace: Workspace;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
@@ -411,11 +419,23 @@ export type MutationCreateCategoryArgs = {
 };
 
 
+export type MutationCreateCustomerArgs = {
+  name: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationCreateGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
   workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationCreateWorkspaceArgs = {
+  defaultCurrency: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 
@@ -429,12 +449,25 @@ export type MutationEditCategoryArgs = {
 };
 
 
+export type MutationEditCustomerArgs = {
+  id: Scalars['Long']['input'];
+  name: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationEditGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Long']['input'];
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
   workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditWorkspaceArgs = {
+  id: Scalars['Long']['input'];
+  name: Scalars['String']['input'];
 };
 
 
@@ -566,6 +599,8 @@ export type Workspace = {
   categories: CategoriesConnection;
   /** Returns a category by its ID if it belongs to this workspace, or null if not found. */
   category?: Maybe<Category>;
+  /** Returns a customer by its ID if it belongs to this workspace, or null if not found. */
+  customer?: Maybe<Customer>;
   /** Customers in this workspace with cursor-based pagination. */
   customers: CustomersConnection;
   /** Default currency of the workspace. */
@@ -596,6 +631,12 @@ export type WorkspaceCategoriesArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceCategoryArgs = {
+  id: Scalars['Long']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceCustomerArgs = {
   id: Scalars['Long']['input'];
 };
 
