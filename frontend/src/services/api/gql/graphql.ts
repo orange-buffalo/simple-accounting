@@ -362,8 +362,12 @@ export type Mutation = {
   createAccessTokenByWorkspaceAccessToken: CreateAccessTokenByWorkspaceAccessTokenResponse;
   /** Creates a new category in the specified workspace. */
   createCategory: Category;
+  /** Creates a new workspace for the current user. */
+  createWorkspace: Workspace;
   /** Updates an existing category in the specified workspace. */
   editCategory: Category;
+  /** Updates an existing workspace. */
+  editWorkspace: Workspace;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
@@ -407,6 +411,12 @@ export type MutationCreateCategoryArgs = {
 };
 
 
+export type MutationCreateWorkspaceArgs = {
+  defaultCurrency: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+
 export type MutationEditCategoryArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   expense: Scalars['Boolean']['input'];
@@ -414,6 +424,12 @@ export type MutationEditCategoryArgs = {
   income: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
   workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditWorkspaceArgs = {
+  id: Scalars['Long']['input'];
+  name: Scalars['String']['input'];
 };
 
 
