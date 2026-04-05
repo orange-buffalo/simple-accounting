@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -171,6 +172,77 @@ class WorkspaceQueryTest(
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(
                     path = DgsConstants.QUERY.Workspace,
+                )
+        }
+    }
+
+    @Nested
+    @DisplayName("Workspace.category(id)")
+    inner class CategoryById {
+
+        private val categoryPreconditions by lazyPreconditions {
+            object {
+                val fry = fry()
+                val fryWorkspace = workspace(owner = fry)
+                val deliveryCategory = category(workspace = fryWorkspace, name = "Delivery")
+                val zoidberg = zoidberg()
+                val zoidbergWorkspace = workspace(owner = zoidberg)
+                val zoidbergCategory = category(workspace = zoidbergWorkspace)
+            }
+        }
+
+        @Test
+        fun `should return category by id when it belongs to the workspace`() {
+            client.graphql {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
+                    category(id = categoryPreconditions.deliveryCategory.id!!.toInt()) {
+                        id
+                        name
+                    }
+                }
+            }
+                .from(categoryPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("category", buildJsonObject {
+                            put("id", categoryPreconditions.deliveryCategory.id!!.toInt())
+                            put("name", "Delivery")
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null when category belongs to a different workspace`() {
+            client.graphql {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
+                    category(id = categoryPreconditions.zoidbergCategory.id!!.toInt()) {
+                        name
+                    }
+                }
+            }
+                .from(categoryPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("category", JsonNull)
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null when category does not exist`() {
+            client.graphql {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
+                    category(id = -1) {
+                        name
+                    }
+                }
+            }
+                .from(categoryPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("category", JsonNull)
+                    }
                 )
         }
     }

@@ -6,6 +6,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
@@ -102,6 +103,12 @@ data class WorkspaceGqlDto(
             }
     }
 
+    @GraphQLDescription("Returns a category by its ID if it belongs to this workspace, or null if not found.")
+    fun category(
+        @GraphQLDescription("ID of the category.") id: Int,
+        env: DataFetchingEnvironment,
+    ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id.toLong(), categoryId = id.toLong())
+
     @GraphQLDescription("Expenses in this workspace.")
     fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
 
@@ -162,6 +169,7 @@ data class WorkspaceGqlDto(
             }
     }
 
+    @Suppress("unused")
     @GraphQLDescription("Income tax payments in this workspace with cursor-based pagination.")
     suspend fun incomeTaxPayments(
         @GraphQLDescription("The maximum number of items to return.")
@@ -208,6 +216,7 @@ data class WorkspaceGqlDto(
             )
     }
 
+    @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
     suspend fun generalTaxes(
         @GraphQLDescription("The maximum number of items to return.")
