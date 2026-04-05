@@ -15,7 +15,7 @@
   }>();
 
   const getCategoryQuery = useLazyQuery(graphql(`
-    query getCategoryForOutput($workspaceId: Int!, $categoryId: Int!) {
+    query getCategoryForOutput($workspaceId: Long!, $categoryId: Long!) {
       workspace(id: $workspaceId) {
         category(id: $categoryId) {
           name

@@ -78,7 +78,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoryQuery = useLazyQuery(graphql(`
-    query getCategoryForEdit($workspaceId: Int!, $categoryId: Int!) {
+    query getCategoryForEdit($workspaceId: Long!, $categoryId: Long!) {
       workspace(id: $workspaceId) {
         category(id: $categoryId) {
           id
@@ -109,8 +109,8 @@
 
   const editCategoryMutation = useMutation(graphql(`
     mutation editCategoryMutation(
-      $workspaceId: Int!,
-      $id: Int!,
+      $workspaceId: Long!,
+      $id: Long!,
       $name: String!,
       $description: String,
       $income: Boolean!,

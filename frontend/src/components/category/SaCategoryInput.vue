@@ -31,7 +31,7 @@
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
   const getCategoriesQuery = useLazyQuery(graphql(`
-    query getCategoriesForInput($workspaceId: Int!) {
+    query getCategoriesForInput($workspaceId: Long!) {
       workspace(id: $workspaceId) {
         categories(first: 500) {
           edges {

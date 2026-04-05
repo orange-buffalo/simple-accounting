@@ -97,7 +97,7 @@
 
   const createCategoryMutation = useMutation(graphql(`
     mutation createCategoryMutation(
-      $workspaceId: Int!,
+      $workspaceId: Long!,
       $name: String!,
       $description: String,
       $income: Boolean!,
