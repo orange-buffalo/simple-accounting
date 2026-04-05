@@ -90,6 +90,12 @@ class GeneralTaxesMutationTest(
                         description = value,
                     )
                 },
+                numberRangeConstraintTestCases("rateInBps", minValue = 0, maxValue = 10000) { value ->
+                    createGeneralTaxMutation(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        rateInBps = value,
+                    )
+                },
             ).flatten()
 
             @ParameterizedTest(name = "{0}")
@@ -243,6 +249,13 @@ class GeneralTaxesMutationTest(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = preconditions.fryTax.id!!,
                         description = value,
+                    )
+                },
+                numberRangeConstraintTestCases("rateInBps", minValue = 0, maxValue = 10000) { value ->
+                    editGeneralTaxMutation(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = preconditions.fryTax.id!!,
+                        rateInBps = value,
                     )
                 },
             ).flatten()

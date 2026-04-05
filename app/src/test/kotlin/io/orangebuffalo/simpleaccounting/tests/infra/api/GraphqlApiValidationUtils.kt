@@ -174,6 +174,54 @@ fun sizeConstraintTestCases(
 )
 
 /**
+ * Generates test cases for `@Min` and `@Max` integer field validation. Produces:
+ * - **below minimum** → `FIELD_VALIDATION_FAILURE` with `MinConstraintViolated`
+ * - **above maximum** → `FIELD_VALIDATION_FAILURE` with `MaxConstraintViolated`
+ * - **at minimum** boundary → fully successful execution
+ * - **at maximum** boundary → fully successful execution
+ *
+ * @param fieldName the GraphQL field name being validated
+ * @param minValue the minimum allowed value from `@Min(value = ...)`
+ * @param maxValue the maximum allowed value from `@Max(value = ...)`
+ * @param boundarySetup optional setup executed before boundary tests
+ * @param mutationWithFieldValue builds the mutation with the test field set to the given integer value
+ */
+fun numberRangeConstraintTestCases(
+    fieldName: String,
+    minValue: Int,
+    maxValue: Int,
+    boundarySetup: () -> Unit = {},
+    mutationWithFieldValue: MutationProjection.(fieldValue: Int) -> MutationProjection,
+): List<GraphqlMutationInputTestCase> = listOf(
+    GraphqlMutationValidationErrorTestCase(
+        description = "$fieldName below minimum ($minValue)",
+        mutation = { mutationWithFieldValue(minValue - 1) },
+        violationPath = fieldName,
+        error = "MinConstraintViolated",
+        message = "must be greater than or equal to $minValue",
+        params = mapOf("value" to "$minValue"),
+    ),
+    GraphqlMutationValidationErrorTestCase(
+        description = "$fieldName above maximum ($maxValue)",
+        mutation = { mutationWithFieldValue(maxValue + 1) },
+        violationPath = fieldName,
+        error = "MaxConstraintViolated",
+        message = "must be less than or equal to $maxValue",
+        params = mapOf("value" to "$maxValue"),
+    ),
+    GraphqlMutationValidBoundaryTestCase(
+        description = "$fieldName at minimum ($minValue) is accepted",
+        mutation = { mutationWithFieldValue(minValue) },
+        setup = boundarySetup,
+    ),
+    GraphqlMutationValidBoundaryTestCase(
+        description = "$fieldName at maximum ($maxValue) is accepted",
+        mutation = { mutationWithFieldValue(maxValue) },
+        setup = boundarySetup,
+    ),
+)
+
+/**
  * Builds a raw GraphQL mutation query with the specified field set to `null`.
  * Works with any scalar type (String, Int, Boolean, enum) by replacing the field's
  * serialized value in the generated query text.
