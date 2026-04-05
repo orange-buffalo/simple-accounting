@@ -35,7 +35,7 @@ class CategoriesQueryTest(
         fun `should return first page with pageInfo`() {
             val testData = preconditions { threeCategories() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 2) {
                         edges {
                             cursor
@@ -82,7 +82,7 @@ class CategoriesQueryTest(
             val testData = preconditions { threeCategories() }
             val afterCursor = encodeCursor(testData.category2.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -129,7 +129,7 @@ class CategoriesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10) {
                         edges {
                             cursor
@@ -168,7 +168,7 @@ class CategoriesQueryTest(
             }
             val afterCursor = encodeCursor(testData.category1.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -200,7 +200,7 @@ class CategoriesQueryTest(
         fun `should return all items when first equals total count`() {
             val testData = preconditions { threeCategories() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 3) {
                         edges {
                             node { name }
@@ -245,7 +245,7 @@ class CategoriesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10) {
                         edges {
                             node { name }
@@ -280,7 +280,7 @@ class CategoriesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10) {
                         edges {
                             node { name }
@@ -322,7 +322,7 @@ class CategoriesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     categories(first = 10) {
                         edges {
                             node {

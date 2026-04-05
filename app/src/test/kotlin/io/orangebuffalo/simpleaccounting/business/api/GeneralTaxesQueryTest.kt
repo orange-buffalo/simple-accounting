@@ -35,7 +35,7 @@ class GeneralTaxesQueryTest(
         fun `should return first page with pageInfo`() {
             val testData = preconditions { threeTaxes() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 2) {
                         edges {
                             cursor
@@ -82,7 +82,7 @@ class GeneralTaxesQueryTest(
             val testData = preconditions { threeTaxes() }
             val afterCursor = encodeCursor(testData.tax2.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -129,7 +129,7 @@ class GeneralTaxesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10) {
                         edges {
                             cursor
@@ -168,7 +168,7 @@ class GeneralTaxesQueryTest(
             }
             val afterCursor = encodeCursor(testData.tax1.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -200,7 +200,7 @@ class GeneralTaxesQueryTest(
         fun `should return all items when first equals total count`() {
             val testData = preconditions { threeTaxes() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 3) {
                         edges {
                             node { title }
@@ -245,7 +245,7 @@ class GeneralTaxesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10) {
                         edges {
                             node { title }
@@ -280,7 +280,7 @@ class GeneralTaxesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10) {
                         edges {
                             node { title }
@@ -321,7 +321,7 @@ class GeneralTaxesQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     generalTaxes(first = 10) {
                         edges {
                             node {

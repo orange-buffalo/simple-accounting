@@ -22,7 +22,7 @@ class CategoriesMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createCategory(
         @GraphQLDescription("ID of the workspace to create the category in.")
-        workspaceId: Int,
+        workspaceId: Long,
         @GraphQLDescription("Name of the category.")
         @NotBlank
         @Size(max = 255)
@@ -38,7 +38,7 @@ class CategoriesMutation(
         val category = categoriesService.createCategory(
             Category(
                 name = name,
-                workspaceId = workspaceId.toLong(),
+                workspaceId = workspaceId,
                 expense = expense,
                 income = income,
                 description = description,
@@ -52,9 +52,9 @@ class CategoriesMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editCategory(
         @GraphQLDescription("ID of the workspace the category belongs to.")
-        workspaceId: Int,
+        workspaceId: Long,
         @GraphQLDescription("ID of the category to update.")
-        id: Int,
+        id: Long,
         @GraphQLDescription("New name of the category.")
         @NotBlank
         @Size(max = 255)
@@ -67,7 +67,7 @@ class CategoriesMutation(
         @GraphQLDescription("Whether this category is used for expenses.")
         expense: Boolean,
     ): CategoryGqlDto {
-        val category = categoriesService.getCategoryByIdAndWorkspace(id.toLong(), workspaceId.toLong())
+        val category = categoriesService.getCategoryByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Category $id is not found")
 
         category.name = name
@@ -80,7 +80,7 @@ class CategoriesMutation(
 }
 
 private fun Category.toCategoryGqlDto() = CategoryGqlDto(
-    id = id!!.toInt(),
+    id = id!!,
     name = name,
     description = description,
     income = income,

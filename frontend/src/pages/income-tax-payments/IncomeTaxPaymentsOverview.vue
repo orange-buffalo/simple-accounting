@@ -40,7 +40,7 @@
   import { graphql } from '@/services/api/gql';
 
   const incomeTaxPaymentsPageQuery = graphql(`
-    query incomeTaxPaymentsPage($workspaceId: Int!, $first: Int!, $after: String) {
+    query incomeTaxPaymentsPage($workspaceId: Long!, $first: Int!, $after: String) {
       workspace(id: $workspaceId) {
         incomeTaxPayments(first: $first, after: $after) {
           edges {

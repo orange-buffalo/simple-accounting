@@ -38,7 +38,7 @@ class DocumentsQueryTest(
         fun `should return first page with pageInfo`() {
             val testData = preconditions { threeDocuments() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 2) {
                         edges {
                             cursor
@@ -85,7 +85,7 @@ class DocumentsQueryTest(
             val testData = preconditions { threeDocuments() }
             val afterCursor = encodeCursor(testData.doc2.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -132,7 +132,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             cursor
@@ -171,7 +171,7 @@ class DocumentsQueryTest(
             }
             val afterCursor = encodeCursor(testData.doc1.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -203,7 +203,7 @@ class DocumentsQueryTest(
         fun `should return all items when first equals total count`() {
             val testData = preconditions { threeDocuments() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 3) {
                         edges {
                             node { name }
@@ -248,7 +248,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node { name }
@@ -283,7 +283,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node { name }
@@ -325,7 +325,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node {
@@ -383,7 +383,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node {
@@ -428,7 +428,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node {
@@ -532,7 +532,7 @@ class DocumentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     documents(first = 10) {
                         edges {
                             node {

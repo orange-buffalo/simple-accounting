@@ -48,7 +48,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return error when accessed anonymously`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                 }
             }
@@ -61,7 +61,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should allow access with workspace token for the token workspace`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                 }
             }
@@ -76,7 +76,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return error when workspace token is for a different workspace`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                 }
             }
@@ -93,7 +93,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return workspace by id for the owner`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                 }
             }
@@ -108,7 +108,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return workspace with categories and expenses`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                     categories(first = 10) {
                         edges {
@@ -152,7 +152,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return error when workspace belongs to another user`() {
             client.graphql {
-                workspace(id = preconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = preconditions.fryWorkspace.id!!) {
                     name
                 }
             }
@@ -194,8 +194,8 @@ class WorkspaceQueryTest(
         @Test
         fun `should return category by id when it belongs to the workspace`() {
             client.graphql {
-                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
-                    category(id = categoryPreconditions.deliveryCategory.id!!.toInt()) {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!) {
+                    category(id = categoryPreconditions.deliveryCategory.id!!) {
                         id
                         name
                     }
@@ -215,8 +215,8 @@ class WorkspaceQueryTest(
         @Test
         fun `should return null when category belongs to a different workspace`() {
             client.graphql {
-                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
-                    category(id = categoryPreconditions.zoidbergCategory.id!!.toInt()) {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!) {
+                    category(id = categoryPreconditions.zoidbergCategory.id!!) {
                         name
                     }
                 }
@@ -232,7 +232,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return null when category does not exist`() {
             client.graphql {
-                workspace(id = categoryPreconditions.fryWorkspace.id!!.toInt()) {
+                workspace(id = categoryPreconditions.fryWorkspace.id!!) {
                     category(id = -1) {
                         name
                     }

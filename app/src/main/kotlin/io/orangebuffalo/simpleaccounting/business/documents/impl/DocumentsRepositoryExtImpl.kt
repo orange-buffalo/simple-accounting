@@ -110,7 +110,7 @@ class DocumentsRepositoryExtImpl(
                 { r ->
                     DocumentUsageGqlDto(
                         type = DocumentUsageType.valueOf(r[usageTypeField]!!),
-                        relatedEntityId = r[entityIdField]!!.toInt(),
+                        relatedEntityId = r[entityIdField]!!,
                         displayName = r[displayNameField]!!,
                     )
                 }
