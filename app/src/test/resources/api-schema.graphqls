@@ -371,6 +371,13 @@ type Mutation {
     "ID of the workspace to create the customer in."
     workspaceId: Long!
   ): Customer! @auth(type : REGULAR_USER)
+  "Creates a new workspace for the current user."
+  createWorkspace(
+    "Default currency code of the workspace (ISO 4217, 3 characters)."
+    defaultCurrency: String! @notBlank @size(max : 3, min : 0),
+    "Name of the workspace."
+    name: String! @notBlank @size(max : 255, min : 0)
+  ): Workspace! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
     "New description of the category."
@@ -395,6 +402,13 @@ type Mutation {
     "ID of the workspace the customer belongs to."
     workspaceId: Long!
   ): Customer! @auth(type : REGULAR_USER)
+  "Updates an existing workspace."
+  editWorkspace(
+    "ID of the workspace to update."
+    id: Long!,
+    "New name of the workspace."
+    name: String! @notBlank @size(max : 255, min : 0)
+  ): Workspace! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
