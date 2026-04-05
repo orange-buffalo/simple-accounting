@@ -8,7 +8,7 @@ import java.time.LocalDate
 @GraphQLDescription("An income tax payment in a workspace.")
 data class IncomeTaxPaymentGqlDto(
     @GraphQLDescription("ID of the income tax payment.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Title of the income tax payment.")
     val title: String,
@@ -26,5 +26,5 @@ data class IncomeTaxPaymentGqlDto(
     val notes: String?,
 
     @GraphQLDescription("IDs of documents attached to this income tax payment.")
-    val attachments: List<Int>,
+    val attachments: List<Long>,
 )

@@ -2,12 +2,13 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import java.time.Instant
 
 @GraphQLName("Document")
 @GraphQLDescription("A document in a workspace.")
 data class DocumentGqlDto(
     @GraphQLDescription("ID of the document.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Version of the document for optimistic locking.")
     val version: Int,
@@ -16,10 +17,10 @@ data class DocumentGqlDto(
     val name: String,
 
     @GraphQLDescription("Time when the document was uploaded, as ISO 8601 timestamp.")
-    val timeUploaded: String,
+    val timeUploaded: Instant,
 
     @GraphQLDescription("Size of the document in bytes.")
-    val sizeInBytes: Int?,
+    val sizeInBytes: Long?,
 
     @GraphQLDescription("ID of the storage where the document is stored.")
     val storageId: String,
@@ -38,7 +39,7 @@ data class DocumentUsageGqlDto(
     val type: DocumentUsageType,
 
     @GraphQLDescription("ID of the entity using the document.")
-    val relatedEntityId: Int,
+    val relatedEntityId: Long,
 
     @GraphQLDescription("Display name of the entity using the document.")
     val displayName: String,

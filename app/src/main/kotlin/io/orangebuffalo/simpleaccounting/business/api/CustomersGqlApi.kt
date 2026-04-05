@@ -7,7 +7,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 @GraphQLDescription("A customer in a workspace.")
 data class CustomerGqlDto(
     @GraphQLDescription("ID of the customer.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Name of the customer.")
     val name: String,

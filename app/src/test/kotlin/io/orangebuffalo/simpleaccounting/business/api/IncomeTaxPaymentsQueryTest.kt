@@ -37,7 +37,7 @@ class IncomeTaxPaymentsQueryTest(
         fun `should return first page with pageInfo`() {
             val testData = preconditions { threePayments() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 2) {
                         edges {
                             cursor
@@ -84,7 +84,7 @@ class IncomeTaxPaymentsQueryTest(
             val testData = preconditions { threePayments() }
             val afterCursor = encodeCursor(testData.payment2.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -131,7 +131,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             cursor
@@ -170,7 +170,7 @@ class IncomeTaxPaymentsQueryTest(
             }
             val afterCursor = encodeCursor(testData.payment1.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -202,7 +202,7 @@ class IncomeTaxPaymentsQueryTest(
         fun `should return all items when first equals total count`() {
             val testData = preconditions { threePayments() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 3) {
                         edges {
                             node { title }
@@ -247,7 +247,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { title }
@@ -282,7 +282,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { title }
@@ -325,7 +325,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node {
@@ -371,7 +371,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { notes }
@@ -405,7 +405,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { attachments }
@@ -440,7 +440,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { attachments }
@@ -482,7 +482,7 @@ class IncomeTaxPaymentsQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
                             node { attachments }

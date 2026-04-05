@@ -51,7 +51,7 @@ class CategoriesMutationTest(
             @Test
             fun `should return NOT_AUTHORIZED error for anonymous requests`() {
                 client
-                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!.toInt()) }
+                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!) }
                     .fromAnonymous()
                     .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateCategory)
             }
@@ -59,7 +59,7 @@ class CategoriesMutationTest(
             @Test
             fun `should return NOT_AUTHORIZED error for admin user`() {
                 client
-                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!.toInt()) }
+                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!) }
                     .from(preconditions.farnsworth)
                     .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateCategory)
             }
@@ -67,7 +67,7 @@ class CategoriesMutationTest(
             @Test
             fun `should return NOT_AUTHORIZED error for workspace access token`() {
                 client
-                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!.toInt()) }
+                    .graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!) }
                     .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
                     .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateCategory)
             }
@@ -79,14 +79,14 @@ class CategoriesMutationTest(
         inner class InputsValidation {
             fun testCases() = listOf(
                 mustNotBeBlankTestCases("name") { value ->
-                    createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!.toInt(), name = value)
+                    createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, name = value)
                 },
                 sizeConstraintTestCases("name", maxLength = 255) { value ->
-                    createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!.toInt(), name = value)
+                    createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, name = value)
                 },
                 sizeConstraintTestCases("description", maxLength = 1000) { value ->
                     createCategoryMutation(
-                        workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                        workspaceId = preconditions.fryWorkspace.id!!,
                         description = value,
                     )
                 },
@@ -111,7 +111,7 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         createCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
                             name = "Robot oil",
                             description = "Maintenance supplies for Bender",
                             income = false,
@@ -147,7 +147,7 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         createCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
                             name = "Slurm supplies",
                             income = true,
                             expense = false,
@@ -168,7 +168,7 @@ class CategoriesMutationTest(
             fun `should return entity not found error for another user workspace`() {
                 client
                     .graphqlMutation {
-                        createCategoryMutation(workspaceId = preconditions.zoidbergWorkspace.id!!.toInt())
+                        createCategoryMutation(workspaceId = preconditions.zoidbergWorkspace.id!!)
                     }
                     .from(preconditions.fry)
                     .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateCategory)
@@ -189,7 +189,7 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
                             id = 1,
                         )
                     }
@@ -202,7 +202,7 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
                             id = 1,
                         )
                     }
@@ -215,7 +215,7 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
                             id = 1,
                         )
                     }
@@ -231,22 +231,22 @@ class CategoriesMutationTest(
             fun testCases() = listOf(
                 mustNotBeBlankTestCases("name") { value ->
                     editCategoryMutation(
-                        workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = preconditions.fryCategory.id!!.toInt(),
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = preconditions.fryCategory.id!!,
                         name = value,
                     )
                 },
                 sizeConstraintTestCases("name", maxLength = 255) { value ->
                     editCategoryMutation(
-                        workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = preconditions.fryCategory.id!!.toInt(),
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = preconditions.fryCategory.id!!,
                         name = value,
                     )
                 },
                 sizeConstraintTestCases("description", maxLength = 1000) { value ->
                     editCategoryMutation(
-                        workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                        id = preconditions.fryCategory.id!!.toInt(),
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = preconditions.fryCategory.id!!,
                         description = value,
                     )
                 },
@@ -273,8 +273,8 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                            id = category.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
+                            id = category.id!!,
                             name = "Spaceship fuel",
                             description = "Delivery to Omicron Persei 8",
                             income = false,
@@ -316,8 +316,8 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                            id = category.id!!.toInt(),
+                            workspaceId = preconditions.fryWorkspace.id!!,
+                            id = category.id!!,
                             name = "Slurm supplies",
                         )
                     }
@@ -338,8 +338,8 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.fryWorkspace.id!!.toInt(),
-                            id = Int.MAX_VALUE,
+                            workspaceId = preconditions.fryWorkspace.id!!,
+                            id = Long.MAX_VALUE,
                         )
                     }
                     .from(preconditions.fry)
@@ -353,8 +353,8 @@ class CategoriesMutationTest(
                 client
                     .graphqlMutation {
                         editCategoryMutation(
-                            workspaceId = preconditions.zoidbergWorkspace.id!!.toInt(),
-                            id = zoidbergCategory.id!!.toInt(),
+                            workspaceId = preconditions.zoidbergWorkspace.id!!,
+                            id = zoidbergCategory.id!!,
                         )
                     }
                     .from(preconditions.fry)
@@ -364,7 +364,7 @@ class CategoriesMutationTest(
     }
 
     private fun MutationProjection.createCategoryMutation(
-        workspaceId: Int,
+        workspaceId: Long,
         name: String = "Delivery",
         description: String? = null,
         income: Boolean = true,
@@ -383,8 +383,8 @@ class CategoriesMutationTest(
     }
 
     private fun MutationProjection.editCategoryMutation(
-        workspaceId: Int,
-        id: Int,
+        workspaceId: Long,
+        id: Long,
         name: String = "Delivery",
         description: String? = null,
         income: Boolean = true,

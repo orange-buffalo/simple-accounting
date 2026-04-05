@@ -45,7 +45,7 @@ class WorkspacesQuery(
             .applyCurrentUserFiltering { user -> workspace.ownerId.eq(user.id) }
             .page(first, after) { record ->
                 WorkspaceGqlDto(
-                    id = record[workspace.id]!!.toInt(),
+                    id = record[workspace.id]!!,
                     name = record[workspace.name]!!,
                     defaultCurrency = record[workspace.defaultCurrency]!!,
                 )
@@ -56,11 +56,11 @@ class WorkspacesQuery(
     @GraphQLDescription("Returns a workspace by its ID, if accessible by the current user.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     suspend fun workspace(
-        @GraphQLDescription("ID of the workspace.") id: Int,
+        @GraphQLDescription("ID of the workspace.") id: Long,
     ): WorkspaceGqlDto {
-        val workspace = workspacesService.getAccessibleWorkspace(id.toLong(), WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.READ_ONLY)
         return WorkspaceGqlDto(
-            id = workspace.id!!.toInt(),
+            id = workspace.id!!,
             name = workspace.name,
             defaultCurrency = workspace.defaultCurrency,
         )
@@ -71,7 +71,7 @@ class WorkspacesQuery(
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
     @GraphQLDescription("ID of the workspace.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Name of the workspace.")
     val name: String,
@@ -91,10 +91,10 @@ data class WorkspaceGqlDto(
         val categoryTable = Tables.CATEGORY
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(categoryTable)
-            .addPredicate(categoryTable.workspaceId.eq(id.toLong()))
+            .addPredicate(categoryTable.workspaceId.eq(id))
             .page(first, after) { record ->
                 CategoryGqlDto(
-                    id = record[categoryTable.id]!!.toInt(),
+                    id = record[categoryTable.id]!!,
                     name = record[categoryTable.name]!!,
                     description = record[categoryTable.description],
                     income = record[categoryTable.income]!!,
@@ -105,12 +105,12 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns a category by its ID if it belongs to this workspace, or null if not found.")
     fun category(
-        @GraphQLDescription("ID of the category.") id: Int,
+        @GraphQLDescription("ID of the category.") id: Long,
         env: DataFetchingEnvironment,
-    ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id.toLong(), categoryId = id.toLong())
+    ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id, categoryId = id)
 
     @GraphQLDescription("Expenses in this workspace.")
-    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
+    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id)
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(
@@ -125,25 +125,25 @@ data class WorkspaceGqlDto(
         val paginationService = env.graphQlContext.getBean<GraphqlPaginationService>()
         val documentsRepository = env.graphQlContext.getBean<DocumentsRepository>()
         return paginationService.forTable(document)
-            .addPredicate(document.workspaceId.eq(id.toLong()))
+            .addPredicate(document.workspaceId.eq(id))
             .page(
                 first = first,
                 after = after,
                 mapQueryRecord = { record ->
                     DocumentGqlDto(
-                        id = record[document.id]!!.toInt(),
+                        id = record[document.id]!!,
                         version = record[document.version]!!,
                         name = record[document.name]!!,
-                        timeUploaded = record[document.timeUploaded]!!.toString(),
-                        sizeInBytes = record[document.sizeInBytes]?.toInt(),
+                        timeUploaded = record[document.timeUploaded]!!,
+                        sizeInBytes = record[document.sizeInBytes],
                         storageId = record[document.storageId]!!,
                         mimeType = record[document.mimeType]!!,
                         usedBy = emptyList(),
                     )
                 },
                 postProcess = { records ->
-                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id.toLong() })
-                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id.toLong()] ?: emptyList()) }
+                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id })
+                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id] ?: emptyList()) }
                 },
             )
     }
@@ -160,10 +160,10 @@ data class WorkspaceGqlDto(
         val customer = Tables.CUSTOMER
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(customer)
-            .addPredicate(customer.workspaceId.eq(id.toLong()))
+            .addPredicate(customer.workspaceId.eq(id))
             .page(first, after) { record ->
                 CustomerGqlDto(
-                    id = record[customer.id]!!.toInt(),
+                    id = record[customer.id]!!,
                     name = record[customer.name]!!,
                 )
             }
@@ -184,13 +184,13 @@ data class WorkspaceGqlDto(
         val dslContext = env.graphQlContext.getBean<DSLContext>()
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(incomeTaxPayment)
-            .addPredicate(incomeTaxPayment.workspaceId.eq(id.toLong()))
+            .addPredicate(incomeTaxPayment.workspaceId.eq(id))
             .page(
                 first = first,
                 after = after,
                 mapQueryRecord = { record ->
                     IncomeTaxPaymentGqlDto(
-                        id = record[incomeTaxPayment.id]!!.toInt(),
+                        id = record[incomeTaxPayment.id]!!,
                         title = record[incomeTaxPayment.title]!!,
                         datePaid = record[incomeTaxPayment.datePaid]!!,
                         reportingDate = record[incomeTaxPayment.reportingDate]!!,
@@ -203,14 +203,14 @@ data class WorkspaceGqlDto(
                     val attachmentsByPaymentId = dslContext
                         .select(attachmentsTable.incomeTaxPaymentId, attachmentsTable.documentId)
                         .from(attachmentsTable)
-                        .where(attachmentsTable.incomeTaxPaymentId.`in`(records.map { it.id.toLong() }))
+                        .where(attachmentsTable.incomeTaxPaymentId.`in`(records.map { it.id }))
                         .fetch()
                         .groupBy(
                             { it[attachmentsTable.incomeTaxPaymentId]!! },
-                            { it[attachmentsTable.documentId]!!.toInt() },
+                            { it[attachmentsTable.documentId]!! },
                         )
                     records.map { dto ->
-                        dto.copy(attachments = attachmentsByPaymentId[dto.id.toLong()] ?: emptyList())
+                        dto.copy(attachments = attachmentsByPaymentId[dto.id] ?: emptyList())
                     }
                 },
             )
@@ -229,10 +229,10 @@ data class WorkspaceGqlDto(
         val generalTax = Tables.GENERAL_TAX
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(generalTax)
-            .addPredicate(generalTax.workspaceId.eq(id.toLong()))
+            .addPredicate(generalTax.workspaceId.eq(id))
             .page(first, after) { record ->
                 GeneralTaxGqlDto(
-                    id = record[generalTax.id]!!.toInt(),
+                    id = record[generalTax.id]!!,
                     title = record[generalTax.title]!!,
                     description = record[generalTax.description],
                     rateInBps = record[generalTax.rateInBps]!!,
@@ -245,7 +245,7 @@ data class WorkspaceGqlDto(
 @GraphQLDescription("Category of incomes or expenses.")
 data class CategoryGqlDto(
     @GraphQLDescription("ID of the category.")
-    val id: Int,
+    val id: Long,
 
     @GraphQLDescription("Name of the category.")
     val name: String,

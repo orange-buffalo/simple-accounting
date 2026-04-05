@@ -13,6 +13,7 @@ const config: CodegenConfig = {
         scalars: {
           LocalDate: 'string',
           Long: 'number',
+          DateTime: 'string',
         },
       },
       plugins: [],

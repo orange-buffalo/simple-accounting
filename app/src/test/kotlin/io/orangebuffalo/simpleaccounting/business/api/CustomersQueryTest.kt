@@ -35,7 +35,7 @@ class CustomersQueryTest(
         fun `should return first page with pageInfo`() {
             val testData = preconditions { threeCustomers() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 2) {
                         edges {
                             cursor
@@ -82,7 +82,7 @@ class CustomersQueryTest(
             val testData = preconditions { threeCustomers() }
             val afterCursor = encodeCursor(testData.customer2.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -129,7 +129,7 @@ class CustomersQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10) {
                         edges {
                             cursor
@@ -168,7 +168,7 @@ class CustomersQueryTest(
             }
             val afterCursor = encodeCursor(testData.customer1.createdAt!!)
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10, after = afterCursor) {
                         edges {
                             cursor
@@ -200,7 +200,7 @@ class CustomersQueryTest(
         fun `should return all items when first equals total count`() {
             val testData = preconditions { threeCustomers() }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 3) {
                         edges {
                             node { name }
@@ -245,7 +245,7 @@ class CustomersQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10) {
                         edges {
                             node { name }
@@ -280,7 +280,7 @@ class CustomersQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10) {
                         edges {
                             node { name }
@@ -316,7 +316,7 @@ class CustomersQueryTest(
                 }
             }
             client.graphql {
-                workspace(id = testData.workspace.id!!.toInt()) {
+                workspace(id = testData.workspace.id!!) {
                     customers(first = 10) {
                         edges {
                             node {
