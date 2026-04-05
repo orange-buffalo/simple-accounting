@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpense
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 /**
@@ -174,8 +174,8 @@ class SaSelectFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
 
         // Block the categories API and verify loading state
-        page.withBlockedApiResponse(
-            "**/categories*",
+        page.withBlockedGqlApiResponse(
+            "getCategoriesForInput",
             initiator = {
                 page.navigate("/expenses/create")
             },

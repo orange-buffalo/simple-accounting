@@ -6,12 +6,23 @@
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { categoriesApi, consumeAllPages } from '@/services/api';
-  import { findByIdOrEmpty, useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
+  import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     categoryId?: number
   }>();
+
+  const getCategoryQuery = useLazyQuery(graphql(`
+    query getCategoryForOutput($workspaceId: Long!, $categoryId: Long!) {
+      workspace(id: $workspaceId) {
+        category(id: $categoryId) {
+          name
+        }
+      }
+    }
+  `), 'workspace');
 
   const {
     loading,
@@ -24,13 +35,11 @@
         return 'Not specified';
       }
 
-      // TODO support GET by id
-      const categories = await consumeAllPages(((pageRequest) => categoriesApi.getCategories({
+      const workspace = await getCategoryQuery({
         workspaceId,
-        ...pageRequest,
-      })));
-      const category = findByIdOrEmpty(categories, props.categoryId);
-      return category?.name;
+        categoryId: props.categoryId,
+      });
+      return workspace?.category?.name;
     },
   );
 </script>
