@@ -2,7 +2,6 @@ export * from './api-types';
 export {
   workspacesApi,
   customersApi,
-  categoriesApi,
   statisticsApi,
   invoicesApi,
   documentsApi,

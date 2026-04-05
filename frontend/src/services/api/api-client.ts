@@ -3,7 +3,6 @@ import {
   Configuration,
   WorkspacesApiApi,
   CustomersApiApi,
-  CategoriesApiApi,
   StatisticsApiApi,
   InvoicesApiApi,
   GeneralTaxesApiApi,
@@ -37,7 +36,6 @@ const defaultConfig = new Configuration(defaultConfigParameters);
 
 export const workspacesApi = new WorkspacesApiApi(defaultConfig);
 export const customersApi = new CustomersApiApi(defaultConfig);
-export const categoriesApi = new CategoriesApiApi(defaultConfig);
 export const statisticsApi = new StatisticsApiApi(defaultConfig);
 export const invoicesApi = new InvoicesApiApi(defaultConfig);
 export const expensesApi = new ExpensesApiApi(defaultConfig);
