@@ -19,7 +19,8 @@
 <script lang="ts" setup>
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { categoriesApi, consumeAllPages } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
     modelValue?: number,
@@ -29,11 +30,26 @@
 
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
+  const getCategoriesQuery = useLazyQuery(graphql(`
+    query getCategoriesForInput($workspaceId: Int!) {
+      workspace(id: $workspaceId) {
+        categories(first: 500) {
+          edges {
+            node {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     value: categories,
     loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => categoriesApi.getCategories({
-    ...pageRequest,
-    workspaceId,
-  })));
+  } = useValueLoadedByCurrentWorkspace(async (workspaceId) => {
+    const workspace = await getCategoriesQuery({ workspaceId });
+    return workspace?.categories.edges.map((edge) => edge.node).sort((a, b) => a.name.localeCompare(b.name)) ?? [];
+  });
 </script>

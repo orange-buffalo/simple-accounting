@@ -1,6 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './ApiPageCategoryDto';
 export * from './ApiPageCustomerDto';
 export * from './ApiPageDocumentDto';
 export * from './ApiPageExpenseDto';
@@ -10,8 +9,6 @@ export * from './ApiPageIncomeTaxPaymentDto';
 export * from './ApiPageInvoiceDto';
 export * from './ApiPagePlatformUserDto';
 export * from './ApiPageWorkspaceAccessTokenDto';
-export * from './CategoryDto';
-export * from './CreateCategoryDto';
 export * from './CreateUserActivationTokenRequestDto';
 export * from './CreateUserRequestDto';
 export * from './CreateWorkspaceAccessTokenDto';
@@ -19,7 +16,6 @@ export * from './CreateWorkspaceDto';
 export * from './CurrentUserPushNotificationMessage';
 export * from './CustomerDto';
 export * from './DocumentDto';
-export * from './EditCategoryDto';
 export * from './EditCustomerDto';
 export * from './EditExpenseDto';
 export * from './EditGeneralTaxDto';

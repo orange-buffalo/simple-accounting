@@ -52,11 +52,10 @@
   import { ref } from 'vue';
   import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { PartialBy } from '@/services/utils';
-  import type { EditCategoryDto } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import { useForm } from '@/components/form/use-form';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id: number,
@@ -65,7 +64,12 @@
   const { navigateByViewName } = useNavigation();
   const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
 
-  type CategoryFormValues = PartialBy<EditCategoryDto, 'name'>;
+  type CategoryFormValues = {
+    name?: string,
+    description?: string,
+    income: boolean,
+    expense: boolean,
+  };
   const category = ref<CategoryFormValues>({
     income: false,
     expense: false,
@@ -73,18 +77,66 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
+  const getCategoryQuery = useLazyQuery(graphql(`
+    query getCategoryForEdit($workspaceId: Int!, $categoryId: Int!) {
+      workspace(id: $workspaceId) {
+        category(id: $categoryId) {
+          id
+          name
+          description
+          income
+          expense
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadCategory = async () => {
-    category.value = await categoriesApi.getCategory({
-      categoryId: props.id,
+    const workspace = await getCategoryQuery({
       workspaceId: currentWorkspaceId,
+      categoryId: props.id,
     });
+    const loaded = workspace?.category;
+    if (loaded) {
+      category.value = {
+        name: loaded.name,
+        description: loaded.description ?? undefined,
+        income: loaded.income,
+        expense: loaded.expense,
+      };
+    }
   };
 
+  const editCategoryMutation = useMutation(graphql(`
+    mutation editCategoryMutation(
+      $workspaceId: Int!,
+      $id: Int!,
+      $name: String!,
+      $description: String,
+      $income: Boolean!,
+      $expense: Boolean!
+    ) {
+      editCategory(
+        workspaceId: $workspaceId,
+        id: $id,
+        name: $name,
+        description: $description,
+        income: $income,
+        expense: $expense
+      ) {
+        id
+      }
+    }
+  `), 'editCategory');
+
   const saveCategory = async () => {
-    await categoriesApi.updateCategory({
-      categoryId: props.id,
-      editCategoryDto: category.value as EditCategoryDto,
+    await editCategoryMutation({
       workspaceId: currentWorkspaceId,
+      id: props.id,
+      name: category.value.name!,
+      description: category.value.description ?? null,
+      income: category.value.income,
+      expense: category.value.expense,
     });
     await navigateToCategoriesOverview();
   };

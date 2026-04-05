@@ -53,13 +53,17 @@
   import { ref } from 'vue';
   import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { PartialBy } from '@/services/utils';
-  import type { CreateCategoryDto } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import { useForm } from '@/components/form/use-form';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
 
-  type CategoryFormValues = PartialBy<CreateCategoryDto, 'name'>;
+  type CategoryFormValues = {
+    name?: string,
+    description?: string,
+    income: boolean,
+    expense: boolean,
+  };
   const category = ref<CategoryFormValues>({
     income: false,
     expense: false,
@@ -70,13 +74,6 @@
       {
         required: true,
         message: 'Please input name',
-        trigger: 'blur',
-      },
-    ],
-    defaultCurrency: [
-      {
-        required: true,
-        message: 'Please input currency',
         trigger: 'blur',
       },
     ],
@@ -97,10 +94,34 @@
   const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
+
+  const createCategoryMutation = useMutation(graphql(`
+    mutation createCategoryMutation(
+      $workspaceId: Int!,
+      $name: String!,
+      $description: String,
+      $income: Boolean!,
+      $expense: Boolean!
+    ) {
+      createCategory(
+        workspaceId: $workspaceId,
+        name: $name,
+        description: $description,
+        income: $income,
+        expense: $expense
+      ) {
+        id
+      }
+    }
+  `), 'createCategory');
+
   const saveCategory = async () => {
-    await categoriesApi.createCategory({
-      createCategoryDto: category.value as CreateCategoryDto,
+    await createCategoryMutation({
       workspaceId: currentWorkspaceId,
+      name: category.value.name!,
+      description: category.value.description ?? null,
+      income: category.value.income,
+      expense: category.value.expense,
     });
     await navigateToCategoriesOverview();
   };
