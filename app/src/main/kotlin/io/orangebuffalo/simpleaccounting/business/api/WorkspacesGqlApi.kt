@@ -7,6 +7,7 @@ import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
@@ -168,6 +169,12 @@ data class WorkspaceGqlDto(
                 )
             }
     }
+
+    @GraphQLDescription("Returns a customer by its ID if it belongs to this workspace, or null if not found.")
+    fun customer(
+        @GraphQLDescription("ID of the customer.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadCustomerByWorkspaceAndId(workspaceId = this.id, customerId = id)
 
     @Suppress("unused")
     @GraphQLDescription("Income tax payments in this workspace with cursor-based pagination.")

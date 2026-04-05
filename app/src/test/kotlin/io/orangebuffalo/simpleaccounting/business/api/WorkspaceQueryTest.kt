@@ -246,4 +246,75 @@ class WorkspaceQueryTest(
                 )
         }
     }
+
+    @Nested
+    @DisplayName("Workspace.customer(id)")
+    inner class CustomerById {
+
+        private val customerPreconditions by lazyPreconditions {
+            object {
+                val fry = fry()
+                val fryWorkspace = workspace(owner = fry)
+                val momCorpCustomer = customer(workspace = fryWorkspace, name = "MomCorp")
+                val zoidberg = zoidberg()
+                val zoidbergWorkspace = workspace(owner = zoidberg)
+                val zoidbergCustomer = customer(workspace = zoidbergWorkspace)
+            }
+        }
+
+        @Test
+        fun `should return customer by id when it belongs to the workspace`() {
+            client.graphql {
+                workspace(id = customerPreconditions.fryWorkspace.id!!) {
+                    customer(id = customerPreconditions.momCorpCustomer.id!!) {
+                        id
+                        name
+                    }
+                }
+            }
+                .from(customerPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("customer", buildJsonObject {
+                            put("id", customerPreconditions.momCorpCustomer.id!!.toInt())
+                            put("name", "MomCorp")
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null when customer belongs to a different workspace`() {
+            client.graphql {
+                workspace(id = customerPreconditions.fryWorkspace.id!!) {
+                    customer(id = customerPreconditions.zoidbergCustomer.id!!) {
+                        name
+                    }
+                }
+            }
+                .from(customerPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("customer", JsonNull)
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null when customer does not exist`() {
+            client.graphql {
+                workspace(id = customerPreconditions.fryWorkspace.id!!) {
+                    customer(id = -1) {
+                        name
+                    }
+                }
+            }
+                .from(customerPreconditions.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("customer", JsonNull)
+                    }
+                )
+        }
+    }
 }
