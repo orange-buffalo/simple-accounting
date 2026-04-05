@@ -107,7 +107,7 @@ data class WorkspaceGqlDto(
     fun category(
         @GraphQLDescription("ID of the category.") id: Int,
         env: DataFetchingEnvironment,
-    ) = env.loadCategoryByWorkspaceAndId(this.id.toLong(), id.toLong())
+    ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id.toLong(), categoryId = id.toLong())
 
     @GraphQLDescription("Expenses in this workspace.")
     fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id.toLong())
@@ -169,6 +169,7 @@ data class WorkspaceGqlDto(
             }
     }
 
+    @Suppress("unused")
     @GraphQLDescription("Income tax payments in this workspace with cursor-based pagination.")
     suspend fun incomeTaxPayments(
         @GraphQLDescription("The maximum number of items to return.")
@@ -215,6 +216,7 @@ data class WorkspaceGqlDto(
             )
     }
 
+    @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
     suspend fun generalTaxes(
         @GraphQLDescription("The maximum number of items to return.")
