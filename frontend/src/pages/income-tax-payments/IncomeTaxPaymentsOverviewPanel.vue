@@ -99,13 +99,15 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import type { IncomeTaxPaymentDto } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
+  import type { IncomeTaxPaymentsPageQuery } from '@/services/api/gql/graphql';
+
+  type IncomeTaxPaymentNode = IncomeTaxPaymentsPageQuery['workspace']['incomeTaxPayments']['edges'][0]['node'];
 
   const props = defineProps<{
-    taxPayment: IncomeTaxPaymentDto,
+    taxPayment: IncomeTaxPaymentNode,
   }>();
 
   const { navigateToView } = useNavigation();

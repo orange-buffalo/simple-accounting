@@ -288,6 +288,8 @@ type I18nSettings {
 type IncomeTaxPayment {
   "Amount of the tax payment in cents."
   amount: Long!
+  "IDs of documents attached to this income tax payment."
+  attachments: [Int!]!
   "Date when the tax payment was made."
   datePaid: LocalDate!
   "ID of the income tax payment."

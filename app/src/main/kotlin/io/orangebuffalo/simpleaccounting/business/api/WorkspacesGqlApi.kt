@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 import java.util.concurrent.CompletableFuture
@@ -178,19 +179,40 @@ data class WorkspaceGqlDto(
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<IncomeTaxPaymentGqlDto> {
         val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
+        val attachmentsTable = Tables.INCOME_TAX_PAYMENT_ATTACHMENTS
+        val dslContext = env.graphQlContext.getBean<DSLContext>()
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(incomeTaxPayment)
             .addPredicate(incomeTaxPayment.workspaceId.eq(id.toLong()))
-            .page(first, after) { record ->
-                IncomeTaxPaymentGqlDto(
-                    id = record[incomeTaxPayment.id]!!.toInt(),
-                    title = record[incomeTaxPayment.title]!!,
-                    datePaid = record[incomeTaxPayment.datePaid]!!,
-                    reportingDate = record[incomeTaxPayment.reportingDate]!!,
-                    amount = record[incomeTaxPayment.amount]!!,
-                    notes = record[incomeTaxPayment.notes],
-                )
-            }
+            .page(
+                first = first,
+                after = after,
+                mapQueryRecord = { record ->
+                    IncomeTaxPaymentGqlDto(
+                        id = record[incomeTaxPayment.id]!!.toInt(),
+                        title = record[incomeTaxPayment.title]!!,
+                        datePaid = record[incomeTaxPayment.datePaid]!!,
+                        reportingDate = record[incomeTaxPayment.reportingDate]!!,
+                        amount = record[incomeTaxPayment.amount]!!,
+                        notes = record[incomeTaxPayment.notes],
+                        attachments = emptyList(),
+                    )
+                },
+                postProcess = { records ->
+                    val attachmentsByPaymentId = dslContext
+                        .select(attachmentsTable.incomeTaxPaymentId, attachmentsTable.documentId)
+                        .from(attachmentsTable)
+                        .where(attachmentsTable.incomeTaxPaymentId.`in`(records.map { it.id.toLong() }))
+                        .fetch()
+                        .groupBy(
+                            { it[attachmentsTable.incomeTaxPaymentId]!! },
+                            { it[attachmentsTable.documentId]!!.toInt() },
+                        )
+                    records.map { dto ->
+                        dto.copy(attachments = attachmentsByPaymentId[dto.id.toLong()] ?: emptyList())
+                    }
+                },
+            )
     }
 
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
