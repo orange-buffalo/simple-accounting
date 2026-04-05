@@ -364,6 +364,17 @@ type Mutation {
     "ID of the workspace to create the category in."
     workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
+  "Creates a new general tax in the specified workspace."
+  createGeneralTax(
+    "Description of the general tax."
+    description: String @size(max : 255, min : 0),
+    "Rate of the general tax in basis points (1/100 of a percent)."
+    rateInBps: Int! @max(value : 10000) @min(value : 0),
+    "Title of the general tax."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the general tax in."
+    workspaceId: Long!
+  ): GeneralTax! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
     "New description of the category."
@@ -379,6 +390,19 @@ type Mutation {
     "ID of the workspace the category belongs to."
     workspaceId: Long!
   ): Category! @auth(type : REGULAR_USER)
+  "Updates an existing general tax in the specified workspace."
+  editGeneralTax(
+    "New description of the general tax."
+    description: String @size(max : 255, min : 0),
+    "ID of the general tax to update."
+    id: Long!,
+    "New rate of the general tax in basis points (1/100 of a percent)."
+    rateInBps: Int! @max(value : 10000) @min(value : 0),
+    "New title of the general tax."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the general tax belongs to."
+    workspaceId: Long!
+  ): GeneralTax! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
@@ -507,6 +531,11 @@ type Workspace {
   ): DocumentsConnection!
   "Expenses in this workspace."
   expenses: [Expense!]!
+  "Returns a general tax by its ID if it belongs to this workspace, or null if not found."
+  generalTax(
+    "ID of the general tax."
+    id: Long!
+  ): GeneralTax
   "General taxes in this workspace with cursor-based pagination."
   generalTaxes(
     "Cursor after which to return items."

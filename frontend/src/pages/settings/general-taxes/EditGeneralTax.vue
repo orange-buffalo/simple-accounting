@@ -63,11 +63,10 @@
   import { ref } from 'vue';
   import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { EditGeneralTaxDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { generalTaxesApi } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { useForm } from '@/components/form/use-form';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -76,29 +75,98 @@
   const { navigateByViewName } = useNavigation();
   const navigateToTaxesOverview = () => navigateByViewName('general-taxes-overview');
 
-  type TaxFormValues = PartialBy<EditGeneralTaxDto, 'title' | 'rateInBps'>;
+  type TaxFormValues = {
+    title?: string,
+    description?: string,
+    rateInBps?: number,
+  };
   const tax = ref<TaxFormValues>({});
 
   const { currentWorkspaceId } = useCurrentWorkspace();
+
+  const getGeneralTaxQuery = useLazyQuery(graphql(`
+    query getGeneralTaxForEdit($workspaceId: Long!, $taxId: Long!) {
+      workspace(id: $workspaceId) {
+        generalTax(id: $taxId) {
+          id
+          title
+          description
+          rateInBps
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadTax = async () => {
     if (props.id !== undefined) {
-      tax.value = await generalTaxesApi.getTax({
-        taxId: props.id,
+      const workspace = await getGeneralTaxQuery({
         workspaceId: currentWorkspaceId,
+        taxId: props.id,
       });
+      const loaded = workspace?.generalTax;
+      if (loaded) {
+        tax.value = {
+          title: loaded.title,
+          description: loaded.description ?? undefined,
+          rateInBps: loaded.rateInBps,
+        };
+      }
     }
   };
+
+  const createGeneralTaxMutation = useMutation(graphql(`
+    mutation createGeneralTaxMutation(
+      $workspaceId: Long!,
+      $title: String!,
+      $description: String,
+      $rateInBps: Int!
+    ) {
+      createGeneralTax(
+        workspaceId: $workspaceId,
+        title: $title,
+        description: $description,
+        rateInBps: $rateInBps
+      ) {
+        id
+      }
+    }
+  `), 'createGeneralTax');
+
+  const editGeneralTaxMutation = useMutation(graphql(`
+    mutation editGeneralTaxMutation(
+      $workspaceId: Long!,
+      $id: Long!,
+      $title: String!,
+      $description: String,
+      $rateInBps: Int!
+    ) {
+      editGeneralTax(
+        workspaceId: $workspaceId,
+        id: $id,
+        title: $title,
+        description: $description,
+        rateInBps: $rateInBps
+      ) {
+        id
+      }
+    }
+  `), 'editGeneralTax');
+
   const saveTax = async () => {
     if (props.id === undefined) {
-      await generalTaxesApi.createTax({
+      await createGeneralTaxMutation({
         workspaceId: currentWorkspaceId,
-        editGeneralTaxDto: tax.value as EditGeneralTaxDto,
+        title: tax.value.title!,
+        description: tax.value.description ?? null,
+        rateInBps: Number(tax.value.rateInBps!),
       });
     } else {
-      await generalTaxesApi.updateTax({
+      await editGeneralTaxMutation({
         workspaceId: currentWorkspaceId,
-        editGeneralTaxDto: tax.value as EditGeneralTaxDto,
-        taxId: props.id,
+        id: props.id,
+        title: tax.value.title!,
+        description: tax.value.description ?? null,
+        rateInBps: Number(tax.value.rateInBps!),
       });
     }
     await navigateToTaxesOverview();

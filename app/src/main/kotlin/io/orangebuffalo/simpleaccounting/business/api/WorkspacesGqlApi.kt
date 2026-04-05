@@ -8,6 +8,7 @@ import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -239,6 +240,12 @@ data class WorkspaceGqlDto(
                 )
             }
     }
+
+    @GraphQLDescription("Returns a general tax by its ID if it belongs to this workspace, or null if not found.")
+    fun generalTax(
+        @GraphQLDescription("ID of the general tax.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadGeneralTaxByWorkspaceAndId(workspaceId = this.id, taxId = id)
 }
 
 @GraphQLName("Category")
