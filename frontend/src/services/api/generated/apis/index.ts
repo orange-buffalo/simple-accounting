@@ -14,4 +14,3 @@ export * from './StatisticsApiApi';
 export * from './UserActivationTokensApiApi';
 export * from './UsersApiApi';
 export * from './WorkspaceAccessTokensApiApi';
-export * from './WorkspacesApiApi';

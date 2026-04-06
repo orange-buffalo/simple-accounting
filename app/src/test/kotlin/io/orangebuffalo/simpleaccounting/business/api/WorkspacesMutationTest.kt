@@ -317,8 +317,18 @@ class WorkspacesMutationTest(
         @DisplayName("Inputs Validation")
         @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         inner class InputsValidation {
-            fun testCases() = mustNotBeBlankTestCases("token") { value ->
+            fun testCases() = mustNotBeBlankTestCases("token", boundarySetup = ::setupBoundaryData) { value ->
                 saveSharedWorkspaceMutation(token = value)
+            }
+
+            private fun setupBoundaryData() {
+                preconditions {
+                    workspaceAccessToken(
+                        workspace = preconditions.fryWorkspace,
+                        token = "a",
+                        validTill = MOCK_TIME.plusSeconds(10000),
+                    )
+                }
             }
 
             @ParameterizedTest(name = "{0}")
