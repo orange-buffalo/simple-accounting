@@ -17,7 +17,7 @@ const userProfileQuery = graphql(/* GraphQL */ `
 `);
 
 export async function bootstrapApp() {
-  const { tryAutoLogin } = useAuth();
+  const { tryAutoLogin, isAdmin } = useAuth();
   const targetRoute = window.location.pathname;
 
   const {
@@ -48,7 +48,9 @@ export async function bootstrapApp() {
         .push(targetRoute);
     }
 
-    await initWorkspace();
+    if (!isAdmin()) {
+      await initWorkspace();
+    }
   } else {
     await setLocaleFromBrowser();
 

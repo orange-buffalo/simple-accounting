@@ -33,7 +33,6 @@ class WorkspacesQueryTest(
                 expense(title = "Spaceship parts", workspace = it, category = null)
             }
             val zoidberg = zoidberg().withWorkspace()
-            val farnsworth = farnsworth()
             val workspaceToken = workspaceAccessToken(
                 workspace = fryWorkspace,
                 validTill = MOCK_TIME.plusSeconds(10000),
@@ -71,22 +70,6 @@ class WorkspacesQueryTest(
                 .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
                 .executeAndVerifyNotAuthorized(
                     path = DgsConstants.QUERY.Workspaces,
-                )
-        }
-
-        @Test
-        fun `should allow admin user access and return empty workspaces`() {
-            client.graphql {
-                workspaces(first = 10) {
-                    edges {
-                        node { name }
-                    }
-                    totalCount
-                }
-            }
-                .from(preconditions.farnsworth)
-                .executeAndVerifyResponse(
-                    "workspaces" to workspacesConnection(totalCount = 0)
                 )
         }
     }
