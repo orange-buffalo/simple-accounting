@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -73,6 +74,11 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
                         put("accessToken", "jwtTokenForSharedWorkspace")
+                        putJsonObject("workspace") {
+                            put("id", preconditions.fryWorkspace.id)
+                            put("name", preconditions.fryWorkspace.name)
+                            put("defaultCurrency", preconditions.fryWorkspace.defaultCurrency)
+                        }
                     }
                 )
         }
@@ -127,6 +133,11 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateAccessTokenByWorkspaceAccessToken to buildJsonObject {
                         put("accessToken", "jwtTokenForSharedWorkspace")
+                        putJsonObject("workspace") {
+                            put("id", preconditions.fryWorkspace.id)
+                            put("name", preconditions.fryWorkspace.name)
+                            put("defaultCurrency", preconditions.fryWorkspace.defaultCurrency)
+                        }
                     }
                 )
         }
@@ -174,5 +185,10 @@ class CreateAccessTokenByWorkspaceAccessTokenMutationTest(
         workspaceAccessToken = workspaceAccessToken
     ) {
         accessToken
+        workspace {
+            id
+            name
+            defaultCurrency
+        }
     }
 }

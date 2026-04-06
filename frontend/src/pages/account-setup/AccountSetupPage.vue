@@ -26,23 +26,39 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import { CreateWorkspaceDto, workspacesApi } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import { useWorkspaces } from '@/services/workspaces.ts';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api';
 
-  const form = ref<CreateWorkspaceDto>({
+  interface CreateWorkspaceForm {
+    name: string;
+    defaultCurrency: string;
+  }
+
+  const form = ref<CreateWorkspaceForm>({
     name: '',
     defaultCurrency: 'AUD',
   });
 
+  const createWorkspaceMutation = graphql(`
+    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {
+      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
+        id
+        name
+        defaultCurrency
+      }
+    }
+  `);
+
+  const executeCreate = useMutation(createWorkspaceMutation, 'createWorkspace');
+
   const navigation = useNavigation();
   const save = async () => {
-    await workspacesApi.createWorkspace({
-      createWorkspaceDto: form.value,
-    });
+    await executeCreate({ name: form.value.name, defaultCurrency: form.value.defaultCurrency });
     await useWorkspaces().loadWorkspaces();
     await navigation.navigateByPath('/');
   };

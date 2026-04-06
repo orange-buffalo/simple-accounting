@@ -121,7 +121,6 @@
         id: props.workspace.id,
         name: props.workspace.name,
         defaultCurrency: props.workspace.defaultCurrency,
-        version: 0,
         editable: true,
       });
     navigateByPath('/');

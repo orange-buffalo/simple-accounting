@@ -1,20 +1,51 @@
-import type { WorkspaceDto } from '@/services/api';
-import { workspacesApi } from '@/services/api';
 import { useStorage } from '@/services/storage';
 import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
+import { graphql } from '@/services/api/gql';
+import { gqlClient } from '@/services/api/gql-api-client.ts';
 
-let currentWorkspace: WorkspaceDto | null;
-let workspaces: WorkspaceDto[];
+export interface WorkspaceInfo {
+  id: number;
+  name: string;
+  defaultCurrency: string;
+  editable: boolean;
+}
+
+let currentWorkspace: WorkspaceInfo | null;
+let workspaces: WorkspaceInfo[];
 const storage = useStorage<number>('current-workspace');
 
-function setCurrentWorkspace(workspace: WorkspaceDto) {
+const allWorkspacesQuery = graphql(`
+  query allWorkspaces($first: Int!) {
+    workspaces(first: $first) {
+      edges {
+        node {
+          id
+          name
+          defaultCurrency
+        }
+      }
+    }
+  }
+`);
+
+const workspaceByIdQuery = graphql(`
+  query workspaceById($id: Long!) {
+    workspace(id: $id) {
+      id
+      name
+      defaultCurrency
+    }
+  }
+`);
+
+function setCurrentWorkspace(workspace: WorkspaceInfo) {
   if (workspace.id == null) throw new Error('Invalid workspace provided');
   currentWorkspace = workspace;
   storage.set(workspace.id);
   WORKSPACE_CHANGED_EVENT.emit(currentWorkspace);
 }
 
-function createWorkspace(workspace: WorkspaceDto) {
+function createWorkspace(workspace: WorkspaceInfo) {
   workspaces.push(workspace);
   setCurrentWorkspace(workspace);
 }
@@ -24,7 +55,8 @@ function createWorkspace(workspace: WorkspaceDto) {
  * Otherwise, sets the current workspace and return `true`.
  */
 async function loadWorkspaces(): Promise<boolean> {
-  workspaces = await workspacesApi.getWorkspaces();
+  const data = await gqlClient.query(allWorkspacesQuery, { first: 500 });
+  workspaces = data.workspaces.edges.map((e) => ({ ...e.node, editable: true }));
 
   if (workspaces.length > 0) {
     const previousWsId = storage.getOrNull();
@@ -32,8 +64,12 @@ async function loadWorkspaces(): Promise<boolean> {
       currentWorkspace = workspaces.find((it) => it.id === previousWsId) || null;
 
       if (!currentWorkspace) {
-        const sharedWorkspaces = await workspacesApi.getSharedWorkspaces();
-        currentWorkspace = sharedWorkspaces.find((it) => it.id === previousWsId) || null;
+        try {
+          const wsData = await gqlClient.query(workspaceByIdQuery, { id: previousWsId });
+          currentWorkspace = { ...wsData.workspace, editable: false };
+        } catch {
+          currentWorkspace = null;
+        }
       }
     }
 
@@ -78,3 +114,4 @@ export async function initWorkspace(): Promise<boolean> {
   return useWorkspaces()
     .loadWorkspaces();
 }
+

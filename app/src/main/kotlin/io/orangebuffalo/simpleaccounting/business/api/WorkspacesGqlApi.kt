@@ -288,3 +288,10 @@ data class ExpenseGqlDto(
         return env.loadCategoryById(catId)
     }
 }
+
+
+internal fun io.orangebuffalo.simpleaccounting.business.workspaces.Workspace.toWorkspaceGqlDto() = WorkspaceGqlDto(
+    id = id!!,
+    name = name,
+    defaultCurrency = defaultCurrency,
+)

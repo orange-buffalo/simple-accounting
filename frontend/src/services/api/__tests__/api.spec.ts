@@ -15,7 +15,7 @@ import {
   ResourceNotFoundError,
 } from '@/services/api/api-errors';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import type { WorkspacesApiApi } from '@/services/api/generated/apis/WorkspacesApiApi';
+import type { UsersApiApi } from '@/services/api/generated/apis/UsersApiApi';
 import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
@@ -33,7 +33,7 @@ describe('API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let workspacesApi: WorkspacesApiApi;
+  let usersApi: UsersApiApi;
   let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
   const assertRegularRequestEvents = () => {
@@ -45,11 +45,16 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   };
 
-  const apiCall = async (initOverrides?: RequestInit) => workspacesApi.getWorkspaces(initOverrides);
-  const apiCallPath = '/api/workspaces';
+  const apiCall = async (initOverrides?: RequestInit) => usersApi.getUsers({}, initOverrides);
+  const apiCallPath = '/api/users';
 
   test('does not set Authorization token when not logged in', async () => {
-    fetchMock.get(apiCallPath, []);
+    fetchMock.get(apiCallPath, {
+      data: [],
+      pageNumber: 0,
+      totalElements: 0,
+      pageSize: 10,
+    });
 
     await apiCall();
 
@@ -63,9 +68,12 @@ describe('API Client', () => {
       data: { refreshAccessToken: { accessToken: TOKEN } },
     });
 
-    fetchMock.get(apiCallPath, [
-      { id: 1, name: 'testWorkspace' },
-    ], {
+    fetchMock.get(apiCallPath, {
+      data: [{ id: 1, userName: 'testUser', isAdmin: false, activated: true }],
+      pageNumber: 0,
+      totalElements: 1,
+      pageSize: 1,
+    }, {
       headers: {
         Authorization: `Bearer ${TOKEN}`,
       },
@@ -83,8 +91,8 @@ describe('API Client', () => {
     const response = await apiCall();
     expect(response)
       .toBeDefined();
-    expect(response[0].name)
-      .toEqual('testWorkspace');
+    expect(response.data[0].userName)
+      .toEqual('testUser');
   });
 
   test('tries autologin when 401 is received for a request', async () => {
@@ -93,9 +101,12 @@ describe('API Client', () => {
       return new Headers(options.headers).get('Authorization')
         ? {
           status: 200,
-          body: [
-            { id: 1, name: 'someWorkspace' },
-          ],
+          body: JSON.stringify({
+            data: [{ id: 1, userName: 'someUser', isAdmin: false, activated: true }],
+            pageNumber: 0,
+            totalElements: 1,
+            pageSize: 1,
+          }),
         } : {
           status: 401,
         };
@@ -106,8 +117,8 @@ describe('API Client', () => {
 
     const response = await apiCall();
 
-    expect(response[0].name)
-      .eq('someWorkspace');
+    expect(response.data[0].userName)
+      .eq('someUser');
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
     const calls = fetchMock.callHistory.calls();
@@ -141,7 +152,12 @@ describe('API Client', () => {
   });
 
   test('fires events on successful responses', async () => {
-    fetchMock.get(apiCallPath, []);
+    fetchMock.get(apiCallPath, {
+      data: [],
+      pageNumber: 0,
+      totalElements: 0,
+      pageSize: 10,
+    });
 
     await apiCall();
 
@@ -328,7 +344,7 @@ describe('API Client', () => {
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     ({
       useAuth,
-      workspacesApi,
+      usersApi,
       useRequestConfig,
     } = await import('@/services/api'));
   });

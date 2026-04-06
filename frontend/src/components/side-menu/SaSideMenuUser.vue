@@ -78,15 +78,15 @@
   import { onUnmounted, ref } from 'vue';
   import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
   import { useAuth } from '@/services/api';
-  import type { WorkspaceDto } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import type { WorkspaceInfo } from '@/services/workspaces';
   import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
   import { $t } from '@/services/i18n';
 
   const { isCurrentUserRegular } = useAuth();
 
   const currentWorkspace = ref(useCurrentWorkspace().currentWorkspace);
-  const onWorkspaceChange = (newWorkspace: WorkspaceDto) => {
+  const onWorkspaceChange = (newWorkspace: WorkspaceInfo) => {
     currentWorkspace.value = newWorkspace;
   };
   WORKSPACE_CHANGED_EVENT.subscribe(onWorkspaceChange);

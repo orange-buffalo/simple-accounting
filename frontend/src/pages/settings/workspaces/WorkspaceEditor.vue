@@ -54,13 +54,14 @@
   import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import type { PartialBy } from '@/services/utils';
-  import type { CreateWorkspaceDto, EditWorkspaceDto } from '@/services/api';
-  import { workspacesApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
   import { useForm } from '@/components/form/use-form';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
 
-  type WorkspaceForm = PartialBy<CreateWorkspaceDto, 'name' | 'defaultCurrency'>;
+  interface WorkspaceForm {
+    name?: string;
+    defaultCurrency?: string;
+  }
 
   const props = defineProps<{
     id?: number,
@@ -72,14 +73,39 @@
 
   const workspaceData = ref<WorkspaceForm>({});
 
-  const loadWorkspace = async () => {
-    if (isEditing) {
-      // todo #462: get by id
-      const response = await workspacesApi.getWorkspaces();
-      const workspace = response.find((it) => it.id === props.id);
-      workspaceData.value = { ...workspace };
+  const workspaceQuery = graphql(`
+    query workspaceForEditor($id: Long!) {
+      workspace(id: $id) {
+        id
+        name
+        defaultCurrency
+      }
     }
-  };
+  `);
+
+  const createWorkspaceMutation = graphql(`
+    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {
+      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
+        id
+        name
+        defaultCurrency
+      }
+    }
+  `);
+
+  const editWorkspaceMutation = graphql(`
+    mutation editWorkspaceEditor($id: Long!, $name: String!) {
+      editWorkspace(id: $id, name: $name) {
+        id
+        name
+        defaultCurrency
+      }
+    }
+  `);
+
+  const loadWorkspace = useLazyQuery(workspaceQuery, 'workspace');
+  const executeCreate = useMutation(createWorkspaceMutation, 'createWorkspace');
+  const executeEdit = useMutation(editWorkspaceMutation, 'editWorkspace');
 
   const { navigateByViewName } = useNavigation();
   const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
@@ -102,26 +128,29 @@
     },
   };
 
+  const initForm = async () => {
+    if (isEditing) {
+      const workspace = await loadWorkspace({ id: props.id! });
+      workspaceData.value = { name: workspace.name, defaultCurrency: workspace.defaultCurrency };
+    }
+  };
+
   const saveWorkspace = async () => {
     if (props.id !== undefined) {
-      await workspacesApi.editWorkspace({
-        workspaceId: ensureDefined(props.id),
-        editWorkspaceDto: workspaceData.value as EditWorkspaceDto,
-      });
+      await executeEdit({ id: props.id, name: workspaceData.value.name! });
     } else {
-      await workspacesApi.createWorkspace({
-        createWorkspaceDto: workspaceData.value as CreateWorkspaceDto,
+      await executeCreate({
+        name: workspaceData.value.name!,
+        defaultCurrency: workspaceData.value.defaultCurrency!,
       });
     }
 
-    await useWorkspaces()
-      .loadWorkspaces();
-
+    await useWorkspaces().loadWorkspaces();
     await navigateToWorkspacesOverview();
   };
 
   const {
     formRef,
     submitForm,
-  } = useForm(loadWorkspace, saveWorkspace);
+  } = useForm(initForm, saveWorkspace);
 </script>

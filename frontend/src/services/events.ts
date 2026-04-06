@@ -1,4 +1,4 @@
-import type { WorkspaceDto } from '@/services/api';
+import type { WorkspaceInfo } from '@/services/workspaces';
 
 export type Listener<T> = (data: T) => void;
 
@@ -36,4 +36,4 @@ export const SUCCESSFUL_LOGIN_EVENT: Event<void> = new EventImpl();
 export const LOADING_STARTED_EVENT: Event<void> = new EventImpl();
 export const LOADING_FINISHED_EVENT: Event<void> = new EventImpl();
 
-export const WORKSPACE_CHANGED_EVENT: Event<WorkspaceDto> = new EventImpl();
+export const WORKSPACE_CHANGED_EVENT: Event<WorkspaceInfo> = new EventImpl();
