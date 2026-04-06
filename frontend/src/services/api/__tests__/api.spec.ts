@@ -49,7 +49,12 @@ describe('API Client', () => {
   const apiCallPath = '/api/users';
 
   test('does not set Authorization token when not logged in', async () => {
-    fetchMock.get(apiCallPath, []);
+    fetchMock.get(apiCallPath, {
+      data: [],
+      pageNumber: 0,
+      totalElements: 0,
+      pageSize: 10,
+    });
 
     await apiCall();
 
@@ -147,7 +152,12 @@ describe('API Client', () => {
   });
 
   test('fires events on successful responses', async () => {
-    fetchMock.get(apiCallPath, []);
+    fetchMock.get(apiCallPath, {
+      data: [],
+      pageNumber: 0,
+      totalElements: 0,
+      pageSize: 10,
+    });
 
     await apiCall();
 
