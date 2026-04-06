@@ -130,6 +130,8 @@ type CreateAccessTokenByCredentialsResponse {
 type CreateAccessTokenByWorkspaceAccessTokenResponse {
   "The JWT access token for the authenticated user."
   accessToken: String!
+  "The workspace that the access token grants access to."
+  workspace: Workspace!
 }
 
 "A customer in a workspace."
@@ -489,7 +491,7 @@ type Query {
     after: String,
     "The maximum number of items to return."
     first: Int! @max(value : 500) @min(value : 1)
-  ): WorkspacesConnection! @auth(type : AUTHENTICATED_ACTOR)
+  ): WorkspacesConnection! @auth(type : REGULAR_USER)
 }
 
 "Response for refreshing access token."

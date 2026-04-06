@@ -76,8 +76,4 @@ class WorkspacesMutation(
     ): WorkspaceGqlDto = workspacesService.saveSharedWorkspace(token).toWorkspaceGqlDto()
 }
 
-private fun Workspace.toWorkspaceGqlDto() = WorkspaceGqlDto(
-    id = id!!,
-    name = name,
-    defaultCurrency = defaultCurrency,
-)
+

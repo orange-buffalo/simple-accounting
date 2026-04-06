@@ -156,6 +156,11 @@ const loginBySharedTokenMutation = graphql(/* GraphQL */ `
       workspaceAccessToken: $workspaceAccessToken
     ) {
       accessToken
+      workspace {
+        id
+        name
+        defaultCurrency
+      }
     }
   }
 `);
@@ -170,13 +175,13 @@ async function loginBySharedToken(sharedToken: string) {
 
     updateApiToken(data.createAccessTokenByWorkspaceAccessToken.accessToken);
 
-    return true;
+    return data.createAccessTokenByWorkspaceAccessToken.workspace;
   } catch (error: any) {
     const errorCode = handleGqlApiBusinessError<
       CreateAccessTokenByWorkspaceAccessTokenErrorCodes
     >(error);
     if (errorCode === CreateAccessTokenByWorkspaceAccessTokenErrorCodes.InvalidWorkspaceAccessToken) {
-      return false;
+      return null;
     }
     throw error;
   }
@@ -203,7 +208,7 @@ export interface Auth {
 
   isCurrentUserRegular(): boolean;
 
-  loginBySharedToken: (sharedToken: string) => Promise<boolean>;
+  loginBySharedToken: (sharedToken: string) => Promise<{ id: number; name: string; defaultCurrency: string; } | null>;
 }
 
 export function useAuth(): Auth {

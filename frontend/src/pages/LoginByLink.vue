@@ -24,7 +24,7 @@
 
 <script lang="ts" setup>
   import { onMounted, ref } from 'vue';
-  import { initWorkspace, useWorkspaces } from '@/services/workspaces';
+  import { useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { useAuth } from '@/services/api';
   import { $t } from '@/services/i18n';
@@ -75,9 +75,13 @@
         setCurrentWorkspace({ ...sharedWorkspace, editable: false });
         await loadWorkspaces();
         loginSuccessful = true;
-      } else if (await loginBySharedToken(props.token)) {
-        await initWorkspace();
-        loginSuccessful = true;
+      } else {
+        const workspace = await loginBySharedToken(props.token);
+        if (workspace) {
+          const { setCurrentWorkspace } = useWorkspaces();
+          setCurrentWorkspace({ ...workspace, editable: false });
+          loginSuccessful = true;
+        }
       }
 
       if (loginSuccessful) {
