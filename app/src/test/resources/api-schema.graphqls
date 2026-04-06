@@ -437,6 +437,11 @@ type Mutation {
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
+  "Saves a shared workspace to the current user's list using an access token."
+  saveSharedWorkspace(
+    "The workspace access token."
+    token: String! @notBlank
+  ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
@@ -669,6 +674,12 @@ enum SaGrapQlErrorType {
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
   NOT_AUTHORIZED
+}
+
+"Possible business error codes for the saveSharedWorkspace operation."
+enum SaveSharedWorkspaceErrorCodes {
+  "The provided workspace access token is not valid (unknown, expired, or revoked)."
+  INVALID_WORKSPACE_ACCESS_TOKEN
 }
 
 "Error codes for validation failures, matching REST API constraint violation error keys."

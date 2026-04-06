@@ -21,6 +21,8 @@ type Documents = {
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": typeof types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsStorageStatusDocument,
     "\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n": typeof types.PaginationPageInfoFragmentDoc,
+    "\n    mutation saveSharedWorkspaceLoginByLink($token: String!) {\n      saveSharedWorkspace(token: $token) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": typeof types.SaveSharedWorkspaceLoginByLinkDocument,
+    "\n    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": typeof types.CreateWorkspaceAccountSetupDocument,
     "\n    query documentsPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        documents(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              name\n              timeUploaded\n              storageId\n              usedBy {\n                type\n                relatedEntityId\n                displayName\n              }\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.DocumentsPageDocument,
     "\n    query incomeTaxPaymentsPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        incomeTaxPayments(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              title\n              datePaid\n              reportingDate\n              amount\n              attachments\n              notes\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.IncomeTaxPaymentsPageDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": typeof types.UserProfileLoginDocument,
@@ -39,10 +41,15 @@ type Documents = {
     "\n    mutation createGeneralTaxMutation(\n      $workspaceId: Long!,\n      $title: String!,\n      $description: String,\n      $rateInBps: Int!\n    ) {\n      createGeneralTax(\n        workspaceId: $workspaceId,\n        title: $title,\n        description: $description,\n        rateInBps: $rateInBps\n      ) {\n        id\n      }\n    }\n  ": typeof types.CreateGeneralTaxMutationDocument,
     "\n    mutation editGeneralTaxMutation(\n      $workspaceId: Long!,\n      $id: Long!,\n      $title: String!,\n      $description: String,\n      $rateInBps: Int!\n    ) {\n      editGeneralTax(\n        workspaceId: $workspaceId,\n        id: $id,\n        title: $title,\n        description: $description,\n        rateInBps: $rateInBps\n      ) {\n        id\n      }\n    }\n  ": typeof types.EditGeneralTaxMutationDocument,
     "\n    query generalTaxesPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              title\n              description\n              rateInBps\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.GeneralTaxesPageDocument,
+    "\n    query workspaceForEditor($id: Long!) {\n      workspace(id: $id) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": typeof types.WorkspaceForEditorDocument,
+    "\n    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": typeof types.CreateWorkspaceEditorDocument,
+    "\n    mutation editWorkspaceEditor($id: Long!, $name: String!) {\n      editWorkspace(id: $id, name: $name) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": typeof types.EditWorkspaceEditorDocument,
     "\n    query workspacesPage($first: Int!, $after: String) {\n      workspaces(first: $first, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            name\n            defaultCurrency\n          }\n        }\n        pageInfo {\n          ...PaginationPageInfo\n        }\n        totalCount\n      }\n    }\n  ": typeof types.WorkspacesPageDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": typeof types.RefreshAccessTokenDocument,
     "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": typeof types.CreateAccessTokenByCredentialsDocument,
     "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n    }\n  }\n": typeof types.CreateAccessTokenByWorkspaceAccessTokenDocument,
+    "\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n": typeof types.AllWorkspacesDocument,
+    "\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n": typeof types.WorkspaceByIdDocument,
     "\n  query userProfileBootstrap {\n    userProfile {\n      i18n {\n        language\n        locale\n      }\n    }\n  }\n": typeof types.UserProfileBootstrapDocument,
 };
 const documents: Documents = {
@@ -53,6 +60,8 @@ const documents: Documents = {
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": types.GoogleDriveStorageIntegrationStatusDocument,
     "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsStorageStatusDocument,
     "\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n": types.PaginationPageInfoFragmentDoc,
+    "\n    mutation saveSharedWorkspaceLoginByLink($token: String!) {\n      saveSharedWorkspace(token: $token) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": types.SaveSharedWorkspaceLoginByLinkDocument,
+    "\n    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": types.CreateWorkspaceAccountSetupDocument,
     "\n    query documentsPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        documents(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              name\n              timeUploaded\n              storageId\n              usedBy {\n                type\n                relatedEntityId\n                displayName\n              }\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.DocumentsPageDocument,
     "\n    query incomeTaxPaymentsPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        incomeTaxPayments(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              title\n              datePaid\n              reportingDate\n              amount\n              attachments\n              notes\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.IncomeTaxPaymentsPageDocument,
     "\n    query userProfileLogin {\n      userProfile {\n        i18n {\n          language\n          locale\n        }\n      }\n    }\n  ": types.UserProfileLoginDocument,
@@ -71,10 +80,15 @@ const documents: Documents = {
     "\n    mutation createGeneralTaxMutation(\n      $workspaceId: Long!,\n      $title: String!,\n      $description: String,\n      $rateInBps: Int!\n    ) {\n      createGeneralTax(\n        workspaceId: $workspaceId,\n        title: $title,\n        description: $description,\n        rateInBps: $rateInBps\n      ) {\n        id\n      }\n    }\n  ": types.CreateGeneralTaxMutationDocument,
     "\n    mutation editGeneralTaxMutation(\n      $workspaceId: Long!,\n      $id: Long!,\n      $title: String!,\n      $description: String,\n      $rateInBps: Int!\n    ) {\n      editGeneralTax(\n        workspaceId: $workspaceId,\n        id: $id,\n        title: $title,\n        description: $description,\n        rateInBps: $rateInBps\n      ) {\n        id\n      }\n    }\n  ": types.EditGeneralTaxMutationDocument,
     "\n    query generalTaxesPage($workspaceId: Long!, $first: Int!, $after: String) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: $first, after: $after) {\n          edges {\n            cursor\n            node {\n              id\n              title\n              description\n              rateInBps\n            }\n          }\n          pageInfo {\n            ...PaginationPageInfo\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.GeneralTaxesPageDocument,
+    "\n    query workspaceForEditor($id: Long!) {\n      workspace(id: $id) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": types.WorkspaceForEditorDocument,
+    "\n    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": types.CreateWorkspaceEditorDocument,
+    "\n    mutation editWorkspaceEditor($id: Long!, $name: String!) {\n      editWorkspace(id: $id, name: $name) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  ": types.EditWorkspaceEditorDocument,
     "\n    query workspacesPage($first: Int!, $after: String) {\n      workspaces(first: $first, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            name\n            defaultCurrency\n          }\n        }\n        pageInfo {\n          ...PaginationPageInfo\n        }\n        totalCount\n      }\n    }\n  ": types.WorkspacesPageDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": types.RefreshAccessTokenDocument,
     "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": types.CreateAccessTokenByCredentialsDocument,
     "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n    }\n  }\n": types.CreateAccessTokenByWorkspaceAccessTokenDocument,
+    "\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n": types.AllWorkspacesDocument,
+    "\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n": types.WorkspaceByIdDocument,
     "\n  query userProfileBootstrap {\n    userProfile {\n      i18n {\n        language\n        locale\n      }\n    }\n  }\n": types.UserProfileBootstrapDocument,
 };
 
@@ -120,6 +134,14 @@ export function graphql(source: "\n    query documentsStorageStatus {\n      doc
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n"): (typeof documents)["\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation saveSharedWorkspaceLoginByLink($token: String!) {\n      saveSharedWorkspace(token: $token) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "): (typeof documents)["\n    mutation saveSharedWorkspaceLoginByLink($token: String!) {\n      saveSharedWorkspace(token: $token) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "): (typeof documents)["\n    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -195,6 +217,18 @@ export function graphql(source: "\n    query generalTaxesPage($workspaceId: Long
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n    query workspaceForEditor($id: Long!) {\n      workspace(id: $id) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "): (typeof documents)["\n    query workspaceForEditor($id: Long!) {\n      workspace(id: $id) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "): (typeof documents)["\n    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {\n      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation editWorkspaceEditor($id: Long!, $name: String!) {\n      editWorkspace(id: $id, name: $name) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "): (typeof documents)["\n    mutation editWorkspaceEditor($id: Long!, $name: String!) {\n      editWorkspace(id: $id, name: $name) {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n    query workspacesPage($first: Int!, $after: String) {\n      workspaces(first: $first, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            name\n            defaultCurrency\n          }\n        }\n        pageInfo {\n          ...PaginationPageInfo\n        }\n        totalCount\n      }\n    }\n  "): (typeof documents)["\n    query workspacesPage($first: Int!, $after: String) {\n      workspaces(first: $first, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            name\n            defaultCurrency\n          }\n        }\n        pageInfo {\n          ...PaginationPageInfo\n        }\n        totalCount\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -208,6 +242,14 @@ export function graphql(source: "\n  mutation createAccessTokenByCredentials(\n 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n    }\n  }\n"): (typeof documents)["\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n"): (typeof documents)["\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

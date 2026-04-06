@@ -26,9 +26,11 @@
   import { onMounted, ref } from 'vue';
   import { initWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, workspacesApi } from '@/services/api';
+  import { useAuth } from '@/services/api';
   import { $t } from '@/services/i18n';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api';
 
   const props = defineProps<{
     token?: string,
@@ -38,6 +40,18 @@
   const status = ref<Status>('LOADING');
 
   const { navigateByPath } = useNavigation();
+
+  const saveSharedWorkspaceMutation = graphql(`
+    mutation saveSharedWorkspaceLoginByLink($token: String!) {
+      saveSharedWorkspace(token: $token) {
+        id
+        name
+        defaultCurrency
+      }
+    }
+  `);
+
+  const executeSaveSharedWorkspace = useMutation(saveSharedWorkspaceMutation, 'saveSharedWorkspace');
 
   onMounted(async () => {
     if (props.token === undefined) {
@@ -52,17 +66,13 @@
     try {
       let loginSuccessful = false;
       if (isLoggedIn()) {
-        const workspace = await workspacesApi.saveSharedWorkspace({
-          saveSharedWorkspaceRequestDto: {
-            token: props.token,
-          },
-        });
+        const sharedWorkspace = await executeSaveSharedWorkspace({ token: props.token });
 
         const {
           loadWorkspaces,
           setCurrentWorkspace,
         } = useWorkspaces();
-        setCurrentWorkspace(workspace);
+        setCurrentWorkspace({ ...sharedWorkspace, editable: false });
         await loadWorkspaces();
         loginSuccessful = true;
       } else if (await loginBySharedToken(props.token)) {

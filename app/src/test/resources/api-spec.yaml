@@ -6,31 +6,6 @@ servers:
 - url: ""
   description: Generated server url
 paths:
-  /api/workspaces/{workspaceId}:
-    put:
-      tags:
-      - workspaces-api
-      operationId: editWorkspace
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EditWorkspaceDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WorkspaceDto"
   /api/workspaces/{workspaceId}/invoices/{invoiceId}:
     get:
       tags:
@@ -410,37 +385,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiUpdateUserErrors"
-  /api/workspaces:
-    get:
-      tags:
-      - workspaces-api
-      operationId: getWorkspaces
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/WorkspaceDto"
-    post:
-      tags:
-      - workspaces-api
-      operationId: createWorkspace
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateWorkspaceDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WorkspaceDto"
   /api/workspaces/{workspaceId}/workspace-access-tokens:
     get:
       tags:
@@ -1165,37 +1109,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserActivationTokensApiActivateUserErrors"
-  /api/shared-workspaces:
-    get:
-      tags:
-      - workspaces-api
-      operationId: getSharedWorkspaces
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/WorkspaceDto"
-    post:
-      tags:
-      - workspaces-api
-      operationId: saveSharedWorkspace
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SaveSharedWorkspaceRequestDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WorkspaceDto"
   /api/workspaces/{workspaceId}/statistics/incomes:
     get:
       tags:
@@ -1466,35 +1379,6 @@ paths:
                   $ref: "#/components/schemas/DataBuffer"
 components:
   schemas:
-    EditWorkspaceDto:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          minLength: 0
-      required:
-      - name
-    WorkspaceDto:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int32
-        name:
-          type: string
-        defaultCurrency:
-          type: string
-        editable:
-          type: boolean
-      required:
-      - defaultCurrency
-      - editable
-      - name
-      - version
     EditInvoiceDto:
       type: object
       properties:
@@ -2013,20 +1897,6 @@ components:
       - admin
       - userName
       - version
-    CreateWorkspaceDto:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          minLength: 0
-        defaultCurrency:
-          type: string
-          maxLength: 3
-          minLength: 0
-      required:
-      - defaultCurrency
-      - name
     CreateWorkspaceAccessTokenDto:
       type: object
       properties:
@@ -2125,14 +1995,6 @@ components:
           minLength: 0
       required:
       - password
-    SaveSharedWorkspaceRequestDto:
-      type: object
-      properties:
-        token:
-          type: string
-          minLength: 1
-      required:
-      - token
     ApiPageWorkspaceAccessTokenDto:
       type: object
       properties:
