@@ -62,23 +62,21 @@
       isLoggedIn,
       loginBySharedToken,
     } = useAuth();
+    const {
+      loadWorkspaces,
+      setCurrentWorkspace,
+    } = useWorkspaces();
 
     try {
       let loginSuccessful = false;
       if (isLoggedIn()) {
         const sharedWorkspace = await executeSaveSharedWorkspace({ token: props.token });
-
-        const {
-          loadWorkspaces,
-          setCurrentWorkspace,
-        } = useWorkspaces();
         setCurrentWorkspace({ ...sharedWorkspace, editable: false });
         await loadWorkspaces();
         loginSuccessful = true;
       } else {
         const workspace = await loginBySharedToken(props.token);
         if (workspace) {
-          const { setCurrentWorkspace } = useWorkspaces();
           setCurrentWorkspace({ ...workspace, editable: false });
           loginSuccessful = true;
         }
