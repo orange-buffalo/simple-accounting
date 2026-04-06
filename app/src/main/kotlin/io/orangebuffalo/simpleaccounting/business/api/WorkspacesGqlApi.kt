@@ -12,14 +12,11 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesBy
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
-import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
@@ -37,7 +34,7 @@ class WorkspacesQuery(
 ) : Query {
     @Suppress("unused")
     @GraphQLDescription("Returns all workspaces accessible by the current user with cursor-based pagination.")
-    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
+    @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun workspaces(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
@@ -45,26 +42,6 @@ class WorkspacesQuery(
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
     ): ConnectionGqlDto<WorkspaceGqlDto> {
-        val currentPrincipal = getCurrentPrincipal()
-        if (currentPrincipal.isTransient) {
-            val workspace = workspacesService.getWorkspaceByValidAccessToken(currentPrincipal.userName)
-            val dto = WorkspaceGqlDto(
-                id = workspace.id!!,
-                name = workspace.name,
-                defaultCurrency = workspace.defaultCurrency,
-            )
-            val cursor = workspace.id.toString()
-            return ConnectionGqlDto(
-                edges = listOf(EdgeGqlDto(cursor = cursor, node = dto)),
-                pageInfo = PageInfoGqlDto(
-                    startCursor = cursor,
-                    endCursor = cursor,
-                    hasPreviousPage = false,
-                    hasNextPage = false,
-                ),
-                totalCount = 1,
-            )
-        }
         val workspace = Tables.WORKSPACE
         return paginationService.forTable(workspace)
             .applyCurrentUserFiltering { user -> workspace.ownerId.eq(user.id) }
@@ -311,3 +288,10 @@ data class ExpenseGqlDto(
         return env.loadCategoryById(catId)
     }
 }
+
+
+internal fun io.orangebuffalo.simpleaccounting.business.workspaces.Workspace.toWorkspaceGqlDto() = WorkspaceGqlDto(
+    id = id!!,
+    name = name,
+    defaultCurrency = defaultCurrency,
+)

@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPr
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated
 class CreateAccessTokenByWorkspaceAccessTokenMutation(
     private val jwtService: JwtService,
     private val workspaceAccessTokensService: WorkspaceAccessTokensService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
     @Suppress("unused")
     @GraphQLDescription(
@@ -40,12 +42,18 @@ class CreateAccessTokenByWorkspaceAccessTokenMutation(
             createTransientUserPrincipal(token.token),
             token.validTill
         )
-        return CreateAccessTokenByWorkspaceAccessTokenResponse(accessToken = jwtToken)
+        val workspace = workspacesService.getWorkspace(token.workspaceId)
+        return CreateAccessTokenByWorkspaceAccessTokenResponse(
+            accessToken = jwtToken,
+            workspace = workspace.toWorkspaceGqlDto(),
+        )
     }
 
     @GraphQLDescription("Response for the createAccessTokenByWorkspaceAccessToken mutation.")
     data class CreateAccessTokenByWorkspaceAccessTokenResponse(
         @GraphQLDescription("The JWT access token for the authenticated user.")
         val accessToken: String,
+        @GraphQLDescription("The workspace that the access token grants access to.")
+        val workspace: WorkspaceGqlDto,
     )
 }
