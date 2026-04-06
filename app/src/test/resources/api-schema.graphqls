@@ -491,7 +491,7 @@ type Query {
     after: String,
     "The maximum number of items to return."
     first: Int! @max(value : 500) @min(value : 1)
-  ): WorkspacesConnection! @auth(type : REGULAR_USER)
+  ): WorkspacesConnection! @auth(type : AUTHENTICATED_USER)
 }
 
 "Response for refreshing access token."
