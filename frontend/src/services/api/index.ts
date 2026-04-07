@@ -4,7 +4,6 @@ export {
   statisticsApi,
   invoicesApi,
   documentsApi,
-  generalTaxesApi,
   expensesApi,
   incomesApi,
   incomeTaxPaymentsApi,

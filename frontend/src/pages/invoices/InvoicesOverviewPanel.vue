@@ -231,8 +231,10 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import type { InvoiceDto } from '@/services/api';
-  import { generalTaxesApi, invoicesApi } from '@/services/api';
+  import { invoicesApi } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     invoice: InvoiceDto
@@ -326,14 +328,24 @@
   const isGeneralTaxApplicable = computed(() => props.invoice.generalTax != null);
   const isForeignCurrency = computed(() => props.invoice.currency !== defaultCurrency);
 
+  const getGeneralTaxQuery = useLazyQuery(graphql(`
+    query getGeneralTaxForInvoice($workspaceId: Long!, $taxId: Long!) {
+      workspace(id: $workspaceId) {
+        generalTax(id: $taxId) {
+          rateInBps
+        }
+      }
+    }
+  `), 'workspace');
+
   const generalTaxRate = ref(0);
   watch(() => props.invoice.generalTax, async (taxId) => {
     if (taxId !== undefined) {
-      const generalTax = await generalTaxesApi.getTax({
+      const workspace = await getGeneralTaxQuery({
         workspaceId: currentWorkspaceId,
         taxId,
       });
-      generalTaxRate.value = generalTax.rateInBps;
+      generalTaxRate.value = workspace?.generalTax?.rateInBps ?? 0;
     }
   }, { immediate: true });
 </script>
