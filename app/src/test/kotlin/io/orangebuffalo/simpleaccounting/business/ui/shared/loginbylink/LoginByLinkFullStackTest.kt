@@ -18,11 +18,6 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
             queryOrMutationName = "createAccessTokenByWorkspaceAccessToken",
             initiator = {
                 page.navigateAndDisableAnimations("/login-by-link/${preconditions.validToken}")
-                page.shouldBeLoginByLinkPage {
-                    statusMessage {
-                        shouldBeRegular("We are verifying your access token...")
-                    }
-                }
             },
             blockedRequestSpec = {
                 page.shouldBeLoginByLinkPage {
