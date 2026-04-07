@@ -51,7 +51,9 @@
               datePaid
               reportingDate
               amount
-              attachments
+              attachments {
+                id
+              }
               notes
             }
           }

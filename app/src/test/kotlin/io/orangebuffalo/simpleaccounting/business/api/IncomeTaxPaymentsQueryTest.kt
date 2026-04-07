@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -408,7 +407,7 @@ class IncomeTaxPaymentsQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
-                            node { attachments }
+                            node { attachments { id; name } }
                         }
                     }
                 }
@@ -435,7 +434,7 @@ class IncomeTaxPaymentsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val doc = document(workspace = workspace)
+                    val doc = document(workspace = workspace, name = "Slurm delivery receipt")
                     val payment = incomeTaxPayment(workspace = workspace, title = "Slurm Tax", attachments = setOf(doc))
                 }
             }
@@ -443,7 +442,7 @@ class IncomeTaxPaymentsQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
-                            node { attachments }
+                            node { attachments { id; name } }
                         }
                     }
                 }
@@ -456,7 +455,10 @@ class IncomeTaxPaymentsQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
-                                            add(JsonPrimitive(testData.doc.id!!.toInt()))
+                                            add(buildJsonObject {
+                                                put("id", testData.doc.id!!.toInt())
+                                                put("name", "Slurm delivery receipt")
+                                            })
                                         }
                                     })
                                 })
@@ -485,7 +487,7 @@ class IncomeTaxPaymentsQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     incomeTaxPayments(first = 10) {
                         edges {
-                            node { attachments }
+                            node { attachments { id; name } }
                         }
                     }
                 }
@@ -498,8 +500,14 @@ class IncomeTaxPaymentsQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
-                                            add(JsonPrimitive(testData.doc1.id!!.toInt()))
-                                            add(JsonPrimitive(testData.doc2.id!!.toInt()))
+                                            add(buildJsonObject {
+                                                put("id", testData.doc1.id!!.toInt())
+                                                put("name", "Robot oil receipt")
+                                            })
+                                            add(buildJsonObject {
+                                                put("id", testData.doc2.id!!.toInt())
+                                                put("name", "Slurm delivery receipt")
+                                            })
                                         }
                                     })
                                 })

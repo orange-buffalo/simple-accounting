@@ -204,7 +204,7 @@ data class WorkspaceGqlDto(
                         reportingDate = record[incomeTaxPayment.reportingDate]!!,
                         amount = record[incomeTaxPayment.amount]!!,
                         notes = record[incomeTaxPayment.notes],
-                        attachments = emptyList(),
+                        attachmentIds = emptyList(),
                     )
                 },
                 postProcess = { records ->
@@ -218,7 +218,7 @@ data class WorkspaceGqlDto(
                             { it[attachmentsTable.documentId]!! },
                         )
                     records.map { dto ->
-                        dto.copy(attachments = attachmentsByPaymentId[dto.id] ?: emptyList())
+                        dto.copy(attachmentIds = attachmentsByPaymentId[dto.id] ?: emptyList())
                     }
                 },
             )
