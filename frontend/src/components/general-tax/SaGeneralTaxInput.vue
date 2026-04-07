@@ -19,7 +19,8 @@
 <script lang="ts" setup>
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { consumeAllPages, generalTaxesApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
     modelValue?: number,
@@ -29,11 +30,26 @@
 
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
+  const getGeneralTaxesQuery = useLazyQuery(graphql(`
+    query getGeneralTaxesForInput($workspaceId: Long!) {
+      workspace(id: $workspaceId) {
+        generalTaxes(first: 500) {
+          edges {
+            node {
+              id
+              title
+            }
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     value: generalTaxes,
     loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => generalTaxesApi.getTaxes({
-    ...pageRequest,
-    workspaceId,
-  })));
+  } = useValueLoadedByCurrentWorkspace(async (workspaceId) => {
+    const workspace = await getGeneralTaxesQuery({ workspaceId });
+    return workspace?.generalTaxes.edges.map((edge) => edge.node).sort((a, b) => a.title.localeCompare(b.title)) ?? [];
+  });
 </script>
