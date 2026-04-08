@@ -384,6 +384,23 @@ type Mutation {
     "ID of the workspace to create the general tax in."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Creates a new income tax payment in the specified workspace."
+  createIncomeTaxPayment(
+    "Amount of the tax payment in cents."
+    amount: Long!,
+    "IDs of documents attached to this income tax payment."
+    attachments: [Long!],
+    "Date when the tax payment was made."
+    datePaid: LocalDate!,
+    "Optional notes for the income tax payment."
+    notes: String @size(max : 1024, min : 0),
+    "Date used for reporting purposes. Defaults to datePaid if not specified."
+    reportingDate: LocalDate,
+    "Title of the income tax payment."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the income tax payment in."
+    workspaceId: Long!
+  ): IncomeTaxPayment! @auth(type : REGULAR_USER)
   "Creates a new workspace for the current user."
   createWorkspace(
     "Default currency code of the workspace (ISO 4217, 3 characters)."
@@ -428,6 +445,25 @@ type Mutation {
     "ID of the workspace the general tax belongs to."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Updates an existing income tax payment in the specified workspace."
+  editIncomeTaxPayment(
+    "New amount of the tax payment in cents."
+    amount: Long!,
+    "New IDs of documents attached to this income tax payment."
+    attachments: [Long!],
+    "New date when the tax payment was made."
+    datePaid: LocalDate!,
+    "ID of the income tax payment to update."
+    id: Long!,
+    "New optional notes for the income tax payment."
+    notes: String @size(max : 1024, min : 0),
+    "New date used for reporting purposes. Defaults to datePaid if not specified."
+    reportingDate: LocalDate,
+    "New title of the income tax payment."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the income tax payment belongs to."
+    workspaceId: Long!
+  ): IncomeTaxPayment! @auth(type : REGULAR_USER)
   "Updates an existing workspace."
   editWorkspace(
     "ID of the workspace to update."
@@ -587,6 +623,11 @@ type Workspace {
   ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Long!
+  "Returns an income tax payment by its ID if it belongs to this workspace, or null if not found."
+  incomeTaxPayment(
+    "ID of the income tax payment."
+    id: Long!
+  ): IncomeTaxPayment
   "Income tax payments in this workspace with cursor-based pagination."
   incomeTaxPayments(
     "Cursor after which to return items."

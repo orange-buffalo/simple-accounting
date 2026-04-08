@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCategoryBy
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadGeneralTaxByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadIncomeTaxPaymentByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -223,6 +224,12 @@ data class WorkspaceGqlDto(
                 },
             )
     }
+
+    @GraphQLDescription("Returns an income tax payment by its ID if it belongs to this workspace, or null if not found.")
+    fun incomeTaxPayment(
+        @GraphQLDescription("ID of the income tax payment.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadIncomeTaxPaymentByWorkspaceAndId(workspaceId = this.id, paymentId = id)
 
     @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")

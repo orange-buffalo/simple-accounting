@@ -517,6 +517,92 @@ class IncomeTaxPaymentsQueryTest(
                 )
         }
     }
+
+    @Nested
+    @DisplayName("incomeTaxPayment(id) query")
+    inner class IncomeTaxPaymentByIdQuery {
+
+    @Test
+    fun `should return income tax payment by id`() {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val payment = incomeTaxPayment(workspace = workspace, title = "Q1 Tax", amount = 50000)
+            }
+        }
+        client.graphql {
+            workspace(id = testData.workspace.id!!) {
+                incomeTaxPayment(id = testData.payment.id!!) {
+                    id
+                    title
+                    amount
+                }
+            }
+        }
+            .from(testData.fry)
+            .executeAndVerifyResponse(
+                "workspace" to buildJsonObject {
+                    put("incomeTaxPayment", buildJsonObject {
+                        put("id", testData.payment.id!!.toInt())
+                        put("title", "Q1 Tax")
+                        put("amount", 50000)
+                    })
+                }
+            )
+    }
+
+    @Test
+    fun `should return null for non-existent income tax payment`() {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+            }
+        }
+        client.graphql {
+            workspace(id = testData.workspace.id!!) {
+                incomeTaxPayment(id = Long.MAX_VALUE) {
+                    id
+                    title
+                }
+            }
+        }
+            .from(testData.fry)
+            .executeAndVerifyResponse(
+                "workspace" to buildJsonObject {
+                    put("incomeTaxPayment", null as String?)
+                }
+            )
+    }
+
+    @Test
+    fun `should return null for income tax payment in another workspace`() {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val fryWorkspace = workspace(owner = fry)
+                val zoidberg = zoidberg()
+                val zoidbergWorkspace = workspace(owner = zoidberg)
+                val zoidbergPayment = incomeTaxPayment(workspace = zoidbergWorkspace, title = "Zoidberg Tax")
+            }
+        }
+        client.graphql {
+            workspace(id = testData.fryWorkspace.id!!) {
+                incomeTaxPayment(id = testData.zoidbergPayment.id!!) {
+                    id
+                    title
+                }
+            }
+        }
+            .from(testData.fry)
+            .executeAndVerifyResponse(
+                "workspace" to buildJsonObject {
+                    put("incomeTaxPayment", null as String?)
+                }
+            )
+    }
+    }
 }
 
 private fun kotlinx.serialization.json.JsonArrayBuilder.incomeTaxPaymentEdge(title: String) {
