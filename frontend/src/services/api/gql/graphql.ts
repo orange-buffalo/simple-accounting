@@ -368,6 +368,8 @@ export type Mutation = {
   createCustomer: Customer;
   /** Creates a new general tax in the specified workspace. */
   createGeneralTax: GeneralTax;
+  /** Creates a new income tax payment in the specified workspace. */
+  createIncomeTaxPayment: IncomeTaxPayment;
   /** Creates a new workspace for the current user. */
   createWorkspace: Workspace;
   /** Updates an existing category in the specified workspace. */
@@ -376,6 +378,8 @@ export type Mutation = {
   editCustomer: Customer;
   /** Updates an existing general tax in the specified workspace. */
   editGeneralTax: GeneralTax;
+  /** Updates an existing income tax payment in the specified workspace. */
+  editIncomeTaxPayment: IncomeTaxPayment;
   /** Updates an existing workspace. */
   editWorkspace: Workspace;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
@@ -437,6 +441,17 @@ export type MutationCreateGeneralTaxArgs = {
 };
 
 
+export type MutationCreateIncomeTaxPaymentArgs = {
+  amount: Scalars['Long']['input'];
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  datePaid: Scalars['LocalDate']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationCreateWorkspaceArgs = {
   defaultCurrency: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -464,6 +479,18 @@ export type MutationEditGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Long']['input'];
   rateInBps: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditIncomeTaxPaymentArgs = {
+  amount: Scalars['Long']['input'];
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  datePaid: Scalars['LocalDate']['input'];
+  id: Scalars['Long']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
   title: Scalars['String']['input'];
   workspaceId: Scalars['Long']['input'];
 };
@@ -630,6 +657,8 @@ export type Workspace = {
   generalTaxes: GeneralTaxesConnection;
   /** ID of the workspace. */
   id: Scalars['Long']['output'];
+  /** Returns an income tax payment by its ID if it belongs to this workspace, or null if not found. */
+  incomeTaxPayment?: Maybe<IncomeTaxPayment>;
   /** Income tax payments in this workspace with cursor-based pagination. */
   incomeTaxPayments: IncomeTaxPaymentsConnection;
   /** Name of the workspace. */
@@ -680,6 +709,12 @@ export type WorkspaceGeneralTaxArgs = {
 export type WorkspaceGeneralTaxesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceIncomeTaxPaymentArgs = {
+  id: Scalars['Long']['input'];
 };
 
 
