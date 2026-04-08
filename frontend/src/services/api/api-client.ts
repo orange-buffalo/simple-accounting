@@ -7,7 +7,6 @@ import {
   DocumentsApiApi,
   ExpensesApiApi,
   IncomesApiApi,
-  IncomeTaxPaymentsApiApi,
   ReportingApiApi,
   WorkspaceAccessTokensApiApi,
   UsersApiApi,
@@ -38,7 +37,6 @@ export const invoicesApi = new InvoicesApiApi(defaultConfig);
 export const expensesApi = new ExpensesApiApi(defaultConfig);
 export const incomesApi = new IncomesApiApi(defaultConfig);
 export const documentsApi = new DocumentsApiApi(defaultConfig);
-export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiApi(defaultConfig);
 export const reportingApi = new ReportingApiApi(defaultConfig);
 export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);
