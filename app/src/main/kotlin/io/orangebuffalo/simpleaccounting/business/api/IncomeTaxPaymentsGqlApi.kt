@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadDocumentsByIds
 import java.time.LocalDate
 
 @GraphQLName("IncomeTaxPayment")
@@ -25,6 +28,11 @@ data class IncomeTaxPaymentGqlDto(
     @GraphQLDescription("Optional notes for the income tax payment.")
     val notes: String?,
 
-    @GraphQLDescription("IDs of documents attached to this income tax payment.")
-    val attachments: List<Long>,
-)
+    @GraphQLIgnore val attachmentIds: List<Long>,
+) {
+    @GraphQLDescription("Documents attached to this income tax payment.")
+    suspend fun attachments(env: DataFetchingEnvironment): List<DocumentGqlDto> {
+        if (attachmentIds.isEmpty()) return emptyList()
+        return env.loadDocumentsByIds(attachmentIds)
+    }
+}
