@@ -113,12 +113,10 @@
   import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditIncomeTaxPaymentDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
   import { formatDateToLocalISOString } from '@/services/date-utils';
-  import { incomeTaxPaymentsApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -147,7 +145,12 @@
     currentWorkspaceId,
   } = useCurrentWorkspace();
 
-  type TaxPaymentFormValues = PartialBy<EditIncomeTaxPaymentDto, 'amount' | 'title'> & {
+  type TaxPaymentFormValues = {
+    title?: string,
+    datePaid: string,
+    reportingDate?: string,
+    amount?: number,
+    notes?: string,
     attachments: Array<number>,
   };
 
@@ -156,29 +159,116 @@
     attachments: [],
   });
 
+  const getIncomeTaxPaymentQuery = useLazyQuery(graphql(`
+    query getIncomeTaxPaymentForEdit($workspaceId: Long!, $id: Long!) {
+      workspace(id: $workspaceId) {
+        incomeTaxPayment(id: $id) {
+          id
+          title
+          datePaid
+          reportingDate
+          amount
+          notes
+          attachments {
+            id
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadTaxPayment = async () => {
     if (props.id !== undefined) {
-      taxPayment.value = await incomeTaxPaymentsApi.getTaxPayment({
-        taxPaymentId: props.id,
+      const workspace = await getIncomeTaxPaymentQuery({
         workspaceId: currentWorkspaceId,
+        id: props.id,
       });
+      const loaded = workspace?.incomeTaxPayment;
+      if (loaded) {
+        taxPayment.value = {
+          title: loaded.title,
+          datePaid: loaded.datePaid,
+          reportingDate: loaded.reportingDate,
+          amount: loaded.amount,
+          notes: loaded.notes ?? undefined,
+          attachments: loaded.attachments.map((a) => a.id),
+        };
+      }
     }
   };
 
+  const createIncomeTaxPaymentMutation = useMutation(graphql(`
+    mutation createIncomeTaxPaymentMutation(
+      $workspaceId: Long!,
+      $title: String!,
+      $datePaid: LocalDate!,
+      $reportingDate: LocalDate,
+      $amount: Long!,
+      $notes: String,
+      $attachments: [Long!],
+    ) {
+      createIncomeTaxPayment(
+        workspaceId: $workspaceId,
+        title: $title,
+        datePaid: $datePaid,
+        reportingDate: $reportingDate,
+        amount: $amount,
+        notes: $notes,
+        attachments: $attachments,
+      ) {
+        id
+      }
+    }
+  `), 'createIncomeTaxPayment');
+
+  const editIncomeTaxPaymentMutation = useMutation(graphql(`
+    mutation editIncomeTaxPaymentMutation(
+      $workspaceId: Long!,
+      $id: Long!,
+      $title: String!,
+      $datePaid: LocalDate!,
+      $reportingDate: LocalDate,
+      $amount: Long!,
+      $notes: String,
+      $attachments: [Long!],
+    ) {
+      editIncomeTaxPayment(
+        workspaceId: $workspaceId,
+        id: $id,
+        title: $title,
+        datePaid: $datePaid,
+        reportingDate: $reportingDate,
+        amount: $amount,
+        notes: $notes,
+        attachments: $attachments,
+      ) {
+        id
+      }
+    }
+  `), 'editIncomeTaxPayment');
+
   const saveTaxPayment = async () => {
-    const request: EditIncomeTaxPaymentDto = {
-      ...(taxPayment.value as EditIncomeTaxPaymentDto),
-    };
+    const values = taxPayment.value as Required<TaxPaymentFormValues>;
     if (props.id) {
-      await incomeTaxPaymentsApi.updateTaxPayment({
+      await editIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
-        editIncomeTaxPaymentDto: request,
-        taxPaymentId: ensureDefined(props.id),
+        id: props.id,
+        title: values.title,
+        datePaid: values.datePaid,
+        reportingDate: values.reportingDate ?? null,
+        amount: values.amount,
+        notes: values.notes ?? null,
+        attachments: values.attachments,
       });
     } else {
-      await incomeTaxPaymentsApi.createTaxPayment({
+      await createIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
-        editIncomeTaxPaymentDto: request,
+        title: values.title,
+        datePaid: values.datePaid,
+        reportingDate: values.reportingDate ?? null,
+        amount: values.amount,
+        notes: values.notes ?? null,
+        attachments: values.attachments,
       });
     }
     await navigateToTaxPaymentsOverview();
