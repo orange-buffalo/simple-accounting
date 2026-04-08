@@ -387,7 +387,7 @@ type Mutation {
   "Creates a new income tax payment in the specified workspace."
   createIncomeTaxPayment(
     "Amount of the tax payment in cents."
-    amount: Long!,
+    amount: Long! @min(value : 1),
     "IDs of documents attached to this income tax payment."
     attachments: [Long!],
     "Date when the tax payment was made."
@@ -448,7 +448,7 @@ type Mutation {
   "Updates an existing income tax payment in the specified workspace."
   editIncomeTaxPayment(
     "New amount of the tax payment in cents."
-    amount: Long!,
+    amount: Long! @min(value : 1),
     "New IDs of documents attached to this income tax payment."
     attachments: [Long!],
     "New date when the tax payment was made."

@@ -7,8 +7,8 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -35,7 +35,7 @@ class IncomeTaxPaymentsMutation(
         @GraphQLDescription("Date used for reporting purposes. Defaults to datePaid if not specified.")
         reportingDate: LocalDate?,
         @GraphQLDescription("Amount of the tax payment in cents.")
-        @Positive
+        @Min(1)
         amount: Long,
         @GraphQLDescription("Optional notes for the income tax payment.")
         @Size(max = 1024)
@@ -74,7 +74,7 @@ class IncomeTaxPaymentsMutation(
         @GraphQLDescription("New date used for reporting purposes. Defaults to datePaid if not specified.")
         reportingDate: LocalDate?,
         @GraphQLDescription("New amount of the tax payment in cents.")
-        @Positive
+        @Min(1)
         amount: Long,
         @GraphQLDescription("New optional notes for the income tax payment.")
         @Size(max = 1024)
