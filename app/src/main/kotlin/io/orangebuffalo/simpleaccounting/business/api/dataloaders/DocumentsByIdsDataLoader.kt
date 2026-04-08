@@ -1,29 +1,31 @@
 package io.orangebuffalo.simpleaccounting.business.api.dataloaders
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.extensions.dispatchIfNeeded
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import kotlinx.coroutines.future.await
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
 
-private const val NAME = "documentById"
+private const val NAME = "documentsByIds"
 
 @Component
-class DocumentByIdDataLoader(
+class DocumentsByIdsDataLoader(
     private val documentsRepository: DocumentsRepository,
-) : KotlinDataLoader<Long, DocumentGqlDto?> {
+) : KotlinDataLoader<List<Long>, List<DocumentGqlDto>> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<Long, DocumentGqlDto?> =
-        newAsyncMappedDataLoader { documentIds ->
-            val documents = documentsRepository.findAllById(documentIds)
-            val usagesByDocId = documentsRepository.findUsagesByDocumentIds(documentIds)
-            documents.associate { document ->
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<List<Long>, List<DocumentGqlDto>> =
+        newAsyncMappedDataLoader { idLists ->
+            val allDocumentIds = idLists.flatten().toSet()
+            val documents = documentsRepository.findAllById(allDocumentIds)
+            val usagesByDocId = documentsRepository.findUsagesByDocumentIds(allDocumentIds)
+            val documentDtoById = documents.associate { document ->
                 document.id!! to DocumentGqlDto(
                     id = document.id!!,
                     version = document.version!!,
@@ -35,9 +37,13 @@ class DocumentByIdDataLoader(
                     usedBy = usagesByDocId[document.id] ?: emptyList(),
                 )
             }
+            idLists.associateWith { ids -> ids.mapNotNull { id -> documentDtoById[id] } }
         }
 }
 
-fun DataFetchingEnvironment.loadDocumentById(
-    documentId: Long,
-): CompletableFuture<DocumentGqlDto?> = getDataLoader<Long, DocumentGqlDto?>(NAME)!!.load(documentId)
+suspend fun DataFetchingEnvironment.loadDocumentsByIds(
+    documentIds: List<Long>,
+): List<DocumentGqlDto> = getDataLoader<List<Long>, List<DocumentGqlDto>>(NAME)!!
+    .load(documentIds)
+    .dispatchIfNeeded(this)
+    .await()

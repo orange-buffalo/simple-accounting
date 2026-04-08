@@ -4,9 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
-import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadDocumentById
+import io.orangebuffalo.simpleaccounting.business.api.dataloaders.loadDocumentsByIds
 import java.time.LocalDate
-import java.util.concurrent.CompletableFuture
 
 @GraphQLName("IncomeTaxPayment")
 @GraphQLDescription("An income tax payment in a workspace.")
@@ -32,10 +31,8 @@ data class IncomeTaxPaymentGqlDto(
     @GraphQLIgnore val attachmentIds: List<Long>,
 ) {
     @GraphQLDescription("Documents attached to this income tax payment.")
-    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
-        if (attachmentIds.isEmpty()) return CompletableFuture.completedFuture(emptyList())
-        val futures = attachmentIds.map { id -> env.loadDocumentById(id) }
-        return CompletableFuture.allOf(*futures.toTypedArray())
-            .thenApply { futures.mapNotNull { it.get() } }
+    suspend fun attachments(env: DataFetchingEnvironment): List<DocumentGqlDto> {
+        if (attachmentIds.isEmpty()) return emptyList()
+        return env.loadDocumentsByIds(attachmentIds)
     }
 }

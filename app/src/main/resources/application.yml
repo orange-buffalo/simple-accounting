@@ -63,6 +63,9 @@ graphql:
     endpoint: "/api/graphql/schema"
   subscriptions:
     endpoint: "/api/graphql/subscriptions"
+  batching:
+    enabled: true
+    strategy: SYNC_EXHAUSTION
 ---
 
 spring:
