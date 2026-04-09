@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api.workspaces
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.analytics.AnalyticsGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
@@ -36,6 +37,9 @@ data class WorkspaceGqlDto(
     @GraphQLDescription("Default currency of the workspace.")
     val defaultCurrency: String,
 ) {
+    @GraphQLDescription("Analytics data for this workspace.")
+    fun analytics() = AnalyticsGqlDto(workspaceId = id)
+
     @GraphQLDescription("Categories in this workspace with cursor-based pagination.")
     suspend fun categories(
         @GraphQLDescription("The maximum number of items to return.")

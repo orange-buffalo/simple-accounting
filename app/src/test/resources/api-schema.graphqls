@@ -236,6 +236,33 @@ type Expense {
   title: String!
 }
 
+"Summary of expenses for a date range."
+type ExpensesSummary {
+  "Total currency exchange difference for finalized expenses in the range."
+  currencyExchangeDifference: Long!
+  "Number of finalized expenses in the range."
+  finalizedCount: Long!
+  items: [ExpensesSummaryItem!]!
+  "Number of pending expenses in the range."
+  pendingCount: Long!
+  "Total amount of all finalized expenses in the range."
+  totalAmount: Long!
+}
+
+"Expenses summary for a single category."
+type ExpensesSummaryItem {
+  "Category ID, or null for expenses without a category."
+  categoryId: Long
+  "Currency exchange difference for finalized expenses."
+  currencyExchangeDifference: Long!
+  "Number of finalized expenses."
+  finalizedCount: Long!
+  "Number of pending expenses."
+  pendingCount: Long!
+  "Total income-taxable amount for this category."
+  totalAmount: Long!
+}
+
 "General tax applicable to incomes or expenses."
 type GeneralTax {
   "Description of the general tax."
@@ -320,6 +347,39 @@ type IncomeTaxPaymentsConnection {
   pageInfo: PageInfo!
   "The total number of items in the connection across all pages."
   totalCount: Int!
+}
+
+"Summary of income tax payments for a date range."
+type IncomeTaxPaymentsSummary {
+  "Total amount of all income tax payments in the range."
+  totalTaxPayments: Long!
+}
+
+"Summary of incomes for a date range."
+type IncomesSummary {
+  "Total currency exchange difference for finalized incomes in the range."
+  currencyExchangeDifference: Long!
+  "Number of finalized incomes in the range."
+  finalizedCount: Long!
+  items: [IncomesSummaryItem!]!
+  "Number of pending incomes in the range."
+  pendingCount: Long!
+  "Total amount of all finalized incomes in the range."
+  totalAmount: Long!
+}
+
+"Incomes summary for a single category."
+type IncomesSummaryItem {
+  "Category ID, or null for incomes without a category."
+  categoryId: Long
+  "Currency exchange difference for finalized incomes."
+  currencyExchangeDifference: Long!
+  "Number of finalized incomes."
+  finalizedCount: Long!
+  "Number of pending incomes."
+  pendingCount: Long!
+  "Total income-taxable amount for this category."
+  totalAmount: Long!
 }
 
 type Mutation {
@@ -574,6 +634,8 @@ type ValidationErrorParam {
 
 "Workspace of a user."
 type Workspace {
+  "Analytics data for this workspace."
+  analytics: WorkspaceAnalytics!
   "Categories in this workspace with cursor-based pagination."
   categories(
     "Cursor after which to return items."
@@ -637,6 +699,31 @@ type Workspace {
   ): IncomeTaxPaymentsConnection!
   "Name of the workspace."
   name: String!
+}
+
+"Analytics data for a workspace."
+type WorkspaceAnalytics {
+  "Summary of expenses in the given date range."
+  expensesSummary(
+    "Start date of the range (inclusive)."
+    fromDate: LocalDate!,
+    "End date of the range (inclusive)."
+    toDate: LocalDate!
+  ): ExpensesSummary!
+  "Summary of income tax payments in the given date range."
+  incomeTaxPaymentsSummary(
+    "Start date of the range (inclusive)."
+    fromDate: LocalDate!,
+    "End date of the range (inclusive)."
+    toDate: LocalDate!
+  ): IncomeTaxPaymentsSummary!
+  "Summary of incomes in the given date range."
+  incomesSummary(
+    "Start date of the range (inclusive)."
+    fromDate: LocalDate!,
+    "End date of the range (inclusive)."
+    toDate: LocalDate!
+  ): IncomesSummary!
 }
 
 "An edge in a workspaces connection."
