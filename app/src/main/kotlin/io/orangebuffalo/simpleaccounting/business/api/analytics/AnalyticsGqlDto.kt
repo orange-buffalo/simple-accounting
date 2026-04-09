@@ -1,13 +1,17 @@
 package io.orangebuffalo.simpleaccounting.business.api.analytics
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import java.time.LocalDate
+import java.util.concurrent.CompletableFuture
 
 @GraphQLName("WorkspaceAnalytics")
 @GraphQLDescription("Analytics data for a workspace.")
@@ -70,6 +74,7 @@ class AnalyticsGqlDto(private val workspaceId: Long) {
 @GraphQLName("ExpensesSummary")
 @GraphQLDescription("Summary of expenses for a date range.")
 data class ExpensesSummaryGqlDto(
+    @GraphQLDescription("Per-category breakdown of expenses.")
     val items: List<ExpensesSummaryItemGqlDto>,
 ) {
     @GraphQLDescription("Total amount of all finalized expenses in the range.")
@@ -88,8 +93,7 @@ data class ExpensesSummaryGqlDto(
 @GraphQLName("ExpensesSummaryItem")
 @GraphQLDescription("Expenses summary for a single category.")
 data class ExpensesSummaryItemGqlDto(
-    @GraphQLDescription("Category ID, or null for expenses without a category.")
-    val categoryId: Long?,
+    @GraphQLIgnore val categoryId: Long?,
     @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized expenses.")
@@ -98,11 +102,18 @@ data class ExpensesSummaryItemGqlDto(
     val pendingCount: Long,
     @GraphQLDescription("Currency exchange difference for finalized expenses.")
     val currencyExchangeDifference: Long,
-)
+) {
+    @GraphQLDescription("Category of the expenses, or null if no category.")
+    fun category(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {
+        val id = categoryId ?: return null
+        return env.loadCategoryById(id)
+    }
+}
 
 @GraphQLName("IncomesSummary")
 @GraphQLDescription("Summary of incomes for a date range.")
 data class IncomesSummaryGqlDto(
+    @GraphQLDescription("Per-category breakdown of incomes.")
     val items: List<IncomesSummaryItemGqlDto>,
 ) {
     @GraphQLDescription("Total amount of all finalized incomes in the range.")
@@ -121,8 +132,7 @@ data class IncomesSummaryGqlDto(
 @GraphQLName("IncomesSummaryItem")
 @GraphQLDescription("Incomes summary for a single category.")
 data class IncomesSummaryItemGqlDto(
-    @GraphQLDescription("Category ID, or null for incomes without a category.")
-    val categoryId: Long?,
+    @GraphQLIgnore val categoryId: Long?,
     @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized incomes.")
@@ -131,7 +141,13 @@ data class IncomesSummaryItemGqlDto(
     val pendingCount: Long,
     @GraphQLDescription("Currency exchange difference for finalized incomes.")
     val currencyExchangeDifference: Long,
-)
+) {
+    @GraphQLDescription("Category of the incomes, or null if no category.")
+    fun category(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {
+        val id = categoryId ?: return null
+        return env.loadCategoryById(id)
+    }
+}
 
 @GraphQLName("IncomeTaxPaymentsSummary")
 @GraphQLDescription("Summary of income tax payments for a date range.")

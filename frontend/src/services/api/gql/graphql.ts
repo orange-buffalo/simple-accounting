@@ -265,6 +265,7 @@ export type ExpensesSummary = {
   currencyExchangeDifference: Scalars['Long']['output'];
   /** Number of finalized expenses in the range. */
   finalizedCount: Scalars['Long']['output'];
+  /** Per-category breakdown of expenses. */
   items: Array<ExpensesSummaryItem>;
   /** Number of pending expenses in the range. */
   pendingCount: Scalars['Long']['output'];
@@ -275,15 +276,15 @@ export type ExpensesSummary = {
 /** Expenses summary for a single category. */
 export type ExpensesSummaryItem = {
   __typename?: 'ExpensesSummaryItem';
-  /** Category ID, or null for expenses without a category. */
-  categoryId?: Maybe<Scalars['Long']['output']>;
+  /** Category of the expenses, or null if no category. */
+  category?: Maybe<Category>;
   /** Currency exchange difference for finalized expenses. */
   currencyExchangeDifference: Scalars['Long']['output'];
   /** Number of finalized expenses. */
   finalizedCount: Scalars['Long']['output'];
   /** Number of pending expenses. */
   pendingCount: Scalars['Long']['output'];
-  /** Total income-taxable amount for this category. */
+  /** Total amount for this category. */
   totalAmount: Scalars['Long']['output'];
 };
 
@@ -395,6 +396,7 @@ export type IncomesSummary = {
   currencyExchangeDifference: Scalars['Long']['output'];
   /** Number of finalized incomes in the range. */
   finalizedCount: Scalars['Long']['output'];
+  /** Per-category breakdown of incomes. */
   items: Array<IncomesSummaryItem>;
   /** Number of pending incomes in the range. */
   pendingCount: Scalars['Long']['output'];
@@ -405,15 +407,15 @@ export type IncomesSummary = {
 /** Incomes summary for a single category. */
 export type IncomesSummaryItem = {
   __typename?: 'IncomesSummaryItem';
-  /** Category ID, or null for incomes without a category. */
-  categoryId?: Maybe<Scalars['Long']['output']>;
+  /** Category of the incomes, or null if no category. */
+  category?: Maybe<Category>;
   /** Currency exchange difference for finalized incomes. */
   currencyExchangeDifference: Scalars['Long']['output'];
   /** Number of finalized incomes. */
   finalizedCount: Scalars['Long']['output'];
   /** Number of pending incomes. */
   pendingCount: Scalars['Long']['output'];
-  /** Total income-taxable amount for this category. */
+  /** Total amount for this category. */
   totalAmount: Scalars['Long']['output'];
 };
 

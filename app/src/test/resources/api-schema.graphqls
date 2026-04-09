@@ -242,6 +242,7 @@ type ExpensesSummary {
   currencyExchangeDifference: Long!
   "Number of finalized expenses in the range."
   finalizedCount: Long!
+  "Per-category breakdown of expenses."
   items: [ExpensesSummaryItem!]!
   "Number of pending expenses in the range."
   pendingCount: Long!
@@ -251,15 +252,15 @@ type ExpensesSummary {
 
 "Expenses summary for a single category."
 type ExpensesSummaryItem {
-  "Category ID, or null for expenses without a category."
-  categoryId: Long
+  "Category of the expenses, or null if no category."
+  category: Category
   "Currency exchange difference for finalized expenses."
   currencyExchangeDifference: Long!
   "Number of finalized expenses."
   finalizedCount: Long!
   "Number of pending expenses."
   pendingCount: Long!
-  "Total income-taxable amount for this category."
+  "Total amount for this category."
   totalAmount: Long!
 }
 
@@ -361,6 +362,7 @@ type IncomesSummary {
   currencyExchangeDifference: Long!
   "Number of finalized incomes in the range."
   finalizedCount: Long!
+  "Per-category breakdown of incomes."
   items: [IncomesSummaryItem!]!
   "Number of pending incomes in the range."
   pendingCount: Long!
@@ -370,15 +372,15 @@ type IncomesSummary {
 
 "Incomes summary for a single category."
 type IncomesSummaryItem {
-  "Category ID, or null for incomes without a category."
-  categoryId: Long
+  "Category of the incomes, or null if no category."
+  category: Category
   "Currency exchange difference for finalized incomes."
   currencyExchangeDifference: Long!
   "Number of finalized incomes."
   finalizedCount: Long!
   "Number of pending incomes."
   pendingCount: Long!
-  "Total income-taxable amount for this category."
+  "Total amount for this category."
   totalAmount: Long!
 }
 

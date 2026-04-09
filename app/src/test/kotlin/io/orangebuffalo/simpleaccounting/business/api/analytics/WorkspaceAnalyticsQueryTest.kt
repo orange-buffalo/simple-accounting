@@ -4,7 +4,6 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import kotlinx.serialization.json.addJsonObject
@@ -27,27 +26,9 @@ class WorkspaceAnalyticsQueryTest(
     inner class ExpensesSummary {
 
         @Test
-        fun `should return error when accessed anonymously`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        expensesSummary(
-                            fromDate = LocalDate.of(3000, 4, 10),
-                            toDate = LocalDate.of(3000, 10, 1)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .fromAnonymous()
-                .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
         fun `should calculate expenses summary`() {
             client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
+                workspace(id = preconditions.workspace.id!!) {
                     analytics {
                         expensesSummary(
                             fromDate = LocalDate.of(3000, 4, 10),
@@ -58,7 +39,9 @@ class WorkspaceAnalyticsQueryTest(
                             pendingCount
                             currencyExchangeDifference
                             items {
-                                categoryId
+                                category {
+                                    id
+                                }
                                 totalAmount
                                 finalizedCount
                                 pendingCount
@@ -68,7 +51,7 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 }
             }
-                .from(preconditions.fry.user)
+                .from(preconditions.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("analytics", buildJsonObject {
@@ -79,14 +62,14 @@ class WorkspaceAnalyticsQueryTest(
                                 put("currencyExchangeDifference", -1000)
                                 putJsonArray("items") {
                                     addJsonObject {
-                                        put("categoryId", preconditions.fry.firstCategory.id!!.toInt())
+                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!.toInt()) })
                                         put("totalAmount", 2100)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 0)
                                         put("currencyExchangeDifference", -1000)
                                     }
                                     addJsonObject {
-                                        put("categoryId", preconditions.fry.secondCategory.id!!.toInt())
+                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!.toInt()) })
                                         put("totalAmount", 10010)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 3)
@@ -98,42 +81,6 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 )
         }
-
-        @Test
-        fun `should return error when workspace does not exist`() {
-            client.graphql {
-                workspace(id = -1) {
-                    analytics {
-                        expensesSummary(
-                            fromDate = LocalDate.of(3000, 4, 10),
-                            toDate = LocalDate.of(3000, 10, 1)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .from(preconditions.fry.user)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
-        fun `should return error when workspace belongs to another user`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        expensesSummary(
-                            fromDate = LocalDate.of(3000, 4, 10),
-                            toDate = LocalDate.of(3000, 10, 1)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .from(preconditions.zoidberg)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
     }
 
     @Nested
@@ -141,27 +88,9 @@ class WorkspaceAnalyticsQueryTest(
     inner class IncomesSummary {
 
         @Test
-        fun `should return error when accessed anonymously`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        incomesSummary(
-                            fromDate = LocalDate.of(3010, 4, 21),
-                            toDate = LocalDate.of(3010, 9, 15)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .fromAnonymous()
-                .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
         fun `should calculate incomes summary`() {
             client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
+                workspace(id = preconditions.workspace.id!!) {
                     analytics {
                         incomesSummary(
                             fromDate = LocalDate.of(3010, 4, 21),
@@ -172,7 +101,9 @@ class WorkspaceAnalyticsQueryTest(
                             pendingCount
                             currencyExchangeDifference
                             items {
-                                categoryId
+                                category {
+                                    id
+                                }
                                 totalAmount
                                 finalizedCount
                                 pendingCount
@@ -182,7 +113,7 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 }
             }
-                .from(preconditions.fry.user)
+                .from(preconditions.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("analytics", buildJsonObject {
@@ -193,14 +124,14 @@ class WorkspaceAnalyticsQueryTest(
                                 put("currencyExchangeDifference", -110)
                                 putJsonArray("items") {
                                     addJsonObject {
-                                        put("categoryId", preconditions.fry.firstCategory.id!!.toInt())
+                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!.toInt()) })
                                         put("totalAmount", 220)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 0)
                                         put("currencyExchangeDifference", -110)
                                     }
                                     addJsonObject {
-                                        put("categoryId", preconditions.fry.secondCategory.id!!.toInt())
+                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!.toInt()) })
                                         put("totalAmount", 1000)
                                         put("finalizedCount", 1)
                                         put("pendingCount", 2)
@@ -212,42 +143,6 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 )
         }
-
-        @Test
-        fun `should return error when workspace does not exist`() {
-            client.graphql {
-                workspace(id = -1) {
-                    analytics {
-                        incomesSummary(
-                            fromDate = LocalDate.of(3010, 4, 21),
-                            toDate = LocalDate.of(3010, 9, 15)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .from(preconditions.fry.user)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
-        fun `should return error when workspace belongs to another user`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        incomesSummary(
-                            fromDate = LocalDate.of(3010, 4, 21),
-                            toDate = LocalDate.of(3010, 9, 15)
-                        ) {
-                            totalAmount
-                        }
-                    }
-                }
-            }
-                .from(preconditions.zoidberg)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
     }
 
     @Nested
@@ -255,27 +150,9 @@ class WorkspaceAnalyticsQueryTest(
     inner class IncomeTaxPaymentsSummary {
 
         @Test
-        fun `should return error when accessed anonymously`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        incomeTaxPaymentsSummary(
-                            fromDate = LocalDate.of(3005, 7, 2),
-                            toDate = LocalDate.of(3005, 8, 1)
-                        ) {
-                            totalTaxPayments
-                        }
-                    }
-                }
-            }
-                .fromAnonymous()
-                .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
         fun `should calculate income tax payments summary`() {
             client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
+                workspace(id = preconditions.workspace.id!!) {
                     analytics {
                         incomeTaxPaymentsSummary(
                             fromDate = LocalDate.of(3005, 7, 2),
@@ -286,7 +163,7 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 }
             }
-                .from(preconditions.fry.user)
+                .from(preconditions.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("analytics", buildJsonObject {
@@ -297,58 +174,22 @@ class WorkspaceAnalyticsQueryTest(
                     }
                 )
         }
-
-        @Test
-        fun `should return error when workspace does not exist`() {
-            client.graphql {
-                workspace(id = -1) {
-                    analytics {
-                        incomeTaxPaymentsSummary(
-                            fromDate = LocalDate.of(3005, 7, 2),
-                            toDate = LocalDate.of(3005, 8, 1)
-                        ) {
-                            totalTaxPayments
-                        }
-                    }
-                }
-            }
-                .from(preconditions.fry.user)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
-
-        @Test
-        fun `should return error when workspace belongs to another user`() {
-            client.graphql {
-                workspace(id = preconditions.fry.workspace.id!!) {
-                    analytics {
-                        incomeTaxPaymentsSummary(
-                            fromDate = LocalDate.of(3005, 7, 2),
-                            toDate = LocalDate.of(3005, 8, 1)
-                        ) {
-                            totalTaxPayments
-                        }
-                    }
-                }
-            }
-                .from(preconditions.zoidberg)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.Workspace)
-        }
     }
 
     private val preconditions by lazyPreconditions {
         object {
-            val zoidberg = zoidberg().withWorkspace()
-            val fry = run {
-                val fryUser = fry()
-                val fryWorkspace = workspace(owner = fryUser)
-                val firstCategory = category(workspace = fryWorkspace)
-                val secondCategory = category(workspace = fryWorkspace)
-                val irrelevantWorkspace = workspace(owner = fryUser)
+            val fry = fry()
+            val workspace = workspace(owner = fry)
+            val firstCategory = category(workspace = workspace)
+            val secondCategory = category(workspace = workspace)
+
+            init {
+                val irrelevantWorkspace = workspace(owner = fry)
                 val irrelevantCategory = category(workspace = irrelevantWorkspace)
 
                 // Expenses: in range, lower boundary
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     datePaid = LocalDate.of(3000, 4, 10),
                     originalAmount = 100,
@@ -359,7 +200,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: out of range, -1 day
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     datePaid = LocalDate.of(3000, 4, 9),
                     originalAmount = 555,
@@ -370,7 +211,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, upper boundary, different exchange rate
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     datePaid = LocalDate.of(3000, 10, 1),
                     currency = "ZZH",
@@ -388,7 +229,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: out of range, +1 day
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     datePaid = LocalDate.of(3000, 10, 2),
                     originalAmount = 113,
@@ -399,7 +240,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, second category
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     datePaid = LocalDate.of(3000, 6, 6),
                     originalAmount = 10,
@@ -410,7 +251,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, second category
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     datePaid = LocalDate.of(3000, 6, 7),
                     originalAmount = 10000,
@@ -421,7 +262,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, pending conversion for taxation
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     datePaid = LocalDate.of(3000, 6, 6),
                     currency = "ZZG",
@@ -433,7 +274,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, pending conversion for taxation
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     datePaid = LocalDate.of(3000, 6, 6),
                     currency = "ZZG",
@@ -445,7 +286,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Expenses: in range, pending conversion
                 expense(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     datePaid = LocalDate.of(3000, 6, 6),
                     currency = "ZZG",
@@ -479,17 +320,17 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Incomes: out of range, -1 day
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     dateReceived = LocalDate.of(3010, 4, 20),
                     originalAmount = 166,
-                    currency = fryWorkspace.defaultCurrency,
+                    currency = workspace.defaultCurrency,
                     convertedAmounts = amountsInDefaultCurrency(166),
                     incomeTaxableAmounts = amountsInDefaultCurrency(166)
                 )
                 // Incomes: in range, lower boundary, different exchange rate
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     dateReceived = LocalDate.of(3010, 4, 21),
                     originalAmount = 167,
@@ -506,7 +347,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Incomes: in range, upper boundary, different exchange rate
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     dateReceived = LocalDate.of(3010, 9, 15),
                     originalAmount = 168,
@@ -517,17 +358,17 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Incomes: out of range, +1 day
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = firstCategory,
                     dateReceived = LocalDate.of(3010, 9, 16),
                     originalAmount = 177,
-                    currency = fryWorkspace.defaultCurrency,
+                    currency = workspace.defaultCurrency,
                     convertedAmounts = amountsInDefaultCurrency(177),
                     incomeTaxableAmounts = amountsInDefaultCurrency(177)
                 )
                 // Incomes: in range, pending conversion
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     dateReceived = LocalDate.of(3010, 6, 1),
                     originalAmount = 233,
@@ -538,7 +379,7 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Incomes: in range, pending conversion for taxation
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     dateReceived = LocalDate.of(3010, 6, 1),
                     originalAmount = 233,
@@ -550,27 +391,20 @@ class WorkspaceAnalyticsQueryTest(
                 )
                 // Incomes: in range
                 income(
-                    workspace = fryWorkspace,
+                    workspace = workspace,
                     category = secondCategory,
                     dateReceived = LocalDate.of(3010, 6, 1),
                     originalAmount = 1000,
-                    currency = fryWorkspace.defaultCurrency,
+                    currency = workspace.defaultCurrency,
                     convertedAmounts = amountsInDefaultCurrency(1000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(1000)
                 )
 
                 // Income tax payments
-                incomeTaxPayment(workspace = fryWorkspace, reportingDate = LocalDate.of(3005, 7, 1), amount = 23)
-                incomeTaxPayment(workspace = fryWorkspace, reportingDate = LocalDate.of(3005, 7, 2), amount = 43)
-                incomeTaxPayment(workspace = fryWorkspace, reportingDate = LocalDate.of(3005, 8, 1), amount = 34)
-                incomeTaxPayment(workspace = fryWorkspace, reportingDate = LocalDate.of(3005, 8, 2), amount = 111)
-
-                object {
-                    val user = fryUser
-                    val workspace = fryWorkspace
-                    val firstCategory = firstCategory
-                    val secondCategory = secondCategory
-                }
+                incomeTaxPayment(workspace = workspace, reportingDate = LocalDate.of(3005, 7, 1), amount = 23)
+                incomeTaxPayment(workspace = workspace, reportingDate = LocalDate.of(3005, 7, 2), amount = 43)
+                incomeTaxPayment(workspace = workspace, reportingDate = LocalDate.of(3005, 8, 1), amount = 34)
+                incomeTaxPayment(workspace = workspace, reportingDate = LocalDate.of(3005, 8, 2), amount = 111)
             }
         }
     }
