@@ -258,6 +258,36 @@ export type Expense = {
   title: Scalars['String']['output'];
 };
 
+/** Summary of expenses for a date range. */
+export type ExpensesSummary = {
+  __typename?: 'ExpensesSummary';
+  /** Total currency exchange difference for finalized expenses in the range. */
+  currencyExchangeDifference: Scalars['Long']['output'];
+  /** Number of finalized expenses in the range. */
+  finalizedCount: Scalars['Long']['output'];
+  /** Per-category breakdown of expenses. */
+  items: Array<ExpensesSummaryItem>;
+  /** Number of pending expenses in the range. */
+  pendingCount: Scalars['Long']['output'];
+  /** Total amount of all finalized expenses in the range. */
+  totalAmount: Scalars['Long']['output'];
+};
+
+/** Expenses summary for a single category. */
+export type ExpensesSummaryItem = {
+  __typename?: 'ExpensesSummaryItem';
+  /** Category of the expenses, or null if no category. */
+  category?: Maybe<Category>;
+  /** Currency exchange difference for finalized expenses. */
+  currencyExchangeDifference: Scalars['Long']['output'];
+  /** Number of finalized expenses. */
+  finalizedCount: Scalars['Long']['output'];
+  /** Number of pending expenses. */
+  pendingCount: Scalars['Long']['output'];
+  /** Total amount for this category. */
+  totalAmount: Scalars['Long']['output'];
+};
+
 /** General tax applicable to incomes or expenses. */
 export type GeneralTax = {
   __typename?: 'GeneralTax';
@@ -350,6 +380,43 @@ export type IncomeTaxPaymentsConnection = {
   pageInfo: PageInfo;
   /** The total number of items in the connection across all pages. */
   totalCount: Scalars['Int']['output'];
+};
+
+/** Summary of income tax payments for a date range. */
+export type IncomeTaxPaymentsSummary = {
+  __typename?: 'IncomeTaxPaymentsSummary';
+  /** Total amount of all income tax payments in the range. */
+  totalTaxPayments: Scalars['Long']['output'];
+};
+
+/** Summary of incomes for a date range. */
+export type IncomesSummary = {
+  __typename?: 'IncomesSummary';
+  /** Total currency exchange difference for finalized incomes in the range. */
+  currencyExchangeDifference: Scalars['Long']['output'];
+  /** Number of finalized incomes in the range. */
+  finalizedCount: Scalars['Long']['output'];
+  /** Per-category breakdown of incomes. */
+  items: Array<IncomesSummaryItem>;
+  /** Number of pending incomes in the range. */
+  pendingCount: Scalars['Long']['output'];
+  /** Total amount of all finalized incomes in the range. */
+  totalAmount: Scalars['Long']['output'];
+};
+
+/** Incomes summary for a single category. */
+export type IncomesSummaryItem = {
+  __typename?: 'IncomesSummaryItem';
+  /** Category of the incomes, or null if no category. */
+  category?: Maybe<Category>;
+  /** Currency exchange difference for finalized incomes. */
+  currencyExchangeDifference: Scalars['Long']['output'];
+  /** Number of finalized incomes. */
+  finalizedCount: Scalars['Long']['output'];
+  /** Number of pending incomes. */
+  pendingCount: Scalars['Long']['output'];
+  /** Total amount for this category. */
+  totalAmount: Scalars['Long']['output'];
 };
 
 export type Mutation = {
@@ -637,6 +704,8 @@ export type ValidationErrorParam = {
 /** Workspace of a user. */
 export type Workspace = {
   __typename?: 'Workspace';
+  /** Analytics data for this workspace. */
+  analytics: WorkspaceAnalytics;
   /** Categories in this workspace with cursor-based pagination. */
   categories: CategoriesConnection;
   /** Returns a category by its ID if it belongs to this workspace, or null if not found. */
@@ -722,6 +791,38 @@ export type WorkspaceIncomeTaxPaymentArgs = {
 export type WorkspaceIncomeTaxPaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalytics = {
+  __typename?: 'WorkspaceAnalytics';
+  /** Summary of expenses in the given date range. */
+  expensesSummary: ExpensesSummary;
+  /** Summary of income tax payments in the given date range. */
+  incomeTaxPaymentsSummary: IncomeTaxPaymentsSummary;
+  /** Summary of incomes in the given date range. */
+  incomesSummary: IncomesSummary;
+};
+
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalyticsExpensesSummaryArgs = {
+  fromDate: Scalars['LocalDate']['input'];
+  toDate: Scalars['LocalDate']['input'];
+};
+
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalyticsIncomeTaxPaymentsSummaryArgs = {
+  fromDate: Scalars['LocalDate']['input'];
+  toDate: Scalars['LocalDate']['input'];
+};
+
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalyticsIncomesSummaryArgs = {
+  fromDate: Scalars['LocalDate']['input'];
+  toDate: Scalars['LocalDate']['input'];
 };
 
 /** An edge in a workspaces connection. */
