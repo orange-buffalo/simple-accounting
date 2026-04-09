@@ -42,58 +42,32 @@
 </template>
 
 <script lang="ts" setup>
+  import { computed } from 'vue';
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import { useValueLoadedByCurrentWorkspaceAndProp, wrapNullable } from '@/services/utils';
+  import { wrapNullable } from '@/services/utils';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
-  import { graphql } from '@/services/api/gql';
-  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+
+  interface SummaryItem {
+    category?: { id: number } | null;
+    totalAmount: number;
+  }
+
+  interface ExpensesSummaryData {
+    totalAmount: number;
+    finalizedCount: number;
+    pendingCount: number;
+    items: SummaryItem[];
+  }
 
   const props = defineProps<{
-    fromDate: Date,
-    toDate: Date,
+    loading: boolean,
+    summary: ExpensesSummaryData | null,
   }>();
 
   const { defaultCurrency } = useCurrentWorkspace();
 
-  const getExpensesSummaryQuery = useLazyQuery(graphql(`
-    query getExpensesSummary($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
-      workspace(id: $workspaceId) {
-        analytics {
-          expensesSummary(fromDate: $fromDate, toDate: $toDate) {
-            totalAmount
-            finalizedCount
-            pendingCount
-            items {
-              category {
-                id
-              }
-              totalAmount
-            }
-          }
-        }
-      }
-    }
-  `), 'workspace');
-
-  const {
-    loading,
-    value: maybeExpenses,
-  } = useValueLoadedByCurrentWorkspaceAndProp(
-    () => props.fromDate && props.toDate,
-    async (_, workspaceId) => {
-      const workspace = await getExpensesSummaryQuery({
-        workspaceId,
-        fromDate: props.fromDate.toISOString().slice(0, 10),
-        toDate: props.toDate.toISOString().slice(0, 10),
-      });
-      const summary = workspace?.analytics.expensesSummary;
-      if (!summary) return null;
-      const sortedItems = [...summary.items].sort((a, b) => b.totalAmount - a.totalAmount);
-      return { ...summary, items: sortedItems };
-    },
-  );
-  const expenses = wrapNullable(maybeExpenses);
+  const expenses = wrapNullable(computed(() => props.summary));
 </script>

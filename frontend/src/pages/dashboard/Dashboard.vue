@@ -21,16 +21,19 @@
 
     <div class="sa-dashboard__row">
       <DashboardCardExpenses
-        :from-date="selectedFromDate"
-        :to-date="selectedToDate"
+        :loading="loading"
+        :summary="expensesSummary"
       />
       <DashboardCardIncomes
-        :from-date="selectedFromDate"
-        :to-date="selectedToDate"
+        :loading="loading"
+        :summary="incomesSummary"
       />
       <DashboardCardProfit
-        :from-date="selectedFromDate"
-        :to-date="selectedToDate"
+        :loading="loading"
+        :income-taxable-amount="profitData.incomeTaxableAmount"
+        :currency-exchange-difference="profitData.currencyExchangeDifference"
+        :total-tax-payments="profitData.totalTaxPayments"
+        :total-profit="profitData.totalProfit"
       />
       <DashboardInvoices
         :from-date="selectedFromDate"
@@ -48,6 +51,9 @@
   import DashboardCardProfit from '@/pages/dashboard/DashboardCardProfit.vue';
   import DashboardInvoices from '@/pages/dashboard/DashboardInvoices.vue';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   const storage = useStorage<Array<Date>>('dashboard.selected-date-range');
 
@@ -68,6 +74,115 @@
 
   const selectedFromDate = computed(() => (selectedDateRange.value[0]));
   const selectedToDate = computed(() => (selectedDateRange.value[1]));
+
+  const { currentWorkspaceId } = useCurrentWorkspace();
+
+  const getDashboardAnalyticsQuery = useLazyQuery(graphql(`
+    query getDashboardAnalytics($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
+      workspace(id: $workspaceId) {
+        analytics {
+          expensesSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalAmount
+            finalizedCount
+            pendingCount
+            currencyExchangeDifference
+            items {
+              category {
+                id
+              }
+              totalAmount
+            }
+          }
+          incomesSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalAmount
+            finalizedCount
+            pendingCount
+            currencyExchangeDifference
+            items {
+              category {
+                id
+              }
+              totalAmount
+            }
+          }
+          incomeTaxPaymentsSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalTaxPayments
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
+  interface SummaryItem {
+    category?: { id: number } | null;
+    totalAmount: number;
+  }
+
+  interface ExpensesSummaryData {
+    totalAmount: number;
+    finalizedCount: number;
+    pendingCount: number;
+    items: SummaryItem[];
+  }
+
+  interface IncomesSummaryData {
+    totalAmount: number;
+    finalizedCount: number;
+    pendingCount: number;
+    items: SummaryItem[];
+  }
+
+  interface ProfitData {
+    incomeTaxableAmount: number;
+    currencyExchangeDifference: number;
+    totalTaxPayments: number;
+    totalProfit: number;
+  }
+
+  const loading = ref(true);
+  const expensesSummary = ref<ExpensesSummaryData | null>(null);
+  const incomesSummary = ref<IncomesSummaryData | null>(null);
+  const profitData = ref<ProfitData>({
+    incomeTaxableAmount: 0,
+    currencyExchangeDifference: 0,
+    totalTaxPayments: 0,
+    totalProfit: 0,
+  });
+
+  watch([selectedFromDate, selectedToDate], async ([fromDate, toDate]) => {
+    if (!fromDate || !toDate) return;
+    loading.value = true;
+    const workspace = await getDashboardAnalyticsQuery({
+      workspaceId: currentWorkspaceId,
+      fromDate: fromDate.toISOString().slice(0, 10),
+      toDate: toDate.toISOString().slice(0, 10),
+    });
+    const analytics = workspace?.analytics;
+    if (analytics) {
+      expensesSummary.value = {
+        ...analytics.expensesSummary,
+        items: [...analytics.expensesSummary.items].sort((a, b) => b.totalAmount - a.totalAmount),
+      };
+      incomesSummary.value = {
+        ...analytics.incomesSummary,
+        items: [...analytics.incomesSummary.items].sort((a, b) => b.totalAmount - a.totalAmount),
+      };
+      const incomeTaxableAmount = analytics.incomesSummary.totalAmount - analytics.expensesSummary.totalAmount;
+      const currencyExchangeDifference = analytics.incomesSummary.currencyExchangeDifference
+        - analytics.expensesSummary.currencyExchangeDifference;
+      profitData.value = {
+        incomeTaxableAmount,
+        currencyExchangeDifference,
+        totalTaxPayments: analytics.incomeTaxPaymentsSummary.totalTaxPayments,
+        totalProfit: incomeTaxableAmount + currencyExchangeDifference
+          - analytics.incomeTaxPaymentsSummary.totalTaxPayments,
+      };
+    } else {
+      expensesSummary.value = null;
+      incomesSummary.value = null;
+    }
+    loading.value = false;
+  }, { immediate: true });
 </script>
 
 <style lang="scss">

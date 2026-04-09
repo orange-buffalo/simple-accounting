@@ -226,7 +226,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsWithFinalized.fry)
 
         page.withBlockedGqlApiResponse(
-            "getExpensesSummary",
+            "getDashboardAnalytics",
             initiator = {
                 page.openDashboard {
                     // Ensure the expenses card is rendered to guarantee the API request has been initiated
