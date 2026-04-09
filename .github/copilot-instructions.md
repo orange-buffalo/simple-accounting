@@ -59,13 +59,23 @@ After making changes, ALWAYS run this validation sequence:
 
 1. **Build and compile**:
    ```bash
-   ./gradlew assemble --console=plain --build-cache
+   ./gradlew assemble --console=plain
    ```
 
-2. **Run unit tests**:
+2. **Run all checks** (backend tests, frontend lint, frontend unit tests, GraphQL schema verification):
    ```bash
-   ./gradlew check --console=plain --build-cache
+   ./gradlew check --console=plain
    ```
+   This runs:
+   - `:app:test` — all backend integration tests
+   - `:app:jacocoTestReport` — test coverage report
+   - `:frontend:lint` — frontend TypeScript/Vue linting
+   - `:frontend:testFrontend` — frontend unit tests
+   - `:frontend:verifyGqlTypes` — verifies committed GraphQL TypeScript types match the schema
+
+   **CRITICAL**: Do NOT use `--build-cache` for final validation before publishing changes.
+   The build cache can hide compilation failures by using stale cached outputs.
+   A fresh compile must succeed before the changes are ready to publish.
 
 ## GraphQL API Development
 
@@ -107,6 +117,7 @@ cd frontend && bun run graphql-codegen
 ```bash
 ./gradlew assemble check
 ```
+**IMPORTANT**: Run without `--build-cache` to ensure the full compilation pipeline works from scratch, as CI runs with a fresh checkout.
 
 ## Architecture Notes
 

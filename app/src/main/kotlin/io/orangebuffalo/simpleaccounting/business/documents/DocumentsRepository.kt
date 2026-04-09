@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import io.orangebuffalo.simpleaccounting.business.api.DocumentUsageGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentUsageGqlDto
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 
 interface DocumentsRepository : AbstractEntityRepository<Document>, DocumentsRepositoryExt {

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.documents.impl
 
-import io.orangebuffalo.simpleaccounting.business.api.DocumentUsageGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.DocumentUsageType
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentUsageGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentUsageType
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentStorageStatisticsRecord
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
