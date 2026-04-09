@@ -6,9 +6,12 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryById
+import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
@@ -68,6 +71,31 @@ class AnalyticsGqlDto(private val workspaceId: Long) {
         val incomeTaxPaymentService = env.graphQlContext.getBean<IncomeTaxPaymentService>()
         val statistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspaceId)
         return IncomeTaxPaymentsSummaryGqlDto(totalTaxPayments = statistics.totalTaxPayments)
+    }
+
+    @GraphQLDescription("Shortlist of recently used currency codes, sorted by usage frequency.")
+    suspend fun currenciesShortlist(env: DataFetchingEnvironment): List<String> {
+        val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
+        val expenseService = env.graphQlContext.getBean<ExpenseService>()
+        val incomesService = env.graphQlContext.getBean<IncomesService>()
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
+        val incomesCurrencies = incomesService.getCurrenciesUsageStatistics(workspace)
+        return (expensesCurrencies + incomesCurrencies).asSequence()
+            .groupingBy(CurrenciesUsageStatistics::currency)
+            .reduce { currency, accumulator, next ->
+                CurrenciesUsageStatistics(
+                    currency = currency,
+                    count = accumulator.count + next.count
+                )
+            }
+            .values.asSequence()
+            .sortedWith(
+                Comparator.comparing(CurrenciesUsageStatistics::count).reversed()
+                    .thenComparing(CurrenciesUsageStatistics::currency)
+            )
+            .map(CurrenciesUsageStatistics::currency)
+            .toList()
     }
 }
 

@@ -25,12 +25,12 @@
     <template #content>
       <div
         v-for="item in incomes.items"
-        :key="item.categoryId || 'fake'"
+        :key="item.category?.id ?? 'fake'"
         class="sa-dashboard__card__details__item"
       >
         <span><SaCategoryOutput
-          :category-id="item.categoryId"
-          :unspecified-category="!item.categoryId"
+          :category-id="item.category?.id"
+          :unspecified-category="!item.category"
         /></span>
         <SaMoneyOutput
           :currency="defaultCurrency"
@@ -44,12 +44,12 @@
 <script lang="ts" setup>
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
   import { useValueLoadedByCurrentWorkspaceAndProp, wrapNullable } from '@/services/utils';
-  import { statisticsApi } from '@/services/api';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     fromDate: Date,
@@ -58,19 +58,41 @@
 
   const { defaultCurrency } = useCurrentWorkspace();
 
+  const getIncomesSummaryQuery = useLazyQuery(graphql(`
+    query getIncomesSummary($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
+      workspace(id: $workspaceId) {
+        analytics {
+          incomesSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalAmount
+            finalizedCount
+            pendingCount
+            items {
+              category {
+                id
+              }
+              totalAmount
+            }
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     loading,
     value: maybeIncomes,
   } = useValueLoadedByCurrentWorkspaceAndProp(
     () => props.fromDate && props.toDate,
     async (_, workspaceId) => {
-      const response = await statisticsApi.getIncomesStatistics({
+      const workspace = await getIncomesSummaryQuery({
         workspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
+        fromDate: props.fromDate.toISOString().slice(0, 10),
+        toDate: props.toDate.toISOString().slice(0, 10),
       });
-      response.items.sort((a, b) => b.totalAmount - a.totalAmount);
-      return response;
+      const summary = workspace?.analytics.incomesSummary;
+      if (!summary) return null;
+      const sortedItems = [...summary.items].sort((a, b) => b.totalAmount - a.totalAmount);
+      return { ...summary, items: sortedItems };
     },
   );
   const incomes = wrapNullable(maybeIncomes);

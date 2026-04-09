@@ -53,11 +53,11 @@
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import { statisticsApi } from '@/services/api';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     fromDate: Date,
@@ -69,49 +69,48 @@
     currentWorkspaceId,
   } = useCurrentWorkspace();
 
+  const getProfitSummaryQuery = useLazyQuery(graphql(`
+    query getProfitSummary($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
+      workspace(id: $workspaceId) {
+        analytics {
+          expensesSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalAmount
+            currencyExchangeDifference
+          }
+          incomesSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalAmount
+            currencyExchangeDifference
+          }
+          incomeTaxPaymentsSummary(fromDate: $fromDate, toDate: $toDate) {
+            totalTaxPayments
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loaded = ref(false);
   const incomeTaxableAmount = ref<number>(0);
   const currencyExchangeDifference = ref<number>(0);
   const totalProfit = ref<number>(0);
   const totalTaxPayments = ref<number>(0);
 
-  let abortController: AbortController | null = null;
   watch(() => [props.fromDate, props.toDate], async () => {
     loaded.value = false;
-    if (abortController !== null) {
-      abortController.abort();
+    const workspace = await getProfitSummaryQuery({
+      workspaceId: currentWorkspaceId,
+      fromDate: props.fromDate.toISOString().slice(0, 10),
+      toDate: props.toDate.toISOString().slice(0, 10),
+    });
+    const analytics = workspace?.analytics;
+    if (analytics) {
+      totalTaxPayments.value = analytics.incomeTaxPaymentsSummary.totalTaxPayments;
+      incomeTaxableAmount.value = analytics.incomesSummary.totalAmount - analytics.expensesSummary.totalAmount;
+      currencyExchangeDifference.value = analytics.incomesSummary.currencyExchangeDifference
+        - analytics.expensesSummary.currencyExchangeDifference;
+      totalProfit.value = incomeTaxableAmount.value
+        + currencyExchangeDifference.value - analytics.incomeTaxPaymentsSummary.totalTaxPayments;
     }
-    abortController = new AbortController();
-    const [expenses, incomes, incomeTaxPayments] = await Promise.all([
-      statisticsApi.getExpensesStatistics({
-        workspaceId: currentWorkspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
-      }, {
-        signal: abortController.signal,
-      }),
-      statisticsApi.getIncomesStatistics({
-        workspaceId: currentWorkspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
-      }, {
-        signal: abortController.signal,
-      }),
-      statisticsApi.getTaxPaymentsStatistics({
-        workspaceId: currentWorkspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
-      }, {
-        signal: abortController.signal,
-      }),
-    ]);
-
-    totalTaxPayments.value = incomeTaxPayments.totalTaxPayments;
-    incomeTaxableAmount.value = incomes.totalAmount - expenses.totalAmount;
-    currencyExchangeDifference.value = incomes.currencyExchangeDifference - expenses.currencyExchangeDifference;
-    totalProfit.value = incomeTaxableAmount.value
-      + currencyExchangeDifference.value - incomeTaxPayments.totalTaxPayments;
-
     loaded.value = true;
   }, { immediate: true });
 </script>
