@@ -90,7 +90,7 @@ data class ExpensesSummaryGqlDto(
 data class ExpensesSummaryItemGqlDto(
     @GraphQLDescription("Category ID, or null for expenses without a category.")
     val categoryId: Long?,
-    @GraphQLDescription("Total income-taxable amount for this category.")
+    @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized expenses.")
     val finalizedCount: Long,
@@ -123,7 +123,7 @@ data class IncomesSummaryGqlDto(
 data class IncomesSummaryItemGqlDto(
     @GraphQLDescription("Category ID, or null for incomes without a category.")
     val categoryId: Long?,
-    @GraphQLDescription("Total income-taxable amount for this category.")
+    @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized incomes.")
     val finalizedCount: Long,
