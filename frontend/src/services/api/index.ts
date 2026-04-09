@@ -1,7 +1,6 @@
 export * from './api-types';
 export {
   customersApi,
-  statisticsApi,
   invoicesApi,
   documentsApi,
   expensesApi,

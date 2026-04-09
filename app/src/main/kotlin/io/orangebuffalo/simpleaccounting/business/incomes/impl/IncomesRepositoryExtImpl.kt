@@ -25,6 +25,7 @@ class IncomesRepositoryExtImpl(
     ): List<CurrenciesUsageStatistics> = dslContext
         .select(income.currency, count(income.id))
         .from(income)
+        .where(income.workspaceId.eq(workspace.id))
         .groupBy(income.currency)
         .fetchListOf()
 

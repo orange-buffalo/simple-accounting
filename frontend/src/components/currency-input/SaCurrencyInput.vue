@@ -32,7 +32,8 @@
   import type { CurrencyInfo } from '@/services/i18n';
   import { $t, getCurrenciesInfo } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { statisticsApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     modelValue?: string,
@@ -45,11 +46,20 @@
   const currencies = getCurrenciesInfo();
   const loading = ref(true);
 
+  const getCurrenciesShortlistQuery = useLazyQuery(graphql(`
+    query getCurrenciesShortlist($workspaceId: Long!) {
+      workspace(id: $workspaceId) {
+        analytics {
+          currenciesShortlist
+        }
+      }
+    }
+  `), 'workspace');
+
   async function loadShortlist() {
     const { currentWorkspaceId } = useCurrentWorkspace();
-    const shortlistedCurrencyCodes = await statisticsApi.getCurrenciesShortlist({
-      workspaceId: currentWorkspaceId,
-    });
+    const workspace = await getCurrenciesShortlistQuery({ workspaceId: currentWorkspaceId });
+    const shortlistedCurrencyCodes = workspace?.analytics.currenciesShortlist ?? [];
     currenciesShortlist.value = shortlistedCurrencyCodes
       .map((currencyCode) => currencies[currencyCode]);
     loading.value = false;

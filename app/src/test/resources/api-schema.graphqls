@@ -705,6 +705,8 @@ type Workspace {
 
 "Analytics data for a workspace."
 type WorkspaceAnalytics {
+  "Shortlist of recently used currency codes, sorted by usage frequency."
+  currenciesShortlist: [String!]!
   "Summary of expenses in the given date range."
   expensesSummary(
     "Start date of the range (inclusive)."

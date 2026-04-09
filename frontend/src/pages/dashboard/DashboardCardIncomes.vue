@@ -25,12 +25,12 @@
     <template #content>
       <div
         v-for="item in incomes.items"
-        :key="item.categoryId || 'fake'"
+        :key="item.category?.id ?? 'fake'"
         class="sa-dashboard__card__details__item"
       >
         <span><SaCategoryOutput
-          :category-id="item.categoryId"
-          :unspecified-category="!item.categoryId"
+          :category-id="item.category?.id"
+          :unspecified-category="!item.category"
         /></span>
         <SaMoneyOutput
           :currency="defaultCurrency"
@@ -42,36 +42,32 @@
 </template>
 
 <script lang="ts" setup>
+  import { computed } from 'vue';
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import { useValueLoadedByCurrentWorkspaceAndProp, wrapNullable } from '@/services/utils';
-  import { statisticsApi } from '@/services/api';
+  import { wrapNullable } from '@/services/utils';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+
+  interface SummaryItem {
+    category?: { id: number } | null;
+    totalAmount: number;
+  }
+
+  interface IncomesSummaryData {
+    totalAmount: number;
+    finalizedCount: number;
+    pendingCount: number;
+    items: SummaryItem[];
+  }
 
   const props = defineProps<{
-    fromDate: Date,
-    toDate: Date,
+    loading: boolean,
+    summary: IncomesSummaryData | null,
   }>();
 
   const { defaultCurrency } = useCurrentWorkspace();
 
-  const {
-    loading,
-    value: maybeIncomes,
-  } = useValueLoadedByCurrentWorkspaceAndProp(
-    () => props.fromDate && props.toDate,
-    async (_, workspaceId) => {
-      const response = await statisticsApi.getIncomesStatistics({
-        workspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
-      });
-      response.items.sort((a, b) => b.totalAmount - a.totalAmount);
-      return response;
-    },
-  );
-  const incomes = wrapNullable(maybeIncomes);
+  const incomes = wrapNullable(computed(() => props.summary));
 </script>

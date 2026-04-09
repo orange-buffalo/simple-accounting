@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -170,6 +171,58 @@ class WorkspaceAnalyticsQueryTest(
                             put("incomeTaxPaymentsSummary", buildJsonObject {
                                 put("totalTaxPayments", 77)
                             })
+                        })
+                    }
+                )
+        }
+    }
+
+    @Nested
+    @DisplayName("workspace.analytics.currenciesShortlist")
+    inner class CurrenciesShortlist {
+
+        @Test
+        fun `should return currencies sorted by combined usage frequency`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                }.also {
+                    // 2 expenses in EUR + 1 income in EUR = 3 total for EUR
+                    expense(workspace = it.workspace, currency = "EUR")
+                    expense(workspace = it.workspace, currency = "EUR")
+                    income(workspace = it.workspace, currency = "EUR")
+                    // 1 income in CHF
+                    income(workspace = it.workspace, currency = "CHF")
+                    // 2 expenses in AUD
+                    expense(workspace = it.workspace, currency = "AUD")
+                    expense(workspace = it.workspace, currency = "AUD")
+                    // expenses/incomes from another workspace should not affect the result
+                    val anotherWorkspace = workspace(owner = it.fry)
+                    expense(workspace = anotherWorkspace, currency = "CHF")
+                    expense(workspace = anotherWorkspace, currency = "CHF")
+                    expense(workspace = anotherWorkspace, currency = "CHF")
+                    income(workspace = anotherWorkspace, currency = "CHF")
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    analytics {
+                        currenciesShortlist
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("analytics", buildJsonObject {
+                            putJsonArray("currenciesShortlist") {
+                                // EUR: 3 (2 expenses + 1 income) - highest frequency
+                                add("EUR")
+                                // AUD: 2 (2 expenses) and CHF: 1 (1 income) - AUD before CHF alphabetically
+                                add("AUD")
+                                add("CHF")
+                            }
                         })
                     }
                 )

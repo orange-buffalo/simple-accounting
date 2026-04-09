@@ -8,7 +8,6 @@ export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
 export * from './PushNotificationsApiApi';
 export * from './ReportingApiApi';
-export * from './StatisticsApiApi';
 export * from './UserActivationTokensApiApi';
 export * from './UsersApiApi';
 export * from './WorkspaceAccessTokensApiApi';

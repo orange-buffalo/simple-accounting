@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -225,9 +225,8 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display loading state during API calls`(page: Page) {
         page.authenticateViaCookie(preconditionsWithFinalized.fry)
 
-        val expensesStatsPath = "workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses*"
-        page.withBlockedApiResponse(
-            expensesStatsPath,
+        page.withBlockedGqlApiResponse(
+            "getDashboardAnalytics",
             initiator = {
                 page.openDashboard {
                     // Ensure the expenses card is rendered to guarantee the API request has been initiated
@@ -246,9 +245,6 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             },
             resetOnCompletion = false
         )
-
-        // Unroute to allow subsequent requests to complete
-        page.context().unroute("/api/$expensesStatsPath")
 
         page.shouldBeDashboardPage {
             expensesCard {

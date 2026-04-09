@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpense
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 /**
@@ -237,8 +237,8 @@ class SaCurrencyInputFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
 
         // Block the shortlist API and verify loading state
-        page.withBlockedApiResponse(
-            "**/statistics/currencies-shortlist",
+        page.withBlockedGqlApiResponse(
+            "getCurrenciesShortlist",
             initiator = {
                 // Navigate to create expense page, which triggers the API call
                 page.openCreateExpensePage {
