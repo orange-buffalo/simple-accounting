@@ -6,21 +6,29 @@
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { customersApi } from '@/services/api';
   import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     customerId?: number
   }>();
 
+  const getCustomerQuery = useLazyQuery(graphql(`
+    query getCustomerForOutput($workspaceId: Long!, $customerId: Long!) {
+      workspace(id: $workspaceId) {
+        customer(id: $customerId) {
+          name
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     loading,
     value: customerName,
   } = useValueLoadedByCurrentWorkspaceAndProp(() => props.customerId, async (customerId, workspaceId) => {
-    const customer = await customersApi.getCustomer({
-      customerId,
-      workspaceId,
-    });
-    return customer.name;
+    const workspace = await getCustomerQuery({ customerId, workspaceId });
+    return workspace?.customer?.name;
   });
 </script>

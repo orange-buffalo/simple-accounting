@@ -1,6 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './CustomersApiApi';
 export * from './DocumentsApiApi';
 export * from './DownloadsApiApi';
 export * from './ExpensesApiApi';

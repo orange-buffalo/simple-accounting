@@ -1,13 +1,14 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Edit Customer</h1>
+      <h1>Create New Customer</h1>
     </div>
 
     <SaLegacyForm
       ref="formRef"
       :model="customer"
       :rules="customerValidationRules"
+      :initially-loading="false"
     >
       <template #default>
         <h2>General Information</h2>
@@ -45,11 +46,12 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { useForm } from '@/components/form/use-form';
   import { graphql } from '@/services/api/gql';
-  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
 
-  const props = defineProps<{
-    id: number,
-  }>();
+  type CustomerFormValues = {
+    name?: string,
+  };
+  const customer = ref<CustomerFormValues>({});
 
   const customerValidationRules = {
     name: {
@@ -61,64 +63,34 @@
   const { navigateByViewName } = useNavigation();
   const navigateToCustomersOverview = async () => navigateByViewName('customers-overview');
 
-  type CustomerFormValues = {
-    name?: string,
-  };
-  const customer = ref<CustomerFormValues>({});
-
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const getCustomerQuery = useLazyQuery(graphql(`
-    query getCustomerForEdit($workspaceId: Long!, $customerId: Long!) {
-      workspace(id: $workspaceId) {
-        customer(id: $customerId) {
-          id
-          name
-        }
-      }
-    }
-  `), 'workspace');
-
-  const loadCustomer = async () => {
-    const workspace = await getCustomerQuery({
-      workspaceId: currentWorkspaceId,
-      customerId: props.id,
-    });
-    const loaded = workspace?.customer;
-    if (loaded) {
-      customer.value = {
-        name: loaded.name,
-      };
-    }
-  };
-
-  const editCustomerMutation = useMutation(graphql(`
-    mutation editCustomerMutation(
+  const createCustomerMutation = useMutation(graphql(`
+    mutation createCustomerMutation(
       $workspaceId: Long!,
-      $id: Long!,
       $name: String!
     ) {
-      editCustomer(
+      createCustomer(
         workspaceId: $workspaceId,
-        id: $id,
         name: $name
       ) {
         id
       }
     }
-  `), 'editCustomer');
+  `), 'createCustomer');
 
   const saveCustomer = async () => {
-    await editCustomerMutation({
+    await createCustomerMutation({
       workspaceId: currentWorkspaceId,
-      id: props.id,
       name: customer.value.name!,
     });
     await navigateToCustomersOverview();
   };
 
   const {
-    submitForm,
     formRef,
-  } = useForm(loadCustomer, saveCustomer);
+    submitForm,
+  } = useForm(async () => {
+    // no op
+  }, saveCustomer);
 </script>

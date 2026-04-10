@@ -19,6 +19,7 @@ import Categories from '@/pages/settings/categories/Categories.vue';
 import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 import EditCategory from '@/pages/settings/categories/EditCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
+import CreateCustomer from '@/pages/settings/customers/CreateCustomer.vue';
 import EditCustomer from '@/pages/settings/customers/EditCustomer.vue';
 import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
 import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
@@ -220,7 +221,7 @@ export default function setupRouter() {
           {
             path: 'settings/customers/create',
             name: 'create-new-customer',
-            component: EditCustomer,
+            component: CreateCustomer,
           },
           {
             path: 'settings/customers/:id/edit',
