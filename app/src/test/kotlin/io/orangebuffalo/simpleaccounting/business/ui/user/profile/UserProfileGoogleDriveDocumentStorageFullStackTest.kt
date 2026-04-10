@@ -127,22 +127,24 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
             )
         }
 
-        val oauthPopup = withHint("Should initiate authorization flow when requested") {
-            page.shouldHaveAuthorizationPopupOpenBy {
-                settings.startAuthorizationButton.click()
+        try {
+            val oauthPopup = withHint("Should initiate authorization flow when requested") {
+                page.shouldHaveAuthorizationPopupOpenBy {
+                    settings.startAuthorizationButton.click()
+                }
             }
-        }
 
-        withHint("OAuth popup should show error") {
-            oauthPopup.shouldHaveErrorState()
-        }
+            withHint("OAuth popup should show error") {
+                oauthPopup.shouldHaveErrorState()
+            }
 
-        withHint("Should transition to authorization failed status via push notification") {
-            assertAuthorizationFailedStatus()
-            reportRendering("profile.documents-storage.google.authorization-failed")
+            withHint("Should transition to authorization failed status via push notification") {
+                assertAuthorizationFailedStatus()
+                reportRendering("profile.documents-storage.google.authorization-failed")
+            }
+        } finally {
+            page.context().unroute("**/google/authorize**")
         }
-
-        page.context().unroute("**/google/authorize**")
     }
 
     @Test
