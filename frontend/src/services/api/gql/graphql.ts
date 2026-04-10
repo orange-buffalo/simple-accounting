@@ -296,7 +296,7 @@ export type FinalizedGeneralTaxSummaryItem = {
   /** Number of items contributing to this tax. */
   includedItemsNumber: Scalars['Long']['output'];
   /** The general tax. */
-  tax?: Maybe<GeneralTax>;
+  tax: GeneralTax;
   /** Total amount of tax collected or paid. */
   taxAmount: Scalars['Long']['output'];
 };
@@ -625,7 +625,7 @@ export type PendingGeneralTaxSummaryItem = {
   /** Number of items contributing to this tax. */
   includedItemsNumber: Scalars['Long']['output'];
   /** The general tax. */
-  tax?: Maybe<GeneralTax>;
+  tax: GeneralTax;
 };
 
 export type Query = {

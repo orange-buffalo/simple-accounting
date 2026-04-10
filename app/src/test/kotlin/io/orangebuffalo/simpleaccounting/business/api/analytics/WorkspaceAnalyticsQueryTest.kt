@@ -187,16 +187,16 @@ class WorkspaceAnalyticsQueryTest(
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
-                    val vatTax = generalTax(workspace = workspace)
-                    val salesTax = generalTax(workspace = workspace)
+                    val deliveryTax = generalTax(workspace = workspace)
+                    val robotOilTax = generalTax(workspace = workspace)
                 }.also {
                     val anotherWorkspace = workspace(owner = it.fry)
                     val anotherTax = generalTax(workspace = anotherWorkspace)
 
-                    // finalized income -> finalizedCollectedTaxes for vatTax
+                    // finalized income -> finalizedCollectedTaxes for deliveryTax
                     income(
                         workspace = it.workspace,
-                        generalTax = it.vatTax,
+                        generalTax = it.deliveryTax,
                         generalTaxAmount = 100,
                         convertedAmounts = amountsInDefaultCurrency(900),
                         incomeTaxableAmounts = amountsInDefaultCurrency(800),
@@ -204,10 +204,10 @@ class WorkspaceAnalyticsQueryTest(
                         dateReceived = LocalDate.of(3025, 3, 15),
                     )
 
-                    // finalized expense -> finalizedPaidTaxes for salesTax
+                    // finalized expense -> finalizedPaidTaxes for robotOilTax
                     expense(
                         workspace = it.workspace,
-                        generalTax = it.salesTax,
+                        generalTax = it.robotOilTax,
                         generalTaxAmount = 50,
                         convertedAmounts = amountsInDefaultCurrency(450),
                         incomeTaxableAmounts = amountsInDefaultCurrency(400),
@@ -216,10 +216,10 @@ class WorkspaceAnalyticsQueryTest(
                         status = ExpenseStatus.FINALIZED,
                     )
 
-                    // pending income -> pendingCollectedTaxes for vatTax
+                    // pending income -> pendingCollectedTaxes for deliveryTax
                     income(
                         workspace = it.workspace,
-                        generalTax = it.vatTax,
+                        generalTax = it.deliveryTax,
                         convertedAmounts = amountsInDefaultCurrency(256),
                         incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                         useDifferentExchangeRateForIncomeTaxPurposes = true,
@@ -227,10 +227,10 @@ class WorkspaceAnalyticsQueryTest(
                         dateReceived = LocalDate.of(3025, 3, 18),
                     )
 
-                    // pending expense -> pendingPaidTaxes for salesTax
+                    // pending expense -> pendingPaidTaxes for robotOilTax
                     expense(
                         workspace = it.workspace,
-                        generalTax = it.salesTax,
+                        generalTax = it.robotOilTax,
                         convertedAmounts = emptyAmountsInDefaultCurrency(),
                         incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
@@ -241,7 +241,7 @@ class WorkspaceAnalyticsQueryTest(
                     // out of date range - excluded
                     income(
                         workspace = it.workspace,
-                        generalTax = it.vatTax,
+                        generalTax = it.deliveryTax,
                         generalTaxAmount = 999,
                         convertedAmounts = amountsInDefaultCurrency(999),
                         incomeTaxableAmounts = amountsInDefaultCurrency(999),
@@ -299,7 +299,7 @@ class WorkspaceAnalyticsQueryTest(
                             put("generalTaxesSummary", buildJsonObject {
                                 putJsonArray("finalizedCollectedTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.vatTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!.toInt()) })
                                         put("taxAmount", 100)
                                         put("includedItemsNumber", 1)
                                         put("includedItemsAmount", 800)
@@ -307,7 +307,7 @@ class WorkspaceAnalyticsQueryTest(
                                 }
                                 putJsonArray("finalizedPaidTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.salesTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!.toInt()) })
                                         put("taxAmount", 50)
                                         put("includedItemsNumber", 1)
                                         put("includedItemsAmount", 400)
@@ -315,13 +315,13 @@ class WorkspaceAnalyticsQueryTest(
                                 }
                                 putJsonArray("pendingCollectedTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.vatTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!.toInt()) })
                                         put("includedItemsNumber", 1)
                                     }
                                 }
                                 putJsonArray("pendingPaidTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.salesTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!.toInt()) })
                                         put("includedItemsNumber", 1)
                                     }
                                 }

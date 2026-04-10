@@ -271,7 +271,7 @@ type FinalizedGeneralTaxSummaryItem {
   "Number of items contributing to this tax."
   includedItemsNumber: Long!
   "The general tax."
-  tax: GeneralTax
+  tax: GeneralTax!
   "Total amount of tax collected or paid."
   taxAmount: Long!
 }
@@ -594,7 +594,7 @@ type PendingGeneralTaxSummaryItem {
   "Number of items contributing to this tax."
   includedItemsNumber: Long!
   "The general tax."
-  tax: GeneralTax
+  tax: GeneralTax!
 }
 
 type Query {

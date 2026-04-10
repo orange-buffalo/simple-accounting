@@ -244,8 +244,9 @@ data class FinalizedGeneralTaxSummaryItemGqlDto(
     val includedItemsAmount: Long,
 ) {
     @GraphQLDescription("The general tax.")
-    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?> =
+    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto> =
         env.loadGeneralTaxByWorkspaceAndId(workspaceId, taxId)
+            .thenApply { requireNotNull(it) { "General tax $taxId not found for workspace $workspaceId" } }
 }
 
 @GraphQLName("PendingGeneralTaxSummaryItem")
@@ -257,6 +258,7 @@ data class PendingGeneralTaxSummaryItemGqlDto(
     val includedItemsNumber: Long,
 ) {
     @GraphQLDescription("The general tax.")
-    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?> =
+    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto> =
         env.loadGeneralTaxByWorkspaceAndId(workspaceId, taxId)
+            .thenApply { requireNotNull(it) { "General tax $taxId not found for workspace $workspaceId" } }
 }
