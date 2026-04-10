@@ -7,7 +7,6 @@ export * from './ExpensesApiApi';
 export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
 export * from './PushNotificationsApiApi';
-export * from './ReportingApiApi';
 export * from './UserActivationTokensApiApi';
 export * from './UsersApiApi';
 export * from './WorkspaceAccessTokensApiApi';

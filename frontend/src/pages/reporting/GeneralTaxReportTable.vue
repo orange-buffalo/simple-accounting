@@ -8,7 +8,7 @@
         header-align="left"
         :label="$t.generalTaxReport.tableColumns.tax()"
       >
-        <SaGeneralTaxOutput :general-tax-id="item.taxId" />
+        {{ item.taxTitle }}
       </ElTableColumn>
 
       <ElTableColumn
@@ -53,7 +53,6 @@
 
 <script lang="ts" setup>
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
