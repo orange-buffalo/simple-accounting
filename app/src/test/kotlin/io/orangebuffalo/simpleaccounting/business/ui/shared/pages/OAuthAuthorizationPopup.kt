@@ -12,8 +12,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 
-class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page) {
-    private val pageContainer = page.locator(".oauth-callback-page")
+class OAuthAuthorizationPopup private constructor(private val popupPage: Page) : SaPageBase(popupPage) {
+    private val pageContainer = popupPage.locator(".oauth-callback-page")
     private val status = components.statusLabel()
 
     private fun shouldHaveLoadingState() {
@@ -30,6 +30,10 @@ class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page)
             status.shouldBeError()
             pageContainer.reportRendering("shared.oauth-authorization-popup.error")
         }
+    }
+
+    fun close() {
+        popupPage.close()
     }
 
     companion object {

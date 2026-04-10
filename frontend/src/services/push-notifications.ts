@@ -59,7 +59,7 @@ export function subscribeToPushNotifications<T>(eventName: string, callback: Pus
 
 export function unsubscribeFromPushNotifications<T>(eventName: string, callback: PushNotificationListenerCallback<T>) {
   eventListeners = eventListeners
-    .filter((it) => it.eventName !== eventName && it.callback !== callback);
+    .filter((it) => it.eventName !== eventName || it.callback !== callback);
 
   if (eventListeners.length === 0 && eventSource) {
     eventSource.close();

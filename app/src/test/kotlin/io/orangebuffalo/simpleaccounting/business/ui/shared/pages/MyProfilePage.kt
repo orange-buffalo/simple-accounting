@@ -139,6 +139,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
             private val container = parentEl.locator(".sa-gdrive-integration")
             val status = components.statusLabel(container)
             val startAuthorizationButton = components.buttonByText("Start authorization now")
+            val retryAuthorizationButton = components.buttonByText("Try again")
             val detailsMessage: Locator = container.locator(".sa-gdrive-integration__status__details")
 
             fun shouldBeHidden() {

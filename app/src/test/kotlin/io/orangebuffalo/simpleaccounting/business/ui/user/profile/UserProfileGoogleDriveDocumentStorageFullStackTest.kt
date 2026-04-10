@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.profile
 
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.Route
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -21,6 +22,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthRecordedRequest
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import org.junit.jupiter.api.Test
+import java.net.URI
+import java.net.URLDecoder
 
 /**
  * Tests Google Drive document storage integration on My Profile page.
@@ -96,6 +99,66 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
             settings.status.shouldBeRegular("Authorization in progress...")
             reportRendering("profile.documents-storage.google.authorizing-in-progress")
         }
+    }
+
+    @Test
+    fun `should show authorization failed status when OAuth provider denies access and recover on retry`(
+        page: Page
+    ) = page.onGoogleDriveSection(preconditions.calculon) {
+        assertAuthorizationRequiredStatus()
+
+        tokenGenerator.setupErrorIdForOAuthAuthorizationFailure()
+
+        // Intercept the OAuth authorization endpoint to simulate the user denying access
+        // at the OAuth provider level. This causes the callback to receive an error instead of a code,
+        // triggering OAuth2FailedEvent which sends a push notification to update the UI.
+        page.context().route("**/google/authorize**") { route ->
+            val rawQuery = URI(route.request().url()).rawQuery
+            val params = rawQuery.split("&").associate { param ->
+                val parts = param.split("=", limit = 2)
+                parts[0] to parts.getOrElse(1) { "" }
+            }
+            val state = params["state"] ?: ""
+            val redirectUri = URLDecoder.decode(params["redirect_uri"] ?: "", "UTF-8")
+            route.fulfill(
+                Route.FulfillOptions()
+                    .setStatus(302)
+                    .setHeaders(mapOf("location" to "$redirectUri?error=access_denied&state=$state"))
+            )
+        }
+
+        try {
+            val oauthPopup = withHint("Should initiate authorization flow when requested") {
+                page.shouldHaveAuthorizationPopupOpenBy {
+                    settings.startAuthorizationButton.click()
+                }
+            }
+
+            withHint("OAuth popup should show error") {
+                oauthPopup.shouldHaveErrorState()
+            }
+
+            withHint("Should transition to authorization failed status via push notification") {
+                assertAuthorizationFailedStatus()
+                reportRendering("profile.documents-storage.google.authorization-failed")
+            }
+
+            oauthPopup.close()
+        } finally {
+            page.context().unroute("**/google/authorize**")
+        }
+
+        GoogleDriveApiMocks.mockCreateFolder(
+            requestName = "simple-accounting",
+            responseId = "test-created-folder-id",
+            requestParents = emptyList(),
+            expectedAuthToken = GoogleOAuthMocks.token().enqueue(),
+        )
+
+        retryAuthorization(page)
+
+        assertSuccessStatus("simple-accounting")
+        preconditions.calculon.assertIntegrationFolderId("test-created-folder-id")
     }
 
     @Test
@@ -375,10 +438,26 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
+    private fun StorageSubSection<GoogleDriveSettings>.assertAuthorizationFailedStatus() {
+        withHint("Should have authorization failed status") {
+            settings {
+                shouldBeVisible()
+                status.shouldBeError("Application authorization failed")
+                retryAuthorizationButton.shouldBeVisible()
+            }
+        }
+    }
+
     private fun StorageSubSection<GoogleDriveSettings>.startAuthorization(
         page: Page,
     ) = page.shouldHaveAuthorizationPopupOpenBy {
         settings.startAuthorizationButton.click()
+    }
+
+    private fun StorageSubSection<GoogleDriveSettings>.retryAuthorization(
+        page: Page,
+    ) = page.shouldHaveAuthorizationPopupOpenBy {
+        settings.retryAuthorizationButton.click()
     }
 
     private fun StorageSubSection<GoogleDriveSettings>.assertSuccessStatus(
