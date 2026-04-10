@@ -6,8 +6,11 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryById
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.analytics.WorkspaceAnalyticsService
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
+import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -71,6 +74,53 @@ class AnalyticsGqlDto(private val workspaceId: Long) {
         val incomeTaxPaymentService = env.graphQlContext.getBean<IncomeTaxPaymentService>()
         val statistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspaceId)
         return IncomeTaxPaymentsSummaryGqlDto(totalTaxPayments = statistics.totalTaxPayments)
+    }
+
+    @GraphQLDescription("Summary of general taxes in the given date range.")
+    suspend fun generalTaxesSummary(
+        @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
+        @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
+        env: DataFetchingEnvironment,
+    ): GeneralTaxesSummaryGqlDto {
+        val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
+        val taxReportingService = env.graphQlContext.getBean<GeneralTaxesReportingService>()
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val report = taxReportingService.getGeneralTaxReport(fromDate, toDate, workspace)
+        return GeneralTaxesSummaryGqlDto(
+            workspaceId = workspaceId,
+            finalizedCollectedTaxes = report.finalizedCollectedTaxes.map {
+                FinalizedGeneralTaxSummaryItemGqlDto(
+                    workspaceId = workspaceId,
+                    taxId = it.tax,
+                    taxAmount = it.taxAmount,
+                    includedItemsNumber = it.includedItemsNumber,
+                    includedItemsAmount = it.includedItemsAmount,
+                )
+            },
+            finalizedPaidTaxes = report.finalizedPaidTaxes.map {
+                FinalizedGeneralTaxSummaryItemGqlDto(
+                    workspaceId = workspaceId,
+                    taxId = it.tax,
+                    taxAmount = it.taxAmount,
+                    includedItemsNumber = it.includedItemsNumber,
+                    includedItemsAmount = it.includedItemsAmount,
+                )
+            },
+            pendingCollectedTaxes = report.pendingCollectedTaxes.map {
+                PendingGeneralTaxSummaryItemGqlDto(
+                    workspaceId = workspaceId,
+                    taxId = it.tax,
+                    includedItemsNumber = it.includedItemsNumber,
+                )
+            },
+            pendingPaidTaxes = report.pendingPaidTaxes.map {
+                PendingGeneralTaxSummaryItemGqlDto(
+                    workspaceId = workspaceId,
+                    taxId = it.tax,
+                    includedItemsNumber = it.includedItemsNumber,
+                )
+            },
+        )
     }
 
     @GraphQLDescription("Shortlist of recently used currency codes, sorted by usage frequency.")
@@ -166,3 +216,49 @@ data class IncomeTaxPaymentsSummaryGqlDto(
     @GraphQLDescription("Total amount of all income tax payments in the range.")
     val totalTaxPayments: Long,
 )
+
+@GraphQLName("GeneralTaxesSummary")
+@GraphQLDescription("Summary of general taxes for a date range.")
+data class GeneralTaxesSummaryGqlDto(
+    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLDescription("Finalized taxes collected on incomes.")
+    val finalizedCollectedTaxes: List<FinalizedGeneralTaxSummaryItemGqlDto>,
+    @GraphQLDescription("Finalized taxes paid on expenses.")
+    val finalizedPaidTaxes: List<FinalizedGeneralTaxSummaryItemGqlDto>,
+    @GraphQLDescription("Pending taxes to be collected on incomes.")
+    val pendingCollectedTaxes: List<PendingGeneralTaxSummaryItemGqlDto>,
+    @GraphQLDescription("Pending taxes to be paid on expenses.")
+    val pendingPaidTaxes: List<PendingGeneralTaxSummaryItemGqlDto>,
+)
+
+@GraphQLName("FinalizedGeneralTaxSummaryItem")
+@GraphQLDescription("Summary of a finalized general tax.")
+data class FinalizedGeneralTaxSummaryItemGqlDto(
+    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val taxId: Long,
+    @GraphQLDescription("Total amount of tax collected or paid.")
+    val taxAmount: Long,
+    @GraphQLDescription("Number of items contributing to this tax.")
+    val includedItemsNumber: Long,
+    @GraphQLDescription("Total amount of items contributing to this tax.")
+    val includedItemsAmount: Long,
+) {
+    @GraphQLDescription("The general tax.")
+    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto> =
+        env.loadGeneralTaxByWorkspaceAndId(workspaceId, taxId)
+            .thenApply { requireNotNull(it) { "General tax $taxId not found for workspace $workspaceId" } }
+}
+
+@GraphQLName("PendingGeneralTaxSummaryItem")
+@GraphQLDescription("Summary of a pending general tax.")
+data class PendingGeneralTaxSummaryItemGqlDto(
+    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val taxId: Long,
+    @GraphQLDescription("Number of items contributing to this tax.")
+    val includedItemsNumber: Long,
+) {
+    @GraphQLDescription("The general tax.")
+    fun tax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto> =
+        env.loadGeneralTaxByWorkspaceAndId(workspaceId, taxId)
+            .thenApply { requireNotNull(it) { "General tax $taxId not found for workspace $workspaceId" } }
+}
