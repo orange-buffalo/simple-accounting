@@ -264,6 +264,18 @@ type ExpensesSummaryItem {
   totalAmount: Long!
 }
 
+"Summary of a finalized general tax."
+type FinalizedGeneralTaxSummaryItem {
+  "Total amount of items contributing to this tax."
+  includedItemsAmount: Long!
+  "Number of items contributing to this tax."
+  includedItemsNumber: Long!
+  "The general tax."
+  tax: GeneralTax
+  "Total amount of tax collected or paid."
+  taxAmount: Long!
+}
+
 "General tax applicable to incomes or expenses."
 type GeneralTax {
   "Description of the general tax."
@@ -292,6 +304,18 @@ type GeneralTaxesConnection {
   pageInfo: PageInfo!
   "The total number of items in the connection across all pages."
   totalCount: Int!
+}
+
+"Summary of general taxes for a date range."
+type GeneralTaxesSummary {
+  "Finalized taxes collected on incomes."
+  finalizedCollectedTaxes: [FinalizedGeneralTaxSummaryItem!]!
+  "Finalized taxes paid on expenses."
+  finalizedPaidTaxes: [FinalizedGeneralTaxSummaryItem!]!
+  "Pending taxes to be collected on incomes."
+  pendingCollectedTaxes: [PendingGeneralTaxSummaryItem!]!
+  "Pending taxes to be paid on expenses."
+  pendingPaidTaxes: [PendingGeneralTaxSummaryItem!]!
 }
 
 "Google Drive storage integration status for the current user."
@@ -565,6 +589,14 @@ type PageInfo {
   startCursor: String
 }
 
+"Summary of a pending general tax."
+type PendingGeneralTaxSummaryItem {
+  "Number of items contributing to this tax."
+  includedItemsNumber: Long!
+  "The general tax."
+  tax: GeneralTax
+}
+
 type Query {
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
@@ -714,6 +746,13 @@ type WorkspaceAnalytics {
     "End date of the range (inclusive)."
     toDate: LocalDate!
   ): ExpensesSummary!
+  "Summary of general taxes in the given date range."
+  generalTaxesSummary(
+    "Start date of the range (inclusive)."
+    fromDate: LocalDate!,
+    "End date of the range (inclusive)."
+    toDate: LocalDate!
+  ): GeneralTaxesSummary!
   "Summary of income tax payments in the given date range."
   incomeTaxPaymentsSummary(
     "Start date of the range (inclusive)."

@@ -178,6 +178,161 @@ class WorkspaceAnalyticsQueryTest(
     }
 
     @Nested
+    @DisplayName("workspace.analytics.generalTaxesSummary")
+    inner class GeneralTaxesSummary {
+
+        @Test
+        fun `should calculate general taxes summary`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val vatTax = generalTax(workspace = workspace)
+                    val salesTax = generalTax(workspace = workspace)
+                }.also {
+                    val anotherWorkspace = workspace(owner = it.fry)
+                    val anotherTax = generalTax(workspace = anotherWorkspace)
+
+                    // finalized income -> finalizedCollectedTaxes for vatTax
+                    income(
+                        workspace = it.workspace,
+                        generalTax = it.vatTax,
+                        generalTaxAmount = 100,
+                        convertedAmounts = amountsInDefaultCurrency(900),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(800),
+                        useDifferentExchangeRateForIncomeTaxPurposes = true,
+                        dateReceived = LocalDate.of(3025, 3, 15),
+                    )
+
+                    // finalized expense -> finalizedPaidTaxes for salesTax
+                    expense(
+                        workspace = it.workspace,
+                        generalTax = it.salesTax,
+                        generalTaxAmount = 50,
+                        convertedAmounts = amountsInDefaultCurrency(450),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(400),
+                        useDifferentExchangeRateForIncomeTaxPurposes = true,
+                        datePaid = LocalDate.of(3025, 3, 20),
+                        status = ExpenseStatus.FINALIZED,
+                    )
+
+                    // pending income -> pendingCollectedTaxes for vatTax
+                    income(
+                        workspace = it.workspace,
+                        generalTax = it.vatTax,
+                        convertedAmounts = amountsInDefaultCurrency(256),
+                        incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                        useDifferentExchangeRateForIncomeTaxPurposes = true,
+                        status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                        dateReceived = LocalDate.of(3025, 3, 18),
+                    )
+
+                    // pending expense -> pendingPaidTaxes for salesTax
+                    expense(
+                        workspace = it.workspace,
+                        generalTax = it.salesTax,
+                        convertedAmounts = emptyAmountsInDefaultCurrency(),
+                        incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                        useDifferentExchangeRateForIncomeTaxPurposes = false,
+                        datePaid = LocalDate.of(3025, 3, 10),
+                        status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                    )
+
+                    // out of date range - excluded
+                    income(
+                        workspace = it.workspace,
+                        generalTax = it.vatTax,
+                        generalTaxAmount = 999,
+                        convertedAmounts = amountsInDefaultCurrency(999),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(999),
+                        useDifferentExchangeRateForIncomeTaxPurposes = false,
+                        dateReceived = LocalDate.of(3025, 4, 2),
+                    )
+
+                    // different workspace - excluded
+                    income(
+                        workspace = anotherWorkspace,
+                        generalTax = anotherTax,
+                        generalTaxAmount = 888,
+                        convertedAmounts = amountsInDefaultCurrency(888),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(888),
+                        useDifferentExchangeRateForIncomeTaxPurposes = false,
+                        dateReceived = LocalDate.of(3025, 3, 15),
+                    )
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    analytics {
+                        generalTaxesSummary(
+                            fromDate = LocalDate.of(3025, 3, 1),
+                            toDate = LocalDate.of(3025, 4, 1),
+                        ) {
+                            finalizedCollectedTaxes {
+                                tax { id }
+                                taxAmount
+                                includedItemsNumber
+                                includedItemsAmount
+                            }
+                            finalizedPaidTaxes {
+                                tax { id }
+                                taxAmount
+                                includedItemsNumber
+                                includedItemsAmount
+                            }
+                            pendingCollectedTaxes {
+                                tax { id }
+                                includedItemsNumber
+                            }
+                            pendingPaidTaxes {
+                                tax { id }
+                                includedItemsNumber
+                            }
+                        }
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("analytics", buildJsonObject {
+                            put("generalTaxesSummary", buildJsonObject {
+                                putJsonArray("finalizedCollectedTaxes") {
+                                    addJsonObject {
+                                        put("tax", buildJsonObject { put("id", testData.vatTax.id!!.toInt()) })
+                                        put("taxAmount", 100)
+                                        put("includedItemsNumber", 1)
+                                        put("includedItemsAmount", 800)
+                                    }
+                                }
+                                putJsonArray("finalizedPaidTaxes") {
+                                    addJsonObject {
+                                        put("tax", buildJsonObject { put("id", testData.salesTax.id!!.toInt()) })
+                                        put("taxAmount", 50)
+                                        put("includedItemsNumber", 1)
+                                        put("includedItemsAmount", 400)
+                                    }
+                                }
+                                putJsonArray("pendingCollectedTaxes") {
+                                    addJsonObject {
+                                        put("tax", buildJsonObject { put("id", testData.vatTax.id!!.toInt()) })
+                                        put("includedItemsNumber", 1)
+                                    }
+                                }
+                                putJsonArray("pendingPaidTaxes") {
+                                    addJsonObject {
+                                        put("tax", buildJsonObject { put("id", testData.salesTax.id!!.toInt()) })
+                                        put("includedItemsNumber", 1)
+                                    }
+                                }
+                            })
+                        })
+                    }
+                )
+        }
+    }
+
+    @Nested
     @DisplayName("workspace.analytics.currenciesShortlist")
     inner class CurrenciesShortlist {
 
