@@ -102,7 +102,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
     }
 
     @Test
-    fun `should show authorization failed status when OAuth provider denies access`(
+    fun `should show authorization failed status when OAuth provider denies access and recover on retry`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.calculon) {
         assertAuthorizationRequiredStatus()
@@ -142,9 +142,23 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
                 assertAuthorizationFailedStatus()
                 reportRendering("profile.documents-storage.google.authorization-failed")
             }
+
+            oauthPopup.close()
         } finally {
             page.context().unroute("**/google/authorize**")
         }
+
+        GoogleDriveApiMocks.mockCreateFolder(
+            requestName = "simple-accounting",
+            responseId = "test-created-folder-id",
+            requestParents = emptyList(),
+            expectedAuthToken = GoogleOAuthMocks.token().enqueue(),
+        )
+
+        retryAuthorization(page)
+
+        assertSuccessStatus("simple-accounting")
+        preconditions.calculon.assertIntegrationFolderId("test-created-folder-id")
     }
 
     @Test
@@ -438,6 +452,12 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         page: Page,
     ) = page.shouldHaveAuthorizationPopupOpenBy {
         settings.startAuthorizationButton.click()
+    }
+
+    private fun StorageSubSection<GoogleDriveSettings>.retryAuthorization(
+        page: Page,
+    ) = page.shouldHaveAuthorizationPopupOpenBy {
+        settings.retryAuthorizationButton.click()
     }
 
     private fun StorageSubSection<GoogleDriveSettings>.assertSuccessStatus(
