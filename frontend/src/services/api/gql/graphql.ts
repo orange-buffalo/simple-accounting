@@ -288,6 +288,19 @@ export type ExpensesSummaryItem = {
   totalAmount: Scalars['Long']['output'];
 };
 
+/** Summary of a finalized general tax. */
+export type FinalizedGeneralTaxSummaryItem = {
+  __typename?: 'FinalizedGeneralTaxSummaryItem';
+  /** Total amount of items contributing to this tax. */
+  includedItemsAmount: Scalars['Long']['output'];
+  /** Number of items contributing to this tax. */
+  includedItemsNumber: Scalars['Long']['output'];
+  /** The general tax. */
+  tax: GeneralTax;
+  /** Total amount of tax collected or paid. */
+  taxAmount: Scalars['Long']['output'];
+};
+
 /** General tax applicable to incomes or expenses. */
 export type GeneralTax = {
   __typename?: 'GeneralTax';
@@ -319,6 +332,19 @@ export type GeneralTaxesConnection = {
   pageInfo: PageInfo;
   /** The total number of items in the connection across all pages. */
   totalCount: Scalars['Int']['output'];
+};
+
+/** Summary of general taxes for a date range. */
+export type GeneralTaxesSummary = {
+  __typename?: 'GeneralTaxesSummary';
+  /** Finalized taxes collected on incomes. */
+  finalizedCollectedTaxes: Array<FinalizedGeneralTaxSummaryItem>;
+  /** Finalized taxes paid on expenses. */
+  finalizedPaidTaxes: Array<FinalizedGeneralTaxSummaryItem>;
+  /** Pending taxes to be collected on incomes. */
+  pendingCollectedTaxes: Array<PendingGeneralTaxSummaryItem>;
+  /** Pending taxes to be paid on expenses. */
+  pendingPaidTaxes: Array<PendingGeneralTaxSummaryItem>;
 };
 
 /** Google Drive storage integration status for the current user. */
@@ -593,6 +619,15 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+/** Summary of a pending general tax. */
+export type PendingGeneralTaxSummaryItem = {
+  __typename?: 'PendingGeneralTaxSummaryItem';
+  /** Number of items contributing to this tax. */
+  includedItemsNumber: Scalars['Long']['output'];
+  /** The general tax. */
+  tax: GeneralTax;
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -800,6 +835,8 @@ export type WorkspaceAnalytics = {
   currenciesShortlist: Array<Scalars['String']['output']>;
   /** Summary of expenses in the given date range. */
   expensesSummary: ExpensesSummary;
+  /** Summary of general taxes in the given date range. */
+  generalTaxesSummary: GeneralTaxesSummary;
   /** Summary of income tax payments in the given date range. */
   incomeTaxPaymentsSummary: IncomeTaxPaymentsSummary;
   /** Summary of incomes in the given date range. */
@@ -809,6 +846,13 @@ export type WorkspaceAnalytics = {
 
 /** Analytics data for a workspace. */
 export type WorkspaceAnalyticsExpensesSummaryArgs = {
+  fromDate: Scalars['LocalDate']['input'];
+  toDate: Scalars['LocalDate']['input'];
+};
+
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalyticsGeneralTaxesSummaryArgs = {
   fromDate: Scalars['LocalDate']['input'];
   toDate: Scalars['LocalDate']['input'];
 };
