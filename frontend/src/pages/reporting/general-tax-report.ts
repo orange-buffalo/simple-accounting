@@ -1,6 +1,7 @@
 export type GeneralTaxReportItem = {
-  taxId: number;
+  taxTitle: string;
   taxAmount: number;
   finalized: boolean;
+  includedItemsNumber: number;
   includedItemsAmount: number;
 }

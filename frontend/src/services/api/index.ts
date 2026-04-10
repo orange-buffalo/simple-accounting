@@ -5,7 +5,6 @@ export {
   documentsApi,
   expensesApi,
   incomesApi,
-  reportingApi,
   workspaceAccessTokensApi,
   usersApi,
   userActivationTokensApi,

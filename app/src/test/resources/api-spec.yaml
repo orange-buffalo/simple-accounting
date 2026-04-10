@@ -859,37 +859,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserActivationTokensApiActivateUserErrors"
-  /api/workspaces/{workspaceId}/reporting/general-taxes:
-    get:
-      tags:
-      - reporting-api
-      operationId: getGeneralTaxReport
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: fromDate
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date
-      - name: toDate
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GeneralTaxReportDto"
   /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
     get:
       tags:
@@ -1550,62 +1519,6 @@ components:
       - pageNumber
       - pageSize
       - totalElements
-    FinalizedTaxSummaryItemDto:
-      type: object
-      properties:
-        tax:
-          type: integer
-          format: int64
-        taxAmount:
-          type: integer
-          format: int64
-        includedItemsNumber:
-          type: integer
-          format: int64
-        includedItemsAmount:
-          type: integer
-          format: int64
-      required:
-      - includedItemsAmount
-      - includedItemsNumber
-      - tax
-      - taxAmount
-    GeneralTaxReportDto:
-      type: object
-      properties:
-        finalizedCollectedTaxes:
-          type: array
-          items:
-            $ref: "#/components/schemas/FinalizedTaxSummaryItemDto"
-        finalizedPaidTaxes:
-          type: array
-          items:
-            $ref: "#/components/schemas/FinalizedTaxSummaryItemDto"
-        pendingCollectedTaxes:
-          type: array
-          items:
-            $ref: "#/components/schemas/PendingTaxSummaryItemDto"
-        pendingPaidTaxes:
-          type: array
-          items:
-            $ref: "#/components/schemas/PendingTaxSummaryItemDto"
-      required:
-      - finalizedCollectedTaxes
-      - finalizedPaidTaxes
-      - pendingCollectedTaxes
-      - pendingPaidTaxes
-    PendingTaxSummaryItemDto:
-      type: object
-      properties:
-        tax:
-          type: integer
-          format: int64
-        includedItemsNumber:
-          type: integer
-          format: int64
-      required:
-      - includedItemsNumber
-      - tax
     ApiPageInvoiceDto:
       type: object
       properties:
