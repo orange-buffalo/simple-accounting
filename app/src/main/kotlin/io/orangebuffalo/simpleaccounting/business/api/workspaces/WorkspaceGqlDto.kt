@@ -90,7 +90,7 @@ data class WorkspaceGqlDto(
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<ExpenseGqlDto> {
         val expense = Tables.EXPENSE
-        val category = Tables.CATEGORY.`as`("searchCategory")
+        val category = Tables.CATEGORY
         val expenseAttachments = Tables.EXPENSE_ATTACHMENTS
         val dslContext = env.graphQlContext.getBean<DSLContext>()
         val cursorPage = decodeExpenseCursor(after)
