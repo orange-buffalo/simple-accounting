@@ -230,10 +230,68 @@ type DownloadDocumentStorageResponse {
 
 "Business expense."
 type Expense {
+  "Documents attached to this expense."
+  attachments: [Document!]!
   "Category of the expense."
   category: Category
+  "Amounts converted to the default currency."
+  convertedAmounts: ExpenseAmounts!
+  "Time when the expense was created, as ISO 8601 timestamp."
+  createdAt: DateTime!
+  "Currency of the expense."
+  currency: String!
+  "Date when the expense was paid."
+  datePaid: LocalDate!
+  "Amount of the general tax in cents."
+  generalTaxAmount: Long
+  "ID of the general tax applied to this expense."
+  generalTaxId: Long
+  "Rate of the general tax in basis points."
+  generalTaxRateInBps: Int
+  "ID of the expense."
+  id: Long!
+  "Amounts for income tax purposes in the default currency."
+  incomeTaxableAmounts: ExpenseAmounts!
+  "Optional notes for the expense."
+  notes: String
+  "Original amount of the expense in original currency, in cents."
+  originalAmount: Long!
+  "Percentage of the expense on business."
+  percentOnBusiness: Int!
+  "Status of the expense."
+  status: ExpenseStatus!
   "Title of the expense."
   title: String!
+  "Whether different exchange rate is used for income tax purposes."
+  useDifferentExchangeRateForIncomeTaxPurposes: Boolean!
+  "Version of the expense for optimistic locking."
+  version: Int!
+}
+
+"Amounts for an expense in the default currency."
+type ExpenseAmounts {
+  "Adjusted amount in the default currency."
+  adjustedAmountInDefaultCurrency: Long
+  "Original amount in the default currency, before adjustments."
+  originalAmountInDefaultCurrency: Long
+}
+
+"An edge in a expenses connection."
+type ExpenseEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The expense at the end of this edge."
+  node: Expense!
+}
+
+"A paginated connection of expenses following the GraphQL Cursor Connections Specification."
+type ExpensesConnection {
+  "The list of edges in the current page."
+  edges: [ExpenseEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 "Summary of expenses for a date range."
@@ -710,8 +768,15 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): DocumentsConnection!
-  "Expenses in this workspace."
-  expenses: [Expense!]!
+  "Expenses in this workspace with cursor-based pagination."
+  expenses(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!,
+    "Optional free text search to filter expenses by title, notes, or category name."
+    freeSearchText: String
+  ): ExpensesConnection!
   "Returns a general tax by its ID if it belongs to this workspace, or null if not found."
   generalTax(
     "ID of the general tax."
@@ -881,6 +946,12 @@ enum DocumentUsageType {
   INCOME_TAX_PAYMENT
   "Document is used by an invoice."
   INVOICE
+}
+
+enum ExpenseStatus {
+  FINALIZED
+  PENDING_CONVERSION
+  PENDING_CONVERSION_FOR_TAXATION_PURPOSES
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."

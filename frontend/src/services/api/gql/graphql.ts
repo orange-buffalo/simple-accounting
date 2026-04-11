@@ -252,10 +252,77 @@ export type DownloadDocumentStorageResponse = {
 /** Business expense. */
 export type Expense = {
   __typename?: 'Expense';
+  /** Documents attached to this expense. */
+  attachments: Array<Document>;
   /** Category of the expense. */
   category?: Maybe<Category>;
+  /** Amounts converted to the default currency. */
+  convertedAmounts: ExpenseAmounts;
+  /** Time when the expense was created, as ISO 8601 timestamp. */
+  createdAt: Scalars['DateTime']['output'];
+  /** Currency of the expense. */
+  currency: Scalars['String']['output'];
+  /** Date when the expense was paid. */
+  datePaid: Scalars['LocalDate']['output'];
+  /** Amount of the general tax in cents. */
+  generalTaxAmount?: Maybe<Scalars['Long']['output']>;
+  /** ID of the general tax applied to this expense. */
+  generalTaxId?: Maybe<Scalars['Long']['output']>;
+  /** Rate of the general tax in basis points. */
+  generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
+  /** ID of the expense. */
+  id: Scalars['Long']['output'];
+  /** Amounts for income tax purposes in the default currency. */
+  incomeTaxableAmounts: ExpenseAmounts;
+  /** Optional notes for the expense. */
+  notes?: Maybe<Scalars['String']['output']>;
+  /** Original amount of the expense in original currency, in cents. */
+  originalAmount: Scalars['Long']['output'];
+  /** Percentage of the expense on business. */
+  percentOnBusiness: Scalars['Int']['output'];
+  /** Status of the expense. */
+  status: ExpenseStatus;
   /** Title of the expense. */
   title: Scalars['String']['output'];
+  /** Whether different exchange rate is used for income tax purposes. */
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['output'];
+  /** Version of the expense for optimistic locking. */
+  version: Scalars['Int']['output'];
+};
+
+/** Amounts for an expense in the default currency. */
+export type ExpenseAmounts = {
+  __typename?: 'ExpenseAmounts';
+  /** Adjusted amount in the default currency. */
+  adjustedAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
+  /** Original amount in the default currency, before adjustments. */
+  originalAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
+};
+
+/** An edge in a expenses connection. */
+export type ExpenseEdge = {
+  __typename?: 'ExpenseEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The expense at the end of this edge. */
+  node: Expense;
+};
+
+export enum ExpenseStatus {
+  Finalized = 'FINALIZED',
+  PendingConversion = 'PENDING_CONVERSION',
+  PendingConversionForTaxationPurposes = 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES'
+}
+
+/** A paginated connection of expenses following the GraphQL Cursor Connections Specification. */
+export type ExpensesConnection = {
+  __typename?: 'ExpensesConnection';
+  /** The list of edges in the current page. */
+  edges: Array<ExpenseEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
 };
 
 /** Summary of expenses for a date range. */
@@ -761,8 +828,8 @@ export type Workspace = {
   defaultCurrency: Scalars['String']['output'];
   /** Documents in this workspace with cursor-based pagination. */
   documents: DocumentsConnection;
-  /** Expenses in this workspace. */
-  expenses: Array<Expense>;
+  /** Expenses in this workspace with cursor-based pagination. */
+  expenses: ExpensesConnection;
   /** Returns a general tax by its ID if it belongs to this workspace, or null if not found. */
   generalTax?: Maybe<GeneralTax>;
   /** General taxes in this workspace with cursor-based pagination. */
@@ -810,6 +877,14 @@ export type WorkspaceCustomersArgs = {
 export type WorkspaceDocumentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceExpensesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 

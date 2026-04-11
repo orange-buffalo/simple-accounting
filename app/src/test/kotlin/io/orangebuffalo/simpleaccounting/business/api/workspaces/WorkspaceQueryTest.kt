@@ -24,9 +24,9 @@ class WorkspaceQueryTest(
             val fryWorkspace = workspace(owner = fry, name = "Planet Express").also {
                 val delivery = category(name = "Delivery", workspace = it)
                 val maintenance = category(name = "Robot maintenance", workspace = it)
-                expense(title = "Slurm supplies", workspace = it, category = delivery)
-                expense(title = "Robot oil", workspace = it, category = maintenance)
-                expense(title = "Spaceship parts", workspace = it, category = null)
+                expense(title = "Slurm supplies", workspace = it, category = delivery, createdAt = MOCK_TIME.plusSeconds(100))
+                expense(title = "Robot oil", workspace = it, category = maintenance, createdAt = MOCK_TIME.plusSeconds(200))
+                expense(title = "Spaceship parts", workspace = it, category = null, createdAt = MOCK_TIME.plusSeconds(300))
             }
             val zoidberg = zoidberg()
             val zoidbergWorkspace = workspace(owner = zoidberg, name = "Zoidberg Clinic")
@@ -115,9 +115,13 @@ class WorkspaceQueryTest(
                             node { name }
                         }
                     }
-                    expenses {
-                        title
-                        category { name }
+                    expenses(first = 10) {
+                        edges {
+                            node {
+                                title
+                                category { name }
+                            }
+                        }
                     }
                 }
             }
@@ -131,20 +135,28 @@ class WorkspaceQueryTest(
                                 add(buildJsonObject { put("node", buildJsonObject { put("name", "Robot maintenance") }) })
                             }
                         })
-                        putJsonArray("expenses") {
-                            add(buildJsonObject {
-                                put("title", "Slurm supplies")
-                                put("category", buildJsonObject { put("name", "Delivery") })
-                            })
-                            add(buildJsonObject {
-                                put("title", "Robot oil")
-                                put("category", buildJsonObject { put("name", "Robot maintenance") })
-                            })
-                            add(buildJsonObject {
-                                put("title", "Spaceship parts")
-                                put("category", null as String?)
-                            })
-                        }
+                        put("expenses", buildJsonObject {
+                            putJsonArray("edges") {
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        put("title", "Slurm supplies")
+                                        put("category", buildJsonObject { put("name", "Delivery") })
+                                    })
+                                })
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        put("title", "Robot oil")
+                                        put("category", buildJsonObject { put("name", "Robot maintenance") })
+                                    })
+                                })
+                                add(buildJsonObject {
+                                    put("node", buildJsonObject {
+                                        put("title", "Spaceship parts")
+                                        put("category", null as String?)
+                                    })
+                                })
+                            }
+                        })
                     }
                 )
         }

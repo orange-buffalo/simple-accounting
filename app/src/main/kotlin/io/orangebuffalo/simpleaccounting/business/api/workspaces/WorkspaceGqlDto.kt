@@ -9,8 +9,8 @@ import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByW
 import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseAmountsGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpensesByWorkspaceId
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -18,13 +18,19 @@ import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.loadInco
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.EdgeGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageInfoGqlDto
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.decodeExpenseCursor
+import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeExpenseCursor
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 
 @GraphQLName("Workspace")
 @GraphQLDescription("Workspace of a user.")
@@ -71,8 +77,140 @@ data class WorkspaceGqlDto(
         env: DataFetchingEnvironment,
     ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id, categoryId = id)
 
-    @GraphQLDescription("Expenses in this workspace.")
-    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id)
+    @Suppress("unused")
+    @GraphQLDescription("Expenses in this workspace with cursor-based pagination.")
+    suspend fun expenses(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter expenses by title, notes, or category name.")
+        freeSearchText: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<ExpenseGqlDto> {
+        val expense = Tables.EXPENSE
+        val category = Tables.CATEGORY.`as`("searchCategory")
+        val expenseAttachments = Tables.EXPENSE_ATTACHMENTS
+        val dslContext = env.graphQlContext.getBean<DSLContext>()
+        val cursorPage = decodeExpenseCursor(after)
+
+        val basePredicates = buildList {
+            add(expense.workspaceId.eq(id))
+            if (freeSearchText != null) {
+                add(
+                    DSL.or(
+                        expense.notes.containsIgnoreCase(freeSearchText),
+                        expense.title.containsIgnoreCase(freeSearchText),
+                        category.name.containsIgnoreCase(freeSearchText),
+                    )
+                )
+            }
+        }
+
+        val totalCount = withDbContext {
+            dslContext.select(DSL.count())
+                .from(expense)
+                .leftJoin(category).on(category.id.eq(expense.categoryId))
+                .where(basePredicates)
+                .fetchOne(0, Int::class.java)!!
+        }
+
+        val dataPredicates = if (cursorPage.datePaid != null && cursorPage.createdAt != null) {
+            basePredicates + DSL.or(
+                expense.datePaid.lt(cursorPage.datePaid),
+                DSL.and(
+                    expense.datePaid.eq(cursorPage.datePaid),
+                    expense.createdAt.gt(cursorPage.createdAt),
+                ),
+            )
+        } else {
+            basePredicates
+        }
+
+        val rawRecords = withDbContext {
+            dslContext.select(*expense.fields())
+                .from(expense)
+                .leftJoin(category).on(category.id.eq(expense.categoryId))
+                .where(dataPredicates)
+                .orderBy(expense.datePaid.desc(), expense.createdAt.asc())
+                .limit(first + 1)
+                .fetch()
+        }
+
+        val hasNextPage = rawRecords.size > first
+        val pageRecords = if (hasNextPage) rawRecords.dropLast(1) else rawRecords
+
+        val initialDtos = pageRecords.map { record ->
+            ExpenseGqlDto(
+                id = record[expense.id]!!,
+                version = record[expense.version]!!,
+                title = record[expense.title]!!,
+                datePaid = record[expense.datePaid]!!,
+                currency = record[expense.currency]!!,
+                originalAmount = record[expense.originalAmount]!!,
+                convertedAmounts = ExpenseAmountsGqlDto(
+                    originalAmountInDefaultCurrency = record[expense.convertedOriginalAmountInDefaultCurrency],
+                    adjustedAmountInDefaultCurrency = record[expense.convertedAdjustedAmountInDefaultCurrency],
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = record[expense.useDifferentExchangeRateForIncomeTaxPurposes]!!,
+                incomeTaxableAmounts = ExpenseAmountsGqlDto(
+                    originalAmountInDefaultCurrency = record[expense.incomeTaxableOriginalAmountInDefaultCurrency],
+                    adjustedAmountInDefaultCurrency = record[expense.incomeTaxableAdjustedAmountInDefaultCurrency],
+                ),
+                percentOnBusiness = record[expense.percentOnBusiness]!!,
+                notes = record[expense.notes],
+                createdAt = record[expense.createdAt]!!,
+                status = record[expense.status]!!,
+                generalTaxId = record[expense.generalTaxId],
+                generalTaxRateInBps = record[expense.generalTaxRateInBps],
+                generalTaxAmount = record[expense.generalTaxAmount],
+                categoryId = record[expense.categoryId],
+                attachmentIds = emptyList(),
+            )
+        }
+
+        val attachmentsByExpenseId = if (initialDtos.isEmpty()) {
+            emptyMap()
+        } else {
+            withDbContext {
+                dslContext.select(expenseAttachments.expenseId, expenseAttachments.documentId)
+                    .from(expenseAttachments)
+                    .where(expenseAttachments.expenseId.`in`(initialDtos.map { it.id }))
+                    .fetch()
+                    .groupBy(
+                        { it[expenseAttachments.expenseId]!! },
+                        { it[expenseAttachments.documentId]!! },
+                    )
+            }
+        }
+        val processedDtos = initialDtos.map { dto ->
+            dto.copy(attachmentIds = attachmentsByExpenseId[dto.id] ?: emptyList())
+        }
+
+        val edges = pageRecords.zip(processedDtos).map { (record, dto) ->
+            EdgeGqlDto(
+                cursor = encodeExpenseCursor(record[expense.datePaid]!!, record[expense.createdAt]!!),
+                node = dto,
+            )
+        }
+
+        val startCursor = pageRecords.firstOrNull()
+            ?.let { encodeExpenseCursor(it[expense.datePaid]!!, it[expense.createdAt]!!) }
+        val endCursor = pageRecords.lastOrNull()
+            ?.let { encodeExpenseCursor(it[expense.datePaid]!!, it[expense.createdAt]!!) }
+
+        return ConnectionGqlDto(
+            edges = edges,
+            pageInfo = PageInfoGqlDto(
+                startCursor = startCursor,
+                endCursor = endCursor,
+                hasPreviousPage = cursorPage.datePaid != null,
+                hasNextPage = hasNextPage,
+            ),
+            totalCount = totalCount,
+        )
+    }
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(
