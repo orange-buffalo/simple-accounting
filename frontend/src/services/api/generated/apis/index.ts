@@ -8,4 +8,3 @@ export * from './InvoicesApiApi';
 export * from './PushNotificationsApiApi';
 export * from './UserActivationTokensApiApi';
 export * from './UsersApiApi';
-export * from './WorkspaceAccessTokensApiApi';

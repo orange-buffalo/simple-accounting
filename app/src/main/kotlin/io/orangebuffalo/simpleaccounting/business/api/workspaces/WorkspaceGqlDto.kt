@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTa
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.loadIncomeTaxPaymentByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
+import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
@@ -218,6 +219,32 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("ID of the general tax.") id: Long,
         env: DataFetchingEnvironment,
     ) = env.loadGeneralTaxByWorkspaceAndId(workspaceId = this.id, taxId = id)
+
+    @Suppress("unused")
+    @GraphQLDescription("Workspace access tokens in this workspace with cursor-based pagination.")
+    @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+    suspend fun workspaceAccessTokens(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<WorkspaceAccessTokenGqlDto> {
+        val workspaceAccessTokenTable = Tables.WORKSPACE_ACCESS_TOKEN
+        return env.graphQlContext.getBean<GraphqlPaginationService>()
+            .forTable(workspaceAccessTokenTable)
+            .addPredicate(workspaceAccessTokenTable.workspaceId.eq(id))
+            .page(first, after) { record ->
+                WorkspaceAccessTokenGqlDto(
+                    id = record[workspaceAccessTokenTable.id]!!,
+                    version = record[workspaceAccessTokenTable.version]!!,
+                    validTill = record[workspaceAccessTokenTable.validTill]!!,
+                    revoked = record[workspaceAccessTokenTable.revoked]!!,
+                    token = record[workspaceAccessTokenTable.token]!!,
+                )
+            }
+    }
 }
 
 internal fun io.orangebuffalo.simpleaccounting.business.workspaces.Workspace.toWorkspaceGqlDto() = WorkspaceGqlDto(

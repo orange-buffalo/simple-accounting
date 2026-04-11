@@ -4,7 +4,6 @@ export {
   documentsApi,
   expensesApi,
   incomesApi,
-  workspaceAccessTokensApi,
   usersApi,
   userActivationTokensApi,
 } from './api-client';

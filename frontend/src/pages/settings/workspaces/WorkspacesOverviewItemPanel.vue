@@ -77,9 +77,9 @@
   import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
-  import type { WorkspaceAccessTokenDto } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
-  import { workspaceAccessTokensApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
   import { $t } from '@/services/i18n';
   import type { WorkspacesPageQuery } from '@/services/api/gql/graphql';
 
@@ -89,7 +89,34 @@
     workspace: WorkspaceNode,
   }>();
 
-  const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
+  const workspaceAccessTokensQuery = graphql(`
+    query workspaceAccessTokensPanel($workspaceId: Long!, $first: Int!) {
+      workspace(id: $workspaceId) {
+        workspaceAccessTokens(first: $first) {
+          edges {
+            node {
+              validTill
+              token
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const createWorkspaceAccessTokenMutation = graphql(`
+    mutation createWorkspaceAccessTokenPanel($workspaceId: Long!, $validTill: DateTime!) {
+      createWorkspaceAccessToken(workspaceId: $workspaceId, validTill: $validTill) {
+        token
+      }
+    }
+  `);
+
+  const loadAccessTokens = useLazyQuery(workspaceAccessTokensQuery, 'workspace');
+  const executeCreateToken = useMutation(createWorkspaceAccessTokenMutation, 'createWorkspaceAccessToken');
+
+  type AccessTokenRow = { validTill: string; token: string };
+  const accessTokens = ref<AccessTokenRow[]>([]);
   const newShareValidTill = ref(new Date());
 
   const hasAccessTokens = computed(() => accessTokens.value.length);
@@ -98,11 +125,14 @@
   const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
 
   const reloadAccessTokens = async () => {
-    // TODO #463: consumeAllPages
-    const response = await workspaceAccessTokensApi.getAccessTokens({
+    const result = await loadAccessTokens({
       workspaceId: props.workspace.id,
+      first: 100,
     });
-    accessTokens.value = response.data;
+    accessTokens.value = result.workspaceAccessTokens.edges.map((edge) => ({
+      validTill: edge.node.validTill,
+      token: edge.node.token,
+    }));
   };
   reloadAccessTokens();
 
@@ -127,11 +157,9 @@
   };
 
   const shareWorkspace = async () => {
-    await workspaceAccessTokensApi.createAccessToken({
+    await executeCreateToken({
       workspaceId: props.workspace.id,
-      createWorkspaceAccessTokenDto: {
-        validTill: newShareValidTill.value.toISOString(),
-      },
+      validTill: newShareValidTill.value.toISOString(),
     });
     await reloadAccessTokens();
   };
@@ -202,3 +230,4 @@
     }
   }
 </style>
+
