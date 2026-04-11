@@ -19,7 +19,8 @@
 <script lang="ts" setup>
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { consumeAllPages, customersApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
     modelValue?: number,
@@ -29,11 +30,26 @@
 
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
+  const getCustomersQuery = useLazyQuery(graphql(`
+    query getCustomersForInput($workspaceId: Long!) {
+      workspace(id: $workspaceId) {
+        customers(first: 500) {
+          edges {
+            node {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     value: customers,
     loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => customersApi.getCustomers({
-    ...pageRequest,
-    workspaceId,
-  })));
+  } = useValueLoadedByCurrentWorkspace(async (workspaceId) => {
+    const workspace = await getCustomersQuery({ workspaceId });
+    return workspace?.customers.edges.map((edge) => edge.node).sort((a, b) => a.name.localeCompare(b.name)) ?? [];
+  });
 </script>

@@ -171,61 +171,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseDto"
-  /api/workspaces/{workspaceId}/customers/{customerId}:
-    get:
-      tags:
-      - customers-api
-      operationId: getCustomer
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: customerId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CustomerDto"
-    put:
-      tags:
-      - customers-api
-      operationId: updateCustomer
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: customerId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EditCustomerDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CustomerDto"
   /api/users/{userId}:
     get:
       tags:
@@ -670,76 +615,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentDto"
-  /api/workspaces/{workspaceId}/customers:
-    get:
-      tags:
-      - customers-api
-      operationId: getCustomers
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: sortBy
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - _NOT_SUPPORTED
-      - name: pageNumber
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: pageSize
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: sortOrder
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiPageCustomerDto"
-    post:
-      tags:
-      - customers-api
-      operationId: createCustomer
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EditCustomerDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CustomerDto"
   /api/users:
     get:
       tags:
@@ -1348,29 +1223,6 @@ components:
       - title
       - useDifferentExchangeRateForIncomeTaxPurposes
       - version
-    EditCustomerDto:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-      required:
-      - name
-    CustomerDto:
-      type: object
-      properties:
-        name:
-          type: string
-        id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int32
-      required:
-      - id
-      - name
-      - version
     UpdateUserRequestDto:
       type: object
       properties:
@@ -1611,27 +1463,6 @@ components:
       required:
       - token
     DataBuffer: {}
-    ApiPageCustomerDto:
-      type: object
-      properties:
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalElements:
-          type: integer
-          format: int64
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/CustomerDto"
-      required:
-      - data
-      - pageNumber
-      - pageSize
-      - totalElements
     ApiPagePlatformUserDto:
       type: object
       properties:

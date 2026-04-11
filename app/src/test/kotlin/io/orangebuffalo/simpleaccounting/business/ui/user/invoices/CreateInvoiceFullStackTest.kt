@@ -373,11 +373,9 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateInvoicePage {
-            // Verify customer dropdown - customers API sorts by ID descending
-            // Created in order: Nibbler (ID 1), Bender's (ID 2), Hypnotoad (ID 3)
-            // Expected order: Hypnotoad (ID 3), Bender's (ID 2), Nibbler (ID 1)
+            // Verify customer dropdown - sorted alphabetically by name
             customer {
-                input.shouldHaveOptions("Hypnotoad Productions", "Bender's Big Score LLC", "Nibbler Enterprises")
+                input.shouldHaveOptions("Bender's Big Score LLC", "Hypnotoad Productions", "Nibbler Enterprises")
             }
 
             // Verify general tax dropdown - taxes are sorted alphabetically by title
