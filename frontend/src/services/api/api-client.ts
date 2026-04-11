@@ -5,7 +5,6 @@ import {
   DocumentsApiApi,
   ExpensesApiApi,
   IncomesApiApi,
-  WorkspaceAccessTokensApiApi,
   UsersApiApi,
   UserActivationTokensApiApi,
 } from '@/services/api/generated';
@@ -32,6 +31,5 @@ export const invoicesApi = new InvoicesApiApi(defaultConfig);
 export const expensesApi = new ExpensesApiApi(defaultConfig);
 export const incomesApi = new IncomesApiApi(defaultConfig);
 export const documentsApi = new DocumentsApiApi(defaultConfig);
-export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);
 export const userActivationTokensApi = new UserActivationTokensApiApi(defaultConfig);

@@ -494,6 +494,13 @@ type Mutation {
     "Name of the workspace."
     name: String! @notBlank @size(max : 255, min : 0)
   ): Workspace! @auth(type : REGULAR_USER)
+  "Creates a new access token for sharing workspace access."
+  createWorkspaceAccessToken(
+    "The expiration time of the token."
+    validTill: DateTime!,
+    "ID of the workspace to create the token for."
+    workspaceId: Long!
+  ): WorkspaceAccessToken! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
     "New description of the category."
@@ -733,6 +740,45 @@ type Workspace {
   ): IncomeTaxPaymentsConnection!
   "Name of the workspace."
   name: String!
+  "Workspace access tokens in this workspace with cursor-based pagination."
+  workspaceAccessTokens(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): WorkspaceAccessTokensConnection! @auth(type : REGULAR_USER)
+}
+
+"An access token for sharing workspace access."
+type WorkspaceAccessToken {
+  "ID of the access token."
+  id: Long!
+  "Whether this token has been revoked."
+  revoked: Boolean!
+  "The token value used to share workspace access."
+  token: String!
+  "The expiration time of this token."
+  validTill: DateTime!
+  "Version of the access token."
+  version: Int!
+}
+
+"An edge in a workspace access tokens connection."
+type WorkspaceAccessTokenEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The workspace access token at the end of this edge."
+  node: WorkspaceAccessToken!
+}
+
+"A paginated connection of workspace access tokens following the GraphQL Cursor Connections Specification."
+type WorkspaceAccessTokensConnection {
+  "The list of edges in the current page."
+  edges: [WorkspaceAccessTokenEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 "Analytics data for a workspace."

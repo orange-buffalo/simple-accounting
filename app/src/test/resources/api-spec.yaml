@@ -220,49 +220,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiUpdateUserErrors"
-  /api/workspaces/{workspaceId}/workspace-access-tokens:
-    get:
-      tags:
-      - workspace-access-tokens-api
-      operationId: getAccessTokens
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiPageWorkspaceAccessTokenDto"
-    post:
-      tags:
-      - workspace-access-tokens-api
-      operationId: createAccessToken
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateWorkspaceAccessTokenDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WorkspaceAccessTokenDto"
   /api/workspaces/{workspaceId}/invoices:
     get:
       tags:
@@ -1252,36 +1209,6 @@ components:
       - admin
       - userName
       - version
-    CreateWorkspaceAccessTokenDto:
-      type: object
-      properties:
-        validTill:
-          type: string
-          format: date-time
-      required:
-      - validTill
-    WorkspaceAccessTokenDto:
-      type: object
-      properties:
-        validTill:
-          type: string
-          format: date-time
-        revoked:
-          type: boolean
-        token:
-          type: string
-        id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int32
-      required:
-      - id
-      - revoked
-      - token
-      - validTill
-      - version
     DocumentDto:
       type: object
       properties:
@@ -1350,27 +1277,6 @@ components:
           minLength: 0
       required:
       - password
-    ApiPageWorkspaceAccessTokenDto:
-      type: object
-      properties:
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalElements:
-          type: integer
-          format: int64
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/WorkspaceAccessTokenDto"
-      required:
-      - data
-      - pageNumber
-      - pageSize
-      - totalElements
     ApiPageInvoiceDto:
       type: object
       properties:

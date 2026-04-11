@@ -139,7 +139,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         timeCreated: Instant = MOCK_TIME,
         validTill: Instant = MOCK_TIME,
         revoked: Boolean = false,
-        token: String = "token"
+        token: String = "token",
+        createdAt: Instant = MOCK_TIME,
     ): WorkspaceAccessToken {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
         return WorkspaceAccessToken(
@@ -148,7 +149,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             validTill = validTill,
             revoked = revoked,
             token = token
-        ).save()
+        ).also { it.createdAt = createdAt }.save()
     }
 
     fun document(

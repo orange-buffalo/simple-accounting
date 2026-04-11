@@ -244,6 +244,20 @@ class GraphqlClientRequestExecutor(
         locationColumn: Int,
         locationLine: Int,
         path: String,
+    ) = executeAndVerifySingleError(
+        message = message,
+        errorType = errorType,
+        locationColumn = locationColumn,
+        locationLine = locationLine,
+        paths = listOf(path),
+    )
+
+    fun executeAndVerifySingleError(
+        message: String,
+        errorType: String,
+        locationColumn: Int,
+        locationLine: Int,
+        paths: List<String>,
     ) {
         requestSpec
             .exchange()
@@ -262,7 +276,7 @@ class GraphqlClientRequestExecutor(
                             })
                         }
                         putJsonArray("path") {
-                            add(path)
+                            paths.forEach { add(it) }
                         }
                     })
                 }
@@ -371,6 +385,20 @@ class GraphqlClientRequestExecutor(
             locationColumn = locationColumn,
             locationLine = locationLine,
             path = path,
+        )
+    }
+
+    fun executeAndVerifyNotAuthorized(
+        paths: List<String>,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
+    ) {
+        executeAndVerifySingleError(
+            message = "User is not authenticated",
+            errorType = "NOT_AUTHORIZED",
+            locationColumn = locationColumn,
+            locationLine = locationLine,
+            paths = paths,
         )
     }
 
