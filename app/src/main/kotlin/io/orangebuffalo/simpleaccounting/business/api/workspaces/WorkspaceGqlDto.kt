@@ -231,17 +231,17 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<WorkspaceAccessTokenGqlDto> {
-        val workspaceAccessToken = Tables.WORKSPACE_ACCESS_TOKEN
+        val workspaceAccessTokenTable = Tables.WORKSPACE_ACCESS_TOKEN
         return env.graphQlContext.getBean<GraphqlPaginationService>()
-            .forTable(workspaceAccessToken)
-            .addPredicate(workspaceAccessToken.workspaceId.eq(id))
+            .forTable(workspaceAccessTokenTable)
+            .addPredicate(workspaceAccessTokenTable.workspaceId.eq(id))
             .page(first, after) { record ->
                 WorkspaceAccessTokenGqlDto(
-                    id = record[workspaceAccessToken.id]!!,
-                    version = record[workspaceAccessToken.version]!!,
-                    validTill = record[workspaceAccessToken.validTill]!!,
-                    revoked = record[workspaceAccessToken.revoked]!!,
-                    token = record[workspaceAccessToken.token]!!,
+                    id = record[workspaceAccessTokenTable.id]!!,
+                    version = record[workspaceAccessTokenTable.version]!!,
+                    validTill = record[workspaceAccessTokenTable.validTill]!!,
+                    revoked = record[workspaceAccessTokenTable.revoked]!!,
+                    token = record[workspaceAccessTokenTable.token]!!,
                 )
             }
     }

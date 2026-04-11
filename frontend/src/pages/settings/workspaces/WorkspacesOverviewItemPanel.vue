@@ -127,7 +127,7 @@
   const reloadAccessTokens = async () => {
     const result = await loadAccessTokens({
       workspaceId: props.workspace.id,
-      first: 500,
+      first: 100,
     });
     accessTokens.value = result.workspaceAccessTokens.edges.map((edge) => ({
       validTill: edge.node.validTill,
