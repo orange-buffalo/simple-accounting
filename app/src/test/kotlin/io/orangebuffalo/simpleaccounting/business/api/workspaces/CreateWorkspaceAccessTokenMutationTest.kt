@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
-import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -117,10 +117,15 @@ class CreateWorkspaceAccessTokenMutationTest(
             aggregateTemplate.findAll<WorkspaceAccessToken>()
                 .filter { it.workspaceId == preconditions.fryWorkspace.id && it.token == "new-share-token" }
                 .shouldBeSingle()
-                .also {
-                    it.validTill.shouldBe(VALID_TILL)
-                    it.revoked.shouldBe(false)
-                }
+                .shouldBeEntityWithFields(
+                    WorkspaceAccessToken(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        timeCreated = MOCK_TIME,
+                        validTill = VALID_TILL,
+                        revoked = false,
+                        token = "new-share-token",
+                    )
+                )
         }
     }
 
