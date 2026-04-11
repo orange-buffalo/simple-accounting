@@ -11,18 +11,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.Base64
 
-private val encoder = Base64.getEncoder()
-private val decoder = Base64.getDecoder()
-
 internal fun encodeExpenseCursor(datePaid: LocalDate, createdAt: Instant): String =
-    encoder.encodeToString("${datePaid.toEpochDay()}:${createdAt.toEpochMilli()}".toByteArray())
-
-private fun decodeExpenseCursor(cursor: String): Pair<LocalDate, Instant> {
-    val decoded = String(decoder.decode(cursor))
-    val separatorIndex = decoded.indexOf(':')
-    return LocalDate.ofEpochDay(decoded.substring(0, separatorIndex).toLong()) to
-        Instant.ofEpochMilli(decoded.substring(separatorIndex + 1).toLong())
-}
+    Base64.getEncoder().encodeToString("${datePaid.toEpochDay()}:${createdAt.toEpochMilli()}".toByteArray())
 
 @Component
 class ExpensesGqlApi(
@@ -35,11 +25,15 @@ class ExpensesGqlApi(
 
     private val expenseSortSpec = PageSortSpec(
         sortFields = listOf(expense.datePaid.desc(), expense.createdAt.asc()),
-        encodeCursor = { record ->
-            encodeExpenseCursor(record[expense.datePaid]!!, record[expense.createdAt]!!)
+        getCursorFields = { record ->
+            listOf(
+                record[expense.datePaid]!!.toEpochDay().toString(),
+                record[expense.createdAt]!!.toEpochMilli().toString(),
+            )
         },
-        buildCursorCondition = { cursor ->
-            val (datePaid, createdAt) = decodeExpenseCursor(cursor)
+        buildCursorCondition = { parts ->
+            val datePaid = LocalDate.ofEpochDay(parts[0].toLong())
+            val createdAt = Instant.ofEpochMilli(parts[1].toLong())
             DSL.or(
                 expense.datePaid.lt(datePaid),
                 DSL.and(

@@ -8,11 +8,25 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.Base64
+
+private val base64Encoder = Base64.getEncoder()
+private val base64Decoder = Base64.getDecoder()
+private const val CURSOR_DELIMITER = ":"
+
+private fun encodeCursorFields(fields: List<String>): String =
+    base64Encoder.encodeToString(fields.joinToString(CURSOR_DELIMITER).toByteArray())
+
+private fun decodeCursorToFields(cursor: String): List<String> =
+    String(base64Decoder.decode(cursor)).split(CURSOR_DELIMITER)
+
+internal fun encodeCursor(createdAt: Instant): String =
+    encodeCursorFields(listOf(createdAt.toEpochMilli().toString()))
 
 data class PageSortSpec(
     val sortFields: List<SortField<*>>,
-    val encodeCursor: (Record) -> String,
-    val buildCursorCondition: (String) -> Condition,
+    val getCursorFields: (Record) -> List<String>,
+    val buildCursorCondition: (List<String>) -> Condition,
 )
 
 @Service
@@ -38,6 +52,13 @@ class PaginationQueryBuilder<R : Record>(
         (table.field("CREATED_AT") as? Field<Instant>)
             ?: error("Table ${table.name} does not have a CREATED_AT field")
 
+    private val defaultSortSpec: PageSortSpec
+        get() = PageSortSpec(
+            sortFields = listOf(createdAtField.desc()),
+            getCursorFields = { record -> listOf(record.get(createdAtField)!!.toEpochMilli().toString()) },
+            buildCursorCondition = { parts -> createdAtField.lt(Instant.ofEpochMilli(parts[0].toLong())) },
+        )
+
     fun onQuery(customizer: (SelectJoinStep<*>) -> SelectJoinStep<*>): PaginationQueryBuilder<R> {
         queryCustomizers.add(customizer)
         return this
@@ -60,49 +81,14 @@ class PaginationQueryBuilder<R : Record>(
         first: Int,
         after: String?,
         mapRecord: (Record) -> N,
-    ): ConnectionGqlDto<N> = page(first, after, mapQueryRecord = mapRecord, postProcess = { it })
+    ): ConnectionGqlDto<N> = page(first, after, defaultSortSpec, mapQueryRecord = mapRecord, postProcess = { it })
 
     suspend fun <Q : Any, N : Any> page(
         first: Int,
         after: String?,
         mapQueryRecord: (Record) -> Q,
         postProcess: (List<Q>) -> List<N>,
-    ): ConnectionGqlDto<N> = withDbContext {
-        val cursorPage = decodeCursor(after)
-        val dataRecords = executeDataQuery(first, cursorPage)
-        val totalCount = executeCountQuery()
-
-        val hasNextPage = dataRecords.size > first
-        val pageRecords = if (hasNextPage) dataRecords.dropLast(1) else dataRecords
-
-        val mappedNodes = pageRecords.map(mapQueryRecord)
-        val processedNodes = postProcess(mappedNodes)
-        require(processedNodes.size == mappedNodes.size) {
-            "postProcess must return the same number of items as the input"
-        }
-
-        val edges = pageRecords.zip(processedNodes).map { (record, node) ->
-            val createdAt = record.get(createdAtField)!!
-            EdgeGqlDto(
-                cursor = encodeCursor(createdAt),
-                node = node,
-            )
-        }
-
-        val startCursor = pageRecords.firstOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
-        val endCursor = pageRecords.lastOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
-
-        ConnectionGqlDto(
-            edges = edges,
-            pageInfo = PageInfoGqlDto(
-                startCursor = startCursor,
-                endCursor = endCursor,
-                hasPreviousPage = cursorPage.createdAtAfter != null,
-                hasNextPage = hasNextPage,
-            ),
-            totalCount = totalCount,
-        )
-    }
+    ): ConnectionGqlDto<N> = page(first, after, defaultSortSpec, mapQueryRecord = mapQueryRecord, postProcess = postProcess)
 
     suspend fun <N : Any> page(
         first: Int,
@@ -132,13 +118,13 @@ class PaginationQueryBuilder<R : Record>(
 
         val edges = pageRecords.zip(processedNodes).map { (record, node) ->
             EdgeGqlDto(
-                cursor = sortSpec.encodeCursor(record),
+                cursor = encodeCursorFields(sortSpec.getCursorFields(record)),
                 node = node,
             )
         }
 
-        val startCursor = pageRecords.firstOrNull()?.let { sortSpec.encodeCursor(it) }
-        val endCursor = pageRecords.lastOrNull()?.let { sortSpec.encodeCursor(it) }
+        val startCursor = pageRecords.firstOrNull()?.let { encodeCursorFields(sortSpec.getCursorFields(it)) }
+        val endCursor = pageRecords.lastOrNull()?.let { encodeCursorFields(sortSpec.getCursorFields(it)) }
 
         ConnectionGqlDto(
             edges = edges,
@@ -150,27 +136,6 @@ class PaginationQueryBuilder<R : Record>(
             ),
             totalCount = totalCount,
         )
-    }
-
-    private fun executeDataQuery(first: Int, cursorPage: CursorPage): Result<out Record> {
-        var query: SelectJoinStep<*> = dslContext
-            .select(*table.fields())
-            .from(table)
-
-        for (customizer in queryCustomizers) {
-            query = customizer(query)
-        }
-
-        var conditioned: SelectConditionStep<*> = query.where(predicates)
-
-        if (cursorPage.createdAtAfter != null) {
-            conditioned = conditioned.and(createdAtField.lt(cursorPage.createdAtAfter))
-        }
-
-        return conditioned
-            .orderBy(createdAtField.desc())
-            .limit(first + 1)
-            .fetch()
     }
 
     private fun executeDataQuery(first: Int, after: String?, sortSpec: PageSortSpec): Result<out Record> {
@@ -185,7 +150,7 @@ class PaginationQueryBuilder<R : Record>(
         var conditioned: SelectConditionStep<*> = query.where(predicates)
 
         if (after != null) {
-            conditioned = conditioned.and(sortSpec.buildCursorCondition(after))
+            conditioned = conditioned.and(sortSpec.buildCursorCondition(decodeCursorToFields(after)))
         }
 
         return conditioned
