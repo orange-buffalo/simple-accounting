@@ -9,6 +9,12 @@ import org.jooq.impl.TableImpl
 import org.springframework.stereotype.Service
 import java.time.Instant
 
+data class PageSortSpec(
+    val sortFields: List<SortField<*>>,
+    val encodeCursor: (Record) -> String,
+    val buildCursorCondition: (String) -> Condition,
+)
+
 @Service
 class GraphqlPaginationService(
     private val dslContext: DSLContext,
@@ -98,6 +104,54 @@ class PaginationQueryBuilder<R : Record>(
         )
     }
 
+    suspend fun <N : Any> page(
+        first: Int,
+        after: String?,
+        sortSpec: PageSortSpec,
+        mapRecord: (Record) -> N,
+    ): ConnectionGqlDto<N> = page(first, after, sortSpec, mapQueryRecord = mapRecord, postProcess = { it })
+
+    suspend fun <Q : Any, N : Any> page(
+        first: Int,
+        after: String?,
+        sortSpec: PageSortSpec,
+        mapQueryRecord: (Record) -> Q,
+        postProcess: (List<Q>) -> List<N>,
+    ): ConnectionGqlDto<N> = withDbContext {
+        val dataRecords = executeDataQuery(first, after, sortSpec)
+        val totalCount = executeCountQuery()
+
+        val hasNextPage = dataRecords.size > first
+        val pageRecords = if (hasNextPage) dataRecords.dropLast(1) else dataRecords
+
+        val mappedNodes = pageRecords.map(mapQueryRecord)
+        val processedNodes = postProcess(mappedNodes)
+        require(processedNodes.size == mappedNodes.size) {
+            "postProcess must return the same number of items as the input"
+        }
+
+        val edges = pageRecords.zip(processedNodes).map { (record, node) ->
+            EdgeGqlDto(
+                cursor = sortSpec.encodeCursor(record),
+                node = node,
+            )
+        }
+
+        val startCursor = pageRecords.firstOrNull()?.let { sortSpec.encodeCursor(it) }
+        val endCursor = pageRecords.lastOrNull()?.let { sortSpec.encodeCursor(it) }
+
+        ConnectionGqlDto(
+            edges = edges,
+            pageInfo = PageInfoGqlDto(
+                startCursor = startCursor,
+                endCursor = endCursor,
+                hasPreviousPage = after != null,
+                hasNextPage = hasNextPage,
+            ),
+            totalCount = totalCount,
+        )
+    }
+
     private fun executeDataQuery(first: Int, cursorPage: CursorPage): Result<out Record> {
         var query: SelectJoinStep<*> = dslContext
             .select(*table.fields())
@@ -115,6 +169,27 @@ class PaginationQueryBuilder<R : Record>(
 
         return conditioned
             .orderBy(createdAtField.desc())
+            .limit(first + 1)
+            .fetch()
+    }
+
+    private fun executeDataQuery(first: Int, after: String?, sortSpec: PageSortSpec): Result<out Record> {
+        var query: SelectJoinStep<*> = dslContext
+            .select(*table.fields())
+            .from(table)
+
+        for (customizer in queryCustomizers) {
+            query = customizer(query)
+        }
+
+        var conditioned: SelectConditionStep<*> = query.where(predicates)
+
+        if (after != null) {
+            conditioned = conditioned.and(sortSpec.buildCursorCondition(after))
+        }
+
+        return conditioned
+            .orderBy(sortSpec.sortFields)
             .limit(first + 1)
             .fetch()
     }

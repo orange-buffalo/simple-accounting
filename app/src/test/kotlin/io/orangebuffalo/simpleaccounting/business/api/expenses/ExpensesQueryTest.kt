@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.api.expenses
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeExpenseCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
@@ -553,7 +552,7 @@ class ExpensesQueryTest(
                         currency = "EUR",
                         originalAmount = 12345L,
                         convertedAmounts = AmountsInDefaultCurrency(10000L, 9800L),
-                        incomeTaxableAmounts = AmountsInDefaultCurrency(10000L, 9800L),
+                        incomeTaxableAmounts = AmountsInDefaultCurrency(8000L, 7500L),
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
                         percentOnBusiness = 80,
                         notes = "Good news, everyone! Delivery complete.",
@@ -614,8 +613,8 @@ class ExpensesQueryTest(
                                         })
                                         put("useDifferentExchangeRateForIncomeTaxPurposes", false)
                                         put("incomeTaxableAmounts", buildJsonObject {
-                                            put("originalAmountInDefaultCurrency", 10000L)
-                                            put("adjustedAmountInDefaultCurrency", 9800L)
+                                            put("originalAmountInDefaultCurrency", 8000L)
+                                            put("adjustedAmountInDefaultCurrency", 7500L)
                                         })
                                         put("percentOnBusiness", 80)
                                         put("notes", "Good news, everyone! Delivery complete.")
@@ -641,6 +640,9 @@ class ExpensesQueryTest(
                         workspace = workspace,
                         title = "Planet Express equipment",
                         notes = null,
+                        generalTax = null,
+                        generalTaxRateInBps = null,
+                        generalTaxAmount = null,
                     )
                 }
             }
