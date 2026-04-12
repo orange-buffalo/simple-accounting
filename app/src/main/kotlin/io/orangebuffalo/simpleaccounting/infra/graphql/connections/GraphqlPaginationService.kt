@@ -24,14 +24,12 @@ private fun decodeCursorToParts(cursor: String): List<String> =
 internal fun encodeCursor(createdAt: Instant): String =
     encodeCursorParts(listOf(createdAt.toEpochMilli().toString()))
 
-private fun extractCursorPart(field: Field<*>, record: Record): String {
-    val value = record.get(field) ?: error("Null value in cursor field ${field.name}")
-    return when (value) {
-        is Instant -> value.toEpochMilli().toString()
-        is LocalDate -> value.toEpochDay().toString()
-        else -> error("Unsupported cursor field type: ${value::class.simpleName} for field ${field.name}")
+private fun extractCursorPart(field: Field<*>, record: Record): String =
+    when (field.type) {
+        Instant::class.java -> (record.get(field) as Instant).toEpochMilli().toString()
+        LocalDate::class.java -> (record.get(field) as LocalDate).toEpochDay().toString()
+        else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
     }
-}
 
 @Suppress("UNCHECKED_CAST")
 private fun buildCursorCondition(sortFields: List<SortField<*>>, cursorParts: List<String>): Condition {
