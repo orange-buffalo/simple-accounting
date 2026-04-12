@@ -403,7 +403,7 @@
   `), 'editExpense');
 
   const saveExpense = async () => {
-    const percentOnBusiness = uiState.value.partialForBusiness ? expense.value.percentOnBusiness : null;
+    const effectivePercentOnBusiness = uiState.value.partialForBusiness ? expense.value.percentOnBusiness : null;
     if (props.id) {
       await editExpenseMutation({
         workspaceId: currentWorkspaceId,
@@ -416,7 +416,7 @@
         useDifferentExchangeRateForIncomeTaxPurposes: expense.value.useDifferentExchangeRateForIncomeTaxPurposes,
         incomeTaxableAmountInDefaultCurrency: expense.value.incomeTaxableAmountInDefaultCurrency ?? null,
         notes: expense.value.notes ?? null,
-        percentOnBusiness: percentOnBusiness ?? null,
+        percentOnBusiness: effectivePercentOnBusiness ?? null,
         attachments: expense.value.attachments,
         categoryId: expense.value.category ?? null,
         generalTaxId: expense.value.generalTax ?? null,
@@ -432,7 +432,7 @@
         useDifferentExchangeRateForIncomeTaxPurposes: expense.value.useDifferentExchangeRateForIncomeTaxPurposes,
         incomeTaxableAmountInDefaultCurrency: expense.value.incomeTaxableAmountInDefaultCurrency ?? null,
         notes: expense.value.notes ?? null,
-        percentOnBusiness: percentOnBusiness ?? null,
+        percentOnBusiness: effectivePercentOnBusiness ?? null,
         attachments: expense.value.attachments,
         categoryId: expense.value.category ?? null,
         generalTaxId: expense.value.generalTax ?? null,
