@@ -1,4 +1,5 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
 
@@ -137,6 +138,7 @@ tasks.test {
         loggingProperties.add("-Dlogging.level.org.jooq.tools.LoggerListener=warn")
         loggingProperties.add("-Dlogging.level.io.orangebuffalo.simpleaccounting=warn")
         loggingProperties.add("-Dlogging.level.org.springframework.test.context.cache=warn")
+        loggingProperties.add("-Dlogging.level.org.springframework.test.context.support=warn")
     }
     configureTestTask(mockitoAgent, loggingProperties)
     // still reset every once in a while to avoid contexts cache overgrowth
@@ -144,6 +146,13 @@ tasks.test {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
         .coerceAtLeast(1)
         .coerceAtMost(5)
+
+    // Allow disabling JaCoCo instrumentation for faster feedback on non-master branches
+    if (project.hasProperty("skipJacoco")) {
+        extensions.configure<JacocoTaskExtension> {
+            isEnabled = false
+        }
+    }
 }
 
 tasks.jacocoTestReport {

@@ -39,4 +39,4 @@ fun ifLocal(action: () -> Unit) {
     }
 }
 
-private fun isCi() = System.getenv("CI") == "true"
+fun isCi() = System.getenv("CI") == "true"

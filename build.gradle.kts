@@ -41,7 +41,10 @@ subprojects {
             beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
             afterTest(KotlinClosure2<TestDescriptor, TestResult, Any>(project::printTestResultDuringBuild))
             testLogging {
-                showStandardStreams = true
+                // In CI, disable showStandardStreams to reduce I/O overhead; test names and timing
+                // are already reported by the custom beforeTest/afterTest handlers above.
+                // Failures are still visible in JUnit XML reports and Playwright traces.
+                showStandardStreams = !isCi()
             }
         }
     }

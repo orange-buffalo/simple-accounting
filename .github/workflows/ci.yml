@@ -37,8 +37,15 @@ jobs:
           DUMP_PID=$!
           echo "Thread dump collector started with PID $DUMP_PID"
           
-          # Run tests
-          ./gradlew check --scan --console=plain --build-cache
+          # Skip JaCoCo instrumentation on non-master branches for faster feedback
+          JACOCO_FLAG=""
+          if [ "${{ github.ref }}" != "refs/heads/master" ]; then
+            JACOCO_FLAG="-PskipJacoco"
+          fi
+          
+          # Run unit/integration tests and e2e tests in a single Gradle invocation
+          # to avoid duplicate daemon startup overhead
+          ./gradlew check e2eTest --scan --console=plain --build-cache $JACOCO_FLAG
           TEST_EXIT_CODE=$?
           
           # Stop thread dump collection
@@ -46,11 +53,6 @@ jobs:
           wait $DUMP_PID 2>/dev/null || true
           
           exit $TEST_EXIT_CODE
-
-      - name: "Test (end-to-end)"
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-        run: ./gradlew e2eTest --scan --console=plain --build-cache
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
@@ -84,6 +86,7 @@ jobs:
           if-no-files-found: "ignore"
 
       - name: "Report Test Coverage"
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
