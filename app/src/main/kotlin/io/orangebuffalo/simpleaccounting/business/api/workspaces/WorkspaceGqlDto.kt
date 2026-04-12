@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWo
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
+import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -86,6 +87,12 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<ExpensesGqlApi>()
             .loadExpenses(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
     }
+
+    @GraphQLDescription("Returns an expense by its ID if it belongs to this workspace, or null if not found.")
+    fun expense(
+        @GraphQLDescription("ID of the expense.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadExpenseByWorkspaceAndId(workspaceId = this.id, expenseId = id)
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(

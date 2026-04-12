@@ -517,6 +517,35 @@ type Mutation {
     "ID of the workspace to create the customer in."
     workspaceId: Long!
   ): Customer! @auth(type : REGULAR_USER)
+  "Creates a new expense in the specified workspace."
+  createExpense(
+    "IDs of documents attached to this expense."
+    attachments: [Long!],
+    "ID of the category for this expense."
+    categoryId: Long,
+    "Converted amount in the default currency, in cents. Null if not yet converted."
+    convertedAmountInDefaultCurrency: Long,
+    "Currency of the expense."
+    currency: String! @notBlank,
+    "Date when the expense was paid."
+    datePaid: LocalDate!,
+    "ID of the general tax applied to this expense."
+    generalTaxId: Long,
+    "Amount for income tax purposes in the default currency, in cents. Null if not yet converted."
+    incomeTaxableAmountInDefaultCurrency: Long,
+    "Optional notes for the expense."
+    notes: String @size(max : 1024, min : 0),
+    "Original amount of the expense in original currency, in cents."
+    originalAmount: Long!,
+    "Percentage of the expense on business. Defaults to 100."
+    percentOnBusiness: Int,
+    "Title of the expense."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "Whether different exchange rate is used for income tax purposes."
+    useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "ID of the workspace to create the expense in."
+    workspaceId: Long!
+  ): Expense! @auth(type : REGULAR_USER)
   "Creates a new general tax in the specified workspace."
   createGeneralTax(
     "Description of the general tax."
@@ -583,6 +612,37 @@ type Mutation {
     "ID of the workspace the customer belongs to."
     workspaceId: Long!
   ): Customer! @auth(type : REGULAR_USER)
+  "Updates an existing expense in the specified workspace."
+  editExpense(
+    "New IDs of documents attached to this expense."
+    attachments: [Long!],
+    "New ID of the category for this expense."
+    categoryId: Long,
+    "New converted amount in the default currency, in cents. Null if not yet converted."
+    convertedAmountInDefaultCurrency: Long,
+    "New currency of the expense."
+    currency: String! @notBlank,
+    "New date when the expense was paid."
+    datePaid: LocalDate!,
+    "New ID of the general tax applied to this expense."
+    generalTaxId: Long,
+    "ID of the expense to update."
+    id: Long!,
+    "New amount for income tax purposes in the default currency, in cents. Null if not yet converted."
+    incomeTaxableAmountInDefaultCurrency: Long,
+    "New optional notes for the expense."
+    notes: String @size(max : 1024, min : 0),
+    "New original amount of the expense in original currency, in cents."
+    originalAmount: Long!,
+    "New percentage of the expense on business. Defaults to 100."
+    percentOnBusiness: Int,
+    "New title of the expense."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "Whether different exchange rate is used for income tax purposes."
+    useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "ID of the workspace the expense belongs to."
+    workspaceId: Long!
+  ): Expense! @auth(type : REGULAR_USER)
   "Updates an existing general tax in the specified workspace."
   editGeneralTax(
     "New description of the general tax."
@@ -768,6 +828,11 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): DocumentsConnection!
+  "Returns an expense by its ID if it belongs to this workspace, or null if not found."
+  expense(
+    "ID of the expense."
+    id: Long!
+  ): Expense
   "Expenses in this workspace with cursor-based pagination."
   expenses(
     "Cursor after which to return items."
