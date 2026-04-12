@@ -2,7 +2,6 @@
 /* eslint-disable */
 export * from './DocumentsApiApi';
 export * from './DownloadsApiApi';
-export * from './ExpensesApiApi';
 export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
 export * from './PushNotificationsApiApi';

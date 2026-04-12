@@ -179,12 +179,10 @@
   import { $t } from '@/services/i18n';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditExpenseDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { expensesApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
   import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -220,8 +218,19 @@
     defaultCurrency,
   } = useCurrentWorkspace();
 
-  type ExpenseFormValues = PartialBy<EditExpenseDto, 'datePaid' | 'title' | 'originalAmount'> & {
-    attachments: Array<number>,
+  type ExpenseFormValues = {
+    category?: number,
+    title?: string,
+    datePaid?: string,
+    currency: string,
+    originalAmount?: number,
+    convertedAmountInDefaultCurrency?: number,
+    useDifferentExchangeRateForIncomeTaxPurposes: boolean,
+    incomeTaxableAmountInDefaultCurrency?: number,
+    notes?: string,
+    percentOnBusiness: number,
+    generalTax?: number,
+    attachments: number[],
   };
 
   const expense = ref<ExpenseFormValues>({
@@ -238,44 +247,194 @@
     partialForBusiness: false,
   });
 
+  const getExpenseQuery = useLazyQuery(graphql(`
+    query getExpenseForEdit($workspaceId: Long!, $expenseId: Long!) {
+      workspace(id: $workspaceId) {
+        expense(id: $expenseId) {
+          id
+          category {
+            id
+          }
+          title
+          datePaid
+          currency
+          originalAmount
+          convertedAmounts {
+            originalAmountInDefaultCurrency
+          }
+          useDifferentExchangeRateForIncomeTaxPurposes
+          incomeTaxableAmounts {
+            originalAmountInDefaultCurrency
+          }
+          notes
+          percentOnBusiness
+          generalTaxId
+          attachments {
+            id
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadExpense = async () => {
     if (props.id !== undefined) {
-      const fullExpense = await expensesApi.getExpense({
+      const workspace = await getExpenseQuery({
+        workspaceId: currentWorkspaceId,
         expenseId: props.id,
-        workspaceId: currentWorkspaceId,
       });
-      expense.value = {
-        ...fullExpense,
-        convertedAmountInDefaultCurrency: fullExpense.convertedAmounts.originalAmountInDefaultCurrency,
-        incomeTaxableAmountInDefaultCurrency: fullExpense.incomeTaxableAmounts.originalAmountInDefaultCurrency,
-      };
-      uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
+      const loaded = workspace?.expense;
+      if (loaded) {
+        expense.value = {
+          category: loaded.category?.id ?? undefined,
+          title: loaded.title,
+          datePaid: loaded.datePaid,
+          currency: loaded.currency,
+          originalAmount: loaded.originalAmount,
+          convertedAmountInDefaultCurrency: loaded.convertedAmounts.originalAmountInDefaultCurrency ?? undefined,
+          useDifferentExchangeRateForIncomeTaxPurposes: loaded.useDifferentExchangeRateForIncomeTaxPurposes,
+          incomeTaxableAmountInDefaultCurrency: loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? undefined,
+          notes: loaded.notes ?? undefined,
+          percentOnBusiness: loaded.percentOnBusiness,
+          generalTax: loaded.generalTaxId ?? undefined,
+          attachments: loaded.attachments.map(a => a.id),
+        };
+        uiState.value.partialForBusiness = loaded.percentOnBusiness !== 100;
+      }
     } else if (props.prototype !== undefined) {
-      const prototypeExpense = await expensesApi.getExpense({
-        expenseId: Number(props.prototype),
+      const workspace = await getExpenseQuery({
         workspaceId: currentWorkspaceId,
+        expenseId: Number(props.prototype),
       });
-      expense.value = prototypeExpense;
-      expense.value.datePaid = undefined;
-      uiState.value.partialForBusiness = prototypeExpense.percentOnBusiness !== 100;
+      const prototypeExpense = workspace?.expense;
+      if (prototypeExpense) {
+        expense.value = {
+          category: prototypeExpense.category?.id ?? undefined,
+          title: prototypeExpense.title,
+          datePaid: undefined,
+          currency: prototypeExpense.currency,
+          originalAmount: prototypeExpense.originalAmount,
+          convertedAmountInDefaultCurrency: undefined,
+          useDifferentExchangeRateForIncomeTaxPurposes: prototypeExpense.useDifferentExchangeRateForIncomeTaxPurposes,
+          incomeTaxableAmountInDefaultCurrency: undefined,
+          notes: prototypeExpense.notes ?? undefined,
+          percentOnBusiness: prototypeExpense.percentOnBusiness,
+          generalTax: prototypeExpense.generalTaxId ?? undefined,
+          attachments: [],
+        };
+        uiState.value.partialForBusiness = prototypeExpense.percentOnBusiness !== 100;
+      }
     }
   };
 
+  const createExpenseMutation = useMutation(graphql(`
+    mutation createExpenseMutation(
+      $workspaceId: Long!,
+      $title: String!,
+      $datePaid: LocalDate!,
+      $currency: String!,
+      $originalAmount: Long!,
+      $convertedAmountInDefaultCurrency: Long,
+      $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+      $incomeTaxableAmountInDefaultCurrency: Long,
+      $notes: String,
+      $percentOnBusiness: Int,
+      $attachments: [Long!],
+      $categoryId: Long,
+      $generalTaxId: Long
+    ) {
+      createExpense(
+        workspaceId: $workspaceId,
+        title: $title,
+        datePaid: $datePaid,
+        currency: $currency,
+        originalAmount: $originalAmount,
+        convertedAmountInDefaultCurrency: $convertedAmountInDefaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: $useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: $incomeTaxableAmountInDefaultCurrency,
+        notes: $notes,
+        percentOnBusiness: $percentOnBusiness,
+        attachments: $attachments,
+        categoryId: $categoryId,
+        generalTaxId: $generalTaxId
+      ) {
+        id
+      }
+    }
+  `), 'createExpense');
+
+  const editExpenseMutation = useMutation(graphql(`
+    mutation editExpenseMutation(
+      $workspaceId: Long!,
+      $id: Long!,
+      $title: String!,
+      $datePaid: LocalDate!,
+      $currency: String!,
+      $originalAmount: Long!,
+      $convertedAmountInDefaultCurrency: Long,
+      $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+      $incomeTaxableAmountInDefaultCurrency: Long,
+      $notes: String,
+      $percentOnBusiness: Int,
+      $attachments: [Long!],
+      $categoryId: Long,
+      $generalTaxId: Long
+    ) {
+      editExpense(
+        workspaceId: $workspaceId,
+        id: $id,
+        title: $title,
+        datePaid: $datePaid,
+        currency: $currency,
+        originalAmount: $originalAmount,
+        convertedAmountInDefaultCurrency: $convertedAmountInDefaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: $useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: $incomeTaxableAmountInDefaultCurrency,
+        notes: $notes,
+        percentOnBusiness: $percentOnBusiness,
+        attachments: $attachments,
+        categoryId: $categoryId,
+        generalTaxId: $generalTaxId
+      ) {
+        id
+      }
+    }
+  `), 'editExpense');
+
   const saveExpense = async () => {
-    const request: EditExpenseDto = {
-      ...(expense.value as EditExpenseDto),
-      percentOnBusiness: uiState.value.partialForBusiness ? expense.value.percentOnBusiness : undefined,
-    };
+    const percentOnBusiness = uiState.value.partialForBusiness ? expense.value.percentOnBusiness : null;
     if (props.id) {
-      await expensesApi.updateExpense({
+      await editExpenseMutation({
         workspaceId: currentWorkspaceId,
-        editExpenseDto: request,
-        expenseId: ensureDefined(props.id),
+        id: props.id,
+        title: expense.value.title!,
+        datePaid: expense.value.datePaid!,
+        currency: expense.value.currency,
+        originalAmount: expense.value.originalAmount!,
+        convertedAmountInDefaultCurrency: expense.value.convertedAmountInDefaultCurrency ?? null,
+        useDifferentExchangeRateForIncomeTaxPurposes: expense.value.useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: expense.value.incomeTaxableAmountInDefaultCurrency ?? null,
+        notes: expense.value.notes ?? null,
+        percentOnBusiness: percentOnBusiness ?? null,
+        attachments: expense.value.attachments,
+        categoryId: expense.value.category ?? null,
+        generalTaxId: expense.value.generalTax ?? null,
       });
     } else {
-      await expensesApi.createExpense({
+      await createExpenseMutation({
         workspaceId: currentWorkspaceId,
-        editExpenseDto: request,
+        title: expense.value.title!,
+        datePaid: expense.value.datePaid!,
+        currency: expense.value.currency,
+        originalAmount: expense.value.originalAmount!,
+        convertedAmountInDefaultCurrency: expense.value.convertedAmountInDefaultCurrency ?? null,
+        useDifferentExchangeRateForIncomeTaxPurposes: expense.value.useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: expense.value.incomeTaxableAmountInDefaultCurrency ?? null,
+        notes: expense.value.notes ?? null,
+        percentOnBusiness: percentOnBusiness ?? null,
+        attachments: expense.value.attachments,
+        categoryId: expense.value.category ?? null,
+        generalTaxId: expense.value.generalTax ?? null,
       });
     }
     await navigateToExpensesOverview();
