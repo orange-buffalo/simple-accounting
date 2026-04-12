@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -47,6 +49,8 @@ class CreateExpenseMutation(
         @Size(max = 1024)
         notes: String?,
         @GraphQLDescription("Percentage of the expense on business. Defaults to 100.")
+        @Min(1)
+        @Max(100)
         percentOnBusiness: Int?,
         @GraphQLDescription("IDs of documents attached to this expense.")
         attachments: List<Long>?,

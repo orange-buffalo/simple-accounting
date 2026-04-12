@@ -90,6 +90,9 @@ class CreateExpenseMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            numberRangeConstraintTestCases("percentOnBusiness", minValue = 1, maxValue = 100) { value ->
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, percentOnBusiness = value)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

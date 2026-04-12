@@ -120,6 +120,13 @@ class EditExpenseMutationTest(
                     notes = value,
                 )
             },
+            numberRangeConstraintTestCases("percentOnBusiness", minValue = 1, maxValue = 100) { value ->
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    percentOnBusiness = value,
+                )
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

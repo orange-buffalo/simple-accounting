@@ -538,7 +538,7 @@ type Mutation {
     "Original amount of the expense in original currency, in cents."
     originalAmount: Long!,
     "Percentage of the expense on business. Defaults to 100."
-    percentOnBusiness: Int,
+    percentOnBusiness: Int @max(value : 100) @min(value : 1),
     "Title of the expense."
     title: String! @notBlank @size(max : 255, min : 0),
     "Whether different exchange rate is used for income tax purposes."
@@ -635,7 +635,7 @@ type Mutation {
     "New original amount of the expense in original currency, in cents."
     originalAmount: Long!,
     "New percentage of the expense on business. Defaults to 100."
-    percentOnBusiness: Int,
+    percentOnBusiness: Int @max(value : 100) @min(value : 1),
     "New title of the expense."
     title: String! @notBlank @size(max : 255, min : 0),
     "Whether different exchange rate is used for income tax purposes."
