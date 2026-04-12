@@ -12,6 +12,9 @@ import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
+import io.orangebuffalo.simpleaccounting.business.api.invoices.loadInvoiceByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -93,6 +96,28 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("ID of the expense.") id: Long,
         env: DataFetchingEnvironment,
     ) = env.loadExpenseByWorkspaceAndId(workspaceId = this.id, expenseId = id)
+
+    @Suppress("unused")
+    @GraphQLDescription("Invoices in this workspace with cursor-based pagination.")
+    suspend fun invoices(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter invoices by title, notes, or customer name.")
+        freeSearchText: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<InvoiceGqlDto> {
+        return env.graphQlContext.getBean<InvoicesGqlApi>()
+            .loadInvoices(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+    }
+
+    @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
+    fun invoice(
+        @GraphQLDescription("ID of the invoice.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadInvoiceByWorkspaceAndId(workspaceId = this.id, invoiceId = id)
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(

@@ -466,6 +466,60 @@ type IncomesSummaryItem {
   totalAmount: Long!
 }
 
+"Invoice for a customer."
+type Invoice {
+  "Amount of the invoice in cents."
+  amount: Long!
+  "Documents attached to this invoice."
+  attachments: [Document!]!
+  "Time when the invoice was created, as ISO 8601 timestamp."
+  createdAt: DateTime!
+  "Currency of the invoice."
+  currency: String!
+  "Customer of the invoice."
+  customer: Customer
+  "Date when the invoice was issued."
+  dateIssued: LocalDate!
+  "Date when the invoice was paid."
+  datePaid: LocalDate
+  "Date when the invoice was sent."
+  dateSent: LocalDate
+  "Due date of the invoice."
+  dueDate: LocalDate!
+  "ID of the general tax applied to this invoice."
+  generalTaxId: Long
+  "ID of the invoice."
+  id: Long!
+  "Optional notes for the invoice."
+  notes: String
+  "Status of the invoice."
+  status: InvoiceStatus!
+  "Time when the invoice was cancelled, as ISO 8601 timestamp."
+  timeCancelled: DateTime
+  "Title of the invoice."
+  title: String!
+  "Version of the invoice for optimistic locking."
+  version: Int!
+}
+
+"An edge in a invoices connection."
+type InvoiceEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The invoice at the end of this edge."
+  node: Invoice!
+}
+
+"A paginated connection of invoices following the GraphQL Cursor Connections Specification."
+type InvoicesConnection {
+  "The list of edges in the current page."
+  edges: [InvoiceEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 type Mutation {
   "Changes the password of the current user."
   changePassword(
@@ -574,6 +628,33 @@ type Mutation {
     "ID of the workspace to create the income tax payment in."
     workspaceId: Long!
   ): IncomeTaxPayment! @auth(type : REGULAR_USER)
+  "Creates a new invoice in the specified workspace."
+  createInvoice(
+    "Amount of the invoice in cents."
+    amount: Long!,
+    "IDs of documents attached to this invoice."
+    attachments: [Long!],
+    "Currency of the invoice."
+    currency: String! @notBlank,
+    "ID of the customer for this invoice."
+    customerId: Long!,
+    "Date when the invoice was issued."
+    dateIssued: LocalDate!,
+    "Date when the invoice was paid."
+    datePaid: LocalDate,
+    "Date when the invoice was sent."
+    dateSent: LocalDate,
+    "Due date of the invoice."
+    dueDate: LocalDate!,
+    "ID of the general tax applied to this invoice."
+    generalTaxId: Long,
+    "Optional notes for the invoice."
+    notes: String @size(max : 1024, min : 0),
+    "Title of the invoice."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the invoice in."
+    workspaceId: Long!
+  ): Invoice! @auth(type : REGULAR_USER)
   "Creates a new workspace for the current user."
   createWorkspace(
     "Default currency code of the workspace (ISO 4217, 3 characters)."
@@ -675,6 +756,35 @@ type Mutation {
     "ID of the workspace the income tax payment belongs to."
     workspaceId: Long!
   ): IncomeTaxPayment! @auth(type : REGULAR_USER)
+  "Updates an existing invoice in the specified workspace."
+  editInvoice(
+    "New amount of the invoice in cents."
+    amount: Long!,
+    "New IDs of documents attached to this invoice."
+    attachments: [Long!],
+    "New currency of the invoice."
+    currency: String! @notBlank,
+    "ID of the customer for this invoice."
+    customerId: Long!,
+    "New date when the invoice was issued."
+    dateIssued: LocalDate!,
+    "New date when the invoice was paid."
+    datePaid: LocalDate,
+    "New date when the invoice was sent."
+    dateSent: LocalDate,
+    "New due date of the invoice."
+    dueDate: LocalDate!,
+    "New ID of the general tax applied to this invoice."
+    generalTaxId: Long,
+    "ID of the invoice to update."
+    id: Long!,
+    "New optional notes for the invoice."
+    notes: String @size(max : 1024, min : 0),
+    "New title of the invoice."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the invoice belongs to."
+    workspaceId: Long!
+  ): Invoice! @auth(type : REGULAR_USER)
   "Updates an existing workspace."
   editWorkspace(
     "ID of the workspace to update."
@@ -868,6 +978,20 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): IncomeTaxPaymentsConnection!
+  "Returns an invoice by its ID if it belongs to this workspace, or null if not found."
+  invoice(
+    "ID of the invoice."
+    id: Long!
+  ): Invoice
+  "Invoices in this workspace with cursor-based pagination."
+  invoices(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!,
+    "Optional free text search to filter invoices by title, notes, or customer name."
+    freeSearchText: String
+  ): InvoicesConnection!
   "Name of the workspace."
   name: String!
   "Workspace access tokens in this workspace with cursor-based pagination."
@@ -1017,6 +1141,14 @@ enum ExpenseStatus {
   FINALIZED
   PENDING_CONVERSION
   PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+}
+
+enum InvoiceStatus {
+  CANCELLED
+  DRAFT
+  OVERDUE
+  PAID
+  SENT
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
