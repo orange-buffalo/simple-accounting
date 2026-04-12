@@ -512,6 +512,71 @@ export type IncomesSummaryItem = {
   totalAmount: Scalars['Long']['output'];
 };
 
+/** Invoice for a customer. */
+export type Invoice = {
+  __typename?: 'Invoice';
+  /** Amount of the invoice in cents. */
+  amount: Scalars['Long']['output'];
+  /** Documents attached to this invoice. */
+  attachments: Array<Document>;
+  /** Time when the invoice was created, as ISO 8601 timestamp. */
+  createdAt: Scalars['DateTime']['output'];
+  /** Currency of the invoice. */
+  currency: Scalars['String']['output'];
+  /** Customer of the invoice. */
+  customer?: Maybe<Customer>;
+  /** Date when the invoice was issued. */
+  dateIssued: Scalars['LocalDate']['output'];
+  /** Date when the invoice was paid. */
+  datePaid?: Maybe<Scalars['LocalDate']['output']>;
+  /** Date when the invoice was sent. */
+  dateSent?: Maybe<Scalars['LocalDate']['output']>;
+  /** Due date of the invoice. */
+  dueDate: Scalars['LocalDate']['output'];
+  /** ID of the general tax applied to this invoice. */
+  generalTaxId?: Maybe<Scalars['Long']['output']>;
+  /** ID of the invoice. */
+  id: Scalars['Long']['output'];
+  /** Optional notes for the invoice. */
+  notes?: Maybe<Scalars['String']['output']>;
+  /** Status of the invoice. */
+  status: InvoiceStatus;
+  /** Time when the invoice was cancelled, as ISO 8601 timestamp. */
+  timeCancelled?: Maybe<Scalars['DateTime']['output']>;
+  /** Title of the invoice. */
+  title: Scalars['String']['output'];
+  /** Version of the invoice for optimistic locking. */
+  version: Scalars['Int']['output'];
+};
+
+/** An edge in a invoices connection. */
+export type InvoiceEdge = {
+  __typename?: 'InvoiceEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The invoice at the end of this edge. */
+  node: Invoice;
+};
+
+export enum InvoiceStatus {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Overdue = 'OVERDUE',
+  Paid = 'PAID',
+  Sent = 'SENT'
+}
+
+/** A paginated connection of invoices following the GraphQL Cursor Connections Specification. */
+export type InvoicesConnection = {
+  __typename?: 'InvoicesConnection';
+  /** The list of edges in the current page. */
+  edges: Array<InvoiceEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Changes the password of the current user. */
@@ -532,6 +597,8 @@ export type Mutation = {
   createGeneralTax: GeneralTax;
   /** Creates a new income tax payment in the specified workspace. */
   createIncomeTaxPayment: IncomeTaxPayment;
+  /** Creates a new invoice in the specified workspace. */
+  createInvoice: Invoice;
   /** Creates a new workspace for the current user. */
   createWorkspace: Workspace;
   /** Creates a new access token for sharing workspace access. */
@@ -546,6 +613,8 @@ export type Mutation = {
   editGeneralTax: GeneralTax;
   /** Updates an existing income tax payment in the specified workspace. */
   editIncomeTaxPayment: IncomeTaxPayment;
+  /** Updates an existing invoice in the specified workspace. */
+  editInvoice: Invoice;
   /** Updates an existing workspace. */
   editWorkspace: Workspace;
   /** Invalidates the refresh token cookie, effectively logging out the current user. */
@@ -635,6 +704,22 @@ export type MutationCreateIncomeTaxPaymentArgs = {
 };
 
 
+export type MutationCreateInvoiceArgs = {
+  amount: Scalars['Long']['input'];
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  currency: Scalars['String']['input'];
+  customerId: Scalars['Long']['input'];
+  dateIssued: Scalars['LocalDate']['input'];
+  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
+  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
+  dueDate: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationCreateWorkspaceArgs = {
   defaultCurrency: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -698,6 +783,23 @@ export type MutationEditIncomeTaxPaymentArgs = {
   id: Scalars['Long']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditInvoiceArgs = {
+  amount: Scalars['Long']['input'];
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  currency: Scalars['String']['input'];
+  customerId: Scalars['Long']['input'];
+  dateIssued: Scalars['LocalDate']['input'];
+  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
+  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
+  dueDate: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  id: Scalars['Long']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   workspaceId: Scalars['Long']['input'];
 };
@@ -881,6 +983,10 @@ export type Workspace = {
   incomeTaxPayment?: Maybe<IncomeTaxPayment>;
   /** Income tax payments in this workspace with cursor-based pagination. */
   incomeTaxPayments: IncomeTaxPaymentsConnection;
+  /** Returns an invoice by its ID if it belongs to this workspace, or null if not found. */
+  invoice?: Maybe<Invoice>;
+  /** Invoices in this workspace with cursor-based pagination. */
+  invoices: InvoicesConnection;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
   /** Workspace access tokens in this workspace with cursor-based pagination. */
@@ -958,6 +1064,20 @@ export type WorkspaceIncomeTaxPaymentArgs = {
 export type WorkspaceIncomeTaxPaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceInvoiceArgs = {
+  id: Scalars['Long']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceInvoicesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
