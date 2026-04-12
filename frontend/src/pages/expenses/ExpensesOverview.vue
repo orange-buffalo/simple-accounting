@@ -31,13 +31,14 @@
       </div>
     </div>
 
-    <SaPageableItems
+    <SaPageableItemsGql
       #default="{ item: expense }"
-      :page-provider="expensesProvider"
-      :reload-on="[freeSearchText]"
+      :page-query="expensesPageQuery"
+      path="workspace.expenses"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
     >
-      <ExpensesOverviewPanel :expense="expense as ExpenseDto" />
-    </SaPageableItems>
+      <ExpensesOverviewPanel :expense="expense" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
@@ -46,21 +47,59 @@
   import SaIcon from '@/components/SaIcon.vue';
   import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n/i18n-services';
-  import type { ExpenseDto, ApiPageRequest } from '@/services/api';
-  import { expensesApi } from '@/services/api';
+  import { graphql } from '@/services/api/gql';
+
+  const expensesPageQuery = graphql(`
+    query expensesPage($workspaceId: Long!, $first: Int!, $after: String, $freeSearchText: String) {
+      workspace(id: $workspaceId) {
+        expenses(first: $first, after: $after, freeSearchText: $freeSearchText) {
+          edges {
+            cursor
+            node {
+              id
+              version
+              title
+              datePaid
+              currency
+              originalAmount
+              convertedAmounts {
+                originalAmountInDefaultCurrency
+                adjustedAmountInDefaultCurrency
+              }
+              useDifferentExchangeRateForIncomeTaxPurposes
+              incomeTaxableAmounts {
+                originalAmountInDefaultCurrency
+                adjustedAmountInDefaultCurrency
+              }
+              percentOnBusiness
+              notes
+              status
+              generalTaxId
+              generalTaxRateInBps
+              generalTaxAmount
+              category {
+                id
+              }
+              attachments {
+                id
+              }
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const expensesProvider = async (request: ApiPageRequest, config: RequestInit) => expensesApi.getExpenses({
-    ...request,
-    freeSearchTextEq: freeSearchText.value,
-    workspaceId: currentWorkspaceId,
-  }, config);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');

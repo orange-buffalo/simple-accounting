@@ -97,7 +97,7 @@
             :label="$t.expensesOverviewPanel.category.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCategoryOutput :category-id="expense.category" />
+            <SaCategoryOutput :category-id="expense.category?.id" />
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -129,7 +129,7 @@
               :label="$t.expensesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="expense.generalTax" />
+              <SaGeneralTaxOutput :general-tax-id="expense.generalTaxId ?? undefined" />
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -146,7 +146,7 @@
               <SaMoneyOutput
                 v-if="expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
-                :amount-in-cents="expense.generalTaxAmount"
+                :amount-in-cents="expense.generalTaxAmount ?? undefined"
               />
 
               <span v-else>{{ $t.expensesOverviewPanel.generalTaxAmount.notProvided() }}</span>
@@ -238,7 +238,7 @@
       >
         <div class="row">
           <div class="col col-xs-12">
-            <SaDocumentsList :documents-ids="expense.attachments" />
+            <SaDocumentsList :documents-ids="expense.attachments.map(a => a.id)" />
           </div>
         </div>
       </SaOverviewItemDetailsSection>
@@ -274,13 +274,15 @@
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
-  import type { ExpenseDto } from '@/services/api';
+  import type { ExpensesPageQuery } from '@/services/api/gql/graphql';
   import { $t } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
 
+  type ExpenseNode = ExpensesPageQuery['workspace']['expenses']['edges'][0]['node'];
+
   const props = defineProps<{
-    expense: ExpenseDto
+    expense: ExpenseNode
   }>();
 
   const {
@@ -326,7 +328,7 @@
 
   const isForeignCurrency = computed(() => (props.expense.currency !== defaultCurrency));
 
-  const isGeneralTaxApplicable = computed(() => (props.expense.generalTax != null));
+  const isGeneralTaxApplicable = computed(() => (props.expense.generalTaxId != null));
 
   const navigateToExpenseEdit = () => navigateToView({
     name: 'edit-expense',
