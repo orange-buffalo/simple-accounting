@@ -8,6 +8,58 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDate
+import java.util.Base64
+
+private val base64Encoder = Base64.getEncoder()
+private val base64Decoder = Base64.getDecoder()
+private const val CURSOR_DELIMITER = ":"
+
+private fun encodeCursorParts(parts: List<String>): String =
+    base64Encoder.encodeToString(parts.joinToString(CURSOR_DELIMITER).toByteArray())
+
+private fun decodeCursorToParts(cursor: String): List<String> =
+    String(base64Decoder.decode(cursor)).split(CURSOR_DELIMITER)
+
+internal fun encodeCursor(createdAt: Instant): String =
+    encodeCursorParts(listOf(createdAt.toEpochMilli().toString()))
+
+private fun extractCursorPart(field: Field<*>, record: Record): String =
+    when (field.type) {
+        Instant::class.java -> (record.get(field) as Instant).toEpochMilli().toString()
+        LocalDate::class.java -> (record.get(field) as LocalDate).toEpochDay().toString()
+        else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
+    }
+
+@Suppress("UNCHECKED_CAST")
+private fun buildCursorCondition(sortFields: List<SortField<*>>, cursorParts: List<String>): Condition {
+    fun parseFieldValue(field: Field<*>, part: String): Any = when (field.type) {
+        Instant::class.java -> Instant.ofEpochMilli(part.toLong())
+        LocalDate::class.java -> LocalDate.ofEpochDay(part.toLong())
+        else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
+    }
+
+    val conditions = sortFields.indices.map { i ->
+        val sortField = sortFields[i]
+        val field = sortField.`$field`()
+        val cursorValue = parseFieldValue(field, cursorParts[i])
+        val advanceCondition: Condition = if (sortField.`$sortOrder`() == SortOrder.DESC) {
+            (field as Field<Any>).lt(cursorValue)
+        } else {
+            (field as Field<Any>).gt(cursorValue)
+        }
+        if (i == 0) {
+            advanceCondition
+        } else {
+            val equalConditions = sortFields.take(i).mapIndexed { j, sf ->
+                val f = sf.`$field`()
+                (f as Field<Any>).eq(parseFieldValue(f, cursorParts[j]))
+            }
+            DSL.and(equalConditions + advanceCondition)
+        }
+    }
+    return DSL.or(conditions)
+}
 
 @Service
 class GraphqlPaginationService(
@@ -53,17 +105,18 @@ class PaginationQueryBuilder<R : Record>(
     suspend fun <N : Any> page(
         first: Int,
         after: String?,
+        sortFields: List<SortField<*>> = listOf(createdAtField.desc()),
         mapRecord: (Record) -> N,
-    ): ConnectionGqlDto<N> = page(first, after, mapQueryRecord = mapRecord, postProcess = { it })
+    ): ConnectionGqlDto<N> = page(first, after, sortFields, mapQueryRecord = mapRecord, postProcess = { it })
 
     suspend fun <Q : Any, N : Any> page(
         first: Int,
         after: String?,
+        sortFields: List<SortField<*>> = listOf(createdAtField.desc()),
         mapQueryRecord: (Record) -> Q,
         postProcess: (List<Q>) -> List<N>,
     ): ConnectionGqlDto<N> = withDbContext {
-        val cursorPage = decodeCursor(after)
-        val dataRecords = executeDataQuery(first, cursorPage)
+        val dataRecords = executeDataQuery(first, after, sortFields)
         val totalCount = executeCountQuery()
 
         val hasNextPage = dataRecords.size > first
@@ -76,29 +129,30 @@ class PaginationQueryBuilder<R : Record>(
         }
 
         val edges = pageRecords.zip(processedNodes).map { (record, node) ->
-            val createdAt = record.get(createdAtField)!!
             EdgeGqlDto(
-                cursor = encodeCursor(createdAt),
+                cursor = encodeCursorParts(sortFields.map { extractCursorPart(it.`$field`(), record) }),
                 node = node,
             )
         }
 
-        val startCursor = pageRecords.firstOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
-        val endCursor = pageRecords.lastOrNull()?.let { encodeCursor(it.get(createdAtField)!!) }
+        val startCursor = pageRecords.firstOrNull()
+            ?.let { encodeCursorParts(sortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
+        val endCursor = pageRecords.lastOrNull()
+            ?.let { encodeCursorParts(sortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
 
         ConnectionGqlDto(
             edges = edges,
             pageInfo = PageInfoGqlDto(
                 startCursor = startCursor,
                 endCursor = endCursor,
-                hasPreviousPage = cursorPage.createdAtAfter != null,
+                hasPreviousPage = after != null,
                 hasNextPage = hasNextPage,
             ),
             totalCount = totalCount,
         )
     }
 
-    private fun executeDataQuery(first: Int, cursorPage: CursorPage): Result<out Record> {
+    private fun executeDataQuery(first: Int, after: String?, sortFields: List<SortField<*>>): Result<out Record> {
         var query: SelectJoinStep<*> = dslContext
             .select(*table.fields())
             .from(table)
@@ -109,12 +163,12 @@ class PaginationQueryBuilder<R : Record>(
 
         var conditioned: SelectConditionStep<*> = query.where(predicates)
 
-        if (cursorPage.createdAtAfter != null) {
-            conditioned = conditioned.and(createdAtField.lt(cursorPage.createdAtAfter))
+        if (after != null) {
+            conditioned = conditioned.and(buildCursorCondition(sortFields, decodeCursorToParts(after)))
         }
 
         return conditioned
-            .orderBy(createdAtField.desc())
+            .orderBy(sortFields)
             .limit(first + 1)
             .fetch()
     }

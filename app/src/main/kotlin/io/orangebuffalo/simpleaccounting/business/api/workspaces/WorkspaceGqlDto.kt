@@ -10,7 +10,7 @@ import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpensesByWorkspaceId
+import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -71,8 +71,21 @@ data class WorkspaceGqlDto(
         env: DataFetchingEnvironment,
     ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id, categoryId = id)
 
-    @GraphQLDescription("Expenses in this workspace.")
-    fun expenses(env: DataFetchingEnvironment) = env.loadExpensesByWorkspaceId(id)
+    @Suppress("unused")
+    @GraphQLDescription("Expenses in this workspace with cursor-based pagination.")
+    suspend fun expenses(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter expenses by title, notes, or category name.")
+        freeSearchText: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<ExpenseGqlDto> {
+        return env.graphQlContext.getBean<ExpensesGqlApi>()
+            .loadExpenses(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+    }
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(
