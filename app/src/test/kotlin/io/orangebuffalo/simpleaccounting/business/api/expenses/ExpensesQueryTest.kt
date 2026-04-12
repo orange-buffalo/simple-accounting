@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.expenses
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
@@ -18,6 +19,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.util.Base64
+
+private fun Expense.encodeCursor(): String =
+    Base64.getEncoder().encodeToString("${datePaid.toEpochDay()}:${createdAt!!.toEpochMilli()}".toByteArray())
 
 class ExpensesQueryTest(
     @Autowired private val client: ApiTestClient,
@@ -61,17 +66,17 @@ class ExpensesQueryTest(
                         put("expenses", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeExpenseCursor(testData.expense1.datePaid, testData.expense1.createdAt!!))
+                                    put("cursor", testData.expense1.encodeCursor())
                                     put("node", buildJsonObject { put("title", "Slurm supplies") })
                                 })
                                 add(buildJsonObject {
-                                    put("cursor", encodeExpenseCursor(testData.expense2.datePaid, testData.expense2.createdAt!!))
+                                    put("cursor", testData.expense2.encodeCursor())
                                     put("node", buildJsonObject { put("title", "Robot oil") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeExpenseCursor(testData.expense1.datePaid, testData.expense1.createdAt!!))
-                                put("endCursor", encodeExpenseCursor(testData.expense2.datePaid, testData.expense2.createdAt!!))
+                                put("startCursor", testData.expense1.encodeCursor())
+                                put("endCursor", testData.expense2.encodeCursor())
                                 put("hasPreviousPage", false)
                                 put("hasNextPage", true)
                             })
@@ -84,7 +89,7 @@ class ExpensesQueryTest(
         @Test
         fun `should return second page using after cursor`() {
             val testData = preconditions { threeExpenses() }
-            val afterCursor = encodeExpenseCursor(testData.expense2.datePaid, testData.expense2.createdAt!!)
+            val afterCursor = testData.expense2.encodeCursor()
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     expenses(first = 10, after = afterCursor) {
@@ -108,13 +113,13 @@ class ExpensesQueryTest(
                         put("expenses", buildJsonObject {
                             putJsonArray("edges") {
                                 add(buildJsonObject {
-                                    put("cursor", encodeExpenseCursor(testData.expense3.datePaid, testData.expense3.createdAt!!))
+                                    put("cursor", testData.expense3.encodeCursor())
                                     put("node", buildJsonObject { put("title", "Spaceship parts") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
-                                put("startCursor", encodeExpenseCursor(testData.expense3.datePaid, testData.expense3.createdAt!!))
-                                put("endCursor", encodeExpenseCursor(testData.expense3.datePaid, testData.expense3.createdAt!!))
+                                put("startCursor", testData.expense3.encodeCursor())
+                                put("endCursor", testData.expense3.encodeCursor())
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })
@@ -170,7 +175,7 @@ class ExpensesQueryTest(
                     val expense = expense(workspace = workspace, title = "Slurm supplies", createdAt = MOCK_TIME.plusSeconds(100))
                 }
             }
-            val afterCursor = encodeExpenseCursor(testData.expense.datePaid, testData.expense.createdAt!!)
+            val afterCursor = testData.expense.encodeCursor()
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     expenses(first = 10, after = afterCursor) {

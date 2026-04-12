@@ -2,17 +2,10 @@ package io.orangebuffalo.simpleaccounting.business.api.expenses
 
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
-import io.orangebuffalo.simpleaccounting.infra.graphql.connections.PageSortSpec
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.LocalDate
-import java.util.Base64
-
-internal fun encodeExpenseCursor(datePaid: LocalDate, createdAt: Instant): String =
-    Base64.getEncoder().encodeToString("${datePaid.toEpochDay()}:${createdAt.toEpochMilli()}".toByteArray())
 
 @Component
 class ExpensesGqlApi(
@@ -22,27 +15,6 @@ class ExpensesGqlApi(
     private val expense = Tables.EXPENSE
     private val category = Tables.CATEGORY
     private val expenseAttachments = Tables.EXPENSE_ATTACHMENTS
-
-    private val expenseSortSpec = PageSortSpec(
-        sortFields = listOf(expense.datePaid.desc(), expense.createdAt.asc()),
-        getCursorFields = { record ->
-            listOf(
-                record[expense.datePaid]!!.toEpochDay().toString(),
-                record[expense.createdAt]!!.toEpochMilli().toString(),
-            )
-        },
-        buildCursorCondition = { parts ->
-            val datePaid = LocalDate.ofEpochDay(parts[0].toLong())
-            val createdAt = Instant.ofEpochMilli(parts[1].toLong())
-            DSL.or(
-                expense.datePaid.lt(datePaid),
-                DSL.and(
-                    expense.datePaid.eq(datePaid),
-                    expense.createdAt.gt(createdAt),
-                ),
-            )
-        },
-    )
 
     suspend fun loadExpenses(
         workspaceId: Long,
@@ -67,7 +39,7 @@ class ExpensesGqlApi(
             .page(
                 first = first,
                 after = after,
-                sortSpec = expenseSortSpec,
+                sortFields = listOf(expense.datePaid.desc(), expense.createdAt.asc()),
                 mapQueryRecord = { record ->
                     ExpenseGqlDto(
                         id = record[expense.id]!!,
