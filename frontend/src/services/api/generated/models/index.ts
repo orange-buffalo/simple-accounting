@@ -1,7 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './ApiPageDocumentDto';
-export * from './ApiPageExpenseDto';
 export * from './ApiPageIncomeDto';
 export * from './ApiPageInvoiceDto';
 export * from './ApiPagePlatformUserDto';
@@ -9,11 +8,8 @@ export * from './CreateUserActivationTokenRequestDto';
 export * from './CreateUserRequestDto';
 export * from './CurrentUserPushNotificationMessage';
 export * from './DocumentDto';
-export * from './EditExpenseDto';
 export * from './EditIncomeDto';
 export * from './EditInvoiceDto';
-export * from './ExpenseAmountsDto';
-export * from './ExpenseDto';
 export * from './FieldErrorDto';
 export * from './GetDownloadTokenResponse';
 export * from './IncomeAmountsDto';
