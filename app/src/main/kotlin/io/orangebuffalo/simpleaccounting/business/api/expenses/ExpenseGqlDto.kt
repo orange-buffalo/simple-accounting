@@ -90,3 +90,30 @@ data class ExpenseAmountsGqlDto(
     @GraphQLDescription("Adjusted amount in the default currency.")
     val adjustedAmountInDefaultCurrency: Long?,
 )
+
+fun io.orangebuffalo.simpleaccounting.business.expenses.Expense.toExpenseGqlDto() = ExpenseGqlDto(
+    id = id!!,
+    version = version!!,
+    title = title,
+    datePaid = datePaid,
+    currency = currency,
+    originalAmount = originalAmount,
+    convertedAmounts = ExpenseAmountsGqlDto(
+        originalAmountInDefaultCurrency = convertedAmounts.originalAmountInDefaultCurrency,
+        adjustedAmountInDefaultCurrency = convertedAmounts.adjustedAmountInDefaultCurrency,
+    ),
+    useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+    incomeTaxableAmounts = ExpenseAmountsGqlDto(
+        originalAmountInDefaultCurrency = incomeTaxableAmounts.originalAmountInDefaultCurrency,
+        adjustedAmountInDefaultCurrency = incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+    ),
+    percentOnBusiness = percentOnBusiness,
+    notes = notes,
+    createdAt = createdAt!!,
+    status = status,
+    generalTaxId = generalTaxId,
+    generalTaxRateInBps = generalTaxRateInBps,
+    generalTaxAmount = generalTaxAmount,
+    categoryId = categoryId,
+    attachmentIds = attachments.map { it.documentId },
+)

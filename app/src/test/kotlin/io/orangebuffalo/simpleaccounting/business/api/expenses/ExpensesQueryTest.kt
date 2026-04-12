@@ -879,6 +879,92 @@ class ExpensesQueryTest(
                 )
         }
     }
+
+    @Nested
+    @DisplayName("expense(id) query")
+    inner class ExpenseByIdQuery {
+
+        @Test
+        fun `should return expense by id`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val expense = expense(workspace = workspace, title = "Slurm supplies", originalAmount = 5000)
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    expense(id = testData.expense.id!!) {
+                        id
+                        title
+                        originalAmount
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("expense", buildJsonObject {
+                            put("id", testData.expense.id!!.toInt())
+                            put("title", "Slurm supplies")
+                            put("originalAmount", 5000)
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null for non-existent expense`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    expense(id = Long.MAX_VALUE) {
+                        id
+                        title
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("expense", null as String?)
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null for expense in another workspace`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val fryWorkspace = workspace(owner = fry)
+                    val zoidberg = zoidberg()
+                    val zoidbergWorkspace = workspace(owner = zoidberg)
+                    val zoidbergExpense = expense(workspace = zoidbergWorkspace, title = "Robot maintenance")
+                }
+            }
+            client.graphql {
+                workspace(id = testData.fryWorkspace.id!!) {
+                    expense(id = testData.zoidbergExpense.id!!) {
+                        id
+                        title
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("expense", null as String?)
+                    }
+                )
+        }
+    }
 }
 
 private fun kotlinx.serialization.json.JsonArrayBuilder.expenseEdge(title: String) {

@@ -526,6 +526,8 @@ export type Mutation = {
   createCategory: Category;
   /** Creates a new customer in the specified workspace. */
   createCustomer: Customer;
+  /** Creates a new expense in the specified workspace. */
+  createExpense: Expense;
   /** Creates a new general tax in the specified workspace. */
   createGeneralTax: GeneralTax;
   /** Creates a new income tax payment in the specified workspace. */
@@ -538,6 +540,8 @@ export type Mutation = {
   editCategory: Category;
   /** Updates an existing customer in the specified workspace. */
   editCustomer: Customer;
+  /** Updates an existing expense in the specified workspace. */
+  editExpense: Expense;
   /** Updates an existing general tax in the specified workspace. */
   editGeneralTax: GeneralTax;
   /** Updates an existing income tax payment in the specified workspace. */
@@ -595,6 +599,23 @@ export type MutationCreateCustomerArgs = {
 };
 
 
+export type MutationCreateExpenseArgs = {
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  currency: Scalars['String']['input'];
+  datePaid: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  originalAmount: Scalars['Long']['input'];
+  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
+  title: Scalars['String']['input'];
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationCreateGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   rateInBps: Scalars['Int']['input'];
@@ -639,6 +660,24 @@ export type MutationEditCategoryArgs = {
 export type MutationEditCustomerArgs = {
   id: Scalars['Long']['input'];
   name: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditExpenseArgs = {
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  currency: Scalars['String']['input'];
+  datePaid: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  id: Scalars['Long']['input'];
+  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  originalAmount: Scalars['Long']['input'];
+  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
+  title: Scalars['String']['input'];
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
   workspaceId: Scalars['Long']['input'];
 };
 
@@ -828,6 +867,8 @@ export type Workspace = {
   defaultCurrency: Scalars['String']['output'];
   /** Documents in this workspace with cursor-based pagination. */
   documents: DocumentsConnection;
+  /** Returns an expense by its ID if it belongs to this workspace, or null if not found. */
+  expense?: Maybe<Expense>;
   /** Expenses in this workspace with cursor-based pagination. */
   expenses: ExpensesConnection;
   /** Returns a general tax by its ID if it belongs to this workspace, or null if not found. */
@@ -877,6 +918,12 @@ export type WorkspaceCustomersArgs = {
 export type WorkspaceDocumentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceExpenseArgs = {
+  id: Scalars['Long']['input'];
 };
 
 
