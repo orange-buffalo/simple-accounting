@@ -2,7 +2,6 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="net.javacrumbs.jsonunit.difference.diff" level="all"/>
     <logger name="org.springframework.test.context.cache" level="debug"/>
-    <logger name="io.orangebuffalo.simpleaccounting" level="trace"/>
+    <logger name="io.orangebuffalo.simpleaccounting" level="info"/>
 </configuration>
