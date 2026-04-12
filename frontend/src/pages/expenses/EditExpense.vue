@@ -293,7 +293,8 @@
           originalAmount: loaded.originalAmount,
           convertedAmountInDefaultCurrency: loaded.convertedAmounts.originalAmountInDefaultCurrency ?? undefined,
           useDifferentExchangeRateForIncomeTaxPurposes: loaded.useDifferentExchangeRateForIncomeTaxPurposes,
-          incomeTaxableAmountInDefaultCurrency: loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? undefined,
+          incomeTaxableAmountInDefaultCurrency:
+            loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? undefined,
           notes: loaded.notes ?? undefined,
           percentOnBusiness: loaded.percentOnBusiness,
           generalTax: loaded.generalTaxId ?? undefined,
