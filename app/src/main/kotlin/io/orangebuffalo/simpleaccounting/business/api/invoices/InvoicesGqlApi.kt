@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.invoices
 
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component
 class InvoicesGqlApi(
     private val paginationService: GraphqlPaginationService,
     private val dslContext: DSLContext,
+    private val invoicesService: InvoicesService,
 ) {
     private val invoice = Tables.INVOICE
     private val customer = Tables.CUSTOMER
@@ -76,5 +78,10 @@ class InvoicesGqlApi(
                     }
                 },
             )
+    }
+
+    suspend fun loadInvoice(workspaceId: Long, invoiceId: Long): InvoiceGqlDto? {
+        return invoicesService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
+            ?.toInvoiceGqlDto(workspaceId)
     }
 }

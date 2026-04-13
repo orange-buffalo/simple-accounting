@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import java.time.Instant
 import java.time.LocalDate
@@ -55,8 +57,7 @@ data class InvoiceGqlDto(
     @GraphQLDescription("Status of the invoice.")
     val status: InvoiceStatus,
 
-    @GraphQLDescription("ID of the general tax applied to this invoice.")
-    val generalTaxId: Long?,
+    @GraphQLIgnore val generalTaxId: Long?,
 
     @GraphQLIgnore val customerId: Long,
 
@@ -64,6 +65,12 @@ data class InvoiceGqlDto(
 
     @GraphQLIgnore val attachmentIds: List<Long>,
 ) {
+    @GraphQLDescription("General tax applied to this invoice.")
+    fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {
+        val taxId = generalTaxId ?: return null
+        return env.loadGeneralTaxByWorkspaceAndId(workspaceId = workspaceId, taxId = taxId)
+    }
+
     @GraphQLDescription("Customer of the invoice.")
     fun customer(env: DataFetchingEnvironment): CompletableFuture<CustomerGqlDto?> =
         env.loadCustomerByWorkspaceAndId(workspaceId = workspaceId, customerId = customerId)

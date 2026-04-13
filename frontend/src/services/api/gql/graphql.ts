@@ -533,8 +533,8 @@ export type Invoice = {
   dateSent?: Maybe<Scalars['LocalDate']['output']>;
   /** Due date of the invoice. */
   dueDate: Scalars['LocalDate']['output'];
-  /** ID of the general tax applied to this invoice. */
-  generalTaxId?: Maybe<Scalars['Long']['output']>;
+  /** General tax applied to this invoice. */
+  generalTax?: Maybe<GeneralTax>;
   /** ID of the invoice. */
   id: Scalars['Long']['output'];
   /** Optional notes for the invoice. */

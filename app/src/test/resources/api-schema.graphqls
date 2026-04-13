@@ -486,8 +486,8 @@ type Invoice {
   dateSent: LocalDate
   "Due date of the invoice."
   dueDate: LocalDate!
-  "ID of the general tax applied to this invoice."
-  generalTaxId: Long
+  "General tax applied to this invoice."
+  generalTax: GeneralTax
   "ID of the invoice."
   id: Long!
   "Optional notes for the invoice."

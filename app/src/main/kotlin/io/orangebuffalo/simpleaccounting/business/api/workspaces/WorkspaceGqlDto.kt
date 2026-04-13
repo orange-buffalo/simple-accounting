@@ -14,7 +14,6 @@ import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
-import io.orangebuffalo.simpleaccounting.business.api.invoices.loadInvoiceByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -114,10 +113,13 @@ data class WorkspaceGqlDto(
     }
 
     @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
-    fun invoice(
+    suspend fun invoice(
         @GraphQLDescription("ID of the invoice.") id: Long,
         env: DataFetchingEnvironment,
-    ) = env.loadInvoiceByWorkspaceAndId(workspaceId = this.id, invoiceId = id)
+    ): InvoiceGqlDto? {
+        return env.graphQlContext.getBean<InvoicesGqlApi>()
+            .loadInvoice(workspaceId = this.id, invoiceId = id)
+    }
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
     suspend fun documents(

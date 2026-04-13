@@ -529,7 +529,7 @@ class InvoicesQueryTest(
                                 notes
                                 createdAt
                                 status
-                                generalTaxId
+                                generalTax { id }
                                 customer { id; name }
                                 attachments { id }
                             }
@@ -557,7 +557,9 @@ class InvoicesQueryTest(
                                         put("notes", "Good news, everyone! Delivery complete.")
                                         put("createdAt", MOCK_TIME_VALUE)
                                         put("status", "DRAFT")
-                                        put("generalTaxId", testData.generalTax.id!!.toInt())
+                                        put("generalTax", buildJsonObject {
+                                            put("id", testData.generalTax.id!!.toInt())
+                                        })
                                         put("customer", buildJsonObject {
                                             put("id", testData.customer.id!!.toInt())
                                             put("name", "MomCorp")
@@ -595,7 +597,7 @@ class InvoicesQueryTest(
                         edges {
                             node {
                                 notes
-                                generalTaxId
+                                generalTax { id }
                                 dateSent
                                 datePaid
                                 timeCancelled
@@ -612,7 +614,7 @@ class InvoicesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("notes", null as String?)
-                                        put("generalTaxId", null as String?)
+                                        put("generalTax", null as String?)
                                         put("dateSent", null as String?)
                                         put("datePaid", null as String?)
                                         put("timeCancelled", null as String?)
