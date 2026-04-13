@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.invoices
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
@@ -455,6 +456,104 @@ class InvoicesQueryTest(
                 }.also {
                     invoice(customer = it.customer, title = "Slurm delivery", createdAt = MOCK_TIME.plusSeconds(100))
                     invoice(customer = it.customer, title = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    invoices(first = 10) {
+                        edges {
+                            node { title }
+                        }
+                        totalCount
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("invoices", buildJsonObject {
+                            putJsonArray("edges") {
+                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(title = "Robot maintenance")
+                            }
+                            put("totalCount", 2)
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should filter by statusIn`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val customer = customer(workspace = workspace)
+                }.also {
+                    invoice(
+                        customer = it.customer, title = "Slurm delivery",
+                        status = InvoiceStatus.SENT, createdAt = MOCK_TIME.plusSeconds(100)
+                    )
+                    invoice(
+                        customer = it.customer, title = "Robot maintenance",
+                        status = InvoiceStatus.DRAFT, createdAt = MOCK_TIME.plusSeconds(200)
+                    )
+                    invoice(
+                        customer = it.customer, title = "Spaceship parts",
+                        status = InvoiceStatus.OVERDUE, createdAt = MOCK_TIME.plusSeconds(300)
+                    )
+                    invoice(
+                        customer = it.customer, title = "Planet Express equipment",
+                        status = InvoiceStatus.PAID, createdAt = MOCK_TIME.plusSeconds(400)
+                    )
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    invoices(
+                        first = 10,
+                        statusIn = listOf(
+                            io.orangebuffalo.simpleaccounting.infra.graphql.client.types.InvoiceStatus.SENT,
+                            io.orangebuffalo.simpleaccounting.infra.graphql.client.types.InvoiceStatus.OVERDUE,
+                        ),
+                    ) {
+                        edges {
+                            node { title }
+                        }
+                        totalCount
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("invoices", buildJsonObject {
+                            putJsonArray("edges") {
+                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(title = "Spaceship parts")
+                            }
+                            put("totalCount", 2)
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return all invoices when statusIn is not provided`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val customer = customer(workspace = workspace)
+                }.also {
+                    invoice(
+                        customer = it.customer, title = "Slurm delivery",
+                        status = InvoiceStatus.SENT, createdAt = MOCK_TIME.plusSeconds(100)
+                    )
+                    invoice(
+                        customer = it.customer, title = "Robot maintenance",
+                        status = InvoiceStatus.DRAFT, createdAt = MOCK_TIME.plusSeconds(200)
+                    )
                 }
             }
             client.graphql {

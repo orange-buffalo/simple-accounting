@@ -36,8 +36,7 @@
         :total-profit="profitData.totalProfit"
       />
       <DashboardInvoices
-        :from-date="selectedFromDate"
-        :to-date="selectedToDate"
+        :invoices="invoicesData"
       />
     </div>
   </div>
@@ -54,6 +53,9 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
+
+  type DashboardInvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 
   const storage = useStorage<Array<Date>>('dashboard.selected-date-range');
 
@@ -109,6 +111,23 @@
             totalTaxPayments
           }
         }
+        invoices(first: 100, statusIn: [SENT, OVERDUE]) {
+          edges {
+            node {
+              id
+              title
+              amount
+              currency
+              dateIssued
+              dateSent
+              dueDate
+              status
+              customer {
+                id
+              }
+            }
+          }
+        }
       }
     }
   `), 'workspace');
@@ -142,6 +161,7 @@
   const loading = ref(true);
   const expensesSummary = ref<ExpensesSummaryData | null>(null);
   const incomesSummary = ref<IncomesSummaryData | null>(null);
+  const invoicesData = ref<DashboardInvoiceNode[]>([]);
   const profitData = ref<ProfitData>({
     incomeTaxableAmount: 0,
     currencyExchangeDifference: 0,
@@ -181,6 +201,7 @@
       expensesSummary.value = null;
       incomesSummary.value = null;
     }
+    invoicesData.value = workspace?.invoices.edges.map(e => e.node) ?? [];
     loading.value = false;
   }, { immediate: true });
 </script>

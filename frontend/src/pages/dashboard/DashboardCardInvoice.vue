@@ -45,9 +45,9 @@
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
-  import type { DashboardInvoicesQuery } from '@/services/api/gql/graphql';
+  import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
 
-  type InvoiceNode = DashboardInvoicesQuery['workspace']['invoices']['edges'][0]['node'];
+  type InvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 
   const props = defineProps<{
     invoice: InvoiceNode,
