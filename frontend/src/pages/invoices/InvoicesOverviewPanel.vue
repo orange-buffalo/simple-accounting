@@ -241,6 +241,8 @@
     invoice: InvoiceNode
   }>();
 
+  const emit = defineEmits<{(e: 'invoice-update'): void }>();
+
   const {
     currentWorkspace,
     currentWorkspaceId,
@@ -299,6 +301,7 @@
       attachments: props.invoice.attachments.map(a => a.id),
       generalTaxId: props.invoice.generalTax?.id ?? null,
     });
+    emit('invoice-update');
   };
 
   const { navigateToView } = useNavigation();

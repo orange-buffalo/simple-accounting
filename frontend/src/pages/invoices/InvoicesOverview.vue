@@ -33,12 +33,13 @@
     </div>
 
     <SaPageableItemsGql
+      ref="pageableItemsRef"
       #default="{ item: invoice }"
       :page-query="invoicesPageQuery"
       path="workspace.invoices"
       :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: invoicesFilter || null }"
     >
-      <InvoicesOverviewPanel :invoice="invoice" />
+      <InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />
     </SaPageableItemsGql>
   </div>
 </template>
@@ -93,6 +94,7 @@
   `);
 
   const invoicesFilter = ref<string | undefined>(undefined);
+  const pageableItemsRef = ref<{ reload: () => void } | null>(null);
   const {
     currentWorkspaceId,
     currentWorkspace,
@@ -102,5 +104,9 @@
 
   const navigateToCreateInvoiceView = () => {
     navigateByViewName('create-new-invoice');
+  };
+
+  const onInvoiceUpdate = () => {
+    pageableItemsRef.value?.reload();
   };
 </script>

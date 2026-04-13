@@ -13,6 +13,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
   import type { DashboardInvoicesQuery } from '@/services/api/gql/graphql';
+  import { InvoiceStatus } from '@/services/api/gql/graphql';
 
   type InvoiceNode = DashboardInvoicesQuery['workspace']['invoices']['edges'][0]['node'];
 
@@ -52,7 +53,7 @@
     async (_, workspaceId) => {
       const workspace = await getDashboardInvoicesQuery({
         workspaceId,
-        statusIn: ['SENT', 'OVERDUE'],
+        statusIn: [InvoiceStatus.Sent, InvoiceStatus.Overdue],
       });
       return workspace?.invoices.edges.map(e => e.node) ?? [];
     },

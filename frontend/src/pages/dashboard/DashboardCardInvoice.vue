@@ -28,7 +28,7 @@
 
       <div class="sa-dashboard__card__details__item">
         <span>{{ $t.dashboard.cards.invoice.dateSent() }}</span>
-        <span>{{ $t.common.date.medium(invoice.dateSent) }}</span>
+        <span>{{ invoice.dateSent ? $t.common.date.medium(invoice.dateSent) : '' }}</span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
