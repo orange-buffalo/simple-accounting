@@ -33,9 +33,10 @@
   import SaIcon from '@/components/SaIcon.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
-  import type { ApiPageRequest, HasOptionalId, InvoiceDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
+  import type { ApiPageRequest, HasOptionalId } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
     modelValue?: number,
@@ -43,29 +44,92 @@
 
   const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
 
-  // case required as Vue does not support generic slots/props
-  const invoice = (entity: HasOptionalId) => entity as InvoiceDto;
+  type InvoiceItem = HasOptionalId & {
+    title: string,
+    dateIssued: string,
+    amount: number,
+    currency: string,
+  };
+
+  const invoice = (entity: HasOptionalId) => entity as InvoiceItem;
   const invoiceLabelProvider = (entity: HasOptionalId) => invoice(entity).title;
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
+  const getInvoicesQuery = useLazyQuery(graphql(`
+    query getInvoicesForSelect($workspaceId: Long!, $first: Int!, $freeSearchText: String) {
+      workspace(id: $workspaceId) {
+        invoices(first: $first, freeSearchText: $freeSearchText) {
+          edges {
+            node {
+              id
+              title
+              dateIssued
+              amount
+              currency
+            }
+          }
+          totalCount
+        }
+      }
+    }
+  `), 'workspace');
+
+  const getInvoiceQuery = useLazyQuery(graphql(`
+    query getInvoiceForSelect($workspaceId: Long!, $invoiceId: Long!) {
+      workspace(id: $workspaceId) {
+        invoice(id: $invoiceId) {
+          id
+          title
+          dateIssued
+          amount
+          currency
+        }
+      }
+    }
+  `), 'workspace');
+
   const optionsProvider = async (
     pageRequest: ApiPageRequest,
     query: string | undefined,
-    requestInit: RequestInit,
-  ) => invoicesApi.getInvoices({
-    workspaceId: currentWorkspaceId,
-    freeSearchTextEq: query,
-    ...pageRequest,
-  }, requestInit);
+  ) => {
+    const workspace = await getInvoicesQuery({
+      workspaceId: currentWorkspaceId,
+      first: pageRequest.pageSize ?? 10,
+      freeSearchText: query ?? null,
+    });
+    const edges = workspace?.invoices.edges ?? [];
+    return {
+      pageNumber: 1,
+      totalElements: workspace?.invoices.totalCount ?? 0,
+      pageSize: pageRequest.pageSize ?? 10,
+      data: edges.map(e => ({
+        id: e.node.id,
+        title: e.node.title,
+        dateIssued: e.node.dateIssued,
+        amount: e.node.amount,
+        currency: e.node.currency,
+      } as InvoiceItem)),
+    };
+  };
 
   const optionProvider = async (
     id: number,
-    requestInit: RequestInit,
-  ) => invoicesApi.getInvoice({
-    workspaceId: currentWorkspaceId,
-    invoiceId: id,
-  }, requestInit);
+  ) => {
+    const workspace = await getInvoiceQuery({
+      workspaceId: currentWorkspaceId,
+      invoiceId: id,
+    });
+    const inv = workspace?.invoice;
+    if (!inv) throw new Error(`Invoice ${id} not found`);
+    return {
+      id: inv.id,
+      title: inv.title,
+      dateIssued: inv.dateIssued,
+      amount: inv.amount,
+      currency: inv.currency,
+    } as InvoiceItem;
+  };
 </script>
 
 <style lang="scss">

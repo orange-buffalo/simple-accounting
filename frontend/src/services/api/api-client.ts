@@ -1,7 +1,6 @@
 import qs from 'qs';
 import {
   Configuration,
-  InvoicesApiApi,
   DocumentsApiApi,
   IncomesApiApi,
   UsersApiApi,
@@ -26,7 +25,6 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const invoicesApi = new InvoicesApiApi(defaultConfig);
 export const incomesApi = new IncomesApiApi(defaultConfig);
 export const documentsApi = new DocumentsApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);

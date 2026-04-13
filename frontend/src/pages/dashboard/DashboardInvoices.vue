@@ -9,26 +9,55 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
-  import type { InvoiceDto } from '@/services/api';
-  import { consumeAllPages, invoicesApi } from '@/services/api';
   import DashboardCardInvoice from '@/pages/dashboard/DashboardCardInvoice.vue';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import type { DashboardInvoicesQuery } from '@/services/api/gql/graphql';
+
+  type InvoiceNode = DashboardInvoicesQuery['workspace']['invoices']['edges'][0]['node'];
 
   const props = defineProps<{
     fromDate: Date,
     toDate: Date,
   }>();
 
+  const getDashboardInvoicesQuery = useLazyQuery(graphql(`
+    query dashboardInvoices($workspaceId: Long!, $statusIn: [InvoiceStatus!]) {
+      workspace(id: $workspaceId) {
+        invoices(first: 100, statusIn: $statusIn) {
+          edges {
+            node {
+              id
+              title
+              amount
+              currency
+              dateIssued
+              dateSent
+              dueDate
+              status
+              customer {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const {
     value: maybeInvoices,
   } = useValueLoadedByCurrentWorkspaceAndProp(
     () => props.fromDate && props.toDate,
-    (_, workspaceId) => consumeAllPages(async (pageRequest) => invoicesApi.getInvoices({
-      workspaceId,
-      statusIn: ['SENT', 'OVERDUE'],
-      ...pageRequest,
-    })),
+    async (_, workspaceId) => {
+      const workspace = await getDashboardInvoicesQuery({
+        workspaceId,
+        statusIn: ['SENT', 'OVERDUE'],
+      });
+      return workspace?.invoices.edges.map(e => e.node) ?? [];
+    },
   );
-  const invoices = computed<InvoiceDto[]>(() => maybeInvoices.value || []);
+  const invoices = computed<InvoiceNode[]>(() => maybeInvoices.value || []);
 </script>
 
 <style scoped>

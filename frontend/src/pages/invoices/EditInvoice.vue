@@ -208,11 +208,11 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditInvoiceDto, InvoiceDtoStatusEnum } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
-  import type { PartialBy } from '@/services/utils';
   import { ensureDefined } from '@/services/utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import type { InvoiceStatus } from '@/services/api/gql/graphql';
 
   const props = defineProps<{
     id?: number
@@ -263,8 +263,18 @@
     defaultCurrency,
   } = useCurrentWorkspace();
 
-  type InvoiceFormValues = PartialBy<EditInvoiceDto, 'amount' | 'dueDate' | 'customer' | 'title'> & {
-    attachments: Array<number>,
+  type InvoiceFormValues = {
+    customer?: number,
+    title?: string,
+    dateIssued?: string,
+    dateSent?: string,
+    datePaid?: string,
+    dueDate?: string,
+    currency: string,
+    amount?: number,
+    notes?: string,
+    generalTax?: number,
+    attachments: number[],
   };
 
   const invoice = ref<InvoiceFormValues>({
@@ -277,42 +287,181 @@
     alreadySent: boolean,
     alreadyPaid: boolean,
     isEditing: boolean,
-    status?: InvoiceDtoStatusEnum
+    status?: InvoiceStatus
   }>({
     alreadySent: false,
     alreadyPaid: false,
     isEditing: props.id != null,
   });
 
+  const getInvoiceQuery = useLazyQuery(graphql(`
+    query getInvoiceForEdit($workspaceId: Long!, $invoiceId: Long!) {
+      workspace(id: $workspaceId) {
+        invoice(id: $invoiceId) {
+          id
+          title
+          dateIssued
+          dateSent
+          datePaid
+          dueDate
+          currency
+          amount
+          notes
+          status
+          customer {
+            id
+          }
+          generalTax {
+            id
+          }
+          attachments {
+            id
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadInvoice = async () => {
     if (props.id !== undefined) {
-      const fullInvoice = await invoicesApi.getInvoice({
-        invoiceId: props.id,
+      const workspace = await getInvoiceQuery({
         workspaceId: currentWorkspaceId,
+        invoiceId: props.id,
       });
-      invoice.value = fullInvoice;
-      uiState.value.alreadyPaid = invoice.value.datePaid !== undefined;
-      uiState.value.alreadySent = invoice.value.dateSent !== undefined;
-      uiState.value.status = fullInvoice.status;
+      const loaded = workspace?.invoice;
+      if (loaded) {
+        invoice.value = {
+          customer: loaded.customer!.id,
+          title: loaded.title,
+          dateIssued: loaded.dateIssued,
+          dateSent: loaded.dateSent ?? undefined,
+          datePaid: loaded.datePaid ?? undefined,
+          dueDate: loaded.dueDate,
+          currency: loaded.currency,
+          amount: loaded.amount,
+          notes: loaded.notes ?? undefined,
+          generalTax: loaded.generalTax?.id ?? undefined,
+          attachments: loaded.attachments.map(a => a.id),
+        };
+        uiState.value.alreadyPaid = loaded.datePaid != null;
+        uiState.value.alreadySent = loaded.dateSent != null;
+        uiState.value.status = loaded.status;
+      }
     }
   };
 
+  const createInvoiceMutation = useMutation(graphql(`
+    mutation createInvoiceMutation(
+      $workspaceId: Long!,
+      $customerId: Long!,
+      $title: String!,
+      $dateIssued: LocalDate!,
+      $dateSent: LocalDate,
+      $datePaid: LocalDate,
+      $dueDate: LocalDate!,
+      $currency: String!,
+      $amount: Long!,
+      $notes: String,
+      $attachments: [Long!],
+      $generalTaxId: Long
+    ) {
+      createInvoice(
+        workspaceId: $workspaceId,
+        customerId: $customerId,
+        title: $title,
+        dateIssued: $dateIssued,
+        dateSent: $dateSent,
+        datePaid: $datePaid,
+        dueDate: $dueDate,
+        currency: $currency,
+        amount: $amount,
+        notes: $notes,
+        attachments: $attachments,
+        generalTaxId: $generalTaxId
+      ) {
+        id
+      }
+    }
+  `), 'createInvoice');
+
+  const editInvoiceMutation = useMutation(graphql(`
+    mutation editInvoiceMutation(
+      $workspaceId: Long!,
+      $id: Long!,
+      $customerId: Long!,
+      $title: String!,
+      $dateIssued: LocalDate!,
+      $dateSent: LocalDate,
+      $datePaid: LocalDate,
+      $dueDate: LocalDate!,
+      $currency: String!,
+      $amount: Long!,
+      $notes: String,
+      $attachments: [Long!],
+      $generalTaxId: Long
+    ) {
+      editInvoice(
+        workspaceId: $workspaceId,
+        id: $id,
+        customerId: $customerId,
+        title: $title,
+        dateIssued: $dateIssued,
+        dateSent: $dateSent,
+        datePaid: $datePaid,
+        dueDate: $dueDate,
+        currency: $currency,
+        amount: $amount,
+        notes: $notes,
+        attachments: $attachments,
+        generalTaxId: $generalTaxId
+      ) {
+        id
+      }
+    }
+  `), 'editInvoice');
+
+  const cancelInvoiceMutation = useMutation(graphql(`
+    mutation cancelInvoiceMutation($workspaceId: Long!, $invoiceId: Long!) {
+      cancelInvoice(workspaceId: $workspaceId, invoiceId: $invoiceId) {
+        id
+        status
+      }
+    }
+  `), 'cancelInvoice');
+
   const saveInvoice = async () => {
-    const request: EditInvoiceDto = {
-      ...(invoice.value as EditInvoiceDto),
-      datePaid: uiState.value.alreadyPaid ? invoice.value.datePaid : undefined,
-      dateSent: uiState.value.alreadySent ? invoice.value.dateSent : undefined,
-    };
+    const datePaid = uiState.value.alreadyPaid ? (invoice.value.datePaid ?? null) : null;
+    const dateSent = uiState.value.alreadySent ? (invoice.value.dateSent ?? null) : null;
     if (props.id) {
-      await invoicesApi.updateInvoice({
+      await editInvoiceMutation({
         workspaceId: currentWorkspaceId,
-        editInvoiceDto: request,
-        invoiceId: ensureDefined(props.id),
+        id: ensureDefined(props.id),
+        customerId: invoice.value.customer!,
+        title: invoice.value.title!,
+        dateIssued: invoice.value.dateIssued!,
+        dateSent,
+        datePaid,
+        dueDate: invoice.value.dueDate!,
+        currency: invoice.value.currency,
+        amount: invoice.value.amount!,
+        notes: invoice.value.notes ?? null,
+        attachments: invoice.value.attachments,
+        generalTaxId: invoice.value.generalTax ?? null,
       });
     } else {
-      await invoicesApi.createInvoice({
+      await createInvoiceMutation({
         workspaceId: currentWorkspaceId,
-        editInvoiceDto: request,
+        customerId: invoice.value.customer!,
+        title: invoice.value.title!,
+        dateIssued: invoice.value.dateIssued!,
+        dateSent,
+        datePaid,
+        dueDate: invoice.value.dueDate!,
+        currency: invoice.value.currency,
+        amount: invoice.value.amount!,
+        notes: invoice.value.notes ?? null,
+        attachments: invoice.value.attachments,
+        generalTaxId: invoice.value.generalTax ?? null,
       });
     }
     await navigateToInvoicesOverview();
@@ -340,12 +489,11 @@
       type: 'warning',
     },
     async () => executeWithFormBlocked(async () => {
-      const updatedInvoice = await invoicesApi.cancelInvoice({
+      const result = await cancelInvoiceMutation({
         workspaceId: currentWorkspaceId,
         invoiceId: ensureDefined(props.id),
       });
-      invoice.value = updatedInvoice;
-      uiState.value.status = updatedInvoice.status;
+      uiState.value.status = result.status;
     }),
   );
 </script>

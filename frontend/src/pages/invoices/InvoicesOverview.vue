@@ -32,30 +32,65 @@
       </div>
     </div>
 
-    <SaPageableItems
+    <SaPageableItemsGql
       #default="{ item: invoice }"
-      :reload-on="[invoicesFilter, invoiceUpdateTrigger]"
-      :page-provider="invoicesProvider"
+      :page-query="invoicesPageQuery"
+      path="workspace.invoices"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: invoicesFilter || null }"
     >
-      <InvoicesOverviewPanel
-        :invoice="invoice as InvoiceDto"
-        @invoice-update="onInvoiceUpdate"
-      />
-    </SaPageableItems>
+      <InvoicesOverviewPanel :invoice="invoice" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { Search } from '@element-plus/icons-vue';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
-  import type { ApiPageRequest, InvoiceDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
+
+  const invoicesPageQuery = graphql(`
+    query invoicesPage($workspaceId: Long!, $first: Int!, $after: String, $freeSearchText: String) {
+      workspace(id: $workspaceId) {
+        invoices(first: $first, after: $after, freeSearchText: $freeSearchText) {
+          edges {
+            cursor
+            node {
+              id
+              version
+              title
+              dateIssued
+              dateSent
+              datePaid
+              dueDate
+              currency
+              amount
+              notes
+              status
+              customer {
+                id
+              }
+              generalTax {
+                id
+              }
+              attachments {
+                id
+              }
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
 
   const invoicesFilter = ref<string | undefined>(undefined);
   const {
@@ -63,20 +98,9 @@
     currentWorkspace,
   } = useCurrentWorkspace();
 
-  const invoicesProvider = async (request: ApiPageRequest, config: RequestInit) => invoicesApi.getInvoices({
-    ...request,
-    freeSearchTextEq: invoicesFilter.value,
-    workspaceId: currentWorkspaceId,
-  }, config);
-
   const { navigateByViewName } = useNavigation();
 
   const navigateToCreateInvoiceView = () => {
     navigateByViewName('create-new-invoice');
-  };
-
-  const invoiceUpdateTrigger = ref(true);
-  const onInvoiceUpdate = () => {
-    invoiceUpdateTrigger.value = !invoiceUpdateTrigger.value;
   };
 </script>

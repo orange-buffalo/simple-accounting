@@ -168,11 +168,13 @@
   import SaInvoiceSelect from '@/components/entity-select/SaInvoiceSelect.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { EditIncomeDto } from '@/services/api';
-  import { incomesApi, invoicesApi } from '@/services/api';
+  import { incomesApi } from '@/services/api';
   import type { PartialBy } from '@/services/utils';
   import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
   import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -220,6 +222,21 @@
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
   });
 
+  const getSourceInvoiceQuery = useLazyQuery(graphql(`
+    query getSourceInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
+      workspace(id: $workspaceId) {
+        invoice(id: $invoiceId) {
+          title
+          currency
+          amount
+          generalTax {
+            id
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadIncome = async () => {
     if (props.id !== undefined) {
       const loadedIncome = await incomesApi.getIncome({
@@ -232,14 +249,17 @@
         incomeTaxableAmountInDefaultCurrency: loadedIncome.incomeTaxableAmounts.originalAmountInDefaultCurrency,
       };
     } else if (props.sourceInvoiceId !== undefined) {
-      const sourceInvoice = await invoicesApi.getInvoice({
-        invoiceId: Number(props.sourceInvoiceId),
+      const workspace = await getSourceInvoiceQuery({
         workspaceId: currentWorkspaceId,
+        invoiceId: Number(props.sourceInvoiceId),
       });
-      income.value.title = $t.value.editIncome.fromInvoice.title(sourceInvoice.title);
-      income.value.currency = sourceInvoice.currency;
-      income.value.originalAmount = sourceInvoice.amount;
-      income.value.generalTax = sourceInvoice.generalTax;
+      const sourceInvoice = workspace?.invoice;
+      if (sourceInvoice) {
+        income.value.title = $t.value.editIncome.fromInvoice.title(sourceInvoice.title);
+        income.value.currency = sourceInvoice.currency;
+        income.value.originalAmount = sourceInvoice.amount;
+        income.value.generalTax = sourceInvoice.generalTax?.id ?? undefined;
+      }
     }
   };
 
