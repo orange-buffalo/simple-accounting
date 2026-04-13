@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.invoices
 
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
@@ -23,6 +24,7 @@ class InvoicesGqlApi(
         first: Int,
         after: String?,
         freeSearchText: String?,
+        statusIn: List<InvoiceStatus>? = null,
     ): ConnectionGqlDto<InvoiceGqlDto> {
         return paginationService.forTable(invoice)
             .onQuery { it.join(customer).on(customer.id.eq(invoice.customerId)) }
@@ -36,6 +38,9 @@ class InvoicesGqlApi(
                             customer.name.containsIgnoreCase(freeSearchText),
                         )
                     )
+                }
+                if (statusIn != null) {
+                    it.addPredicate(invoice.status.`in`(statusIn))
                 }
             }
             .page(

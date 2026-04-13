@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -106,10 +107,12 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         @GraphQLDescription("Optional free text search to filter invoices by title, notes, or customer name.")
         freeSearchText: String? = null,
+        @GraphQLDescription("Optional filter to include only invoices with the specified statuses.")
+        statusIn: List<InvoiceStatus>? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<InvoiceGqlDto> {
         return env.graphQlContext.getBean<InvoicesGqlApi>()
-            .loadInvoices(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+            .loadInvoices(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText, statusIn = statusIn)
     }
 
     @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
