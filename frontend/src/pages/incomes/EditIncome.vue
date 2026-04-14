@@ -263,8 +263,12 @@
             originalAmountInDefaultCurrency
           }
           notes
-          generalTaxId
-          linkedInvoiceId
+          generalTax {
+            id
+          }
+          linkedInvoice {
+            id
+          }
           attachments {
             id
           }
@@ -292,8 +296,8 @@
           incomeTaxableAmountInDefaultCurrency:
             loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? undefined,
           notes: loaded.notes ?? undefined,
-          generalTax: loaded.generalTaxId ?? undefined,
-          linkedInvoice: loaded.linkedInvoiceId ?? undefined,
+          generalTax: loaded.generalTax?.id ?? undefined,
+          linkedInvoice: loaded.linkedInvoice?.id ?? undefined,
           attachments: loaded.attachments.map(a => a.id),
         };
       }

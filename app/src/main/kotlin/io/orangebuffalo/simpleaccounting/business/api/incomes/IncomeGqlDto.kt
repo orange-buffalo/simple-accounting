@@ -62,11 +62,9 @@ data class IncomeGqlDto(
     @GraphQLDescription("Amount of general tax applied to this income.")
     val generalTaxAmount: Long?,
 
-    @GraphQLDescription("ID of the general tax applied to this income.")
-    val generalTaxId: Long?,
+    @GraphQLIgnore val generalTaxId: Long?,
 
-    @GraphQLDescription("ID of the invoice linked to this income.")
-    val linkedInvoiceId: Long?,
+    @GraphQLIgnore val linkedInvoiceId: Long?,
 
     @GraphQLIgnore val categoryId: Long?,
 

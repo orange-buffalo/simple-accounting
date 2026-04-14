@@ -36,7 +36,7 @@
       />
 
       <SaOverviewItemAttributePreviewIcon
-        v-if="income.linkedInvoiceId"
+        v-if="income.linkedInvoice"
         :tooltip="$t.incomesOverviewPanel.linkedInvoice.tooltip()"
         icon="invoice"
       />
@@ -122,7 +122,7 @@
               :label="$t.incomesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="income.generalTaxId ?? undefined" />
+              <SaGeneralTaxOutput :general-tax-id="income.generalTax?.id" />
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -173,7 +173,7 @@
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
-            v-if="income.linkedInvoiceId"
+            v-if="income.linkedInvoice"
             :label="$t.incomesOverviewPanel.linkedInvoice.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
@@ -341,7 +341,7 @@
 
   const isForeignCurrency = computed(() => props.income.currency !== defaultCurrency);
 
-  const isGeneralTaxApplicable = computed(() => props.income.generalTaxId != null);
+  const isGeneralTaxApplicable = computed(() => props.income.generalTax != null);
 
   const { navigateToView } = useNavigation();
   const navigateToIncomeEdit = () => navigateToView({

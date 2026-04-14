@@ -76,11 +76,13 @@
               }
               notes
               status
-              generalTaxId
+              generalTax {
+                id
+              }
               generalTaxRateInBps
               generalTaxAmount
-              linkedInvoiceId
               linkedInvoice {
+                id
                 title
               }
               category {
