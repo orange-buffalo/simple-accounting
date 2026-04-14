@@ -12,6 +12,9 @@ import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomeGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomesGqlApi
+import io.orangebuffalo.simpleaccounting.business.api.incomes.loadIncomeByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
@@ -96,6 +99,28 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("ID of the expense.") id: Long,
         env: DataFetchingEnvironment,
     ) = env.loadExpenseByWorkspaceAndId(workspaceId = this.id, expenseId = id)
+
+    @Suppress("unused")
+    @GraphQLDescription("Incomes in this workspace with cursor-based pagination.")
+    suspend fun incomes(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter incomes by title, notes, or category name.")
+        freeSearchText: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<IncomeGqlDto> {
+        return env.graphQlContext.getBean<IncomesGqlApi>()
+            .loadIncomes(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+    }
+
+    @GraphQLDescription("Returns an income by its ID if it belongs to this workspace, or null if not found.")
+    fun income(
+        @GraphQLDescription("ID of the income.") id: Long,
+        env: DataFetchingEnvironment,
+    ) = env.loadIncomeByWorkspaceAndId(workspaceId = this.id, incomeId = id)
 
     @Suppress("unused")
     @GraphQLDescription("Invoices in this workspace with cursor-based pagination.")
