@@ -436,6 +436,71 @@ export type I18nSettings = {
   locale: Scalars['String']['output'];
 };
 
+/** Income record of a workspace. */
+export type Income = {
+  __typename?: 'Income';
+  /** Documents attached to this income. */
+  attachments: Array<Document>;
+  /** Category of this income. */
+  category?: Maybe<Category>;
+  /** Converted amounts in default currency. */
+  convertedAmounts: IncomeAmounts;
+  /** Time when the income was created, as ISO 8601 timestamp. */
+  createdAt: Scalars['DateTime']['output'];
+  /** Currency of the income. */
+  currency: Scalars['String']['output'];
+  /** Date when the income was received. */
+  dateReceived: Scalars['LocalDate']['output'];
+  /** General tax applied to this income. */
+  generalTax?: Maybe<GeneralTax>;
+  /** Amount of general tax applied to this income. */
+  generalTaxAmount?: Maybe<Scalars['Long']['output']>;
+  /** Rate in basis points of the general tax applied to this income. */
+  generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
+  /** ID of the income. */
+  id: Scalars['Long']['output'];
+  /** Amounts for income tax purposes. */
+  incomeTaxableAmounts: IncomeAmounts;
+  /** Invoice linked to this income. */
+  linkedInvoice?: Maybe<Invoice>;
+  /** Optional notes for the income. */
+  notes?: Maybe<Scalars['String']['output']>;
+  /** Amount in original currency. */
+  originalAmount: Scalars['Long']['output'];
+  /** Status of the income. */
+  status: IncomeStatus;
+  /** Title of the income. */
+  title: Scalars['String']['output'];
+  /** Indicates if income taxable amounts use a different exchange rate. */
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['output'];
+  /** Version of the income for optimistic locking. */
+  version: Scalars['Int']['output'];
+};
+
+/** Amounts in default currency for an income. */
+export type IncomeAmounts = {
+  __typename?: 'IncomeAmounts';
+  /** Adjusted amount in default currency after tax deduction. */
+  adjustedAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
+  /** Original amount in default currency before tax deduction. */
+  originalAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
+};
+
+/** An edge in a incomes connection. */
+export type IncomeEdge = {
+  __typename?: 'IncomeEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The income at the end of this edge. */
+  node: Income;
+};
+
+export enum IncomeStatus {
+  Finalized = 'FINALIZED',
+  PendingConversion = 'PENDING_CONVERSION',
+  PendingConversionForTaxationPurposes = 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES'
+}
+
 /** An income tax payment in a workspace. */
 export type IncomeTaxPayment = {
   __typename?: 'IncomeTaxPayment';
@@ -480,6 +545,17 @@ export type IncomeTaxPaymentsSummary = {
   __typename?: 'IncomeTaxPaymentsSummary';
   /** Total amount of all income tax payments in the range. */
   totalTaxPayments: Scalars['Long']['output'];
+};
+
+/** A paginated connection of incomes following the GraphQL Cursor Connections Specification. */
+export type IncomesConnection = {
+  __typename?: 'IncomesConnection';
+  /** The list of edges in the current page. */
+  edges: Array<IncomeEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
 };
 
 /** Summary of incomes for a date range. */
@@ -597,6 +673,8 @@ export type Mutation = {
   createExpense: Expense;
   /** Creates a new general tax in the specified workspace. */
   createGeneralTax: GeneralTax;
+  /** Creates a new income in the specified workspace. */
+  createIncome: Income;
   /** Creates a new income tax payment in the specified workspace. */
   createIncomeTaxPayment: IncomeTaxPayment;
   /** Creates a new invoice in the specified workspace. */
@@ -613,6 +691,8 @@ export type Mutation = {
   editExpense: Expense;
   /** Updates an existing general tax in the specified workspace. */
   editGeneralTax: GeneralTax;
+  /** Updates an existing income in the specified workspace. */
+  editIncome: Income;
   /** Updates an existing income tax payment in the specified workspace. */
   editIncomeTaxPayment: IncomeTaxPayment;
   /** Updates an existing invoice in the specified workspace. */
@@ -701,6 +781,23 @@ export type MutationCreateGeneralTaxArgs = {
 };
 
 
+export type MutationCreateIncomeArgs = {
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  currency: Scalars['String']['input'];
+  dateReceived: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  originalAmount: Scalars['Long']['input'];
+  title: Scalars['String']['input'];
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
 export type MutationCreateIncomeTaxPaymentArgs = {
   amount: Scalars['Long']['input'];
   attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
@@ -780,6 +877,24 @@ export type MutationEditGeneralTaxArgs = {
   id: Scalars['Long']['input'];
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationEditIncomeArgs = {
+  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  currency: Scalars['String']['input'];
+  dateReceived: Scalars['LocalDate']['input'];
+  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  id: Scalars['Long']['input'];
+  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
+  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  originalAmount: Scalars['Long']['input'];
+  title: Scalars['String']['input'];
+  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
   workspaceId: Scalars['Long']['input'];
 };
 
@@ -987,10 +1102,14 @@ export type Workspace = {
   generalTaxes: GeneralTaxesConnection;
   /** ID of the workspace. */
   id: Scalars['Long']['output'];
+  /** Returns an income by its ID if it belongs to this workspace, or null if not found. */
+  income?: Maybe<Income>;
   /** Returns an income tax payment by its ID if it belongs to this workspace, or null if not found. */
   incomeTaxPayment?: Maybe<IncomeTaxPayment>;
   /** Income tax payments in this workspace with cursor-based pagination. */
   incomeTaxPayments: IncomeTaxPaymentsConnection;
+  /** Incomes in this workspace with cursor-based pagination. */
+  incomes: IncomesConnection;
   /** Returns an invoice by its ID if it belongs to this workspace, or null if not found. */
   invoice?: Maybe<Invoice>;
   /** Invoices in this workspace with cursor-based pagination. */
@@ -1063,6 +1182,12 @@ export type WorkspaceGeneralTaxesArgs = {
 
 
 /** Workspace of a user. */
+export type WorkspaceIncomeArgs = {
+  id: Scalars['Long']['input'];
+};
+
+
+/** Workspace of a user. */
 export type WorkspaceIncomeTaxPaymentArgs = {
   id: Scalars['Long']['input'];
 };
@@ -1072,6 +1197,14 @@ export type WorkspaceIncomeTaxPaymentArgs = {
 export type WorkspaceIncomeTaxPaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceIncomesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 

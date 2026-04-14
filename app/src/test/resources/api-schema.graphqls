@@ -396,6 +396,62 @@ type I18nSettings {
   locale: String!
 }
 
+"Income record of a workspace."
+type Income {
+  "Documents attached to this income."
+  attachments: [Document!]!
+  "Category of this income."
+  category: Category
+  "Converted amounts in default currency."
+  convertedAmounts: IncomeAmounts!
+  "Time when the income was created, as ISO 8601 timestamp."
+  createdAt: DateTime!
+  "Currency of the income."
+  currency: String!
+  "Date when the income was received."
+  dateReceived: LocalDate!
+  "General tax applied to this income."
+  generalTax: GeneralTax
+  "Amount of general tax applied to this income."
+  generalTaxAmount: Long
+  "Rate in basis points of the general tax applied to this income."
+  generalTaxRateInBps: Int
+  "ID of the income."
+  id: Long!
+  "Amounts for income tax purposes."
+  incomeTaxableAmounts: IncomeAmounts!
+  "Invoice linked to this income."
+  linkedInvoice: Invoice
+  "Optional notes for the income."
+  notes: String
+  "Amount in original currency."
+  originalAmount: Long!
+  "Status of the income."
+  status: IncomeStatus!
+  "Title of the income."
+  title: String!
+  "Indicates if income taxable amounts use a different exchange rate."
+  useDifferentExchangeRateForIncomeTaxPurposes: Boolean!
+  "Version of the income for optimistic locking."
+  version: Int!
+}
+
+"Amounts in default currency for an income."
+type IncomeAmounts {
+  "Adjusted amount in default currency after tax deduction."
+  adjustedAmountInDefaultCurrency: Long
+  "Original amount in default currency before tax deduction."
+  originalAmountInDefaultCurrency: Long
+}
+
+"An edge in a incomes connection."
+type IncomeEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The income at the end of this edge."
+  node: Income!
+}
+
 "An income tax payment in a workspace."
 type IncomeTaxPayment {
   "Amount of the tax payment in cents."
@@ -436,6 +492,16 @@ type IncomeTaxPaymentsConnection {
 type IncomeTaxPaymentsSummary {
   "Total amount of all income tax payments in the range."
   totalTaxPayments: Long!
+}
+
+"A paginated connection of incomes following the GraphQL Cursor Connections Specification."
+type IncomesConnection {
+  "The list of edges in the current page."
+  edges: [IncomeEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 "Summary of incomes for a date range."
@@ -618,6 +684,35 @@ type Mutation {
     "ID of the workspace to create the general tax in."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Creates a new income in the specified workspace."
+  createIncome(
+    "IDs of documents attached to this income."
+    attachments: [Long!],
+    "ID of the category for this income."
+    categoryId: Long,
+    "Converted amount in the default currency, in cents. Null if not yet converted."
+    convertedAmountInDefaultCurrency: Long,
+    "Currency of the income."
+    currency: String! @notBlank,
+    "Date when the income was received."
+    dateReceived: LocalDate!,
+    "ID of the general tax applied to this income."
+    generalTaxId: Long,
+    "Amount for income tax purposes in the default currency, in cents. Null if not yet converted."
+    incomeTaxableAmountInDefaultCurrency: Long,
+    "ID of the invoice linked to this income."
+    linkedInvoiceId: Long,
+    "Optional notes for the income."
+    notes: String @size(max : 1024, min : 0),
+    "Original amount of the income in original currency, in cents."
+    originalAmount: Long!,
+    "Title of the income."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "Whether different exchange rate is used for income tax purposes."
+    useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "ID of the workspace to create the income in."
+    workspaceId: Long!
+  ): Income! @auth(type : REGULAR_USER)
   "Creates a new income tax payment in the specified workspace."
   createIncomeTaxPayment(
     "Amount of the tax payment in cents."
@@ -744,6 +839,37 @@ type Mutation {
     "ID of the workspace the general tax belongs to."
     workspaceId: Long!
   ): GeneralTax! @auth(type : REGULAR_USER)
+  "Updates an existing income in the specified workspace."
+  editIncome(
+    "New IDs of documents attached to this income."
+    attachments: [Long!],
+    "New ID of the category for this income."
+    categoryId: Long,
+    "New converted amount in the default currency, in cents. Null if not yet converted."
+    convertedAmountInDefaultCurrency: Long,
+    "New currency of the income."
+    currency: String! @notBlank,
+    "New date when the income was received."
+    dateReceived: LocalDate!,
+    "New ID of the general tax applied to this income."
+    generalTaxId: Long,
+    "ID of the income to update."
+    id: Long!,
+    "New amount for income tax purposes in the default currency, in cents. Null if not yet converted."
+    incomeTaxableAmountInDefaultCurrency: Long,
+    "New ID of the invoice linked to this income."
+    linkedInvoiceId: Long,
+    "New optional notes for the income."
+    notes: String @size(max : 1024, min : 0),
+    "New original amount of the income in original currency, in cents."
+    originalAmount: Long!,
+    "New title of the income."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "Whether different exchange rate is used for income tax purposes."
+    useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "ID of the workspace the income belongs to."
+    workspaceId: Long!
+  ): Income! @auth(type : REGULAR_USER)
   "Updates an existing income tax payment in the specified workspace."
   editIncomeTaxPayment(
     "New amount of the tax payment in cents."
@@ -973,6 +1099,11 @@ type Workspace {
   ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Long!
+  "Returns an income by its ID if it belongs to this workspace, or null if not found."
+  income(
+    "ID of the income."
+    id: Long!
+  ): Income
   "Returns an income tax payment by its ID if it belongs to this workspace, or null if not found."
   incomeTaxPayment(
     "ID of the income tax payment."
@@ -985,6 +1116,15 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): IncomeTaxPaymentsConnection!
+  "Incomes in this workspace with cursor-based pagination."
+  incomes(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!,
+    "Optional free text search to filter incomes by title, notes, or category name."
+    freeSearchText: String
+  ): IncomesConnection!
   "Returns an invoice by its ID if it belongs to this workspace, or null if not found."
   invoice(
     "ID of the invoice."
@@ -1147,6 +1287,12 @@ enum DocumentUsageType {
 }
 
 enum ExpenseStatus {
+  FINALIZED
+  PENDING_CONVERSION
+  PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+}
+
+enum IncomeStatus {
   FINALIZED
   PENDING_CONVERSION
   PENDING_CONVERSION_FOR_TAXATION_PURPOSES
