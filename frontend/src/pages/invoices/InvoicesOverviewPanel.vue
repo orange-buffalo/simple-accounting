@@ -5,7 +5,7 @@
         :tooltip="$t.invoicesOverviewPanel.customer.tooltip()"
         icon="customer"
       >
-        <SaCustomerOutput :customer-id="invoice.customer" />
+        <SaCustomerOutput :customer-id="invoice.customer!.id" />
       </SaOverviewItemPrimaryAttribute>
 
       <SaOverviewItemPrimaryAttribute
@@ -107,7 +107,7 @@
             :label="$t.invoicesOverviewPanel.customer.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCustomerOutput :customer-id="invoice.customer" />
+            <SaCustomerOutput :customer-id="invoice.customer!.id" />
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -172,7 +172,7 @@
               :label="$t.invoicesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="invoice.generalTax" />
+              <SaGeneralTaxOutput :general-tax-id="invoice.generalTax!.id" />
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -191,7 +191,7 @@
       >
         <div class="row">
           <div class="col col-xs-12">
-            <SaDocumentsList :documents-ids="invoice.attachments" />
+            <SaDocumentsList :documents-ids="invoice.attachments.map(a => a.id)" />
           </div>
         </div>
       </SaOverviewItemDetailsSection>
@@ -230,14 +230,15 @@
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { formatDateToLocalISOString } from '@/services/date-utils';
-  import type { InvoiceDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
-  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import type { InvoicesPageQuery } from '@/services/api/gql/graphql';
+
+  type InvoiceNode = InvoicesPageQuery['workspace']['invoices']['edges'][0]['node'];
 
   const props = defineProps<{
-    invoice: InvoiceDto
+    invoice: InvoiceNode
   }>();
 
   const emit = defineEmits<{(e: 'invoice-update'): void }>();
@@ -248,15 +249,57 @@
     defaultCurrency,
   } = useCurrentWorkspace();
 
+  const editInvoiceMutation = useMutation(graphql(`
+    mutation editInvoiceForMarkAsSent(
+      $workspaceId: Long!,
+      $id: Long!,
+      $customerId: Long!,
+      $title: String!,
+      $dateIssued: LocalDate!,
+      $dateSent: LocalDate,
+      $datePaid: LocalDate,
+      $dueDate: LocalDate!,
+      $currency: String!,
+      $amount: Long!,
+      $notes: String,
+      $attachments: [Long!],
+      $generalTaxId: Long
+    ) {
+      editInvoice(
+        workspaceId: $workspaceId,
+        id: $id,
+        customerId: $customerId,
+        title: $title,
+        dateIssued: $dateIssued,
+        dateSent: $dateSent,
+        datePaid: $datePaid,
+        dueDate: $dueDate,
+        currency: $currency,
+        amount: $amount,
+        notes: $notes,
+        attachments: $attachments,
+        generalTaxId: $generalTaxId
+      ) {
+        id
+      }
+    }
+  `), 'editInvoice');
+
   const markSent = async () => {
-    const invoiceRequest = {
-      ...props.invoice,
-      dateSent: formatDateToLocalISOString(new Date()),
-    };
-    await invoicesApi.updateInvoice({
-      invoiceId: props.invoice.id,
+    await editInvoiceMutation({
       workspaceId: currentWorkspaceId,
-      editInvoiceDto: invoiceRequest,
+      id: props.invoice.id,
+      customerId: props.invoice.customer!.id,
+      title: props.invoice.title,
+      dateIssued: props.invoice.dateIssued,
+      dateSent: formatDateToLocalISOString(new Date()),
+      datePaid: props.invoice.datePaid ?? null,
+      dueDate: props.invoice.dueDate,
+      currency: props.invoice.currency,
+      amount: props.invoice.amount,
+      notes: props.invoice.notes ?? null,
+      attachments: props.invoice.attachments.map(a => a.id),
+      generalTaxId: props.invoice.generalTax?.id ?? null,
     });
     emit('invoice-update');
   };
@@ -339,11 +382,11 @@
   `), 'workspace');
 
   const generalTaxRate = ref(0);
-  watch(() => props.invoice.generalTax, async (taxId) => {
-    if (taxId !== undefined) {
+  watch(() => props.invoice.generalTax, async (tax) => {
+    if (tax != null) {
       const workspace = await getGeneralTaxQuery({
         workspaceId: currentWorkspaceId,
-        taxId,
+        taxId: tax.id,
       });
       generalTaxRate.value = workspace?.generalTax?.rateInBps ?? 0;
     }

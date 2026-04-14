@@ -21,7 +21,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -32,8 +32,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
         // Capture loading state by blocking API response
-        page.withBlockedApiResponse(
-            "**/invoices*",
+        page.withBlockedGqlApiResponse(
+            "invoicesPage",
             initiator = {
                 page.openInvoicesOverviewPage { }
             },

@@ -18,7 +18,7 @@
     <template #content>
       <div class="sa-dashboard__card__details__item">
         <span>{{ $t.dashboard.cards.invoice.to() }}</span>
-        <span><SaCustomerOutput :customer-id="invoice.customer" /></span>
+        <span><SaCustomerOutput :customer-id="invoice.customer!.id" /></span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
@@ -28,7 +28,7 @@
 
       <div class="sa-dashboard__card__details__item">
         <span>{{ $t.dashboard.cards.invoice.dateSent() }}</span>
-        <span>{{ $t.common.date.medium(invoice.dateSent) }}</span>
+        <span>{{ invoice.dateSent ? $t.common.date.medium(invoice.dateSent) : '' }}</span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
@@ -42,13 +42,15 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import type { InvoiceDto } from '@/services/api';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
+  import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
+
+  type InvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 
   const props = defineProps<{
-    invoice: InvoiceDto,
+    invoice: InvoiceNode,
   }>();
 
   const invoiceStatus = computed(() => {

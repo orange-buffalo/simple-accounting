@@ -7,28 +7,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
-  import type { InvoiceDto } from '@/services/api';
-  import { consumeAllPages, invoicesApi } from '@/services/api';
   import DashboardCardInvoice from '@/pages/dashboard/DashboardCardInvoice.vue';
+  import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
 
-  const props = defineProps<{
-    fromDate: Date,
-    toDate: Date,
+  type InvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
+
+  defineProps<{
+    invoices: InvoiceNode[],
   }>();
-
-  const {
-    value: maybeInvoices,
-  } = useValueLoadedByCurrentWorkspaceAndProp(
-    () => props.fromDate && props.toDate,
-    (_, workspaceId) => consumeAllPages(async (pageRequest) => invoicesApi.getInvoices({
-      workspaceId,
-      statusIn: ['SENT', 'OVERDUE'],
-      ...pageRequest,
-    })),
-  );
-  const invoices = computed<InvoiceDto[]>(() => maybeInvoices.value || []);
 </script>
 
 <style scoped>

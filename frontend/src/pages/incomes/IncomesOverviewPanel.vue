@@ -278,8 +278,9 @@
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { IncomeDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{ income: IncomeDto }>();
 
@@ -351,6 +352,16 @@
     params: { id: props.income.id },
   });
 
+  const getLinkedInvoiceQuery = useLazyQuery(graphql(`
+    query getLinkedInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
+      workspace(id: $workspaceId) {
+        invoice(id: $invoiceId) {
+          title
+        }
+      }
+    }
+  `), 'workspace');
+
   const linkedInvoice = ref({
     loading: false,
     exists: props.income.linkedInvoice != null,
@@ -362,11 +373,11 @@
       linkedInvoice.value.loading = true;
       try {
         const { currentWorkspaceId } = useCurrentWorkspace();
-        const invoiceResponse = await invoicesApi.getInvoice({
-          invoiceId: props.income.linkedInvoice,
+        const workspace = await getLinkedInvoiceQuery({
           workspaceId: currentWorkspaceId,
+          invoiceId: props.income.linkedInvoice,
         });
-        linkedInvoice.value.title = invoiceResponse.title;
+        linkedInvoice.value.title = workspace?.invoice?.title ?? null;
       } finally {
         linkedInvoice.value.loading = false;
       }

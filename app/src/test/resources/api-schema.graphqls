@@ -521,6 +521,13 @@ type InvoicesConnection {
 }
 
 type Mutation {
+  "Cancels an existing invoice in the specified workspace."
+  cancelInvoice(
+    "ID of the invoice to cancel."
+    invoiceId: Long!,
+    "ID of the workspace the invoice belongs to."
+    workspaceId: Long!
+  ): Invoice! @auth(type : REGULAR_USER)
   "Changes the password of the current user."
   changePassword(
     "The current password of the user."
@@ -990,7 +997,9 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!,
     "Optional free text search to filter invoices by title, notes, or customer name."
-    freeSearchText: String
+    freeSearchText: String,
+    "Optional filter to include only invoices with the specified statuses."
+    statusIn: [InvoiceStatus!]
   ): InvoicesConnection!
   "Name of the workspace."
   name: String!
