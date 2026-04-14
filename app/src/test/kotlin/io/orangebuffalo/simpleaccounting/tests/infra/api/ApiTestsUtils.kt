@@ -377,15 +377,26 @@ class GraphqlClientRequestExecutor(
     fun executeAndVerifyNotAuthorized(
         path: String,
         locationColumn: Int = 3,
-        locationLine: Int = 2
+        locationLine: Int = 2,
+        ignoreExtraData: Boolean = false,
     ) {
-        executeAndVerifySingleError(
-            message = "User is not authenticated",
-            errorType = "NOT_AUTHORIZED",
-            locationColumn = locationColumn,
-            locationLine = locationLine,
-            path = path,
-        )
+        if (ignoreExtraData) {
+            verifyErrorInResponse(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationColumn = locationColumn,
+                locationLine = locationLine,
+                path = path,
+            )
+        } else {
+            executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationColumn = locationColumn,
+                locationLine = locationLine,
+                path = path,
+            )
+        }
     }
 
     fun executeAndVerifyNotAuthorized(
@@ -402,10 +413,12 @@ class GraphqlClientRequestExecutor(
         )
     }
 
-    fun executeAndVerifyNotAuthorizedForNullableField(
+    private fun verifyErrorInResponse(
+        message: String,
+        errorType: String,
+        locationColumn: Int,
+        locationLine: Int,
         path: String,
-        locationColumn: Int = 3,
-        locationLine: Int = 2,
     ) {
         requestSpec
             .exchange()
@@ -415,9 +428,12 @@ class GraphqlClientRequestExecutor(
                 val errors = json["errors"]?.jsonArray.shouldNotBeNull()
                 errors.shouldNotBeEmpty()
                 val error = errors[0].jsonObject
+                withClue("Expected message to be '$message'") {
+                    error["message"]?.jsonPrimitive?.content.shouldBe(message)
+                }
                 val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
-                withClue("Expected errorType to be NOT_AUTHORIZED") {
-                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("NOT_AUTHORIZED")
+                withClue("Expected errorType to be $errorType") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe(errorType)
                 }
                 val locations = error["locations"]?.jsonArray.shouldNotBeNull()
                 locations.shouldNotBeEmpty()

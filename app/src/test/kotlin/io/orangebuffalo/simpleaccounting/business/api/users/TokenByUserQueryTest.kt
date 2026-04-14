@@ -44,14 +44,14 @@ class TokenByUserQueryTest(
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client.graphql { tokenByUser(userId = 42) { token } }
                 .fromAnonymous()
-                .executeAndVerifyNotAuthorizedForNullableField(path = DgsConstants.QUERY.TokenByUser)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.TokenByUser, ignoreExtraData = true)
         }
 
         @Test
         fun `should return NOT_AUTHORIZED error for regular user`() {
             client.graphql { tokenByUser(userId = 42) { token } }
                 .from(preconditions.fry)
-                .executeAndVerifyNotAuthorizedForNullableField(path = DgsConstants.QUERY.TokenByUser)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.TokenByUser, ignoreExtraData = true)
         }
     }
 

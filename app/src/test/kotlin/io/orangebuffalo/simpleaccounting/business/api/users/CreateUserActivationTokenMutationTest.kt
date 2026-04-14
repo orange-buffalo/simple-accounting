@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -90,6 +91,12 @@ class CreateUserActivationTokenMutationTest(
                         put("expiresAt", "1999-03-29T04:01:02.042Z")
                     }
                 )
+
+            withHint("Token should be created in database") {
+                aggregateTemplate.findAll(UserActivationToken::class.java)
+                    .filter { it.userId == preconditions.userWithoutToken.id }
+                    .shouldBeSingle()
+            }
         }
 
         @Test
@@ -108,6 +115,12 @@ class CreateUserActivationTokenMutationTest(
             withHint("Existing token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldNotContain(preconditions.existingToken)
+            }
+
+            withHint("New token should be created in database") {
+                aggregateTemplate.findAll(UserActivationToken::class.java)
+                    .filter { it.userId == preconditions.userWithToken.id }
+                    .shouldBeSingle()
             }
         }
     }
