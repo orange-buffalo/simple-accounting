@@ -75,6 +75,11 @@ type AccountLockedErrorExtensions {
   lockExpiresInSec: Int!
 }
 
+"Response for the activateUser mutation. Always succeeds if no error is returned by the standard GraphQL error response structure."
+type ActivateUserResponse {
+  success: Boolean!
+}
+
 "A paginated connection of categories following the GraphQL Cursor Connections Specification."
 type CategoriesConnection {
   "The list of edges in the current page."
@@ -587,6 +592,13 @@ type InvoicesConnection {
 }
 
 type Mutation {
+  "Activates a user account using the provided token and sets the user's password. The token is invalidated after successful activation. Accessible by anonymous users."
+  activateUser(
+    "The password to set for the user."
+    password: String! @notBlank @size(max : 100, min : 0),
+    "The activation token value."
+    token: String!
+  ): ActivateUserResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "TOKEN_EXPIRED", errorCodeDescription : "The provided activation token has expired.")
   "Cancels an existing invoice in the specified workspace."
   cancelInvoice(
     "ID of the invoice to cancel."
@@ -757,6 +769,11 @@ type Mutation {
     "ID of the workspace to create the invoice in."
     workspaceId: Long!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users."
+  createUserActivationToken(
+    "The ID of the user to create the activation token for."
+    userId: Long!
+  ): UserActivationTokenGqlDto! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_ACTIVATED", errorCodeDescription : "The user is already activated and cannot receive an activation token.")
   "Creates a new workspace for the current user."
   createWorkspace(
     "Default currency code of the workspace (ISO 4217, 3 characters)."
@@ -976,6 +993,16 @@ type Query {
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
   "Returns the system settings."
   systemSettings: SystemSettings! @auth(type : AUTHENTICATED_USER)
+  "Retrieves the activation token for a user by their ID. Returns null if the token does not exist or has expired. Only accessible by admin users."
+  tokenByUser(
+    "The ID of the user to retrieve the activation token for."
+    userId: Long!
+  ): UserActivationTokenGqlDto @auth(type : ADMIN_USER)
+  "Retrieves an activation token by its value. Returns null if the token does not exist or has expired. Accessible by anonymous users."
+  tokenByValue(
+    "The activation token value."
+    token: String!
+  ): UserActivationTokenGqlDto @auth(type : ANONYMOUS)
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
   "Returns a workspace by its ID, if accessible by the current user."
@@ -1002,6 +1029,14 @@ type RefreshAccessTokenResponse {
 type SystemSettings {
   "Whether local file system documents storage is enabled."
   localFileSystemDocumentsStorageEnabled: Boolean!
+}
+
+"A user activation token used to activate a new user account."
+type UserActivationTokenGqlDto {
+  "The date and time when the token expires."
+  expiresAt: DateTime!
+  "The token value."
+  token: String!
 }
 
 "Information about the user profile."
@@ -1236,6 +1271,12 @@ type WorkspacesConnection {
   totalCount: Int!
 }
 
+"Possible business error codes for the activateUser operation."
+enum ActivateUserErrorCodes {
+  "The provided activation token has expired."
+  TOKEN_EXPIRED
+}
+
 "Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive."
 enum AuthType {
   "Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges."
@@ -1272,6 +1313,12 @@ enum CreateAccessTokenByCredentialsErrorCodes {
 enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
   "The provided workspace access token is not valid (unknown, expired, or revoked)."
   INVALID_WORKSPACE_ACCESS_TOKEN
+}
+
+"Possible business error codes for the createUserActivationToken operation."
+enum CreateUserActivationTokenErrorCodes {
+  "The user is already activated and cannot receive an activation token."
+  USER_ALREADY_ACTIVATED
 }
 
 "Type of entity that uses a document."
