@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -22,8 +22,8 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
         // Capture loading state by blocking API response
-        page.withBlockedApiResponse(
-            "**/incomes*",
+        page.withBlockedGqlApiResponse(
+            "incomesPage",
             initiator = {
                 page.openIncomesOverviewPage { }
             },

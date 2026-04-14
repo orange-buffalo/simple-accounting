@@ -36,7 +36,7 @@
       />
 
       <SaOverviewItemAttributePreviewIcon
-        v-if="linkedInvoice.exists"
+        v-if="income.linkedInvoiceId"
         :tooltip="$t.incomesOverviewPanel.linkedInvoice.tooltip()"
         icon="invoice"
       />
@@ -92,7 +92,7 @@
             :label="$t.incomesOverviewPanel.category.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCategoryOutput :category-id="income.category" />
+            <SaCategoryOutput :category-id="income.category?.id" />
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -122,7 +122,7 @@
               :label="$t.incomesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="income.generalTax" />
+              <SaGeneralTaxOutput :general-tax-id="income.generalTaxId ?? undefined" />
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -141,7 +141,7 @@
               <SaMoneyOutput
                 v-if="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
-                :amount-in-cents="income.generalTaxAmount"
+                :amount-in-cents="income.generalTaxAmount ?? undefined"
               />
 
               <span v-else>{{ $t.incomesOverviewPanel.generalTaxAmount.notProvided() }}</span>
@@ -173,13 +173,11 @@
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
-            v-if="linkedInvoice.exists"
+            v-if="income.linkedInvoiceId"
             :label="$t.incomesOverviewPanel.linkedInvoice.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaOutputLoader :loading="linkedInvoice.loading">
-              {{ linkedInvoice.title }}
-            </SaOutputLoader>
+            {{ income.linkedInvoice?.title }}
           </SaOverviewItemDetailsSectionAttribute>
         </div>
       </SaOverviewItemDetailsSection>
@@ -237,7 +235,7 @@
       >
         <div class="row">
           <div class="col col-xs-12">
-            <SaDocumentsList :documents-ids="income.attachments" />
+            <SaDocumentsList :documents-ids="income.attachments.map(a => a.id)" />
           </div>
         </div>
       </SaOverviewItemDetailsSection>
@@ -257,7 +255,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
+  import { computed } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
@@ -275,14 +273,13 @@
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import { $t } from '@/services/i18n';
   import useNavigation from '@/services/use-navigation';
-  import SaOutputLoader from '@/components/SaOutputLoader.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { IncomeDto } from '@/services/api';
+  import type { IncomesPageQuery } from '@/services/api/gql/graphql';
   import { ensureDefined } from '@/services/utils';
-  import { graphql } from '@/services/api/gql';
-  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
-  const props = defineProps<{ income: IncomeDto }>();
+  type IncomeNode = IncomesPageQuery['workspace']['incomes']['edges'][0]['node'];
+
+  const props = defineProps<{ income: IncomeNode }>();
 
   const {
     defaultCurrency,
@@ -344,45 +341,11 @@
 
   const isForeignCurrency = computed(() => props.income.currency !== defaultCurrency);
 
-  const isGeneralTaxApplicable = computed(() => props.income.generalTax != null);
+  const isGeneralTaxApplicable = computed(() => props.income.generalTaxId != null);
 
   const { navigateToView } = useNavigation();
   const navigateToIncomeEdit = () => navigateToView({
     name: 'edit-income',
     params: { id: props.income.id },
   });
-
-  const getLinkedInvoiceQuery = useLazyQuery(graphql(`
-    query getLinkedInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
-      workspace(id: $workspaceId) {
-        invoice(id: $invoiceId) {
-          title
-        }
-      }
-    }
-  `), 'workspace');
-
-  const linkedInvoice = ref({
-    loading: false,
-    exists: props.income.linkedInvoice != null,
-    title: null as string | null,
-  });
-
-  async function loadLinkedInvoice() {
-    if (props.income.linkedInvoice) {
-      linkedInvoice.value.loading = true;
-      try {
-        const { currentWorkspaceId } = useCurrentWorkspace();
-        const workspace = await getLinkedInvoiceQuery({
-          workspaceId: currentWorkspaceId,
-          invoiceId: props.income.linkedInvoice,
-        });
-        linkedInvoice.value.title = workspace?.invoice?.title ?? null;
-      } finally {
-        linkedInvoice.value.loading = false;
-      }
-    }
-  }
-
-  loadLinkedInvoice();
 </script>

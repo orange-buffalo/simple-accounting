@@ -414,6 +414,8 @@ type Income {
   generalTax: GeneralTax
   "Amount of general tax applied to this income."
   generalTaxAmount: Long
+  "ID of the general tax applied to this income."
+  generalTaxId: Long
   "Rate in basis points of the general tax applied to this income."
   generalTaxRateInBps: Int
   "ID of the income."
@@ -422,6 +424,8 @@ type Income {
   incomeTaxableAmounts: IncomeAmounts!
   "Invoice linked to this income."
   linkedInvoice: Invoice
+  "ID of the invoice linked to this income."
+  linkedInvoiceId: Long
   "Optional notes for the income."
   notes: String
   "Amount in original currency."

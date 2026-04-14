@@ -31,39 +31,78 @@
       </div>
     </div>
 
-    <SaPageableItems
+    <SaPageableItemsGql
       #default="{ item: income }"
-      :page-provider="incomesProvider"
-      :reload-on="[freeSearchText]"
+      :page-query="incomesPageQuery"
+      path="workspace.incomes"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
     >
-      <IncomesOverviewPanel :income="income as IncomeDto" />
-    </SaPageableItems>
+      <IncomesOverviewPanel :income="income" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import IncomesOverviewPanel from '@/pages/incomes/IncomesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, IncomeDto } from '@/services/api';
-  import { incomesApi } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
 
-  const {
-    currentWorkspaceId,
-    currentWorkspace,
-  } = useCurrentWorkspace();
+  const incomesPageQuery = graphql(`
+    query incomesPage($workspaceId: Long!, $first: Int!, $after: String, $freeSearchText: String) {
+      workspace(id: $workspaceId) {
+        incomes(first: $first, after: $after, freeSearchText: $freeSearchText) {
+          edges {
+            cursor
+            node {
+              id
+              version
+              title
+              dateReceived
+              currency
+              originalAmount
+              convertedAmounts {
+                originalAmountInDefaultCurrency
+                adjustedAmountInDefaultCurrency
+              }
+              useDifferentExchangeRateForIncomeTaxPurposes
+              incomeTaxableAmounts {
+                originalAmountInDefaultCurrency
+                adjustedAmountInDefaultCurrency
+              }
+              notes
+              status
+              generalTaxId
+              generalTaxRateInBps
+              generalTaxAmount
+              linkedInvoiceId
+              linkedInvoice {
+                title
+              }
+              category {
+                id
+              }
+              attachments {
+                id
+              }
+            }
+          }
+          pageInfo {
+            ...PaginationPageInfo
+          }
+          totalCount
+        }
+      }
+    }
+  `);
+
+  const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const incomesProvider = async (request: ApiPageRequest, config: RequestInit) => incomesApi.getIncomes({
-    ...request,
-    workspaceId: currentWorkspaceId,
-    freeSearchTextEq: freeSearchText.value,
-  }, config);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateIncomeView = () => navigateByViewName('create-new-income');

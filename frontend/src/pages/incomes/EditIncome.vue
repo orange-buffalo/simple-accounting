@@ -167,14 +167,10 @@
   import { $t } from '@/services/i18n';
   import SaInvoiceSelect from '@/components/entity-select/SaInvoiceSelect.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditIncomeDto } from '@/services/api';
-  import { incomesApi } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
-  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -210,8 +206,19 @@
     currentWorkspaceId,
   } = useCurrentWorkspace();
 
-  type IncomeFormValues = PartialBy<EditIncomeDto, 'title' | 'originalAmount'> & {
-    attachments: Array<number>,
+  type IncomeFormValues = {
+    category?: number,
+    title?: string,
+    dateReceived?: string,
+    currency: string,
+    originalAmount?: number,
+    convertedAmountInDefaultCurrency?: number,
+    useDifferentExchangeRateForIncomeTaxPurposes: boolean,
+    incomeTaxableAmountInDefaultCurrency?: number,
+    notes?: string,
+    generalTax?: number,
+    attachments: number[],
+    linkedInvoice?: number,
   };
 
   const income = ref<IncomeFormValues>({
@@ -237,17 +244,59 @@
     }
   `), 'workspace');
 
+  const getIncomeForEditQuery = useLazyQuery(graphql(`
+    query getIncomeForEdit($workspaceId: Long!, $incomeId: Long!) {
+      workspace(id: $workspaceId) {
+        income(id: $incomeId) {
+          category {
+            id
+          }
+          title
+          dateReceived
+          currency
+          originalAmount
+          convertedAmounts {
+            originalAmountInDefaultCurrency
+          }
+          useDifferentExchangeRateForIncomeTaxPurposes
+          incomeTaxableAmounts {
+            originalAmountInDefaultCurrency
+          }
+          notes
+          generalTaxId
+          linkedInvoiceId
+          attachments {
+            id
+          }
+        }
+      }
+    }
+  `), 'workspace');
+
   const loadIncome = async () => {
     if (props.id !== undefined) {
-      const loadedIncome = await incomesApi.getIncome({
-        incomeId: props.id,
+      const workspace = await getIncomeForEditQuery({
         workspaceId: currentWorkspaceId,
+        incomeId: props.id,
       });
-      income.value = {
-        ...loadedIncome,
-        convertedAmountInDefaultCurrency: loadedIncome.convertedAmounts.originalAmountInDefaultCurrency,
-        incomeTaxableAmountInDefaultCurrency: loadedIncome.incomeTaxableAmounts.originalAmountInDefaultCurrency,
-      };
+      const loaded = workspace?.income;
+      if (loaded) {
+        income.value = {
+          category: loaded.category?.id ?? undefined,
+          title: loaded.title,
+          dateReceived: loaded.dateReceived,
+          currency: loaded.currency,
+          originalAmount: loaded.originalAmount,
+          convertedAmountInDefaultCurrency: loaded.convertedAmounts.originalAmountInDefaultCurrency ?? undefined,
+          useDifferentExchangeRateForIncomeTaxPurposes: loaded.useDifferentExchangeRateForIncomeTaxPurposes,
+          incomeTaxableAmountInDefaultCurrency:
+            loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? undefined,
+          notes: loaded.notes ?? undefined,
+          generalTax: loaded.generalTaxId ?? undefined,
+          linkedInvoice: loaded.linkedInvoiceId ?? undefined,
+          attachments: loaded.attachments.map(a => a.id),
+        };
+      }
     } else if (props.sourceInvoiceId !== undefined) {
       const workspace = await getSourceInvoiceQuery({
         workspaceId: currentWorkspaceId,
@@ -263,20 +312,113 @@
     }
   };
 
+  const createIncomeMutation = useMutation(graphql(`
+    mutation createIncomeMutation(
+      $workspaceId: Long!,
+      $title: String!,
+      $dateReceived: LocalDate!,
+      $currency: String!,
+      $originalAmount: Long!,
+      $convertedAmountInDefaultCurrency: Long,
+      $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+      $incomeTaxableAmountInDefaultCurrency: Long,
+      $notes: String,
+      $attachments: [Long!],
+      $categoryId: Long,
+      $generalTaxId: Long,
+      $linkedInvoiceId: Long
+    ) {
+      createIncome(
+        workspaceId: $workspaceId,
+        title: $title,
+        dateReceived: $dateReceived,
+        currency: $currency,
+        originalAmount: $originalAmount,
+        convertedAmountInDefaultCurrency: $convertedAmountInDefaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: $useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: $incomeTaxableAmountInDefaultCurrency,
+        notes: $notes,
+        attachments: $attachments,
+        categoryId: $categoryId,
+        generalTaxId: $generalTaxId,
+        linkedInvoiceId: $linkedInvoiceId
+      ) {
+        id
+      }
+    }
+  `), 'createIncome');
+
+  const editIncomeMutation = useMutation(graphql(`
+    mutation editIncomeMutation(
+      $workspaceId: Long!,
+      $id: Long!,
+      $title: String!,
+      $dateReceived: LocalDate!,
+      $currency: String!,
+      $originalAmount: Long!,
+      $convertedAmountInDefaultCurrency: Long,
+      $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+      $incomeTaxableAmountInDefaultCurrency: Long,
+      $notes: String,
+      $attachments: [Long!],
+      $categoryId: Long,
+      $generalTaxId: Long,
+      $linkedInvoiceId: Long
+    ) {
+      editIncome(
+        workspaceId: $workspaceId,
+        id: $id,
+        title: $title,
+        dateReceived: $dateReceived,
+        currency: $currency,
+        originalAmount: $originalAmount,
+        convertedAmountInDefaultCurrency: $convertedAmountInDefaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: $useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: $incomeTaxableAmountInDefaultCurrency,
+        notes: $notes,
+        attachments: $attachments,
+        categoryId: $categoryId,
+        generalTaxId: $generalTaxId,
+        linkedInvoiceId: $linkedInvoiceId
+      ) {
+        id
+      }
+    }
+  `), 'editIncome');
+
   const saveIncome = async () => {
-    const request: EditIncomeDto = {
-      ...(income.value as EditIncomeDto),
-    };
     if (props.id) {
-      await incomesApi.updateIncome({
+      await editIncomeMutation({
         workspaceId: currentWorkspaceId,
-        editIncomeDto: request,
-        incomeId: ensureDefined(props.id),
+        id: props.id,
+        title: income.value.title!,
+        dateReceived: income.value.dateReceived!,
+        currency: income.value.currency,
+        originalAmount: income.value.originalAmount!,
+        convertedAmountInDefaultCurrency: income.value.convertedAmountInDefaultCurrency ?? null,
+        useDifferentExchangeRateForIncomeTaxPurposes: income.value.useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: income.value.incomeTaxableAmountInDefaultCurrency ?? null,
+        notes: income.value.notes ?? null,
+        attachments: income.value.attachments,
+        categoryId: income.value.category ?? null,
+        generalTaxId: income.value.generalTax ?? null,
+        linkedInvoiceId: income.value.linkedInvoice ?? null,
       });
     } else {
-      await incomesApi.createIncome({
+      await createIncomeMutation({
         workspaceId: currentWorkspaceId,
-        editIncomeDto: request,
+        title: income.value.title!,
+        dateReceived: income.value.dateReceived!,
+        currency: income.value.currency,
+        originalAmount: income.value.originalAmount!,
+        convertedAmountInDefaultCurrency: income.value.convertedAmountInDefaultCurrency ?? null,
+        useDifferentExchangeRateForIncomeTaxPurposes: income.value.useDifferentExchangeRateForIncomeTaxPurposes,
+        incomeTaxableAmountInDefaultCurrency: income.value.incomeTaxableAmountInDefaultCurrency ?? null,
+        notes: income.value.notes ?? null,
+        attachments: income.value.attachments,
+        categoryId: income.value.category ?? null,
+        generalTaxId: income.value.generalTax ?? null,
+        linkedInvoiceId: income.value.linkedInvoice ?? null,
       });
     }
     await navigateToIncomesOverview();
