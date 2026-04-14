@@ -1,7 +1,6 @@
 export * from './api-types';
 export {
   documentsApi,
-  incomesApi,
   usersApi,
   userActivationTokensApi,
 } from './api-client';

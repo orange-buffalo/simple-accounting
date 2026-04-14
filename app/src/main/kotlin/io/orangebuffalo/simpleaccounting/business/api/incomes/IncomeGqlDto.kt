@@ -64,13 +64,13 @@ data class IncomeGqlDto(
 
     @GraphQLIgnore val generalTaxId: Long?,
 
+    @GraphQLIgnore val linkedInvoiceId: Long?,
+
     @GraphQLIgnore val categoryId: Long?,
 
     @GraphQLIgnore val workspaceId: Long,
 
     @GraphQLIgnore val attachmentIds: List<Long>,
-
-    @GraphQLIgnore val linkedInvoiceId: Long?,
 ) {
     @GraphQLDescription("General tax applied to this income.")
     fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {

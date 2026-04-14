@@ -2,7 +2,6 @@ import qs from 'qs';
 import {
   Configuration,
   DocumentsApiApi,
-  IncomesApiApi,
   UsersApiApi,
   UserActivationTokensApiApi,
 } from '@/services/api/generated';
@@ -25,7 +24,6 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const incomesApi = new IncomesApiApi(defaultConfig);
 export const documentsApi = new DocumentsApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);
 export const userActivationTokensApi = new UserActivationTokensApiApi(defaultConfig);
