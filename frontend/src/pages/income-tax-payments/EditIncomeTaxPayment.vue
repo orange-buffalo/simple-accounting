@@ -118,11 +118,7 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
-  import { useFragment } from '@/services/api/gql/fragment-masking';
-  import {
-    DocumentDataFragment,
-    type DocumentDataFragmentType,
-  } from '@/components/documents/documents-gql-types';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -165,7 +161,7 @@
     attachments: [],
   });
 
-  const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
 
   const getIncomeTaxPaymentQuery = useLazyQuery(graphql(`
     query getIncomeTaxPaymentForEdit($workspaceId: Long!, $id: Long!) {
@@ -193,14 +189,13 @@
       });
       const loaded = workspace?.incomeTaxPayment;
       if (loaded) {
-        resolvedDocuments.value = [...loaded.attachments];
         taxPayment.value = {
           title: loaded.title,
           datePaid: loaded.datePaid,
           reportingDate: loaded.reportingDate,
           amount: loaded.amount,
           notes: loaded.notes ?? undefined,
-          attachments: loaded.attachments.map((a) => useFragment(DocumentDataFragment, a).id),
+          attachments: setDocuments(loaded.attachments),
         };
       }
     }

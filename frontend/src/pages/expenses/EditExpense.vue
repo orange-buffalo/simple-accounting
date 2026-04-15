@@ -184,11 +184,7 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
-  import { useFragment } from '@/services/api/gql/fragment-masking';
-  import {
-    DocumentDataFragment,
-    type DocumentDataFragmentType,
-  } from '@/components/documents/documents-gql-types';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -247,7 +243,7 @@
     useDifferentExchangeRateForIncomeTaxPurposes: false,
   });
 
-  const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
 
   const uiState = ref<{
     partialForBusiness: boolean,
@@ -293,7 +289,6 @@
       });
       const loaded = workspace?.expense;
       if (loaded) {
-        resolvedDocuments.value = [...loaded.attachments];
         expense.value = {
           category: loaded.category?.id ?? undefined,
           title: loaded.title,
@@ -307,7 +302,7 @@
           notes: loaded.notes ?? undefined,
           percentOnBusiness: loaded.percentOnBusiness,
           generalTax: loaded.generalTaxId ?? undefined,
-          attachments: loaded.attachments.map(a => useFragment(DocumentDataFragment, a).id),
+          attachments: setDocuments(loaded.attachments),
         };
         uiState.value.partialForBusiness = loaded.percentOnBusiness !== 100;
       }

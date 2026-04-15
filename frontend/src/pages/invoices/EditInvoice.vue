@@ -214,11 +214,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import type { InvoiceStatus } from '@/services/api/gql/graphql';
-  import { useFragment } from '@/services/api/gql/fragment-masking';
-  import {
-    DocumentDataFragment,
-    type DocumentDataFragmentType,
-  } from '@/components/documents/documents-gql-types';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number
@@ -289,7 +285,7 @@
     currency: defaultCurrency,
   });
 
-  const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
 
   const uiState = ref<{
     alreadySent: boolean,
@@ -338,7 +334,6 @@
       });
       const loaded = workspace?.invoice;
       if (loaded) {
-        resolvedDocuments.value = [...loaded.attachments];
         invoice.value = {
           customer: loaded.customer!.id,
           title: loaded.title,
@@ -350,7 +345,7 @@
           amount: loaded.amount,
           notes: loaded.notes ?? undefined,
           generalTax: loaded.generalTax?.id ?? undefined,
-          attachments: loaded.attachments.map(a => useFragment(DocumentDataFragment, a).id),
+          attachments: setDocuments(loaded.attachments),
         };
         uiState.value.alreadyPaid = loaded.datePaid != null;
         uiState.value.alreadySent = loaded.dateSent != null;

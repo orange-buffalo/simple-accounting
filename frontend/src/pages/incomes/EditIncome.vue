@@ -172,11 +172,7 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
-  import { useFragment } from '@/services/api/gql/fragment-masking';
-  import {
-    DocumentDataFragment,
-    type DocumentDataFragmentType,
-  } from '@/components/documents/documents-gql-types';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -235,7 +231,7 @@
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
   });
 
-  const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
 
   const getSourceInvoiceQuery = useLazyQuery(graphql(`
     query getSourceInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
@@ -293,7 +289,6 @@
       });
       const loaded = workspace?.income;
       if (loaded) {
-        resolvedDocuments.value = [...loaded.attachments];
         income.value = {
           category: loaded.category?.id ?? undefined,
           title: loaded.title,
@@ -307,7 +302,7 @@
           notes: loaded.notes ?? undefined,
           generalTax: loaded.generalTax?.id ?? undefined,
           linkedInvoice: loaded.linkedInvoice?.id ?? undefined,
-          attachments: loaded.attachments.map(a => useFragment(DocumentDataFragment, a).id),
+          attachments: setDocuments(loaded.attachments),
         };
       }
     } else if (props.sourceInvoiceId !== undefined) {

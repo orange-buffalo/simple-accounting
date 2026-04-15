@@ -4,14 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocument
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
-import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
-import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
-import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.Flow
-import org.springdoc.core.annotations.ParameterObject
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -25,7 +18,6 @@ import java.time.Instant
 class DocumentsApi(
     private val documentsService: DocumentsService,
     private val workspacesService: WorkspacesService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -45,13 +37,6 @@ class DocumentsApi(
             )
             .let(::mapDocumentDto)
     }
-
-    @GetMapping
-    suspend fun getDocuments(
-        @PathVariable workspaceId: Long,
-        @ParameterObject request: DocumentsFilteringRequest
-    ): ApiPage<DocumentDto> =
-        filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{documentId}/content")
     suspend fun getDocumentContent(
@@ -79,21 +64,6 @@ class DocumentsApi(
     ): GetDownloadTokenResponse = GetDownloadTokenResponse(
         token = documentsService.getDownloadToken(workspaceId, documentId)
     )
-
-    private val filteringApiExecutor = filteringApiExecutorBuilder
-        .executor<Document, DocumentDto, NoOpSorting, DocumentsFilteringRequest> {
-            query(Tables.DOCUMENT) {
-                onFilter(DocumentsFilteringRequest::idIn) { ids ->
-                    root.id.`in`(ids)
-                }
-                onFilter(DocumentsFilteringRequest::idEq) { id ->
-                    root.id.eq(id)
-                }
-                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
-                addDefaultSorting { root.id.desc() }
-            }
-            mapper { mapDocumentDto(this) }
-        }
 }
 
 data class DocumentDto(
@@ -118,13 +88,3 @@ private fun mapDocumentDto(source: Document) =
     )
 
 data class GetDownloadTokenResponse(val token: String)
-
-class DocumentsFilteringRequest : ApiPageRequest<NoOpSorting>() {
-    override var sortBy: NoOpSorting? = null
-
-    @field:Parameter(name = "id[in]")
-    var idIn: List<Long>? = null
-
-    @field:Parameter(name = "id[eq]")
-    var idEq: Long? = null
-}

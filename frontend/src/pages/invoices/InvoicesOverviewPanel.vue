@@ -234,8 +234,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import type { InvoicesPageQuery } from '@/services/api/gql/graphql';
-  import { useFragment } from '@/services/api/gql/fragment-masking';
-  import { DocumentDataFragment } from '@/components/documents/documents-gql-types';
+  import { getDocumentIds } from '@/components/documents/documents-gql-types';
 
   type InvoiceNode = InvoicesPageQuery['workspace']['invoices']['edges'][0]['node'];
 
@@ -300,7 +299,7 @@
       currency: props.invoice.currency,
       amount: props.invoice.amount,
       notes: props.invoice.notes ?? null,
-      attachments: props.invoice.attachments.map(a => useFragment(DocumentDataFragment, a).id),
+      attachments: getDocumentIds(props.invoice.attachments),
       generalTaxId: props.invoice.generalTax?.id ?? null,
     });
     emit('invoice-update');
