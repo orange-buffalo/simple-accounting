@@ -16,7 +16,7 @@
       ref="uploadControls"
       :document-id="documentAggregate.document.id"
       :document-name="documentAggregate.document.name"
-      :document-size-in-bytes="documentAggregate.document.sizeInBytes"
+      :document-size-in-bytes="documentAggregate.document.sizeInBytes ?? undefined"
       class="sa-documents-upload__document"
       @upload-completed="documentAggregate.onUploadComplete($event)"
       @upload-failed="documentAggregate.onUploadFailure()"

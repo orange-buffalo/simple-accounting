@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverv
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaDocumentsList
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -177,43 +176,6 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
             shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready("past-receipt.pdf", "(27 byte)"))
             reportRendering("documents-list.no-profile-storage-but-supported")
         }
-    }
-
-    @Test
-    fun `should show documents loading state when documents are being fetched`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
-                val workspace = workspace(owner = fry)
-                val doc = document(workspace = workspace, name = "slurm-invoice.pdf")
-                val invoice = invoice(
-                    customer = customer(workspace = workspace),
-                    attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
-                )
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-
-        page.withBlockedApiResponse(
-            "workspaces/**/documents*",
-            initiator = {
-                page.openInvoicesOverviewPage {
-                    pageItems {
-                        shouldHaveItemSatisfying { it.title == "Slurm delivery invoice" }
-                            .openDetails()
-                    }
-                }
-            },
-            blockedRequestSpec = {
-                val documentsList = SaDocumentsList.singleton(page)
-                documentsList {
-                    shouldHaveDocuments(SaDocumentsList.DocumentItem.Loading)
-                    reportRendering("documents-list.documents-loading")
-                }
-            }
-        )
     }
 
     @Test

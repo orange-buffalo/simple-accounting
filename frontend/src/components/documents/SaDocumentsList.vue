@@ -15,7 +15,7 @@
         :key="document.id"
         :document-name="document.name"
         :document-id="document.id"
-        :document-size-in-bytes="document.sizeInBytes"
+        :document-size-in-bytes="document.sizeInBytes ?? undefined"
         class="sa-documents-list__document"
       />
     </template>
