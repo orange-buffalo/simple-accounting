@@ -1,6 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './ApiPageDocumentDto';
 export * from './ApiPagePlatformUserDto';
 export * from './CreateUserRequestDto';
 export * from './CurrentUserPushNotificationMessage';

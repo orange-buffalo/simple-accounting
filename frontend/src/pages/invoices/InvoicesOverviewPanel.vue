@@ -191,7 +191,7 @@
       >
         <div class="row">
           <div class="col col-xs-12">
-            <SaDocumentsList :documents-ids="invoice.attachments.map(a => a.id)" />
+            <SaDocumentsList :documents="invoice.attachments" />
           </div>
         </div>
       </SaOverviewItemDetailsSection>
@@ -234,6 +234,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import type { InvoicesPageQuery } from '@/services/api/gql/graphql';
+  import { getDocumentIds } from '@/components/documents/documents-gql-types';
 
   type InvoiceNode = InvoicesPageQuery['workspace']['invoices']['edges'][0]['node'];
 
@@ -298,7 +299,7 @@
       currency: props.invoice.currency,
       amount: props.invoice.amount,
       notes: props.invoice.notes ?? null,
-      attachments: props.invoice.attachments.map(a => a.id),
+      attachments: getDocumentIds(props.invoice.attachments),
       generalTaxId: props.invoice.generalTax?.id ?? null,
     });
     emit('invoice-update');

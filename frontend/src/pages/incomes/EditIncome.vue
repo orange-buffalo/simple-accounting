@@ -129,8 +129,9 @@
             <ElFormItem>
               <SaDocumentsUpload
                 ref="documentsUploadRef"
-                v-model:documents-ids="income.attachments"
+                :documents="resolvedDocuments"
                 :loading-on-create="id !== undefined"
+                @update:documents-ids="income.attachments = $event"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
@@ -171,6 +172,7 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -229,6 +231,8 @@
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
   });
 
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
+
   const getSourceInvoiceQuery = useLazyQuery(graphql(`
     query getSourceInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
       workspace(id: $workspaceId) {
@@ -270,7 +274,7 @@
             id
           }
           attachments {
-            id
+            ...DocumentData
           }
         }
       }
@@ -298,7 +302,7 @@
           notes: loaded.notes ?? undefined,
           generalTax: loaded.generalTax?.id ?? undefined,
           linkedInvoice: loaded.linkedInvoice?.id ?? undefined,
-          attachments: loaded.attachments.map(a => a.id),
+          attachments: setDocuments(loaded.attachments),
         };
       }
     } else if (props.sourceInvoiceId !== undefined) {

@@ -15,13 +15,10 @@
 
 import * as runtime from '../runtime';
 import type {
-  ApiPageDocumentDto,
   DocumentDto,
   GetDownloadTokenResponse,
 } from '../models/index';
 import {
-    ApiPageDocumentDtoFromJSON,
-    ApiPageDocumentDtoToJSON,
     DocumentDtoFromJSON,
     DocumentDtoToJSON,
     GetDownloadTokenResponseFromJSON,
@@ -31,16 +28,6 @@ import {
 export interface GetDocumentContentRequest {
     workspaceId: number;
     documentId: number;
-}
-
-export interface GetDocumentsRequest {
-    workspaceId: number;
-    sortBy?: GetDocumentsSortByEnum;
-    idIn?: Array<number>;
-    idEq?: number;
-    pageNumber?: number;
-    pageSize?: number;
-    sortOrder?: GetDocumentsSortOrderEnum;
 }
 
 export interface GetDownloadTokenRequest {
@@ -93,61 +80,6 @@ export class DocumentsApiApi extends runtime.BaseAPI {
      */
     async getDocumentContent(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<any>> {
         const response = await this.getDocumentContentRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async getDocumentsRaw(requestParameters: GetDocumentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiPageDocumentDto>> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling getDocuments().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters['sortBy'] != null) {
-            queryParameters['sortBy'] = requestParameters['sortBy'];
-        }
-
-        if (requestParameters['idIn'] != null) {
-            queryParameters['id[in]'] = requestParameters['idIn'];
-        }
-
-        if (requestParameters['idEq'] != null) {
-            queryParameters['id[eq]'] = requestParameters['idEq'];
-        }
-
-        if (requestParameters['pageNumber'] != null) {
-            queryParameters['pageNumber'] = requestParameters['pageNumber'];
-        }
-
-        if (requestParameters['pageSize'] != null) {
-            queryParameters['pageSize'] = requestParameters['pageSize'];
-        }
-
-        if (requestParameters['sortOrder'] != null) {
-            queryParameters['sortOrder'] = requestParameters['sortOrder'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/documents`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageDocumentDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async getDocuments(requestParameters: GetDocumentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiPageDocumentDto> {
-        const response = await this.getDocumentsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -249,19 +181,3 @@ export class DocumentsApiApi extends runtime.BaseAPI {
     }
 
 }
-
-/**
- * @export
- */
-export const GetDocumentsSortByEnum = {
-    NotSupported: '_NOT_SUPPORTED'
-} as const;
-export type GetDocumentsSortByEnum = typeof GetDocumentsSortByEnum[keyof typeof GetDocumentsSortByEnum];
-/**
- * @export
- */
-export const GetDocumentsSortOrderEnum = {
-    Asc: 'asc',
-    Desc: 'desc'
-} as const;
-export type GetDocumentsSortOrderEnum = typeof GetDocumentsSortOrderEnum[keyof typeof GetDocumentsSortOrderEnum];

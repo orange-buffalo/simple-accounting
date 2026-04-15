@@ -56,65 +56,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/UsersApiUpdateUserErrors"
   /api/workspaces/{workspaceId}/documents:
-    get:
-      tags:
-      - documents-api
-      operationId: getDocuments
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: sortBy
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - _NOT_SUPPORTED
-      - name: "id[in]"
-        in: query
-        required: false
-        schema:
-          type: array
-          items:
-            type: integer
-            format: int64
-      - name: "id[eq]"
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int64
-      - name: pageNumber
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: pageSize
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: sortOrder
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiPageDocumentDto"
     post:
       tags:
       - documents-api
@@ -369,27 +310,6 @@ components:
       required:
       - admin
       - userName
-    ApiPageDocumentDto:
-      type: object
-      properties:
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalElements:
-          type: integer
-          format: int64
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/DocumentDto"
-      required:
-      - data
-      - pageNumber
-      - pageSize
-      - totalElements
     GetDownloadTokenResponse:
       type: object
       properties:

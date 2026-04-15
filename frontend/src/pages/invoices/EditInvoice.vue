@@ -168,8 +168,9 @@
             <ElFormItem>
               <SaDocumentsUpload
                 ref="documentsUploadRef"
-                v-model:documents-ids="invoice.attachments"
+                :documents="resolvedDocuments"
                 :loading-on-create="id !== undefined"
+                @update:documents-ids="invoice.attachments = $event"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
@@ -213,6 +214,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import type { InvoiceStatus } from '@/services/api/gql/graphql';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number
@@ -283,6 +285,8 @@
     currency: defaultCurrency,
   });
 
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
+
   const uiState = ref<{
     alreadySent: boolean,
     alreadyPaid: boolean,
@@ -315,7 +319,7 @@
             id
           }
           attachments {
-            id
+            ...DocumentData
           }
         }
       }
@@ -341,7 +345,7 @@
           amount: loaded.amount,
           notes: loaded.notes ?? undefined,
           generalTax: loaded.generalTax?.id ?? undefined,
-          attachments: loaded.attachments.map(a => a.id),
+          attachments: setDocuments(loaded.attachments),
         };
         uiState.value.alreadyPaid = loaded.datePaid != null;
         uiState.value.alreadySent = loaded.dateSent != null;

@@ -238,7 +238,7 @@
       >
         <div class="row">
           <div class="col col-xs-12">
-            <SaDocumentsList :documents-ids="expense.attachments.map(a => a.id)" />
+            <SaDocumentsList :documents="expense.attachments" />
           </div>
         </div>
       </SaOverviewItemDetailsSection>

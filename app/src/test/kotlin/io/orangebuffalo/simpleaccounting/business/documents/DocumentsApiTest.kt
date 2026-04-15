@@ -15,10 +15,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
 import net.javacrumbs.jsonunit.kotest.inPath
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -48,64 +45,6 @@ class DocumentsApiTest(
     @BeforeEach
     fun setup() {
         whenever(testDocumentsStorage.mock.getId()) doReturn "mocked-storage"
-    }
-
-    @Test
-    fun `should allow GET access only for logged in users`() {
-        client.get()
-            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
-            .verifyUnauthorized()
-    }
-
-    @Test
-    @WithMockFryUser
-    fun `should return documents of a workspace of current user`() {
-        client.get()
-            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
-            .verifyOkAndJsonBodyEqualTo {
-                put("pageNumber", 1)
-                put("pageSize", 10)
-                put("totalElements", 2)
-                putJsonArray("data") {
-                    addJsonObject {
-                        put("name", "unknown")
-                        put("id", preconditions.cheesePizzaAndALargeSodaReceipt.id)
-                        put("version", 0)
-                        put("timeUploaded", MOCK_TIME_VALUE)
-                        put("sizeInBytes", JsonNull)
-                        put("storageId", "test-storage")
-                        put("mimeType", "application/octet-stream")
-                    }
-                    addJsonObject {
-                        put("name", "100_cups.pdf")
-                        put("id", preconditions.coffeeReceipt.id)
-                        put("version", 0)
-                        put("timeUploaded", MOCK_TIME_VALUE)
-                        put("sizeInBytes", 42)
-                        put("storageId", "mocked-storage")
-                        put("mimeType", "application/pdf")
-                    }
-                }
-            }
-    }
-
-    @Test
-    @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-
-        client.get()
-            .uri("/api/workspaces/27347947239/documents")
-            .verifyNotFound("Workspace 27347947239 is not found")
-    }
-
-    @Test
-    @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`() {
-        client.get()
-            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
-            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
@@ -213,33 +152,6 @@ class DocumentsApiTest(
     }
 
     @Test
-    @WithMockFryUser
-    fun `should filter documents by ids`() {
-        client.get()
-            .uri { builder ->
-                builder.replacePath("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
-                    .queryParam("id[eq]", "${preconditions.cheesePizzaAndALargeSodaReceipt.id}")
-                    .build()
-            }
-            .verifyOkAndJsonBodyEqualTo {
-                put("pageNumber", 1)
-                put("pageSize", 10)
-                put("totalElements", 1)
-                putJsonArray("data") {
-                    addJsonObject {
-                        put("name", "unknown")
-                        put("id", preconditions.cheesePizzaAndALargeSodaReceipt.id)
-                        put("version", 0)
-                        put("timeUploaded", MOCK_TIME_VALUE)
-                        put("sizeInBytes", JsonNull)
-                        put("storageId", "test-storage")
-                        put("mimeType", "application/octet-stream")
-                    }
-                }
-            }
-    }
-
-    @Test
     fun `should allow GET access for document download token only for logged in user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")
@@ -297,12 +209,6 @@ class DocumentsApiTest(
                 timeUploaded = MOCK_TIME,
                 sizeInBytes = 42,
                 mimeType = "application/pdf"
-            )
-            val cheesePizzaAndALargeSodaReceipt = document(
-                name = "unknown",
-                workspace = fryWorkspace,
-                timeUploaded = MOCK_TIME,
-                sizeInBytes = null
             )
 
             fun createDefaultFileToUpload(): MultipartBodyBuilder = MultipartBodyBuilder()

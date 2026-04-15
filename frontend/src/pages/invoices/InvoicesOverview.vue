@@ -80,7 +80,7 @@
                 id
               }
               attachments {
-                id
+                ...DocumentData
               }
             }
           }

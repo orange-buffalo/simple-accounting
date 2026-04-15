@@ -5,26 +5,17 @@
       class="sa-documents-list__loading-placeholder"
     />
 
-    <template v-else-if="documentsLoading">
-      <SaDocument
-        v-for="documentId in documentsIds"
-        :key="documentId"
-        :loading="true"
-        class="sa-documents-list__document"
-      />
-    </template>
-
     <SaFailedDocumentsStorageMessage
       v-else-if="hasUnsupportedStorages"
     />
 
     <template v-else>
       <SaDocument
-        v-for="document in documents"
+        v-for="document in sortedDocuments"
         :key="document.id"
         :document-name="document.name"
         :document-id="document.id"
-        :document-size-in-bytes="document.sizeInBytes"
+        :document-size-in-bytes="document.sizeInBytes ?? undefined"
         class="sa-documents-list__document"
       />
     </template>
@@ -32,20 +23,15 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
+  import { computed } from 'vue';
   import SaDocument from '@/components/documents/SaDocument.vue';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { DocumentDto } from '@/services/api';
-  import { consumeAllPages, documentsApi, useRequestConfig } from '@/services/api';
+  import { useFragment } from '@/services/api/gql/fragment-masking';
   import { graphql } from '@/services/api/gql';
   import { useQuery } from '@/services/api/use-gql-api';
+  import { DocumentDataFragment, type DocumentDataFragmentType } from '@/components/documents/documents-gql-types';
 
-  const props = defineProps<{ documentsIds: number[] }>();
-
-  const documents = ref<DocumentDto[]>([]);
-  const documentsLoading = ref(false);
-  const hasUnsupportedStorages = ref(false);
+  const props = defineProps<{ documents: ReadonlyArray<DocumentDataFragmentType> }>();
 
   const [downloadStoragesLoading, downloadStoragesData] = useQuery(graphql(/* GraphQL */ `
     query downloadDocumentStorages {
@@ -55,43 +41,23 @@
     }
   `), 'getDownloadDocumentStorages');
 
-  watch(() => [props.documentsIds, downloadStoragesLoading.value], async (_, __, onCleanup) => {
-    if (downloadStoragesLoading.value) {
-      return;
-    }
-    if (props.documentsIds.length) {
-      documentsLoading.value = true;
+  const resolvedDocuments = computed(
+    () => props.documents.map((d) => useFragment(DocumentDataFragment, d)),
+  );
 
-      const {
-        requestConfig,
-        cancelRequest,
-      } = useRequestConfig({});
+  const sortedDocuments = computed(
+    () => [...resolvedDocuments.value].sort((a, b) => a.name.localeCompare(b.name)),
+  );
 
-      onCleanup(cancelRequest);
-
-      const { currentWorkspaceId } = useCurrentWorkspace();
-
-      try {
-        const loadedDocuments = (await consumeAllPages((pageRequest) => documentsApi.getDocuments({
-          workspaceId: currentWorkspaceId,
-          ...pageRequest,
-          idIn: props.documentsIds,
-        }, requestConfig)))
-          .sort((a, b) => a.name.localeCompare(b.name));
-
-        const availableStorageIds = new Set(
-          (downloadStoragesData.value ?? []).map((s) => s.id),
-        );
-        hasUnsupportedStorages.value = loadedDocuments.some(
-          (doc) => !availableStorageIds.has(doc.storageId),
-        );
-
-        documents.value = loadedDocuments;
-      } finally {
-        documentsLoading.value = false;
-      }
-    }
-  }, { immediate: true });
+  const hasUnsupportedStorages = computed(() => {
+    if (downloadStoragesLoading.value) return false;
+    const availableStorageIds = new Set(
+      (downloadStoragesData.value ?? []).map((s) => s.id),
+    );
+    return resolvedDocuments.value.some(
+      (doc) => !availableStorageIds.has(doc.storageId),
+    );
+  });
 </script>
 
 <style lang="scss">

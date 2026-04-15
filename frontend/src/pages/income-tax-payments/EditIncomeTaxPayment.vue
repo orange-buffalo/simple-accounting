@@ -79,8 +79,9 @@
             <ElFormItem>
               <SaDocumentsUpload
                 ref="documentsUploadRef"
-                v-model:documents-ids="taxPayment.attachments"
+                :documents="resolvedDocuments"
                 :loading-on-create="id !== undefined"
+                @update:documents-ids="taxPayment.attachments = $event"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
@@ -117,6 +118,7 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -159,6 +161,8 @@
     attachments: [],
   });
 
+  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
+
   const getIncomeTaxPaymentQuery = useLazyQuery(graphql(`
     query getIncomeTaxPaymentForEdit($workspaceId: Long!, $id: Long!) {
       workspace(id: $workspaceId) {
@@ -170,7 +174,7 @@
           amount
           notes
           attachments {
-            id
+            ...DocumentData
           }
         }
       }
@@ -191,7 +195,7 @@
           reportingDate: loaded.reportingDate,
           amount: loaded.amount,
           notes: loaded.notes ?? undefined,
-          attachments: loaded.attachments.map((a) => a.id),
+          attachments: setDocuments(loaded.attachments),
         };
       }
     }

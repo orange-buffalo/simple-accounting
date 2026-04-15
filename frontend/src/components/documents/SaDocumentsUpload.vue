@@ -9,15 +9,6 @@
       v-else-if="!uiState.storageActive"
     />
 
-    <template v-else-if="uiState.documentsLoading">
-      <SaDocument
-        v-for="documentId in documentsIds"
-        :key="documentId"
-        :loading="true"
-        class="sa-documents-upload__document"
-      />
-    </template>
-
     <SaDocumentUpload
       v-for="documentAggregate in documentsAggregates"
       v-else
@@ -25,7 +16,7 @@
       ref="uploadControls"
       :document-id="documentAggregate.document.id"
       :document-name="documentAggregate.document.name"
-      :document-size-in-bytes="documentAggregate.document.sizeInBytes"
+      :document-size-in-bytes="documentAggregate.document.sizeInBytes ?? undefined"
       class="sa-documents-upload__document"
       @upload-completed="documentAggregate.onUploadComplete($event)"
       @upload-failed="documentAggregate.onUploadFailure()"
@@ -38,18 +29,23 @@
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
-  import SaDocument from '@/components/documents/SaDocument.vue';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
   import type { DocumentDto } from '@/services/api';
-  import { consumeAllPages, documentsApi } from '@/services/api';
   import { graphql } from '@/services/api/gql';
   import { useMultiQuery } from '@/services/api/use-gql-api';
+  import { useFragment } from '@/services/api/gql/fragment-masking';
+  import { DocumentDataFragment, type DocumentDataFragmentType } from '@/components/documents/documents-gql-types';
+
+  type DocumentAggregateDocument = {
+    id?: number;
+    name?: string;
+    sizeInBytes?: number | null;
+  };
 
   type DocumentAggregateState = 'empty' | 'pending' | 'upload-failed' | 'upload-completed';
 
   class DocumentAggregate {
-    public document!: Partial<DocumentDto>;
+    public document!: DocumentAggregateDocument;
 
     public state!: DocumentAggregateState;
 
@@ -59,13 +55,13 @@
 
     constructor(
       onChange: () => void,
-      document?: DocumentDto,
+      document?: DocumentAggregateDocument,
     ) {
       this.document = document || {};
-      this.key = document ? document.id.toString() : Math.random()
+      this.key = document?.id ? document.id.toString() : Math.random()
         .toString(36)
         .slice(2);
-      this.state = document ? 'upload-completed' : 'empty';
+      this.state = document?.id ? 'upload-completed' : 'empty';
       this.onDocumentAggregateChange = onChange;
     }
 
@@ -87,7 +83,7 @@
   }
 
   const props = defineProps<{
-    documentsIds: number[],
+    documents: ReadonlyArray<DocumentDataFragmentType>,
     loadingOnCreate?: boolean
   }>();
 
@@ -117,11 +113,11 @@
   );
 
   const documentsAggregates = ref<DocumentAggregate[]>([]);
-  const loadedDocumentStorageIds = ref<string[]>([]);
   const hasUnsupportedStorages = computed(() => {
-    if (storageQueryLoading.value || loadedDocumentStorageIds.value.length === 0) return false;
-    return loadedDocumentStorageIds.value.some(
-      (storageId) => !downloadStorageIds.value.has(storageId),
+    if (storageQueryLoading.value || props.documents.length === 0) return false;
+    const resolved = props.documents.map((d) => useFragment(DocumentDataFragment, d));
+    return resolved.some(
+      (doc) => !downloadStorageIds.value.has(doc.storageId),
     );
   });
 
@@ -175,52 +171,30 @@
     submitUploads,
   });
 
-  const documentsLoading = ref(false);
-  const loadDocuments = async () => {
-    documentsLoading.value = true;
-    try {
-      const { currentWorkspaceId } = useCurrentWorkspace();
-      const documents = await consumeAllPages((pageRequest) => documentsApi.getDocuments({
-        ...pageRequest,
-        idIn: props.documentsIds,
-        workspaceId: currentWorkspaceId,
-      }));
-
-      loadedDocumentStorageIds.value = documents.map((doc) => doc.storageId);
-
-      documentsAggregates.value = documents
-        .sort((a, b) => {
-          return a.name.localeCompare(b.name);
-        })
+  watch(() => props.documents, () => {
+    if (props.documents.length) {
+      const resolved = props.documents.map((d) => useFragment(DocumentDataFragment, d));
+      documentsAggregates.value = [...resolved]
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map((document) => new DocumentAggregate(
           onDocumentAggregateChange,
           document,
         ));
       addEmptyDocumentAggregateIfNecessary();
-    } finally {
-      documentsLoading.value = false;
-    }
-  };
-
-  watch(() => props.documentsIds, async () => {
-    if (props.documentsIds.length) {
-      await loadDocuments();
     } else {
       documentsAggregates.value = [];
-      loadedDocumentStorageIds.value = [];
     }
     addEmptyDocumentAggregateIfNecessary();
   }, { immediate: true });
 
   const documentsReassigned = ref(false);
-  watch(() => props.documentsIds, () => {
+  watch(() => props.documents, () => {
     documentsReassigned.value = true;
   }, { immediate: false });
 
   const uiState = computed(() => {
     const state = {
       initialLoading: false,
-      documentsLoading: false,
       storageActive: true,
     };
 
@@ -230,10 +204,8 @@
       state.storageActive = false;
     } else if (hasUnsupportedStorages.value) {
       state.storageActive = false;
-    } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
+    } else if (props.loadingOnCreate && !props.documents.length && !documentsReassigned.value) {
       state.initialLoading = true;
-    } else if (documentsLoading.value) {
-      state.documentsLoading = true;
     }
 
     return state;
