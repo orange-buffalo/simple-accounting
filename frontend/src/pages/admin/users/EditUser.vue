@@ -39,17 +39,19 @@
   import useNavigation from '@/services/use-navigation';
   import {
     UsersApiCreateUserErrors,
-    handleApiBusinessError, UsersApiUpdateUserErrors, userActivationTokensApi, UserActivationTokenDto,
+    handleApiBusinessError, UsersApiUpdateUserErrors,
   } from '@/services/api';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
   import { usersApi } from '@/services/api/api-client.ts';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
-  import { ApiBusinessError, ResourceNotFoundError } from '@/services/api/api-errors.ts';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
+  import { graphql } from '@/services/api/gql';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
     id?: number
@@ -117,6 +119,22 @@
     activationUrl: '',
   });
 
+  const tokenByUserQuery = useLazyQuery(graphql(/* GraphQL */ `
+    query tokenByUser($userId: Long!) {
+      tokenByUser(userId: $userId) {
+        token
+      }
+    }
+  `), 'tokenByUser');
+
+  const createUserActivationTokenMutation = useMutation(graphql(/* GraphQL */ `
+    mutation createUserActivationToken($userId: Long!) {
+      createUserActivationToken(userId: $userId) {
+        token
+      }
+    }
+  `), 'createUserActivationToken');
+
   const loadUser = editMode.value ? async () => {
     const userId = props.id!;
     const user = await usersApi.getUser({
@@ -127,23 +145,8 @@
     if (user.activated) {
       activationStatus.value.loading = false;
     } else {
-      let token: UserActivationTokenDto;
-      try {
-        token = await userActivationTokensApi.getTokenByUser({
-          userId,
-        });
-      } catch (e: unknown) {
-        // expired token - recreate
-        if (e instanceof ResourceNotFoundError) {
-          token = await userActivationTokensApi.createToken({
-            createUserActivationTokenRequestDto: {
-              userId,
-            },
-          });
-        } else {
-          throw e;
-        }
-      }
+      const tokenFromQuery = await tokenByUserQuery({ userId });
+      const token = tokenFromQuery ?? await createUserActivationTokenMutation({ userId });
       activationStatus.value.activationUrl = `${window.location.origin}/activate-account/${token.token}`;
       activationStatus.value.loading = false;
     }

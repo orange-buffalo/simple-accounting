@@ -3,7 +3,6 @@ import {
   Configuration,
   DocumentsApiApi,
   UsersApiApi,
-  UserActivationTokensApiApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -26,4 +25,3 @@ const defaultConfig = new Configuration(defaultConfigParameters);
 
 export const documentsApi = new DocumentsApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);
-export const userActivationTokensApi = new UserActivationTokensApiApi(defaultConfig);

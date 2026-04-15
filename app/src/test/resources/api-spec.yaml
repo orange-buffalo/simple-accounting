@@ -212,57 +212,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiCreateUserErrors"
-  /api/user-activation-tokens:
-    post:
-      tags:
-      - user-activation-tokens-api
-      operationId: createToken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateUserActivationTokenRequestDto"
-        required: true
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokenDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokensApiCreateTokenErrors"
-  /api/user-activation-tokens/{token}/activate:
-    post:
-      tags:
-      - user-activation-tokens-api
-      operationId: activateUser
-      parameters:
-      - name: token
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserActivationRequestDto"
-        required: true
-      responses:
-        "204":
-          description: No Content
-          content: {}
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokensApiActivateUserErrors"
   /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
     get:
       tags:
@@ -315,43 +264,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/DataBuffer"
-  /api/user-activation-tokens/{token}:
-    get:
-      tags:
-      - user-activation-tokens-api
-      operationId: getToken
-      parameters:
-      - name: token
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokenDto"
-  /api/user-activation-tokens/users/{userId}:
-    get:
-      tags:
-      - user-activation-tokens-api
-      operationId: getTokenByUser
-      parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokenDto"
   /api/push-notifications:
     get:
       tags:
@@ -457,34 +369,6 @@ components:
       required:
       - admin
       - userName
-    CreateUserActivationTokenRequestDto:
-      type: object
-      properties:
-        userId:
-          type: integer
-          format: int64
-      required:
-      - userId
-    UserActivationTokenDto:
-      type: object
-      properties:
-        token:
-          type: string
-        expiresAt:
-          type: string
-          format: date-time
-      required:
-      - expiresAt
-      - token
-    UserActivationRequestDto:
-      type: object
-      properties:
-        password:
-          type: string
-          maxLength: 100
-          minLength: 0
-      required:
-      - password
     ApiPageDocumentDto:
       type: object
       properties:
@@ -543,28 +427,6 @@ components:
         data: {}
       required:
       - eventName
-    UserActivationTokensApiActivateUserErrors:
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - TokenExpired
-        message:
-          type: string
-      required:
-      - error
-    UserActivationTokensApiCreateTokenErrors:
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyActivated
-        message:
-          type: string
-      required:
-      - error
     UsersApiCreateUserErrors:
       type: object
       properties:
