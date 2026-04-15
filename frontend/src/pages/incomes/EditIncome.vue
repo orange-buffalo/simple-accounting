@@ -129,8 +129,9 @@
             <ElFormItem>
               <SaDocumentsUpload
                 ref="documentsUploadRef"
-                v-model:documents-ids="income.attachments"
+                :documents="resolvedDocuments"
                 :loading-on-create="id !== undefined"
+                @update:documents-ids="income.attachments = $event"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
@@ -171,6 +172,11 @@
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useFragment } from '@/services/api/gql/fragment-masking';
+  import {
+    DocumentDataFragment,
+    type DocumentDataFragmentType,
+  } from '@/components/documents/documents-gql-types';
 
   const props = defineProps<{
     id?: number,
@@ -229,6 +235,8 @@
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
   });
 
+  const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
+
   const getSourceInvoiceQuery = useLazyQuery(graphql(`
     query getSourceInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
       workspace(id: $workspaceId) {
@@ -270,7 +278,7 @@
             id
           }
           attachments {
-            id
+            ...DocumentData
           }
         }
       }
@@ -285,6 +293,7 @@
       });
       const loaded = workspace?.income;
       if (loaded) {
+        resolvedDocuments.value = [...loaded.attachments];
         income.value = {
           category: loaded.category?.id ?? undefined,
           title: loaded.title,
@@ -298,7 +307,7 @@
           notes: loaded.notes ?? undefined,
           generalTax: loaded.generalTax?.id ?? undefined,
           linkedInvoice: loaded.linkedInvoice?.id ?? undefined,
-          attachments: loaded.attachments.map(a => a.id),
+          attachments: loaded.attachments.map(a => useFragment(DocumentDataFragment, a).id),
         };
       }
     } else if (props.sourceInvoiceId !== undefined) {

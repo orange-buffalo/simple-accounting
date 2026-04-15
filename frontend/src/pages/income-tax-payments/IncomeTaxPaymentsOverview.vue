@@ -52,7 +52,7 @@
               reportingDate
               amount
               attachments {
-                id
+                ...DocumentData
               }
               notes
             }
