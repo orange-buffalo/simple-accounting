@@ -21,7 +21,7 @@ class CreateDocumentDownloadUrlMutation(
                 "The URL is absolute and can be used directly by the client to download the document content. " +
                 "The URL does not require authentication."
     )
-    @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     suspend fun createDocumentDownloadUrl(
         @GraphQLDescription("ID of the workspace the document belongs to.")
         workspaceId: Long,

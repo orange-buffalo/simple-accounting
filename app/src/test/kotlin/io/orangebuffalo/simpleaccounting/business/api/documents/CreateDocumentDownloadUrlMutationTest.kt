@@ -82,7 +82,7 @@ class CreateDocumentDownloadUrlMutationTest(
         }
 
         @Test
-        fun `should return NOT_AUTHORIZED error for admin user`() {
+        fun `should return ENTITY_NOT_FOUND error for admin user`() {
             client
                 .graphqlMutation {
                     createDocumentDownloadUrlMutation(
@@ -91,11 +91,13 @@ class CreateDocumentDownloadUrlMutationTest(
                     )
                 }
                 .from(preconditions.farnsworth)
-                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
         }
 
         @Test
-        fun `should return NOT_AUTHORIZED error for workspace token`() {
+        fun `should allow access with workspace token`() {
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "test-token"
+
             client
                 .graphqlMutation {
                     createDocumentDownloadUrlMutation(
@@ -104,7 +106,11 @@ class CreateDocumentDownloadUrlMutationTest(
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
+                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
+                    }
+                )
         }
     }
 

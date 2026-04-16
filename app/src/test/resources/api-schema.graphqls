@@ -668,7 +668,7 @@ type Mutation {
     documentId: Long!,
     "ID of the workspace the document belongs to."
     workspaceId: Long!
-  ): CreateDocumentDownloadUrlResponse! @auth(type : REGULAR_USER)
+  ): CreateDocumentDownloadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
   "Creates a new expense in the specified workspace."
   createExpense(
     "IDs of documents attached to this expense."
