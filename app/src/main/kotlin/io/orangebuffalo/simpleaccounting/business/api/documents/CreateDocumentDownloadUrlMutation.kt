@@ -28,7 +28,8 @@ class CreateDocumentDownloadUrlMutation(
         documentId: Long,
     ): CreateDocumentDownloadUrlResponse {
         val token = documentsService.getDownloadToken(workspaceId, documentId)
-        val downloadUrl = "${simpleAccountingProperties.publicUrl}/api/downloads?token=$token"
+        val baseUrl = simpleAccountingProperties.publicUrl.trimEnd('/')
+        val downloadUrl = "$baseUrl/api/downloads?token=$token"
         return CreateDocumentDownloadUrlResponse(url = downloadUrl)
     }
 
