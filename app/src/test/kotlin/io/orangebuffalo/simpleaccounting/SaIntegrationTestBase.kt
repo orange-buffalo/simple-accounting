@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting
 
 import io.orangebuffalo.simpleaccounting.business.documents.storage.local.LocalFileSystemDocumentsStorageProperties
+import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClientConfig
@@ -64,6 +65,12 @@ abstract class SaIntegrationTestBase {
     @MockitoSpyBean
     protected lateinit var localFsStorageProperties: LocalFileSystemDocumentsStorageProperties
 
+    @MockitoSpyBean
+    protected lateinit var simpleAccountingProperties: SimpleAccountingProperties
+
+    @Autowired
+    private lateinit var environment: org.springframework.core.env.Environment
+
     private val lazyPreconditions = mutableListOf<LazyRepeatablePreconditionsDelegate<*>>()
 
     @BeforeEach
@@ -82,6 +89,12 @@ abstract class SaIntegrationTestBase {
 
         // Mock the time service to return a consistent time for tests
         mockCurrentTime(timeService)
+
+        // Mock the public URL to use the dynamic server port for tests
+        val serverPort = requireNotNull(environment.getProperty("local.server.port")) {
+            "local.server.port is not available; ensure the test uses RANDOM_PORT web environment"
+        }
+        whenever(simpleAccountingProperties.publicUrl) doReturn "http://localhost:$serverPort"
     }
 
     /**

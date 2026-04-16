@@ -19,6 +19,7 @@ type Documents = {
     "\n    query getCurrenciesShortlist($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        analytics {\n          currenciesShortlist\n        }\n      }\n    }\n  ": typeof types.GetCurrenciesShortlistDocument,
     "\n    query getCustomersForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        customers(first: 500) {\n          edges {\n            node {\n              id\n              name\n            }\n          }\n        }\n      }\n    }\n  ": typeof types.GetCustomersForInputDocument,
     "\n    query getCustomerForOutput($workspaceId: Long!, $customerId: Long!) {\n      workspace(id: $workspaceId) {\n        customer(id: $customerId) {\n          name\n        }\n      }\n    }\n  ": typeof types.GetCustomerForOutputDocument,
+    "\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  ": typeof types.CreateDocumentDownloadUrlDocument,
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
     "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DocumentsUploadStorageStatusDocument,
     "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n": typeof types.DocumentDataFragmentDoc,
@@ -96,6 +97,7 @@ const documents: Documents = {
     "\n    query getCurrenciesShortlist($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        analytics {\n          currenciesShortlist\n        }\n      }\n    }\n  ": types.GetCurrenciesShortlistDocument,
     "\n    query getCustomersForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        customers(first: 500) {\n          edges {\n            node {\n              id\n              name\n            }\n          }\n        }\n      }\n    }\n  ": types.GetCustomersForInputDocument,
     "\n    query getCustomerForOutput($workspaceId: Long!, $customerId: Long!) {\n      workspace(id: $workspaceId) {\n        customer(id: $customerId) {\n          name\n        }\n      }\n    }\n  ": types.GetCustomerForOutputDocument,
+    "\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  ": types.CreateDocumentDownloadUrlDocument,
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
     "\n    query documentsUploadStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DocumentsUploadStorageStatusDocument,
     "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n": types.DocumentDataFragmentDoc,
@@ -202,6 +204,10 @@ export function graphql(source: "\n    query getCustomersForInput($workspaceId: 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n    query getCustomerForOutput($workspaceId: Long!, $customerId: Long!) {\n      workspace(id: $workspaceId) {\n        customer(id: $customerId) {\n          name\n        }\n      }\n    }\n  "): (typeof documents)["\n    query getCustomerForOutput($workspaceId: Long!, $customerId: Long!) {\n      workspace(id: $workspaceId) {\n        customer(id: $customerId) {\n          name\n        }\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  "): (typeof documents)["\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

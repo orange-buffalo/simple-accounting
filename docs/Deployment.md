@@ -5,6 +5,18 @@ Simple Accounting can be deployed to any container environment (e.g. Docker or K
 
 ## Configuration
 
+### Public URL
+
+Simple Accounting needs to know its publicly accessible URL to generate correct links (e.g. document download URLs).
+This URL must be the address that **end users** use to reach the application — including the protocol, host, and port
+(if non-standard). It must be reachable from the user's browser.
+
+For example, if the application is behind a reverse proxy at `https://accounting.example.com`, configure:
+
+* `SIMPLEACCOUNTING_PUBLIC_URL` = `https://accounting.example.com`
+
+If running locally on the default port, use `http://localhost:9393`.
+
 ### Database
 
 Simple Accounting uses H2 database with file-based persistence. The database file is stored in `/data` directory.

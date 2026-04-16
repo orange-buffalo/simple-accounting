@@ -3,12 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.documents
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import kotlinx.coroutines.flow.Flow
-import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -37,33 +32,6 @@ class DocumentsApi(
             )
             .let(::mapDocumentDto)
     }
-
-    @GetMapping("{documentId}/content")
-    suspend fun getDocumentContent(
-        @PathVariable workspaceId: Long,
-        @PathVariable documentId: Long
-    ): ResponseEntity<Flow<DataBuffer>> {
-        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val document = documentsService.getDocumentByIdAndWorkspaceId(documentId, workspaceId)
-            ?: throw EntityNotFoundException("Document $documentId is not found")
-
-        return documentsService.getDocumentContent(document)
-            .let { fileContent ->
-                ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
-                    .contentType(MediaType.parseMediaType(document.mimeType))
-                    .contentLength(document.sizeInBytes ?: -1)
-                    .body(fileContent)
-            }
-    }
-
-    @GetMapping("{documentId}/download-token")
-    suspend fun getDownloadToken(
-        @PathVariable workspaceId: Long,
-        @PathVariable documentId: Long
-    ): GetDownloadTokenResponse = GetDownloadTokenResponse(
-        token = documentsService.getDownloadToken(workspaceId, documentId)
-    )
 }
 
 data class DocumentDto(
@@ -86,5 +54,3 @@ private fun mapDocumentDto(source: Document) =
         storageId = source.storageId,
         mimeType = source.mimeType,
     )
-
-data class GetDownloadTokenResponse(val token: String)

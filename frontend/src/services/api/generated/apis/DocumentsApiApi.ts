@@ -16,24 +16,11 @@
 import * as runtime from '../runtime';
 import type {
   DocumentDto,
-  GetDownloadTokenResponse,
 } from '../models/index';
 import {
     DocumentDtoFromJSON,
     DocumentDtoToJSON,
-    GetDownloadTokenResponseFromJSON,
-    GetDownloadTokenResponseToJSON,
 } from '../models/index';
-
-export interface GetDocumentContentRequest {
-    workspaceId: number;
-    documentId: number;
-}
-
-export interface GetDownloadTokenRequest {
-    workspaceId: number;
-    documentId: number;
-}
 
 export interface UploadNewDocumentRequest {
     workspaceId: number;
@@ -44,82 +31,6 @@ export interface UploadNewDocumentRequest {
  * 
  */
 export class DocumentsApiApi extends runtime.BaseAPI {
-
-    /**
-     */
-    async getDocumentContentRaw(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<any>>> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling getDocumentContent().'
-            );
-        }
-
-        if (requestParameters['documentId'] == null) {
-            throw new runtime.RequiredError(
-                'documentId',
-                'Required parameter "documentId" was null or undefined when calling getDocumentContent().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/documents/{documentId}/content`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"documentId"}}`, encodeURIComponent(String(requestParameters['documentId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse<any>(response);
-    }
-
-    /**
-     */
-    async getDocumentContent(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<any>> {
-        const response = await this.getDocumentContentRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async getDownloadTokenRaw(requestParameters: GetDownloadTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetDownloadTokenResponse>> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling getDownloadToken().'
-            );
-        }
-
-        if (requestParameters['documentId'] == null) {
-            throw new runtime.RequiredError(
-                'documentId',
-                'Required parameter "documentId" was null or undefined when calling getDownloadToken().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/documents/{documentId}/download-token`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"documentId"}}`, encodeURIComponent(String(requestParameters['documentId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetDownloadTokenResponseFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async getDownloadToken(requestParameters: GetDownloadTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetDownloadTokenResponse> {
-        const response = await this.getDownloadTokenRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
 
     /**
      */

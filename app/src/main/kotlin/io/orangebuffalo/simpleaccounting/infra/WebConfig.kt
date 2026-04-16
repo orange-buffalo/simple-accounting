@@ -83,7 +83,7 @@ class WebConfig : WebFluxConfigurer {
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
                     .pathMatchers("/api/graphql/**").permitAll()
                     .pathMatchers("/api/auth/**").permitAll()
-                    .pathMatchers("/api/downloads/**").permitAll()
+                    .pathMatchers("/api/documents/download/**").permitAll()
                     .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()
                     .pathMatchers("/api/users/**").hasRole(SaUserRoles.ADMIN)
                     .pathMatchers("/api/**").authenticated()

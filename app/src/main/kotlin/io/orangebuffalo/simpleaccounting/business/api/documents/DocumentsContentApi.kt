@@ -1,23 +1,24 @@
-package io.orangebuffalo.simpleaccounting.business.integration.downloads
+package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/downloads")
-class DownloadsApi(
+@RequestMapping("/api/documents/download")
+class DocumentsContentApi(
     private val downloadsService: DownloadsService
 ) {
 
-    @GetMapping(params = ["token"])
-    suspend fun getContent(@RequestParam token: String): ResponseEntity<Flow<DataBuffer>> {
+    @GetMapping("/{token}")
+    suspend fun getContent(@PathVariable token: String): ResponseEntity<Flow<DataBuffer>> {
         val contentResponse = downloadsService.getContentByToken(token)
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${contentResponse.fileName}\"")
