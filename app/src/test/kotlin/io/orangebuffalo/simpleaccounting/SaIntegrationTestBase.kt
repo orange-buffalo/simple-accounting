@@ -91,7 +91,9 @@ abstract class SaIntegrationTestBase {
         mockCurrentTime(timeService)
 
         // Mock the public URL to use the dynamic server port for tests
-        val serverPort = environment.getProperty("local.server.port")
+        val serverPort = requireNotNull(environment.getProperty("local.server.port")) {
+            "local.server.port is not available; ensure the test uses RANDOM_PORT web environment"
+        }
         whenever(simpleAccountingProperties.publicUrl) doReturn "http://localhost:$serverPort"
     }
 
