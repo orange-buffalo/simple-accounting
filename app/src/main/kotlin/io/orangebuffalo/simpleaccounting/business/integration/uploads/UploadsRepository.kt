@@ -37,8 +37,9 @@ class UploadsRepository {
         }
     }
 
-    suspend fun getRequestByToken(token: String): PersistentUploadRequest =
+    suspend fun getRequestByToken(token: String): PersistentUploadRequest = mutex.withLock {
         requestsStorage[token] ?: throw EntityNotFoundException("Token $token is not found")
+    }
 }
 
 data class PersistentUploadRequest(
