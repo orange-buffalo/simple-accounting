@@ -19,16 +19,25 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { documentsApi } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api';
 
-  function useDocumentsApi(documentId: number) {
+  const createDocumentDownloadUrl = useMutation(graphql(/* GraphQL */ `
+    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {
+      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {
+        url
+      }
+    }
+  `), 'createDocumentDownloadUrl');
+
+  function useDownloadUrl(documentId: number) {
     const creatingDownloadLink = ref(false);
     const { currentWorkspaceId } = useCurrentWorkspace();
 
-    async function getDownloadToken() {
+    async function getDownloadUrl() {
       creatingDownloadLink.value = true;
-      const tokenResponse = await documentsApi.getDownloadToken({
+      const response = await createDocumentDownloadUrl({
         workspaceId: currentWorkspaceId,
         documentId,
       });
@@ -36,20 +45,20 @@
       setTimeout(() => {
         creatingDownloadLink.value = false;
       }, 3000);
-      return tokenResponse.token;
+      return response.url;
     }
 
     return {
-      getDownloadToken,
+      getDownloadUrl,
       creatingDownloadLink,
     };
   }
 
-  function downloadFile(downloadToken: string, documentId: number, fileName: string) {
+  function downloadFile(downloadUrl: string, fileName: string) {
     const a = document.createElement('a');
     a.style.display = 'none';
     document.body.appendChild(a);
-    a.href = `/api/downloads?token=${downloadToken}`;
+    a.href = downloadUrl;
     a.setAttribute('download', fileName);
     a.click();
     document.body.removeChild(a);
@@ -61,13 +70,13 @@
   }>();
 
   const {
-    getDownloadToken,
+    getDownloadUrl,
     creatingDownloadLink,
-  } = useDocumentsApi(props.documentId);
+  } = useDownloadUrl(props.documentId);
 
   async function startDownload() {
-    const downloadToken = await getDownloadToken();
-    downloadFile(downloadToken, props.documentId, props.documentName);
+    const downloadUrl = await getDownloadUrl();
+    downloadFile(downloadUrl, props.documentName);
   }
 </script>
 

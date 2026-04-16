@@ -22,7 +22,7 @@ export interface GetContentRequest {
 /**
  * 
  */
-export class DownloadsApiApi extends runtime.BaseAPI {
+export class DocumentsContentApiApi extends runtime.BaseAPI {
 
     /**
      */

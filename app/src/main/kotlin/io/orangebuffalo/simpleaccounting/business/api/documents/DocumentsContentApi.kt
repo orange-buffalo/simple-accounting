@@ -1,5 +1,6 @@
-package io.orangebuffalo.simpleaccounting.business.integration.downloads
+package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/downloads")
-class DownloadsApi(
+class DocumentsContentApi(
     private val downloadsService: DownloadsService
 ) {
 

@@ -5,7 +5,6 @@ export * from './CreateUserRequestDto';
 export * from './CurrentUserPushNotificationMessage';
 export * from './DocumentDto';
 export * from './FieldErrorDto';
-export * from './GetDownloadTokenResponse';
 export * from './InvalidInputErrorDto';
 export * from './PlatformUserDto';
 export * from './SaApiErrorDto';

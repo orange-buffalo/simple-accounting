@@ -1,9 +1,11 @@
-package io.orangebuffalo.simpleaccounting.business.integration.downloads
+package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
@@ -18,8 +20,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 
-@DisplayName("Downloads API")
-class DownloadsApiTest(
+@DisplayName("Documents Content API")
+class DocumentsContentApiTest(
     @Autowired val client: WebTestClient
 ) : SaIntegrationTestBase() {
 
