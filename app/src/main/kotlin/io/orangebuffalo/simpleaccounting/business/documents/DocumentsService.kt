@@ -2,12 +2,14 @@ package io.orangebuffalo.simpleaccounting.business.documents
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
+import io.orangebuffalo.simpleaccounting.business.integration.uploads.UploadsRepository
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
@@ -27,7 +29,9 @@ class DocumentsService(
     private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
     private val platformUsersService: PlatformUsersService,
-    private val downloadsService: DownloadsService
+    private val downloadsService: DownloadsService,
+    private val uploadsRepository: UploadsRepository,
+    private val tokenGenerator: TokenGenerator,
 ) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
     suspend fun saveDocument(request: SaveDocumentRequest): Document {
@@ -108,6 +112,43 @@ class DocumentsService(
             ?: throw EntityNotFoundException("Document $documentId is not found")
         return runAsWorkspaceOwnerIfTransient {
             downloadsService.createDownloadToken(this@DocumentsService, DocumentDownloadMetadata(documentId))
+        }
+    }
+
+    suspend fun getUploadToken(workspaceId: Long): String {
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        return runAsWorkspaceOwnerIfTransient {
+            val userName = getCurrentPrincipal().userName
+            tokenGenerator.generateToken(tokenLength = 30)
+                .also { token ->
+                    uploadsRepository.storeUploadRequest(
+                        token = token,
+                        workspaceId = workspaceId,
+                        userName = userName,
+                    )
+                }
+        }
+    }
+
+    suspend fun saveDocumentByUploadToken(
+        token: String,
+        fileName: String,
+        content: reactor.core.publisher.Flux<DataBuffer>,
+        contentType: String?,
+    ): Document {
+        val uploadRequest = uploadsRepository.getRequestByToken(token)
+        val workspace = workspacesService.getWorkspace(uploadRequest.workspaceId)
+        val user = platformUsersService.getUserByUserName(uploadRequest.userName)
+            ?: throw IllegalStateException("Cannot find user ${uploadRequest.userName}")
+        return runAs(user.toSecurityPrincipal()) {
+            saveDocument(
+                SaveDocumentRequest(
+                    fileName = fileName,
+                    content = content,
+                    workspace = workspace,
+                    contentType = contentType,
+                )
+            )
         }
     }
 

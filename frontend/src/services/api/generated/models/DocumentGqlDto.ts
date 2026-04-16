@@ -13,74 +13,88 @@
  */
 
 import { mapValues } from '../runtime';
+import type { DocumentUsageGqlDto } from './DocumentUsageGqlDto';
+import {
+    DocumentUsageGqlDtoFromJSON,
+    DocumentUsageGqlDtoFromJSONTyped,
+    DocumentUsageGqlDtoToJSON,
+} from './DocumentUsageGqlDto';
+
 /**
  * 
  * @export
- * @interface DocumentDto
+ * @interface DocumentGqlDto
  */
-export interface DocumentDto {
+export interface DocumentGqlDto {
     /**
      * 
      * @type {number}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     id: number;
     /**
      * 
      * @type {number}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     version: number;
     /**
      * 
      * @type {string}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     timeUploaded: string;
     /**
      * 
      * @type {number}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     sizeInBytes?: number;
     /**
      * 
      * @type {string}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     storageId: string;
     /**
      * 
      * @type {string}
-     * @memberof DocumentDto
+     * @memberof DocumentGqlDto
      */
     mimeType: string;
+    /**
+     * 
+     * @type {Array<DocumentUsageGqlDto>}
+     * @memberof DocumentGqlDto
+     */
+    usedBy: Array<DocumentUsageGqlDto>;
 }
 
 /**
- * Check if a given object implements the DocumentDto interface.
+ * Check if a given object implements the DocumentGqlDto interface.
  */
-export function instanceOfDocumentDto(value: object): value is DocumentDto {
+export function instanceOfDocumentGqlDto(value: object): value is DocumentGqlDto {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('version' in value) || value['version'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('timeUploaded' in value) || value['timeUploaded'] === undefined) return false;
     if (!('storageId' in value) || value['storageId'] === undefined) return false;
     if (!('mimeType' in value) || value['mimeType'] === undefined) return false;
+    if (!('usedBy' in value) || value['usedBy'] === undefined) return false;
     return true;
 }
 
-export function DocumentDtoFromJSON(json: any): DocumentDto {
-    return DocumentDtoFromJSONTyped(json, false);
+export function DocumentGqlDtoFromJSON(json: any): DocumentGqlDto {
+    return DocumentGqlDtoFromJSONTyped(json, false);
 }
 
-export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DocumentDto {
+export function DocumentGqlDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DocumentGqlDto {
     if (json == null) {
         return json;
     }
@@ -93,10 +107,11 @@ export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'sizeInBytes': json['sizeInBytes'] == null ? undefined : json['sizeInBytes'],
         'storageId': json['storageId'],
         'mimeType': json['mimeType'],
+        'usedBy': ((json['usedBy'] as Array<any>).map(DocumentUsageGqlDtoFromJSON)),
     };
 }
 
-export function DocumentDtoToJSON(value?: DocumentDto | null): any {
+export function DocumentGqlDtoToJSON(value?: DocumentGqlDto | null): any {
     if (value == null) {
         return value;
     }
@@ -109,6 +124,7 @@ export function DocumentDtoToJSON(value?: DocumentDto | null): any {
         'sizeInBytes': value['sizeInBytes'],
         'storageId': value['storageId'],
         'mimeType': value['mimeType'],
+        'usedBy': ((value['usedBy'] as Array<any>).map(DocumentUsageGqlDtoToJSON)),
     };
 }
 

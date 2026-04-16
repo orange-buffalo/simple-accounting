@@ -14,9 +14,21 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  DocumentGqlDto,
+} from '../models/index';
+import {
+    DocumentGqlDtoFromJSON,
+    DocumentGqlDtoToJSON,
+} from '../models/index';
 
 export interface GetContentRequest {
     token: string;
+}
+
+export interface UploadDocumentRequest {
+    token: string;
+    file: Blob;
 }
 
 /**
@@ -52,6 +64,65 @@ export class DocumentsContentApiApi extends runtime.BaseAPI {
      */
     async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<any>> {
         const response = await this.getContentRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async uploadDocumentRaw(requestParameters: UploadDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DocumentGqlDto>> {
+        if (requestParameters['token'] == null) {
+            throw new runtime.RequiredError(
+                'token',
+                'Required parameter "token" was null or undefined when calling uploadDocument().'
+            );
+        }
+
+        if (requestParameters['file'] == null) {
+            throw new runtime.RequiredError(
+                'file',
+                'Required parameter "file" was null or undefined when calling uploadDocument().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['file'] != null) {
+            formParams.append('file', requestParameters['file'] as any);
+        }
+
+        const response = await this.request({
+            path: `/api/documents/upload/{token}`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters['token']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: formParams,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DocumentGqlDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async uploadDocument(requestParameters: UploadDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DocumentGqlDto> {
+        const response = await this.uploadDocumentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

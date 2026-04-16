@@ -1,7 +1,6 @@
 import qs from 'qs';
 import {
   Configuration,
-  DocumentsApiApi,
   UsersApiApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
@@ -23,5 +22,4 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const documentsApi = new DocumentsApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);

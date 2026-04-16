@@ -145,6 +145,14 @@ type CreateDocumentDownloadUrlResponse {
   url: String!
 }
 
+"Response containing the temporary upload URL for a document."
+type CreateDocumentUploadUrlResponse {
+  "The name of the multipart form-data part that should contain the file content."
+  filePartName: String!
+  "Absolute URL to upload the document content via multipart/form-data POST. The URL is temporary and will expire."
+  url: String!
+}
+
 "A customer in a workspace."
 type Customer {
   "ID of the customer."
@@ -669,6 +677,11 @@ type Mutation {
     "ID of the workspace the document belongs to."
     workspaceId: Long!
   ): CreateDocumentDownloadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
+  "Creates a short-lived upload URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to upload a document. The URL does not require authentication. The upload should be done as a multipart/form-data POST request, with the file content in a part named as specified in `filePartName`. The response of the upload request is a JSON object matching the `Document` type in this schema."
+  createDocumentUploadUrl(
+    "ID of the workspace to upload the document to."
+    workspaceId: Long!
+  ): CreateDocumentUploadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
   "Creates a new expense in the specified workspace."
   createExpense(
     "IDs of documents attached to this expense."

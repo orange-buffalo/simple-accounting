@@ -1,6 +1,5 @@
 export * from './api-types';
 export {
-  documentsApi,
   usersApi,
 } from './api-client';
 export { useAuth } from './auth';
