@@ -2,11 +2,15 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentDownloadMetadata
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -14,7 +18,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value
 @DisplayName("createDocumentDownloadUrl mutation")
 class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
+    @Autowired private val downloadsRepository: DownloadsRepository,
     @Value("\${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
@@ -91,9 +95,7 @@ class CreateDocumentDownloadUrlMutationTest(
         }
 
         @Test
-        fun `should allow access with workspace token`() {
-            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "test-token"
-
+        fun `should return NOT_AUTHORIZED error for workspace token`() {
             client
                 .graphqlMutation {
                     createDocumentDownloadUrlMutation(
@@ -102,11 +104,7 @@ class CreateDocumentDownloadUrlMutationTest(
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-                .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
-                    }
-                )
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
         }
     }
 
@@ -115,7 +113,7 @@ class CreateDocumentDownloadUrlMutationTest(
     inner class BusinessFlow {
 
         @Test
-        fun `should create download URL with absolute path and correct token length`() {
+        fun `should create download URL and store token with proper value and expiration`() {
             whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "generated-download-token"
 
             client
@@ -132,7 +130,12 @@ class CreateDocumentDownloadUrlMutationTest(
                     }
                 )
 
-            verify(tokenGenerator).generateToken(tokenLength = 30)
+            val storedRequest = runBlocking {
+                downloadsRepository.getRequestByToken("generated-download-token")
+            }
+            storedRequest.providerId.shouldBe(DocumentsService::class.simpleName!!)
+            storedRequest.metadata.shouldBe(DocumentDownloadMetadata(preconditions.coffeeReceipt.id!!))
+            storedRequest.userName.shouldBe("Fry")
         }
 
         @Test
