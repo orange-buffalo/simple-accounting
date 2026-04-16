@@ -139,6 +139,12 @@ type CreateAccessTokenByWorkspaceAccessTokenResponse {
   workspace: Workspace!
 }
 
+"Response containing the temporary download URL for a document."
+type CreateDocumentDownloadUrlResponse {
+  "Absolute URL to download the document content. The URL is temporary and will expire."
+  url: String!
+}
+
 "A customer in a workspace."
 type Customer {
   "ID of the customer."
@@ -656,6 +662,13 @@ type Mutation {
     "ID of the workspace to create the customer in."
     workspaceId: Long!
   ): Customer! @auth(type : REGULAR_USER)
+  "Creates a temporary download URL for a document. The URL is absolute and can be used directly by the client to download the document content."
+  createDocumentDownloadUrl(
+    "ID of the document to create a download URL for."
+    documentId: Long!,
+    "ID of the workspace the document belongs to."
+    workspaceId: Long!
+  ): CreateDocumentDownloadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
   "Creates a new expense in the specified workspace."
   createExpense(
     "IDs of documents attached to this expense."
