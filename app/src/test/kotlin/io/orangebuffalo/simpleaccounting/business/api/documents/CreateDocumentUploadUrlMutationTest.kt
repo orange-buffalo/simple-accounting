@@ -77,7 +77,7 @@ class CreateDocumentUploadUrlMutationTest(
         }
 
         @Test
-        fun `should return ENTITY_NOT_FOUND error for admin user`() {
+        fun `should return NOT_AUTHORIZED error for admin user`() {
             client
                 .graphqlMutation {
                     createDocumentUploadUrlMutation(
@@ -85,11 +85,11 @@ class CreateDocumentUploadUrlMutationTest(
                     )
                 }
                 .from(preconditions.farnsworth)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
 
         @Test
-        fun `should return ENTITY_NOT_FOUND error with workspace token`() {
+        fun `should return NOT_AUTHORIZED error with workspace token`() {
             client
                 .graphqlMutation {
                     createDocumentUploadUrlMutation(
@@ -97,7 +97,7 @@ class CreateDocumentUploadUrlMutationTest(
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
     }
 

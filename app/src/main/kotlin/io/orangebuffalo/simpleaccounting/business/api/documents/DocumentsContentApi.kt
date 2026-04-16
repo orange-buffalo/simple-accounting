@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
-import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import kotlinx.coroutines.flow.Flow
@@ -42,14 +41,3 @@ class DocumentsContentApi(
         return document.toGqlDto()
     }
 }
-
-private fun Document.toGqlDto() = DocumentGqlDto(
-    id = id!!,
-    version = version!!,
-    name = name,
-    timeUploaded = timeUploaded,
-    sizeInBytes = sizeInBytes,
-    storageId = storageId,
-    mimeType = mimeType,
-    usedBy = emptyList(),
-)

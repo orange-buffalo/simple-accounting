@@ -681,7 +681,7 @@ type Mutation {
   createDocumentUploadUrl(
     "ID of the workspace to upload the document to."
     workspaceId: Long!
-  ): CreateDocumentUploadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
+  ): CreateDocumentUploadUrlResponse! @auth(type : REGULAR_USER)
   "Creates a new expense in the specified workspace."
   createExpense(
     "IDs of documents attached to this expense."

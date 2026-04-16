@@ -161,9 +161,9 @@
   };
 
   const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
-  const submitUploads = () => {
+  const submitUploads = async () => {
     if (uploadControls.value !== undefined) {
-      uploadControls.value.forEach((upload) => upload.submitUpload());
+      await Promise.all(uploadControls.value.map((upload) => upload.submitUpload()));
     }
     onDocumentAggregateChange();
   };

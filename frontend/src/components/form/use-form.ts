@@ -105,7 +105,7 @@ export function useFormWithDocumentsUpload(
   };
 
   const onFormSubmit = async () => {
-    documentsUpload()
+    await documentsUpload()
       .submitUploads();
   };
 

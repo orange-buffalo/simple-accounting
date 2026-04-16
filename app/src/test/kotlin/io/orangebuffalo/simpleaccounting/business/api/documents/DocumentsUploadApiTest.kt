@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
-import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integration.uploads.UploadsRepository
@@ -106,7 +107,7 @@ class DocumentsUploadApiTest(
         }
 
         @Test
-        fun `should return empty usedBy list for newly uploaded document`() {
+        fun `should store document in correct workspace`() {
             val token = createUploadToken()
 
             client.post()
@@ -114,33 +115,16 @@ class DocumentsUploadApiTest(
                 .bodyValue(createDefaultFileToUpload().build())
                 .exchange()
                 .expectStatus().isOk
-                .expectBody()
-                .jsonPath("$.usedBy").isArray
-                .jsonPath("$.usedBy").isEmpty
-        }
 
-        @Test
-        fun `should store document in correct workspace`() {
-            val token = createUploadToken()
-
-            val responseBody = client.post()
-                .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
-                .exchange()
-                .expectStatus().isOk
-                .expectBody()
-                .returnResult()
-                .responseBody
-                .shouldNotBeNull()
-
-            val documentId = String(responseBody).let {
-                val regex = """"id"\s*:\s*(\d+)""".toRegex()
-                regex.find(it)!!.groupValues[1].toLong()
+            val documents = aggregateTemplate.findAll(io.orangebuffalo.simpleaccounting.business.documents.Document::class.java)
+            documents.shouldHaveSize(1)
+            documents.first().should {
+                it.workspaceId.shouldBe(preconditions.fryWorkspace.id)
+                it.name.shouldBe("test-file.txt")
+                it.storageId.shouldBe("test-storage")
+                it.mimeType.shouldBe("text/plain")
+                it.sizeInBytes.shouldBe(12)
             }
-
-            val document = aggregateTemplate.findById(documentId, io.orangebuffalo.simpleaccounting.business.documents.Document::class.java)
-            document.shouldNotBeNull()
-            document.workspaceId.shouldBe(preconditions.fryWorkspace.id)
         }
     }
 

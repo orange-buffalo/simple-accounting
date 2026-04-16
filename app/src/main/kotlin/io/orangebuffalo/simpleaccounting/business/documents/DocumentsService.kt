@@ -117,17 +117,15 @@ class DocumentsService(
 
     suspend fun getUploadToken(workspaceId: Long): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
-        return runAsWorkspaceOwnerIfTransient {
-            val userName = getCurrentPrincipal().userName
-            tokenGenerator.generateToken(tokenLength = 30)
-                .also { token ->
-                    uploadsRepository.storeUploadRequest(
-                        token = token,
-                        workspaceId = workspaceId,
-                        userName = userName,
-                    )
-                }
-        }
+        val userName = getCurrentPrincipal().userName
+        return tokenGenerator.generateToken(tokenLength = 30)
+            .also { token ->
+                uploadsRepository.storeUploadRequest(
+                    token = token,
+                    workspaceId = workspaceId,
+                    userName = userName,
+                )
+            }
     }
 
     suspend fun saveDocumentByUploadToken(

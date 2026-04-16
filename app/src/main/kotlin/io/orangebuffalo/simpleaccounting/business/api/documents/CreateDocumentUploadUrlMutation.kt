@@ -24,7 +24,7 @@ class CreateDocumentUploadUrlMutation(
                 "with the file content in a part named as specified in `filePartName`. " +
                 "The response of the upload request is a JSON object matching the `Document` type in this schema."
     )
-    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
+    @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createDocumentUploadUrl(
         @GraphQLDescription("ID of the workspace to upload the document to.")
         workspaceId: Long,
