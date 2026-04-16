@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
@@ -11,14 +12,17 @@ import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 
 @DisplayName("createDocumentDownloadUrl mutation")
 class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
+    @Value("\${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {
@@ -56,7 +60,7 @@ class CreateDocumentDownloadUrlMutationTest(
 
         @Test
         fun `should allow access for regular user`() {
-            whenever(tokenGenerator.generateToken(any())) doReturn "test-token"
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "test-token"
 
             client
                 .graphqlMutation {
@@ -68,15 +72,13 @@ class CreateDocumentDownloadUrlMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "https://simple-accounting.orange-buffalo.io/api/downloads?token=test-token")
+                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
                     }
                 )
         }
 
         @Test
-        fun `should allow access for admin user`() {
-            whenever(tokenGenerator.generateToken(any())) doReturn "test-token"
-
+        fun `should return NOT_AUTHORIZED error for admin user`() {
             client
                 .graphqlMutation {
                     createDocumentDownloadUrlMutation(
@@ -85,12 +87,12 @@ class CreateDocumentDownloadUrlMutationTest(
                     )
                 }
                 .from(preconditions.farnsworth)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
         }
 
         @Test
         fun `should allow access with workspace token`() {
-            whenever(tokenGenerator.generateToken(any())) doReturn "test-token"
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "test-token"
 
             client
                 .graphqlMutation {
@@ -102,7 +104,7 @@ class CreateDocumentDownloadUrlMutationTest(
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "https://simple-accounting.orange-buffalo.io/api/downloads?token=test-token")
+                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
                     }
                 )
         }
@@ -113,8 +115,8 @@ class CreateDocumentDownloadUrlMutationTest(
     inner class BusinessFlow {
 
         @Test
-        fun `should create download URL with absolute path`() {
-            whenever(tokenGenerator.generateToken(any())) doReturn "generated-download-token"
+        fun `should create download URL with absolute path and correct token length`() {
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "generated-download-token"
 
             client
                 .graphqlMutation {
@@ -126,9 +128,11 @@ class CreateDocumentDownloadUrlMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "https://simple-accounting.orange-buffalo.io/api/downloads?token=generated-download-token")
+                        put("url", "http://localhost:$serverPort/api/documents/download/generated-download-token")
                     }
                 )
+
+            verify(tokenGenerator).generateToken(tokenLength = 30)
         }
 
         @Test

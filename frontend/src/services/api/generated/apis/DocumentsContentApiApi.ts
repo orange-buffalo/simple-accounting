@@ -36,14 +36,10 @@ export class DocumentsContentApiApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters['token'] != null) {
-            queryParameters['token'] = requestParameters['token'];
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/downloads`,
+            path: `/api/documents/download/{token}`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters['token']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,

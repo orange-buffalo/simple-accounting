@@ -167,14 +167,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CurrentUserPushNotificationMessage"
-  /api/downloads:
+  /api/documents/download/{token}:
     get:
       tags:
       - documents-content-api
       operationId: getContent
       parameters:
       - name: token
-        in: query
+        in: path
         required: true
         schema:
           type: string

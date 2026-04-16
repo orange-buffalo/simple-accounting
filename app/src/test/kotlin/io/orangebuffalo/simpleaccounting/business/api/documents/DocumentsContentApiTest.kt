@@ -33,7 +33,7 @@ class DocumentsContentApiTest(
         mockDownloadsService()
 
         client.get()
-            .uri("/api/downloads?token=42")
+            .uri("/api/documents/download/42")
             .exchange()
             .expectStatus().isOk
     }
@@ -45,7 +45,7 @@ class DocumentsContentApiTest(
         }
 
         client.get()
-            .uri("/api/downloads?token=42")
+            .uri("/api/documents/download/42")
             .verifyNotFound("Not found")
     }
 
@@ -54,7 +54,7 @@ class DocumentsContentApiTest(
         mockDownloadsService()
 
         client.get()
-            .uri("/api/downloads?token=42")
+            .uri("/api/documents/download/42")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"file.pdf\""))

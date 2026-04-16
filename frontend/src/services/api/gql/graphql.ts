@@ -696,7 +696,7 @@ export type Mutation = {
   createCategory: Category;
   /** Creates a new customer in the specified workspace. */
   createCustomer: Customer;
-  /** Creates a temporary download URL for a document. The URL is absolute and can be used directly by the client to download the document content. */
+  /** Creates a short-lived download URL for a document (token expires in 2 minutes, as configured in the download token repository). The URL is absolute and can be used directly by the client to download the document content. The URL does not require authentication. */
   createDocumentDownloadUrl: CreateDocumentDownloadUrlResponse;
   /** Creates a new expense in the specified workspace. */
   createExpense: Expense;
