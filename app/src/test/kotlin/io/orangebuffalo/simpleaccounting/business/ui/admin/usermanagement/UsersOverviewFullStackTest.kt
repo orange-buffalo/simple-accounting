@@ -150,14 +150,15 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             var farnsworth = farnsworth()
 
             init {
-                platformUser(userName = "aBcDef", createdAt = MOCK_TIME.plusSeconds(1))
-                platformUser(userName = "abcdef", createdAt = MOCK_TIME.plusSeconds(2))
-                platformUser(userName = "ABCDEF", createdAt = MOCK_TIME.plusSeconds(3))
-                platformUser(userName = "qwerty", createdAt = MOCK_TIME.plusSeconds(4))
-                // some users to enable pagination
+                // extra users to enable pagination - must have older timestamps than target users
                 (1..10).forEachIndexed { index, i ->
-                    platformUser(userName = "user $i", createdAt = MOCK_TIME.plusSeconds(index.toLong() + 5))
+                    platformUser(userName = "user $i", createdAt = MOCK_TIME.plusSeconds(index.toLong() + 1))
                 }
+                // target users with newer timestamps so they appear on the first page (createdAt DESC)
+                platformUser(userName = "aBcDef", createdAt = MOCK_TIME.plusSeconds(11))
+                platformUser(userName = "abcdef", createdAt = MOCK_TIME.plusSeconds(12))
+                platformUser(userName = "ABCDEF", createdAt = MOCK_TIME.plusSeconds(13))
+                platformUser(userName = "qwerty", createdAt = MOCK_TIME.plusSeconds(14))
             }
         }
     }

@@ -795,7 +795,7 @@ type Mutation {
     "ID of the workspace to create the invoice in."
     workspaceId: Long!
   ): Invoice! @auth(type : REGULAR_USER)
-  "Creates a new user account. Only accessible by admin users."
+  "Creates a new user account."
   createUser(
     "Whether the new user should have admin privileges."
     admin: Boolean!,
@@ -968,7 +968,7 @@ type Mutation {
     "ID of the workspace the invoice belongs to."
     workspaceId: Long!
   ): Invoice! @auth(type : REGULAR_USER)
-  "Updates an existing user's username. Only accessible by admin users."
+  "Updates an existing user's username."
   editUser(
     "ID of the user to update."
     id: Long!,
