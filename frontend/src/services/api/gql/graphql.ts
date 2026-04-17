@@ -731,7 +731,7 @@ export type Mutation = {
   createIncomeTaxPayment: IncomeTaxPayment;
   /** Creates a new invoice in the specified workspace. */
   createInvoice: Invoice;
-  /** Creates a new user account. Only accessible by admin users. */
+  /** Creates a new user account. */
   createUser: PlatformUser;
   /** Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users. */
   createUserActivationToken: UserActivationTokenGqlDto;
@@ -753,7 +753,7 @@ export type Mutation = {
   editIncomeTaxPayment: IncomeTaxPayment;
   /** Updates an existing invoice in the specified workspace. */
   editInvoice: Invoice;
-  /** Updates an existing user's username. Only accessible by admin users. */
+  /** Updates an existing user's username. */
   editUser: PlatformUser;
   /** Updates an existing workspace. */
   editWorkspace: Workspace;
