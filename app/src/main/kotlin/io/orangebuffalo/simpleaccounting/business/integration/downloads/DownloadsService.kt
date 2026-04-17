@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
+import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
+import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class DownloadsService(
-    private val downloadsRepository: DownloadsRepository,
+    private val tokensRepository: TokensRepository,
     private val tokenGenerator: TokenGenerator,
     @Lazy private val contentProviders: List<DownloadableContentProvider<*>>,
     private val userService: PlatformUsersService
@@ -22,16 +24,17 @@ class DownloadsService(
     suspend fun <T : Any> createDownloadToken(contentProvider: DownloadableContentProvider<T>, metadata: T): String =
         tokenGenerator.generateToken(tokenLength = 30)
             .also { token ->
-                downloadsRepository.storeDownloadRequest(
-                    token = token,
-                    providerId = contentProvider.getId(),
-                    metadata = metadata,
-                    userName = getCurrentPrincipal().userName
+                tokensRepository.storeToken(
+                    token, PersistentDownloadRequest(
+                        providerId = contentProvider.getId(),
+                        metadata = metadata,
+                        userName = getCurrentPrincipal().userName
+                    )
                 )
             }
 
     suspend fun getContentByToken(token: String): DownloadContentResponse {
-        val downloadRequest = downloadsRepository.getRequestByToken(token)
+        val downloadRequest = tokensRepository.getRequestByToken<PersistentDownloadRequest>(token)
         val contentProvider = contentProviders.find { it.getId() == downloadRequest.providerId }
             ?: throw IllegalStateException("Cannot find provider ${downloadRequest.providerId}")
         val user = userService.getUserByUserName(downloadRequest.userName)
@@ -43,4 +46,10 @@ class DownloadsService(
         }
     }
 }
+
+data class PersistentDownloadRequest(
+    val providerId: String,
+    val metadata: Any,
+    val userName: String
+)
 

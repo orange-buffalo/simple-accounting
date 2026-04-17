@@ -55,36 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiUpdateUserErrors"
-  /api/workspaces/{workspaceId}/documents:
-    post:
-      tags:
-      - documents-api
-      operationId: uploadNewDocument
-      parameters:
-      - name: workspaceId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-              required:
-              - file
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DocumentDto"
   /api/users:
     get:
       tags:
@@ -153,6 +123,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersApiCreateUserErrors"
+  /api/documents/upload/{token}:
+    post:
+      tags:
+      - documents-content-api
+      operationId: uploadDocument
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentGqlDto"
   /api/push-notifications:
     get:
       tags:
@@ -218,7 +217,19 @@ components:
       - admin
       - userName
       - version
-    DocumentDto:
+    CreateUserRequestDto:
+      type: object
+      properties:
+        userName:
+          type: string
+          maxLength: 255
+          minLength: 0
+        admin:
+          type: boolean
+      required:
+      - admin
+      - userName
+    DocumentGqlDto:
       type: object
       properties:
         id:
@@ -239,25 +250,37 @@ components:
           type: string
         mimeType:
           type: string
+        usedBy:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentUsageGqlDto"
       required:
       - id
       - mimeType
       - name
       - storageId
       - timeUploaded
+      - usedBy
       - version
-    CreateUserRequestDto:
+    DocumentUsageGqlDto:
       type: object
       properties:
-        userName:
+        type:
           type: string
-          maxLength: 255
-          minLength: 0
-        admin:
-          type: boolean
+          enum:
+          - EXPENSE
+          - INCOME
+          - INVOICE
+          - INCOME_TAX_PAYMENT
+        relatedEntityId:
+          type: integer
+          format: int64
+        displayName:
+          type: string
       required:
-      - admin
-      - userName
+      - displayName
+      - relatedEntityId
+      - type
     ApiPagePlatformUserDto:
       type: object
       properties:

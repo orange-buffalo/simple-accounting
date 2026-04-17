@@ -152,6 +152,15 @@ export type CreateDocumentDownloadUrlResponse = {
   url: Scalars['String']['output'];
 };
 
+/** Response containing the temporary upload URL for a document. */
+export type CreateDocumentUploadUrlResponse = {
+  __typename?: 'CreateDocumentUploadUrlResponse';
+  /** The name of the multipart form-data part that should contain the file content. */
+  filePartName: Scalars['String']['output'];
+  /** Absolute URL to upload the document content via multipart/form-data POST. The URL is temporary and will expire. */
+  url: Scalars['String']['output'];
+};
+
 /** Possible business error codes for the createUserActivationToken operation. */
 export enum CreateUserActivationTokenErrorCodes {
   /** The user is already activated and cannot receive an activation token. */
@@ -698,6 +707,8 @@ export type Mutation = {
   createCustomer: Customer;
   /** Creates a short-lived download URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to download the document content. The URL does not require authentication. */
   createDocumentDownloadUrl: CreateDocumentDownloadUrlResponse;
+  /** Creates a short-lived upload URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to upload a document. The URL does not require authentication. The upload should be done as a multipart/form-data POST request, with the file content in a part named as specified in `filePartName`. The response of the upload request is a JSON object matching the `Document` type in this schema. */
+  createDocumentUploadUrl: CreateDocumentUploadUrlResponse;
   /** Creates a new expense in the specified workspace. */
   createExpense: Expense;
   /** Creates a new general tax in the specified workspace. */
@@ -795,6 +806,11 @@ export type MutationCreateCustomerArgs = {
 
 export type MutationCreateDocumentDownloadUrlArgs = {
   documentId: Scalars['Long']['input'];
+  workspaceId: Scalars['Long']['input'];
+};
+
+
+export type MutationCreateDocumentUploadUrlArgs = {
   workspaceId: Scalars['Long']['input'];
 };
 
@@ -1442,6 +1458,13 @@ export type CreateDocumentDownloadUrlMutationVariables = Exact<{
 
 
 export type CreateDocumentDownloadUrlMutation = { __typename?: 'Mutation', createDocumentDownloadUrl: { __typename?: 'CreateDocumentDownloadUrlResponse', url: string } };
+
+export type CreateDocumentUploadUrlMutationVariables = Exact<{
+  workspaceId: Scalars['Long']['input'];
+}>;
+
+
+export type CreateDocumentUploadUrlMutation = { __typename?: 'Mutation', createDocumentUploadUrl: { __typename?: 'CreateDocumentUploadUrlResponse', url: string, filePartName: string } };
 
 export type DownloadDocumentStoragesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2134,6 +2157,7 @@ export const GetCurrenciesShortlistDocument = {"kind":"Document","definitions":[
 export const GetCustomersForInputDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getCustomersForInput"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customers"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"500"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetCustomersForInputQuery, GetCustomersForInputQueryVariables>;
 export const GetCustomerForOutputDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getCustomerForOutput"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"customerId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customer"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"customerId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<GetCustomerForOutputQuery, GetCustomerForOutputQueryVariables>;
 export const CreateDocumentDownloadUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createDocumentDownloadUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createDocumentDownloadUrl"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}}]}}]}}]} as unknown as DocumentNode<CreateDocumentDownloadUrlMutation, CreateDocumentDownloadUrlMutationVariables>;
+export const CreateDocumentUploadUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createDocumentUploadUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createDocumentUploadUrl"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"filePartName"}}]}}]}}]} as unknown as DocumentNode<CreateDocumentUploadUrlMutation, CreateDocumentUploadUrlMutationVariables>;
 export const DownloadDocumentStoragesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"downloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getDownloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DownloadDocumentStoragesQuery, DownloadDocumentStoragesQueryVariables>;
 export const DocumentsUploadStorageStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"documentsUploadStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"documentsStorageStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}}]}},{"kind":"Field","name":{"kind":"Name","value":"getDownloadDocumentStorages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DocumentsUploadStorageStatusQuery, DocumentsUploadStorageStatusQueryVariables>;
 export const GoogleDriveStorageIntegrationStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"googleDriveStorageIntegrationStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorizationRequired"}},{"kind":"Field","name":{"kind":"Name","value":"authorizationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"folderId"}},{"kind":"Field","name":{"kind":"Name","value":"folderName"}}]}}]}}]} as unknown as DocumentNode<GoogleDriveStorageIntegrationStatusQuery, GoogleDriveStorageIntegrationStatusQueryVariables>;

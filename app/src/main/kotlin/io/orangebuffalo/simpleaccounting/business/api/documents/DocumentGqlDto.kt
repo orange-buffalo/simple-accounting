@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import io.orangebuffalo.simpleaccounting.business.documents.Document
 import java.time.Instant
 
 @GraphQLName("Document")
@@ -30,4 +31,15 @@ data class DocumentGqlDto(
 
     @GraphQLDescription("Entities that use this document.")
     val usedBy: List<DocumentUsageGqlDto>,
+)
+
+fun Document.toGqlDto() = DocumentGqlDto(
+    id = id!!,
+    version = version!!,
+    name = name,
+    timeUploaded = timeUploaded,
+    sizeInBytes = sizeInBytes,
+    storageId = storageId,
+    mimeType = mimeType,
+    usedBy = emptyList(),
 )

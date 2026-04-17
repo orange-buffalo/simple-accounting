@@ -49,9 +49,10 @@
   import Dropzone from 'dropzone';
   import SaIcon from '@/components/SaIcon.vue';
   import SaDocument from '@/components/documents/SaDocument.vue';
-  import type { DocumentDto } from '@/services/api';
-  import { useAuth } from '@/services/api';
+  import type { DocumentGqlDto } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
   Dropzone.autoDiscover = false;
@@ -65,10 +66,10 @@
   const emit = defineEmits<{(e: 'document-removed'): void,
                             (e: 'document-selected'): void,
                             (e: 'upload-failed', error: string | Error): void,
-                            (e: 'upload-completed', document: DocumentDto): void,
+                            (e: 'upload-completed', document: DocumentGqlDto): void,
   }>();
 
-  const document = ref<Partial<DocumentDto>>({
+  const document = ref<Partial<DocumentGqlDto>>({
     id: props.documentId,
     name: props.documentName,
     sizeInBytes: props.documentSizeInBytes,
@@ -77,8 +78,6 @@
   const uploadingProgress = ref(0);
   const uploadingFailed = ref(false);
   const selectedFile = ref<DropzoneFile | undefined>(undefined);
-
-  const { getToken } = useAuth();
 
   const documentAvailable = computed(() => document.value.id !== undefined);
 
@@ -112,6 +111,22 @@
     };
   });
 
+  const createDocumentUploadUrlMutation = graphql(`
+    mutation createDocumentUploadUrl($workspaceId: Long!) {
+      createDocumentUploadUrl(workspaceId: $workspaceId) {
+        url
+        filePartName
+      }
+    }
+  `);
+
+  const executeCreateUploadUrl = useMutation(
+    createDocumentUploadUrlMutation,
+    'createDocumentUploadUrl',
+  );
+
+  const { currentWorkspaceId } = useCurrentWorkspace();
+
   const maxFileSize = 50 * 1024 * 1024;
   const dropPanel = ref<HTMLElement | undefined>(undefined);
   let dropzone: Dropzone | undefined;
@@ -119,11 +134,10 @@
     if (!dropzone) throw new Error('Not initialized yet');
     return dropzone;
   };
-  const { currentWorkspaceId } = useCurrentWorkspace();
   onMounted(() => {
     if (!dropzone && dropPanel.value) {
       dropzone = new Dropzone(dropPanel.value as HTMLElement, {
-        url: `/api/workspaces/${currentWorkspaceId}/documents`,
+        url: '/api/documents/upload/placeholder',
         paramName: 'file',
         createImageThumbnails: false,
         autoProcessQueue: false,
@@ -151,7 +165,6 @@
 
       dropzone.on('error', (file, error) => {
         // todo #72: special processing for storage service config error
-        // todo #77: handle 401 by acquiring new token and restarting upload
         uploading.value = false;
         uploadingFailed.value = true;
         dropzoneRequired().files[0].status = 'queued';
@@ -160,14 +173,8 @@
 
       dropzone.on('success', (file, response) => {
         uploading.value = false;
-        document.value = response as DocumentDto;
-        emit('upload-completed', document.value as DocumentDto);
-      });
-
-      dropzone.on('processing', () => {
-        dropzoneRequired().options.headers = {
-          Authorization: `Bearer ${getToken()}`,
-        };
+        document.value = response as DocumentGqlDto;
+        emit('upload-completed', document.value as DocumentGqlDto);
       });
     }
   });
@@ -189,12 +196,22 @@
     emit('document-removed');
   };
 
-  const submitUpload = () => {
+  const submitUpload = async () => {
     if (selectedFile.value && !documentAvailable.value) {
       uploading.value = true;
       uploadingFailed.value = false;
       uploadingProgress.value = 0;
-      dropzoneRequired().processQueue();
+      try {
+        const uploadUrlResponse = await executeCreateUploadUrl({ workspaceId: currentWorkspaceId });
+        const dz = dropzoneRequired();
+        dz.options.url = uploadUrlResponse.url;
+        dz.options.paramName = uploadUrlResponse.filePartName;
+        dz.processQueue();
+      } catch (e) {
+        uploading.value = false;
+        uploadingFailed.value = true;
+        emit('upload-failed', e instanceof Error ? e : new Error(String(e)));
+      }
     }
   };
 

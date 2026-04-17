@@ -84,6 +84,7 @@ class WebConfig : WebFluxConfigurer {
                     .pathMatchers("/api/graphql/**").permitAll()
                     .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/documents/download/**").permitAll()
+                    .pathMatchers("/api/documents/upload/**").permitAll()
                     .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()
                     .pathMatchers("/api/users/**").hasRole(SaUserRoles.ADMIN)
                     .pathMatchers("/api/**").authenticated()

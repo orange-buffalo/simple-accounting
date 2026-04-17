@@ -2,11 +2,9 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentDownloadMetadata
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.documents.PersistentUploadRequest
 import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
 import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
-import io.orangebuffalo.simpleaccounting.business.integration.downloads.PersistentDownloadRequest
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -24,8 +22,8 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
-@DisplayName("createDocumentDownloadUrl mutation")
-class CreateDocumentDownloadUrlMutationTest(
+@DisplayName("createDocumentUploadUrl mutation")
+class CreateDocumentUploadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val tokensRepository: TokensRepository,
     @Value("\${local.server.port}") private val serverPort: Int,
@@ -33,17 +31,15 @@ class CreateDocumentDownloadUrlMutationTest(
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = platformUser(userName = "Fry", documentsStorage = "noop")
-            val farnsworth = platformUser(userName = "Farnsworth", isAdmin = true, documentsStorage = "noop")
+            val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+            val farnsworth = platformUser(userName = "Farnsworth", isAdmin = true, documentsStorage = "test-storage")
             val fryWorkspace = workspace(owner = fry)
-            val coffeeReceipt = document(workspace = fryWorkspace, name = "100_cups.pdf")
             val workspaceAccessToken = workspaceAccessToken(
                 workspace = fryWorkspace,
                 validTill = MOCK_TIME.plusSeconds(10000),
             )
-            val zoidberg = platformUser(userName = "Zoidberg", documentsStorage = "noop")
+            val zoidberg = platformUser(userName = "Zoidberg", documentsStorage = "test-storage")
             val zoidbergWorkspace = workspace(owner = zoidberg)
-            val zoidbergDocument = document(workspace = zoidbergWorkspace)
         }
     }
 
@@ -55,13 +51,12 @@ class CreateDocumentDownloadUrlMutationTest(
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .fromAnonymous()
-                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
 
         @Test
@@ -70,49 +65,41 @@ class CreateDocumentDownloadUrlMutationTest(
 
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
+                    DgsConstants.MUTATION.CreateDocumentUploadUrl to buildJsonObject {
+                        put("url", "http://localhost:$serverPort/api/documents/upload/test-token")
+                        put("filePartName", "file")
                     }
                 )
         }
 
         @Test
-        fun `should return ENTITY_NOT_FOUND error for admin user`() {
+        fun `should return NOT_AUTHORIZED error for admin user`() {
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .from(preconditions.farnsworth)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
 
         @Test
-        fun `should allow access with workspace token`() {
-            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "test-token"
-
+        fun `should return NOT_AUTHORIZED error with workspace token`() {
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-                .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "http://localhost:$serverPort/api/documents/download/test-token")
-                    }
-                )
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
     }
 
@@ -121,28 +108,27 @@ class CreateDocumentDownloadUrlMutationTest(
     inner class BusinessFlow {
 
         @Test
-        fun `should create download URL and store token with proper value and expiration`() {
-            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "generated-download-token"
+        fun `should create upload URL and store token with proper workspace and expiration`() {
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "generated-upload-token"
 
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
-                    DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
-                        put("url", "http://localhost:$serverPort/api/documents/download/generated-download-token")
+                    DgsConstants.MUTATION.CreateDocumentUploadUrl to buildJsonObject {
+                        put("url", "http://localhost:$serverPort/api/documents/upload/generated-upload-token")
+                        put("filePartName", "file")
                     }
                 )
 
             val storedRequest = runBlocking {
-                tokensRepository.getRequestByToken<PersistentDownloadRequest>("generated-download-token")
+                tokensRepository.getRequestByToken<PersistentUploadRequest>("generated-upload-token")
             }
-            storedRequest.providerId.shouldBe(DocumentsService::class.simpleName!!)
-            storedRequest.metadata.shouldBe(DocumentDownloadMetadata(preconditions.coffeeReceipt.id!!))
+            storedRequest.workspaceId.shouldBe(preconditions.fryWorkspace.id)
             storedRequest.userName.shouldBe("Fry")
         }
 
@@ -150,49 +136,52 @@ class CreateDocumentDownloadUrlMutationTest(
         fun `should return ENTITY_NOT_FOUND error when workspace is not found`() {
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = 5634632,
-                        documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
                 .from(preconditions.fry)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
 
         @Test
         fun `should return ENTITY_NOT_FOUND error when workspace belongs to another user`() {
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.zoidbergWorkspace.id!!,
-                        documentId = preconditions.zoidbergDocument.id!!,
                     )
                 }
                 .from(preconditions.fry)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
         }
 
         @Test
-        fun `should return ENTITY_NOT_FOUND error when document belongs to another workspace`() {
+        fun `should return url with filePartName field`() {
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "token-for-parts-test"
+
             client
                 .graphqlMutation {
-                    createDocumentDownloadUrlMutation(
+                    createDocumentUploadUrlMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        documentId = preconditions.zoidbergDocument.id!!,
                     )
                 }
                 .from(preconditions.fry)
-                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CreateDocumentUploadUrl to buildJsonObject {
+                        put("url", "http://localhost:$serverPort/api/documents/upload/token-for-parts-test")
+                        put("filePartName", "file")
+                    }
+                )
         }
     }
 
-    private fun MutationProjection.createDocumentDownloadUrlMutation(
+    private fun MutationProjection.createDocumentUploadUrlMutation(
         workspaceId: Long,
-        documentId: Long,
-    ): MutationProjection = createDocumentDownloadUrl(
+    ): MutationProjection = createDocumentUploadUrl(
         workspaceId = workspaceId,
-        documentId = documentId,
     ) {
         url
+        filePartName
     }
 }
