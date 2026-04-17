@@ -50,6 +50,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         documentsStorage: String? = null,
         i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
         activated: Boolean = true,
+        createdAt: Instant = MOCK_TIME,
     ) = PlatformUser(
         userName = userName,
         passwordHash = passwordHash,
@@ -57,7 +58,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         documentsStorage = documentsStorage,
         i18nSettings = i18nSettings,
         activated = activated
-    ).save()
+    ).also { it.createdAt = createdAt }.save()
 
     fun userActivationToken(
         user: PlatformUser? = null,

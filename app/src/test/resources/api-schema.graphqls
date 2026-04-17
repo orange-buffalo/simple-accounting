@@ -795,6 +795,13 @@ type Mutation {
     "ID of the workspace to create the invoice in."
     workspaceId: Long!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Creates a new user account. Only accessible by admin users."
+  createUser(
+    "Whether the new user should have admin privileges."
+    admin: Boolean!,
+    "Username / login for the new user."
+    userName: String! @notBlank @size(max : 255, min : 0)
+  ): PlatformUser! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_EXISTS", errorCodeDescription : "A user with the given username already exists.")
   "Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users."
   createUserActivationToken(
     "The ID of the user to create the activation token for."
@@ -961,6 +968,13 @@ type Mutation {
     "ID of the workspace the invoice belongs to."
     workspaceId: Long!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Updates an existing user's username. Only accessible by admin users."
+  editUser(
+    "ID of the user to update."
+    id: Long!,
+    "New username / login for the user."
+    userName: String! @notBlank @size(max : 255, min : 0)
+  ): PlatformUser! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_EXISTS", errorCodeDescription : "A user with the given username already exists.")
   "Updates an existing workspace."
   editWorkspace(
     "ID of the workspace to update."
@@ -1008,6 +1022,36 @@ type PendingGeneralTaxSummaryItem {
   tax: GeneralTax!
 }
 
+"A platform user."
+type PlatformUser {
+  "Whether the user account has been activated."
+  activated: Boolean!
+  "Whether the user has admin privileges."
+  admin: Boolean!
+  "The unique ID of the user."
+  id: Long!
+  "The username / login of the user."
+  userName: String!
+}
+
+"An edge in a platform users connection."
+type PlatformUserEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The platform user at the end of this edge."
+  node: PlatformUser!
+}
+
+"A paginated connection of platform users following the GraphQL Cursor Connections Specification."
+type PlatformUsersConnection {
+  "The list of edges in the current page."
+  edges: [PlatformUserEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 type Query {
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
@@ -1029,8 +1073,22 @@ type Query {
     "The activation token value."
     token: String!
   ): UserActivationTokenGqlDto @auth(type : ANONYMOUS)
+  "Returns the user with the given ID."
+  user(
+    "ID of the user."
+    id: Long!
+  ): PlatformUser! @auth(type : ADMIN_USER)
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
+  "Returns all users with cursor-based pagination. Only accessible by admin users."
+  users(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int! @max(value : 500) @min(value : 1),
+    "Optional free-text search filter applied to the username."
+    freeSearchText: String
+  ): PlatformUsersConnection! @auth(type : ADMIN_USER)
   "Returns a workspace by its ID, if accessible by the current user."
   workspace(
     "ID of the workspace."
@@ -1347,6 +1405,12 @@ enum CreateUserActivationTokenErrorCodes {
   USER_ALREADY_ACTIVATED
 }
 
+"Possible business error codes for the createUser operation."
+enum CreateUserErrorCodes {
+  "A user with the given username already exists."
+  USER_ALREADY_EXISTS
+}
+
 "Type of entity that uses a document."
 enum DocumentUsageType {
   "Document is used by an expense."
@@ -1357,6 +1421,12 @@ enum DocumentUsageType {
   INCOME_TAX_PAYMENT
   "Document is used by an invoice."
   INVOICE
+}
+
+"Possible business error codes for the editUser operation."
+enum EditUserErrorCodes {
+  "A user with the given username already exists."
+  USER_ALREADY_EXISTS
 }
 
 enum ExpenseStatus {
