@@ -6,11 +6,14 @@ import com.expediagroup.graphql.generator.extensions.get
 import graphql.schema.GraphQLFieldDefinition
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
+import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
+import io.orangebuffalo.simpleaccounting.infra.graphql.SUBSCRIPTION_AUTHENTICATION_KEY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.springframework.security.core.Authentication
 import kotlin.coroutines.EmptyCoroutineContext
 
 private val log = KotlinLogging.logger { }
@@ -36,7 +39,8 @@ class RequiredAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
                     ?: CoroutineScope(EmptyCoroutineContext)
                 val principal = runBlocking(coroutineScope.coroutineContext) {
                     getCurrentPrincipalOrNull()
-                }
+                } ?: env.graphQlContext.get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
+                    ?.let { it.principal as? SecurityPrincipal }
                 var authCheckSucceeded = true
                 if (principal == null) {
                     authCheckSucceeded = false

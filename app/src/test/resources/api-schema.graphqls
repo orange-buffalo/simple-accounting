@@ -2,6 +2,7 @@
 schema @contact(description : "For any questions, issues or feature requests, please open an issue or discussion on GitHub.", name : "Simple Accounting", url : "https://github.com/orange-buffalo/simple-accounting/issues"){
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 "Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
@@ -1052,6 +1053,14 @@ type PlatformUsersConnection {
   totalCount: Int!
 }
 
+"A push notification message."
+type PushNotificationMessage {
+  "Optional event data payload, serialized as a JSON string."
+  data: String
+  "The name of the event."
+  eventName: String!
+}
+
 type Query {
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
@@ -1107,6 +1116,11 @@ type Query {
 type RefreshAccessTokenResponse {
   "The new access token if authentication was successful, null otherwise."
   accessToken: String
+}
+
+type Subscription {
+  "Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users."
+  pushNotifications: PushNotificationMessage! @auth(type : AUTHENTICATED_USER)
 }
 
 "System-wide settings."
