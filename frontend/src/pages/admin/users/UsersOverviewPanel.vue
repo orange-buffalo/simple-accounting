@@ -45,9 +45,11 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import { $t } from '@/services/i18n';
   import useNavigation from '@/services/use-navigation';
-  import type { PlatformUserDto } from '@/services/api';
+  import type { UsersPageQuery } from '@/services/api/gql/graphql';
 
-  const props = defineProps<{ user: PlatformUserDto }>();
+  type UserNode = UsersPageQuery['users']['edges'][0]['node'];
+
+  const props = defineProps<{ user: UserNode }>();
 
   const { navigateToView } = useNavigation();
   const navigateToUserEdit = () => navigateToView({

@@ -37,21 +37,17 @@
   import { $t } from '@/services/i18n';
   import SaForm from '@/components/form/SaForm.vue';
   import useNavigation from '@/services/use-navigation';
-  import {
-    UsersApiCreateUserErrors,
-    handleApiBusinessError, UsersApiUpdateUserErrors,
-  } from '@/services/api';
+  import { handleGqlApiBusinessError } from '@/services/api';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
-  import { usersApi } from '@/services/api/api-client.ts';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
-  import { ApiBusinessError } from '@/services/api/api-errors.ts';
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import { CreateUserErrorCodes, EditUserErrorCodes } from '@/services/api/gql/graphql.ts';
 
   const props = defineProps<{
     id?: number
@@ -84,31 +80,56 @@
     userName: '',
   });
 
-  type UserApiErrors = UsersApiCreateUserErrors | UsersApiUpdateUserErrors;
+  const getUserQuery = useLazyQuery(graphql(/* GraphQL */ `
+    query getUserForEdit($userId: Long!) {
+      user(id: $userId) {
+        id
+        userName
+        activated
+        admin
+      }
+    }
+  `), 'user');
+
+  const createUserMutation = useMutation(graphql(/* GraphQL */ `
+    mutation createUser($userName: String!, $admin: Boolean!) {
+      createUser(userName: $userName, admin: $admin) {
+        id
+        userName
+      }
+    }
+  `), 'createUser');
+
+  const editUserMutation = useMutation(graphql(/* GraphQL */ `
+    mutation editUser($id: Long!, $userName: String!) {
+      editUser(id: $id, userName: $userName) {
+        id
+        userName
+      }
+    }
+  `), 'editUser');
+
   const saveUser = async () => {
     try {
       if (editMode.value) {
-        await usersApi.updateUser({
-          userId: props.id!,
-          updateUserRequestDto: formValues.value,
-        });
+        await editUserMutation({ id: props.id!, userName: formValues.value.userName });
         await navigateToUsersOverview();
       } else {
-        const createdUser = await usersApi.createUser({
-          createUserRequestDto: formValues.value,
+        const createdUser = await createUserMutation({
+          userName: formValues.value.userName,
+          admin: formValues.value.admin,
         });
-        await navigateToEditUser(createdUser.id!);
+        await navigateToEditUser(createdUser.id);
       }
       showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
     } catch (e: unknown) {
-      if (e instanceof ApiBusinessError) {
-        const error = handleApiBusinessError<UserApiErrors>(e);
-        if (error.error === 'UserAlreadyExists') {
-          throw new ClientSideValidationError([{
-            field: 'userName',
-            message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName),
-          }]);
-        }
+      const errorCode = handleGqlApiBusinessError<CreateUserErrorCodes | EditUserErrorCodes>(e);
+      if (errorCode === CreateUserErrorCodes.UserAlreadyExists
+        || errorCode === EditUserErrorCodes.UserAlreadyExists) {
+        throw new ClientSideValidationError([{
+          field: 'userName',
+          message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName),
+        }]);
       }
       throw e;
     }
@@ -137,10 +158,11 @@
 
   const loadUser = editMode.value ? async () => {
     const userId = props.id!;
-    const user = await usersApi.getUser({
-      userId,
-    });
-    formValues.value = user;
+    const user = await getUserQuery({ userId });
+    formValues.value = {
+      userName: user.userName,
+      admin: user.admin,
+    };
 
     if (user.activated) {
       activationStatus.value.loading = false;
