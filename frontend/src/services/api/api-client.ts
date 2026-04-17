@@ -1,7 +1,7 @@
 import qs from 'qs';
 import {
   Configuration,
-  UsersApiApi,
+  PushNotificationsApiApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -22,4 +22,4 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const usersApi = new UsersApiApi(defaultConfig);
+export const pushNotificationsApi = new PushNotificationsApiApi(defaultConfig);

@@ -1,7 +1,4 @@
 export * from './api-types';
-export {
-  usersApi,
-} from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';
 export * from './api-utils';

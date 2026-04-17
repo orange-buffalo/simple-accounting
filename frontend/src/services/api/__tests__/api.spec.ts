@@ -15,7 +15,7 @@ import {
   ResourceNotFoundError,
 } from '@/services/api/api-errors';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import type { UsersApiApi } from '@/services/api/generated/apis/UsersApiApi';
+import type { PushNotificationsApiApi } from '@/services/api/generated/apis/PushNotificationsApiApi';
 import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
@@ -33,7 +33,7 @@ describe('API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let usersApi: UsersApiApi;
+  let pushNotificationsApi: PushNotificationsApiApi;
   let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
   const assertRegularRequestEvents = () => {
@@ -45,8 +45,8 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   };
 
-  const apiCall = async (initOverrides?: RequestInit) => usersApi.getUsers({}, initOverrides);
-  const apiCallPath = '/api/users';
+  const apiCall = async (initOverrides?: RequestInit) => pushNotificationsApi.getPushNotificationMessages(initOverrides);
+  const apiCallPath = '/api/push-notifications';
 
   test('does not set Authorization token when not logged in', async () => {
     fetchMock.get(apiCallPath, {
@@ -344,9 +344,12 @@ describe('API Client', () => {
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     ({
       useAuth,
-      usersApi,
+      pushNotificationsApi,
       useRequestConfig,
-    } = await import('@/services/api'));
+    } = {
+      ...(await import('@/services/api')),
+      ...(await import('@/services/api/api-client')),
+    });
   });
 
   afterEach(() => {

@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import org.junit.jupiter.api.Test
 
 class UsersOverviewFullStackTest : SaFullStackTestBase() {
@@ -21,10 +22,10 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "aUser",
+                        title = "C User",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.REGULAR_USER, "User"),
-                            primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
+                            primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
                         ),
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
@@ -39,10 +40,10 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
-                        title = "C User",
+                        title = "aUser",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.REGULAR_USER, "User"),
-                            primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
+                            primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
                         ),
                         lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
@@ -65,13 +66,13 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     fun `should support pagination`(page: Page) {
         val preconditions = setupPaginationPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
-        val firsPageUsers = listOf(
-            "Farnsworth", "user 1", "user 10", "user 11", "user 12",
-            "user 13", "user 14", "user 15", "user 2", "user 3"
-        )
+        // users 15..6 (newest first) on page 1
+        val firstPageUsers = (15 downTo 6).map { "user $it" }
+        // users 5..1 and Farnsworth on page 2
+        val secondPageUsers = (5 downTo 1).map { "user $it" } + "Farnsworth"
         page.openUsersOverviewPage {
             pageItems {
-                shouldHaveTitles(firsPageUsers)
+                shouldHaveTitles(firstPageUsers)
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
@@ -79,13 +80,13 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveTitles("user 4", "user 5", "user 6", "user 7", "user 8", "user 9")
+                shouldHaveTitles(secondPageUsers)
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveTitles(firsPageUsers)
+                shouldHaveTitles(firstPageUsers)
             }
         }
     }
@@ -110,7 +111,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             }
             filterInput { fill("cd") }
             pageItems {
-                shouldHaveTitles("aBcDef", "abcdef", "ABCDEF")
+                // order is by createdAt desc: ABCDEF (newest), abcdef, aBcDef (oldest)
+                shouldHaveTitles("ABCDEF", "abcdef", "aBcDef")
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
@@ -124,9 +126,9 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             val farnsworth = farnsworth()
 
             init {
-                platformUser(userName = "aUser", isAdmin = false, activated = true)
-                platformUser(userName = "B user", isAdmin = true, activated = false)
-                platformUser(userName = "C User", isAdmin = false, activated = false)
+                platformUser(userName = "aUser", isAdmin = false, activated = true, createdAt = MOCK_TIME.plusSeconds(1))
+                platformUser(userName = "B user", isAdmin = true, activated = false, createdAt = MOCK_TIME.plusSeconds(2))
+                platformUser(userName = "C User", isAdmin = false, activated = false, createdAt = MOCK_TIME.plusSeconds(3))
             }
         }
     }
@@ -136,7 +138,9 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             var farnsworth = farnsworth()
 
             init {
-                (1..15).forEach { platformUser(userName = "user $it") }
+                (1..15).forEachIndexed { index, i ->
+                    platformUser(userName = "user $i", createdAt = MOCK_TIME.plusSeconds(index.toLong() + 1))
+                }
             }
         }
     }
@@ -146,12 +150,14 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             var farnsworth = farnsworth()
 
             init {
-                platformUser(userName = "aBcDef")
-                platformUser(userName = "abcdef")
-                platformUser(userName = "ABCDEF")
-                platformUser(userName = "qwerty")
+                platformUser(userName = "aBcDef", createdAt = MOCK_TIME.plusSeconds(1))
+                platformUser(userName = "abcdef", createdAt = MOCK_TIME.plusSeconds(2))
+                platformUser(userName = "ABCDEF", createdAt = MOCK_TIME.plusSeconds(3))
+                platformUser(userName = "qwerty", createdAt = MOCK_TIME.plusSeconds(4))
                 // some users to enable pagination
-                (1..10).forEach { platformUser(userName = "user $it") }
+                (1..10).forEachIndexed { index, i ->
+                    platformUser(userName = "user $i", createdAt = MOCK_TIME.plusSeconds(index.toLong() + 5))
+                }
             }
         }
     }

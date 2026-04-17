@@ -30,32 +30,47 @@
       </div>
     </div>
 
-    <SaPageableItems
-      #default="{ item: user }"
-      :page-provider="usersProvider"
-      :reload-on="[freeSearchText]"
+    <SaPageableItemsGql
+      :page-query="usersPageQuery"
+      path="users"
+      :page-query-arguments="{ freeSearchText: freeSearchText || null }"
+      #default="{ item }"
     >
-      <UsersOverviewPanel :user="user as PlatformUserDto" />
-    </SaPageableItems>
+      <UsersOverviewPanel :user="item" />
+    </SaPageableItemsGql>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, PlatformUserDto } from '@/services/api';
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
-  import { usersApi } from '@/services/api/api-client.ts';
+  import { graphql } from '@/services/api/gql';
+  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+
+  const usersPageQuery = graphql(`
+    query usersPage($first: Int!, $after: String, $freeSearchText: String) {
+      users(first: $first, after: $after, freeSearchText: $freeSearchText) {
+        edges {
+          cursor
+          node {
+            id
+            userName
+            admin
+            activated
+          }
+        }
+        pageInfo {
+          ...PaginationPageInfo
+        }
+        totalCount
+      }
+    }
+  `);
 
   const freeSearchText = ref<string | undefined>();
-
-  const usersProvider = async (request: ApiPageRequest, config: RequestInit) => usersApi.getUsers({
-    ...request,
-    freeSearchTextEq: freeSearchText.value,
-  }, config);
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateUserView = () => navigateByViewName('create-new-user');

@@ -6,123 +6,6 @@ servers:
 - url: ""
   description: Generated server url
 paths:
-  /api/users/{userId}:
-    get:
-      tags:
-      - users-api
-      operationId: getUser
-      parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PlatformUserDto"
-    put:
-      tags:
-      - users-api
-      operationId: updateUser
-      parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateUserRequestDto"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PlatformUserDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsersApiUpdateUserErrors"
-  /api/users:
-    get:
-      tags:
-      - users-api
-      operationId: getUsers
-      parameters:
-      - name: sortBy
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - _NOT_SUPPORTED
-      - name: "freeSearchText[eq]"
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: pageNumber
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: pageSize
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: sortOrder
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiPagePlatformUserDto"
-    post:
-      tags:
-      - users-api
-      operationId: createUser
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateUserRequestDto"
-        required: true
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PlatformUserDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UsersApiCreateUserErrors"
   /api/documents/upload/{token}:
     post:
       tags:
@@ -188,47 +71,6 @@ paths:
                   $ref: "#/components/schemas/DataBuffer"
 components:
   schemas:
-    UpdateUserRequestDto:
-      type: object
-      properties:
-        userName:
-          type: string
-          maxLength: 255
-          minLength: 0
-      required:
-      - userName
-    PlatformUserDto:
-      type: object
-      properties:
-        userName:
-          type: string
-        id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int32
-        admin:
-          type: boolean
-        activated:
-          type: boolean
-      required:
-      - activated
-      - admin
-      - userName
-      - version
-    CreateUserRequestDto:
-      type: object
-      properties:
-        userName:
-          type: string
-          maxLength: 255
-          minLength: 0
-        admin:
-          type: boolean
-      required:
-      - admin
-      - userName
     DocumentGqlDto:
       type: object
       properties:
@@ -281,27 +123,6 @@ components:
       - displayName
       - relatedEntityId
       - type
-    ApiPagePlatformUserDto:
-      type: object
-      properties:
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalElements:
-          type: integer
-          format: int64
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/PlatformUserDto"
-      required:
-      - data
-      - pageNumber
-      - pageSize
-      - totalElements
     CurrentUserPushNotificationMessage:
       type: object
       properties:
@@ -311,28 +132,6 @@ components:
       required:
       - eventName
     DataBuffer: {}
-    UsersApiCreateUserErrors:
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyExists
-        message:
-          type: string
-      required:
-      - error
-    UsersApiUpdateUserErrors:
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyExists
-        message:
-          type: string
-      required:
-      - error
     FieldErrorDto:
       type: object
       properties:
