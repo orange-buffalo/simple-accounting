@@ -1,10 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -24,6 +27,11 @@ class EditUserMutationTest(
         object {
             val farnsworth = farnsworth()
             val fry = fry()
+            val fryWorkspace = workspace(owner = fry)
+            val workspaceAccessToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                validTill = MOCK_TIME.plusSeconds(10000),
+            )
         }
     }
 
@@ -41,6 +49,13 @@ class EditUserMutationTest(
         fun `should return NOT_AUTHORIZED error for regular user`() {
             client.graphqlMutation { editUserMutation(id = preconditions.fry.id!!) }
                 .from(preconditions.fry)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.EditUser)
+        }
+
+        @Test
+        fun `should return NOT_AUTHORIZED error for workspace access token`() {
+            client.graphqlMutation { editUserMutation(id = preconditions.fry.id!!) }
+                .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.EditUser)
         }
     }
@@ -83,6 +98,17 @@ class EditUserMutationTest(
                         put("admin", false)
                         put("activated", true)
                     }
+                )
+
+            aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
+                .shouldBeEntityWithFields(
+                    PlatformUser(
+                        userName = "Philip J. Fry",
+                        isAdmin = false,
+                        activated = true,
+                        passwordHash = "",
+                    ),
+                    PlatformUser::passwordHash,
                 )
         }
 

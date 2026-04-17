@@ -18,7 +18,7 @@ class EditUserMutation(
 ) : Mutation {
 
     @Suppress("unused")
-    @GraphQLDescription("Updates an existing user's username. Only accessible by admin users.")
+    @GraphQLDescription("Updates an existing user's username.")
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
     @BusinessError(
         exceptionClass = UserUpdateException.UserAlreadyExistsException::class,

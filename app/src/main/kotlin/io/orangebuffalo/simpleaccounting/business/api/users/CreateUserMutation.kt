@@ -18,7 +18,7 @@ class CreateUserMutation(
 ) : Mutation {
 
     @Suppress("unused")
-    @GraphQLDescription("Creates a new user account. Only accessible by admin users.")
+    @GraphQLDescription("Creates a new user account.")
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
     @BusinessError(
         exceptionClass = UserCreationException.UserAlreadyExistsException::class,

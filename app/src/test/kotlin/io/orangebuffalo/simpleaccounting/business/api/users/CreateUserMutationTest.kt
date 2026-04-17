@@ -1,10 +1,15 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -24,6 +29,11 @@ class CreateUserMutationTest(
         object {
             val farnsworth = farnsworth()
             val fry = fry()
+            val fryWorkspace = workspace(owner = fry)
+            val workspaceAccessToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                validTill = MOCK_TIME.plusSeconds(10000),
+            )
         }
     }
 
@@ -41,6 +51,13 @@ class CreateUserMutationTest(
         fun `should return NOT_AUTHORIZED error for regular user`() {
             client.graphqlMutation { createUserMutation() }
                 .from(preconditions.fry)
+                .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateUser)
+        }
+
+        @Test
+        fun `should return NOT_AUTHORIZED error for workspace access token`() {
+            client.graphqlMutation { createUserMutation() }
+                .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateUser)
         }
     }
@@ -80,6 +97,19 @@ class CreateUserMutationTest(
                         put("activated", false)
                     }
                 )
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.userName == "Leela" }
+                .shouldBeSingle()
+                .shouldBeEntityWithFields(
+                    PlatformUser(
+                        userName = "Leela",
+                        isAdmin = false,
+                        activated = false,
+                        passwordHash = "",
+                    ),
+                    PlatformUser::passwordHash,
+                )
         }
 
         @Test
@@ -95,6 +125,19 @@ class CreateUserMutationTest(
                         put("admin", true)
                         put("activated", false)
                     }
+                )
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.userName == "Wernstrom" }
+                .shouldBeSingle()
+                .shouldBeEntityWithFields(
+                    PlatformUser(
+                        userName = "Wernstrom",
+                        isAdmin = true,
+                        activated = false,
+                        passwordHash = "",
+                    ),
+                    PlatformUser::passwordHash,
                 )
         }
 
