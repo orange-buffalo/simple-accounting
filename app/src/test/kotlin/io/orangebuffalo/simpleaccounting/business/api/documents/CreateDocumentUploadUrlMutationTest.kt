@@ -2,7 +2,9 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.integration.uploads.UploadsRepository
+import io.orangebuffalo.simpleaccounting.business.documents.PersistentUploadRequest
+import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
+import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -23,7 +25,7 @@ import org.springframework.beans.factory.annotation.Value
 @DisplayName("createDocumentUploadUrl mutation")
 class CreateDocumentUploadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val uploadsRepository: UploadsRepository,
+    @Autowired private val tokensRepository: TokensRepository,
     @Value("\${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
@@ -124,7 +126,7 @@ class CreateDocumentUploadUrlMutationTest(
                 )
 
             val storedRequest = runBlocking {
-                uploadsRepository.getRequestByToken("generated-upload-token")
+                tokensRepository.getRequestByToken<PersistentUploadRequest>("generated-upload-token")
             }
             storedRequest.workspaceId.shouldBe(preconditions.fryWorkspace.id)
             storedRequest.userName.shouldBe("Fry")

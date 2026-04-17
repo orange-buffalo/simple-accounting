@@ -9,7 +9,8 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.business.integration.uploads.UploadsRepository
+import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
+import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
@@ -30,7 +31,7 @@ class DocumentsService(
     private val workspacesService: WorkspacesService,
     private val platformUsersService: PlatformUsersService,
     private val downloadsService: DownloadsService,
-    private val uploadsRepository: UploadsRepository,
+    private val tokensRepository: TokensRepository,
     private val tokenGenerator: TokenGenerator,
 ) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
@@ -120,10 +121,11 @@ class DocumentsService(
         val userName = getCurrentPrincipal().userName
         return tokenGenerator.generateToken(tokenLength = 30)
             .also { token ->
-                uploadsRepository.storeUploadRequest(
-                    token = token,
-                    workspaceId = workspaceId,
-                    userName = userName,
+                tokensRepository.storeToken(
+                    token, PersistentUploadRequest(
+                        workspaceId = workspaceId,
+                        userName = userName,
+                    )
                 )
             }
     }
@@ -134,7 +136,7 @@ class DocumentsService(
         content: reactor.core.publisher.Flux<DataBuffer>,
         contentType: String?,
     ): Document {
-        val uploadRequest = uploadsRepository.getRequestByToken(token)
+        val uploadRequest = tokensRepository.getRequestByToken<PersistentUploadRequest>(token)
         val workspace = workspacesService.getWorkspace(uploadRequest.workspaceId)
         val user = platformUsersService.getUserByUserName(uploadRequest.userName)
             ?: throw IllegalStateException("Cannot find user ${uploadRequest.userName}")
@@ -179,4 +181,9 @@ class DocumentsService(
 
 data class DocumentDownloadMetadata(
     val documentId: Long
+)
+
+data class PersistentUploadRequest(
+    val workspaceId: Long,
+    val userName: String,
 )

@@ -4,7 +4,9 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentDownloadMetadata
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsRepository
+import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
+import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.PersistentDownloadRequest
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -25,7 +27,7 @@ import org.springframework.beans.factory.annotation.Value
 @DisplayName("createDocumentDownloadUrl mutation")
 class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val downloadsRepository: DownloadsRepository,
+    @Autowired private val tokensRepository: TokensRepository,
     @Value("\${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
@@ -137,7 +139,7 @@ class CreateDocumentDownloadUrlMutationTest(
                 )
 
             val storedRequest = runBlocking {
-                downloadsRepository.getRequestByToken("generated-download-token")
+                tokensRepository.getRequestByToken<PersistentDownloadRequest>("generated-download-token")
             }
             storedRequest.providerId.shouldBe(DocumentsService::class.simpleName!!)
             storedRequest.metadata.shouldBe(DocumentDownloadMetadata(preconditions.coffeeReceipt.id!!))

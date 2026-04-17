@@ -1,14 +1,16 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.integration.uploads.UploadsRepository
+import io.orangebuffalo.simpleaccounting.business.documents.Document
+import io.orangebuffalo.simpleaccounting.business.documents.PersistentUploadRequest
+import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -26,7 +28,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @DisplayName("Documents Upload API")
 class DocumentsUploadApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val uploadsRepository: UploadsRepository,
+    @Autowired private val tokensRepository: TokensRepository,
 ) : SaIntegrationTestBase() {
 
     @Nested
@@ -116,15 +118,19 @@ class DocumentsUploadApiTest(
                 .exchange()
                 .expectStatus().isOk
 
-            val documents = aggregateTemplate.findAll(io.orangebuffalo.simpleaccounting.business.documents.Document::class.java)
-            documents.shouldHaveSize(1)
-            documents.first().should {
-                it.workspaceId.shouldBe(preconditions.fryWorkspace.id)
-                it.name.shouldBe("test-file.txt")
-                it.storageId.shouldBe("test-storage")
-                it.mimeType.shouldBe("text/plain")
-                it.sizeInBytes.shouldBe(12)
-            }
+            aggregateTemplate.findSingle<Document>()
+                .shouldBeEntityWithFields(
+                    Document(
+                        name = "test-file.txt",
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        timeUploaded = MOCK_TIME,
+                        storageId = "test-storage",
+                        storageLocation = null,
+                        sizeInBytes = 12,
+                        mimeType = "text/plain",
+                    ),
+                    Document::storageLocation,
+                )
         }
     }
 
@@ -133,10 +139,11 @@ class DocumentsUploadApiTest(
     private fun createUploadToken(): String {
         val token = "test-upload-token-${++tokenCounter}"
         runBlocking {
-            uploadsRepository.storeUploadRequest(
-                token = token,
-                workspaceId = preconditions.fryWorkspace.id!!,
-                userName = preconditions.fry.userName,
+            tokensRepository.storeToken(
+                token, PersistentUploadRequest(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    userName = preconditions.fry.userName,
+                )
             )
         }
         return token

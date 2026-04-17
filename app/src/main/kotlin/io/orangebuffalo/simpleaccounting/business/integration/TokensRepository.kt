@@ -34,7 +34,19 @@ class TokensRepository {
         }
     }
 
-    suspend fun getRequestByToken(token: String): Any = mutex.withLock {
-        requestsStorage[token] ?: throw EntityNotFoundException("Token $token is not found")
+    suspend fun <T : Any> getRequestByToken(token: String, type: kotlin.reflect.KClass<T>): T {
+        val request = mutex.withLock {
+            requestsStorage[token] ?: throw EntityNotFoundException("Token $token is not found")
+        }
+        if (!type.isInstance(request)) {
+            throw IllegalStateException(
+                "Token $token has unexpected type ${request::class.simpleName}, expected ${type.simpleName}"
+            )
+        }
+        @Suppress("UNCHECKED_CAST")
+        return request as T
     }
 }
+
+suspend inline fun <reified T : Any> TokensRepository.getRequestByToken(token: String): T =
+    getRequestByToken(token, T::class)
