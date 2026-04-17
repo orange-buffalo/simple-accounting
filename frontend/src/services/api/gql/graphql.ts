@@ -1092,6 +1092,15 @@ export type PlatformUsersConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A push notification message. */
+export type PushNotificationMessage = {
+  __typename?: 'PushNotificationMessage';
+  /** Optional event data payload, serialized as a JSON string. */
+  data?: Maybe<Scalars['String']['output']>;
+  /** The name of the event. */
+  eventName: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -1177,6 +1186,12 @@ export enum SaveSharedWorkspaceErrorCodes {
   /** The provided workspace access token is not valid (unknown, expired, or revoked). */
   InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
 }
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. */
+  pushNotifications: PushNotificationMessage;
+};
 
 /** System-wide settings. */
 export type SystemSettings = {
