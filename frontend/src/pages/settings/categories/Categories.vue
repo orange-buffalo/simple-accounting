@@ -14,19 +14,19 @@
       </ElButton>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       :page-query="categoriesPageQuery"
       path="workspace.categories"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item }"
     >
       <CategoriesOverviewPanel :category="item" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import CategoriesOverviewPanel from '@/pages/settings/categories/CategoriesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';

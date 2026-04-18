@@ -31,14 +31,14 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       #default="{ item: expense }"
       :page-query="expensesPageQuery"
       path="workspace.expenses"
       :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
     >
       <ExpensesOverviewPanel :expense="expense" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
@@ -47,7 +47,7 @@
   import SaIcon from '@/components/SaIcon.vue';
   import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n/i18n-services';
   import { graphql } from '@/services/api/gql';

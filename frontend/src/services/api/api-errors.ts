@@ -1,5 +1,3 @@
-import type { InvalidInputErrorDto, SaApiErrorDto } from '@/services/api/generated';
-
 /**
  * Represents a field-level validation error.
  * This type is independent of REST API generated types to support both REST and GraphQL clients.
@@ -67,45 +65,29 @@ export class ResourceNotFoundError extends ServerApiError {
 export class ApiFieldLevelValidationError extends ServerApiError {
   fieldErrors: Array<FieldError>;
 
-  constructor(fieldErrors: Array<FieldError>, response?: Response);
-  constructor(response: Response, responseBody: InvalidInputErrorDto);
-  constructor(
-    fieldErrorsOrResponse: Array<FieldError> | Response,
-    responseOrBody?: Response | InvalidInputErrorDto,
-  ) {
-    if (Array.isArray(fieldErrorsOrResponse)) {
-      super('Request failed with invalid input', responseOrBody as Response | undefined);
-      this.fieldErrors = fieldErrorsOrResponse;
-    } else {
-      super('Request failed with invalid input', fieldErrorsOrResponse);
-      this.fieldErrors = (responseOrBody as InvalidInputErrorDto).requestErrors;
-    }
+  constructor(fieldErrors: Array<FieldError>, response?: Response) {
+    super('Request failed with invalid input', response);
+    this.fieldErrors = fieldErrors;
     this.name = 'ApiFieldLevelValidationError';
   }
+}
+
+export interface ApiErrorInfo {
+  error: string;
+  message?: string;
 }
 
 /**
  * Indicates a business error (400 HTTP status with custom body for REST, or BUSINESS_ERROR error type for GraphQL).
  */
 export class ApiBusinessError extends ServerApiError {
-  error: SaApiErrorDto;
+  error: ApiErrorInfo;
 
   extensions: Record<string, unknown>;
 
-  constructor(error: SaApiErrorDto, response?: Response);
-  constructor(response: Response, error: SaApiErrorDto);
-  constructor(
-    errorOrResponse: SaApiErrorDto | Response,
-    responseOrError?: Response | SaApiErrorDto,
-  ) {
-    if (errorOrResponse instanceof Response) {
-      const error = responseOrError as SaApiErrorDto;
-      super(`Business error: ${error.error}`, errorOrResponse);
-      this.error = error;
-    } else {
-      super(`Business error: ${errorOrResponse.error}`, responseOrError as Response | undefined);
-      this.error = errorOrResponse;
-    }
+  constructor(error: ApiErrorInfo, response?: Response) {
+    super(`Business error: ${error.error}`, response);
+    this.error = error;
     this.name = 'ApiBusinessError';
     this.extensions = {};
   }
@@ -114,7 +96,7 @@ export class ApiBusinessError extends ServerApiError {
     return this.extensions as T;
   }
 
-  errorAs<T extends SaApiErrorDto>(): T {
+  errorAs<T extends ApiErrorInfo>(): T {
     return this.error as T;
   }
 }

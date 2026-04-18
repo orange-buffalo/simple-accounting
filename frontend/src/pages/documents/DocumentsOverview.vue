@@ -12,19 +12,19 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       :page-query="documentsPageQuery"
       path="workspace.documents"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item }"
     >
       <DocumentsOverviewPanel :document="item" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';

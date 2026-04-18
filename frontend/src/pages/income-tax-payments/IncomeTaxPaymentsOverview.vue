@@ -19,19 +19,19 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       :page-query="incomeTaxPaymentsPageQuery"
       path="workspace.incomeTaxPayments"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item: taxPayment }"
     >
       <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
   import useNavigation from '@/services/use-navigation';

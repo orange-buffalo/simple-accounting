@@ -1,13 +1,13 @@
 import { FormItemContext } from 'element-plus';
 import { $t } from '@/services/i18n';
-import { FieldErrorDto } from '@/services/api';
-import { FieldError } from '@/components/form/sa-form-api.ts';
+import { FieldError } from '@/services/api/api-errors.ts';
+import { FieldError as ClientFieldError } from '@/components/form/sa-form-api.ts';
 
 /**
  * Sets form item errors based on the API response.
  */
 export function setFieldsErrorsFromApiResponse(
-  apiFieldErrors: FieldErrorDto[],
+  apiFieldErrors: FieldError[],
   formItems: Map<string, FormItemContext>,
 ) {
   setFieldErrorsFromClientSideValidation(
@@ -23,7 +23,7 @@ export function setFieldsErrorsFromApiResponse(
  * Sets form item errors based on the client-side validation.
  */
 export function setFieldErrorsFromClientSideValidation(
-  fieldErrors: FieldError[],
+  fieldErrors: ClientFieldError[],
   formItems: Map<string, FormItemContext>,
 ) {
   fieldErrors.forEach((fieldError) => {
@@ -42,7 +42,7 @@ export function setFieldErrorsFromClientSideValidation(
  * Translates field validation messages from the API response into UI messages, taking current user locale into
  * account. In case there is no mapping defined, fallbacks to API-provided non-localized message.
  */
-function getApiFieldErrorMessage(fieldError: FieldErrorDto) {
+function getApiFieldErrorMessage(fieldError: FieldError) {
   switch (fieldError.error) {
   case 'SizeConstraintViolated':
     return (fieldError.params?.min && (Number(fieldError.params.min) > 1))

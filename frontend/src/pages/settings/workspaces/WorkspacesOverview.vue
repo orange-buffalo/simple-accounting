@@ -16,14 +16,14 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       ref="pageableItems"
       :page-query="workspacesPageQuery"
       path="workspaces"
       #default="{ item }"
     >
       <WorkspacesOverviewItemPanel :workspace="item" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
@@ -32,7 +32,7 @@
   import useNavigation from '@/services/use-navigation';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
   import { graphql } from '@/services/api/gql';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
   const workspacesPageQuery = graphql(`
     query workspacesPage($first: Int!, $after: String) {
