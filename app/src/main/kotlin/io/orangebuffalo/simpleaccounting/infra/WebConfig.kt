@@ -25,6 +25,8 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
@@ -75,8 +77,8 @@ class WebConfig : WebFluxConfigurer {
                     .matchers(EndpointRequest.to(HealthEndpoint::class.java)).permitAll()
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
                     .pathMatchers("/api/graphql/**").permitAll()
-                    .pathMatchers("/api/documents/download/**").permitAll()
-                    .pathMatchers("/api/documents/upload/**").permitAll()
+                    .pathMatchers("/api/documents/**").permitAll()
+                    .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/**").permitAll()
             }
             .exceptionHandling { exceptionHandling ->
@@ -110,13 +112,17 @@ class WebConfig : WebFluxConfigurer {
         jwtTokenAuthenticationConverter: JwtTokenAuthenticationConverter
     ): AuthenticationWebFilter {
 
-        // JWT auth is attempted for all /api/** paths. For endpoints that are explicitly
-        // permitAll() (e.g. /api/graphql/**, document upload/download), a valid token is
-        // optional: if present it populates the security context for use by @RequiredAuth;
-        // if absent the request still proceeds unauthenticated. A malformed token always
-        // results in 401 regardless of the authorization rules.
+        // JWT auth is attempted for all authenticated /api/** paths, excluding document
+        // upload/download endpoints which use their own token-based auth mechanism and
+        // never carry a JWT. This ensures a malformed token on those paths does not cause
+        // a 401; authorization within GraphQL resolvers is handled by @RequiredAuth.
         return AuthenticationWebFilter(authenticationManager).apply {
-            setRequiresAuthenticationMatcher(pathMatchers("/api/**"))
+            setRequiresAuthenticationMatcher(
+                AndServerWebExchangeMatcher(
+                    pathMatchers("/api/**"),
+                    NegatedServerWebExchangeMatcher(pathMatchers("/api/documents/**")),
+                )
+            )
             setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
             setAuthenticationFailureHandler(
                 ServerAuthenticationEntryPointFailureHandler(bearerAuthenticationEntryPoint())
