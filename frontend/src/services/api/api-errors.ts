@@ -72,7 +72,7 @@ export class ApiFieldLevelValidationError extends ServerApiError {
   }
 }
 
-export interface ApiErrorInfo {
+export interface ApiBusinessErrorInfo {
   error: string;
   message?: string;
 }
@@ -81,11 +81,11 @@ export interface ApiErrorInfo {
  * Indicates a business error (400 HTTP status with custom body for REST, or BUSINESS_ERROR error type for GraphQL).
  */
 export class ApiBusinessError extends ServerApiError {
-  error: ApiErrorInfo;
+  error: ApiBusinessErrorInfo;
 
   extensions: Record<string, unknown>;
 
-  constructor(error: ApiErrorInfo, response?: Response) {
+  constructor(error: ApiBusinessErrorInfo, response?: Response) {
     super(`Business error: ${error.error}`, response);
     this.error = error;
     this.name = 'ApiBusinessError';
@@ -96,7 +96,7 @@ export class ApiBusinessError extends ServerApiError {
     return this.extensions as T;
   }
 
-  errorAs<T extends ApiErrorInfo>(): T {
+  errorAs<T extends ApiBusinessErrorInfo>(): T {
     return this.error as T;
   }
 }
