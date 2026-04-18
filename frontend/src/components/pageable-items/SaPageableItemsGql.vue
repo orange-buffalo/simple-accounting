@@ -69,7 +69,7 @@
   generic="TResponse, TPath extends string, TVariables extends PageVars = PageVars"
 >
   import {
-    computed, ref, shallowRef, watch,
+    computed, onBeforeUnmount, ref, shallowRef, watch,
   } from 'vue';
   import { throttle } from 'lodash';
   import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
@@ -206,6 +206,10 @@
     reloadData();
   }, {
     immediate: true,
+  });
+
+  onBeforeUnmount(() => {
+    reloadData.cancel();
   });
 
   const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
