@@ -35,20 +35,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentGqlDto"
-  /api/push-notifications:
-    get:
-      tags:
-      - push-notifications-api
-      operationId: getPushNotificationMessages
-      responses:
-        "200":
-          description: OK
-          content:
-            text/event-stream:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CurrentUserPushNotificationMessage"
   /api/documents/download/{token}:
     get:
       tags:
@@ -123,14 +109,6 @@ components:
       - displayName
       - relatedEntityId
       - type
-    CurrentUserPushNotificationMessage:
-      type: object
-      properties:
-        eventName:
-          type: string
-        data: {}
-      required:
-      - eventName
     DataBuffer: {}
     FieldErrorDto:
       type: object

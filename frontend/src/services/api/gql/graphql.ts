@@ -1092,6 +1092,15 @@ export type PlatformUsersConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A push notification message. */
+export type PushNotificationMessage = {
+  __typename?: 'PushNotificationMessage';
+  /** Optional event data payload, serialized as a JSON string. */
+  data?: Maybe<Scalars['String']['output']>;
+  /** The name of the event. */
+  eventName: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -1177,6 +1186,12 @@ export enum SaveSharedWorkspaceErrorCodes {
   /** The provided workspace access token is not valid (unknown, expired, or revoked). */
   InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
 }
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
+  pushNotifications: PushNotificationMessage;
+};
 
 /** System-wide settings. */
 export type SystemSettings = {
@@ -2242,6 +2257,11 @@ export type CreateAccessTokenByWorkspaceAccessTokenMutationVariables = Exact<{
 
 export type CreateAccessTokenByWorkspaceAccessTokenMutation = { __typename?: 'Mutation', createAccessTokenByWorkspaceAccessToken: { __typename?: 'CreateAccessTokenByWorkspaceAccessTokenResponse', accessToken: string, workspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } } };
 
+export type PushNotificationsSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PushNotificationsSubscriptionSubscription = { __typename?: 'Subscription', pushNotifications: { __typename?: 'PushNotificationMessage', eventName: string, data?: string | null } };
+
 export type AllWorkspacesQueryVariables = Exact<{
   first: Scalars['Int']['input'];
 }>;
@@ -2339,6 +2359,7 @@ export const CreateWorkspaceAccessTokenPanelDocument = {"kind":"Document","defin
 export const RefreshAccessTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"refreshAccessToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshAccessToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}}]}}]}}]} as unknown as DocumentNode<RefreshAccessTokenMutation, RefreshAccessTokenMutationVariables>;
 export const CreateAccessTokenByCredentialsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createAccessTokenByCredentials"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"issueRefreshTokenCookie"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createAccessTokenByCredentials"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userName"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}},{"kind":"Argument","name":{"kind":"Name","value":"issueRefreshTokenCookie"},"value":{"kind":"Variable","name":{"kind":"Name","value":"issueRefreshTokenCookie"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}}]}}]}}]} as unknown as DocumentNode<CreateAccessTokenByCredentialsMutation, CreateAccessTokenByCredentialsMutationVariables>;
 export const CreateAccessTokenByWorkspaceAccessTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createAccessTokenByWorkspaceAccessToken"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceAccessToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createAccessTokenByWorkspaceAccessToken"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"workspaceAccessToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceAccessToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"workspace"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]}}]} as unknown as DocumentNode<CreateAccessTokenByWorkspaceAccessTokenMutation, CreateAccessTokenByWorkspaceAccessTokenMutationVariables>;
+export const PushNotificationsSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"pushNotificationsSubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pushNotifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"eventName"}},{"kind":"Field","name":{"kind":"Name","value":"data"}}]}}]}}]} as unknown as DocumentNode<PushNotificationsSubscriptionSubscription, PushNotificationsSubscriptionSubscriptionVariables>;
 export const AllWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"allWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AllWorkspacesQuery, AllWorkspacesQueryVariables>;
 export const WorkspaceByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"workspaceById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Long"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"defaultCurrency"}}]}}]}}]} as unknown as DocumentNode<WorkspaceByIdQuery, WorkspaceByIdQueryVariables>;
 export const UserProfileBootstrapDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userProfileBootstrap"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18n"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}}]}}]}}]}}]} as unknown as DocumentNode<UserProfileBootstrapQuery, UserProfileBootstrapQueryVariables>;

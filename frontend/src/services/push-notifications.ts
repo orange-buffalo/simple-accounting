@@ -1,6 +1,7 @@
-import { EventSourcePolyfill } from 'event-source-polyfill';
-import type { CurrentUserPushNotificationMessage } from '@/services/api';
 import { useAuth } from '@/services/api';
+import { graphql } from '@/services/api/gql';
+import { print } from 'graphql';
+import type { PushNotificationsSubscriptionSubscription } from '@/services/api/gql/graphql';
 
 export type PushNotificationListenerCallback<T = unknown> = (data: T) => void;
 
@@ -9,7 +10,16 @@ interface PushNotificationListener<T = undefined> {
   readonly callback: PushNotificationListenerCallback<T>,
 }
 
-let eventSource: EventSourcePolyfill | undefined;
+const pushNotificationsSubscription = graphql(/* GraphQL */ `
+  subscription pushNotificationsSubscription {
+    pushNotifications {
+      eventName
+      data
+    }
+  }
+`);
+
+let ws: WebSocket | undefined;
 let eventListeners: Array<PushNotificationListener<unknown>> = [];
 
 function notifyListeners(eventName: string, data: unknown) {
@@ -24,31 +34,54 @@ const {
 } = useAuth();
 
 function init() {
-  eventSource = new EventSourcePolyfill('/api/push-notifications', {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/api/graphql/subscriptions`;
+
+  ws = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+  ws.addEventListener('open', () => {
+    ws?.send(JSON.stringify({
+      type: 'connection_init',
+      payload: { token: getToken() },
+    }));
   });
 
-  eventSource.addEventListener('message', (event) => {
-    const message: CurrentUserPushNotificationMessage = JSON.parse(event.data);
-    notifyListeners(message.eventName, message.data);
+  ws.addEventListener('message', (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === 'connection_ack') {
+      ws?.send(JSON.stringify({
+        id: '1',
+        type: 'subscribe',
+        payload: {
+          query: print(pushNotificationsSubscription),
+        },
+      }));
+    } else if (message.type === 'next') {
+      const payload = message.payload as { data?: PushNotificationsSubscriptionSubscription };
+      const notification = payload?.data?.pushNotifications;
+      if (notification) {
+        const data = notification.data != null ? JSON.parse(notification.data) : undefined;
+        notifyListeners(notification.eventName, data);
+      }
+    }
   });
 
-  eventSource.addEventListener('error', async (event: any) => {
-    if (event.status && event.status === 401 && eventSource) {
-      eventSource.close();
+  ws.addEventListener('close', async () => {
+    ws = undefined;
+    if (eventListeners.length > 0) {
       if (await tryAutoLogin()) {
         init();
       }
-    } else if (eventSource && eventSource.readyState === EventSource.CLOSED) {
-      eventSource = undefined;
     }
+  });
+
+  ws.addEventListener('error', () => {
+    ws?.close();
   });
 }
 
 export function subscribeToPushNotifications<T>(eventName: string, callback: PushNotificationListenerCallback<T>) {
-  if (!eventSource) {
+  if (!ws) {
     init();
   }
   eventListeners.push({
@@ -61,9 +94,9 @@ export function unsubscribeFromPushNotifications<T>(eventName: string, callback:
   eventListeners = eventListeners
     .filter((it) => it.eventName !== eventName || it.callback !== callback);
 
-  if (eventListeners.length === 0 && eventSource) {
-    eventSource.close();
-    eventSource = undefined;
+  if (eventListeners.length === 0 && ws) {
+    ws.close();
+    ws = undefined;
   }
 }
 

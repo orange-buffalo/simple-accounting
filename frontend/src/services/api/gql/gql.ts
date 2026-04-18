@@ -92,6 +92,7 @@ type Documents = {
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": typeof types.RefreshAccessTokenDocument,
     "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": typeof types.CreateAccessTokenByCredentialsDocument,
     "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n      workspace {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  }\n": typeof types.CreateAccessTokenByWorkspaceAccessTokenDocument,
+    "\n  subscription pushNotificationsSubscription {\n    pushNotifications {\n      eventName\n      data\n    }\n  }\n": typeof types.PushNotificationsSubscriptionDocument,
     "\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n": typeof types.AllWorkspacesDocument,
     "\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n": typeof types.WorkspaceByIdDocument,
     "\n  query userProfileBootstrap {\n    userProfile {\n      i18n {\n        language\n        locale\n      }\n    }\n  }\n": typeof types.UserProfileBootstrapDocument,
@@ -175,6 +176,7 @@ const documents: Documents = {
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": types.RefreshAccessTokenDocument,
     "\n  mutation createAccessTokenByCredentials(\n    $userName: String!\n    $password: String!\n    $issueRefreshTokenCookie: Boolean\n  ) {\n    createAccessTokenByCredentials(\n      userName: $userName\n      password: $password\n      issueRefreshTokenCookie: $issueRefreshTokenCookie\n    ) {\n      accessToken\n    }\n  }\n": types.CreateAccessTokenByCredentialsDocument,
     "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n      workspace {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  }\n": types.CreateAccessTokenByWorkspaceAccessTokenDocument,
+    "\n  subscription pushNotificationsSubscription {\n    pushNotifications {\n      eventName\n      data\n    }\n  }\n": types.PushNotificationsSubscriptionDocument,
     "\n  query allWorkspaces($first: Int!) {\n    workspaces(first: $first) {\n      edges {\n        node {\n          id\n          name\n          defaultCurrency\n        }\n      }\n    }\n  }\n": types.AllWorkspacesDocument,
     "\n  query workspaceById($id: Long!) {\n    workspace(id: $id) {\n      id\n      name\n      defaultCurrency\n    }\n  }\n": types.WorkspaceByIdDocument,
     "\n  query userProfileBootstrap {\n    userProfile {\n      i18n {\n        language\n        locale\n      }\n    }\n  }\n": types.UserProfileBootstrapDocument,
@@ -506,6 +508,10 @@ export function graphql(source: "\n  mutation createAccessTokenByCredentials(\n 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n      workspace {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createAccessTokenByWorkspaceAccessToken(\n    $workspaceAccessToken: String!\n  ) {\n    createAccessTokenByWorkspaceAccessToken(\n      workspaceAccessToken: $workspaceAccessToken\n    ) {\n      accessToken\n      workspace {\n        id\n        name\n        defaultCurrency\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  subscription pushNotificationsSubscription {\n    pushNotifications {\n      eventName\n      data\n    }\n  }\n"): (typeof documents)["\n  subscription pushNotificationsSubscription {\n    pushNotifications {\n      eventName\n      data\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
