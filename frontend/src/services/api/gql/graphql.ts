@@ -1189,7 +1189,7 @@ export enum SaveSharedWorkspaceErrorCodes {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. */
+  /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
   pushNotifications: PushNotificationMessage;
 };
 
