@@ -1,14 +1,20 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import kotlinx.coroutines.flow.Flow
+import mu.KotlinLogging
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/documents")
@@ -39,5 +45,13 @@ class DocumentsContentApi(
             contentType = filePart.headers().contentType?.toString(),
         )
         return document.toGqlDto()
+    }
+
+    @ExceptionHandler
+    fun onEntityNotFoundException(exception: EntityNotFoundException): Mono<ResponseEntity<String>> {
+        logger.trace(exception) {}
+        return Mono.just(
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.message)
+        )
     }
 }
