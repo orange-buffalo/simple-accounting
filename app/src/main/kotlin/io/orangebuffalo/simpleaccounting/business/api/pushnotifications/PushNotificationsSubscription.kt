@@ -24,7 +24,11 @@ class PushNotificationsSubscription(
     @GraphQLDescription(
         "Subscribes to push notifications for the current user. " +
                 "Returns a stream of push notification messages targeted at the authenticated user " +
-                "or broadcast to all users."
+                "or broadcast to all users. " +
+                "Uses the `graphql-transport-ws` WebSocket subprotocol. " +
+                "Clients must provide a JWT token in the `connection_init` payload: " +
+                "`{ \"type\": \"connection_init\", \"payload\": { \"token\": \"<JWT>\" } }`. " +
+                "Once `connection_ack` is received, subscribe with a standard `subscribe` message."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     fun pushNotifications(env: DataFetchingEnvironment): Flow<PushNotificationMessage> {

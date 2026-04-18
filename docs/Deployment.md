@@ -17,6 +17,27 @@ For example, if the application is behind a reverse proxy at `https://accounting
 
 If running locally on the default port, use `http://localhost:9393`.
 
+### Reverse proxy
+
+If Simple Accounting is deployed behind a reverse proxy (e.g. Nginx, Traefik, HAProxy), you need to ensure the proxy
+supports **WebSocket connections** at the `/api/graphql/subscriptions` path. This path is used by the application
+for real-time push notifications via the `graphql-transport-ws` subprotocol.
+
+For Nginx, add the following to the relevant `location` block:
+
+```nginx
+location /api/graphql/subscriptions {
+    proxy_pass http://backend;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+Most modern reverse proxies and cloud load balancers support WebSocket upgrade out of the box, but it may need
+to be enabled explicitly.
+
 ### Database
 
 Simple Accounting uses H2 database with file-based persistence. The database file is stored in `/data` directory.

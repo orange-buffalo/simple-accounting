@@ -1,4 +1,7 @@
 import { useAuth } from '@/services/api';
+import { graphql } from '@/services/api/gql';
+import { print } from 'graphql';
+import type { PushNotificationsSubscriptionSubscription } from '@/services/api/gql/graphql';
 
 export type PushNotificationListenerCallback<T = unknown> = (data: T) => void;
 
@@ -6,6 +9,15 @@ interface PushNotificationListener<T = undefined> {
   readonly eventName: string,
   readonly callback: PushNotificationListenerCallback<T>,
 }
+
+const pushNotificationsSubscription = graphql(/* GraphQL */ `
+  subscription pushNotificationsSubscription {
+    pushNotifications {
+      eventName
+      data
+    }
+  }
+`);
 
 let ws: WebSocket | undefined;
 let eventListeners: Array<PushNotificationListener<unknown>> = [];
@@ -41,11 +53,12 @@ function init() {
         id: '1',
         type: 'subscribe',
         payload: {
-          query: 'subscription { pushNotifications { eventName data } }',
+          query: print(pushNotificationsSubscription),
         },
       }));
     } else if (message.type === 'next') {
-      const notification = message.payload?.data?.pushNotifications;
+      const payload = message.payload as { data?: PushNotificationsSubscriptionSubscription };
+      const notification = payload?.data?.pushNotifications;
       if (notification) {
         const data = notification.data != null ? JSON.parse(notification.data) : undefined;
         notifyListeners(notification.eventName, data);
