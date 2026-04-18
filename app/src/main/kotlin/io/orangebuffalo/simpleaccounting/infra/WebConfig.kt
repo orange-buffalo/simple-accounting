@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.infra
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Qualifier
@@ -12,7 +11,6 @@ import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
@@ -27,14 +25,9 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
-import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
-import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
@@ -82,12 +75,8 @@ class WebConfig : WebFluxConfigurer {
                     .matchers(EndpointRequest.to(HealthEndpoint::class.java)).permitAll()
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
                     .pathMatchers("/api/graphql/**").permitAll()
-                    .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/documents/download/**").permitAll()
                     .pathMatchers("/api/documents/upload/**").permitAll()
-                    .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()
-                    .pathMatchers("/api/users/**").hasRole(SaUserRoles.ADMIN)
-                    .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/**").permitAll()
             }
             .exceptionHandling { exceptionHandling ->
@@ -122,12 +111,7 @@ class WebConfig : WebFluxConfigurer {
     ): AuthenticationWebFilter {
 
         return AuthenticationWebFilter(authenticationManager).apply {
-            setRequiresAuthenticationMatcher(
-                AndServerWebExchangeMatcher(
-                    pathMatchers("/api/**"),
-                    NegatedServerWebExchangeMatcher(pathMatchers("/api/auth/**"))
-                )
-            )
+            setRequiresAuthenticationMatcher(pathMatchers("/api/**"))
             setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
             setAuthenticationFailureHandler(
                 ServerAuthenticationEntryPointFailureHandler(bearerAuthenticationEntryPoint())
@@ -139,22 +123,3 @@ class WebConfig : WebFluxConfigurer {
     fun spaWebFilter() = SpaWebFilter()
 
 }
-
-private fun userActivationTokensApiControllerPublicEndpointsMatcher() = OrServerWebExchangeMatcher(
-    // activateUser
-    pathMatchers(HttpMethod.POST, "/api/user-activation-tokens/*/activate"),
-    // getToken but the one for anonymous users (without a parameter)
-    AndServerWebExchangeMatcher(
-        pathMatchers(HttpMethod.GET, "/api/user-activation-tokens/*"),
-        object : ServerWebExchangeMatcher {
-            override fun matches(exchange: ServerWebExchange): Mono<ServerWebExchangeMatcher.MatchResult> {
-                val match = exchange.request.queryParams["by"] == null
-                return if (match) {
-                    ServerWebExchangeMatcher.MatchResult.match()
-                } else {
-                    ServerWebExchangeMatcher.MatchResult.notMatch()
-                }
-            }
-        }
-    )
-)

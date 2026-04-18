@@ -48,7 +48,7 @@ dependencies {
 
     implementation(libs.jooq)
     implementation(libs.jjwt.api)
-    implementation(libs.springdocOpenapi.starterCommon)
+    implementation(libs.commonsLang3)
     implementation(libs.graphqlKotlin.springServer)
 
     implementation(libs.ktor.clientCore)
@@ -90,7 +90,6 @@ dependencies {
     testImplementation(libs.kotest.assertionsPlaywright)
     testImplementation(libs.dsgCodegen.core)
 
-    testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
     mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
