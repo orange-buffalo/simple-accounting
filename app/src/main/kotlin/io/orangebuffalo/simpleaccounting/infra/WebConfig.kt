@@ -3,34 +3,22 @@ package io.orangebuffalo.simpleaccounting.infra
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.orangebuffalo.simpleaccounting.business.security.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest
 import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
-import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
-import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.ServerAuthenticationEntryPoint
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter
-import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
-import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
-import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
 @Configuration
@@ -65,11 +53,7 @@ class WebConfig : WebFluxConfigurer {
     }
 
     @Bean
-    fun securityWebFilterChain(
-        http: ServerHttpSecurity,
-        @Qualifier("jwtTokenAuthenticationFilter") jwtTokenAuthenticationFilter: AuthenticationWebFilter
-    ): SecurityWebFilterChain {
-
+    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
             .authorizeExchange { authorizeExchange ->
@@ -78,56 +62,13 @@ class WebConfig : WebFluxConfigurer {
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
                     .pathMatchers("/api/graphql/**").permitAll()
                     .pathMatchers("/api/documents/**").permitAll()
-                    .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/**").permitAll()
             }
-            .exceptionHandling { exceptionHandling ->
-                exceptionHandling
-                    .authenticationEntryPoint(bearerAuthenticationEntryPoint())
-            }
-            .addFilterAt(jwtTokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .csrf { csrf -> csrf.disable() }
             .httpBasic { httpBasic -> httpBasic.disable() }
             .formLogin { formLogin -> formLogin.disable() }
             .logout { logout -> logout.disable() }
             .build()
-    }
-
-    private fun bearerAuthenticationEntryPoint() = ServerAuthenticationEntryPoint { exchange, _ ->
-        Mono.fromRunnable {
-            val response = exchange.response
-            response.statusCode = HttpStatus.UNAUTHORIZED
-            response.headers.set("WWW-Authenticate", "Bearer")
-        }
-    }
-
-    @Bean
-    fun jwtTokenAuthenticationConverter(): JwtTokenAuthenticationConverter {
-        return JwtTokenAuthenticationConverter()
-    }
-
-    @Bean
-    fun jwtTokenAuthenticationFilter(
-        authenticationManager: ReactiveAuthenticationManager,
-        jwtTokenAuthenticationConverter: JwtTokenAuthenticationConverter
-    ): AuthenticationWebFilter {
-
-        // JWT auth is attempted for all authenticated /api/** paths, excluding document
-        // upload/download endpoints which use their own token-based auth mechanism and
-        // never carry a JWT. This ensures a malformed token on those paths does not cause
-        // a 401; authorization within GraphQL resolvers is handled by @RequiredAuth.
-        return AuthenticationWebFilter(authenticationManager).apply {
-            setRequiresAuthenticationMatcher(
-                AndServerWebExchangeMatcher(
-                    pathMatchers("/api/**"),
-                    NegatedServerWebExchangeMatcher(pathMatchers("/api/documents/**")),
-                )
-            )
-            setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
-            setAuthenticationFailureHandler(
-                ServerAuthenticationEntryPointFailureHandler(bearerAuthenticationEntryPoint())
-            )
-        }
     }
 
     @Bean
