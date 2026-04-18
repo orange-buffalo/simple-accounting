@@ -110,6 +110,11 @@ class WebConfig : WebFluxConfigurer {
         jwtTokenAuthenticationConverter: JwtTokenAuthenticationConverter
     ): AuthenticationWebFilter {
 
+        // JWT auth is attempted for all /api/** paths. For endpoints that are explicitly
+        // permitAll() (e.g. /api/graphql/**, document upload/download), a valid token is
+        // optional: if present it populates the security context for use by @RequiredAuth;
+        // if absent the request still proceeds unauthenticated. A malformed token always
+        // results in 401 regardless of the authorization rules.
         return AuthenticationWebFilter(authenticationManager).apply {
             setRequiresAuthenticationMatcher(pathMatchers("/api/**"))
             setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
