@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentDownloadMetadata
@@ -11,9 +12,13 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -23,11 +28,18 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.ContentDisposition
+import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import java.nio.charset.StandardCharsets
 
 @DisplayName("createDocumentDownloadUrl mutation")
 class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val tokensRepository: TokensRepository,
+    @Autowired private val webTestClient: WebTestClient,
+    @Autowired private val testDocumentsStorage: TestDocumentsStorage,
     @Value("\${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
@@ -183,6 +195,68 @@ class CreateDocumentDownloadUrlMutationTest(
                 }
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+        }
+
+        @Test
+        fun `should allow anonymous download of document content via generated URL`() {
+            val documentContent = "Good news, everyone! Dark matter delivery receipt"
+            val downloadPreconditions = preconditions {
+                object {
+                    val leela = platformUser(
+                        userName = "Leela",
+                        documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                    )
+                    val workspace = workspace(owner = leela)
+                    val document = document(
+                        workspace = workspace,
+                        name = "dark-matter-receipt.pdf",
+                        storageId = TestDocumentsStorage.STORAGE_ID,
+                        storageLocation = "leela-receipt-location",
+                        sizeInBytes = documentContent.toByteArray().size.toLong(),
+                        mimeType = "application/pdf",
+                    )
+                }
+            }
+            testDocumentsStorage.mockDocumentContent(
+                "leela-receipt-location",
+                documentContent.toByteArray(),
+            )
+
+            val mutationResponseBody = client
+                .graphqlMutation {
+                    createDocumentDownloadUrlMutation(
+                        workspaceId = downloadPreconditions.workspace.id!!,
+                        documentId = downloadPreconditions.document.id!!,
+                    )
+                }
+                .from(downloadPreconditions.leela)
+                .execute()
+                .expectStatus().isOk
+                .expectBody<String>()
+                .returnResult()
+                .responseBody
+                .shouldNotBeNull()
+
+            val downloadUrl = Json.parseToJsonElement(mutationResponseBody)
+                .jsonObject["data"]?.jsonObject
+                ?.get("createDocumentDownloadUrl")?.jsonObject
+                ?.get("url")?.jsonPrimitive?.content
+                .shouldNotBeNull()
+            val downloadPath = downloadUrl.removePrefix("http://localhost:$serverPort")
+
+            webTestClient.get()
+                .uri(downloadPath)
+                .exchange()
+                .expectStatus().isOk
+                .expectHeader().contentDisposition(
+                    ContentDisposition.parse("attachment; filename=\"dark-matter-receipt.pdf\"")
+                )
+                .expectHeader().contentType(MediaType.APPLICATION_PDF)
+                .expectBody()
+                .consumeWith { downloadResponse ->
+                    val downloadedContent = downloadResponse.responseBody.shouldNotBeNull()
+                    String(downloadedContent, StandardCharsets.UTF_8).shouldBe(documentContent)
+                }
         }
     }
 
