@@ -30,14 +30,14 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       :page-query="usersPageQuery"
       path="users"
       :page-query-arguments="{ freeSearchText: freeSearchText || null }"
       #default="{ item }"
     >
       <UsersOverviewPanel :user="item" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
@@ -48,7 +48,7 @@
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
   const usersPageQuery = graphql(`
     query usersPage($first: Int!, $after: String, $freeSearchText: String) {

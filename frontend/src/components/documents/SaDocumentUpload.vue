@@ -49,13 +49,18 @@
   import Dropzone from 'dropzone';
   import SaIcon from '@/components/SaIcon.vue';
   import SaDocument from '@/components/documents/SaDocument.vue';
-  import type { DocumentGqlDto } from '@/services/api';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
   Dropzone.autoDiscover = false;
+
+  export interface UploadedDocumentDto {
+    id: number;
+    name: string;
+    sizeInBytes?: number;
+  }
 
   const props = defineProps<{
     documentId?: number,
@@ -66,10 +71,10 @@
   const emit = defineEmits<{(e: 'document-removed'): void,
                             (e: 'document-selected'): void,
                             (e: 'upload-failed', error: string | Error): void,
-                            (e: 'upload-completed', document: DocumentGqlDto): void,
+                            (e: 'upload-completed', document: UploadedDocumentDto): void,
   }>();
 
-  const document = ref<Partial<DocumentGqlDto>>({
+  const document = ref<Partial<UploadedDocumentDto>>({
     id: props.documentId,
     name: props.documentName,
     sizeInBytes: props.documentSizeInBytes,
@@ -173,8 +178,8 @@
 
       dropzone.on('success', (file, response) => {
         uploading.value = false;
-        document.value = response as DocumentGqlDto;
-        emit('upload-completed', document.value as DocumentGqlDto);
+        document.value = response as UploadedDocumentDto;
+        emit('upload-completed', document.value as UploadedDocumentDto);
       });
     }
   });

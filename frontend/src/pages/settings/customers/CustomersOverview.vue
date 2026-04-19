@@ -18,14 +18,14 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       :page-query="customersPageQuery"
       path="workspace.customers"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item }"
     >
       <CustomersOverviewPanel :customer="item" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
@@ -36,7 +36,7 @@
   import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
   const customersPageQuery = graphql(`
     query customersPage($workspaceId: Long!, $first: Int!, $after: String) {

@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       ref="pageableItemsRef"
       #default="{ item: invoice }"
       :page-query="invoicesPageQuery"
@@ -40,14 +40,14 @@
       :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: invoicesFilter || null }"
     >
       <InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { Search } from '@element-plus/icons-vue';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
   import useNavigation from '@/services/use-navigation';

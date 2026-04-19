@@ -18,7 +18,6 @@ import net.javacrumbs.jsonunit.kotest.equalJson
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import reactor.test.StepVerifier
 
 fun WebTestClient.ResponseSpec.expectThatJsonBody(
     spec: String.() -> Unit
@@ -42,67 +41,15 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String) = e
     .expectStatus().isNotFound
     .expectBody<String>().isEqualTo(errorMessage)
 
-fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
-    spec: String.() -> Unit
-) = exchange()
-    .expectStatus().isOk
-    .expectThatJsonBody(spec)
-
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
     spec: JsonObjectBuilder.() -> Unit
 ) {
-    verifyOkAndJsonBody {
-        shouldBeEqualToJson(spec = spec)
-    }
-}
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyCreatedAndJsonBodyEqualTo(
-    spec: JsonObjectBuilder.() -> Unit
-) {
     exchange()
-        .expectStatus().isCreated
+        .expectStatus().isOk
         .expectThatJsonBody {
             shouldBeEqualToJson(spec = spec)
         }
 }
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
-    jsonBody: String
-) = verifyOkAndJsonBody {
-    shouldBeEqualToJson(jsonBody)
-}
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
-    spec: String.() -> Unit
-) = exchange()
-    .expectStatus().isBadRequest
-    .expectThatJsonBody(spec)
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
-    jsonBody: String
-) = verifyBadRequestAndJsonBody {
-    shouldBeEqualToJson(jsonBody)
-}
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBodyEqualTo(
-    spec: JsonObjectBuilder.() -> Unit
-) = verifyBadRequestAndJsonBody {
-    shouldBeEqualToJson(spec = spec)
-}
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
-    spec: (body: String) -> Unit
-) = exchange()
-    .expectStatus().isOk
-    .expectBody<String>()
-    .consumeWith { response ->
-        val body = response.responseBody
-        body.shouldNotBeBlank()
-        spec(body!!)
-    }
-
-fun WebTestClient.RequestHeadersSpec<*>.verifyOkNoContent() = exchange()
-    .expectStatus().isNoContent
 
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)
@@ -112,15 +59,6 @@ fun WebTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): 
         spec(this)
     }
     return sendJson(jsonElement.toString())
-}
-
-fun <T> StepVerifier.Step<T>.assertNextJsonIs(
-    jsonObject: String
-): StepVerifier.Step<T> {
-    return assertNext { data ->
-        data.shouldNotBeNull()
-        data.should(equalJson(jsonObject))
-    }
 }
 
 fun String.shouldBeEqualToJson(

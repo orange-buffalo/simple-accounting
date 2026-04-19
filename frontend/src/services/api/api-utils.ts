@@ -1,4 +1,4 @@
-import type { ApiPage, ApiPageRequest, SaApiErrorDto } from '@/services/api/api-types';
+import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 import { ApiBusinessError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
 
 const DEFAULT_TIMEOUT_MS = 10000;
@@ -39,17 +39,6 @@ export async function consumeAllPages<T>(
     totalElements = response.totalElements;
   }
   return allPagesData;
-}
-
-/**
- * If a provided error is an API business error, returns its response body as desired type.
- * Otherwise, throws the error further.
- */
-export function handleApiBusinessError<T extends SaApiErrorDto>(error: unknown): T {
-  if (error instanceof ApiBusinessError) {
-    return error.errorAs<T>();
-  }
-  throw error;
 }
 
 /**

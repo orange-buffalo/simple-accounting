@@ -28,9 +28,8 @@
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
-  import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
+  import SaDocumentUpload, { type UploadedDocumentDto } from '@/components/documents/SaDocumentUpload.vue';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
-  import type { DocumentGqlDto } from '@/services/api';
   import { graphql } from '@/services/api/gql';
   import { useMultiQuery } from '@/services/api/use-gql-api';
   import { useFragment } from '@/services/api/gql/fragment-masking';
@@ -65,7 +64,7 @@
       this.onDocumentAggregateChange = onChange;
     }
 
-    onUploadComplete(document: DocumentGqlDto) {
+    onUploadComplete(document: UploadedDocumentDto) {
       this.document = document;
       this.state = 'upload-completed';
       this.onDocumentAggregateChange();

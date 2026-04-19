@@ -31,20 +31,20 @@
       </div>
     </div>
 
-    <SaPageableItemsGql
+    <SaPageableItems
       #default="{ item: income }"
       :page-query="incomesPageQuery"
       path="workspace.incomes"
       :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
     >
       <IncomesOverviewPanel :income="income" />
-    </SaPageableItemsGql>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaPageableItemsGql from '@/components/pageable-items/SaPageableItemsGql.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import IncomesOverviewPanel from '@/pages/incomes/IncomesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';

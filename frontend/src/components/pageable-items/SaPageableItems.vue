@@ -4,17 +4,21 @@
       v-if="paginatorVisible"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
-      layout="prev, pager, next"
+      layout="prev, slot, next"
       :total="totalElements"
-    />
+    >
+      <span class="sa-pageable-items__page-indicator">
+        {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
+      </span>
+    </ElPagination>
 
     <div
       v-if="!loading"
       class="row"
     >
       <div
-        v-for="dataItem in data"
-        :key="dataItem.id"
+        v-for="(dataItem, index) in data"
+        :key="index"
         class="col col-xs-12 sa-pageable-items__item"
       >
         <slot :item="dataItem">{{ dataItem }}</slot>
@@ -49,20 +53,41 @@
       v-if="paginatorVisible"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
-      layout="prev, pager, next"
+      layout="prev, slot, next"
       :total="totalElements"
-    />
+    >
+      <span class="sa-pageable-items__page-indicator">
+        {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
+      </span>
+    </ElPagination>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script
+  lang="ts"
+  setup
+  generic="TResponse, TPath extends string, TVariables extends PageVars = PageVars"
+>
   import {
-    computed, ref, watch,
+    computed, ref, shallowRef, watch,
   } from 'vue';
   import { throttle } from 'lodash';
-  import type { HasOptionalId, ApiPageRequest, ApiPage } from '@/services/api';
+  import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
+  import { useLazyQuery } from '@/services/api/use-gql-api';
+  import { useFragment } from '@/services/api/gql/fragment-masking';
+  import {
+    PaginationPageInfoFragment,
+    type GqlConnection,
+    type GqlPaginationVariables as PageVars,
+    type NodeOf,
+    type DeepAccess,
+  } from '@/components/pageable-items/pageable-items-gql-types';
+
+  type ExtraArgs<T extends PageVars> = Omit<T, keyof PageVars>;
+  type RootKey<P extends string> = P extends `${infer K}.${string}` ? K : P;
+  type TNode = NodeOf<DeepAccess<TResponse, TPath>>;
 
   function useLoading() {
     let loadingRequestsCount = 0;
@@ -96,14 +121,19 @@
   }
 
   const props = defineProps<{
-    reloadOn?: Array<unknown>,
-    pageProvider:(request: ApiPageRequest, config: RequestInit) => Promise<ApiPage<HasOptionalId>>,
+    pageQuery: TypedDocumentNode<TResponse, TVariables>,
+    path: TPath,
+    pageQueryArguments?: ExtraArgs<TVariables>,
+  }>();
+
+  defineSlots<{
+    default(props: { item: TNode }): unknown;
   }>();
 
   const pageNumber = ref(1);
   const totalElements = ref(0);
   const pageSize = ref(10);
-  const data = ref<HasOptionalId[]>([]);
+  const data = shallowRef<TNode[]>([]);
 
   const {
     loading,
@@ -111,27 +141,48 @@
     startLoading,
   } = useLoading();
 
-  let abortController: AbortController | null;
+  const totalPages = computed(() => Math.ceil(totalElements.value / pageSize.value));
+
+  const pathParts = props.path.split('.');
+  const rootKey = pathParts[0] as RootKey<TPath> & keyof TResponse;
+  const subPath = pathParts.slice(1);
+
+  const executeQuery = useLazyQuery(
+    props.pageQuery,
+    rootKey,
+  );
+
+  // Stores the endCursor from each visited page for backward navigation.
+  // endCursors[0] = endCursor of page 1, endCursors[1] = endCursor of page 2, etc.
+  let endCursors: string[] = [];
 
   const reloadData = throttle(async () => {
     startLoading();
 
-    if (abortController) {
-      abortController.abort();
-    }
-    abortController = new AbortController();
-
-    const request: ApiPageRequest = {
-      pageNumber: pageNumber.value,
-      pageSize: pageSize.value,
-    };
+    const after = pageNumber.value === 1
+      ? null
+      : endCursors[pageNumber.value - 2] ?? null;
 
     try {
-      const response = await props.pageProvider(request, {
-        signal: abortController?.signal,
-      });
-      totalElements.value = response.totalElements;
-      data.value = response.data;
+      const queryResult = await executeQuery({
+        ...props.pageQueryArguments,
+        first: pageSize.value,
+        after,
+      } as TVariables);
+
+      let connectionValue: unknown = queryResult;
+      for (const key of subPath) {
+        connectionValue = (connectionValue as Record<string, unknown>)[key];
+      }
+      const connection = connectionValue as GqlConnection<TNode>;
+
+      data.value = connection.edges.map((edge) => edge.node);
+      totalElements.value = connection.totalCount;
+
+      const pageInfo = useFragment(PaginationPageInfoFragment, connection.pageInfo);
+      if (pageInfo.endCursor) {
+        endCursors[pageNumber.value - 1] = pageInfo.endCursor;
+      }
 
       stopLoading();
     } catch (e) {
@@ -143,11 +194,18 @@
     leading: false,
   });
 
-  watch(() => [pageNumber, ...(props.reloadOn || [])], () => {
+  watch(() => props.pageQueryArguments, () => {
+    endCursors = [];
+    pageNumber.value = 1;
+    reloadData();
+  }, {
+    deep: true,
+  });
+
+  watch(pageNumber, () => {
     reloadData();
   }, {
     immediate: true,
-    deep: true,
   });
 
   const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
@@ -155,7 +213,6 @@
   defineExpose({
     reload: reloadData,
   });
-
 </script>
 
 <style lang="scss">
