@@ -271,10 +271,3 @@ tasks.withType<GenerateJavaTask> {
 tasks.compileTestKotlin {
     dependsOn("generateJava")
 }
-// Append to app/build.gradle.kts temporarily
-tasks.register<JavaExec>("runApp") {
-    group = "application"
-    mainClass.set("io.orangebuffalo.simpleaccounting.SimpleAccountingApplicationKt")
-    classpath = sourceSets["main"].runtimeClasspath
-    jvmArgs = listOf("-Xmx512m")
-}

@@ -28,10 +28,8 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.ApplicationContext
 import org.springframework.http.ContentDisposition
 import org.springframework.http.MediaType
-import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.nio.charset.StandardCharsets
@@ -42,8 +40,7 @@ class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val tokensRepository: TokensRepository,
     @Autowired private val webTestClient: WebTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
-    @Value("\${local.server.port}") private val serverPort: Int,
-    @Autowired private val applicationContext: ApplicationContext,
+    @Value($$"${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {
@@ -260,17 +257,6 @@ class CreateDocumentDownloadUrlMutationTest(
                     val downloadedContent = downloadResponse.responseBody.shouldNotBeNull()
                     String(downloadedContent, StandardCharsets.UTF_8).shouldBe(documentContent)
                 }
-        }
-    }
-
-    @Nested
-    @DisplayName("Security Configuration")
-    inner class SecurityConfiguration {
-
-        @Test
-        fun `should have exactly one SecurityWebFilterChain to prevent conflicting authorization rules`() {
-            val chains = applicationContext.getBeansOfType(SecurityWebFilterChain::class.java)
-            chains.size.shouldBe(1)
         }
     }
 

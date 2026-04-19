@@ -8,8 +8,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
-import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository
 
 /**
  * Configures integration with OAuth2 providers, like Google for Google Drive storage implementation.
@@ -25,12 +23,6 @@ class Oauth2Config {
         clientRegistrationRepository: ReactiveClientRegistrationRepository
     ): ReactiveOAuth2AuthorizedClientService =
         DbReactiveOAuth2AuthorizedClientService(repository, clientRegistrationRepository)
-
-    @Bean
-    fun authorizedClientRepository(
-        authorizedClientService: ReactiveOAuth2AuthorizedClientService
-    ): ServerOAuth2AuthorizedClientRepository =
-        AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService)
 
     @Bean
     fun accessTokenResponseClient(): ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
