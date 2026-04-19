@@ -37,7 +37,7 @@ class DownloadsService(
             }
 
     suspend fun getContentByToken(token: String): DownloadContentResponse {
-        logger.debug { "Resolving download token: ${token.take(5)}..." }
+        logger.debug { "Resolving download token" }
         val downloadRequest = tokensRepository.getRequestByToken<PersistentDownloadRequest>(token)
         logger.debug { "Download request resolved: providerId=${downloadRequest.providerId}, userName=${downloadRequest.userName}" }
 
