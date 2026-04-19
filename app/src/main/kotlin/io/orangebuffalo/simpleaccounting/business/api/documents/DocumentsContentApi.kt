@@ -25,7 +25,12 @@ class DocumentsContentApi(
 
     @GetMapping("/download/{token}")
     suspend fun getContent(@PathVariable token: String): ResponseEntity<Flow<DataBuffer>> {
+        logger.debug { "Processing document download request for token: ${token.take(5)}..." }
         val contentResponse = downloadsService.getContentByToken(token)
+        logger.debug {
+            "Document download resolved: fileName=${contentResponse.fileName}, " +
+                    "contentType=${contentResponse.contentType}, sizeInBytes=${contentResponse.sizeInBytes}"
+        }
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${contentResponse.fileName}\"")
             .contentLength(contentResponse.sizeInBytes ?: -1)

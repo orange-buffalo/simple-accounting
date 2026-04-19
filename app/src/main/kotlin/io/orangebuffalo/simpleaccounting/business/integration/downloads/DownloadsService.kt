@@ -7,8 +7,11 @@ import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import mu.KotlinLogging
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Manages downloads by tokens, i.e. for content sharing or other purposes where security credentials cannot be
@@ -34,12 +37,16 @@ class DownloadsService(
             }
 
     suspend fun getContentByToken(token: String): DownloadContentResponse {
+        logger.debug { "Resolving download token: ${token.take(5)}..." }
         val downloadRequest = tokensRepository.getRequestByToken<PersistentDownloadRequest>(token)
+        logger.debug { "Download request resolved: providerId=${downloadRequest.providerId}, userName=${downloadRequest.userName}" }
+
         val contentProvider = contentProviders.find { it.getId() == downloadRequest.providerId }
             ?: throw IllegalStateException("Cannot find provider ${downloadRequest.providerId}")
         val user = userService.getUserByUserName(downloadRequest.userName)
             ?: throw IllegalStateException("Cannot find user ${downloadRequest.userName}")
 
+        logger.trace { "Executing content retrieval as user ${user.userName}" }
         return runAs(user.toSecurityPrincipal()) {
             @Suppress("UNCHECKED_CAST")
             (contentProvider as DownloadableContentProvider<Any>).getContent(downloadRequest.metadata)
