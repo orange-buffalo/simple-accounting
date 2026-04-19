@@ -97,7 +97,7 @@
             :label="$t.expensesOverviewPanel.category.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCategoryOutput :category-id="expense.category?.id" />
+            {{ expense.category?.name ?? 'Not specified' }}
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -129,7 +129,7 @@
               :label="$t.expensesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="expense.generalTaxId ?? undefined" />
+              {{ expense.generalTax?.title }}
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -272,8 +272,6 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import type { ExpensesPageQuery } from '@/services/api/gql/graphql';
   import { $t } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
@@ -328,7 +326,7 @@
 
   const isForeignCurrency = computed(() => (props.expense.currency !== defaultCurrency));
 
-  const isGeneralTaxApplicable = computed(() => (props.expense.generalTaxId != null));
+  const isGeneralTaxApplicable = computed(() => (props.expense.generalTax != null));
 
   const navigateToExpenseEdit = () => navigateToView({
     name: 'edit-expense',

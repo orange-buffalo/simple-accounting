@@ -5,7 +5,7 @@
         :tooltip="$t.invoicesOverviewPanel.customer.tooltip()"
         icon="customer"
       >
-        <SaCustomerOutput :customer-id="invoice.customer!.id" />
+        {{ invoice.customer!.name }}
       </SaOverviewItemPrimaryAttribute>
 
       <SaOverviewItemPrimaryAttribute
@@ -107,7 +107,7 @@
             :label="$t.invoicesOverviewPanel.customer.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCustomerOutput :customer-id="invoice.customer!.id" />
+            {{ invoice.customer!.name }}
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -172,7 +172,7 @@
               :label="$t.invoicesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="invoice.generalTax!.id" />
+              {{ invoice.generalTax!.title }}
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -211,7 +211,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref } from 'vue';
+  import { computed } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
@@ -225,14 +225,12 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
   import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
-  import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
-  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
   import type { InvoicesPageQuery } from '@/services/api/gql/graphql';
   import { getDocumentIds } from '@/components/documents/documents-gql-types';
 
@@ -372,24 +370,5 @@
   const isGeneralTaxApplicable = computed(() => props.invoice.generalTax != null);
   const isForeignCurrency = computed(() => props.invoice.currency !== defaultCurrency);
 
-  const getGeneralTaxQuery = useLazyQuery(graphql(`
-    query getGeneralTaxForInvoice($workspaceId: Long!, $taxId: Long!) {
-      workspace(id: $workspaceId) {
-        generalTax(id: $taxId) {
-          rateInBps
-        }
-      }
-    }
-  `), 'workspace');
-
-  const generalTaxRate = ref(0);
-  watch(() => props.invoice.generalTax, async (tax) => {
-    if (tax != null) {
-      const workspace = await getGeneralTaxQuery({
-        workspaceId: currentWorkspaceId,
-        taxId: tax.id,
-      });
-      generalTaxRate.value = workspace?.generalTax?.rateInBps ?? 0;
-    }
-  }, { immediate: true });
+  const generalTaxRate = computed(() => props.invoice.generalTax?.rateInBps ?? 0);
 </script>

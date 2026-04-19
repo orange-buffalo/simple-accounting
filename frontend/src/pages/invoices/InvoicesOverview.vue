@@ -75,9 +75,12 @@
               status
               customer {
                 id
+                name
               }
               generalTax {
                 id
+                title
+                rateInBps
               }
               attachments {
                 ...DocumentData

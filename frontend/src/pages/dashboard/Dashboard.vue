@@ -91,6 +91,7 @@
             items {
               category {
                 id
+                name
               }
               totalAmount
             }
@@ -103,6 +104,7 @@
             items {
               category {
                 id
+                name
               }
               totalAmount
             }
@@ -124,6 +126,7 @@
               status
               customer {
                 id
+                name
               }
             }
           }
@@ -133,7 +136,7 @@
   `), 'workspace');
 
   interface SummaryItem {
-    category?: { id: number } | null;
+    category?: { id: number, name: string } | null;
     totalAmount: number;
   }
 

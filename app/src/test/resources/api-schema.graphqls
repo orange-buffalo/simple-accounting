@@ -262,6 +262,8 @@ type Expense {
   currency: String!
   "Date when the expense was paid."
   datePaid: LocalDate!
+  "General tax applied to this expense."
+  generalTax: GeneralTax
   "Amount of the general tax in cents."
   generalTaxAmount: Long
   "ID of the general tax applied to this expense."

@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryById
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import java.time.Instant
 import java.time.LocalDate
@@ -67,11 +69,19 @@ data class ExpenseGqlDto(
     @GraphQLIgnore val categoryId: Long?,
 
     @GraphQLIgnore val attachmentIds: List<Long>,
+
+    @GraphQLIgnore val workspaceId: Long,
 ) {
     @GraphQLDescription("Category of the expense.")
     fun category(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {
         val catId = categoryId ?: return null
         return env.loadCategoryById(catId)
+    }
+
+    @GraphQLDescription("General tax applied to this expense.")
+    fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {
+        val taxId = generalTaxId ?: return null
+        return env.loadGeneralTaxByWorkspaceAndId(workspaceId = workspaceId, taxId = taxId)
     }
 
     @GraphQLDescription("Documents attached to this expense.")
@@ -116,4 +126,5 @@ fun io.orangebuffalo.simpleaccounting.business.expenses.Expense.toExpenseGqlDto(
     generalTaxAmount = generalTaxAmount,
     categoryId = categoryId,
     attachmentIds = attachments.map { it.documentId },
+    workspaceId = workspaceId,
 )

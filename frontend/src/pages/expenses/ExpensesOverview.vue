@@ -77,11 +77,15 @@
               percentOnBusiness
               notes
               status
-              generalTaxId
+              generalTax {
+                id
+                title
+              }
               generalTaxRateInBps
               generalTaxAmount
               category {
                 id
+                name
               }
               attachments {
                 ...DocumentData
