@@ -97,7 +97,7 @@
             :label="$t.expensesOverviewPanel.category.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ expense.category?.name ?? 'Not specified' }}
+            {{ expense.category?.name ?? $t.expensesOverviewPanel.category.notSpecified() }}
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute

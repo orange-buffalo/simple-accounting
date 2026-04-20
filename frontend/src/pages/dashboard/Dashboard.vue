@@ -90,7 +90,6 @@
             currencyExchangeDifference
             items {
               category {
-                id
                 name
               }
               totalAmount
@@ -103,7 +102,6 @@
             currencyExchangeDifference
             items {
               category {
-                id
                 name
               }
               totalAmount
@@ -125,7 +123,6 @@
               dueDate
               status
               customer {
-                id
                 name
               }
             }
@@ -136,7 +133,7 @@
   `), 'workspace');
 
   interface SummaryItem {
-    category?: { id: number, name: string } | null;
+    category?: { name: string } | null;
     totalAmount: number;
   }
 

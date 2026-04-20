@@ -103,10 +103,16 @@ export default {
       expenses: {
         totalHeader: (count: number) => format('Усього {0, number} витрат', [count]),
         pendingHeader: (count: number) => format('В очікуванні ще {0, number}', [count]),
+        category: {
+          notSpecified: () => 'Не вказано',
+        },
       },
       incomes: {
         totalHeader: (count: number) => format('Усього {0, number} доходів', [count]),
         pendingHeader: (count: number) => format('В очікуванні ще {0, number}', [count]),
+        category: {
+          notSpecified: () => 'Не вказано',
+        },
       },
       profit: {
         taxableAmount: () => 'Оподатковувана Сума',
@@ -247,6 +253,7 @@ export default {
     },
     category: {
       label: () => 'Категорія',
+      notSpecified: () => 'Не вказано',
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
@@ -551,6 +558,7 @@ export default {
     },
     category: {
       label: () => 'Категорія',
+      notSpecified: () => 'Не вказано',
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {

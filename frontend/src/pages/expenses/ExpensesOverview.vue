@@ -78,13 +78,11 @@
               notes
               status
               generalTax {
-                id
                 title
               }
               generalTaxRateInBps
               generalTaxAmount
               category {
-                id
                 name
               }
               attachments {
