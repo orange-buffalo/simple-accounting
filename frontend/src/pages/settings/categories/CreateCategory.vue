@@ -4,91 +4,41 @@
       <h1>Create New Category</h1>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="category"
-      :rules="categoryValidationRules"
-      :initially-loading="false"
-    >
-      <template #default>
-        <ElFormItem
-          label="Name"
-          prop="name"
-        >
-          <ElInput v-model="category.name" />
-        </ElFormItem>
-        <ElFormItem
-          label="Description"
-          prop="description"
-        >
-          <ElInput
-            v-model="category.description"
-            type="textarea"
-          />
-        </ElFormItem>
-        <ElFormItem prop="income">
-          <ElCheckbox v-model="category.income">Income</ElCheckbox>
-        </ElFormItem>
-        <ElFormItem prop="expense">
-          <ElCheckbox v-model="category.expense">Expense</ElCheckbox>
-        </ElFormItem>
-      </template>
-
-      <template #buttons-bar>
-        <ElButton @click="navigateToCategoriesOverview">
-          Cancel
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          Save
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+    <SaForm v-model="formValues" :on-submit="saveCategory" :on-cancel="navigateToCategoriesOverview">
+      <SaFormInput prop="name" label="Name" />
+      <SaFormInput prop="description" label="Description" type="textarea" />
+      <ElFormItem>
+        <ElCheckbox v-model="formValues.income">Income</ElCheckbox>
+      </ElFormItem>
+      <ElFormItem>
+        <ElCheckbox v-model="formValues.expense">Expense</ElCheckbox>
+      </ElFormItem>
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import { useForm } from '@/components/form/use-form';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
 
   type CategoryFormValues = {
-    name?: string,
-    description?: string,
+    name: string,
+    description: string | null,
     income: boolean,
     expense: boolean,
   };
-  const category = ref<CategoryFormValues>({
+
+  const formValues = ref<CategoryFormValues>({
+    name: '',
+    description: null,
     income: false,
     expense: false,
   });
-
-  const categoryValidationRules = {
-    name: [
-      {
-        required: true,
-        message: 'Please input name',
-        trigger: 'blur',
-      },
-    ],
-    income: [
-      {
-        validator: (rule: unknown, value: unknown, callback: (error?: Error) => void) => {
-          if (!category.value.income && !category.value.expense) {
-            callback(new Error('At least one of income/expense must be selected'));
-          } else {
-            callback();
-          }
-        },
-      },
-    ],
-  };
 
   const { navigateByViewName } = useNavigation();
   const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
@@ -118,18 +68,11 @@
   const saveCategory = async () => {
     await createCategoryMutation({
       workspaceId: currentWorkspaceId,
-      name: category.value.name!,
-      description: category.value.description ?? null,
-      income: category.value.income,
-      expense: category.value.expense,
+      name: formValues.value.name,
+      description: formValues.value.description || null,
+      income: formValues.value.income,
+      expense: formValues.value.expense,
     });
     await navigateToCategoriesOverview();
   };
-
-  const {
-    formRef,
-    submitForm,
-  } = useForm(async () => {
-    // no op
-  }, saveCategory);
 </script>

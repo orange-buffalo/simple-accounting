@@ -87,7 +87,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty name`(page: Page) {
+    fun `should show validation errors for invalid inputs`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
@@ -108,10 +108,25 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please input name")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("edit-category.validation-error-name")
+
+            name { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            name {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+
+            name { input.fill("Valid name") }
+            description { input.fill("x".repeat(1001)) }
+            saveButton.click()
+
+            description {
+                shouldHaveValidationError("The length of this value should be no longer than 1,000 characters")
+            }
         }
     }
 
