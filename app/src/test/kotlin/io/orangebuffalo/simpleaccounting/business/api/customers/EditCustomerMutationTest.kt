@@ -101,6 +101,12 @@ class EditCustomerMutationTest(
                     name = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCustomer.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCustomer.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

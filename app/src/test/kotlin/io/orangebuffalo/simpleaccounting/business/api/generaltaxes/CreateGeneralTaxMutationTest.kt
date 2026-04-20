@@ -91,6 +91,12 @@ class CreateGeneralTaxMutationTest(
                     rateInBps = value,
                 )
             },
+            requiredFieldRejectedTestCases("rateInBps") {
+                createGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

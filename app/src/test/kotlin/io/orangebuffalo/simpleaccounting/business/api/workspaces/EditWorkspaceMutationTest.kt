@@ -80,6 +80,9 @@ class EditWorkspaceMutationTest(
             sizeConstraintTestCases("name", maxLength = 255) { value ->
                 editWorkspaceMutation(id = preconditions.fryWorkspace.id!!, name = value)
             },
+            requiredFieldRejectedTestCases("id") {
+                editWorkspaceMutation(id = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

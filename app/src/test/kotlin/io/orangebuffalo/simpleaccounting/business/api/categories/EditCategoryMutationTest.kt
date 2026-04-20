@@ -109,6 +109,18 @@ class EditCategoryMutationTest(
                     description = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
+            },
+            requiredFieldRejectedTestCases("expense") {
+                editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
+            },
+            requiredFieldRejectedTestCases("income") {
+                editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

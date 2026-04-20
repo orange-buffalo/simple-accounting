@@ -120,6 +120,24 @@ class EditInvoiceMutationTest(
                     notes = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
+            requiredFieldRejectedTestCases("customerId") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
+            requiredFieldRejectedTestCases("dateIssued") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
+            requiredFieldRejectedTestCases("dueDate") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
+            requiredFieldRejectedTestCases("amount") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")
