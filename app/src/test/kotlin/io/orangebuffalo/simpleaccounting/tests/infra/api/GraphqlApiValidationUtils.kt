@@ -310,6 +310,8 @@ private fun buildRawMutationQueryWithAbsentField(
         .replace(Regex(""",\s*,"""), ",")
         .replace(Regex("""\(\s*,\s*"""), "(")
         .replace(Regex("""\s*,\s*\)"""), ")")
+        // Remove empty argument list — GraphQL spec requires at least one argument in ()
+        .replace(Regex("""\(\s*\)"""), "")
 }
 
 private fun buildRawMutationQuery(
