@@ -9,9 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput
 
-class CreateCategoryPage private constructor(page: Page) : SaPageBase(page) {
-    private val header = components.pageHeader("Create New Category")
-
+abstract class EditCategoryPageBase(page: Page) : SaPageBase(page) {
     val name = components.formItemTextInputByLabel("Name")
     val description = components.formItemByLabel("Description") { TextInput.byContainer(it) }
     val income = components.checkboxByOwnLabel("Income")
@@ -19,6 +17,10 @@ class CreateCategoryPage private constructor(page: Page) : SaPageBase(page) {
 
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
+}
+
+class CreateCategoryPage private constructor(page: Page) : EditCategoryPageBase(page) {
+    private val header = components.pageHeader("Create New Category")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
@@ -35,6 +37,23 @@ class CreateCategoryPage private constructor(page: Page) : SaPageBase(page) {
         fun Page.openCreateCategoryPage(spec: CreateCategoryPage.() -> Unit = {}) {
             navigate("/settings/categories/create")
             shouldBeCreateCategoryPage(spec)
+        }
+    }
+}
+
+class EditCategoryPage private constructor(page: Page) : EditCategoryPageBase(page) {
+    private val header = components.pageHeader("Edit Category")
+
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
+    }
+
+    companion object {
+        fun Page.shouldBeEditCategoryPage(spec: EditCategoryPage.() -> Unit = {}) {
+            EditCategoryPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
         }
     }
 }

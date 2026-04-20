@@ -16,7 +16,6 @@ import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayme
 import Reporting from '@/pages/reporting/Reporting.vue';
 import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
-import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 import EditCategory from '@/pages/settings/categories/EditCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
 import CreateCustomer from '@/pages/settings/customers/CreateCustomer.vue';
@@ -139,7 +138,7 @@ export default function setupRouter() {
           {
             path: 'settings/categories/create',
             name: 'create-new-category',
-            component: CreateCategory,
+            component: EditCategory,
           },
           {
             path: 'settings/categories/:id/edit',

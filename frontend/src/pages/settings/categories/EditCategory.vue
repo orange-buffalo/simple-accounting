@@ -1,33 +1,30 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Edit Category</h1>
+      <h1>{{ pageHeader }}</h1>
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveCategory" :on-load="loadCategory" :on-cancel="navigateToCategoriesOverview">
       <SaFormInput prop="name" label="Name" />
       <SaFormInput prop="description" label="Description" type="textarea" />
-      <ElFormItem>
-        <ElCheckbox v-model="formValues.income">Income</ElCheckbox>
-      </ElFormItem>
-      <ElFormItem>
-        <ElCheckbox v-model="formValues.expense">Expense</ElCheckbox>
-      </ElFormItem>
+      <SaFormCheckbox prop="income" label="Income" />
+      <SaFormCheckbox prop="expense" label="Expense" />
     </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormCheckbox from '@/components/form/SaFormCheckbox.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
-    id: number,
+    id?: number,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -63,10 +60,10 @@
     }
   `), 'workspace');
 
-  const loadCategory = async () => {
+  const loadCategory = props.id !== undefined ? async () => {
     const workspace = await getCategoryQuery({
       workspaceId: currentWorkspaceId,
-      categoryId: props.id,
+      categoryId: props.id!,
     });
     const loaded = workspace?.category;
     if (loaded) {
@@ -77,7 +74,27 @@
         expense: loaded.expense,
       };
     }
-  };
+  } : undefined;
+
+  const createCategoryMutation = useMutation(graphql(`
+    mutation createCategoryMutation(
+      $workspaceId: Long!,
+      $name: String!,
+      $description: String,
+      $income: Boolean!,
+      $expense: Boolean!
+    ) {
+      createCategory(
+        workspaceId: $workspaceId,
+        name: $name,
+        description: $description,
+        income: $income,
+        expense: $expense
+      ) {
+        id
+      }
+    }
+  `), 'createCategory');
 
   const editCategoryMutation = useMutation(graphql(`
     mutation editCategoryMutation(
@@ -102,14 +119,26 @@
   `), 'editCategory');
 
   const saveCategory = async () => {
-    await editCategoryMutation({
-      workspaceId: currentWorkspaceId,
-      id: props.id,
-      name: formValues.value.name,
-      description: formValues.value.description || null,
-      income: formValues.value.income,
-      expense: formValues.value.expense,
-    });
+    if (props.id === undefined) {
+      await createCategoryMutation({
+        workspaceId: currentWorkspaceId,
+        name: formValues.value.name,
+        description: formValues.value.description || null,
+        income: formValues.value.income,
+        expense: formValues.value.expense,
+      });
+    } else {
+      await editCategoryMutation({
+        workspaceId: currentWorkspaceId,
+        id: props.id,
+        name: formValues.value.name,
+        description: formValues.value.description || null,
+        income: formValues.value.income,
+        expense: formValues.value.expense,
+      });
+    }
     await navigateToCategoriesOverview();
   };
+
+  const pageHeader = computed(() => props.id !== undefined ? 'Edit Category' : 'Create New Category');
 </script>
