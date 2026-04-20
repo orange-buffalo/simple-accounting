@@ -112,6 +112,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             }
 
             reportRendering("edit-category.validation-error-name")
+            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
             saveButton.click()
@@ -119,6 +120,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             name {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
+            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("Valid name") }
             description { input.fill("x".repeat(1001)) }
@@ -127,6 +129,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             description {
                 shouldHaveValidationError("The length of this value should be no longer than 1,000 characters")
             }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
