@@ -92,7 +92,7 @@
             :label="$t.incomesOverviewPanel.category.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <SaCategoryOutput :category-id="income.category?.id" />
+            {{ income.category?.name ?? $t.incomesOverviewPanel.category.notSpecified() }}
           </SaOverviewItemDetailsSectionAttribute>
 
           <SaOverviewItemDetailsSectionAttribute
@@ -122,7 +122,7 @@
               :label="$t.incomesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <SaGeneralTaxOutput :general-tax-id="income.generalTax?.id" />
+              {{ income.generalTax?.title }}
             </SaOverviewItemDetailsSectionAttribute>
 
             <SaOverviewItemDetailsSectionAttribute
@@ -269,8 +269,6 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
   import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import { $t } from '@/services/i18n';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';

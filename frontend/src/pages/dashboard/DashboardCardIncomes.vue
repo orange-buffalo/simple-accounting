@@ -25,13 +25,10 @@
     <template #content>
       <div
         v-for="item in incomes.items"
-        :key="item.category?.id ?? 'fake'"
+        :key="item.category?.name ?? 'unspecified'"
         class="sa-dashboard__card__details__item"
       >
-        <span><SaCategoryOutput
-          :category-id="item.category?.id"
-          :unspecified-category="!item.category"
-        /></span>
+        <span>{{ item.category?.name ?? $t.dashboard.cards.incomes.category.notSpecified() }}</span>
         <SaMoneyOutput
           :currency="defaultCurrency"
           :amount-in-cents="item.totalAmount"
@@ -46,12 +43,11 @@
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
   import { wrapNullable } from '@/services/utils';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
 
   interface SummaryItem {
-    category?: { id: number } | null;
+    category?: { name: string } | null;
     totalAmount: number;
   }
 

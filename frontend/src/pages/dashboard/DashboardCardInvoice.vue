@@ -18,7 +18,7 @@
     <template #content>
       <div class="sa-dashboard__card__details__item">
         <span>{{ $t.dashboard.cards.invoice.to() }}</span>
-        <span><SaCustomerOutput :customer-id="invoice.customer!.id" /></span>
+        <span>{{ invoice.customer!.name }}</span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
@@ -44,7 +44,6 @@
   import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
-  import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
   import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
 
   type InvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];

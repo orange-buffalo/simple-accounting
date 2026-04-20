@@ -66,6 +66,7 @@ class ExpensesGqlApi(
                         generalTaxAmount = record[expense.generalTaxAmount],
                         categoryId = record[expense.categoryId],
                         attachmentIds = emptyList(),
+                        workspaceId = workspaceId,
                     )
                 },
                 postProcess = { records ->

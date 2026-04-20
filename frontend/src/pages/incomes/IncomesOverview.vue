@@ -77,7 +77,7 @@
               notes
               status
               generalTax {
-                id
+                title
               }
               generalTaxRateInBps
               generalTaxAmount
@@ -86,7 +86,7 @@
                 title
               }
               category {
-                id
+                name
               }
               attachments {
                 ...DocumentData

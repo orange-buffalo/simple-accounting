@@ -103,10 +103,16 @@ export default {
       expenses: {
         totalHeader: (count: number) => format('Total of {0, number} expenses', [count]),
         pendingHeader: (count: number) => format('Pending {0, number} more', [count]),
+        category: {
+          notSpecified: () => 'Not specified',
+        },
       },
       incomes: {
         totalHeader: (count: number) => format('Total of {0, number} incomes', [count]),
         pendingHeader: (count: number) => format('Pending {0, number} more', [count]),
+        category: {
+          notSpecified: () => 'Not specified',
+        },
       },
       profit: {
         taxableAmount: () => 'Taxable Amount',
@@ -247,6 +253,7 @@ export default {
     },
     category: {
       label: () => 'Category',
+      notSpecified: () => 'Not specified',
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
@@ -552,6 +559,7 @@ export default {
     },
     category: {
       label: () => 'Category',
+      notSpecified: () => 'Not specified',
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
