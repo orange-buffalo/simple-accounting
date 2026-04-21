@@ -80,6 +80,9 @@ class ActivateUserMutationTest(
             sizeConstraintTestCases("password", maxLength = 100) { value ->
                 activateUserMutation(password = value)
             },
+            requiredFieldRejectedTestCases("token") {
+                activateUserMutation()
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

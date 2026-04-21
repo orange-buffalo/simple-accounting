@@ -85,6 +85,15 @@ class CreateIncomeTaxPaymentMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            requiredFieldRejectedTestCases("amount") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("datePaid") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

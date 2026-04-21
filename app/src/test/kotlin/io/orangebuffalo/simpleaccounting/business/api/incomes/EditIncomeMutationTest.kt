@@ -120,6 +120,21 @@ class EditIncomeMutationTest(
                     notes = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
+            requiredFieldRejectedTestCases("dateReceived") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
+            requiredFieldRejectedTestCases("originalAmount") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
+            requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

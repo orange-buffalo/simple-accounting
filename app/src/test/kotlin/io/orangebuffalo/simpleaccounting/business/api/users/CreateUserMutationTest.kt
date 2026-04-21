@@ -69,6 +69,9 @@ class CreateUserMutationTest(
         fun testCases() = listOf(
             mustNotBeBlankTestCases("userName") { value -> createUserMutation(userName = value) },
             sizeConstraintTestCases("userName", maxLength = 255) { value -> createUserMutation(userName = value) },
+            requiredFieldRejectedTestCases("admin") {
+                createUserMutation()
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

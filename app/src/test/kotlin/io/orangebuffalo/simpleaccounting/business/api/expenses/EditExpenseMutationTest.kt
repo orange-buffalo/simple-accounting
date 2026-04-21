@@ -127,6 +127,21 @@ class EditExpenseMutationTest(
                     percentOnBusiness = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
+            requiredFieldRejectedTestCases("datePaid") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
+            requiredFieldRejectedTestCases("originalAmount") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
+            requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")
