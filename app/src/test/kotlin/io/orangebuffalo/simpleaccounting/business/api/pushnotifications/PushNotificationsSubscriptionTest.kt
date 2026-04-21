@@ -17,11 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
+import reactor.core.Disposable
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 import java.net.URI
 import java.time.Duration
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 
 @DisplayName("Push Notifications Subscription")
 class PushNotificationsSubscriptionTest(
@@ -33,83 +36,100 @@ class PushNotificationsSubscriptionTest(
 
     @Test
     fun `should receive a single broadcast event`() {
-        val receivedMessages = subscribeToNotifications(preconditions.fry)
+        val subscription = subscribeToNotifications(preconditions.fry)
+        val receivedMessages = subscription.receivedMessages
 
-        runBlocking {
-            pushNotificationService.sendPushNotification("good-news-everyone")
-        }
-
-        await().atMost(Duration.ofSeconds(5)).untilAsserted {
-            withClue("Should receive the broadcast event") {
-                receivedMessages.size.shouldBe(1)
-                val message = objectMapper.readTree(receivedMessages[0])
-                message.payloadEventName().shouldBe("good-news-everyone")
-                message.payloadData().shouldBe(null)
+        try {
+            runBlocking {
+                pushNotificationService.sendPushNotification("good-news-everyone")
             }
+
+            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                withClue("Should receive the broadcast event") {
+                    receivedMessages.size.shouldBe(1)
+                    val message = objectMapper.readTree(receivedMessages[0])
+                    message.payloadEventName().shouldBe("good-news-everyone")
+                    message.payloadData().shouldBe(null)
+                }
+            }
+        } finally {
+            subscription.dispose()
         }
     }
 
     @Test
     fun `should receive multiple broadcast events`() {
-        val receivedMessages = subscribeToNotifications(preconditions.fry)
+        val subscription = subscribeToNotifications(preconditions.fry)
+        val receivedMessages = subscription.receivedMessages
 
-        runBlocking {
-            pushNotificationService.sendPushNotification(
-                eventName = "good-news-everyone", data = "deadly delivery"
-            )
-            pushNotificationService.sendPushNotification(
-                eventName = "good-news-everyone", data = "all fired"
-            )
-        }
-
-        await().atMost(Duration.ofSeconds(5)).untilAsserted {
-            withClue("Should receive both broadcast events") {
-                receivedMessages.size.shouldBe(2)
-                val first = objectMapper.readTree(receivedMessages[0])
-                first.payloadEventName().shouldBe("good-news-everyone")
-                first.payloadData().shouldBe("\"deadly delivery\"")
-
-                val second = objectMapper.readTree(receivedMessages[1])
-                second.payloadEventName().shouldBe("good-news-everyone")
-                second.payloadData().shouldBe("\"all fired\"")
+        try {
+            runBlocking {
+                pushNotificationService.sendPushNotification(
+                    eventName = "good-news-everyone", data = "deadly delivery"
+                )
+                pushNotificationService.sendPushNotification(
+                    eventName = "good-news-everyone", data = "all fired"
+                )
             }
+
+            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                withClue("Should receive both broadcast events") {
+                    receivedMessages.size.shouldBe(2)
+                    val first = objectMapper.readTree(receivedMessages[0])
+                    first.payloadEventName().shouldBe("good-news-everyone")
+                    first.payloadData().shouldBe("\"deadly delivery\"")
+
+                    val second = objectMapper.readTree(receivedMessages[1])
+                    second.payloadEventName().shouldBe("good-news-everyone")
+                    second.payloadData().shouldBe("\"all fired\"")
+                }
+            }
+        } finally {
+            subscription.dispose()
         }
     }
 
     @Test
     fun `should not receive events addressed to another user`() {
-        val receivedMessages = subscribeToNotifications(preconditions.fry)
+        val subscription = subscribeToNotifications(preconditions.fry)
+        val receivedMessages = subscription.receivedMessages
 
-        runBlocking {
-            pushNotificationService.sendPushNotification(
-                eventName = "good-news-everyone", data = "deadly delivery"
-            )
-            pushNotificationService.sendPushNotification(
-                userId = preconditions.fry.id!!, eventName = "watch-tv"
-            )
-            pushNotificationService.sendPushNotification(
-                userId = preconditions.bender.id!!, eventName = "kill-all-humans"
-            )
-            pushNotificationService.sendPushNotification(
-                eventName = "end-of-season"
-            )
-        }
-
-        await().atMost(Duration.ofSeconds(5)).untilAsserted {
-            withClue("Should receive only messages for the current user and broadcasts") {
-                receivedMessages.size.shouldBe(3)
-                objectMapper.readTree(receivedMessages[0]).payloadEventName()
-                    .shouldBe("good-news-everyone")
-                objectMapper.readTree(receivedMessages[1]).payloadEventName()
-                    .shouldBe("watch-tv")
-                objectMapper.readTree(receivedMessages[2]).payloadEventName()
-                    .shouldBe("end-of-season")
+        try {
+            runBlocking {
+                pushNotificationService.sendPushNotification(
+                    eventName = "good-news-everyone", data = "deadly delivery"
+                )
+                pushNotificationService.sendPushNotification(
+                    userId = preconditions.fry.id!!, eventName = "watch-tv"
+                )
+                pushNotificationService.sendPushNotification(
+                    userId = preconditions.bender.id!!, eventName = "kill-all-humans"
+                )
+                pushNotificationService.sendPushNotification(
+                    eventName = "end-of-season"
+                )
             }
+
+            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                withClue("Should receive only messages for the current user and broadcasts") {
+                    receivedMessages.size.shouldBe(3)
+                    objectMapper.readTree(receivedMessages[0]).payloadEventName()
+                        .shouldBe("good-news-everyone")
+                    objectMapper.readTree(receivedMessages[1]).payloadEventName()
+                        .shouldBe("watch-tv")
+                    objectMapper.readTree(receivedMessages[2]).payloadEventName()
+                        .shouldBe("end-of-season")
+                }
+            }
+        } finally {
+            subscription.dispose()
         }
     }
 
-    private fun subscribeToNotifications(user: PlatformUser): MutableList<String> {
-        val receivedMessages = mutableListOf<String>()
+    private fun subscribeToNotifications(user: PlatformUser): NotificationsSubscription {
+        val receivedMessages = CopyOnWriteArrayList<String>()
+        val initialSubscribersCount = runBlocking { pushNotificationService.getActiveSubscribersCount() }
+        val connectionAcknowledged = AtomicBoolean(false)
         val port = environment.getProperty("local.server.port")
         val wsUri = URI("ws://localhost:$port/api/graphql/subscriptions")
         val jwtToken = jwtService.buildJwtToken(user.toSecurityPrincipal())
@@ -123,7 +143,7 @@ class PushNotificationsSubscriptionTest(
 
         val outgoingSink = Sinks.many().unicast().onBackpressureBuffer<String>()
 
-        client.execute(wsUri) { session ->
+        val websocketSession = client.execute(wsUri) { session ->
             val connectionInit = objectMapper.writeValueAsString(
                 mapOf(
                     "type" to "connection_init",
@@ -150,7 +170,10 @@ class PushNotificationsSubscriptionTest(
                 .doOnNext { text ->
                     val json = objectMapper.readTree(text)
                     when (json.get("type")?.asText()) {
-                        "connection_ack" -> outgoingSink.tryEmitNext(subscribe)
+                        "connection_ack" -> {
+                            connectionAcknowledged.set(true)
+                            outgoingSink.tryEmitNext(subscribe)
+                        }
                         "next" -> receivedMessages.add(text)
                     }
                 }
@@ -160,10 +183,14 @@ class PushNotificationsSubscriptionTest(
         }.subscribe()
 
         await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
-            runBlocking { pushNotificationService.getActiveSubscribersCount() } >= 1
+            val currentSubscribers = runBlocking { pushNotificationService.getActiveSubscribersCount() }
+            connectionAcknowledged.get() && currentSubscribers > initialSubscribersCount
         }
 
-        return receivedMessages
+        return NotificationsSubscription(
+            receivedMessages = receivedMessages,
+            websocketSession = websocketSession,
+        )
     }
 
     private fun JsonNode.payloadEventName(): String? =
@@ -178,6 +205,15 @@ class PushNotificationsSubscriptionTest(
         object {
             val fry = fry()
             val bender = bender()
+        }
+    }
+
+    private data class NotificationsSubscription(
+        val receivedMessages: MutableList<String>,
+        private val websocketSession: Disposable,
+    ) {
+        fun dispose() {
+            websocketSession.dispose()
         }
     }
 }
