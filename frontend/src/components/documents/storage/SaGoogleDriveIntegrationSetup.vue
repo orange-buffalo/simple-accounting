@@ -185,6 +185,13 @@
   function useDriveAuthorization() {
     let gdrivePopup: Window | null;
 
+    const onGoogleDriveAuthFlowCompleted = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.data?.type !== 'oauth2-flow-completed') {
+        return;
+      }
+      loadIntegrationStatus();
+    };
+
     const startAuthorization = () => {
       const popupWidth = Math.max(screen.width / 2, 600);
       const params = [
@@ -214,8 +221,14 @@
       }
     };
 
-    onMounted(() => subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
-    onUnmounted(() => unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
+    onMounted(() => {
+      subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
+      window.addEventListener('message', onGoogleDriveAuthFlowCompleted);
+    });
+    onUnmounted(() => {
+      unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
+      window.removeEventListener('message', onGoogleDriveAuthFlowCompleted);
+    });
 
     return {
       startAuthorization,

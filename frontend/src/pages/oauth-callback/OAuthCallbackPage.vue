@@ -66,6 +66,9 @@
     } else {
       errorId.value = result.errorId ?? undefined;
     }
+    window.opener?.postMessage({
+      type: 'oauth2-flow-completed',
+    }, window.location.origin);
     loading.value = false;
   }
 
