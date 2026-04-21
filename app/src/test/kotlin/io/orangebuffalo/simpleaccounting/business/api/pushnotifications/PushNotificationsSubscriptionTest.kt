@@ -209,7 +209,7 @@ class PushNotificationsSubscriptionTest(
     }
 
     private data class NotificationsSubscription(
-        val receivedMessages: MutableList<String>,
+        val receivedMessages: List<String>,
         private val websocketSession: Disposable,
     ) {
         fun dispose() {
