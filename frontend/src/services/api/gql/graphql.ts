@@ -1230,6 +1230,8 @@ export enum ValidationErrorCode {
   MinConstraintViolated = 'MinConstraintViolated',
   /** The field must not be null, empty, or blank. */
   MustNotBeBlank = 'MustNotBeBlank',
+  /** The field must not be null. */
+  MustNotBeNull = 'MustNotBeNull',
   /** The field size must be within the specified min/max bounds. */
   SizeConstraintViolated = 'SizeConstraintViolated'
 }

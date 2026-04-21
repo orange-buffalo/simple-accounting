@@ -441,50 +441,12 @@ class GraphqlClientRequestExecutor(
                 path = path,
                 params = testCase.params,
             )
-            is GraphqlMutationRejectedInputTestCase -> {
-                requestSpec
-                    .exchange()
-                    .expectStatus().isOk
-                    .expectBody<String>()
-                    .consumeWith { body ->
-                        val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        val errors = withClue("Expected FIELD_VALIDATION_FAILURE error for null/absent '${testCase.fieldName}': ${body.responseBody}") {
-                            json["errors"]?.jsonArray.shouldNotBeNull()
-                        }
-                        errors.shouldNotBeEmpty()
-                        val error = errors[0].jsonObject
-                        withClue("Expected 'Validation failed' message: ${body.responseBody}") {
-                            error["message"]?.jsonPrimitive?.content.shouldBe("Validation failed")
-                        }
-                        val extensions = withClue("Expected extensions: ${body.responseBody}") {
-                            error["extensions"]?.jsonObject.shouldNotBeNull()
-                        }
-                        withClue("Expected FIELD_VALIDATION_FAILURE errorType: ${body.responseBody}") {
-                            extensions["errorType"]?.jsonPrimitive?.content.shouldBe("FIELD_VALIDATION_FAILURE")
-                        }
-                        val validationErrors = withClue("Expected validationErrors: ${body.responseBody}") {
-                            extensions["validationErrors"]?.jsonArray.shouldNotBeNull()
-                        }
-                        validationErrors.shouldNotBeEmpty()
-                        val ve = validationErrors[0].jsonObject
-                        withClue("Expected violation path '${testCase.fieldName}': ${body.responseBody}") {
-                            ve["path"]?.jsonPrimitive?.content.shouldBe(testCase.fieldName)
-                        }
-                        withClue("Expected MustNotBeNull error code: ${body.responseBody}") {
-                            ve["error"]?.jsonPrimitive?.content.shouldBe("MustNotBeNull")
-                        }
-                        withClue("Expected 'must not be null' message: ${body.responseBody}") {
-                            ve["message"]?.jsonPrimitive?.content.shouldBe("must not be null")
-                        }
-                        val pathArray = withClue("Expected path array: ${body.responseBody}") {
-                            error["path"]?.jsonArray.shouldNotBeNull()
-                        }
-                        pathArray.shouldNotBeEmpty()
-                        withClue("Expected path '$path': ${body.responseBody}") {
-                            pathArray[0].jsonPrimitive.content.shouldBe(path)
-                        }
-                    }
-            }
+            is GraphqlMutationRejectedInputTestCase -> executeAndVerifyValidationError(
+                violationPath = testCase.fieldName,
+                error = "MustNotBeNull",
+                message = "must not be null",
+                path = path,
+            )
             is GraphqlMutationValidBoundaryTestCase -> {
                 testCase.setup()
                 requestSpec
