@@ -40,15 +40,17 @@ data class GraphqlMutationValidationErrorTestCase(
 }
 
 /**
- * Test case for null input sent to a non-null GraphQL field.
+ * Test case for null or absent input sent to a non-null GraphQL field.
  * The null value is embedded directly in the raw GraphQL query (not via variables),
  * bypassing DGS type-safe builder's null checks.
  *
- * The assertion verifies that GraphQL returns a `ValidationError` mentioning the [fieldName].
+ * The assertion verifies that the response contains a `FIELD_VALIDATION_FAILURE` error
+ * with a `MustNotBeNull` error code for the given [fieldName]. This mirrors the same
+ * validation error structure used for JSR-303 constraint violations.
  *
  * @property rawQueryBuilder lazily builds the raw GraphQL query with null for the target field.
  *   Lazy to avoid accessing test preconditions during test discovery (JUnit `@MethodSource`).
- * @property fieldName the GraphQL field name that receives null, used for error message assertion
+ * @property fieldName the GraphQL field name that receives null, used for error assertion
  */
 data class GraphqlMutationRejectedInputTestCase(
     override val description: String,
@@ -76,8 +78,8 @@ data class GraphqlMutationValidBoundaryTestCase(
 
 /**
  * Generates test cases for `@NotBlank` string field validation. Produces:
- * - **null** input → rejected by GraphQL type system (`ValidationError`)
- * - **absent** input → rejected by GraphQL type system (`ValidationError`)
+ * - **null** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
+ * - **absent** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
  * - **blank** input (`"  "`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **empty** input (`""`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **min valid length** boundary → fully successful execution
@@ -135,8 +137,8 @@ fun mustNotBeBlankTestCases(
 
 /**
  * Generates test cases for required (non-null) GraphQL field validation. Produces:
- * - **null** input → rejected by GraphQL type system (`ValidationError`)
- * - **absent** input → rejected by GraphQL type system (`ValidationError`)
+ * - **null** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
+ * - **absent** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
  *
  * Use this for required fields that do not have `@NotBlank` annotation (e.g., `Long!`, `Boolean!`,
  * `LocalDate!`, `Int!`, or `String!` without `@NotBlank`). Fields with `@NotBlank` already get
