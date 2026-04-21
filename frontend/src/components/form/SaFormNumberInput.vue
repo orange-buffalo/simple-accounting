@@ -20,14 +20,14 @@
   const formValue = ref<number | null>(null);
 
   watch(() => formValue.value, (value) => {
-    const newDisplay = value !== null && value !== undefined ? String(value) : '';
+    const newDisplay = value !== null ? String(value) : '';
     if (displayValue.value !== newDisplay) {
       displayValue.value = newDisplay;
     }
   }, { immediate: true });
 
   watch(() => displayValue.value, (value) => {
-    if (value === '' || value === null || value === undefined) {
+    if (value === '') {
       formValue.value = null;
     } else {
       const num = Number(value);
