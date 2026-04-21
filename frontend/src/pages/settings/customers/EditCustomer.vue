@@ -4,46 +4,18 @@
       <h1>Edit Customer</h1>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="customer"
-      :rules="customerValidationRules"
-    >
-      <template #default>
-        <h2>General Information</h2>
-
-        <ElFormItem
-          label="Name"
-          prop="name"
-        >
-          <ElInput
-            v-model="customer.name"
-            placeholder="Provide a name of the customer"
-          />
-        </ElFormItem>
-      </template>
-
-      <template #buttons-bar>
-        <ElButton @click="navigateToCustomersOverview">
-          Cancel
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          Save
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+    <SaForm v-model="formValues" :on-submit="saveCustomer" :on-load="loadCustomer" :on-cancel="navigateToCustomersOverview">
+      <SaFormInput prop="name" label="Name" placeholder="Provide a name of the customer" />
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { useForm } from '@/components/form/use-form';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
@@ -51,20 +23,16 @@
     id: number,
   }>();
 
-  const customerValidationRules = {
-    name: {
-      required: true,
-      message: 'Please provide a name',
-    },
-  };
-
   const { navigateByViewName } = useNavigation();
   const navigateToCustomersOverview = async () => navigateByViewName('customers-overview');
 
   type CustomerFormValues = {
-    name?: string,
+    name: string,
   };
-  const customer = ref<CustomerFormValues>({});
+
+  const formValues = ref<CustomerFormValues>({
+    name: '',
+  });
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
@@ -86,7 +54,7 @@
     });
     const loaded = workspace?.customer;
     if (loaded) {
-      customer.value = {
+      formValues.value = {
         name: loaded.name,
       };
     }
@@ -112,13 +80,8 @@
     await editCustomerMutation({
       workspaceId: currentWorkspaceId,
       id: props.id,
-      name: customer.value.name!,
+      name: formValues.value.name,
     });
     await navigateToCustomersOverview();
   };
-
-  const {
-    submitForm,
-    formRef,
-  } = useForm(loadCustomer, saveCustomer);
 </script>

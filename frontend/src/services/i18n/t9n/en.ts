@@ -938,6 +938,8 @@ export default {
       max,
     }),
     notBlank: () => 'This value is required and should not be blank',
+    minConstraintViolated: (min: number) => format('The value must be no less than {min, number}', { min }),
+    maxConstraintViolated: (max: number) => format('The value must be no greater than {max, number}', { max }),
   },
 
   accountActivationPage: {

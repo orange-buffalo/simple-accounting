@@ -937,6 +937,8 @@ export default {
       max,
     }),
     notBlank: () => 'Це поле є обов\'язковим і не повинно бути порожнім',
+    minConstraintViolated: (min: number) => format('Значення повинно бути не менше {min, number}', { min }),
+    maxConstraintViolated: (max: number) => format('Значення повинно бути не більше {max, number}', { max }),
   },
 
   accountActivationPage: {

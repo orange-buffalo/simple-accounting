@@ -4,67 +4,24 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="tax"
-      :rules="taxValidationRules"
-    >
-      <template #default>
-        <h2>General Information</h2>
-
-        <ElFormItem
-          label="Title"
-          prop="title"
-        >
-          <ElInput
-            v-model="tax.title"
-            placeholder="Provide a title of the tax"
-          />
-        </ElFormItem>
-
-        <ElFormItem
-          label="Description"
-          prop="description"
-        >
-          <ElInput
-            v-model="tax.description"
-            placeholder="Short description of a tax"
-          />
-        </ElFormItem>
-
-        <!--todo #79: input in bps-->
-        <ElFormItem
-          label="Rate"
-          prop="rateInBps"
-        >
-          <ElInput
-            v-model="tax.rateInBps"
-            placeholder="Provide a rate for this tax"
-          />
-        </ElFormItem>
-      </template>
-
-      <template #buttons-bar>
-        <ElButton @click="navigateToTaxesOverview">
-          Cancel
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          Save
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+    <SaForm v-model="formValues" :on-submit="saveTax" :on-load="loadTax" :on-cancel="navigateToTaxesOverview">
+      <SaFormInput prop="title" label="Title" placeholder="Provide a title of the tax" />
+      <SaFormInput prop="description" label="Description" placeholder="Short description of a tax" />
+      <!--todo #79: input in bps-->
+      <SaFormNumberInput prop="rateInBps" label="Rate" placeholder="Provide a rate for this tax" />
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+  import { computed, ref } from 'vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormNumberInput from '@/components/form/SaFormNumberInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { useForm } from '@/components/form/use-form';
+  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+  import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
@@ -73,14 +30,19 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToTaxesOverview = () => navigateByViewName('general-taxes-overview');
+  const navigateToTaxesOverview = async () => navigateByViewName('general-taxes-overview');
 
   type TaxFormValues = {
-    title?: string,
-    description?: string,
-    rateInBps?: number,
+    title: string,
+    description: string | null,
+    rateInBps: number | null,
   };
-  const tax = ref<TaxFormValues>({});
+
+  const formValues = ref<TaxFormValues>({
+    title: '',
+    description: null,
+    rateInBps: null,
+  });
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
@@ -97,22 +59,20 @@
     }
   `), 'workspace');
 
-  const loadTax = async () => {
-    if (props.id !== undefined) {
-      const workspace = await getGeneralTaxQuery({
-        workspaceId: currentWorkspaceId,
-        taxId: props.id,
-      });
-      const loaded = workspace?.generalTax;
-      if (loaded) {
-        tax.value = {
-          title: loaded.title,
-          description: loaded.description ?? undefined,
-          rateInBps: loaded.rateInBps,
-        };
-      }
+  const loadTax = props.id !== undefined ? async () => {
+    const workspace = await getGeneralTaxQuery({
+      workspaceId: currentWorkspaceId,
+      taxId: props.id!,
+    });
+    const loaded = workspace?.generalTax;
+    if (loaded) {
+      formValues.value = {
+        title: loaded.title,
+        description: loaded.description ?? null,
+        rateInBps: loaded.rateInBps,
+      };
     }
-  };
+  } : undefined;
 
   const createGeneralTaxMutation = useMutation(graphql(`
     mutation createGeneralTaxMutation(
@@ -153,40 +113,30 @@
   `), 'editGeneralTax');
 
   const saveTax = async () => {
+    if (formValues.value.rateInBps === null) {
+      throw new ClientSideValidationError([{
+        field: 'rateInBps',
+        message: $t.value.formValidationMessages.notBlank(),
+      }]);
+    }
     if (props.id === undefined) {
       await createGeneralTaxMutation({
         workspaceId: currentWorkspaceId,
-        title: tax.value.title!,
-        description: tax.value.description ?? null,
-        rateInBps: Number(tax.value.rateInBps!),
+        title: formValues.value.title,
+        description: formValues.value.description || null,
+        rateInBps: formValues.value.rateInBps,
       });
     } else {
       await editGeneralTaxMutation({
         workspaceId: currentWorkspaceId,
         id: props.id,
-        title: tax.value.title!,
-        description: tax.value.description ?? null,
-        rateInBps: Number(tax.value.rateInBps!),
+        title: formValues.value.title,
+        description: formValues.value.description || null,
+        rateInBps: formValues.value.rateInBps,
       });
     }
     await navigateToTaxesOverview();
   };
 
-  const taxValidationRules = {
-    title: {
-      required: true,
-      message: 'Please provide a title',
-    },
-    rateInBps: {
-      required: true,
-      message: 'Please provide the rate',
-    },
-  };
-
-  const {
-    formRef,
-    submitForm,
-  } = useForm(loadTax, saveTax);
-
-  const pageHeader = props.id ? 'Edit General Tax' : 'Create New General Tax';
+  const pageHeader = computed(() => props.id !== undefined ? 'Edit General Tax' : 'Create New General Tax');
 </script>

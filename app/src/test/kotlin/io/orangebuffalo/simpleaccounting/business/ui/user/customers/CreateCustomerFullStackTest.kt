@@ -38,16 +38,25 @@ class CreateCustomerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty name`(page: Page) {
+    fun `should show validation errors for invalid name`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateCustomerPage {
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please provide a name")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            reportRendering("create-customer.validation-error")
+            reportRendering("create-customer.validation-error-name-empty")
+
+            name { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            name {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 

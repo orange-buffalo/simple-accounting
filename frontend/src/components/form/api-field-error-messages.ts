@@ -50,6 +50,10 @@ function getApiFieldErrorMessage(fieldError: FieldError) {
       : $t.value.formValidationMessages.sizeMax(Number(fieldError.params?.max));
   case 'MustNotBeBlank':
     return $t.value.formValidationMessages.notBlank();
+  case 'MinConstraintViolated':
+    return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value));
+  case 'MaxConstraintViolated':
+    return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value));
   default:
     return fieldError.message;
   }

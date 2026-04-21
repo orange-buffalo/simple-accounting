@@ -42,22 +42,21 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should validate required fields`(page: Page) {
+    fun `should validate all fields`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateGeneralTaxPage {
-            // Test empty state - both fields empty
             saveButton.click()
 
             title {
-                shouldHaveValidationError("Please provide a title")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
             rate {
-                shouldHaveValidationError("Please provide the rate")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            reportRendering("create-general-tax.validation-errors")
+            reportRendering("create-general-tax.validation-errors-empty")
 
-            // Test with only title filled - rate should still have error
             title { input.fill("VAT") }
             saveButton.click()
 
@@ -65,20 +64,58 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
             rate {
-                shouldHaveValidationError("Please provide the rate")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            // Clear title and fill rate - title should have error
             title { input.fill("") }
             rate { input.fill("2000") }
             saveButton.click()
 
             title {
-                shouldHaveValidationError("Please provide a title")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
             rate {
                 shouldNotHaveValidationErrors()
             }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("x".repeat(256)) }
+            rate { input.fill("2000") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("VAT") }
+            description { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            description {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            description { input.fill("") }
+            rate { input.fill("-1") }
+            saveButton.click()
+
+            rate {
+                shouldHaveValidationError("The value must be no less than 0")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            reportRendering("create-general-tax.validation-error-rate-min")
+
+            rate { input.fill("10001") }
+            saveButton.click()
+
+            rate {
+                shouldHaveValidationError("The value must be no greater than 10,000")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 

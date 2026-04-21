@@ -5,11 +5,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 
 abstract class EditGeneralTaxPageBase(page: Page) : SaPageBase(page) {
-    val generalInformationHeader = components.sectionHeader("General Information")
-
     val title = components.formItemTextInputByLabel("Title")
     val description = components.formItemTextInputByLabel("Description")
     val rate = components.formItemTextInputByLabel("Rate")

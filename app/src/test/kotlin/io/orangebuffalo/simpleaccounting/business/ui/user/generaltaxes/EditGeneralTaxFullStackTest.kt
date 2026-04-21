@@ -91,7 +91,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should validate required fields`(page: Page) {
+    fun `should validate all fields`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
@@ -107,21 +107,20 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
         page.shouldBeEditGeneralTaxPage {
-            // Test empty state - clear all fields
             title { input.fill("") }
             rate { input.fill("") }
             saveButton.click()
 
             title {
-                shouldHaveValidationError("Please provide a title")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
             rate {
-                shouldHaveValidationError("Please provide the rate")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            reportRendering("edit-general-tax.validation-errors")
+            reportRendering("edit-general-tax.validation-errors-empty")
 
-            // Test with only title filled - rate should still have error
             title { input.fill("Sales Tax") }
             saveButton.click()
 
@@ -129,20 +128,56 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
             rate {
-                shouldHaveValidationError("Please provide the rate")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            // Clear title and fill rate - title should have error
             title { input.fill("") }
             rate { input.fill("1500") }
             saveButton.click()
 
             title {
-                shouldHaveValidationError("Please provide a title")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
             rate {
                 shouldNotHaveValidationErrors()
             }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("x".repeat(256)) }
+            rate { input.fill("1500") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("VAT") }
+            description { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            description {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            description { input.fill("") }
+            rate { input.fill("-1") }
+            saveButton.click()
+
+            rate {
+                shouldHaveValidationError("The value must be no less than 0")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            rate { input.fill("10001") }
+            saveButton.click()
+
+            rate {
+                shouldHaveValidationError("The value must be no greater than 10,000")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
