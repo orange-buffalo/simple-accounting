@@ -116,6 +116,15 @@ class EditGeneralTaxMutationTest(
                     rateInBps = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryTax.id!!)
+            },
+            requiredFieldRejectedTestCases("rateInBps") {
+                editGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryTax.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryTax.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

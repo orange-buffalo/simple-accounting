@@ -90,6 +90,18 @@ class CreateIncomeMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            requiredFieldRejectedTestCases("dateReceived") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("originalAmount") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

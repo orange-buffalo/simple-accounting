@@ -71,6 +71,9 @@ class EditUserMutationTest(
             sizeConstraintTestCases("userName", maxLength = 255) { value ->
                 editUserMutation(id = preconditions.fry.id!!, userName = value)
             },
+            requiredFieldRejectedTestCases("id") {
+                editUserMutation(id = preconditions.fry.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

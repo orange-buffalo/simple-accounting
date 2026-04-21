@@ -78,6 +78,9 @@ class CreateCustomerMutationTest(
             sizeConstraintTestCases("name", maxLength = 255) { value ->
                 createCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!, name = value)
             },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

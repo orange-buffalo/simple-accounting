@@ -85,6 +85,15 @@ class CreateCategoryMutationTest(
                     description = value,
                 )
             },
+            requiredFieldRejectedTestCases("expense") {
+                createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("income") {
+                createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

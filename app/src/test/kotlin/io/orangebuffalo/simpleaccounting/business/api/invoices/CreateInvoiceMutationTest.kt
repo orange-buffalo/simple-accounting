@@ -90,6 +90,21 @@ class CreateInvoiceMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            requiredFieldRejectedTestCases("customerId") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("dateIssued") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("dueDate") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("amount") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

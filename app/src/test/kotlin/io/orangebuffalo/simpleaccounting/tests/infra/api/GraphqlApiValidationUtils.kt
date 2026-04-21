@@ -77,6 +77,7 @@ data class GraphqlMutationValidBoundaryTestCase(
 /**
  * Generates test cases for `@NotBlank` string field validation. Produces:
  * - **null** input → rejected by GraphQL type system (`ValidationError`)
+ * - **absent** input → rejected by GraphQL type system (`ValidationError`)
  * - **blank** input (`"  "`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **empty** input (`""`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **min valid length** boundary → fully successful execution
@@ -103,6 +104,13 @@ fun mustNotBeBlankTestCases(
                 buildRawMutationQueryWithNullField(fieldName) { mutationWithFieldValue("validPlaceholder") }
             },
         ),
+        GraphqlMutationRejectedInputTestCase(
+            description = "$fieldName is absent",
+            fieldName = fieldName,
+            rawQueryBuilder = {
+                buildRawMutationQueryWithAbsentField(fieldName) { mutationWithFieldValue("validPlaceholder") }
+            },
+        ),
         GraphqlMutationValidationErrorTestCase(
             description = "$fieldName is blank",
             mutation = { mutationWithFieldValue("  ") },
@@ -124,6 +132,39 @@ fun mustNotBeBlankTestCases(
         ),
     )
 }
+
+/**
+ * Generates test cases for required (non-null) GraphQL field validation. Produces:
+ * - **null** input → rejected by GraphQL type system (`ValidationError`)
+ * - **absent** input → rejected by GraphQL type system (`ValidationError`)
+ *
+ * Use this for required fields that do not have `@NotBlank` annotation (e.g., `Long!`, `Boolean!`,
+ * `LocalDate!`, `Int!`, or `String!` without `@NotBlank`). Fields with `@NotBlank` already get
+ * null/absent test cases via [mustNotBeBlankTestCases].
+ *
+ * @param fieldName the GraphQL field name being validated
+ * @param mutationWithValidValues builds the mutation with all fields set to valid values,
+ *   including the field being tested
+ */
+fun requiredFieldRejectedTestCases(
+    fieldName: String,
+    mutationWithValidValues: MutationProjection.() -> MutationProjection,
+): List<GraphqlMutationInputTestCase> = listOf(
+    GraphqlMutationRejectedInputTestCase(
+        description = "$fieldName is null",
+        fieldName = fieldName,
+        rawQueryBuilder = {
+            buildRawMutationQueryWithNullField(fieldName) { mutationWithValidValues() }
+        },
+    ),
+    GraphqlMutationRejectedInputTestCase(
+        description = "$fieldName is absent",
+        fieldName = fieldName,
+        rawQueryBuilder = {
+            buildRawMutationQueryWithAbsentField(fieldName) { mutationWithValidValues() }
+        },
+    ),
+)
 
 /**
  * Generates test cases for `@Size` string field validation. Produces:
@@ -222,6 +263,12 @@ fun numberRangeConstraintTestCases(
 )
 
 /**
+ * Regex pattern matching any GraphQL scalar value: strings ("..."), numbers, booleans,
+ * null, or enum identifiers. Used by raw query manipulation helpers.
+ */
+private val SCALAR_VALUE_PATTERN = """(?:"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|\w+)"""
+
+/**
  * Builds a raw GraphQL mutation query with the specified field set to `null`.
  * Works with any scalar type (String, Int, Boolean, enum) by replacing the field's
  * serialized value in the generated query text.
@@ -233,15 +280,45 @@ private fun buildRawMutationQueryWithNullField(
     fieldName: String,
     mutationBuilder: MutationProjection.() -> MutationProjection,
 ): String {
-    val query = DgsClient.buildMutation(_projection = mutationBuilder)
-        .lines()
-        // DGS adds __typename to every projection; removed here since raw queries
-        // are only used for null-input testing and __typename is not relevant
-        .filter { it.trim() != "__typename" }
-        .joinToString("\n")
+    val query = buildRawMutationQuery(mutationBuilder)
     return query.replace(
         // Matches fieldName followed by any scalar value: strings ("..."), numbers, booleans, or enum identifiers
-        Regex("""(\b${Regex.escape(fieldName)}\s*:\s*)(?:"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|\w+)"""),
+        Regex("""(\b${Regex.escape(fieldName)}\s*:\s*)$SCALAR_VALUE_PATTERN"""),
         "$1null"
     )
 }
+
+/**
+ * Builds a raw GraphQL mutation query with the specified field completely removed.
+ * Works with any scalar type by removing the field name, colon, and value from the
+ * argument list, and cleaning up resulting comma artifacts.
+ *
+ * @param fieldName the field name to remove from the query
+ * @param mutationBuilder builds the mutation with a valid value for the target field
+ */
+private fun buildRawMutationQueryWithAbsentField(
+    fieldName: String,
+    mutationBuilder: MutationProjection.() -> MutationProjection,
+): String {
+    val query = buildRawMutationQuery(mutationBuilder)
+    val result = query.replace(
+        Regex("""\b${Regex.escape(fieldName)}\s*:\s*$SCALAR_VALUE_PATTERN"""),
+        ""
+    )
+    // Clean up comma artifacts from field removal
+    return result
+        .replace(Regex(""",\s*,"""), ",")
+        .replace(Regex("""\(\s*,\s*"""), "(")
+        .replace(Regex("""\s*,\s*\)"""), ")")
+        // Remove empty argument list — GraphQL spec requires at least one argument in ()
+        .replace(Regex("""\(\s*\)"""), "")
+}
+
+private fun buildRawMutationQuery(
+    mutationBuilder: MutationProjection.() -> MutationProjection,
+): String = DgsClient.buildMutation(_projection = mutationBuilder)
+    .lines()
+    // DGS adds __typename to every projection; removed here since raw queries
+    // are only used for null-input testing and __typename is not relevant
+    .filter { it.trim() != "__typename" }
+    .joinToString("\n")

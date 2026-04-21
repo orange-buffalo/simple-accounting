@@ -111,6 +111,18 @@ class EditIncomeTaxPaymentMutationTest(
                     notes = value,
                 )
             },
+            requiredFieldRejectedTestCases("id") {
+                editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
+            },
+            requiredFieldRejectedTestCases("amount") {
+                editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
+            },
+            requiredFieldRejectedTestCases("datePaid") {
+                editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")

@@ -93,6 +93,18 @@ class CreateExpenseMutationTest(
             numberRangeConstraintTestCases("percentOnBusiness", minValue = 1, maxValue = 100) { value ->
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, percentOnBusiness = value)
             },
+            requiredFieldRejectedTestCases("datePaid") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("originalAmount") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            requiredFieldRejectedTestCases("workspaceId") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")
