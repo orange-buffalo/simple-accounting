@@ -1491,6 +1491,8 @@ enum ValidationErrorCode {
   MinConstraintViolated
   "The field must not be null, empty, or blank."
   MustNotBeBlank
+  "The field must not be null."
+  MustNotBeNull
   "The field size must be within the specified min/max bounds."
   SizeConstraintViolated
 }
