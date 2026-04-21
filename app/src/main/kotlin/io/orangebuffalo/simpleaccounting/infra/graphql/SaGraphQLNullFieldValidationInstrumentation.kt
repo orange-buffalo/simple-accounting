@@ -82,7 +82,7 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
             .mapNotNull { error ->
                 val message = error.message ?: return@mapNotNull null
                 val fieldName = NULL_FIELD_PATTERNS
-                    .firstNotNullOfOrNull { pattern -> pattern.find(message)?.groupValues?.get(1) }
+                    .firstNotNullOfOrNull { pattern -> pattern.find(message)?.groups?.get(1)?.value }
                     ?: return@mapNotNull null
                 NullFieldError(
                     originalError = error,
