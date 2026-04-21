@@ -69,17 +69,34 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty name`(page: Page) {
+    fun `should show validation errors for invalid inputs`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateCategoryPage {
-            income.click()
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please input name")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("create-category.validation-error-name")
+            shouldHaveNotifications { validationFailed() }
+
+            name { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            name {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            name { input.fill("Valid name") }
+            description { input.fill("x".repeat(1001)) }
+            saveButton.click()
+
+            description {
+                shouldHaveValidationError("The length of this value should be no longer than 1,000 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
