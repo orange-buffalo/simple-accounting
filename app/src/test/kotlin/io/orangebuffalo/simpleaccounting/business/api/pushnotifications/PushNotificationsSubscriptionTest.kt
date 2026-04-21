@@ -25,6 +25,7 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 @DisplayName("Push Notifications Subscription")
 class PushNotificationsSubscriptionTest(
@@ -37,7 +38,6 @@ class PushNotificationsSubscriptionTest(
     @Test
     fun `should receive a single broadcast event`() {
         val subscription = subscribeToNotifications(preconditions.fry)
-        val receivedMessages = subscription.receivedMessages
 
         try {
             runBlocking {
@@ -45,6 +45,7 @@ class PushNotificationsSubscriptionTest(
             }
 
             await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive the broadcast event") {
                     receivedMessages.size.shouldBe(1)
                     val message = objectMapper.readTree(receivedMessages[0])
@@ -60,7 +61,6 @@ class PushNotificationsSubscriptionTest(
     @Test
     fun `should receive multiple broadcast events`() {
         val subscription = subscribeToNotifications(preconditions.fry)
-        val receivedMessages = subscription.receivedMessages
 
         try {
             runBlocking {
@@ -73,6 +73,7 @@ class PushNotificationsSubscriptionTest(
             }
 
             await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive both broadcast events") {
                     receivedMessages.size.shouldBe(2)
                     val first = objectMapper.readTree(receivedMessages[0])
@@ -92,7 +93,6 @@ class PushNotificationsSubscriptionTest(
     @Test
     fun `should not receive events addressed to another user`() {
         val subscription = subscribeToNotifications(preconditions.fry)
-        val receivedMessages = subscription.receivedMessages
 
         try {
             runBlocking {
@@ -111,6 +111,7 @@ class PushNotificationsSubscriptionTest(
             }
 
             await().atMost(Duration.ofSeconds(5)).untilAsserted {
+                val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive only messages for the current user and broadcasts") {
                     receivedMessages.size.shouldBe(3)
                     objectMapper.readTree(receivedMessages[0]).payloadEventName()
@@ -128,11 +129,13 @@ class PushNotificationsSubscriptionTest(
 
     private fun subscribeToNotifications(user: PlatformUser): NotificationsSubscription {
         val receivedMessages = CopyOnWriteArrayList<String>()
-        val initialSubscribersCount = runBlocking { pushNotificationService.getActiveSubscribersCount() }
         val connectionAcknowledged = AtomicBoolean(false)
+        val probeReceived = AtomicBoolean(false)
+        val lastProbeSentAtMillis = AtomicLong(0L)
         val port = environment.getProperty("local.server.port")
         val wsUri = URI("ws://localhost:$port/api/graphql/subscriptions")
         val jwtToken = jwtService.buildJwtToken(user.toSecurityPrincipal())
+        val probeEventName = "probe-${System.nanoTime()}"
 
         val client = ReactorNettyWebSocketClient(
             reactor.netty.http.client.HttpClient.create()
@@ -143,7 +146,7 @@ class PushNotificationsSubscriptionTest(
 
         val outgoingSink = Sinks.many().unicast().onBackpressureBuffer<String>()
 
-        val websocketSession = client.execute(wsUri) { session ->
+        val webSocketSession = client.execute(wsUri) { session ->
             val connectionInit = objectMapper.writeValueAsString(
                 mapOf(
                     "type" to "connection_init",
@@ -174,7 +177,13 @@ class PushNotificationsSubscriptionTest(
                             connectionAcknowledged.set(true)
                             outgoingSink.tryEmitNext(subscribe)
                         }
-                        "next" -> receivedMessages.add(text)
+                        "next" -> {
+                            if (json.payloadEventName() == probeEventName) {
+                                probeReceived.set(true)
+                            } else {
+                                receivedMessages.add(text)
+                            }
+                        }
                     }
                 }
                 .then()
@@ -183,13 +192,26 @@ class PushNotificationsSubscriptionTest(
         }.subscribe()
 
         await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
-            val currentSubscribers = runBlocking { pushNotificationService.getActiveSubscribersCount() }
-            connectionAcknowledged.get() && currentSubscribers > initialSubscribersCount
+            connectionAcknowledged.get()
+        }
+
+        await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
+            val now = System.currentTimeMillis()
+            if (now - lastProbeSentAtMillis.get() >= 250) {
+                runBlocking {
+                    pushNotificationService.sendPushNotification(
+                        userId = user.id!!,
+                        eventName = probeEventName,
+                    )
+                }
+                lastProbeSentAtMillis.set(now)
+            }
+            probeReceived.get()
         }
 
         return NotificationsSubscription(
             receivedMessages = receivedMessages,
-            websocketSession = websocketSession,
+            webSocketSession = webSocketSession,
         )
     }
 
@@ -209,11 +231,13 @@ class PushNotificationsSubscriptionTest(
     }
 
     private data class NotificationsSubscription(
-        val receivedMessages: List<String>,
-        private val websocketSession: Disposable,
+        private val receivedMessages: CopyOnWriteArrayList<String>,
+        private val webSocketSession: Disposable,
     ) {
+        fun getReceivedMessages(): List<String> = receivedMessages.toList()
+
         fun dispose() {
-            websocketSession.dispose()
+            webSocketSession.dispose()
         }
     }
 }
