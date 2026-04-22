@@ -8,9 +8,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 
-class WorkspaceEditorPage private constructor(
+abstract class WorkspaceEditorPageBase(
     page: Page,
-    private val pageTitle: String
+    pageTitle: String
 ) : SaPageBase(page) {
     private val header = components.pageHeader(pageTitle)
     private val generalInfoHeader = components.sectionHeader("General Information")
@@ -21,30 +21,41 @@ class WorkspaceEditorPage private constructor(
     val cancelButton = components.buttonByText("Cancel")
     val saveButton = components.buttonByText("Save")
 
-    private fun shouldBeOpen(): WorkspaceEditorPage {
+    fun shouldBeOpen(): WorkspaceEditorPageBase {
         header.shouldBeVisible()
         generalInfoHeader.shouldBeVisible()
         return this
     }
+}
 
+class CreateWorkspacePage private constructor(page: Page) : WorkspaceEditorPageBase(page, "Create New Workspace") {
     companion object {
-        fun Page.shouldBeCreateWorkspacePage(spec: WorkspaceEditorPage.() -> Unit = {}) {
-            WorkspaceEditorPage(this, "Create New Workspace").apply {
+        fun Page.shouldBeCreateWorkspacePage(spec: CreateWorkspacePage.() -> Unit = {}) {
+            CreateWorkspacePage(this).apply {
                 shouldBeOpen()
                 spec()
             }
         }
 
-        fun Page.openCreateWorkspacePage(spec: WorkspaceEditorPage.() -> Unit = {}) {
+        fun Page.openCreateWorkspacePage(spec: CreateWorkspacePage.() -> Unit = {}) {
             navigate("/settings/workspaces/create")
             shouldBeCreateWorkspacePage(spec)
         }
+    }
+}
 
-        fun Page.shouldBeEditWorkspacePage(spec: WorkspaceEditorPage.() -> Unit = {}) {
-            WorkspaceEditorPage(this, "Edit Workspace").apply {
+class EditWorkspacePage private constructor(page: Page) : WorkspaceEditorPageBase(page, "Edit Workspace") {
+    companion object {
+        fun Page.shouldBeEditWorkspacePage(spec: EditWorkspacePage.() -> Unit = {}) {
+            EditWorkspacePage(this).apply {
                 shouldBeOpen()
                 spec()
             }
+        }
+
+        fun Page.openEditWorkspacePage(workspaceId: Long, spec: EditWorkspacePage.() -> Unit = {}) {
+            navigate("/settings/workspaces/$workspaceId/edit")
+            shouldBeEditWorkspacePage(spec)
         }
     }
 }
