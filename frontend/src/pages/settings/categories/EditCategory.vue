@@ -142,6 +142,6 @@
   };
 
   const pageHeader = computed(() => props.id !== undefined
-    ? $t.editCategory.pageHeader.edit()
-    : $t.editCategory.pageHeader.create());
+    ? $t.value.editCategory.pageHeader.edit()
+    : $t.value.editCategory.pageHeader.create());
 </script>

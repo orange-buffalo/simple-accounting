@@ -144,6 +144,6 @@
   };
 
   const pageHeader = computed(() => props.id !== undefined
-    ? $t.editGeneralTax.pageHeader.edit()
-    : $t.editGeneralTax.pageHeader.create());
+    ? $t.value.editGeneralTax.pageHeader.edit()
+    : $t.value.editGeneralTax.pageHeader.create());
 </script>

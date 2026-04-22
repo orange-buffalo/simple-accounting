@@ -112,6 +112,6 @@
   };
 
   const pageHeader = computed(() => props.id !== undefined
-    ? $t.editCustomer.pageHeader.edit()
-    : $t.editCustomer.pageHeader.create());
+    ? $t.value.editCustomer.pageHeader.edit()
+    : $t.value.editCustomer.pageHeader.create());
 </script>
