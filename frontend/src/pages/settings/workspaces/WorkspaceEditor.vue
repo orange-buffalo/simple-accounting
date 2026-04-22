@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';
@@ -33,7 +33,7 @@
 
   const isEditing = props.id !== undefined;
   // todo #459: i18n
-  const pageHeader = computed(() => isEditing ? 'Edit Workspace' : 'Create New Workspace');
+  const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
 
   const formValues = ref<WorkspaceForm>({
     name: '',
