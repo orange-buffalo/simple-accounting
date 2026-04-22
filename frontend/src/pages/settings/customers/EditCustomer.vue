@@ -108,4 +108,3 @@
 
   const pageHeader = computed(() => props.id !== undefined ? 'Edit Customer' : 'Create New Customer');
 </script>
-

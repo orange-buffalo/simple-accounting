@@ -116,7 +116,6 @@
         workspaceId: currentWorkspaceId,
         title: formValues.value.title,
         description: formValues.value.description || null,
-         
         rateInBps: formValues.value.rateInBps!,
       });
     } else {
@@ -125,7 +124,6 @@
         id: props.id,
         title: formValues.value.title,
         description: formValues.value.description || null,
-         
         rateInBps: formValues.value.rateInBps!,
       });
     }
