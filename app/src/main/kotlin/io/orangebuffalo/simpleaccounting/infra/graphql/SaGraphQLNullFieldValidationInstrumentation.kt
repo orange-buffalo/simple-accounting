@@ -4,6 +4,7 @@ import graphql.ErrorClassification
 import graphql.ErrorType
 import graphql.ExecutionResult
 import graphql.GraphQLError
+import graphql.execution.NonNullableValueCoercedAsNullException
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
@@ -16,8 +17,11 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 /**
- * Message patterns from graphql-java's i18n/Validation.properties that indicate a null or missing
- * value for a non-nullable field argument. The first capture group is the field name in all patterns.
+ * Message patterns that indicate a null or missing value for a non-nullable field argument or variable.
+ * The first capture group is the field/argument name in all patterns.
+ *
+ * Covers both [ValidationError] messages (inline null literals and absent fields in query document)
+ * and [NonNullableValueCoercedAsNullException] messages (null passed via GraphQL variables at coercion time).
  */
 private val NULL_FIELD_PATTERNS = listOf(
     // ProvidedNonNullArguments.missingFieldArg: "Validation error (X) : Missing field argument 'fieldName'"
@@ -26,12 +30,26 @@ private val NULL_FIELD_PATTERNS = listOf(
     Regex("""Null value for non-null field argument '([^']+)'"""),
     // ArgumentValidationUtil.handleNullError: "Validation error (X) : argument 'fieldName' with value '...' must not be null"
     Regex("""argument '([^']+)' with value .+ must not be null"""),
+    // NonNullableValueCoercedAsNullException: "Variable 'varName' has coerced Null value for NonNull type 'Type'"
+    // Used when a top-level variable declared as non-null receives a null value.
+    Regex("""Variable '([^']+)' has coerced Null value for NonNull type"""),
+    // NonNullableValueCoercedAsNullException: "Field 'fieldName' of variable 'varName' has coerced Null value for NonNull type 'Type'"
+    // Used when a field inside an input-object variable receives a null value.
+    Regex("""Field '([^']+)' of variable '[^']+' has coerced Null value for NonNull type"""),
 )
 
 /**
- * Instrumentation that transforms GraphQL schema validation errors for null or missing non-nullable
- * field arguments into the same [SaGrapQlErrorType.FIELD_VALIDATION_FAILURE] format used by
- * JSR-303 constraint violations. This provides a consistent validation error structure for API clients.
+ * Instrumentation that transforms null/missing-field errors for non-nullable arguments or variables
+ * into the same [SaGrapQlErrorType.FIELD_VALIDATION_FAILURE] format used by JSR-303 constraint violations.
+ *
+ * Two sources of null-field errors are handled:
+ * - [ValidationError] — produced by graphql-java's document validators when an inline `null` literal
+ *   or an absent field is used for a non-null argument in the query document.
+ * - [NonNullableValueCoercedAsNullException] — produced by graphql-java's variable coercion when
+ *   the frontend passes `null` for a non-null typed variable (e.g. `$rateInBps: Int!`).
+ *
+ * Both cases are normalized to a consistent [SaGrapQlErrorType.FIELD_VALIDATION_FAILURE] response
+ * so API clients can handle validation uniformly regardless of how the null was supplied.
  */
 @Component
 class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
@@ -78,7 +96,7 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
 
     private fun collectNullFieldErrors(executionResult: ExecutionResult): List<NullFieldError> =
         executionResult.errors
-            .filterIsInstance<ValidationError>()
+            .filter { it is ValidationError || it is NonNullableValueCoercedAsNullException }
             .mapNotNull { error ->
                 val message = error.message ?: return@mapNotNull null
                 val fieldName = NULL_FIELD_PATTERNS
@@ -87,12 +105,15 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
                 NullFieldError(
                     originalError = error,
                     fieldName = fieldName,
-                    queryPath = error.queryPath ?: emptyList(),
+                    queryPath = when (error) {
+                        is ValidationError -> error.queryPath ?: emptyList()
+                        else -> error.path?.filterIsInstance<String>() ?: emptyList()
+                    },
                 )
             }
 
     private data class NullFieldError(
-        val originalError: ValidationError,
+        val originalError: GraphQLError,
         val fieldName: String,
         val queryPath: List<String>,
     )
