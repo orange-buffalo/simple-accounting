@@ -47,9 +47,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.openCreateGeneralTaxPage {
             saveButton.click()
 
-            title {
-                shouldHaveValidationError("This value is required and should not be blank")
-            }
+            // Rate is null: schema validation fires first, preventing JSR-303 from checking title
             rate {
                 shouldHaveValidationError("This value is required")
             }
@@ -57,18 +55,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
 
             reportRendering("create-general-tax.validation-errors-empty")
 
-            title { input.fill("VAT") }
-            saveButton.click()
-
-            title {
-                shouldNotHaveValidationErrors()
-            }
-            rate {
-                shouldHaveValidationError("This value is required")
-            }
-            shouldHaveNotifications { validationFailed() }
-
-            title { input.fill("") }
+            // Fill rate to allow title to reach JSR-303 validation
             rate { input.fill("2000") }
             saveButton.click()
 
@@ -77,6 +64,18 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
             }
             rate {
                 shouldNotHaveValidationErrors()
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("VAT") }
+            rate { input.fill("") }
+            saveButton.click()
+
+            title {
+                shouldNotHaveValidationErrors()
+            }
+            rate {
+                shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
 
