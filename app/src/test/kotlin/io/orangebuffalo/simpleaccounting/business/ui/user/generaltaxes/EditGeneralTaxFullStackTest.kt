@@ -111,7 +111,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             rate { input.fill("") }
             saveButton.click()
 
-            // Rate is null: schema validation fires first, preventing JSR-303 from checking title
+            // Rate is null: client-side validation fires first, only rate error is shown
             rate {
                 shouldHaveValidationError("This value is required")
             }
@@ -119,7 +119,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
 
             reportRendering("edit-general-tax.validation-errors-empty")
 
-            // Fill rate to allow title to reach JSR-303 validation
+            // Fill rate to allow title to reach server-side validation
             rate { input.fill("1500") }
             saveButton.click()
 
