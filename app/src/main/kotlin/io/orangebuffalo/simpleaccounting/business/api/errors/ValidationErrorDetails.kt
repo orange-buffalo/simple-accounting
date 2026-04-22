@@ -33,6 +33,9 @@ enum class ValidationErrorCode {
     @GraphQLDescription("The field must not be null, empty, or blank.")
     MustNotBeBlank,
 
+    @GraphQLDescription("The field must not be null.")
+    MustNotBeNull,
+
     @GraphQLDescription("The field size must be within the specified min/max bounds.")
     SizeConstraintViolated,
 

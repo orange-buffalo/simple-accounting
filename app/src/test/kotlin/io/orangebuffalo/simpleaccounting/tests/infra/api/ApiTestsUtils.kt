@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -427,7 +426,7 @@ class GraphqlClientRequestExecutor(
     /**
      * Executes the request and verifies the response based on the [GraphqlMutationInputTestCase] type:
      * - [GraphqlMutationValidationErrorTestCase] — verifies exact `FIELD_VALIDATION_FAILURE` error structure
-     * - [GraphqlMutationRejectedInputTestCase] — verifies GraphQL `ValidationError` for the null field
+     * - [GraphqlMutationRejectedInputTestCase] — verifies `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
      * - [GraphqlMutationValidBoundaryTestCase] — verifies fully successful execution with no errors
      */
     fun executeAndVerifyInputValidation(
@@ -442,23 +441,12 @@ class GraphqlClientRequestExecutor(
                 path = path,
                 params = testCase.params,
             )
-            is GraphqlMutationRejectedInputTestCase -> {
-                requestSpec
-                    .exchange()
-                    .expectStatus().isOk
-                    .expectBody<String>()
-                    .consumeWith { body ->
-                        val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
-                        val errors = withClue("Expected errors in response for null ${testCase.fieldName} but got none: ${body.responseBody}") {
-                            json["errors"]?.jsonArray.shouldNotBeNull()
-                        }
-                        errors.shouldNotBeEmpty()
-                        val errorMessages = errors.map { it.jsonObject["message"]?.jsonPrimitive?.content.orEmpty() }
-                        withClue("At least one error message should mention the field name '${testCase.fieldName}'") {
-                            errorMessages.any { it.contains(testCase.fieldName, ignoreCase = true) }.shouldBeTrue()
-                        }
-                    }
-            }
+            is GraphqlMutationRejectedInputTestCase -> executeAndVerifyValidationError(
+                violationPath = testCase.fieldName,
+                error = "MustNotBeNull",
+                message = "must not be null",
+                path = path,
+            )
             is GraphqlMutationValidBoundaryTestCase -> {
                 testCase.setup()
                 requestSpec
