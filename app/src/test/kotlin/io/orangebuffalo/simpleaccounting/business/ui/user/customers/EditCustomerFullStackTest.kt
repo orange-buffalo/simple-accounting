@@ -65,7 +65,7 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty name`(page: Page) {
+    fun `should show validation errors for invalid name`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
@@ -81,10 +81,19 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please provide a name")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
+            shouldHaveNotifications { validationFailed() }
 
-            reportRendering("edit-customer.validation-error")
+            reportRendering("edit-customer.validation-error-name-empty")
+
+            name { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            name {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
