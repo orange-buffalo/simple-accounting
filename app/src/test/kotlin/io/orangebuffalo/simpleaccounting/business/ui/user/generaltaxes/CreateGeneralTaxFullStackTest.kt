@@ -47,7 +47,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.openCreateGeneralTaxPage {
             saveButton.click()
 
-            // Rate is null: client-side validation fires first, only rate error is shown
+            // Rate is null: variable coercion error fires before execution, preventing JSR-303 from running
             rate {
                 shouldHaveValidationError("This value is required")
             }
