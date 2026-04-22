@@ -90,6 +90,20 @@ fun ApiTestClient.graphqlRawQuery(query: String): GraphqlClientRequestExecutor =
         GraphqlClientRequestExecutor(it)
     }
 
+fun ApiTestClient.graphqlRawQueryWithVariables(
+    query: String,
+    variables: JsonObject,
+): GraphqlClientRequestExecutor = this
+    .post()
+    .uri("/api/graphql")
+    .sendJson {
+        put("query", query)
+        put("variables", variables)
+    }
+    .let {
+        GraphqlClientRequestExecutor(it)
+    }
+
 /**
  * Builds a [GraphqlClientRequestExecutor] for the given input validation test case.
  * Dispatches to the appropriate request builder based on the test case type:
@@ -228,6 +242,24 @@ class GraphqlClientRequestExecutor(
         params: Map<String, String>? = null,
         locationColumn: Int = 3,
         locationLine: Int = 2
+    ) = executeAndVerifyValidationError(
+        violationPath = violationPath,
+        error = error,
+        message = message,
+        paths = listOf(path),
+        params = params,
+        locationColumn = locationColumn,
+        locationLine = locationLine,
+    )
+
+    fun executeAndVerifyValidationError(
+        violationPath: String,
+        error: String,
+        message: String,
+        paths: List<String>,
+        params: Map<String, String>? = null,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
     ) {
         requestSpec
             .exchange()
@@ -263,7 +295,7 @@ class GraphqlClientRequestExecutor(
                             })
                         }
                         putJsonArray("path") {
-                            add(path)
+                            paths.forEach { add(it) }
                         }
                     })
                 }
