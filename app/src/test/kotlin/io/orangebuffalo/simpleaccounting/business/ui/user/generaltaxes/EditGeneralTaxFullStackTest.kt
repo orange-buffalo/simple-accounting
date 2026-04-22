@@ -115,7 +115,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
             rate {
-                shouldHaveValidationError("This value is required and should not be blank")
+                shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
 
@@ -128,7 +128,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
             rate {
-                shouldHaveValidationError("This value is required and should not be blank")
+                shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
 

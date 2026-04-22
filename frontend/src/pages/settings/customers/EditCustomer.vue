@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Edit Customer</h1>
+      <h1>{{ pageHeader }}</h1>
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveCustomer" :on-load="loadCustomer" :on-cancel="navigateToCustomersOverview">
@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNavigation from '@/services/use-navigation';
@@ -20,7 +20,7 @@
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   const props = defineProps<{
-    id: number,
+    id?: number,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -47,10 +47,10 @@
     }
   `), 'workspace');
 
-  const loadCustomer = async () => {
+  const loadCustomer = props.id !== undefined ? async () => {
     const workspace = await getCustomerQuery({
       workspaceId: currentWorkspaceId,
-      customerId: props.id,
+      customerId: props.id!,
     });
     const loaded = workspace?.customer;
     if (loaded) {
@@ -58,7 +58,21 @@
         name: loaded.name,
       };
     }
-  };
+  } : undefined;
+
+  const createCustomerMutation = useMutation(graphql(`
+    mutation createCustomerMutation(
+      $workspaceId: Long!,
+      $name: String!
+    ) {
+      createCustomer(
+        workspaceId: $workspaceId,
+        name: $name
+      ) {
+        id
+      }
+    }
+  `), 'createCustomer');
 
   const editCustomerMutation = useMutation(graphql(`
     mutation editCustomerMutation(
@@ -77,11 +91,21 @@
   `), 'editCustomer');
 
   const saveCustomer = async () => {
-    await editCustomerMutation({
-      workspaceId: currentWorkspaceId,
-      id: props.id,
-      name: formValues.value.name,
-    });
+    if (props.id === undefined) {
+      await createCustomerMutation({
+        workspaceId: currentWorkspaceId,
+        name: formValues.value.name,
+      });
+    } else {
+      await editCustomerMutation({
+        workspaceId: currentWorkspaceId,
+        id: props.id,
+        name: formValues.value.name,
+      });
+    }
     await navigateToCustomersOverview();
   };
+
+  const pageHeader = computed(() => props.id !== undefined ? 'Edit Customer' : 'Create New Customer');
 </script>
+

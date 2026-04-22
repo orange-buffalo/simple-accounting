@@ -20,8 +20,6 @@
   import SaFormNumberInput from '@/components/form/SaFormNumberInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
-  import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
 
@@ -113,18 +111,13 @@
   `), 'editGeneralTax');
 
   const saveTax = async () => {
-    if (formValues.value.rateInBps === null) {
-      throw new ClientSideValidationError([{
-        field: 'rateInBps',
-        message: $t.value.formValidationMessages.notBlank(),
-      }]);
-    }
     if (props.id === undefined) {
       await createGeneralTaxMutation({
         workspaceId: currentWorkspaceId,
         title: formValues.value.title,
         description: formValues.value.description || null,
-        rateInBps: formValues.value.rateInBps,
+         
+        rateInBps: formValues.value.rateInBps!,
       });
     } else {
       await editGeneralTaxMutation({
@@ -132,7 +125,8 @@
         id: props.id,
         title: formValues.value.title,
         description: formValues.value.description || null,
-        rateInBps: formValues.value.rateInBps,
+         
+        rateInBps: formValues.value.rateInBps!,
       });
     }
     await navigateToTaxesOverview();
