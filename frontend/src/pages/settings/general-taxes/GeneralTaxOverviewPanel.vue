@@ -13,7 +13,7 @@
         icon="pencil-solid"
         @click="navigateToTaxEdit"
       >
-        Edit
+        {{ $t.generalTaxesOverview.edit() }}
       </SaActionLink>
     </template>
   </SaOverviewItem>
@@ -24,6 +24,7 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
   import type { GeneralTaxesPageQuery } from '@/services/api/gql/graphql';
+  import { $t } from '@/services/i18n';
 
   type GeneralTaxNode = GeneralTaxesPageQuery['workspace']['generalTaxes']['edges'][0]['node'];
 

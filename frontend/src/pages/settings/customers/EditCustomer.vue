@@ -5,7 +5,11 @@
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveCustomer" :on-load="loadCustomer" :on-cancel="navigateToCustomersOverview">
-      <SaFormInput prop="name" label="Name" placeholder="Provide a name of the customer" />
+      <SaFormInput
+        prop="name"
+        :label="$t.editCustomer.form.name.label()"
+        :placeholder="$t.editCustomer.form.name.placeholder()"
+      />
     </SaForm>
   </div>
 </template>
@@ -18,6 +22,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     id?: number,
@@ -106,5 +111,7 @@
     await navigateToCustomersOverview();
   };
 
-  const pageHeader = computed(() => props.id !== undefined ? 'Edit Customer' : 'Create New Customer');
+  const pageHeader = computed(() => props.id !== undefined
+    ? $t.editCustomer.pageHeader.edit()
+    : $t.editCustomer.pageHeader.create());
 </script>

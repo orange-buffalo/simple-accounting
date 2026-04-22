@@ -5,10 +5,10 @@
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveCategory" :on-load="loadCategory" :on-cancel="navigateToCategoriesOverview">
-      <SaFormInput prop="name" label="Name" />
-      <SaFormInput prop="description" label="Description" type="textarea" />
-      <SaFormCheckbox prop="income" label="Income" />
-      <SaFormCheckbox prop="expense" label="Expense" />
+      <SaFormInput prop="name" :label="$t.editCategory.form.name.label()" />
+      <SaFormInput prop="description" :label="$t.editCategory.form.description.label()" type="textarea" />
+      <SaFormCheckbox prop="income" :label="$t.editCategory.form.income.label()" />
+      <SaFormCheckbox prop="expense" :label="$t.editCategory.form.expense.label()" />
     </SaForm>
   </div>
 </template>
@@ -22,6 +22,7 @@
   import useNavigation from '@/services/use-navigation';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     id?: number,
@@ -140,5 +141,7 @@
     await navigateToCategoriesOverview();
   };
 
-  const pageHeader = computed(() => props.id !== undefined ? 'Edit Category' : 'Create New Category');
+  const pageHeader = computed(() => props.id !== undefined
+    ? $t.editCategory.pageHeader.edit()
+    : $t.editCategory.pageHeader.create());
 </script>

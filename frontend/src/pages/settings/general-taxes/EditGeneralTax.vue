@@ -5,10 +5,22 @@
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveTax" :on-load="loadTax" :on-cancel="navigateToTaxesOverview">
-      <SaFormInput prop="title" label="Title" placeholder="Provide a title of the tax" />
-      <SaFormInput prop="description" label="Description" placeholder="Short description of a tax" />
+      <SaFormInput
+        prop="title"
+        :label="$t.editGeneralTax.form.title.label()"
+        :placeholder="$t.editGeneralTax.form.title.placeholder()"
+      />
+      <SaFormInput
+        prop="description"
+        :label="$t.editGeneralTax.form.description.label()"
+        :placeholder="$t.editGeneralTax.form.description.placeholder()"
+      />
       <!--todo #79: input in bps-->
-      <SaFormNumberInput prop="rateInBps" label="Rate" placeholder="Provide a rate for this tax" />
+      <SaFormNumberInput
+        prop="rateInBps"
+        :label="$t.editGeneralTax.form.rate.label()"
+        :placeholder="$t.editGeneralTax.form.rate.placeholder()"
+      />
     </SaForm>
   </div>
 </template>
@@ -22,6 +34,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     id?: number,
@@ -130,5 +143,7 @@
     await navigateToTaxesOverview();
   };
 
-  const pageHeader = computed(() => props.id !== undefined ? 'Edit General Tax' : 'Create New General Tax');
+  const pageHeader = computed(() => props.id !== undefined
+    ? $t.editGeneralTax.pageHeader.edit()
+    : $t.editGeneralTax.pageHeader.create());
 </script>
