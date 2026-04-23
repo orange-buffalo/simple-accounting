@@ -1,8 +1,8 @@
 <template>
-  <div class="categories-overview">
-    <div class="sa-page-header">
-      <h1>Categories</h1>
-    </div>
+    <div class="categories-overview">
+      <div class="sa-page-header">
+        <h1>{{ $t.categoriesOverview.header() }}</h1>
+      </div>
 
     <div class="top-buttons-bar">
       <ElButton
@@ -10,7 +10,7 @@
         @click="navigateToNewCategoryView"
       >
         <SaIcon icon="plus-thin" />
-        Add new
+        {{ $t.categoriesOverview.create() }}
       </ElButton>
     </div>
 
@@ -32,6 +32,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { graphql } from '@/services/api/gql';
+  import { $t } from '@/services/i18n';
 
   const categoriesPageQuery = graphql(`
     query categoriesPage($workspaceId: Long!, $first: Int!, $after: String) {
