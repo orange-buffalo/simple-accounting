@@ -4,16 +4,16 @@
       <span v-if="category.description">{{ category.description }}</span>
     </template>
     <template #attributes-preview>
-      <span v-if="category.income">Income</span>
+      <span v-if="category.income">{{ $t.categoriesOverview.type.income() }}</span>
       <span v-if="category.income && category.expense"> • </span>
-      <span v-if="category.expense">Expense</span>
+      <span v-if="category.expense">{{ $t.categoriesOverview.type.expense() }}</span>
     </template>
     <template #last-column>
       <SaActionLink
         icon="pencil-solid"
         @click="navigateToCategoryEdit"
       >
-        Edit
+        {{ $t.categoriesOverview.edit() }}
       </SaActionLink>
     </template>
   </SaOverviewItem>
@@ -24,6 +24,7 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
   import type { CategoriesPageQuery } from '@/services/api/gql/graphql';
+  import { $t } from '@/services/i18n';
 
   type CategoryNode = CategoriesPageQuery['workspace']['categories']['edges'][0]['node'];
 

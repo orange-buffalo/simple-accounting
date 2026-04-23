@@ -1057,6 +1057,80 @@ export default {
     pageIndicator: (current: number, total: number) => format('{0, number} з {1, number}', [current, total]),
   },
 
+  categoriesOverview: {
+    header: () => 'Категорії',
+    create: () => 'Додати новий',
+    edit: () => 'Редагувати',
+    type: {
+      income: () => 'Дохід',
+      expense: () => 'Витрати',
+    },
+  },
+
+  editCategory: {
+    pageHeader: {
+      edit: () => 'Редагувати категорію',
+      create: () => 'Створити нову категорію',
+    },
+    form: {
+      name: {
+        label: () => 'Назва',
+      },
+      description: {
+        label: () => 'Опис',
+      },
+      income: {
+        label: () => 'Дохід',
+      },
+      expense: {
+        label: () => 'Витрати',
+      },
+    },
+  },
+
+  editCustomer: {
+    pageHeader: {
+      edit: () => 'Редагувати клієнта',
+      create: () => 'Створити нового клієнта',
+    },
+    form: {
+      name: {
+        label: () => 'Назва',
+        placeholder: () => 'Вкажіть назву клієнта',
+      },
+    },
+  },
+
+  generalTaxesOverview: {
+    header: () => 'Загальні податки',
+    filters: {
+      announcement: () => 'Фільтри незабаром',
+    },
+    create: () => 'Додати новий',
+    edit: () => 'Редагувати',
+  },
+
+  editGeneralTax: {
+    pageHeader: {
+      edit: () => 'Редагувати загальний податок',
+      create: () => 'Створити новий загальний податок',
+    },
+    form: {
+      title: {
+        label: () => 'Назва',
+        placeholder: () => 'Вкажіть назву податку',
+      },
+      description: {
+        label: () => 'Опис',
+        placeholder: () => 'Короткий опис податку',
+      },
+      rate: {
+        label: () => 'Ставка',
+        placeholder: () => 'Вкажіть ставку податку',
+      },
+    },
+  },
+
   customersOverview: {
     header: () => 'Клієнти',
     filters: {

@@ -1058,6 +1058,80 @@ export default {
     pageIndicator: (current: number, total: number) => format('{0, number} of {1, number}', [current, total]),
   },
 
+  categoriesOverview: {
+    header: () => 'Categories',
+    create: () => 'Add new',
+    edit: () => 'Edit',
+    type: {
+      income: () => 'Income',
+      expense: () => 'Expense',
+    },
+  },
+
+  editCategory: {
+    pageHeader: {
+      edit: () => 'Edit Category',
+      create: () => 'Create New Category',
+    },
+    form: {
+      name: {
+        label: () => 'Name',
+      },
+      description: {
+        label: () => 'Description',
+      },
+      income: {
+        label: () => 'Income',
+      },
+      expense: {
+        label: () => 'Expense',
+      },
+    },
+  },
+
+  editCustomer: {
+    pageHeader: {
+      edit: () => 'Edit Customer',
+      create: () => 'Create New Customer',
+    },
+    form: {
+      name: {
+        label: () => 'Name',
+        placeholder: () => 'Provide a name of the customer',
+      },
+    },
+  },
+
+  generalTaxesOverview: {
+    header: () => 'General Taxes',
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
+    create: () => 'Add new',
+    edit: () => 'Edit',
+  },
+
+  editGeneralTax: {
+    pageHeader: {
+      edit: () => 'Edit General Tax',
+      create: () => 'Create New General Tax',
+    },
+    form: {
+      title: {
+        label: () => 'Title',
+        placeholder: () => 'Provide a title of the tax',
+      },
+      description: {
+        label: () => 'Description',
+        placeholder: () => 'Short description of a tax',
+      },
+      rate: {
+        label: () => 'Rate',
+        placeholder: () => 'Provide a rate for this tax',
+      },
+    },
+  },
+
   customersOverview: {
     header: () => 'Customers',
     filters: {

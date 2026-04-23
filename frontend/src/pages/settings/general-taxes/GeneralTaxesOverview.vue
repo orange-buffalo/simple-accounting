@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>General Taxes</h1>
+      <h1>{{ $t.generalTaxesOverview.header() }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t.generalTaxesOverview.filters.announcement() }}</span>
         </div>
 
         <ElButton
@@ -13,7 +13,7 @@
           @click="navigateToCreateTaxView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t.generalTaxesOverview.create() }}
         </ElButton>
       </div>
     </div>
@@ -36,6 +36,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
+  import { $t } from '@/services/i18n';
 
   const generalTaxesPageQuery = graphql(`
     query generalTaxesPage($workspaceId: Long!, $first: Int!, $after: String) {
