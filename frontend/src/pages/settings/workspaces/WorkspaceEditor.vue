@@ -4,64 +4,28 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="workspaceData"
-      :rules="workspaceValidationRules"
-    >
-      <template #default>
-        <div class="row">
-          <div class="col col-xs-12 col-lg-6">
-            <h2>General Information</h2>
-            <ElFormItem
-              label="Workspace Name"
-              prop="name"
-            >
-              <ElInput v-model="workspaceData.name" />
-            </ElFormItem>
-
-            <ElFormItem
-              label="Default Currency"
-              prop="defaultCurrency"
-            >
-              <SaCurrencyInput
-                v-model="workspaceData.defaultCurrency"
-                :disabled="isEditing"
-              />
-            </ElFormItem>
-          </div>
-        </div>
-      </template>
-
-      <template #buttons-bar>
-        <ElButton @click="navigateToWorkspacesOverview">
-          Cancel
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          Save
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+    <SaForm v-model="formValues" :on-submit="saveWorkspace" :on-load="loadWorkspaceData" :on-cancel="navigateToWorkspacesOverview">
+      <h2>General Information</h2>
+      <SaFormInput prop="name" label="Workspace Name" />
+      <SaFormCurrencyInput prop="defaultCurrency" label="Default Currency" :disabled="isEditing" />
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';
   import { useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import { useForm } from '@/components/form/use-form';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
 
-  interface WorkspaceForm {
-    name?: string;
-    defaultCurrency?: string;
-  }
+  type WorkspaceForm = {
+    name: string,
+    defaultCurrency: string,
+  };
 
   const props = defineProps<{
     id?: number,
@@ -71,9 +35,12 @@
   // todo #459: i18n
   const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
 
-  const workspaceData = ref<WorkspaceForm>({});
+  const formValues = ref<WorkspaceForm>({
+    name: '',
+    defaultCurrency: '',
+  });
 
-  const workspaceQuery = graphql(`
+  const loadWorkspaceQuery = useLazyQuery(graphql(`
     query workspaceForEditor($id: Long!) {
       workspace(id: $id) {
         id
@@ -81,76 +48,44 @@
         defaultCurrency
       }
     }
-  `);
+  `), 'workspace');
 
-  const createWorkspaceMutation = graphql(`
+  const createWorkspaceMutation = useMutation(graphql(`
     mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {
       createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
         id
-        name
-        defaultCurrency
       }
     }
-  `);
+  `), 'createWorkspace');
 
-  const editWorkspaceMutation = graphql(`
+  const editWorkspaceMutation = useMutation(graphql(`
     mutation editWorkspaceEditor($id: Long!, $name: String!) {
       editWorkspace(id: $id, name: $name) {
         id
-        name
-        defaultCurrency
       }
     }
-  `);
-
-  const loadWorkspace = useLazyQuery(workspaceQuery, 'workspace');
-  const executeCreate = useMutation(createWorkspaceMutation, 'createWorkspace');
-  const executeEdit = useMutation(editWorkspaceMutation, 'editWorkspace');
+  `), 'editWorkspace');
 
   const { navigateByViewName } = useNavigation();
-  const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
+  const navigateToWorkspacesOverview = async () => navigateByViewName('workspaces-overview');
 
-  // todo #459: i18n
-  const workspaceValidationRules = {
-    name: [
-      {
-        required: true,
-        message: 'Please provide the name',
-      },
-      {
-        max: 255,
-        message: 'Name is too long',
-      },
-    ],
-    defaultCurrency: {
-      required: true,
-      message: 'Please select a default currency',
-    },
-  };
-
-  const initForm = async () => {
-    if (isEditing) {
-      const workspace = await loadWorkspace({ id: props.id! });
-      workspaceData.value = { name: workspace.name, defaultCurrency: workspace.defaultCurrency };
+  const loadWorkspaceData = isEditing ? async () => {
+    const workspace = await loadWorkspaceQuery({ id: props.id! });
+    if (workspace) {
+      formValues.value = { name: workspace.name, defaultCurrency: workspace.defaultCurrency };
     }
-  };
+  } : undefined;
 
   const saveWorkspace = async () => {
     if (props.id !== undefined) {
-      await executeEdit({ id: props.id, name: workspaceData.value.name! });
+      await editWorkspaceMutation({ id: props.id, name: formValues.value.name });
     } else {
-      await executeCreate({
-        name: workspaceData.value.name!,
-        defaultCurrency: workspaceData.value.defaultCurrency!,
+      await createWorkspaceMutation({
+        name: formValues.value.name,
+        defaultCurrency: formValues.value.defaultCurrency,
       });
     }
-
     await useWorkspaces().loadWorkspaces();
     await navigateToWorkspacesOverview();
   };
-
-  const {
-    formRef,
-    submitForm,
-  } = useForm(initForm, saveWorkspace);
 </script>
