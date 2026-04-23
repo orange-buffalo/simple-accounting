@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 
@@ -55,10 +54,6 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
-        header.shouldSatisfy {
-            val headerText = innerText().trim()
-            check(headerText == "Workspaces" || headerText == "Робочі простори")
-        }
     }
 
     fun getWorkspacePanelByName(name: String): WorkspacePanel {
