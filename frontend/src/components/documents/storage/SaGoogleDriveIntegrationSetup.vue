@@ -74,7 +74,7 @@
 
 <script lang="ts" setup>
   import {
-    computed, onUnmounted, ref,
+    computed, onMounted, onUnmounted, ref,
   } from 'vue';
   import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaIcon from '@/components/SaIcon.vue';
@@ -183,7 +183,7 @@
   });
 
   function useDriveAuthorization() {
-    let gdrivePopup: Window | null;
+    let gdrivePopup: Window | null = null;
 
     const startAuthorization = () => {
       const popupWidth = Math.max(screen.width / 2, 600);
@@ -214,10 +214,26 @@
       }
     };
 
+    // When the push notification is missed (WebSocket subscription not yet active when the
+    // OAuth callback fires), the OAuth popup page notifies us via postMessage. We re-query
+    // the backend status so the UI exits the authorizationInProgress state.
+    const onOAuthComplete = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.source !== gdrivePopup) return;
+      if (event.data?.type !== 'sa-oauth-complete' || event.data?.success !== true) return;
+      if (integrationStatus.value.status === 'authorizationInProgress') {
+        loadIntegrationStatus();
+      }
+    };
+
     // Subscribe during setup (before onMounted) so the WebSocket connection is established
-    // as early as possible, reducing the risk of missing push notifications from OAuth callbacks.
+    // as early as possible, reducing the race window for missing push notifications.
     subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
-    onUnmounted(() => unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
+    onMounted(() => window.addEventListener('message', onOAuthComplete));
+    onUnmounted(() => {
+      unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
+      window.removeEventListener('message', onOAuthComplete);
+    });
 
     return {
       startAuthorization,

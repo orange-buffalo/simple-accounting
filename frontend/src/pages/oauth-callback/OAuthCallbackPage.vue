@@ -63,6 +63,8 @@
     });
     if (result.success) {
       success.value = true;
+      // Notify the opener window so it can recover if the WebSocket push notification was missed.
+      window.opener?.postMessage({ type: 'sa-oauth-complete', success: true }, window.location.origin);
     } else {
       errorId.value = result.errorId ?? undefined;
     }
