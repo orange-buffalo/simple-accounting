@@ -63,7 +63,6 @@
     });
     if (result.success) {
       success.value = true;
-      window.opener?.postMessage({ type: 'sa-oauth-complete', success: true }, window.location.origin);
     } else {
       errorId.value = result.errorId ?? undefined;
     }

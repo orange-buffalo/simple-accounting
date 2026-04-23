@@ -74,7 +74,7 @@
 
 <script lang="ts" setup>
   import {
-    computed, onMounted, onUnmounted, ref,
+    computed, onUnmounted, ref,
   } from 'vue';
   import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaIcon from '@/components/SaIcon.vue';
@@ -214,28 +214,10 @@
       }
     };
 
-    // Fallback for when the WebSocket push notification is missed due to a race condition:
-    // the component may mount after the push notification is emitted if Google Drive was
-    // just enabled (subscription not yet established when the notification fires).
-    const onOAuthPopupComplete = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (!event.data || typeof event.data !== 'object') return;
-      const message = event.data as { type?: string; success?: boolean };
-      if (message.type === 'sa-oauth-complete' && message.success === true) {
-        if (integrationStatus.value.status === 'authorizationInProgress') {
-          loadIntegrationStatus();
-        }
-      }
-    };
-
-    onMounted(() => {
-      subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
-      window.addEventListener('message', onOAuthPopupComplete);
-    });
-    onUnmounted(() => {
-      unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
-      window.removeEventListener('message', onOAuthPopupComplete);
-    });
+    // Subscribe during setup (before onMounted) so the WebSocket connection is established
+    // as early as possible, reducing the risk of missing push notifications from OAuth callbacks.
+    subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization);
+    onUnmounted(() => unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
 
     return {
       startAuthorization,
