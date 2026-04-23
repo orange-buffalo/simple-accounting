@@ -2,12 +2,12 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 
@@ -18,23 +18,13 @@ private const val WORKSPACE_PANEL_DATA_JS = """
         if (!workspacePanel) return null;
         const nameEl = workspacePanel.querySelector('.workspace-panel__info-panel__name h3');
         const switchButton = workspacePanel.querySelector('.workspace-panel__info-panel__name button');
-        const switchButtonVisible = switchButton !== null
-            && switchButton.textContent.trim() === 'Switch to this workspace'
-            && switchButton.offsetParent !== null;
-        let defaultCurrency = null;
-        const labels = workspacePanel.querySelectorAll('.sa-attribute-value__label');
-        for (const label of labels) {
-            if (label.textContent.trim() === 'Default Currency') {
-                const valueEl = label.nextElementSibling;
-                if (valueEl) {
-                    defaultCurrency = valueEl.textContent.trim();
-                }
-            }
-        }
+        const switchButtonVisible = switchButton !== null && switchButton.offsetParent !== null;
+        const defaultCurrencyPanel = workspacePanel.querySelector('.sa-item-attributes .sa-attribute-value');
+        const defaultCurrencyValue = defaultCurrencyPanel?.querySelector(':scope > div:nth-child(2)');
         return {
             title: nameEl ? nameEl.textContent.trim() : null,
             switchButtonVisible: switchButtonVisible,
-            defaultCurrency: defaultCurrency
+            defaultCurrency: defaultCurrencyValue ? defaultCurrencyValue.textContent.trim() : null
         };
     };
 """
@@ -50,7 +40,7 @@ data class WorkspacePanelData(
 class WorkspacePanel(
     private val container: Locator
 ) {
-    private val switchButtonLocator = container.locator("xpath=//button[${XPath.hasText("Switch to this workspace")}]")
+    private val switchButtonLocator = container.locator(".workspace-panel__info-panel__name button")
 
     fun clickSwitchButton() {
         switchButtonLocator.click()
@@ -58,13 +48,17 @@ class WorkspacePanel(
 }
 
 class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) {
-    private val header = components.pageHeader("Workspaces")
-    val createButton = components.buttonByText("Create new workspace")
+    private val header = page.locator(".sa-page-header h1")
+    val createButton = components.buttonByContainer(page.locator(".sa-page-header .sa-header-options"))
 
     val pageItems = components.workspacePanelItems()
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
+        header.shouldSatisfy {
+            val headerText = innerText().trim()
+            check(headerText == "Workspaces" || headerText == "Робочі простори")
+        }
     }
 
     fun getWorkspacePanelByName(name: String): WorkspacePanel {
@@ -104,4 +98,3 @@ private fun ComponentsAccessors.workspacePanelItems() =
         itemDataJs = WORKSPACE_PANEL_DATA_JS,
         itemDataSerializer = serializer<WorkspacePanelData>(),
     ) { container -> WorkspacePanelItemWrapper(container) }
-
