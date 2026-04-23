@@ -219,8 +219,9 @@
     // just enabled (subscription not yet established when the notification fires).
     const onOAuthPopupComplete = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
+      if (!event.data || typeof event.data !== 'object') return;
       const message = event.data as { type?: string; success?: boolean };
-      if (message?.type === 'sa-oauth-complete' && message?.success === true) {
+      if (message.type === 'sa-oauth-complete' && message.success === true) {
         if (integrationStatus.value.status === 'authorizationInProgress') {
           loadIntegrationStatus();
         }
