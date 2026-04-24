@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Workspaces</h1>
+      <h1>{{ $t.workspacesOverview.header() }}</h1>
 
       <div class="sa-header-options">
         <span />
@@ -11,7 +11,7 @@
           @click="navigateToCreateWorkspace"
         >
           <SaIcon icon="plus-thin" />
-          Create new workspace
+          {{ $t.workspacesOverview.create() }}
         </ElButton>
       </div>
     </div>
@@ -33,6 +33,7 @@
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
   import { graphql } from '@/services/api/gql';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import { $t } from '@/services/i18n';
 
   const workspacesPageQuery = graphql(`
     query workspacesPage($first: Int!, $after: String) {

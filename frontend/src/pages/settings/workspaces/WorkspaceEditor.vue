@@ -5,15 +5,16 @@
     </div>
 
     <SaForm v-model="formValues" :on-submit="saveWorkspace" :on-load="loadWorkspaceData" :on-cancel="navigateToWorkspacesOverview">
-      <h2>General Information</h2>
-      <SaFormInput prop="name" label="Workspace Name" />
-      <SaFormCurrencyInput prop="defaultCurrency" label="Default Currency" :disabled="isEditing" />
+      <h2>{{ $t.workspaceEditor.generalInformation.header() }}</h2>
+      <SaFormInput prop="name" :label="$t.workspaceEditor.generalInformation.workspaceName.label()" />
+      <SaFormCurrencyInput prop="defaultCurrency" :label="$t.workspaceEditor.generalInformation.defaultCurrency.label()" :disabled="isEditing" />
     </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { $t } from '@/services/i18n';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';
@@ -32,8 +33,9 @@
   }>();
 
   const isEditing = props.id !== undefined;
-  // todo #459: i18n
-  const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
+  const pageHeader = isEditing
+    ? $t.value.workspaceEditor.pageHeader.edit()
+    : $t.value.workspaceEditor.pageHeader.create();
 
   const formValues = ref<WorkspaceForm>({
     name: '',

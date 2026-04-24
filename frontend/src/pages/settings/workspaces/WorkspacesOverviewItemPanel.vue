@@ -9,7 +9,7 @@
             link
             @click="switchToWorkspace"
           >
-            Switch to this workspace
+            {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
           </ElButton>
         </div>
         <span class="sa-item-edit-link">
@@ -17,22 +17,22 @@
           <ElButton
             link
             @click="navigateToWorkspaceEdit"
-          >Edit</ElButton>
+          >{{ $t.workspacesOverviewItemPanel.edit() }}</ElButton>
         </span>
       </div>
 
       <div class="sa-item-attributes">
-        <WorkspacesAttributeValue label="Default Currency">
+        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.defaultCurrency()">
           {{ workspace.defaultCurrency }}
         </WorkspacesAttributeValue>
         <br>
-        <WorkspacesAttributeValue label="Workspace Shares">
+        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.workspaceShares()">
           <ElTable
             v-if="hasAccessTokens"
             :data="accessTokens"
           >
             <ElTableColumn
-              label="Valid Till"
+              :label="$t.workspacesOverviewItemPanel.validTill()"
               #default="{ row }"
             >
               {{ $t.common.dateTime.medium(row.validTill) }}
@@ -44,25 +44,25 @@
                   link
                   @click="copyShareLink(row.token)"
                 >
-                  Copy link
+                  {{ $t.workspacesOverviewItemPanel.copyLink() }}
                 </ElButton>
               </div>
             </ElTableColumn>
           </ElTable>
 
           <div class="workspace-panel__create-share-panel">
-            {{ hasAccessTokens ? 'Add another share valid till' : 'Start sharing workspace, new link valid till' }}:
+            {{ hasAccessTokens ? $t.workspacesOverviewItemPanel.addAnotherShareValidTill() : $t.workspacesOverviewItemPanel.startSharingWorkspaceNewLinkValidTill() }}:
             <ElDatePicker
               v-model="newShareValidTill"
               type="datetime"
-              placeholder="Link valid till"
+              :placeholder="$t.workspacesOverviewItemPanel.linkValidTillPlaceholder()"
             />
             <SaIcon icon="share" />
             <ElButton
               link
               @click="shareWorkspace"
             >
-              Create share link
+              {{ $t.workspacesOverviewItemPanel.createShareLink() }}
             </ElButton>
           </div>
         </WorkspacesAttributeValue>
@@ -230,4 +230,3 @@
     }
   }
 </style>
-

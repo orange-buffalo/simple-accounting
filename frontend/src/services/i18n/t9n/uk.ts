@@ -1057,6 +1057,40 @@ export default {
     pageIndicator: (current: number, total: number) => format('{0, number} з {1, number}', [current, total]),
   },
 
+  workspacesOverview: {
+    header: () => 'Робочі простори',
+    create: () => 'Створити новий робочий простір',
+  },
+
+  workspaceEditor: {
+    pageHeader: {
+      edit: () => 'Редагувати робочий простір',
+      create: () => 'Створити новий робочий простір',
+    },
+    generalInformation: {
+      header: () => 'Загальна інформація',
+      workspaceName: {
+        label: () => 'Назва робочого простору',
+      },
+      defaultCurrency: {
+        label: () => 'Валюта за замовчуванням',
+      },
+    },
+  },
+
+  workspacesOverviewItemPanel: {
+    switchToThisWorkspace: () => 'Перейти до цього робочого простору',
+    edit: () => 'Редагувати',
+    defaultCurrency: () => 'Валюта за замовчуванням',
+    workspaceShares: () => 'Спільний доступ до робочого простору',
+    validTill: () => 'Дійсний до',
+    copyLink: () => 'Копіювати посилання',
+    addAnotherShareValidTill: () => 'Додати ще один доступ, дійсний до',
+    startSharingWorkspaceNewLinkValidTill: () => 'Почати надавати доступ до робочого простору, нове посилання дійсне до',
+    linkValidTillPlaceholder: () => 'Посилання дійсне до',
+    createShareLink: () => 'Створити посилання для спільного доступу',
+  },
+
   categoriesOverview: {
     header: () => 'Категорії',
     create: () => 'Додати новий',

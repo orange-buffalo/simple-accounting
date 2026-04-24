@@ -1058,6 +1058,40 @@ export default {
     pageIndicator: (current: number, total: number) => format('{0, number} of {1, number}', [current, total]),
   },
 
+  workspacesOverview: {
+    header: () => 'Workspaces',
+    create: () => 'Create new workspace',
+  },
+
+  workspaceEditor: {
+    pageHeader: {
+      edit: () => 'Edit Workspace',
+      create: () => 'Create New Workspace',
+    },
+    generalInformation: {
+      header: () => 'General Information',
+      workspaceName: {
+        label: () => 'Workspace Name',
+      },
+      defaultCurrency: {
+        label: () => 'Default Currency',
+      },
+    },
+  },
+
+  workspacesOverviewItemPanel: {
+    switchToThisWorkspace: () => 'Switch to this workspace',
+    edit: () => 'Edit',
+    defaultCurrency: () => 'Default Currency',
+    workspaceShares: () => 'Workspace Shares',
+    validTill: () => 'Valid Till',
+    copyLink: () => 'Copy link',
+    addAnotherShareValidTill: () => 'Add another share valid till',
+    startSharingWorkspaceNewLinkValidTill: () => 'Start sharing workspace, new link valid till',
+    linkValidTillPlaceholder: () => 'Link valid till',
+    createShareLink: () => 'Create share link',
+  },
+
   categoriesOverview: {
     header: () => 'Categories',
     create: () => 'Add new',
