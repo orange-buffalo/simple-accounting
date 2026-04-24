@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -30,7 +31,8 @@ class CreateIncomeTaxPaymentMutation(
         @Size(max = 255)
         title: String,
         @GraphQLDescription("Date when the tax payment was made.")
-        datePaid: LocalDate,
+        @NotNull
+        datePaid: LocalDate? = null,
         @GraphQLDescription("Date used for reporting purposes. Defaults to datePaid if not specified.")
         reportingDate: LocalDate?,
         @GraphQLDescription("Amount of the tax payment in cents.")
@@ -46,8 +48,8 @@ class CreateIncomeTaxPaymentMutation(
             IncomeTaxPayment(
                 workspaceId = workspaceId,
                 title = title,
-                datePaid = datePaid,
-                reportingDate = reportingDate ?: datePaid,
+                datePaid = datePaid!!,
+                reportingDate = reportingDate ?: datePaid!!,
                 amount = amount,
                 notes = notes,
                 attachments = mapAttachments(attachments),

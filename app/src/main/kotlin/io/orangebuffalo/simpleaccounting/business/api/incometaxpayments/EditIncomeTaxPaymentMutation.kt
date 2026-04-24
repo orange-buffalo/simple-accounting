@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -32,7 +33,8 @@ class EditIncomeTaxPaymentMutation(
         @Size(max = 255)
         title: String,
         @GraphQLDescription("New date when the tax payment was made.")
-        datePaid: LocalDate,
+        @NotNull
+        datePaid: LocalDate? = null,
         @GraphQLDescription("New date used for reporting purposes. Defaults to datePaid if not specified.")
         reportingDate: LocalDate?,
         @GraphQLDescription("New amount of the tax payment in cents.")
@@ -48,8 +50,8 @@ class EditIncomeTaxPaymentMutation(
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
 
         payment.title = title
-        payment.datePaid = datePaid
-        payment.reportingDate = reportingDate ?: datePaid
+        payment.datePaid = datePaid!!
+        payment.reportingDate = reportingDate ?: datePaid!!
         payment.amount = amount
         payment.notes = notes
         payment.attachments = mapAttachments(attachments)

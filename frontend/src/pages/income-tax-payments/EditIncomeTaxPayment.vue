@@ -45,13 +45,10 @@
 
           <h2>{{ $t.editIncomeTaxPayment.attachments.header() }}</h2>
 
-          <SaDocumentsUpload
-            ref="documentsUploadRef"
+          <SaFormDocumentsUpload
+            prop="attachments"
             :documents="resolvedDocuments"
             :loading-on-create="id !== undefined"
-            @update:documents-ids="formValues.attachments = $event"
-            @uploads-completed="onDocumentsUploadComplete"
-            @uploads-failed="onDocumentsUploadFailure"
           />
         </div>
       </div>
@@ -62,20 +59,18 @@
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormMoneyInput from '@/components/form/SaFormMoneyInput.vue';
   import SaFormDatePickerInput from '@/components/form/SaFormDatePickerInput.vue';
   import SaFormNotesInput from '@/components/form/SaFormNotesInput.vue';
+  import SaFormDocumentsUpload from '@/components/form/SaFormDocumentsUpload.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { ClientSideValidationError } from '@/components/form/sa-form-api';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
-  import useNotifications from '@/components/notifications/use-notifications.ts';
 
   const props = defineProps<{
     id?: number,
@@ -85,22 +80,21 @@
   const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
 
   const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
-  const { showErrorNotification } = useNotifications();
 
   type TaxPaymentFormValues = {
-    title: string | null,
+    title: string,
     datePaid: string | null,
     reportingDate: string | null,
-    amount: number | undefined,
+    amount: number,
     notes: string | null,
     attachments: number[],
   };
 
   const formValues = ref<TaxPaymentFormValues>({
-    title: null,
+    title: '',
     datePaid: formatDateToLocalISOString(new Date()),
     reportingDate: null,
-    amount: undefined,
+    amount: 0,
     notes: null,
     attachments: [],
   });
@@ -147,7 +141,7 @@
     mutation createIncomeTaxPaymentMutation(
       $workspaceId: Long!,
       $title: String!,
-      $datePaid: LocalDate!,
+      $datePaid: LocalDate,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
@@ -172,7 +166,7 @@
       $workspaceId: Long!,
       $id: Long!,
       $title: String!,
-      $datePaid: LocalDate!,
+      $datePaid: LocalDate,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
@@ -193,69 +187,27 @@
     }
   `), 'editIncomeTaxPayment');
 
-  const documentsUploadRef = ref<InstanceType<typeof SaDocumentsUpload> | null>(null);
-  let resolveUploads: (() => void) | null = null;
-  let rejectUploads: ((err: Error) => void) | null = null;
-
-  const onDocumentsUploadComplete = () => {
-    resolveUploads?.();
-    resolveUploads = null;
-    rejectUploads = null;
-  };
-
-  const onDocumentsUploadFailure = () => {
-    rejectUploads?.(new Error($t.value.useDocumentsUpload.documentsUploadFailure()));
-    resolveUploads = null;
-    rejectUploads = null;
-  };
-
   const saveTaxPayment = async () => {
-    // datePaid is a required GQL field (LocalDate!); null cannot be sent - validate client-side
-    if (!formValues.value.datePaid) {
-      throw new ClientSideValidationError([{
-        field: 'datePaid',
-        message: $t.value.formValidationMessages.notNull(),
-      }]);
-    }
-
-    const datePaid = formValues.value.datePaid;
-
-    const uploadsPromise = new Promise<void>((resolve, reject) => {
-      resolveUploads = resolve;
-      rejectUploads = reject;
-    });
-    documentsUploadRef.value?.submitUploads();
-
-    try {
-      await uploadsPromise;
-    } catch (e) {
-      showErrorNotification((e as Error).message);
-      return;
-    }
-
     const values = formValues.value;
     if (props.id) {
       await editIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
         id: props.id,
-        // empty string / 0 are intentional: GQL validators (@NotBlank, @Min) handle these and
-        // return field-level errors that SaForm will display to the user
-        title: values.title ?? '',
-        datePaid,
-        reportingDate: values.reportingDate ?? null,
-        amount: values.amount ?? 0,
-        notes: values.notes ?? null,
+        title: values.title,
+        datePaid: values.datePaid,
+        reportingDate: values.reportingDate,
+        amount: values.amount,
+        notes: values.notes,
         attachments: values.attachments,
       });
     } else {
       await createIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
-        // empty string / 0 are intentional: GQL validators (@NotBlank, @Min) handle these
-        title: values.title ?? '',
-        datePaid,
-        reportingDate: values.reportingDate ?? null,
-        amount: values.amount ?? 0,
-        notes: values.notes ?? null,
+        title: values.title,
+        datePaid: values.datePaid,
+        reportingDate: values.reportingDate,
+        amount: values.amount,
+        notes: values.notes,
         attachments: values.attachments,
       });
     }
