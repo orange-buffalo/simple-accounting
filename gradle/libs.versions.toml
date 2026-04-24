@@ -1,5 +1,6 @@
 [versions]
 awaitility = "4.3.0"
+rerunnerJupiter = "2.1.6"
 dsgCodegen = "8.4.3"
 # version pinned as newer has major JGit changed which is not compatible with jreleaser
 gitSemverPlugin = "0.13.0"
@@ -35,6 +36,7 @@ zjsonpatch = "0.4.16"
 [libraries]
 commonsLang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang3" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+rerunnerJupiter = { module = "io.github.artsok:rerunner-jupiter", version.ref = "rerunnerJupiter" }
 dsgCodegen-gradle = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-gradle", version.ref = "dsgCodegen" }
 dsgCodegen-core = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-shared-core", version.ref = "dsgCodegen" }
 graphqlKotlin-springServer = { module = "com.expediagroup:graphql-kotlin-spring-server", version.ref = "graphqlKotlin" }
