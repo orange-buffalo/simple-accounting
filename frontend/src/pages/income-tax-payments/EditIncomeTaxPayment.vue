@@ -210,6 +210,7 @@
   };
 
   const saveTaxPayment = async () => {
+    // datePaid is a required GQL field (LocalDate!); null cannot be sent - validate client-side
     if (!formValues.value.datePaid) {
       throw new ClientSideValidationError([{
         field: 'datePaid',
@@ -237,6 +238,8 @@
       await editIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
         id: props.id,
+        // empty string / 0 are intentional: GQL validators (@NotBlank, @Min) handle these and
+        // return field-level errors that SaForm will display to the user
         title: values.title ?? '',
         datePaid,
         reportingDate: values.reportingDate ?? null,
@@ -247,6 +250,7 @@
     } else {
       await createIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
+        // empty string / 0 are intentional: GQL validators (@NotBlank, @Min) handle these
         title: values.title ?? '',
         datePaid,
         reportingDate: values.reportingDate ?? null,

@@ -1,5 +1,9 @@
 <template>
   <SaFormItemInternal v-bind="props" v-model="inputValue">
+    <!--
+      SaNotesInput uses string | undefined, while SaFormItemInternal uses string | null.
+      The conversion bridges this type gap without any functional difference.
+    -->
     <SaNotesInput
       :model-value="inputValue ?? undefined"
       :placeholder="placeholder"
