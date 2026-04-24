@@ -6,7 +6,6 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByContainer
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
@@ -48,13 +47,14 @@ class WorkspacePanel(
 }
 
 class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) {
-    private val header = components.pageHeader("Workspaces")
+    private val header = page.locator(".sa-page-header h1")
     val createButton = components.buttonByContainer(page.locator(".sa-page-header .sa-header-options"))
 
     val pageItems = components.workspacePanelItems()
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
+        pageItems.shouldHaveDataSatisfying { it.isNotEmpty() }
     }
 
     fun getWorkspacePanelByName(name: String): WorkspacePanel {
