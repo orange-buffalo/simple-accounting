@@ -4,160 +4,104 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="taxPayment"
-      :rules="taxPaymentValidationRules"
-    >
-      <template #default>
-        <div class="row">
-          <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t.editIncomeTaxPayment.generalInformation.header() }}</h2>
+    <SaForm v-model="formValues" :on-submit="saveTaxPayment" :on-load="loadTaxPayment" :on-cancel="navigateToTaxPaymentsOverview">
+      <div class="row">
+        <div class="col col-xs-12 col-lg-6">
+          <h2>{{ $t.editIncomeTaxPayment.generalInformation.header() }}</h2>
 
-            <ElFormItem
-              :label="$t.editIncomeTaxPayment.generalInformation.title.label()"
-              prop="title"
-            >
-              <ElInput
-                v-model="taxPayment.title"
-                :placeholder="$t.editIncomeTaxPayment.generalInformation.title.placeholder()"
-              />
-            </ElFormItem>
+          <SaFormInput
+            prop="title"
+            :label="$t.editIncomeTaxPayment.generalInformation.title.label()"
+            :placeholder="$t.editIncomeTaxPayment.generalInformation.title.placeholder()"
+          />
 
-            <ElFormItem
-              :label="$t.editIncomeTaxPayment.generalInformation.amount.label()"
-              prop="amount"
-            >
-              <SaMoneyInput
-                v-model="taxPayment.amount"
-                :currency="defaultCurrency"
-              />
-            </ElFormItem>
+          <SaFormMoneyInput
+            prop="amount"
+            :label="$t.editIncomeTaxPayment.generalInformation.amount.label()"
+            :currency="defaultCurrency"
+          />
 
-            <ElFormItem
-              :label="$t.editIncomeTaxPayment.generalInformation.datePaid.label()"
-              prop="datePaid"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="taxPayment.datePaid"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editIncomeTaxPayment.generalInformation.datePaid.placeholder()"
-              />
-            </ElFormItem>
+          <SaFormDatePickerInput
+            prop="datePaid"
+            :label="$t.editIncomeTaxPayment.generalInformation.datePaid.label()"
+            :placeholder="$t.editIncomeTaxPayment.generalInformation.datePaid.placeholder()"
+          />
 
-            <ElFormItem
-              :label="$t.editIncomeTaxPayment.generalInformation.reportingDate.label()"
-              prop="reportingDate"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="taxPayment.reportingDate"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editIncomeTaxPayment.generalInformation.reportingDate.placeholder()"
-              />
-            </ElFormItem>
-          </div>
-
-          <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t.editIncomeTaxPayment.additionalInformation.header() }}</h2>
-
-            <ElFormItem
-              :label="$t.editIncomeTaxPayment.additionalInformation.notes.label()"
-              prop="notes"
-            >
-              <SaNotesInput
-                v-model="taxPayment.notes"
-                :placeholder="$t.editIncomeTaxPayment.additionalInformation.notes.placeholder()"
-              />
-            </ElFormItem>
-
-            <h2>{{ $t.editIncomeTaxPayment.attachments.header() }}</h2>
-
-            <ElFormItem>
-              <SaDocumentsUpload
-                ref="documentsUploadRef"
-                :documents="resolvedDocuments"
-                :loading-on-create="id !== undefined"
-                @update:documents-ids="taxPayment.attachments = $event"
-                @uploads-completed="onDocumentsUploadComplete"
-                @uploads-failed="onDocumentsUploadFailure"
-              />
-            </ElFormItem>
-          </div>
+          <SaFormDatePickerInput
+            prop="reportingDate"
+            :label="$t.editIncomeTaxPayment.generalInformation.reportingDate.label()"
+            :placeholder="$t.editIncomeTaxPayment.generalInformation.reportingDate.placeholder()"
+          />
         </div>
-      </template>
 
-      <template #buttons-bar>
-        <ElButton @click="navigateToTaxPaymentsOverview">
-          {{ $t.editIncomeTaxPayment.cancel() }}
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          {{ $t.editIncomeTaxPayment.save() }}
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+        <div class="col col-xs-12 col-lg-6">
+          <h2>{{ $t.editIncomeTaxPayment.additionalInformation.header() }}</h2>
+
+          <SaFormNotesInput
+            prop="notes"
+            :label="$t.editIncomeTaxPayment.additionalInformation.notes.label()"
+            :placeholder="$t.editIncomeTaxPayment.additionalInformation.notes.placeholder()"
+          />
+
+          <h2>{{ $t.editIncomeTaxPayment.attachments.header() }}</h2>
+
+          <SaDocumentsUpload
+            ref="documentsUploadRef"
+            :documents="resolvedDocuments"
+            :loading-on-create="id !== undefined"
+            @update:documents-ids="formValues.attachments = $event"
+            @uploads-completed="onDocumentsUploadComplete"
+            @uploads-failed="onDocumentsUploadFailure"
+          />
+        </div>
+      </div>
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormMoneyInput from '@/components/form/SaFormMoneyInput.vue';
+  import SaFormDatePickerInput from '@/components/form/SaFormDatePickerInput.vue';
+  import SaFormNotesInput from '@/components/form/SaFormNotesInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { ClientSideValidationError } from '@/components/form/sa-form-api';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
+  import useNotifications from '@/components/notifications/use-notifications.ts';
 
   const props = defineProps<{
     id?: number,
   }>();
 
-  const taxPaymentValidationRules = {
-    title: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.title(),
-    },
-    datePaid: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.datePaid(),
-    },
-    amount: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.amount(),
-    },
-  };
-
   const { navigateByViewName } = useNavigation();
   const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
 
-  const {
-    defaultCurrency,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
+  const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
+  const { showErrorNotification } = useNotifications();
 
   type TaxPaymentFormValues = {
-    title?: string,
-    datePaid: string,
-    reportingDate?: string,
-    amount?: number,
-    notes?: string,
-    attachments: Array<number>,
+    title: string | null,
+    datePaid: string | null,
+    reportingDate: string | null,
+    amount: number | undefined,
+    notes: string | null,
+    attachments: number[],
   };
 
-  const taxPayment = ref<TaxPaymentFormValues>({
+  const formValues = ref<TaxPaymentFormValues>({
+    title: null,
     datePaid: formatDateToLocalISOString(new Date()),
+    reportingDate: null,
+    amount: undefined,
+    notes: null,
     attachments: [],
   });
 
@@ -181,25 +125,23 @@
     }
   `), 'workspace');
 
-  const loadTaxPayment = async () => {
-    if (props.id !== undefined) {
-      const workspace = await getIncomeTaxPaymentQuery({
-        workspaceId: currentWorkspaceId,
-        id: props.id,
-      });
-      const loaded = workspace?.incomeTaxPayment;
-      if (loaded) {
-        taxPayment.value = {
-          title: loaded.title,
-          datePaid: loaded.datePaid,
-          reportingDate: loaded.reportingDate,
-          amount: loaded.amount,
-          notes: loaded.notes ?? undefined,
-          attachments: setDocuments(loaded.attachments),
-        };
-      }
+  const loadTaxPayment = props.id !== undefined ? async () => {
+    const workspace = await getIncomeTaxPaymentQuery({
+      workspaceId: currentWorkspaceId,
+      id: props.id!,
+    });
+    const loaded = workspace?.incomeTaxPayment;
+    if (loaded) {
+      formValues.value = {
+        title: loaded.title,
+        datePaid: loaded.datePaid,
+        reportingDate: loaded.reportingDate ?? null,
+        amount: loaded.amount,
+        notes: loaded.notes ?? null,
+        attachments: setDocuments(loaded.attachments),
+      };
     }
-  };
+  } : undefined;
 
   const createIncomeTaxPaymentMutation = useMutation(graphql(`
     mutation createIncomeTaxPaymentMutation(
@@ -251,26 +193,64 @@
     }
   `), 'editIncomeTaxPayment');
 
+  const documentsUploadRef = ref<InstanceType<typeof SaDocumentsUpload> | null>(null);
+  let resolveUploads: (() => void) | null = null;
+  let rejectUploads: ((err: Error) => void) | null = null;
+
+  const onDocumentsUploadComplete = () => {
+    resolveUploads?.();
+    resolveUploads = null;
+    rejectUploads = null;
+  };
+
+  const onDocumentsUploadFailure = () => {
+    rejectUploads?.(new Error($t.value.useDocumentsUpload.documentsUploadFailure()));
+    resolveUploads = null;
+    rejectUploads = null;
+  };
+
   const saveTaxPayment = async () => {
-    const values = taxPayment.value as Required<TaxPaymentFormValues>;
+    if (!formValues.value.datePaid) {
+      throw new ClientSideValidationError([{
+        field: 'datePaid',
+        message: $t.value.formValidationMessages.notNull(),
+      }]);
+    }
+
+    const datePaid = formValues.value.datePaid;
+
+    const uploadsPromise = new Promise<void>((resolve, reject) => {
+      resolveUploads = resolve;
+      rejectUploads = reject;
+    });
+    documentsUploadRef.value?.submitUploads();
+
+    try {
+      await uploadsPromise;
+    } catch (e) {
+      showErrorNotification((e as Error).message);
+      return;
+    }
+
+    const values = formValues.value;
     if (props.id) {
       await editIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
         id: props.id,
-        title: values.title,
-        datePaid: values.datePaid,
+        title: values.title ?? '',
+        datePaid,
         reportingDate: values.reportingDate ?? null,
-        amount: values.amount,
+        amount: values.amount ?? 0,
         notes: values.notes ?? null,
         attachments: values.attachments,
       });
     } else {
       await createIncomeTaxPaymentMutation({
         workspaceId: currentWorkspaceId,
-        title: values.title,
-        datePaid: values.datePaid,
+        title: values.title ?? '',
+        datePaid,
         reportingDate: values.reportingDate ?? null,
-        amount: values.amount,
+        amount: values.amount ?? 0,
         notes: values.notes ?? null,
         attachments: values.attachments,
       });
@@ -278,15 +258,7 @@
     await navigateToTaxPaymentsOverview();
   };
 
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-  } = useFormWithDocumentsUpload(loadTaxPayment, saveTaxPayment);
-
-  const pageHeader = props.id
+  const pageHeader = computed(() => props.id !== undefined
     ? $t.value.editIncomeTaxPayment.header.edit()
-    : $t.value.editIncomeTaxPayment.header.create();
+    : $t.value.editIncomeTaxPayment.header.create());
 </script>

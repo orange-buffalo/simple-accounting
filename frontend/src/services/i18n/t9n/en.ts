@@ -331,13 +331,6 @@ export default {
     attachments: {
       header: () => 'Attachments',
     },
-    cancel: () => 'Cancel',
-    save: () => 'Save',
-    validations: {
-      title: () => 'Please provide the title',
-      datePaid: () => 'Please provide the date when tax payment is done',
-      amount: () => 'Please provide tax payment amount',
-    },
   },
 
   incomeTaxPaymentsOverviewPanel: {

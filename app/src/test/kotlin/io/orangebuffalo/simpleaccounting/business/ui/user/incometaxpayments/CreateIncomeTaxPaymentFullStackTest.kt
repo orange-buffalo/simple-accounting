@@ -172,6 +172,40 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    @Test
+    fun `should show validation errors for invalid inputs`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            amount {
+                shouldHaveValidationError("The value must be no less than 1")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            amount { input.fill("1500.00") }
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+        }
+    }
+
     private fun Page.setupPreconditionsAndNavigateToCreatePage(
         spec: CreateIncomeTaxPaymentPage.() -> Unit
     ) {

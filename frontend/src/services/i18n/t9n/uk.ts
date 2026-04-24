@@ -330,13 +330,6 @@ export default {
     attachments: {
       header: () => 'Вкладення',
     },
-    cancel: () => 'Скасувати',
-    save: () => 'Зберегти',
-    validations: {
-      title: () => 'Будь ласка, вкажіть назву',
-      datePaid: () => 'Прошу повідомити дату, коли сплата податку здійснюється',
-      amount: () => 'Будь ласка, вкажіть суму податкового платежу ',
-    },
   },
 
   incomeTaxPaymentsOverviewPanel: {
