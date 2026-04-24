@@ -79,6 +79,7 @@ dependencies {
     testImplementation(libs.guava)
     testImplementation(libs.wiremock.standalone)
     testImplementation(libs.awaitility)
+    testImplementation(libs.rerunnerJupiter)
     testImplementation(libs.zjsonpatch)
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     testImplementation(libs.testcontainers)
