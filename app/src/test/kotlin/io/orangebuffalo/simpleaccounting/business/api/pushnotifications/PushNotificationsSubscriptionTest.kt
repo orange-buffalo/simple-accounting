@@ -10,8 +10,8 @@ import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.runBlocking
-import org.awaitility.Awaitility.await
 import io.github.artsok.RepeatedIfExceptionsTest
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
