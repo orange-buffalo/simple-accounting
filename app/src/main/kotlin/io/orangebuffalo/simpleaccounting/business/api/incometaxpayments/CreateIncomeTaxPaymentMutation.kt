@@ -48,8 +48,8 @@ class CreateIncomeTaxPaymentMutation(
             IncomeTaxPayment(
                 workspaceId = workspaceId,
                 title = title,
-                datePaid = datePaid!!,
-                reportingDate = reportingDate ?: datePaid!!,
+                datePaid = requireNotNull(datePaid),
+                reportingDate = reportingDate ?: requireNotNull(datePaid),
                 amount = amount,
                 notes = notes,
                 attachments = mapAttachments(attachments),

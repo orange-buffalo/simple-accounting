@@ -50,8 +50,8 @@ class EditIncomeTaxPaymentMutation(
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
 
         payment.title = title
-        payment.datePaid = datePaid!!
-        payment.reportingDate = reportingDate ?: datePaid!!
+        payment.datePaid = requireNotNull(datePaid)
+        payment.reportingDate = reportingDate ?: requireNotNull(datePaid)
         payment.amount = amount
         payment.notes = notes
         payment.attachments = mapAttachments(attachments)
