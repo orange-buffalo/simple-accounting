@@ -12,6 +12,9 @@ class PageHeader private constructor(
     }
 
     companion object {
+        fun ComponentsAccessors.pageHeader() =
+            PageHeader(page.locator("h1"))
+
         fun ComponentsAccessors.pageHeader(text: String) =
             PageHeader(page.locator(XPath.h1WithText(text)))
     }
