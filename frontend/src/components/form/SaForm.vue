@@ -125,7 +125,7 @@
     internalLoading.value = true;
     try {
       try {
-        await Promise.all(Array.from(documentsUploads.values()).map((fn) => fn()));
+        await Promise.all(Array.from(documentsUploads.values()).map((submitUpload) => submitUpload()));
       } catch (uploadError: unknown) {
         showErrorNotification((uploadError as Error).message);
         return;

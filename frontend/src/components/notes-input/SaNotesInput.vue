@@ -5,7 +5,7 @@
       @update:modelValue="emit('update:modelValue', $event)"
       :placeholder="placeholder"
       type="textarea"
-      rows="5"
+      :rows="5"
       class="sa-notes-input__input"
     />
 

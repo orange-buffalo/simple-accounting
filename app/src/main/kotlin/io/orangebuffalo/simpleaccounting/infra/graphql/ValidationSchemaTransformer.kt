@@ -12,7 +12,6 @@ import jakarta.validation.ConstraintViolation
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
@@ -44,12 +43,6 @@ data class ValidationDirectiveMapping(
  * This provides cohesive definitions that are easy to track and understand.
  */
 val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
-    ValidationDirectiveMapping(
-        annotationClass = NotNull::class,
-        directiveName = "notNull",
-        directiveDescription = "Validates that the value is not null",
-        errorCode = ValidationErrorCode.MustNotBeNull
-    ),
     ValidationDirectiveMapping(
         annotationClass = NotBlank::class,
         directiveName = "notBlank",
@@ -176,7 +169,7 @@ class ValidationSchemaTransformer {
 
     fun transform(schema: GraphQLSchema, mutations: List<Mutation>, queries: List<Query>): GraphQLSchema {
         val appliedDirectivesMap = buildAppliedDirectivesMap(mutations, queries)
-        
+
         if (appliedDirectivesMap.isEmpty()) {
             return schema
         }
@@ -196,16 +189,14 @@ class ValidationSchemaTransformer {
                         schemaBuilder.additionalDirective(createDirective(mapping))
                     }
                 }
-            
+
             schema.mutationType?.let { mutationType ->
                 schemaBuilder.mutation(transformObjectType(mutationType, appliedDirectivesMap))
             }
-            
+
             schema.queryType?.let { queryType ->
                 schemaBuilder.query(transformObjectType(queryType, appliedDirectivesMap))
             }
-            
-            schemaBuilder
         }
     }
 
@@ -214,30 +205,30 @@ class ValidationSchemaTransformer {
         queries: List<Query>
     ): Map<String, Map<String, List<GraphQLAppliedDirective>>> {
         val result = mutableMapOf<String, Map<String, List<GraphQLAppliedDirective>>>()
-        
+
         for (kClass in (mutations + queries).map { it::class }) {
             for (function in kClass.memberFunctions) {
                 val argumentDirectives = mutableMapOf<String, List<GraphQLAppliedDirective>>()
-                
+
                 for (param in function.parameters) {
                     if (param.kind == KParameter.Kind.INSTANCE) continue
-                    
+
                     val directives = param.annotations.mapNotNull { annotation ->
                         mappingsByAnnotationClass[annotation.annotationClass]
                             ?.buildAppliedDirective(annotation)
                     }
-                    
+
                     if (directives.isNotEmpty()) {
                         argumentDirectives[param.name ?: continue] = directives
                     }
                 }
-                
+
                 if (argumentDirectives.isNotEmpty()) {
                     result[function.name] = argumentDirectives
                 }
             }
         }
-        
+
         return result
     }
 
@@ -268,7 +259,6 @@ class ValidationSchemaTransformer {
                 if (directives != null) {
                     argument.transform { argBuilder ->
                         directives.forEach { argBuilder.withAppliedDirective(it) }
-                        argBuilder
                     }
                 } else {
                     argument

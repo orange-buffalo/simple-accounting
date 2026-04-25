@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTa
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test

@@ -8,7 +8,6 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -31,25 +30,24 @@ class CreateIncomeTaxPaymentMutation(
         @Size(max = 255)
         title: String,
         @GraphQLDescription("Date when the tax payment was made.")
-        @NotNull
-        datePaid: LocalDate? = null,
+        datePaid: LocalDate,
         @GraphQLDescription("Date used for reporting purposes. Defaults to datePaid if not specified.")
-        reportingDate: LocalDate?,
+        reportingDate: LocalDate? = null,
         @GraphQLDescription("Amount of the tax payment in cents.")
         @Min(1)
         amount: Long,
         @GraphQLDescription("Optional notes for the income tax payment.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this income tax payment.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.saveTaxPayment(
             IncomeTaxPayment(
                 workspaceId = workspaceId,
                 title = title,
-                datePaid = requireNotNull(datePaid),
-                reportingDate = reportingDate ?: requireNotNull(datePaid),
+                datePaid = datePaid,
+                reportingDate = reportingDate ?: datePaid,
                 amount = amount,
                 notes = notes,
                 attachments = mapAttachments(attachments),

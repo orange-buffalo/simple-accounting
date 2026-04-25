@@ -4,7 +4,11 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaForm v-model="formValues" :on-submit="saveTaxPayment" :on-load="loadTaxPayment" :on-cancel="navigateToTaxPaymentsOverview">
+    <SaForm v-model="formValues"
+            :on-submit="saveTaxPayment"
+            :on-load="loadTaxPayment"
+            :on-cancel="navigateToTaxPaymentsOverview"
+    >
       <div class="row">
         <div class="col col-xs-12 col-lg-6">
           <h2>{{ $t.editIncomeTaxPayment.generalInformation.header() }}</h2>
@@ -48,7 +52,6 @@
           <SaFormDocumentsUpload
             prop="attachments"
             :documents="resolvedDocuments"
-            :loading-on-create="id !== undefined"
           />
         </div>
       </div>
@@ -71,6 +74,11 @@
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
+  import {
+    CreateIncomeTaxPaymentMutationVariables,
+    EditIncomeTaxPaymentMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -79,27 +87,10 @@
   const { navigateByViewName } = useNavigation();
   const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
 
-  const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
-
-  type TaxPaymentFormValues = {
-    title: string,
-    datePaid: string | null,
-    reportingDate: string | null,
-    amount: number,
-    notes: string | null,
-    attachments: number[],
-  };
-
-  const formValues = ref<TaxPaymentFormValues>({
-    title: '',
-    datePaid: formatDateToLocalISOString(new Date()),
-    reportingDate: null,
-    amount: 0,
-    notes: null,
-    attachments: [],
-  });
-
-  const { resolvedDocuments, setDocuments } = useDocumentAttachments();
+  const {
+    defaultCurrency,
+    currentWorkspaceId,
+  } = useCurrentWorkspace();
 
   const getIncomeTaxPaymentQuery = useLazyQuery(graphql(`
     query getIncomeTaxPaymentForEdit($workspaceId: Long!, $id: Long!) {
@@ -119,29 +110,11 @@
     }
   `), 'workspace');
 
-  const loadTaxPayment = props.id !== undefined ? async () => {
-    const workspace = await getIncomeTaxPaymentQuery({
-      workspaceId: currentWorkspaceId,
-      id: props.id!,
-    });
-    const loaded = workspace?.incomeTaxPayment;
-    if (loaded) {
-      formValues.value = {
-        title: loaded.title,
-        datePaid: loaded.datePaid,
-        reportingDate: loaded.reportingDate ?? null,
-        amount: loaded.amount,
-        notes: loaded.notes ?? null,
-        attachments: setDocuments(loaded.attachments),
-      };
-    }
-  } : undefined;
-
   const createIncomeTaxPaymentMutation = useMutation(graphql(`
-    mutation createIncomeTaxPaymentMutation(
+    mutation createIncomeTaxPayment(
       $workspaceId: Long!,
       $title: String!,
-      $datePaid: LocalDate,
+      $datePaid: LocalDate!,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
@@ -162,11 +135,11 @@
   `), 'createIncomeTaxPayment');
 
   const editIncomeTaxPaymentMutation = useMutation(graphql(`
-    mutation editIncomeTaxPaymentMutation(
+    mutation editIncomeTaxPayment(
       $workspaceId: Long!,
       $id: Long!,
       $title: String!,
-      $datePaid: LocalDate,
+      $datePaid: LocalDate!,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
@@ -187,29 +160,36 @@
     }
   `), 'editIncomeTaxPayment');
 
+  type TaxPaymentFormValues = AsFormValues<[
+    CreateIncomeTaxPaymentMutationVariables, EditIncomeTaxPaymentMutationVariables]>;
+
+  const formValues = ref<TaxPaymentFormValues>({
+    id: props.id,
+    workspaceId: currentWorkspaceId,
+    datePaid: formatDateToLocalISOString(new Date()),
+    attachments: [],
+  });
+
+  const {
+    resolvedDocuments,
+    setDocuments,
+  } = useDocumentAttachments();
+
+  const loadTaxPayment = props.id !== undefined ? async () => {
+    const workspace = await getIncomeTaxPaymentQuery({
+      workspaceId: currentWorkspaceId,
+      id: props.id!,
+    });
+    updateFormValues(formValues, workspace.incomeTaxPayment, incomeTaxPayment => ({
+      attachments: setDocuments(incomeTaxPayment.attachments),
+    }));
+  } : undefined;
+
   const saveTaxPayment = async () => {
-    const values = formValues.value;
     if (props.id) {
-      await editIncomeTaxPaymentMutation({
-        workspaceId: currentWorkspaceId,
-        id: props.id,
-        title: values.title,
-        datePaid: values.datePaid,
-        reportingDate: values.reportingDate,
-        amount: values.amount,
-        notes: values.notes,
-        attachments: values.attachments,
-      });
+      await editIncomeTaxPaymentMutation(toRequestArgs(formValues));
     } else {
-      await createIncomeTaxPaymentMutation({
-        workspaceId: currentWorkspaceId,
-        title: values.title,
-        datePaid: values.datePaid,
-        reportingDate: values.reportingDate,
-        amount: values.amount,
-        notes: values.notes,
-        attachments: values.attachments,
-      });
+      await createIncomeTaxPaymentMutation(toRequestArgs(formValues));
     }
     await navigateToTaxPaymentsOverview();
   };

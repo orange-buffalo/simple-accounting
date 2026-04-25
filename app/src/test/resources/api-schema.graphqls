@@ -44,9 +44,6 @@ directive @min(
 "Validates that the string is not null, empty, or blank"
 directive @notBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
-"Validates that the value is not null"
-directive @notNull on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
-
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
 
@@ -764,7 +761,7 @@ type Mutation {
     "IDs of documents attached to this income tax payment."
     attachments: [Long!],
     "Date when the tax payment was made."
-    datePaid: LocalDate @notNull,
+    datePaid: LocalDate!,
     "Optional notes for the income tax payment."
     notes: String @size(max : 1024, min : 0),
     "Date used for reporting purposes. Defaults to datePaid if not specified."
@@ -933,7 +930,7 @@ type Mutation {
     "New IDs of documents attached to this income tax payment."
     attachments: [Long!],
     "New date when the tax payment was made."
-    datePaid: LocalDate @notNull,
+    datePaid: LocalDate!,
     "ID of the income tax payment to update."
     id: Long!,
     "New optional notes for the income tax payment."
