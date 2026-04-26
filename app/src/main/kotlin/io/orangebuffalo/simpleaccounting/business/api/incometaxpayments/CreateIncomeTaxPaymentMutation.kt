@@ -32,15 +32,15 @@ class CreateIncomeTaxPaymentMutation(
         @GraphQLDescription("Date when the tax payment was made.")
         datePaid: LocalDate,
         @GraphQLDescription("Date used for reporting purposes. Defaults to datePaid if not specified.")
-        reportingDate: LocalDate?,
+        reportingDate: LocalDate? = null,
         @GraphQLDescription("Amount of the tax payment in cents.")
         @Min(1)
         amount: Long,
         @GraphQLDescription("Optional notes for the income tax payment.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this income tax payment.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.saveTaxPayment(
             IncomeTaxPayment(

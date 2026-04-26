@@ -250,6 +250,76 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    @Test
+    fun `should navigate to overview on cancel`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val payment = incomeTaxPayment(
+                    workspace = workspace,
+                    title = "Q1 Tax Payment",
+                    amount = 125000,
+                    datePaid = LocalDate.of(3025, 3, 15),
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/income-tax-payments/${testData.payment.id}/edit")
+        page.shouldBeEditIncomeTaxPaymentPage {
+            title { input.fill("Updated Tax") }
+            cancelButton.click()
+        }
+
+        page.shouldBeIncomeTaxPaymentsOverviewPage()
+    }
+
+    @Test
+    fun `should show validation errors for invalid inputs`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val payment = incomeTaxPayment(
+                    workspace = workspace,
+                    title = "Q1 Tax Payment",
+                    amount = 125000,
+                    datePaid = LocalDate.of(3025, 3, 15),
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/income-tax-payments/${testData.payment.id}/edit")
+        page.shouldBeEditIncomeTaxPaymentPage {
+            title { input.fill("") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+        }
+    }
+
     private fun createTestFile(fileName: String, content: ByteArray): Path {
         val testFile = Files.createTempFile(tempDir, "test-upload-", "-$fileName")
         testFile.writeBytes(content)

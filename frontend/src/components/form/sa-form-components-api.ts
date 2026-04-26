@@ -11,6 +11,8 @@ export type SaFormComponentsApi = {
   formValues: Ref<FormValues>;
   submitForm: () => Promise<void>;
   loading: Ref<boolean>;
+  registerDocumentsUpload: (id: string, submitFn: () => Promise<void>) => void;
+  unregisterDocumentsUpload: (id: string) => void;
 }
 
 const SaFormComponentsApiKey = Symbol('SaFormComponentsApi') as InjectionKey<SaFormComponentsApi>;

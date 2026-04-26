@@ -47,7 +47,7 @@ export function useQuery<
   Variables extends AnyVariables = AnyVariables,
 >(
   query: DocumentInput<GqlResponse, Variables>,
-  queryName: K,
+  returnValuePath: K,
   options: UseGqlOptions<Variables> = {},
 ): UseGqlQueryType<GqlResponse[K]> {
   const loading: Ref<boolean> = ref(true);
@@ -57,7 +57,7 @@ export function useQuery<
   const doLoad = async () => {
     try {
       const result = await gqlClient.query(query, options.variables);
-      data.value = result[queryName];
+      data.value = result[returnValuePath];
     } catch (e: unknown) {
       await handleError(e);
     } finally {
@@ -108,14 +108,14 @@ export function useMutation<
   Variables extends AnyVariables = AnyVariables,
 >(
   mutation: DocumentInput<GqlResponse, Variables>,
-  mutationName: K,
+  returnValuePath: K,
 ): MutationExecutor<GqlResponse, K, Variables> {
   const handleError = useGqlErrorHandler();
 
   return async (variables: Variables): Promise<GqlResponse[K]> => {
     try {
       const result = await gqlClient.mutation(mutation, variables);
-      return result[mutationName];
+      return result[returnValuePath];
     } catch (e: unknown) {
       return await handleError(e);
     }
@@ -132,14 +132,14 @@ export function useLazyQuery<
   Variables extends AnyVariables = AnyVariables,
 >(
   query: DocumentInput<GqlResponse, Variables>,
-  queryName: K,
+  returnValuePath: K,
 ): LazyQueryExecutor<GqlResponse, K, Variables> {
   const handleError = useGqlErrorHandler();
 
   return async (variables: Variables): Promise<GqlResponse[K]> => {
     try {
       const result = await gqlClient.query(query, variables);
-      return result[queryName];
+      return result[returnValuePath];
     } catch (e: unknown) {
       return await handleError(e);
     }

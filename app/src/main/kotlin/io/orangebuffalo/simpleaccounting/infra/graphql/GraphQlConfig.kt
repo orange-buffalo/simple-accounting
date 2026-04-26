@@ -75,7 +75,7 @@ private val GraphQLLongScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
     .name("Long")
     .description("A 64-bit signed integer.")
     .coercing(object : graphql.schema.Coercing<Long, Long> {
-        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): Long =
+        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): Long =
             when (input) {
                 is Long -> input
                 is Number -> input.toLong()
@@ -83,7 +83,7 @@ private val GraphQLLongScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
                 else -> throw CoercingSerializeException("Expected a Long but got: $input")
             }
 
-        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): Long =
+        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): Long =
             when (input) {
                 is Long -> input
                 is Number -> input.toLong()
@@ -95,7 +95,7 @@ private val GraphQLLongScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
             input: Value<*>,
             variables: graphql.execution.CoercedVariables,
             graphQLContext: graphql.GraphQLContext,
-            locale: java.util.Locale
+            locale: Locale
         ): Long = when (input) {
             is IntValue -> input.value.toLong()
             is StringValue -> input.value.toLong()
@@ -108,13 +108,13 @@ private val GraphQLDateTimeScalar: GraphQLScalarType = GraphQLScalarType.newScal
     .name("DateTime")
     .description("A date-time instant, serialized as an ISO-8601 string (e.g. '2025-01-15T10:30:00Z').")
     .coercing(object : graphql.schema.Coercing<Instant, String> {
-        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): String =
+        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): String =
             when (input) {
                 is Instant -> input.toString()
                 else -> throw CoercingSerializeException("Expected an Instant but got: $input")
             }
 
-        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): Instant =
+        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): Instant =
             when (input) {
                 is String -> Instant.parse(input)
                 else -> throw CoercingParseValueException("Expected a String for DateTime but got: $input")
@@ -124,7 +124,7 @@ private val GraphQLDateTimeScalar: GraphQLScalarType = GraphQLScalarType.newScal
             input: Value<*>,
             variables: graphql.execution.CoercedVariables,
             graphQLContext: graphql.GraphQLContext,
-            locale: java.util.Locale
+            locale: Locale
         ): Instant = when (input) {
             is StringValue -> Instant.parse(input.value)
             else -> throw CoercingParseLiteralException("Expected StringValue for DateTime but got: $input")
@@ -136,13 +136,13 @@ private val GraphQLLocalDateScalar: GraphQLScalarType = GraphQLScalarType.newSca
     .name("LocalDate")
     .description("A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15').")
     .coercing(object : graphql.schema.Coercing<LocalDate, String> {
-        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): String =
+        override fun serialize(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): String =
             when (input) {
                 is LocalDate -> input.toString()
                 else -> throw CoercingSerializeException("Expected a LocalDate but got: $input")
             }
 
-        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: java.util.Locale): LocalDate =
+        override fun parseValue(input: Any, graphQLContext: graphql.GraphQLContext, locale: Locale): LocalDate =
             when (input) {
                 is String -> LocalDate.parse(input)
                 else -> throw CoercingParseValueException("Expected a String for LocalDate but got: $input")
@@ -152,7 +152,7 @@ private val GraphQLLocalDateScalar: GraphQLScalarType = GraphQLScalarType.newSca
             input: Value<*>,
             variables: graphql.execution.CoercedVariables,
             graphQLContext: graphql.GraphQLContext,
-            locale: java.util.Locale
+            locale: Locale
         ): LocalDate = when (input) {
             is StringValue -> LocalDate.parse(input.value)
             else -> throw CoercingParseLiteralException("Expected StringValue for LocalDate but got: $input")
@@ -186,7 +186,7 @@ class SaGraphQlSchemaConfig {
         val allOperations = queries.orElse(emptyList()) + mutations.orElse(emptyList())
         val connectionNodeTypes = schemaGeneratorHooks.connectionSchemaGenerationSupport
             .collectAdditionalTypes(allOperations)
-        
+
         val baseSchema = generator.use {
             it.generateSchema(
                 queries = queries.orElse(emptyList()).toTopLevelObjects(),
@@ -202,14 +202,14 @@ class SaGraphQlSchemaConfig {
                   + connectionNodeTypes
             )
         }
-        
+
         // Transform schema to add validation directives based on Jakarta annotations
         val schemaWithValidation = validationSchemaTransformer.transform(
             baseSchema,
             mutations.orElse(emptyList()),
             queries.orElse(emptyList())
         )
-        
+
         // Transform schema to add dynamically generated business error enum types
         return businessErrorSchemaTransformer.transform(schemaWithValidation)
     }

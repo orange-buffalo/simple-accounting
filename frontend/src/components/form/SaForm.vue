@@ -118,11 +118,18 @@
   const loading = computed(() => internalLoading.value || props.externalLoading);
 
   const formItems = new Map<string, FormItemContext>();
+  const documentsUploads = new Map<string, () => Promise<void>>();
 
-  const { showWarningNotification } = useNotifications();
+  const { showWarningNotification, showErrorNotification } = useNotifications();
   const submitForm = async () => {
     internalLoading.value = true;
     try {
+      try {
+        await Promise.all(Array.from(documentsUploads.values()).map((submitUpload) => submitUpload()));
+      } catch (uploadError: unknown) {
+        showErrorNotification((uploadError as Error).message);
+        return;
+      }
       await props.onSubmit();
     } catch (e: unknown) {
       if (e instanceof ApiFieldLevelValidationError) {
@@ -153,6 +160,12 @@
       await submitForm();
     },
     loading,
+    registerDocumentsUpload: (id: string, submitFn: () => Promise<void>) => {
+      documentsUploads.set(id, submitFn);
+    },
+    unregisterDocumentsUpload: (id: string) => {
+      documentsUploads.delete(id);
+    },
   });
 
   onMounted(async () => {

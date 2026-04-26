@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTa
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test
@@ -169,6 +168,45 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 )
             )
             it.attachments.map { attachment -> attachment.documentId } shouldBe listOf(uploadedDocument.id)
+        }
+    }
+
+    @Test
+    fun `should show validation errors for invalid inputs`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            amount { input.fill("0") }
+            saveButton.click()
+
+            amount {
+                shouldHaveValidationError("The value must be no less than 1")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            amount { input.fill("1500.00") }
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
