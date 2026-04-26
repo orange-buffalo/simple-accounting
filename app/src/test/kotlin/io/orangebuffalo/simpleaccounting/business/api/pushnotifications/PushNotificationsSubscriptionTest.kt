@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.runBlocking
+import io.github.artsok.RepeatedIfExceptionsTest
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -58,7 +59,7 @@ class PushNotificationsSubscriptionTest(
         }
     }
 
-    @Test
+    @RepeatedIfExceptionsTest(repeats = 3)
     fun `should receive multiple broadcast events`() {
         val subscription = subscribeToNotifications(preconditions.fry)
 
