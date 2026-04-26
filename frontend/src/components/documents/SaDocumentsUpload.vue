@@ -133,6 +133,25 @@
     documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
   };
 
+  let pendingSubmit: {
+    resolve: () => void,
+    reject: (error: Error) => void,
+  } | undefined;
+
+  const resolvePendingSubmit = () => {
+    if (pendingSubmit) {
+      pendingSubmit.resolve();
+      pendingSubmit = undefined;
+    }
+  };
+
+  const rejectPendingSubmit = (error: Error) => {
+    if (pendingSubmit) {
+      pendingSubmit.reject(error);
+      pendingSubmit = undefined;
+    }
+  };
+
   const onDocumentAggregateChange = () => {
     addEmptyDocumentAggregateIfNecessary();
 
@@ -146,6 +165,7 @@
       .find((it) => it.state === 'upload-failed');
     if (failedUpload) {
       emit('uploads-failed');
+      rejectPendingSubmit(new Error('Documents upload failed'));
       return;
     }
 
@@ -157,14 +177,24 @@
       });
     emit('update:documentsIds', documentsIds);
     emit('uploads-completed');
+    resolvePendingSubmit();
   };
 
   const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
   const submitUploads = async () => {
+    if (pendingSubmit) {
+      return;
+    }
+
+    const submitPromise = new Promise<void>((resolve, reject) => {
+      pendingSubmit = { resolve, reject };
+    });
+
     if (uploadControls.value !== undefined) {
       await Promise.all(uploadControls.value.map((upload) => upload.submitUpload()));
     }
     onDocumentAggregateChange();
+    await submitPromise;
   };
   defineExpose({
     submitUploads,

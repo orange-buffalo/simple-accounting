@@ -177,14 +177,19 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             title {
-                shouldHaveValidationError("This value is required and should not be blank")
+                shouldHaveValidationError("This value is required")
             }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Q1 Tax") }
+            amount { input.fill("0") }
+            saveButton.click()
+
             amount {
                 shouldHaveValidationError("The value must be no less than 1")
             }
             shouldHaveNotifications { validationFailed() }
 
-            title { input.fill("Q1 Tax") }
             amount { input.fill("1500.00") }
             title { input.fill("x".repeat(256)) }
             saveButton.click()
