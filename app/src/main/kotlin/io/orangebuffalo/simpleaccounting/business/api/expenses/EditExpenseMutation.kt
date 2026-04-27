@@ -41,24 +41,24 @@ class EditExpenseMutation(
         @GraphQLDescription("New original amount of the expense in original currency, in cents.")
         originalAmount: Long,
         @GraphQLDescription("New converted amount in the default currency, in cents. Null if not yet converted.")
-        convertedAmountInDefaultCurrency: Long?,
+        convertedAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Whether different exchange rate is used for income tax purposes.")
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
         @GraphQLDescription("New amount for income tax purposes in the default currency, in cents. Null if not yet converted.")
-        incomeTaxableAmountInDefaultCurrency: Long?,
+        incomeTaxableAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("New optional notes for the expense.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("New percentage of the expense on business. Defaults to 100.")
         @Min(1)
         @Max(100)
-        percentOnBusiness: Int?,
+        percentOnBusiness: Int? = null,
         @GraphQLDescription("New IDs of documents attached to this expense.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("New ID of the category for this expense.")
-        categoryId: Long?,
+        categoryId: Long? = null,
         @GraphQLDescription("New ID of the general tax applied to this expense.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
     ): ExpenseGqlDto {
         val expense = expenseService.getExpenseByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Expense $id is not found")

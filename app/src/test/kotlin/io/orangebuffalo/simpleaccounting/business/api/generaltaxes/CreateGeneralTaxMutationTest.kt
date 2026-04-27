@@ -85,6 +85,9 @@ class CreateGeneralTaxMutationTest(
                     description = value,
                 )
             },
+            optionalFieldAbsentTestCases("description") {
+                createGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!, description = "x")
+            },
             numberRangeConstraintTestCases("rateInBps", minValue = 0, maxValue = 10000) { value ->
                 createGeneralTaxMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,

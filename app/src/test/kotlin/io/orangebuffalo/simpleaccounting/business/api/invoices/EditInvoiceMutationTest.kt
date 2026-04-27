@@ -120,6 +120,40 @@ class EditInvoiceMutationTest(
                     notes = value,
                 )
             },
+            optionalFieldAbsentTestCases("notes") {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    notes = "x",
+                )
+            },
+            optionalFieldAbsentTestCases("dateSent") {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    dateSent = MOCK_DATE,
+                )
+            },
+            optionalFieldAbsentTestCases("datePaid") {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    datePaid = MOCK_DATE,
+                )
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                )
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    generalTaxId = 1,
+                )
+            },
             requiredFieldRejectedTestCases("id") {
                 editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
             },

@@ -85,6 +85,9 @@ class CreateCategoryMutationTest(
                     description = value,
                 )
             },
+            optionalFieldAbsentTestCases("description") {
+                createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, description = "x")
+            },
             requiredFieldRejectedTestCases("expense") {
                 createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },

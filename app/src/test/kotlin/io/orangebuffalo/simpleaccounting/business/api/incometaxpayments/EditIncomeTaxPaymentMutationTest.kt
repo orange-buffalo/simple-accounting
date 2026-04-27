@@ -111,6 +111,26 @@ class EditIncomeTaxPaymentMutationTest(
                     notes = value,
                 )
             },
+            optionalFieldAbsentTestCases("notes") {
+                editIncomeTaxPaymentMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryPayment.id!!,
+                    notes = "x",
+                )
+            },
+            optionalFieldAbsentTestCases("reportingDate") {
+                editIncomeTaxPaymentMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryPayment.id!!,
+                    reportingDate = MOCK_DATE,
+                )
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                editIncomeTaxPaymentMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryPayment.id!!,
+                )
+            },
             requiredFieldRejectedTestCases("id") {
                 editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
             },

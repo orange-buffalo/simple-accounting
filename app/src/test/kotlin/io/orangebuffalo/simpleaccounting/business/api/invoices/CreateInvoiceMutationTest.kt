@@ -90,6 +90,21 @@ class CreateInvoiceMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            optionalFieldAbsentTestCases("notes") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
+            },
+            optionalFieldAbsentTestCases("dateSent") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, dateSent = MOCK_DATE)
+            },
+            optionalFieldAbsentTestCases("datePaid") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, datePaid = MOCK_DATE)
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
+            },
             requiredFieldRejectedTestCases("customerId") {
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },

@@ -20,7 +20,7 @@ class UpdateUserProfileMutation(
     suspend fun updateProfile(
         @GraphQLDescription("The identifier of the documents storage used by the user.")
         @Size(max = 255)
-        documentsStorage: String?,
+        documentsStorage: String? = null,
         @GraphQLDescription("The locale of the user profile, e.g. 'en-US'.")
         @NotBlank
         @Size(max = 36)

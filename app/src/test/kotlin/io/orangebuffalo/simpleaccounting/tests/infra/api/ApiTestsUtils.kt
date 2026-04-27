@@ -115,6 +115,7 @@ fun ApiTestClient.buildInputValidationRequest(testCase: GraphqlMutationInputTest
         is GraphqlMutationValidationErrorTestCase -> graphqlMutation(testCase.mutation)
         is GraphqlMutationRejectedInputTestCase -> graphqlRawQuery(testCase.rawQueryBuilder())
         is GraphqlMutationValidBoundaryTestCase -> graphqlMutation(testCase.mutation)
+        is GraphqlMutationOptionalFieldAbsentTestCase -> graphqlRawQuery(testCase.rawQueryBuilder())
     }
 
 private fun ApiTestClient.buildGraphqlRequest(queryBuilder: () -> String): GraphqlClientRequestExecutor = this
@@ -480,6 +481,19 @@ class GraphqlClientRequestExecutor(
                 path = path,
             )
             is GraphqlMutationValidBoundaryTestCase -> {
+                testCase.setup()
+                requestSpec
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody<String>()
+                    .consumeWith { body ->
+                        val json = Json.parseToJsonElement(body.responseBody!!).jsonObject
+                        withClue("Expected no errors at all but got: ${json["errors"]}") {
+                            json.containsKey("errors").shouldBeFalse()
+                        }
+                    }
+            }
+            is GraphqlMutationOptionalFieldAbsentTestCase -> {
                 testCase.setup()
                 requestSpec
                     .exchange()
