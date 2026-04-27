@@ -40,24 +40,24 @@ class CreateExpenseMutation(
         @GraphQLDescription("Original amount of the expense in original currency, in cents.")
         originalAmount: Long,
         @GraphQLDescription("Converted amount in the default currency, in cents. Null if not yet converted.")
-        convertedAmountInDefaultCurrency: Long?,
+        convertedAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Whether different exchange rate is used for income tax purposes.")
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
         @GraphQLDescription("Amount for income tax purposes in the default currency, in cents. Null if not yet converted.")
-        incomeTaxableAmountInDefaultCurrency: Long?,
+        incomeTaxableAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Optional notes for the expense.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("Percentage of the expense on business. Defaults to 100.")
         @Min(1)
         @Max(100)
-        percentOnBusiness: Int?,
+        percentOnBusiness: Int? = null,
         @GraphQLDescription("IDs of documents attached to this expense.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("ID of the category for this expense.")
-        categoryId: Long?,
+        categoryId: Long? = null,
         @GraphQLDescription("ID of the general tax applied to this expense.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
     ): ExpenseGqlDto {
         val expense = expenseService.saveExpense(
             Expense(

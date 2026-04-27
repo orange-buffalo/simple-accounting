@@ -109,6 +109,13 @@ class EditCategoryMutationTest(
                     description = value,
                 )
             },
+            optionalFieldAbsentTestCases("description") {
+                editCategoryMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryCategory.id!!,
+                    description = "x",
+                )
+            },
             requiredFieldRejectedTestCases("id") {
                 editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
             },

@@ -85,6 +85,15 @@ class CreateIncomeTaxPaymentMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            optionalFieldAbsentTestCases("notes") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
+            },
+            optionalFieldAbsentTestCases("reportingDate") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, reportingDate = MOCK_DATE)
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
             requiredFieldRejectedTestCases("amount") {
                 createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },

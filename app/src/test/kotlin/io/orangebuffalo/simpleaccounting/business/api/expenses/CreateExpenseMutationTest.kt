@@ -90,8 +90,29 @@ class CreateExpenseMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            optionalFieldAbsentTestCases("notes") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
+            },
             numberRangeConstraintTestCases("percentOnBusiness", minValue = 1, maxValue = 100) { value ->
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, percentOnBusiness = value)
+            },
+            optionalFieldAbsentTestCases("percentOnBusiness") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, percentOnBusiness = 50)
+            },
+            optionalFieldAbsentTestCases("convertedAmountInDefaultCurrency") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, convertedAmountInDefaultCurrency = 100)
+            },
+            optionalFieldAbsentTestCases("incomeTaxableAmountInDefaultCurrency") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, incomeTaxableAmountInDefaultCurrency = 100)
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            optionalFieldAbsentTestCases("categoryId") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = 1)
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
             },
             requiredFieldRejectedTestCases("datePaid") {
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)

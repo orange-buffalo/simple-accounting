@@ -120,6 +120,54 @@ class EditIncomeMutationTest(
                     notes = value,
                 )
             },
+            optionalFieldAbsentTestCases("notes") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    notes = "x",
+                )
+            },
+            optionalFieldAbsentTestCases("convertedAmountInDefaultCurrency") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    convertedAmountInDefaultCurrency = 100,
+                )
+            },
+            optionalFieldAbsentTestCases("incomeTaxableAmountInDefaultCurrency") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    incomeTaxableAmountInDefaultCurrency = 100,
+                )
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                )
+            },
+            optionalFieldAbsentTestCases("categoryId") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    categoryId = 1,
+                )
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    generalTaxId = 1,
+                )
+            },
+            optionalFieldAbsentTestCases("linkedInvoiceId") {
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    linkedInvoiceId = 1,
+                )
+            },
             requiredFieldRejectedTestCases("id") {
                 editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
             },

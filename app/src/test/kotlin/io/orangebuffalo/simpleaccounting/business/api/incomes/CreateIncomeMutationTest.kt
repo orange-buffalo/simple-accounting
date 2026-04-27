@@ -90,6 +90,27 @@ class CreateIncomeMutationTest(
             sizeConstraintTestCases("notes", maxLength = 1024) { value ->
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
+            optionalFieldAbsentTestCases("notes") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
+            },
+            optionalFieldAbsentTestCases("convertedAmountInDefaultCurrency") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, convertedAmountInDefaultCurrency = 100)
+            },
+            optionalFieldAbsentTestCases("incomeTaxableAmountInDefaultCurrency") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, incomeTaxableAmountInDefaultCurrency = 100)
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
+            },
+            optionalFieldAbsentTestCases("categoryId") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = 1)
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
+            },
+            optionalFieldAbsentTestCases("linkedInvoiceId") {
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, linkedInvoiceId = 1)
+            },
             requiredFieldRejectedTestCases("dateReceived") {
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },

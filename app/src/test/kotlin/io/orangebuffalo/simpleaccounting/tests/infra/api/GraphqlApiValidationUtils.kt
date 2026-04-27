@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
  * - [GraphqlMutationValidationErrorTestCase] — invalid input that should produce a specific `FIELD_VALIDATION_FAILURE` error
  * - [GraphqlMutationRejectedInputTestCase] — null input for a non-null field, rejected by GraphQL type system
  * - [GraphqlMutationValidBoundaryTestCase] — valid boundary value that should pass validation and execute successfully
+ * - [GraphqlMutationOptionalFieldAbsentTestCase] — absent optional nullable field that should default to null and execute successfully
  *
  * Use [mustNotBeBlankTestCases] and [sizeConstraintTestCases] to generate test cases declaratively.
  * Execute with [GraphqlClientRequestExecutor.executeAndVerifyInputValidation].
@@ -71,6 +72,27 @@ data class GraphqlMutationRejectedInputTestCase(
 data class GraphqlMutationValidBoundaryTestCase(
     override val description: String,
     val mutation: MutationProjection.() -> MutationProjection,
+    val setup: () -> Unit = {},
+) : GraphqlMutationInputTestCase {
+    override fun toString() = description
+}
+
+/**
+ * Test case for an absent optional (nullable) GraphQL field.
+ * The field is completely omitted from the raw query string; with a Kotlin `= null` default value,
+ * graphql-kotlin resolves the absent argument to null and the mutation proceeds successfully.
+ *
+ * Without the Kotlin default value, an absent nullable argument causes graphql-kotlin to throw
+ * an internal error (missing parameter in `callBy`). This test case verifies that optional fields
+ * correctly default to null and the mutation executes without any errors.
+ *
+ * @property rawQueryBuilder lazily builds the raw GraphQL query with the optional field absent.
+ *   Lazy to avoid accessing test preconditions during test discovery (JUnit `@MethodSource`).
+ * @property setup optional callback executed before the request
+ */
+data class GraphqlMutationOptionalFieldAbsentTestCase(
+    override val description: String,
+    val rawQueryBuilder: () -> String,
     val setup: () -> Unit = {},
 ) : GraphqlMutationInputTestCase {
     override fun toString() = description
@@ -261,6 +283,38 @@ fun numberRangeConstraintTestCases(
         description = "$fieldName at maximum ($maxValue) is accepted",
         mutation = { mutationWithFieldValue(maxValue) },
         setup = boundarySetup,
+    ),
+)
+
+/**
+ * Generates test cases for optional (nullable) GraphQL fields. Produces:
+ * - **absent** field → fully successful execution (the field defaults to null via the Kotlin `= null` default)
+ *
+ * Use this for optional nullable fields (e.g., `notes: String?`, `categoryId: Long?`).
+ * Without a Kotlin default value (`= null`), an absent field causes graphql-kotlin to throw an
+ * internal server error (missing required parameter in reflection `callBy`).
+ * This test case verifies that the field correctly defaults to null and the mutation succeeds.
+ *
+ * The [mutationWithFieldPresent] lambda must build the mutation with the target field set to a
+ * non-null value so the field appears in the generated query and can then be removed to simulate
+ * absence. For `List<Long>?` fields, passing `null` is sufficient as DGS serializes it as `null`
+ * in the query.
+ *
+ * @param fieldName the GraphQL field name being tested
+ * @param setup optional callback executed before the request
+ * @param mutationWithFieldPresent builds the mutation with the optional field set to a non-null value
+ */
+fun optionalFieldAbsentTestCases(
+    fieldName: String,
+    setup: () -> Unit = {},
+    mutationWithFieldPresent: MutationProjection.() -> MutationProjection,
+): List<GraphqlMutationInputTestCase> = listOf(
+    GraphqlMutationOptionalFieldAbsentTestCase(
+        description = "$fieldName is absent (optional field defaults to null)",
+        rawQueryBuilder = {
+            buildRawMutationQueryWithAbsentField(fieldName) { mutationWithFieldPresent() }
+        },
+        setup = setup,
     ),
 )
 

@@ -35,9 +35,9 @@ class EditInvoiceMutation(
         @GraphQLDescription("New date when the invoice was issued.")
         dateIssued: LocalDate,
         @GraphQLDescription("New date when the invoice was sent.")
-        dateSent: LocalDate?,
+        dateSent: LocalDate? = null,
         @GraphQLDescription("New date when the invoice was paid.")
-        datePaid: LocalDate?,
+        datePaid: LocalDate? = null,
         @GraphQLDescription("New due date of the invoice.")
         dueDate: LocalDate,
         @GraphQLDescription("New currency of the invoice.")
@@ -47,11 +47,11 @@ class EditInvoiceMutation(
         amount: Long,
         @GraphQLDescription("New optional notes for the invoice.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this invoice.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("New ID of the general tax applied to this invoice.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
     ): InvoiceGqlDto {
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Invoice $id is not found")

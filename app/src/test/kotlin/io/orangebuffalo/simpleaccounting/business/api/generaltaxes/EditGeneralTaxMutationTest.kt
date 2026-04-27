@@ -109,6 +109,13 @@ class EditGeneralTaxMutationTest(
                     description = value,
                 )
             },
+            optionalFieldAbsentTestCases("description") {
+                editGeneralTaxMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryTax.id!!,
+                    description = "x",
+                )
+            },
             numberRangeConstraintTestCases("rateInBps", minValue = 0, maxValue = 10000) { value ->
                 editGeneralTaxMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,

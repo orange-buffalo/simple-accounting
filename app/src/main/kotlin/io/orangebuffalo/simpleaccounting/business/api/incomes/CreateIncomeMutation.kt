@@ -38,22 +38,22 @@ class CreateIncomeMutation(
         @GraphQLDescription("Original amount of the income in original currency, in cents.")
         originalAmount: Long,
         @GraphQLDescription("Converted amount in the default currency, in cents. Null if not yet converted.")
-        convertedAmountInDefaultCurrency: Long?,
+        convertedAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Whether different exchange rate is used for income tax purposes.")
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
         @GraphQLDescription("Amount for income tax purposes in the default currency, in cents. Null if not yet converted.")
-        incomeTaxableAmountInDefaultCurrency: Long?,
+        incomeTaxableAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Optional notes for the income.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this income.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("ID of the category for this income.")
-        categoryId: Long?,
+        categoryId: Long? = null,
         @GraphQLDescription("ID of the general tax applied to this income.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
         @GraphQLDescription("ID of the invoice linked to this income.")
-        linkedInvoiceId: Long?,
+        linkedInvoiceId: Long? = null,
     ): IncomeGqlDto {
         val income = incomesService.saveIncome(
             Income(

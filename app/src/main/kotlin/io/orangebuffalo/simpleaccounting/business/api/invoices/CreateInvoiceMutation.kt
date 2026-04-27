@@ -33,9 +33,9 @@ class CreateInvoiceMutation(
         @GraphQLDescription("Date when the invoice was issued.")
         dateIssued: LocalDate,
         @GraphQLDescription("Date when the invoice was sent.")
-        dateSent: LocalDate?,
+        dateSent: LocalDate? = null,
         @GraphQLDescription("Date when the invoice was paid.")
-        datePaid: LocalDate?,
+        datePaid: LocalDate? = null,
         @GraphQLDescription("Due date of the invoice.")
         dueDate: LocalDate,
         @GraphQLDescription("Currency of the invoice.")
@@ -45,11 +45,11 @@ class CreateInvoiceMutation(
         amount: Long,
         @GraphQLDescription("Optional notes for the invoice.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this invoice.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("ID of the general tax applied to this invoice.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
     ): InvoiceGqlDto {
         val invoice = invoicesService.saveInvoice(
             Invoice(

@@ -34,15 +34,15 @@ class EditIncomeTaxPaymentMutation(
         @GraphQLDescription("New date when the tax payment was made.")
         datePaid: LocalDate,
         @GraphQLDescription("New date used for reporting purposes. Defaults to datePaid if not specified.")
-        reportingDate: LocalDate?,
+        reportingDate: LocalDate? = null,
         @GraphQLDescription("New amount of the tax payment in cents.")
         @Min(1)
         amount: Long,
         @GraphQLDescription("New optional notes for the income tax payment.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this income tax payment.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.getTaxPaymentByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")

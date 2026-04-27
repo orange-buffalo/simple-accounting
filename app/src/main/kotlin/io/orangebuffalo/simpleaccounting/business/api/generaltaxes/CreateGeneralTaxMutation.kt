@@ -30,7 +30,7 @@ class CreateGeneralTaxMutation(
         title: String,
         @GraphQLDescription("Description of the general tax.")
         @Size(max = 255)
-        description: String?,
+        description: String? = null,
         @GraphQLDescription("Rate of the general tax in basis points (1/100 of a percent).")
         @Min(0)
         @Max(100_00)

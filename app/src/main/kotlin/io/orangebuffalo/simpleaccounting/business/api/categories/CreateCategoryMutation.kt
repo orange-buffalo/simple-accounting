@@ -28,7 +28,7 @@ class CreateCategoryMutation(
         name: String,
         @GraphQLDescription("Description of the category.")
         @Size(max = 1000)
-        description: String?,
+        description: String? = null,
         @GraphQLDescription("Whether this category is used for incomes.")
         income: Boolean,
         @GraphQLDescription("Whether this category is used for expenses.")

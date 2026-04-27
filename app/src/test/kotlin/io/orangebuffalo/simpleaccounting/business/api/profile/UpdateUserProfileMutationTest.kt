@@ -83,6 +83,9 @@ class UpdateUserProfileMutationTest(
             sizeConstraintTestCases("documentsStorage", maxLength = 255) { value ->
                 updateProfileMutation(value, "uk", "el")
             },
+            optionalFieldAbsentTestCases("documentsStorage") {
+                updateProfileMutation("x", "uk", "el")
+            },
             mustNotBeBlankTestCases("locale") { value ->
                 updateProfileMutation(null, "uk", value)
             },

@@ -39,22 +39,22 @@ class EditIncomeMutation(
         @GraphQLDescription("New original amount of the income in original currency, in cents.")
         originalAmount: Long,
         @GraphQLDescription("New converted amount in the default currency, in cents. Null if not yet converted.")
-        convertedAmountInDefaultCurrency: Long?,
+        convertedAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("Whether different exchange rate is used for income tax purposes.")
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
         @GraphQLDescription("New amount for income tax purposes in the default currency, in cents. Null if not yet converted.")
-        incomeTaxableAmountInDefaultCurrency: Long?,
+        incomeTaxableAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("New optional notes for the income.")
         @Size(max = 1024)
-        notes: String?,
+        notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this income.")
-        attachments: List<Long>?,
+        attachments: List<Long>? = null,
         @GraphQLDescription("New ID of the category for this income.")
-        categoryId: Long?,
+        categoryId: Long? = null,
         @GraphQLDescription("New ID of the general tax applied to this income.")
-        generalTaxId: Long?,
+        generalTaxId: Long? = null,
         @GraphQLDescription("New ID of the invoice linked to this income.")
-        linkedInvoiceId: Long?,
+        linkedInvoiceId: Long? = null,
     ): IncomeGqlDto {
         val income = incomesService.getIncomeByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Income $id is not found")

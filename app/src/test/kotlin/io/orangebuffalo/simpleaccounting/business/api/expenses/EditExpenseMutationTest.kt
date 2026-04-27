@@ -120,11 +120,59 @@ class EditExpenseMutationTest(
                     notes = value,
                 )
             },
+            optionalFieldAbsentTestCases("notes") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    notes = "x",
+                )
+            },
             numberRangeConstraintTestCases("percentOnBusiness", minValue = 1, maxValue = 100) { value ->
                 editExpenseMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryExpense.id!!,
                     percentOnBusiness = value,
+                )
+            },
+            optionalFieldAbsentTestCases("percentOnBusiness") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    percentOnBusiness = 50,
+                )
+            },
+            optionalFieldAbsentTestCases("convertedAmountInDefaultCurrency") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    convertedAmountInDefaultCurrency = 100,
+                )
+            },
+            optionalFieldAbsentTestCases("incomeTaxableAmountInDefaultCurrency") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    incomeTaxableAmountInDefaultCurrency = 100,
+                )
+            },
+            optionalFieldAbsentTestCases("attachments") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                )
+            },
+            optionalFieldAbsentTestCases("categoryId") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    categoryId = 1,
+                )
+            },
+            optionalFieldAbsentTestCases("generalTaxId") {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    generalTaxId = 1,
                 )
             },
             requiredFieldRejectedTestCases("id") {
