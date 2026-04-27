@@ -52,7 +52,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CategoryGqlDto> {
@@ -60,7 +60,7 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(categoryTable)
             .addPredicate(categoryTable.workspaceId.eq(id))
-            .page(first, after) { record ->
+            .page(first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after) { record ->
                 CategoryGqlDto(
                     id = record[categoryTable.id]!!,
                     name = record[categoryTable.name]!!,
@@ -83,14 +83,14 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         @GraphQLDescription("Optional free text search to filter expenses by title, notes, or category name.")
         freeSearchText: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<ExpenseGqlDto> {
         return env.graphQlContext.getBean<ExpensesGqlApi>()
-            .loadExpenses(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+            .loadExpenses(workspaceId = id, first = first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after = after, freeSearchText = freeSearchText)
     }
 
     @GraphQLDescription("Returns an expense by its ID if it belongs to this workspace, or null if not found.")
@@ -105,14 +105,14 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         @GraphQLDescription("Optional free text search to filter incomes by title, notes, or category name.")
         freeSearchText: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<IncomeGqlDto> {
         return env.graphQlContext.getBean<IncomesGqlApi>()
-            .loadIncomes(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText)
+            .loadIncomes(workspaceId = id, first = first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after = after, freeSearchText = freeSearchText)
     }
 
     @GraphQLDescription("Returns an income by its ID if it belongs to this workspace, or null if not found.")
@@ -130,7 +130,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         @GraphQLDescription("Optional free text search to filter invoices by title, notes, or customer name.")
         freeSearchText: String? = null,
@@ -139,7 +139,7 @@ data class WorkspaceGqlDto(
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<InvoiceGqlDto> {
         return env.graphQlContext.getBean<InvoicesGqlApi>()
-            .loadInvoices(workspaceId = id, first = first, after = after, freeSearchText = freeSearchText, statusIn = statusIn)
+            .loadInvoices(workspaceId = id, first = first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after = after, freeSearchText = freeSearchText, statusIn = statusIn)
     }
 
     @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
@@ -156,7 +156,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<DocumentGqlDto> {
@@ -166,7 +166,7 @@ data class WorkspaceGqlDto(
         return paginationService.forTable(document)
             .addPredicate(document.workspaceId.eq(id))
             .page(
-                first = first,
+                first = first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(),
                 after = after,
                 mapQueryRecord = { record ->
                     DocumentGqlDto(
@@ -192,7 +192,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CustomerGqlDto> {
@@ -200,7 +200,7 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(customer)
             .addPredicate(customer.workspaceId.eq(id))
-            .page(first, after) { record ->
+            .page(first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after) { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!,
                     name = record[customer.name]!!,
@@ -220,7 +220,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<IncomeTaxPaymentGqlDto> {
@@ -231,7 +231,7 @@ data class WorkspaceGqlDto(
             .forTable(incomeTaxPayment)
             .addPredicate(incomeTaxPayment.workspaceId.eq(id))
             .page(
-                first = first,
+                first = first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(),
                 after = after,
                 mapQueryRecord = { record ->
                     IncomeTaxPaymentGqlDto(
@@ -273,7 +273,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<GeneralTaxGqlDto> {
@@ -281,7 +281,7 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(generalTax)
             .addPredicate(generalTax.workspaceId.eq(id))
-            .page(first, after) { record ->
+            .page(first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after) { record ->
                 GeneralTaxGqlDto(
                     id = record[generalTax.id]!!,
                     title = record[generalTax.title]!!,
@@ -304,7 +304,7 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<WorkspaceAccessTokenGqlDto> {
@@ -312,7 +312,7 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(workspaceAccessTokenTable)
             .addPredicate(workspaceAccessTokenTable.workspaceId.eq(id))
-            .page(first, after) { record ->
+            .page(first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after) { record ->
                 WorkspaceAccessTokenGqlDto(
                     id = record[workspaceAccessTokenTable.id]!!,
                     version = record[workspaceAccessTokenTable.version]!!,

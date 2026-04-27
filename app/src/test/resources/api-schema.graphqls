@@ -1096,7 +1096,7 @@ type Query {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int! @max(value : 500) @min(value : 1),
+    first: Int @max(value : 500) @min(value : 1),
     "Optional free-text search filter applied to the username."
     freeSearchText: String
   ): PlatformUsersConnection! @auth(type : ADMIN_USER)
@@ -1110,7 +1110,7 @@ type Query {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int! @max(value : 500) @min(value : 1)
+    first: Int @max(value : 500) @min(value : 1)
   ): WorkspacesConnection! @auth(type : REGULAR_USER)
 }
 
@@ -1178,7 +1178,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): CategoriesConnection!
   "Returns a category by its ID if it belongs to this workspace, or null if not found."
   category(
@@ -1195,7 +1195,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): CustomersConnection!
   "Default currency of the workspace."
   defaultCurrency: String!
@@ -1204,7 +1204,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): DocumentsConnection!
   "Returns an expense by its ID if it belongs to this workspace, or null if not found."
   expense(
@@ -1216,7 +1216,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!,
+    first: Int,
     "Optional free text search to filter expenses by title, notes, or category name."
     freeSearchText: String
   ): ExpensesConnection!
@@ -1230,7 +1230,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): GeneralTaxesConnection!
   "ID of the workspace."
   id: Long!
@@ -1249,14 +1249,14 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): IncomeTaxPaymentsConnection!
   "Incomes in this workspace with cursor-based pagination."
   incomes(
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!,
+    first: Int,
     "Optional free text search to filter incomes by title, notes, or category name."
     freeSearchText: String
   ): IncomesConnection!
@@ -1270,7 +1270,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!,
+    first: Int,
     "Optional free text search to filter invoices by title, notes, or customer name."
     freeSearchText: String,
     "Optional filter to include only invoices with the specified statuses."
@@ -1283,7 +1283,7 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int
   ): WorkspaceAccessTokensConnection! @auth(type : REGULAR_USER)
 }
 

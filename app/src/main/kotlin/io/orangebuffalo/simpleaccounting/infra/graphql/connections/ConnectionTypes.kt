@@ -12,6 +12,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 object GraphqlPaginationConstants {
     const val PAGE_SIZE_MIN = 1L
     const val PAGE_SIZE_MAX = 500L
+    const val PAGE_SIZE_DEFAULT = 10L
 }
 
 /**

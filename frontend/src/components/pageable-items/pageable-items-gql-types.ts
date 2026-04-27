@@ -23,6 +23,6 @@ export type DeepAccess<T, P extends string> = P extends `${infer K}.${infer Rest
   : P extends keyof T ? T[P] : never;
 
 export type GqlPaginationVariables = {
-  first: number;
+  first?: number | null;
   after?: string | null;
 };

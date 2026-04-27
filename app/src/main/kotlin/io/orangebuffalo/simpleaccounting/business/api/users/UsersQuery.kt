@@ -25,7 +25,7 @@ class UsersQuery(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
-        first: Int,
+        first: Int? = null,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         @GraphQLDescription("Optional free-text search filter applied to the username.") freeSearchText: String? = null,
     ): ConnectionGqlDto<PlatformUserGqlDto> {
@@ -36,7 +36,7 @@ class UsersQuery(
                     it.addPredicate(user.userName.containsIgnoreCase(freeSearchText))
                 }
             }
-            .page(first, after) { record ->
+            .page(first ?: GraphqlPaginationConstants.PAGE_SIZE_DEFAULT.toInt(), after) { record ->
                 PlatformUserGqlDto(
                     id = record[user.id]!!,
                     userName = record[user.userName]!!,

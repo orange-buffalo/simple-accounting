@@ -1149,7 +1149,7 @@ export type QueryUserArgs = {
 
 export type QueryUsersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1161,7 +1161,7 @@ export type QueryWorkspaceArgs = {
 
 export type QueryWorkspacesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** Response for refreshing access token. */
@@ -1307,7 +1307,7 @@ export type Workspace = {
 /** Workspace of a user. */
 export type WorkspaceCategoriesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1326,14 +1326,14 @@ export type WorkspaceCustomerArgs = {
 /** Workspace of a user. */
 export type WorkspaceCustomersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 /** Workspace of a user. */
 export type WorkspaceDocumentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1346,7 +1346,7 @@ export type WorkspaceExpenseArgs = {
 /** Workspace of a user. */
 export type WorkspaceExpensesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1360,7 +1360,7 @@ export type WorkspaceGeneralTaxArgs = {
 /** Workspace of a user. */
 export type WorkspaceGeneralTaxesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1379,14 +1379,14 @@ export type WorkspaceIncomeTaxPaymentArgs = {
 /** Workspace of a user. */
 export type WorkspaceIncomeTaxPaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 /** Workspace of a user. */
 export type WorkspaceIncomesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1400,7 +1400,7 @@ export type WorkspaceInvoiceArgs = {
 /** Workspace of a user. */
 export type WorkspaceInvoicesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
   statusIn?: InputMaybe<Array<InvoiceStatus>>;
 };
@@ -1409,7 +1409,7 @@ export type WorkspaceInvoicesArgs = {
 /** Workspace of a user. */
 export type WorkspaceWorkspaceAccessTokensArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** An access token for sharing workspace access. */
