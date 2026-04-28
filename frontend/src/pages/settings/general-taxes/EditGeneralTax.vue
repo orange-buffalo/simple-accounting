@@ -35,6 +35,11 @@
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { $t } from '@/services/i18n';
+  import {
+    CreateGeneralTaxMutationVariables,
+    EditGeneralTaxMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -42,19 +47,6 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToTaxesOverview = async () => navigateByViewName('general-taxes-overview');
-
-  type TaxFormValues = {
-    title: string,
-    description: string | null,
-    rateInBps: number | null,
-  };
-
-  const formValues = ref<TaxFormValues>({
-    title: '',
-    description: null,
-    rateInBps: null,
-  });
-
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getGeneralTaxQuery = useLazyQuery(graphql(`
@@ -70,23 +62,8 @@
     }
   `), 'workspace');
 
-  const loadTax = props.id !== undefined ? async () => {
-    const workspace = await getGeneralTaxQuery({
-      workspaceId: currentWorkspaceId,
-      taxId: props.id!,
-    });
-    const loaded = workspace?.generalTax;
-    if (loaded) {
-      formValues.value = {
-        title: loaded.title,
-        description: loaded.description ?? null,
-        rateInBps: loaded.rateInBps,
-      };
-    }
-  } : undefined;
-
-  const createGeneralTaxMutation = useMutation(graphql(`
-    mutation createGeneralTaxMutation(
+  const createGeneralTax = useMutation(graphql(`
+    mutation createGeneralTax(
       $workspaceId: Long!,
       $title: String!,
       $description: String,
@@ -103,8 +80,8 @@
     }
   `), 'createGeneralTax');
 
-  const editGeneralTaxMutation = useMutation(graphql(`
-    mutation editGeneralTaxMutation(
+  const editGeneralTax = useMutation(graphql(`
+    mutation editGeneralTax(
       $workspaceId: Long!,
       $id: Long!,
       $title: String!,
@@ -123,22 +100,26 @@
     }
   `), 'editGeneralTax');
 
+  type TaxFormValues = AsFormValues<[CreateGeneralTaxMutationVariables, EditGeneralTaxMutationVariables]>;
+
+  const formValues = ref<TaxFormValues>({
+    workspaceId: currentWorkspaceId,
+    id: props.id,
+  });
+
+  const loadTax = props.id !== undefined ? async () => {
+    const workspace = await getGeneralTaxQuery({
+      workspaceId: currentWorkspaceId,
+      taxId: props.id!,
+    });
+    updateFormValues(formValues, workspace.generalTax);
+  } : undefined;
+
   const saveTax = async () => {
     if (props.id === undefined) {
-      await createGeneralTaxMutation({
-        workspaceId: currentWorkspaceId,
-        title: formValues.value.title,
-        description: formValues.value.description || null,
-        rateInBps: formValues.value.rateInBps!,
-      });
+      await createGeneralTax(toRequestArgs(formValues));
     } else {
-      await editGeneralTaxMutation({
-        workspaceId: currentWorkspaceId,
-        id: props.id,
-        title: formValues.value.title,
-        description: formValues.value.description || null,
-        rateInBps: formValues.value.rateInBps!,
-      });
+      await editGeneralTax(toRequestArgs(formValues));
     }
     await navigateToTaxesOverview();
   };

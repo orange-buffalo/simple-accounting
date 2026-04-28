@@ -33,18 +33,16 @@
   import { useWorkspaces } from '@/services/workspaces.ts';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api';
+  import { CreateWorkspaceAccountSetupMutationVariables } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs } from '@/components/form/sa-form-api.ts';
 
-  interface CreateWorkspaceForm {
-    name: string;
-    defaultCurrency: string;
-  }
+  type CreateWorkspaceFormValues = AsFormValues<[CreateWorkspaceAccountSetupMutationVariables]>;
 
-  const form = ref<CreateWorkspaceForm>({
-    name: '',
+  const form = ref<CreateWorkspaceFormValues>({
     defaultCurrency: 'AUD',
   });
 
-  const createWorkspaceMutation = graphql(`
+  const executeCreate = useMutation(graphql(`
     mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {
       createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
         id
@@ -52,13 +50,11 @@
         defaultCurrency
       }
     }
-  `);
-
-  const executeCreate = useMutation(createWorkspaceMutation, 'createWorkspace');
+  `), 'createWorkspace');
 
   const navigation = useNavigation();
   const save = async () => {
-    await executeCreate({ name: form.value.name, defaultCurrency: form.value.defaultCurrency });
+    await executeCreate(toRequestArgs(form));
     await useWorkspaces().loadWorkspaces();
     await navigation.navigateByPath('/');
   };

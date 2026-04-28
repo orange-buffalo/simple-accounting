@@ -41,13 +41,17 @@
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
-  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+  import {
+    AsFormValues, ClientSideValidationError, toRequestArgs, updateFormValues,
+  } from '@/components/form/sa-form-api.ts';
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
-  import { CreateUserErrorCodes, EditUserErrorCodes } from '@/services/api/gql/graphql.ts';
+  import {
+    CreateUserErrorCodes, CreateUserMutationVariables, EditUserErrorCodes, EditUserMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
 
   const props = defineProps<{
     id?: number
@@ -69,16 +73,6 @@
       },
     });
   };
-
-  type FormValues = {
-    userName: string,
-    admin: boolean,
-  }
-
-  const formValues = ref<FormValues>({
-    admin: false,
-    userName: '',
-  });
 
   const getUserQuery = useLazyQuery(graphql(/* GraphQL */ `
     query getUserForEdit($userId: Long!) {
@@ -109,37 +103,6 @@
     }
   `), 'editUser');
 
-  const saveUser = async () => {
-    try {
-      if (editMode.value) {
-        await editUserMutation({ id: props.id!, userName: formValues.value.userName });
-        await navigateToUsersOverview();
-      } else {
-        const createdUser = await createUserMutation({
-          userName: formValues.value.userName,
-          admin: formValues.value.admin,
-        });
-        await navigateToEditUser(createdUser.id);
-      }
-      showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
-    } catch (e: unknown) {
-      const errorCode = handleGqlApiBusinessError<CreateUserErrorCodes | EditUserErrorCodes>(e);
-      if (errorCode === CreateUserErrorCodes.UserAlreadyExists
-        || errorCode === EditUserErrorCodes.UserAlreadyExists) {
-        throw new ClientSideValidationError([{
-          field: 'userName',
-          message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName),
-        }]);
-      }
-      throw e;
-    }
-  };
-
-  const activationStatus = ref({
-    loading: true,
-    activationUrl: '',
-  });
-
   const tokenByUserQuery = useLazyQuery(graphql(/* GraphQL */ `
     query tokenByUser($userId: Long!) {
       tokenByUser(userId: $userId) {
@@ -156,13 +119,25 @@
     }
   `), 'createUserActivationToken');
 
+  type UserFormValues = AsFormValues<[CreateUserMutationVariables, EditUserMutationVariables]>;
+
+  const formValues = ref<UserFormValues>({
+    admin: false,
+    id: props.id,
+  });
+
+  const activationStatus = ref({
+    loading: true,
+    activationUrl: '',
+  });
+
   const loadUser = editMode.value ? async () => {
     const userId = props.id!;
     const user = await getUserQuery({ userId });
-    formValues.value = {
-      userName: user.userName,
-      admin: user.admin,
-    };
+    updateFormValues(formValues, user, loadedUser => ({
+      userName: loadedUser.userName,
+      admin: loadedUser.admin,
+    }));
 
     if (user.activated) {
       activationStatus.value.loading = false;
@@ -173,6 +148,29 @@
       activationStatus.value.loading = false;
     }
   } : undefined;
+
+  const saveUser = async () => {
+    try {
+      if (editMode.value) {
+        await editUserMutation(toRequestArgs(formValues));
+        await navigateToUsersOverview();
+      } else {
+        const createdUser = await createUserMutation(toRequestArgs(formValues));
+        await navigateToEditUser(createdUser.id);
+      }
+      showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName!));
+    } catch (e: unknown) {
+      const errorCode = handleGqlApiBusinessError<CreateUserErrorCodes | EditUserErrorCodes>(e);
+      if (errorCode === CreateUserErrorCodes.UserAlreadyExists
+        || errorCode === EditUserErrorCodes.UserAlreadyExists) {
+        throw new ClientSideValidationError([{
+          field: 'userName',
+          message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName!),
+        }]);
+      }
+      throw e;
+    }
+  };
 
   const pageHeader = computed(() => (editMode.value
     ? $t.value.editUser.pageHeader.edit()

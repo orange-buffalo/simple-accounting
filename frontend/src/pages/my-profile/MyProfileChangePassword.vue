@@ -49,16 +49,14 @@
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications';
   import { handleGqlApiBusinessError } from '@/services/api';
-  import { ClientSideValidationError, FieldError } from '@/components/form/sa-form-api';
+  import { AsFormValues, ClientSideValidationError, FieldError, toRequestArgs } from '@/components/form/sa-form-api';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { ChangePasswordErrorCodes } from '@/services/api/gql/graphql.ts';
+  import { ChangePasswordErrorCodes, ChangePasswordMutationVariables } from '@/services/api/gql/graphql.ts';
 
-  interface PasswordFormValues {
-    currentPassword: string,
-    newPassword: string,
-    newPasswordConfirmation: string,
-  }
+  type PasswordFormValues = AsFormValues<[ChangePasswordMutationVariables]> & {
+    newPasswordConfirmation?: string | null,
+  };
 
   const formValues = ref<PasswordFormValues>({
     currentPassword: '',
@@ -67,9 +65,9 @@
   });
 
   const submitDisabled = computed<boolean>(() =>
-    formValues.value.currentPassword === ''
-    || formValues.value.newPassword === ''
-    || formValues.value.newPasswordConfirmation === '',
+    !formValues.value.currentPassword
+    || !formValues.value.newPassword
+    || !formValues.value.newPasswordConfirmation,
   );
 
   const { showSuccessNotification } = useNotifications();
@@ -93,10 +91,7 @@
     }
 
     try {
-      await changePasswordMutation({
-        currentPassword: formValues.value.currentPassword,
-        newPassword: formValues.value.newPassword,
-      });
+      await changePasswordMutation(toRequestArgs(formValues));
 
       // Clear form after successful password change
       formValues.value = {
