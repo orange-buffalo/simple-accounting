@@ -1226,7 +1226,8 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            // Clear title only (originalAmount still loaded) to verify not-blank validation
+            // Sending title="" triggers @NotBlank constraint violation (field is present but blank);
+            // originalAmount is still loaded so it is not missing and does not cause a coercion error
             title { input.fill("") }
             saveButton.click()
 
@@ -1237,7 +1238,8 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
             reportRendering("edit-expense.validation-errors")
 
-            // Restore title and clear originalAmount to verify required validation
+            // Clearing the money input omits originalAmount from variables, causing a null-coercion
+            // error on the server; title is restored so it does not interfere with this check
             title { input.fill("Cargo bay maintenance") }
             originalAmount { input.fill("") }
             saveButton.click()

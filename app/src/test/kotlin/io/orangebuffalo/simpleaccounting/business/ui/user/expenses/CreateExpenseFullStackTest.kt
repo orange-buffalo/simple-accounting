@@ -325,7 +325,8 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Server returns the first null-field error (title comes first in mutation definition)
+            // Server-side validation reports one missing required variable at a time;
+            // title is the first non-null variable in the mutation that is absent here
             title {
                 shouldHaveValidationError("This value is required")
             }
