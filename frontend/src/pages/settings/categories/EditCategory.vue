@@ -23,6 +23,11 @@
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { $t } from '@/services/i18n';
+  import {
+    CreateCategoryMutationVariables,
+    EditCategoryMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -30,21 +35,6 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
-
-  type CategoryFormValues = {
-    name: string,
-    description: string | null,
-    income: boolean,
-    expense: boolean,
-  };
-
-  const formValues = ref<CategoryFormValues>({
-    name: '',
-    description: null,
-    income: false,
-    expense: false,
-  });
-
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoryQuery = useLazyQuery(graphql(`
@@ -61,24 +51,8 @@
     }
   `), 'workspace');
 
-  const loadCategory = props.id !== undefined ? async () => {
-    const workspace = await getCategoryQuery({
-      workspaceId: currentWorkspaceId,
-      categoryId: props.id!,
-    });
-    const loaded = workspace?.category;
-    if (loaded) {
-      formValues.value = {
-        name: loaded.name,
-        description: loaded.description ?? null,
-        income: loaded.income,
-        expense: loaded.expense,
-      };
-    }
-  } : undefined;
-
-  const createCategoryMutation = useMutation(graphql(`
-    mutation createCategoryMutation(
+  const createCategory = useMutation(graphql(`
+    mutation createCategory(
       $workspaceId: Long!,
       $name: String!,
       $description: String,
@@ -97,8 +71,8 @@
     }
   `), 'createCategory');
 
-  const editCategoryMutation = useMutation(graphql(`
-    mutation editCategoryMutation(
+  const editCategory = useMutation(graphql(`
+    mutation editCategory(
       $workspaceId: Long!,
       $id: Long!,
       $name: String!,
@@ -119,24 +93,30 @@
     }
   `), 'editCategory');
 
+  type CategoryFormValues = AsFormValues<[CreateCategoryMutationVariables, EditCategoryMutationVariables]>;
+
+  const formValues = ref<CategoryFormValues>({
+    workspaceId: currentWorkspaceId,
+    id: props.id,
+    name: '',
+    description: null,
+    income: false,
+    expense: false,
+  });
+
+  const loadCategory = props.id !== undefined ? async () => {
+    const workspace = await getCategoryQuery({
+      workspaceId: currentWorkspaceId,
+      categoryId: props.id!,
+    });
+    updateFormValues(formValues, workspace.category);
+  } : undefined;
+
   const saveCategory = async () => {
     if (props.id === undefined) {
-      await createCategoryMutation({
-        workspaceId: currentWorkspaceId,
-        name: formValues.value.name,
-        description: formValues.value.description || null,
-        income: formValues.value.income,
-        expense: formValues.value.expense,
-      });
+      await createCategory(toRequestArgs(formValues));
     } else {
-      await editCategoryMutation({
-        workspaceId: currentWorkspaceId,
-        id: props.id,
-        name: formValues.value.name,
-        description: formValues.value.description || null,
-        income: formValues.value.income,
-        expense: formValues.value.expense,
-      });
+      await editCategory(toRequestArgs(formValues));
     }
     await navigateToCategoriesOverview();
   };

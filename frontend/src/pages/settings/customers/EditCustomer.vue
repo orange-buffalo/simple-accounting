@@ -23,6 +23,11 @@
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { $t } from '@/services/i18n';
+  import {
+    CreateCustomerMutationVariables,
+    EditCustomerMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -30,15 +35,6 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToCustomersOverview = async () => navigateByViewName('customers-overview');
-
-  type CustomerFormValues = {
-    name: string,
-  };
-
-  const formValues = ref<CustomerFormValues>({
-    name: '',
-  });
-
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCustomerQuery = useLazyQuery(graphql(`
@@ -52,21 +48,8 @@
     }
   `), 'workspace');
 
-  const loadCustomer = props.id !== undefined ? async () => {
-    const workspace = await getCustomerQuery({
-      workspaceId: currentWorkspaceId,
-      customerId: props.id!,
-    });
-    const loaded = workspace?.customer;
-    if (loaded) {
-      formValues.value = {
-        name: loaded.name,
-      };
-    }
-  } : undefined;
-
-  const createCustomerMutation = useMutation(graphql(`
-    mutation createCustomerMutation(
+  const createCustomer = useMutation(graphql(`
+    mutation createCustomer(
       $workspaceId: Long!,
       $name: String!
     ) {
@@ -79,8 +62,8 @@
     }
   `), 'createCustomer');
 
-  const editCustomerMutation = useMutation(graphql(`
-    mutation editCustomerMutation(
+  const editCustomer = useMutation(graphql(`
+    mutation editCustomer(
       $workspaceId: Long!,
       $id: Long!,
       $name: String!
@@ -95,18 +78,27 @@
     }
   `), 'editCustomer');
 
+  type CustomerFormValues = AsFormValues<[CreateCustomerMutationVariables, EditCustomerMutationVariables]>;
+
+  const formValues = ref<CustomerFormValues>({
+    workspaceId: currentWorkspaceId,
+    id: props.id,
+    name: '',
+  });
+
+  const loadCustomer = props.id !== undefined ? async () => {
+    const workspace = await getCustomerQuery({
+      workspaceId: currentWorkspaceId,
+      customerId: props.id!,
+    });
+    updateFormValues(formValues, workspace.customer);
+  } : undefined;
+
   const saveCustomer = async () => {
     if (props.id === undefined) {
-      await createCustomerMutation({
-        workspaceId: currentWorkspaceId,
-        name: formValues.value.name,
-      });
+      await createCustomer(toRequestArgs(formValues));
     } else {
-      await editCustomerMutation({
-        workspaceId: currentWorkspaceId,
-        id: props.id,
-        name: formValues.value.name,
-      });
+      await editCustomer(toRequestArgs(formValues));
     }
     await navigateToCustomersOverview();
   };

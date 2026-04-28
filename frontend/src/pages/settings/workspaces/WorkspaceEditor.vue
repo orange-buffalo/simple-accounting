@@ -22,11 +22,11 @@
   import useNavigation from '@/services/use-navigation';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
-
-  type WorkspaceForm = {
-    name: string,
-    defaultCurrency: string,
-  };
+  import {
+    CreateWorkspaceMutationVariables,
+    EditWorkspaceMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number,
@@ -37,13 +37,11 @@
     ? $t.value.workspaceEditor.pageHeader.edit()
     : $t.value.workspaceEditor.pageHeader.create();
 
-  const formValues = ref<WorkspaceForm>({
-    name: '',
-    defaultCurrency: '',
-  });
+  const { navigateByViewName } = useNavigation();
+  const navigateToWorkspacesOverview = async () => navigateByViewName('workspaces-overview');
 
   const loadWorkspaceQuery = useLazyQuery(graphql(`
-    query workspaceForEditor($id: Long!) {
+    query getWorkspaceForEdit($id: Long!) {
       workspace(id: $id) {
         id
         name
@@ -53,7 +51,7 @@
   `), 'workspace');
 
   const createWorkspaceMutation = useMutation(graphql(`
-    mutation createWorkspaceEditor($name: String!, $defaultCurrency: String!) {
+    mutation createWorkspace($name: String!, $defaultCurrency: String!) {
       createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
         id
       }
@@ -61,31 +59,31 @@
   `), 'createWorkspace');
 
   const editWorkspaceMutation = useMutation(graphql(`
-    mutation editWorkspaceEditor($id: Long!, $name: String!) {
+    mutation editWorkspace($id: Long!, $name: String!) {
       editWorkspace(id: $id, name: $name) {
         id
       }
     }
   `), 'editWorkspace');
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToWorkspacesOverview = async () => navigateByViewName('workspaces-overview');
+  type WorkspaceFormValues = AsFormValues<[CreateWorkspaceMutationVariables, EditWorkspaceMutationVariables]>;
+
+  const formValues = ref<WorkspaceFormValues>({
+    id: props.id,
+    name: '',
+    defaultCurrency: '',
+  });
 
   const loadWorkspaceData = isEditing ? async () => {
     const workspace = await loadWorkspaceQuery({ id: props.id! });
-    if (workspace) {
-      formValues.value = { name: workspace.name, defaultCurrency: workspace.defaultCurrency };
-    }
+    updateFormValues(formValues, workspace);
   } : undefined;
 
   const saveWorkspace = async () => {
     if (props.id !== undefined) {
-      await editWorkspaceMutation({ id: props.id, name: formValues.value.name });
+      await editWorkspaceMutation(toRequestArgs(formValues));
     } else {
-      await createWorkspaceMutation({
-        name: formValues.value.name,
-        defaultCurrency: formValues.value.defaultCurrency,
-      });
+      await createWorkspaceMutation(toRequestArgs(formValues));
     }
     await useWorkspaces().loadWorkspaces();
     await navigateToWorkspacesOverview();
