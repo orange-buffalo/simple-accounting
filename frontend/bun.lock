@@ -10,7 +10,7 @@
         "@popperjs/core": "^2.11.8",
         "@urql/core": "^6.0.1",
         "@urql/exchange-auth": "^3.0.0",
-        "copy-to-clipboard": "4.0.0",
+        "copy-to-clipboard": "4.0.2",
         "dompurify": "3.4.1",
         "dropzone": "6.0.0-beta.2",
         "element-plus": "2.13.7",
@@ -797,7 +797,7 @@
 
     "copy-anything": ["copy-anything@4.0.5", "", { "dependencies": { "is-what": "^5.2.0" } }, "sha512-7Vv6asjS4gMOuILabD3l739tsaxFQmC+a7pLZm02zyvs8p977bL3zEgq3yDk5rn9B0PbYgIv++jmHcuUab4RhA=="],
 
-    "copy-to-clipboard": ["copy-to-clipboard@4.0.0", "", {}, "sha512-mfN771XnlPSUl0eCw4QoGcXfbK2205n52j4JuXINgUi0WLiFp/YtZ5at8tO9DZSmpHzoyx83ytca/NJqCcdzRw=="],
+    "copy-to-clipboard": ["copy-to-clipboard@4.0.2", "", {}, "sha512-gklSft7IuhriZKHKpuoA1fpJSLPNgvUMWMo5BlnzAJm0zNKnznoSv23IjtNqclx8eKi6ZcdvFFzYEER/+U1LoQ=="],
 
     "core-js-pure": ["core-js-pure@3.45.1", "", {}, "sha512-OHnWFKgTUshEU8MK+lOs1H8kC8GkTi9Z1tvNkxrCcw9wl3MJIO7q2ld77wjWn4/xuGrVu2X+nME1iIIPBSdyEQ=="],
 
