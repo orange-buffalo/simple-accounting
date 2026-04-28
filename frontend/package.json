@@ -20,7 +20,7 @@
     "@popperjs/core": "^2.11.8",
     "@urql/core": "^6.0.1",
     "@urql/exchange-auth": "^3.0.0",
-    "copy-to-clipboard": "4.0.0",
+    "copy-to-clipboard": "4.0.2",
     "dompurify": "3.4.1",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.13.7",
