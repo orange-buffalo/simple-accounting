@@ -1226,22 +1226,26 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            // Clear required fields
+            // Clear title only (originalAmount still loaded) to verify not-blank validation
             title { input.fill("") }
-            originalAmount { input.fill("") }
-
             saveButton.click()
 
-            // Verify validation errors
             title {
                 shouldHaveValidationError("This value is required and should not be blank")
-            }
-            originalAmount {
-                shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
 
             reportRendering("edit-expense.validation-errors")
+
+            // Restore title and clear originalAmount to verify required validation
+            title { input.fill("Cargo bay maintenance") }
+            originalAmount { input.fill("") }
+            saveButton.click()
+
+            originalAmount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 

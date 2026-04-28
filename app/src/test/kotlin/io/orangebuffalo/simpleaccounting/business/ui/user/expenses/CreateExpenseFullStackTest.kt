@@ -325,12 +325,8 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Verify all required fields show validation errors
+            // Server returns the first null-field error (title comes first in mutation definition)
             title {
-                shouldHaveValidationError("This value is required")
-            }
-            // Date Paid gets a default value from the clock, so it won't have a validation error
-            originalAmount {
                 shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
@@ -341,6 +337,15 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             currency {
                 shouldNotHaveValidationErrors()
             }
+
+            // Fill title and verify that originalAmount validation error is returned on next save
+            title { input.fill("Slurm supplies") }
+            saveButton.click()
+
+            originalAmount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
 
             // Test conditionally rendered fields
             // Switch to foreign currency to show conversion fields

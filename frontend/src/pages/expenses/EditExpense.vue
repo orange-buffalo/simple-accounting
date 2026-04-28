@@ -298,6 +298,7 @@
           convertedAmountInDefaultCurrency: loaded.convertedAmounts.originalAmountInDefaultCurrency ?? null,
           incomeTaxableAmountInDefaultCurrency: loaded.incomeTaxableAmounts.originalAmountInDefaultCurrency ?? null,
         } : {
+          datePaid: null,
           convertedAmountInDefaultCurrency: null,
           incomeTaxableAmountInDefaultCurrency: null,
         }),
