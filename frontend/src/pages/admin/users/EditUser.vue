@@ -134,10 +134,7 @@
   const loadUser = editMode.value ? async () => {
     const userId = props.id!;
     const user = await getUserQuery({ userId });
-    updateFormValues(formValues, user, loadedUser => ({
-      userName: loadedUser.userName,
-      admin: loadedUser.admin,
-    }));
+    updateFormValues(formValues, user);
 
     if (user.activated) {
       activationStatus.value.loading = false;
@@ -158,14 +155,14 @@
         const createdUser = await createUserMutation(toRequestArgs(formValues));
         await navigateToEditUser(createdUser.id);
       }
-      showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName!));
+      showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName ?? ''));
     } catch (e: unknown) {
       const errorCode = handleGqlApiBusinessError<CreateUserErrorCodes | EditUserErrorCodes>(e);
       if (errorCode === CreateUserErrorCodes.UserAlreadyExists
         || errorCode === EditUserErrorCodes.UserAlreadyExists) {
         throw new ClientSideValidationError([{
           field: 'userName',
-          message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName!),
+          message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName ?? ''),
         }]);
       }
       throw e;
