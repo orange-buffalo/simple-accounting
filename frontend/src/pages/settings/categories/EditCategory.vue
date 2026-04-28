@@ -98,6 +98,8 @@
   const formValues = ref<CategoryFormValues>({
     workspaceId: currentWorkspaceId,
     id: props.id,
+    name: '',
+    description: null,
     income: false,
     expense: false,
   });

@@ -83,6 +83,7 @@
   const formValues = ref<CustomerFormValues>({
     workspaceId: currentWorkspaceId,
     id: props.id,
+    name: '',
   });
 
   const loadCustomer = props.id !== undefined ? async () => {

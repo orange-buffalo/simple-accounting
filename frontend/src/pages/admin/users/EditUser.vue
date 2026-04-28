@@ -124,6 +124,7 @@
   const formValues = ref<UserFormValues>({
     admin: false,
     id: props.id,
+    userName: '',
   });
 
   const activationStatus = ref({

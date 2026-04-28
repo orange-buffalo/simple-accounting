@@ -39,6 +39,7 @@
   type CreateWorkspaceFormValues = AsFormValues<[CreateWorkspaceAccountSetupMutationVariables]>;
 
   const form = ref<CreateWorkspaceFormValues>({
+    name: '',
     defaultCurrency: 'AUD',
   });
 

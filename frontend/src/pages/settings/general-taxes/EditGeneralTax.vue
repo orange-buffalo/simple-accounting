@@ -105,6 +105,9 @@
   const formValues = ref<TaxFormValues>({
     workspaceId: currentWorkspaceId,
     id: props.id,
+    title: '',
+    description: null,
+    rateInBps: null,
   });
 
   const loadTax = props.id !== undefined ? async () => {

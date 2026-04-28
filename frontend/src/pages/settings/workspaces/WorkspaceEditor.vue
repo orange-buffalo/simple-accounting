@@ -70,6 +70,8 @@
 
   const formValues = ref<WorkspaceFormValues>({
     id: props.id,
+    name: '',
+    defaultCurrency: '',
   });
 
   const loadWorkspaceData = isEditing ? async () => {
