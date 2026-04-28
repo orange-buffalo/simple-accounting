@@ -327,12 +327,13 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Verify all required fields show validation errors
             title {
-                shouldHaveValidationError("Please provide the title")
+                shouldHaveValidationError("This value is required")
             }
             // Date Paid gets a default value from the clock, so it won't have a validation error
             originalAmount {
-                shouldHaveValidationError("Please provide expense amount")
+                shouldHaveValidationError("This value is required")
             }
+            shouldHaveNotifications { validationFailed() }
 
             reportRendering("create-expense.validation-errors")
 
@@ -340,8 +341,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             currency {
                 shouldNotHaveValidationErrors()
             }
-
-            // Category doesn't have client-side validation rules
 
             // Test conditionally rendered fields
             // Switch to foreign currency to show conversion fields
@@ -366,6 +365,45 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
 
             reportRendering("create-expense.validation-errors-with-conditional-fields")
+        }
+    }
+
+    @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            datePaid { input.fill("3025-01-15") }
+            originalAmount { input.fill("50.00") }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Slurm supplies") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            notes { input.fill("") }
+            partialForBusiness().click()
+            percentOnBusiness().input.fill("0")
+            saveButton.click()
+
+            percentOnBusiness().shouldHaveValidationError("The value must be no less than 1")
+            shouldHaveNotifications { validationFailed() }
+
+            percentOnBusiness().input.fill("101")
+            saveButton.click()
+
+            percentOnBusiness().shouldHaveValidationError("The value must be no greater than 100")
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
