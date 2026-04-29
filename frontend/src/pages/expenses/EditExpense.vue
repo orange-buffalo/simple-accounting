@@ -284,13 +284,9 @@
     if (loaded) {
       formValues.value = {
         ...formValues.value,
+        ...loaded,
         categoryId: loaded.category?.id ?? null,
-        title: loaded.title,
-        currency: loaded.currency,
-        originalAmount: loaded.originalAmount,
-        useDifferentExchangeRateForIncomeTaxPurposes: loaded.useDifferentExchangeRateForIncomeTaxPurposes,
         notes: loaded.notes ?? null,
-        percentOnBusiness: loaded.percentOnBusiness,
         generalTaxId: loaded.generalTaxId ?? null,
         attachments: isEdit ? setDocuments(loaded.attachments) : [],
         ...(isEdit ? {
