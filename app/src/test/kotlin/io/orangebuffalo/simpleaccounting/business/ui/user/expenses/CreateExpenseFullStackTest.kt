@@ -325,14 +325,12 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Verify all required fields show validation errors
+            // Server-side validation reports one missing required variable at a time;
+            // title is the first non-null variable in the mutation that is absent here
             title {
-                shouldHaveValidationError("Please provide the title")
+                shouldHaveValidationError("This value is required")
             }
-            // Date Paid gets a default value from the clock, so it won't have a validation error
-            originalAmount {
-                shouldHaveValidationError("Please provide expense amount")
-            }
+            shouldHaveNotifications { validationFailed() }
 
             reportRendering("create-expense.validation-errors")
 
@@ -341,7 +339,14 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
 
-            // Category doesn't have client-side validation rules
+            // Fill title and verify that originalAmount validation error is returned on next save
+            title { input.fill("Slurm supplies") }
+            saveButton.click()
+
+            originalAmount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
 
             // Test conditionally rendered fields
             // Switch to foreign currency to show conversion fields
@@ -349,6 +354,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Submit again to trigger validation on conditional fields
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             // Conditionally rendered field should be visible and may have validation errors
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -361,11 +367,51 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Submit again to check tax amount field validation
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             // Tax amount field should now be visible
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
 
             reportRendering("create-expense.validation-errors-with-conditional-fields")
+        }
+    }
+
+    @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            datePaid { input.fill("3025-01-15") }
+            originalAmount { input.fill("50.00") }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Slurm supplies") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            notes { input.fill("") }
+            partialForBusiness().click()
+            percentOnBusiness().input.fill("0")
+            saveButton.click()
+
+            percentOnBusiness().shouldHaveValidationError("The value must be no less than 1")
+            shouldHaveNotifications { validationFailed() }
+
+            percentOnBusiness().input.fill("101")
+            saveButton.click()
+
+            percentOnBusiness().shouldHaveValidationError("The value must be no greater than 100")
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
