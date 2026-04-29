@@ -1,0 +1,5 @@
+# Codex Cloud configuration for Simple Accounting
+# Keep setup aligned with .github/actions/setup-project-environment/action.yml
+
+[environment]
+setup = ".codex/setup.sh"
