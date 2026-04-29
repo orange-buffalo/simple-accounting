@@ -354,6 +354,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Submit again to trigger validation on conditional fields
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             // Conditionally rendered field should be visible and may have validation errors
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -366,6 +367,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Submit again to check tax amount field validation
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             // Tax amount field should now be visible
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
