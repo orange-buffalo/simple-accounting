@@ -17,4 +17,8 @@ fi
 ./gradlew --version
 bun --version
 
+# Install Playwright
 ./gradlew installPlaywrightDependencies --console=plain --build-cache
+
+# Build to cache dependencies in Codex cloud
+./gradlew assemble --console=plain --build-cache
