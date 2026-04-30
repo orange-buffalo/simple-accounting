@@ -1010,6 +1010,47 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val customer = customer(workspace = workspace, name = "Validation Test Corp")
+                val invoice = invoice(
+                    customer = customer,
+                    title = "Test invoice",
+                    currency = "USD",
+                    amount = 10000,
+                    dateIssued = LocalDate.of(3025, 1, 1),
+                    dueDate = LocalDate.of(3025, 2, 1),
+                    status = InvoiceStatus.DRAFT
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/invoices/${testData.invoice.id}/edit")
+        page.shouldBeEditInvoicePage {
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Interplanetary shipping fee") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+        }
+    }
+
+    @Test
     fun `should navigate to overview on cancel`(page: Page) {
         val testData = preconditions {
             object {

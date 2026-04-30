@@ -24,90 +24,57 @@
       </div>
     </div>
 
-    <SaLegacyForm
-      ref="formRef"
-      :model="invoice"
-      :rules="invoiceValidationRules"
-      :initially-loading="id !== undefined"
+    <SaForm
+      v-model="formValues"
+      :on-submit="saveInvoice"
+      :on-load="loadInvoice"
+      :on-cancel="navigateToInvoicesOverview"
     >
-      <template #default>
-        <div class="row">
+      <div class="row">
           <div class="col col-xs-12 col-lg-6">
             <h2>{{ $t.editInvoice.generalInformation.header() }}</h2>
 
-            <ElFormItem
+            <SaFormCustomerInput
+              prop="customerId"
               :label="$t.editInvoice.generalInformation.customer.label()"
-              prop="customer"
-            >
-              <SaCustomerInput
-                v-model="invoice.customer"
-                :placeholder="$t.editInvoice.generalInformation.customer.placeholder()"
-              />
-            </ElFormItem>
+              :placeholder="$t.editInvoice.generalInformation.customer.placeholder()"
+            />
 
-            <ElFormItem
-              :label="$t.editInvoice.generalInformation.title.label()"
+            <SaFormInput
               prop="title"
-            >
-              <ElInput
-                v-model="invoice.title"
-                :placeholder="$t.editInvoice.generalInformation.title.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.title.label()"
+              :placeholder="$t.editInvoice.generalInformation.title.placeholder()"
+            />
 
-            <ElFormItem
-              :label="$t.editInvoice.generalInformation.currency.label()"
+            <SaFormCurrencyInput
               prop="currency"
-            >
-              <SaCurrencyInput v-model="invoice.currency" />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.currency.label()"
+            />
 
-            <ElFormItem
-              :label="$t.editInvoice.generalInformation.amount.label()"
+            <SaFormMoneyInput
               prop="amount"
-            >
-              <SaMoneyInput
-                v-model="invoice.amount"
-                :currency="invoice.currency"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.amount.label()"
+              :currency="formValues.currency ?? defaultCurrency"
+            />
 
-            <ElFormItem
-              :label="$t.editInvoice.generalInformation.dateIssued.label()"
+            <SaFormDatePickerInput
               prop="dateIssued"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="invoice.dateIssued"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editInvoice.generalInformation.dateIssued.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.dateIssued.label()"
+              :placeholder="$t.editInvoice.generalInformation.dateIssued.placeholder()"
+            />
 
-            <ElFormItem
-              :label="$t.editInvoice.generalInformation.dueDate.label()"
+            <SaFormDatePickerInput
               prop="dueDate"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="invoice.dueDate"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editInvoice.generalInformation.dueDate.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.dueDate.label()"
+              :placeholder="$t.editInvoice.generalInformation.dueDate.placeholder()"
+            />
 
-            <ElFormItem
+            <SaFormGeneralTaxInput
+              prop="generalTaxId"
               :label="$t.editInvoice.generalInformation.generalTax.label()"
-              prop="generalTax"
-            >
-              <SaGeneralTaxInput
-                v-model="invoice.generalTax"
-                clearable
-                :placeholder="$t.editInvoice.generalInformation.generalTax.placeholder()"
-              />
-            </ElFormItem>
+              :placeholder="$t.editInvoice.generalInformation.generalTax.placeholder()"
+              clearable
+            />
 
             <ElFormItem>
               <ElCheckbox v-model="uiState.alreadySent">
@@ -115,19 +82,12 @@
               </ElCheckbox>
             </ElFormItem>
 
-            <ElFormItem
+            <SaFormDatePickerInput
               v-if="uiState.alreadySent"
-              :label="$t.editInvoice.generalInformation.dateSent.label()"
               prop="dateSent"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="invoice.dateSent"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editInvoice.generalInformation.dateSent.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.dateSent.label()"
+              :placeholder="$t.editInvoice.generalInformation.dateSent.placeholder()"
+            />
 
             <ElFormItem>
               <ElCheckbox v-model="uiState.alreadyPaid">
@@ -135,77 +95,45 @@
               </ElCheckbox>
             </ElFormItem>
 
-            <ElFormItem
+            <SaFormDatePickerInput
               v-if="uiState.alreadyPaid"
-              :label="$t.editInvoice.generalInformation.datePaid.label()"
               prop="datePaid"
-            >
-              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <ElDatePicker
-                v-model="invoice.datePaid"
-                type="date"
-                value-format="YYYY-MM-DD"
-                :placeholder="$t.editInvoice.generalInformation.datePaid.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.generalInformation.datePaid.label()"
+              :placeholder="$t.editInvoice.generalInformation.datePaid.placeholder()"
+            />
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>{{ $t.editInvoice.additionalNotes.header() }}</h2>
 
-            <ElFormItem
-              :label="$t.editInvoice.additionalNotes.notes.label()"
+            <SaFormNotesInput
               prop="notes"
-            >
-              <SaNotesInput
-                v-model="invoice.notes"
-                :placeholder="$t.editInvoice.additionalNotes.notes.placeholder()"
-              />
-            </ElFormItem>
+              :label="$t.editInvoice.additionalNotes.notes.label()"
+              :placeholder="$t.editInvoice.additionalNotes.notes.placeholder()"
+            />
 
             <h2>{{ $t.editInvoice.attachments.header() }}</h2>
 
-            <ElFormItem>
-              <SaDocumentsUpload
-                ref="documentsUploadRef"
-                :documents="resolvedDocuments"
-                :loading-on-create="id !== undefined"
-                @update:documents-ids="invoice.attachments = $event"
-                @uploads-completed="onDocumentsUploadComplete"
-                @uploads-failed="onDocumentsUploadFailure"
-              />
-            </ElFormItem>
+            <SaFormDocumentsUpload prop="attachments" :documents="resolvedDocuments" />
           </div>
         </div>
-      </template>
-
-      <template #buttons-bar>
-        <ElButton @click="navigateToInvoicesOverview">
-          {{ $t.editInvoice.cancel() }}
-        </ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
-        >
-          {{ $t.editInvoice.save() }}
-        </ElButton>
-      </template>
-    </SaLegacyForm>
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
-  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormCustomerInput from '@/components/form/SaFormCustomerInput.vue';
+  import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';
+  import SaFormMoneyInput from '@/components/form/SaFormMoneyInput.vue';
+  import SaFormDatePickerInput from '@/components/form/SaFormDatePickerInput.vue';
+  import SaFormGeneralTaxInput from '@/components/form/SaFormGeneralTaxInput.vue';
+  import SaFormNotesInput from '@/components/form/SaFormNotesInput.vue';
+  import SaFormDocumentsUpload from '@/components/form/SaFormDocumentsUpload.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
   import { formatDateToLocalISOString } from '@/services/date-utils';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
@@ -213,47 +141,17 @@
   import { ensureDefined } from '@/services/utils';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
-  import type { InvoiceStatus } from '@/services/api/gql/graphql';
+  import type {
+    CreateInvoiceMutationMutationVariables,
+    EditInvoiceMutationMutationVariables,
+    InvoiceStatus,
+  } from '@/services/api/gql/graphql';
   import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
+  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number
   }>();
-
-  const invoiceValidationRules = {
-    customer: {
-      required: true,
-      message: $t.value.editInvoice.validations.customer(),
-    },
-    currency: {
-      required: true,
-      message: $t.value.editInvoice.validations.currency(),
-    },
-    title: {
-      required: true,
-      message: $t.value.editInvoice.validations.title(),
-    },
-    amount: {
-      required: true,
-      message: $t.value.editInvoice.validations.amount(),
-    },
-    dateIssued: {
-      required: true,
-      message: $t.value.editInvoice.validations.dateIssued(),
-    },
-    dueDate: {
-      required: true,
-      message: $t.value.editInvoice.validations.dueDate(),
-    },
-    dateSent: {
-      required: true,
-      message: $t.value.editInvoice.validations.dateSent(),
-    },
-    datePaid: {
-      required: true,
-      message: $t.value.editInvoice.validations.datePaid(),
-    },
-  };
 
   const { navigateByViewName } = useNavigation();
   const navigateToInvoicesOverview = async () => {
@@ -265,21 +163,14 @@
     defaultCurrency,
   } = useCurrentWorkspace();
 
-  type InvoiceFormValues = {
-    customer?: number,
-    title?: string,
-    dateIssued?: string,
-    dateSent?: string,
-    datePaid?: string,
-    dueDate?: string,
-    currency: string,
-    amount?: number,
-    notes?: string,
-    generalTax?: number,
-    attachments: number[],
-  };
+  type InvoiceFormValues = AsFormValues<[
+    CreateInvoiceMutationMutationVariables,
+    EditInvoiceMutationMutationVariables
+  ]>;
 
-  const invoice = ref<InvoiceFormValues>({
+  const formValues = ref<InvoiceFormValues>({
+    id: props.id,
+    workspaceId: currentWorkspaceId,
     attachments: [],
     dateIssued: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
@@ -326,33 +217,24 @@
     }
   `), 'workspace');
 
-  const loadInvoice = async () => {
-    if (props.id !== undefined) {
-      const workspace = await getInvoiceQuery({
-        workspaceId: currentWorkspaceId,
-        invoiceId: props.id,
-      });
-      const loaded = workspace?.invoice;
-      if (loaded) {
-        invoice.value = {
-          customer: loaded.customer!.id,
-          title: loaded.title,
-          dateIssued: loaded.dateIssued,
-          dateSent: loaded.dateSent ?? undefined,
-          datePaid: loaded.datePaid ?? undefined,
-          dueDate: loaded.dueDate,
-          currency: loaded.currency,
-          amount: loaded.amount,
-          notes: loaded.notes ?? undefined,
-          generalTax: loaded.generalTax?.id ?? undefined,
-          attachments: setDocuments(loaded.attachments),
-        };
-        uiState.value.alreadyPaid = loaded.datePaid != null;
-        uiState.value.alreadySent = loaded.dateSent != null;
-        uiState.value.status = loaded.status;
-      }
+  const loadInvoice = props.id !== undefined ? async () => {
+    const workspace = await getInvoiceQuery({
+      workspaceId: currentWorkspaceId,
+      invoiceId: props.id!,
+    });
+    const invoice = workspace?.invoice;
+    if (invoice) {
+      updateFormValues(formValues, invoice, loaded => ({
+        id: loaded.id,
+        customerId: loaded.customer!.id,
+        generalTaxId: loaded.generalTax?.id ?? undefined,
+        attachments: setDocuments(loaded.attachments),
+      }));
+      uiState.value.alreadyPaid = invoice.datePaid != null;
+      uiState.value.alreadySent = invoice.dateSent != null;
+      uiState.value.status = invoice.status;
     }
-  };
+  } : undefined;
 
   const createInvoiceMutation = useMutation(graphql(`
     mutation createInvoiceMutation(
@@ -434,55 +316,19 @@
   `), 'cancelInvoice');
 
   const saveInvoice = async () => {
-    const datePaid = uiState.value.alreadyPaid ? (invoice.value.datePaid ?? null) : null;
-    const dateSent = uiState.value.alreadySent ? (invoice.value.dateSent ?? null) : null;
+    formValues.value.datePaid = uiState.value.alreadyPaid ? (formValues.value.datePaid ?? null) : null;
+    formValues.value.dateSent = uiState.value.alreadySent ? (formValues.value.dateSent ?? null) : null;
     if (props.id) {
-      await editInvoiceMutation({
-        workspaceId: currentWorkspaceId,
-        id: ensureDefined(props.id),
-        customerId: invoice.value.customer!,
-        title: invoice.value.title!,
-        dateIssued: invoice.value.dateIssued!,
-        dateSent,
-        datePaid,
-        dueDate: invoice.value.dueDate!,
-        currency: invoice.value.currency,
-        amount: invoice.value.amount!,
-        notes: invoice.value.notes ?? null,
-        attachments: invoice.value.attachments,
-        generalTaxId: invoice.value.generalTax ?? null,
-      });
+      await editInvoiceMutation(toRequestArgs(formValues));
     } else {
-      await createInvoiceMutation({
-        workspaceId: currentWorkspaceId,
-        customerId: invoice.value.customer!,
-        title: invoice.value.title!,
-        dateIssued: invoice.value.dateIssued!,
-        dateSent,
-        datePaid,
-        dueDate: invoice.value.dueDate!,
-        currency: invoice.value.currency,
-        amount: invoice.value.amount!,
-        notes: invoice.value.notes ?? null,
-        attachments: invoice.value.attachments,
-        generalTaxId: invoice.value.generalTax ?? null,
-      });
+      await createInvoiceMutation(toRequestArgs(formValues));
     }
     await navigateToInvoicesOverview();
   };
 
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-    executeWithFormBlocked,
-  } = useFormWithDocumentsUpload(loadInvoice, saveInvoice);
-
-  const pageHeader = props.id === undefined
+  const pageHeader = computed(() => props.id === undefined
     ? $t.value.editInvoice.pageHeader.create()
-    : $t.value.editInvoice.pageHeader.edit();
+    : $t.value.editInvoice.pageHeader.edit());
 
   const cancelInvoice = useConfirmation(
     $t.value.editInvoice.cancelInvoice.confirm.message(),
@@ -492,12 +338,12 @@
       cancelButtonText: $t.value.editInvoice.cancelInvoice.confirm.no(),
       type: 'warning',
     },
-    async () => executeWithFormBlocked(async () => {
+    async () => {
       const result = await cancelInvoiceMutation({
         workspaceId: currentWorkspaceId,
         invoiceId: ensureDefined(props.id),
       });
       uiState.value.status = result.status;
-    }),
+    },
   );
 </script>

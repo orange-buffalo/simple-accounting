@@ -256,6 +256,30 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            customer { input.selectOption("Spaceship Repairs Inc") }
+            amount { input.fill("123.45") }
+            dueDate { input.fill("15 Feb 3025") }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Robot oil refill") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+        }
+    }
+
+    @Test
     fun `should navigate to overview on cancel`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
