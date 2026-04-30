@@ -21,6 +21,5 @@ bun --version
 ./gradlew installPlaywrightDependencies --console=plain --build-cache
 
 # Build to cache dependencies in Codex cloud
-# Enable frontend build for deps to be installed
-export CI=true
-./gradlew assemble --console=plain --build-cache
+# Enable frontend build explicitly (as it is disabled by default) for deps to be installed
+./gradlew buildFrontend assemble --console=plain --build-cache
