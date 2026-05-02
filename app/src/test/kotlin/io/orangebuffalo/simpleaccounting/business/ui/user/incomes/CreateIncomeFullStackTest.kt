@@ -350,13 +350,12 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
+            // Server-side validation reports one missing required variable at a time;
+            // title is the first non-null variable in the mutation that is absent here.
             title {
-                shouldHaveValidationError("Please provide the title")
+                shouldHaveValidationError("This value is required")
             }
-            // Date Received gets a default value from the clock, so it won't have a validation error
-            originalAmount {
-                shouldHaveValidationError("Please provide income amount")
-            }
+            shouldHaveNotifications { validationFailed() }
 
             reportRendering("create-income.validation-errors")
 
@@ -365,28 +364,51 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
 
+            title { input.fill("Slurm delivery payment") }
+            saveButton.click()
+
+            originalAmount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+
             // Switch to foreign currency to show conversion fields
             currency { input.selectOption("EUREuro") }
 
-            // Submit again to trigger validation on conditional fields
-            saveButton.click()
-
-            // Conditionally rendered field should be visible
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
 
-            // Fill the converted amount
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
 
-            // Enable different exchange rate checkbox
             useDifferentExchangeRateForIncomeTaxPurposes().click()
 
-            // Submit again to check tax amount field validation
-            saveButton.click()
-
-            // Tax amount field should now be visible
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
 
             reportRendering("create-income.validation-errors-with-conditional-fields")
+        }
+    }
+
+    @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            dateReceived { input.fill("3025-01-15") }
+            originalAmount { input.fill("50.00") }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Slurm supplies") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
