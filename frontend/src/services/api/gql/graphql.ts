@@ -1,2257 +1,725 @@
 /* eslint-disable */
-import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
-export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
-/** All built-in and custom scalars, mapped to their actual values */
-export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  /** A date-time instant, serialized as an ISO-8601 string (e.g. '2025-01-15T10:30:00Z'). */
-  DateTime: { input: string; output: string; }
-  /** A date without time, serialized as an ISO-8601 string (e.g. '2025-01-15'). */
-  LocalDate: { input: string; output: string; }
-  /** A 64-bit signed integer. */
-  Long: { input: number; output: number; }
-};
-
-/** Additional error extensions for the ACCOUNT_LOCKED business error. */
-export type AccountLockedErrorExtensions = {
-  __typename?: 'AccountLockedErrorExtensions';
-  /** The remaining lock duration in seconds. */
-  lockExpiresInSec: Scalars['Int']['output'];
-};
-
-/** Possible business error codes for the activateUser operation. */
-export enum ActivateUserErrorCodes {
-  /** The provided activation token has expired. */
-  TokenExpired = 'TOKEN_EXPIRED'
-}
-
-/** Response for the activateUser mutation. Always succeeds if no error is returned by the standard GraphQL error response structure. */
-export type ActivateUserResponse = {
-  __typename?: 'ActivateUserResponse';
-  success: Scalars['Boolean']['output'];
-};
-
-/** Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive. */
-export enum AuthType {
-  /** Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges. */
-  AdminUser = 'ADMIN_USER',
-  /** Allows a request to be executed by an anonymous user, i.e. not authenticated at all. With this restriction, any authenticated user is allowed to execute the request too.  */
-  Anonymous = 'ANONYMOUS',
-  /** Allows a request to be executed by any authenticated actor, including by workspace access token. */
-  AuthenticatedActor = 'AUTHENTICATED_ACTOR',
-  /** Allows a request to be executed by any authenticated user, be it admin or regular user, but not via workspace access token. */
-  AuthenticatedUser = 'AUTHENTICATED_USER',
-  /** Requires a request to be executed by a regular user, i.e. authenticated and not an admin user. */
-  RegularUser = 'REGULAR_USER'
-}
-
-/** A paginated connection of categories following the GraphQL Cursor Connections Specification. */
-export type CategoriesConnection = {
-  __typename?: 'CategoriesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<CategoryEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Category of incomes or expenses. */
-export type Category = {
-  __typename?: 'Category';
-  /** Description of the category. */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Whether this category is used for expenses. */
-  expense: Scalars['Boolean']['output'];
-  /** ID of the category. */
-  id: Scalars['Long']['output'];
-  /** Whether this category is used for incomes. */
-  income: Scalars['Boolean']['output'];
-  /** Name of the category. */
-  name: Scalars['String']['output'];
-};
-
-/** An edge in a categories connection. */
-export type CategoryEdge = {
-  __typename?: 'CategoryEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The category at the end of this edge. */
-  node: Category;
-};
-
-/** Possible business error codes for the changePassword operation. */
-export enum ChangePasswordErrorCodes {
-  /** The provided current password does not match the user's actual password. */
-  CurrentPasswordMismatch = 'CURRENT_PASSWORD_MISMATCH'
-}
-
-/** Response for the changePassword mutation. Always succeeds if no error is returned by standard GraphQL error response structure. */
-export type ChangePasswordResponse = {
-  __typename?: 'ChangePasswordResponse';
-  success: Scalars['Boolean']['output'];
-};
-
-/** Response for the completeOAuth2Flow mutation. */
-export type CompleteOAuth2FlowResponse = {
-  __typename?: 'CompleteOAuth2FlowResponse';
-  /** An error reference ID that can be used to identify the specific failure in the logs. Present only when the flow failed. */
-  errorId?: Maybe<Scalars['String']['output']>;
-  /** Whether the OAuth2 authorization flow was completed successfully. */
-  success: Scalars['Boolean']['output'];
-};
-
-/** Possible business error codes for the createAccessTokenByCredentials operation. */
-export enum CreateAccessTokenByCredentialsErrorCodes {
-  /** The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds. */
-  AccountLocked = 'ACCOUNT_LOCKED',
-  /** The provided credentials are invalid. */
-  BadCredentials = 'BAD_CREDENTIALS',
-  /** Login is temporarily unavailable due to too many concurrent authentication requests for this user. */
-  LoginNotAvailable = 'LOGIN_NOT_AVAILABLE',
-  /** The user account has not been activated yet. */
-  UserNotActivated = 'USER_NOT_ACTIVATED'
-}
-
-/** Response for the createAccessTokenByCredentials mutation. */
-export type CreateAccessTokenByCredentialsResponse = {
-  __typename?: 'CreateAccessTokenByCredentialsResponse';
-  /** The JWT access token for the authenticated user. */
-  accessToken: Scalars['String']['output'];
-};
-
-/** Possible business error codes for the createAccessTokenByWorkspaceAccessToken operation. */
-export enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
-  /** The provided workspace access token is not valid (unknown, expired, or revoked). */
-  InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
-}
-
-/** Response for the createAccessTokenByWorkspaceAccessToken mutation. */
-export type CreateAccessTokenByWorkspaceAccessTokenResponse = {
-  __typename?: 'CreateAccessTokenByWorkspaceAccessTokenResponse';
-  /** The JWT access token for the authenticated user. */
-  accessToken: Scalars['String']['output'];
-  /** The workspace that the access token grants access to. */
-  workspace: Workspace;
-};
-
-/** Response containing the temporary download URL for a document. */
-export type CreateDocumentDownloadUrlResponse = {
-  __typename?: 'CreateDocumentDownloadUrlResponse';
-  /** Absolute URL to download the document content. The URL is temporary and will expire. */
-  url: Scalars['String']['output'];
-};
-
-/** Response containing the temporary upload URL for a document. */
-export type CreateDocumentUploadUrlResponse = {
-  __typename?: 'CreateDocumentUploadUrlResponse';
-  /** The name of the multipart form-data part that should contain the file content. */
-  filePartName: Scalars['String']['output'];
-  /** Absolute URL to upload the document content via multipart/form-data POST. The URL is temporary and will expire. */
-  url: Scalars['String']['output'];
-};
-
-/** Possible business error codes for the createUserActivationToken operation. */
-export enum CreateUserActivationTokenErrorCodes {
-  /** The user is already activated and cannot receive an activation token. */
-  UserAlreadyActivated = 'USER_ALREADY_ACTIVATED'
-}
-
-/** Possible business error codes for the createUser operation. */
-export enum CreateUserErrorCodes {
-  /** A user with the given username already exists. */
-  UserAlreadyExists = 'USER_ALREADY_EXISTS'
-}
-
-/** A customer in a workspace. */
-export type Customer = {
-  __typename?: 'Customer';
-  /** ID of the customer. */
-  id: Scalars['Long']['output'];
-  /** Name of the customer. */
-  name: Scalars['String']['output'];
-};
-
-/** An edge in a customers connection. */
-export type CustomerEdge = {
-  __typename?: 'CustomerEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The customer at the end of this edge. */
-  node: Customer;
-};
-
-/** A paginated connection of customers following the GraphQL Cursor Connections Specification. */
-export type CustomersConnection = {
-  __typename?: 'CustomersConnection';
-  /** The list of edges in the current page. */
-  edges: Array<CustomerEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A document in a workspace. */
-export type Document = {
-  __typename?: 'Document';
-  /** ID of the document. */
-  id: Scalars['Long']['output'];
-  /** MIME type of the document. */
-  mimeType: Scalars['String']['output'];
-  /** Name of the document. */
-  name: Scalars['String']['output'];
-  /** Size of the document in bytes. */
-  sizeInBytes?: Maybe<Scalars['Long']['output']>;
-  /** ID of the storage where the document is stored. */
-  storageId: Scalars['String']['output'];
-  /** Time when the document was uploaded, as ISO 8601 timestamp. */
-  timeUploaded: Scalars['DateTime']['output'];
-  /** Entities that use this document. */
-  usedBy: Array<DocumentUsage>;
-  /** Version of the document for optimistic locking. */
-  version: Scalars['Int']['output'];
-};
-
-/** An edge in a documents connection. */
-export type DocumentEdge = {
-  __typename?: 'DocumentEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The document at the end of this edge. */
-  node: Document;
-};
-
-/** Describes usage of a document by another entity. */
-export type DocumentUsage = {
-  __typename?: 'DocumentUsage';
-  /** Display name of the entity using the document. */
-  displayName: Scalars['String']['output'];
-  /** ID of the entity using the document. */
-  relatedEntityId: Scalars['Long']['output'];
-  /** Type of entity using the document. */
-  type: DocumentUsageType;
-};
-
+import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 /** Type of entity that uses a document. */
-export enum DocumentUsageType {
+export type DocumentUsageType =
   /** Document is used by an expense. */
-  Expense = 'EXPENSE',
+  | 'EXPENSE'
   /** Document is used by an income. */
-  Income = 'INCOME',
+  | 'INCOME'
   /** Document is used by an income tax payment. */
-  IncomeTaxPayment = 'INCOME_TAX_PAYMENT',
+  | 'INCOME_TAX_PAYMENT'
   /** Document is used by an invoice. */
-  Invoice = 'INVOICE'
-}
-
-/** A paginated connection of documents following the GraphQL Cursor Connections Specification. */
-export type DocumentsConnection = {
-  __typename?: 'DocumentsConnection';
-  /** The list of edges in the current page. */
-  edges: Array<DocumentEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Statistics about document storage usage. */
-export type DocumentsStorageStatisticsItem = {
-  __typename?: 'DocumentsStorageStatisticsItem';
-  /** The total number of documents stored in this storage across all workspaces of the current user. */
-  documentsCount: Scalars['Int']['output'];
-  /** The identifier of the document storage. */
-  storageId: Scalars['String']['output'];
-};
-
-/** Documents storage status for the current user. */
-export type DocumentsStorageStatusResponse = {
-  __typename?: 'DocumentsStorageStatusResponse';
-  /** Whether the documents storage is active and available. */
-  active: Scalars['Boolean']['output'];
-};
-
-/** A document storage available for downloading documents. */
-export type DownloadDocumentStorageResponse = {
-  __typename?: 'DownloadDocumentStorageResponse';
-  /** The identifier of the document storage. */
-  id: Scalars['String']['output'];
-};
-
-/** Possible business error codes for the editUser operation. */
-export enum EditUserErrorCodes {
-  /** A user with the given username already exists. */
-  UserAlreadyExists = 'USER_ALREADY_EXISTS'
-}
-
-/** Business expense. */
-export type Expense = {
-  __typename?: 'Expense';
-  /** Documents attached to this expense. */
-  attachments: Array<Document>;
-  /** Category of the expense. */
-  category?: Maybe<Category>;
-  /** Amounts converted to the default currency. */
-  convertedAmounts: ExpenseAmounts;
-  /** Time when the expense was created, as ISO 8601 timestamp. */
-  createdAt: Scalars['DateTime']['output'];
-  /** Currency of the expense. */
-  currency: Scalars['String']['output'];
-  /** Date when the expense was paid. */
-  datePaid: Scalars['LocalDate']['output'];
-  /** General tax applied to this expense. */
-  generalTax?: Maybe<GeneralTax>;
-  /** Amount of the general tax in cents. */
-  generalTaxAmount?: Maybe<Scalars['Long']['output']>;
-  /** ID of the general tax applied to this expense. */
-  generalTaxId?: Maybe<Scalars['Long']['output']>;
-  /** Rate of the general tax in basis points. */
-  generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
-  /** ID of the expense. */
-  id: Scalars['Long']['output'];
-  /** Amounts for income tax purposes in the default currency. */
-  incomeTaxableAmounts: ExpenseAmounts;
-  /** Optional notes for the expense. */
-  notes?: Maybe<Scalars['String']['output']>;
-  /** Original amount of the expense in original currency, in cents. */
-  originalAmount: Scalars['Long']['output'];
-  /** Percentage of the expense on business. */
-  percentOnBusiness: Scalars['Int']['output'];
-  /** Status of the expense. */
-  status: ExpenseStatus;
-  /** Title of the expense. */
-  title: Scalars['String']['output'];
-  /** Whether different exchange rate is used for income tax purposes. */
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['output'];
-  /** Version of the expense for optimistic locking. */
-  version: Scalars['Int']['output'];
-};
-
-/** Amounts for an expense in the default currency. */
-export type ExpenseAmounts = {
-  __typename?: 'ExpenseAmounts';
-  /** Adjusted amount in the default currency. */
-  adjustedAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
-  /** Original amount in the default currency, before adjustments. */
-  originalAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
-};
-
-/** An edge in a expenses connection. */
-export type ExpenseEdge = {
-  __typename?: 'ExpenseEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The expense at the end of this edge. */
-  node: Expense;
-};
-
-export enum ExpenseStatus {
-  Finalized = 'FINALIZED',
-  PendingConversion = 'PENDING_CONVERSION',
-  PendingConversionForTaxationPurposes = 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES'
-}
-
-/** A paginated connection of expenses following the GraphQL Cursor Connections Specification. */
-export type ExpensesConnection = {
-  __typename?: 'ExpensesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<ExpenseEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Summary of expenses for a date range. */
-export type ExpensesSummary = {
-  __typename?: 'ExpensesSummary';
-  /** Total currency exchange difference for finalized expenses in the range. */
-  currencyExchangeDifference: Scalars['Long']['output'];
-  /** Number of finalized expenses in the range. */
-  finalizedCount: Scalars['Long']['output'];
-  /** Per-category breakdown of expenses. */
-  items: Array<ExpensesSummaryItem>;
-  /** Number of pending expenses in the range. */
-  pendingCount: Scalars['Long']['output'];
-  /** Total amount of all finalized expenses in the range. */
-  totalAmount: Scalars['Long']['output'];
-};
-
-/** Expenses summary for a single category. */
-export type ExpensesSummaryItem = {
-  __typename?: 'ExpensesSummaryItem';
-  /** Category of the expenses, or null if no category. */
-  category?: Maybe<Category>;
-  /** Currency exchange difference for finalized expenses. */
-  currencyExchangeDifference: Scalars['Long']['output'];
-  /** Number of finalized expenses. */
-  finalizedCount: Scalars['Long']['output'];
-  /** Number of pending expenses. */
-  pendingCount: Scalars['Long']['output'];
-  /** Total amount for this category. */
-  totalAmount: Scalars['Long']['output'];
-};
-
-/** Summary of a finalized general tax. */
-export type FinalizedGeneralTaxSummaryItem = {
-  __typename?: 'FinalizedGeneralTaxSummaryItem';
-  /** Total amount of items contributing to this tax. */
-  includedItemsAmount: Scalars['Long']['output'];
-  /** Number of items contributing to this tax. */
-  includedItemsNumber: Scalars['Long']['output'];
-  /** The general tax. */
-  tax: GeneralTax;
-  /** Total amount of tax collected or paid. */
-  taxAmount: Scalars['Long']['output'];
-};
-
-/** General tax applicable to incomes or expenses. */
-export type GeneralTax = {
-  __typename?: 'GeneralTax';
-  /** Description of the general tax. */
-  description?: Maybe<Scalars['String']['output']>;
-  /** ID of the general tax. */
-  id: Scalars['Long']['output'];
-  /** Rate of the general tax in basis points (1/100 of a percent). */
-  rateInBps: Scalars['Int']['output'];
-  /** Title of the general tax. */
-  title: Scalars['String']['output'];
-};
-
-/** An edge in a general taxes connection. */
-export type GeneralTaxEdge = {
-  __typename?: 'GeneralTaxEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The general tax at the end of this edge. */
-  node: GeneralTax;
-};
-
-/** A paginated connection of general taxes following the GraphQL Cursor Connections Specification. */
-export type GeneralTaxesConnection = {
-  __typename?: 'GeneralTaxesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<GeneralTaxEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Summary of general taxes for a date range. */
-export type GeneralTaxesSummary = {
-  __typename?: 'GeneralTaxesSummary';
-  /** Finalized taxes collected on incomes. */
-  finalizedCollectedTaxes: Array<FinalizedGeneralTaxSummaryItem>;
-  /** Finalized taxes paid on expenses. */
-  finalizedPaidTaxes: Array<FinalizedGeneralTaxSummaryItem>;
-  /** Pending taxes to be collected on incomes. */
-  pendingCollectedTaxes: Array<PendingGeneralTaxSummaryItem>;
-  /** Pending taxes to be paid on expenses. */
-  pendingPaidTaxes: Array<PendingGeneralTaxSummaryItem>;
-};
-
-/** Google Drive storage integration status for the current user. */
-export type GoogleDriveStorageIntegrationStatusResponse = {
-  __typename?: 'GoogleDriveStorageIntegrationStatusResponse';
-  /** Whether Google Drive authorization is required to use the storage. */
-  authorizationRequired: Scalars['Boolean']['output'];
-  /** The URL to authorize access to Google Drive. Present only when authorization is required. */
-  authorizationUrl?: Maybe<Scalars['String']['output']>;
-  /** The ID of the Google Drive folder used for storing documents. */
-  folderId?: Maybe<Scalars['String']['output']>;
-  /** The name of the Google Drive folder used for storing documents. */
-  folderName?: Maybe<Scalars['String']['output']>;
-};
-
-/** Internationalization settings of the user profile. */
-export type I18nSettings = {
-  __typename?: 'I18nSettings';
-  /** The language of the user profile, e.g. 'en'. Used for translations. */
-  language: Scalars['String']['output'];
-  /** The locale of the user profile, e.g. 'en-US'. Used for formatting dates, numbers, etc. */
-  locale: Scalars['String']['output'];
-};
-
-/** Income record of a workspace. */
-export type Income = {
-  __typename?: 'Income';
-  /** Documents attached to this income. */
-  attachments: Array<Document>;
-  /** Category of this income. */
-  category?: Maybe<Category>;
-  /** Converted amounts in default currency. */
-  convertedAmounts: IncomeAmounts;
-  /** Time when the income was created, as ISO 8601 timestamp. */
-  createdAt: Scalars['DateTime']['output'];
-  /** Currency of the income. */
-  currency: Scalars['String']['output'];
-  /** Date when the income was received. */
-  dateReceived: Scalars['LocalDate']['output'];
-  /** General tax applied to this income. */
-  generalTax?: Maybe<GeneralTax>;
-  /** Amount of general tax applied to this income. */
-  generalTaxAmount?: Maybe<Scalars['Long']['output']>;
-  /** Rate in basis points of the general tax applied to this income. */
-  generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
-  /** ID of the income. */
-  id: Scalars['Long']['output'];
-  /** Amounts for income tax purposes. */
-  incomeTaxableAmounts: IncomeAmounts;
-  /** Invoice linked to this income. */
-  linkedInvoice?: Maybe<Invoice>;
-  /** Optional notes for the income. */
-  notes?: Maybe<Scalars['String']['output']>;
-  /** Amount in original currency. */
-  originalAmount: Scalars['Long']['output'];
-  /** Status of the income. */
-  status: IncomeStatus;
-  /** Title of the income. */
-  title: Scalars['String']['output'];
-  /** Indicates if income taxable amounts use a different exchange rate. */
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['output'];
-  /** Version of the income for optimistic locking. */
-  version: Scalars['Int']['output'];
-};
-
-/** Amounts in default currency for an income. */
-export type IncomeAmounts = {
-  __typename?: 'IncomeAmounts';
-  /** Adjusted amount in default currency after tax deduction. */
-  adjustedAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
-  /** Original amount in default currency before tax deduction. */
-  originalAmountInDefaultCurrency?: Maybe<Scalars['Long']['output']>;
-};
-
-/** An edge in a incomes connection. */
-export type IncomeEdge = {
-  __typename?: 'IncomeEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The income at the end of this edge. */
-  node: Income;
-};
-
-export enum IncomeStatus {
-  Finalized = 'FINALIZED',
-  PendingConversion = 'PENDING_CONVERSION',
-  PendingConversionForTaxationPurposes = 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES'
-}
-
-/** An income tax payment in a workspace. */
-export type IncomeTaxPayment = {
-  __typename?: 'IncomeTaxPayment';
-  /** Amount of the tax payment in cents. */
-  amount: Scalars['Long']['output'];
-  /** Documents attached to this income tax payment. */
-  attachments: Array<Document>;
-  /** Date when the tax payment was made. */
-  datePaid: Scalars['LocalDate']['output'];
-  /** ID of the income tax payment. */
-  id: Scalars['Long']['output'];
-  /** Optional notes for the income tax payment. */
-  notes?: Maybe<Scalars['String']['output']>;
-  /** Date used for reporting purposes. */
-  reportingDate: Scalars['LocalDate']['output'];
-  /** Title of the income tax payment. */
-  title: Scalars['String']['output'];
-};
-
-/** An edge in a income tax payments connection. */
-export type IncomeTaxPaymentEdge = {
-  __typename?: 'IncomeTaxPaymentEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The income tax payment at the end of this edge. */
-  node: IncomeTaxPayment;
-};
-
-/** A paginated connection of income tax payments following the GraphQL Cursor Connections Specification. */
-export type IncomeTaxPaymentsConnection = {
-  __typename?: 'IncomeTaxPaymentsConnection';
-  /** The list of edges in the current page. */
-  edges: Array<IncomeTaxPaymentEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Summary of income tax payments for a date range. */
-export type IncomeTaxPaymentsSummary = {
-  __typename?: 'IncomeTaxPaymentsSummary';
-  /** Total amount of all income tax payments in the range. */
-  totalTaxPayments: Scalars['Long']['output'];
-};
-
-/** A paginated connection of incomes following the GraphQL Cursor Connections Specification. */
-export type IncomesConnection = {
-  __typename?: 'IncomesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<IncomeEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Summary of incomes for a date range. */
-export type IncomesSummary = {
-  __typename?: 'IncomesSummary';
-  /** Total currency exchange difference for finalized incomes in the range. */
-  currencyExchangeDifference: Scalars['Long']['output'];
-  /** Number of finalized incomes in the range. */
-  finalizedCount: Scalars['Long']['output'];
-  /** Per-category breakdown of incomes. */
-  items: Array<IncomesSummaryItem>;
-  /** Number of pending incomes in the range. */
-  pendingCount: Scalars['Long']['output'];
-  /** Total amount of all finalized incomes in the range. */
-  totalAmount: Scalars['Long']['output'];
-};
-
-/** Incomes summary for a single category. */
-export type IncomesSummaryItem = {
-  __typename?: 'IncomesSummaryItem';
-  /** Category of the incomes, or null if no category. */
-  category?: Maybe<Category>;
-  /** Currency exchange difference for finalized incomes. */
-  currencyExchangeDifference: Scalars['Long']['output'];
-  /** Number of finalized incomes. */
-  finalizedCount: Scalars['Long']['output'];
-  /** Number of pending incomes. */
-  pendingCount: Scalars['Long']['output'];
-  /** Total amount for this category. */
-  totalAmount: Scalars['Long']['output'];
-};
-
-/** Invoice for a customer. */
-export type Invoice = {
-  __typename?: 'Invoice';
-  /** Amount of the invoice in cents. */
-  amount: Scalars['Long']['output'];
-  /** Documents attached to this invoice. */
-  attachments: Array<Document>;
-  /** Time when the invoice was created, as ISO 8601 timestamp. */
-  createdAt: Scalars['DateTime']['output'];
-  /** Currency of the invoice. */
-  currency: Scalars['String']['output'];
-  /** Customer of the invoice. */
-  customer?: Maybe<Customer>;
-  /** Date when the invoice was issued. */
-  dateIssued: Scalars['LocalDate']['output'];
-  /** Date when the invoice was paid. */
-  datePaid?: Maybe<Scalars['LocalDate']['output']>;
-  /** Date when the invoice was sent. */
-  dateSent?: Maybe<Scalars['LocalDate']['output']>;
-  /** Due date of the invoice. */
-  dueDate: Scalars['LocalDate']['output'];
-  /** General tax applied to this invoice. */
-  generalTax?: Maybe<GeneralTax>;
-  /** ID of the invoice. */
-  id: Scalars['Long']['output'];
-  /** Optional notes for the invoice. */
-  notes?: Maybe<Scalars['String']['output']>;
-  /** Status of the invoice. */
-  status: InvoiceStatus;
-  /** Time when the invoice was cancelled, as ISO 8601 timestamp. */
-  timeCancelled?: Maybe<Scalars['DateTime']['output']>;
-  /** Title of the invoice. */
-  title: Scalars['String']['output'];
-  /** Version of the invoice for optimistic locking. */
-  version: Scalars['Int']['output'];
-};
-
-/** An edge in a invoices connection. */
-export type InvoiceEdge = {
-  __typename?: 'InvoiceEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The invoice at the end of this edge. */
-  node: Invoice;
-};
-
-export enum InvoiceStatus {
-  Cancelled = 'CANCELLED',
-  Draft = 'DRAFT',
-  Overdue = 'OVERDUE',
-  Paid = 'PAID',
-  Sent = 'SENT'
-}
-
-/** A paginated connection of invoices following the GraphQL Cursor Connections Specification. */
-export type InvoicesConnection = {
-  __typename?: 'InvoicesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<InvoiceEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-export type Mutation = {
-  __typename?: 'Mutation';
-  /** Activates a user account using the provided token and sets the user's password. The token is invalidated after successful activation. Accessible by anonymous users. */
-  activateUser: ActivateUserResponse;
-  /** Cancels an existing invoice in the specified workspace. */
-  cancelInvoice: Invoice;
-  /** Changes the password of the current user. */
-  changePassword: ChangePasswordResponse;
-  /** Completes the OAuth2 authorization flow by processing the authorization server callback. */
-  completeOAuth2Flow: CompleteOAuth2FlowResponse;
-  /** Authenticates a user by username and password credentials and returns an access token. Optionally issues a refresh token cookie for persistent sessions. */
-  createAccessTokenByCredentials: CreateAccessTokenByCredentialsResponse;
-  /** Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality. */
-  createAccessTokenByWorkspaceAccessToken: CreateAccessTokenByWorkspaceAccessTokenResponse;
-  /** Creates a new category in the specified workspace. */
-  createCategory: Category;
-  /** Creates a new customer in the specified workspace. */
-  createCustomer: Customer;
-  /** Creates a short-lived download URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to download the document content. The URL does not require authentication. */
-  createDocumentDownloadUrl: CreateDocumentDownloadUrlResponse;
-  /** Creates a short-lived upload URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to upload a document. The URL does not require authentication. The upload should be done as a multipart/form-data POST request, with the file content in a part named as specified in `filePartName`. The response of the upload request is a JSON object matching the `Document` type in this schema. */
-  createDocumentUploadUrl: CreateDocumentUploadUrlResponse;
-  /** Creates a new expense in the specified workspace. */
-  createExpense: Expense;
-  /** Creates a new general tax in the specified workspace. */
-  createGeneralTax: GeneralTax;
-  /** Creates a new income in the specified workspace. */
-  createIncome: Income;
-  /** Creates a new income tax payment in the specified workspace. */
-  createIncomeTaxPayment: IncomeTaxPayment;
-  /** Creates a new invoice in the specified workspace. */
-  createInvoice: Invoice;
-  /** Creates a new user account. */
-  createUser: PlatformUser;
-  /** Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users. */
-  createUserActivationToken: UserActivationTokenGqlDto;
-  /** Creates a new workspace for the current user. */
-  createWorkspace: Workspace;
-  /** Creates a new access token for sharing workspace access. */
-  createWorkspaceAccessToken: WorkspaceAccessToken;
-  /** Updates an existing category in the specified workspace. */
-  editCategory: Category;
-  /** Updates an existing customer in the specified workspace. */
-  editCustomer: Customer;
-  /** Updates an existing expense in the specified workspace. */
-  editExpense: Expense;
-  /** Updates an existing general tax in the specified workspace. */
-  editGeneralTax: GeneralTax;
-  /** Updates an existing income in the specified workspace. */
-  editIncome: Income;
-  /** Updates an existing income tax payment in the specified workspace. */
-  editIncomeTaxPayment: IncomeTaxPayment;
-  /** Updates an existing invoice in the specified workspace. */
-  editInvoice: Invoice;
-  /** Updates an existing user's username. */
-  editUser: PlatformUser;
-  /** Updates an existing workspace. */
-  editWorkspace: Workspace;
-  /** Invalidates the refresh token cookie, effectively logging out the current user. */
-  invalidateRefreshToken: Scalars['Boolean']['output'];
-  /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
-  refreshAccessToken: RefreshAccessTokenResponse;
-  /** Saves a shared workspace to the current user's list using an access token. */
-  saveSharedWorkspace: Workspace;
-  /** Updates the current user profile information. */
-  updateProfile: UserProfile;
-};
-
-
-export type MutationActivateUserArgs = {
-  password: Scalars['String']['input'];
-  token: Scalars['String']['input'];
-};
-
-
-export type MutationCancelInvoiceArgs = {
-  invoiceId: Scalars['Long']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationChangePasswordArgs = {
-  currentPassword: Scalars['String']['input'];
-  newPassword: Scalars['String']['input'];
-};
-
-
-export type MutationCompleteOAuth2FlowArgs = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  error?: InputMaybe<Scalars['String']['input']>;
-  state: Scalars['String']['input'];
-};
-
-
-export type MutationCreateAccessTokenByCredentialsArgs = {
-  issueRefreshTokenCookie?: InputMaybe<Scalars['Boolean']['input']>;
-  password: Scalars['String']['input'];
-  userName: Scalars['String']['input'];
-};
-
-
-export type MutationCreateAccessTokenByWorkspaceAccessTokenArgs = {
-  workspaceAccessToken: Scalars['String']['input'];
-};
-
-
-export type MutationCreateCategoryArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  expense: Scalars['Boolean']['input'];
-  income: Scalars['Boolean']['input'];
-  name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateCustomerArgs = {
-  name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateDocumentDownloadUrlArgs = {
-  documentId: Scalars['Long']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateDocumentUploadUrlArgs = {
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateExpenseArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  currency: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  originalAmount: Scalars['Long']['input'];
-  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
-  title: Scalars['String']['input'];
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateGeneralTaxArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  rateInBps: Scalars['Int']['input'];
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateIncomeArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  currency: Scalars['String']['input'];
-  dateReceived: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  originalAmount: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateIncomeTaxPaymentArgs = {
-  amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  datePaid: Scalars['LocalDate']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateInvoiceArgs = {
-  amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  currency: Scalars['String']['input'];
-  customerId: Scalars['Long']['input'];
-  dateIssued: Scalars['LocalDate']['input'];
-  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
-  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
-  dueDate: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateUserArgs = {
-  admin: Scalars['Boolean']['input'];
-  userName: Scalars['String']['input'];
-};
-
-
-export type MutationCreateUserActivationTokenArgs = {
-  userId: Scalars['Long']['input'];
-};
-
-
-export type MutationCreateWorkspaceArgs = {
-  defaultCurrency: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-};
-
-
-export type MutationCreateWorkspaceAccessTokenArgs = {
-  validTill: Scalars['DateTime']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditCategoryArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  expense: Scalars['Boolean']['input'];
-  id: Scalars['Long']['input'];
-  income: Scalars['Boolean']['input'];
-  name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditCustomerArgs = {
-  id: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditExpenseArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  currency: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  originalAmount: Scalars['Long']['input'];
-  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
-  title: Scalars['String']['input'];
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditGeneralTaxArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['Long']['input'];
-  rateInBps: Scalars['Int']['input'];
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditIncomeArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  currency: Scalars['String']['input'];
-  dateReceived: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  originalAmount: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditIncomeTaxPaymentArgs = {
-  amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  datePaid: Scalars['LocalDate']['input'];
-  id: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditInvoiceArgs = {
-  amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  currency: Scalars['String']['input'];
-  customerId: Scalars['Long']['input'];
-  dateIssued: Scalars['LocalDate']['input'];
-  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
-  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
-  dueDate: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
-};
-
-
-export type MutationEditUserArgs = {
-  id: Scalars['Long']['input'];
-  userName: Scalars['String']['input'];
-};
-
-
-export type MutationEditWorkspaceArgs = {
-  id: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
-};
-
-
-export type MutationSaveSharedWorkspaceArgs = {
-  token: Scalars['String']['input'];
-};
-
-
-export type MutationUpdateProfileArgs = {
-  documentsStorage?: InputMaybe<Scalars['String']['input']>;
-  language: Scalars['String']['input'];
-  locale: Scalars['String']['input'];
-};
-
-/** Pagination information following the GraphQL Cursor Connections Specification. */
-export type PageInfo = {
-  __typename?: 'PageInfo';
-  /** Cursor of the last edge in the page. */
-  endCursor?: Maybe<Scalars['String']['output']>;
-  /** Whether there are more items when paginating forwards. */
-  hasNextPage: Scalars['Boolean']['output'];
-  /** Whether there are more items when paginating backwards. */
-  hasPreviousPage: Scalars['Boolean']['output'];
-  /** Cursor of the first edge in the page. */
-  startCursor?: Maybe<Scalars['String']['output']>;
-};
-
-/** Summary of a pending general tax. */
-export type PendingGeneralTaxSummaryItem = {
-  __typename?: 'PendingGeneralTaxSummaryItem';
-  /** Number of items contributing to this tax. */
-  includedItemsNumber: Scalars['Long']['output'];
-  /** The general tax. */
-  tax: GeneralTax;
-};
-
-/** A platform user. */
-export type PlatformUser = {
-  __typename?: 'PlatformUser';
-  /** Whether the user account has been activated. */
-  activated: Scalars['Boolean']['output'];
-  /** Whether the user has admin privileges. */
-  admin: Scalars['Boolean']['output'];
-  /** The unique ID of the user. */
-  id: Scalars['Long']['output'];
-  /** The username / login of the user. */
-  userName: Scalars['String']['output'];
-};
-
-/** An edge in a platform users connection. */
-export type PlatformUserEdge = {
-  __typename?: 'PlatformUserEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The platform user at the end of this edge. */
-  node: PlatformUser;
-};
-
-/** A paginated connection of platform users following the GraphQL Cursor Connections Specification. */
-export type PlatformUsersConnection = {
-  __typename?: 'PlatformUsersConnection';
-  /** The list of edges in the current page. */
-  edges: Array<PlatformUserEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A push notification message. */
-export type PushNotificationMessage = {
-  __typename?: 'PushNotificationMessage';
-  /** Optional event data payload, serialized as a JSON string. */
-  data?: Maybe<Scalars['String']['output']>;
-  /** The name of the event. */
-  eventName: Scalars['String']['output'];
-};
-
-export type Query = {
-  __typename?: 'Query';
-  /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
-  documentsStorageStatistics: Array<DocumentsStorageStatisticsItem>;
-  /** Returns the current user's documents storage status. */
-  documentsStorageStatus: DocumentsStorageStatusResponse;
-  /** Returns document storages that are currently available for downloading documents. Iterates over all storage implementations and checks their download availability for the current user context. */
-  getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
-  /** Returns the current user's Google Drive storage integration status. */
-  googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
-  /** Returns the system settings. */
-  systemSettings: SystemSettings;
-  /** Retrieves the activation token for a user by their ID. Returns null if the token does not exist or has expired. Only accessible by admin users. */
-  tokenByUser?: Maybe<UserActivationTokenGqlDto>;
-  /** Retrieves an activation token by its value. Returns null if the token does not exist or has expired. Accessible by anonymous users. */
-  tokenByValue?: Maybe<UserActivationTokenGqlDto>;
-  /** Returns the user with the given ID. */
-  user: PlatformUser;
-  /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
-  userProfile: UserProfile;
-  /** Returns all users with cursor-based pagination. Only accessible by admin users. */
-  users: PlatformUsersConnection;
-  /** Returns a workspace by its ID, if accessible by the current user. */
-  workspace: Workspace;
-  /** Returns all workspaces accessible by the current user with cursor-based pagination. */
-  workspaces: WorkspacesConnection;
-};
-
-
-export type QueryTokenByUserArgs = {
-  userId: Scalars['Long']['input'];
-};
-
-
-export type QueryTokenByValueArgs = {
-  token: Scalars['String']['input'];
-};
-
-
-export type QueryUserArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-export type QueryUsersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryWorkspaceArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-export type QueryWorkspacesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-/** Response for refreshing access token. */
-export type RefreshAccessTokenResponse = {
-  __typename?: 'RefreshAccessTokenResponse';
-  /** The new access token if authentication was successful, null otherwise. */
-  accessToken?: Maybe<Scalars['String']['output']>;
-};
-
-/** Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors. */
-export enum SaGrapQlErrorType {
-  /** Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`. */
-  BusinessError = 'BUSINESS_ERROR',
-  /** Indicates that the requested entity was not found or is not accessible by the current user. */
-  EntityNotFound = 'ENTITY_NOT_FOUND',
-  /** Indicates that one or more input fields failed validation constraints. */
-  FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
-  /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
-  NotAuthorized = 'NOT_AUTHORIZED'
-}
-
-/** Possible business error codes for the saveSharedWorkspace operation. */
-export enum SaveSharedWorkspaceErrorCodes {
-  /** The provided workspace access token is not valid (unknown, expired, or revoked). */
-  InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
-}
-
-export type Subscription = {
-  __typename?: 'Subscription';
-  /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
-  pushNotifications: PushNotificationMessage;
-};
-
-/** System-wide settings. */
-export type SystemSettings = {
-  __typename?: 'SystemSettings';
-  /** Whether local file system documents storage is enabled. */
-  localFileSystemDocumentsStorageEnabled: Scalars['Boolean']['output'];
-};
-
-/** A user activation token used to activate a new user account. */
-export type UserActivationTokenGqlDto = {
-  __typename?: 'UserActivationTokenGqlDto';
-  /** The date and time when the token expires. */
-  expiresAt: Scalars['DateTime']['output'];
-  /** The token value. */
-  token: Scalars['String']['output'];
-};
-
-/** Information about the user profile. */
-export type UserProfile = {
-  __typename?: 'UserProfile';
-  /** The identifier of the documents storage used by the user. */
-  documentsStorage?: Maybe<Scalars['String']['output']>;
-  /** Internationalization settings of the user. */
-  i18n: I18nSettings;
-  /** The user name / login of the user. */
-  userName: Scalars['String']['output'];
-};
-
-/** Error codes for validation failures, matching REST API constraint violation error keys. */
-export enum ValidationErrorCode {
-  /** The field value must be less than or equal to the specified maximum. */
-  MaxConstraintViolated = 'MaxConstraintViolated',
-  /** The field value must be greater than or equal to the specified minimum. */
-  MinConstraintViolated = 'MinConstraintViolated',
-  /** The field must not be null, empty, or blank. */
-  MustNotBeBlank = 'MustNotBeBlank',
-  /** The field must not be null. */
-  MustNotBeNull = 'MustNotBeNull',
-  /** The field size must be within the specified min/max bounds. */
-  SizeConstraintViolated = 'SizeConstraintViolated'
-}
-
-/** Details of a field validation error that occurred during input validation. */
-export type ValidationErrorDetails = {
-  __typename?: 'ValidationErrorDetails';
-  /** The error code identifying the type of validation failure. */
-  error: ValidationErrorCode;
-  /** A human-readable message describing the validation failure. */
-  message: Scalars['String']['output'];
-  /** Additional constraint parameters if applicable (e.g., min/max values for size constraints). */
-  params?: Maybe<Array<ValidationErrorParam>>;
-  /** The path to the field that failed validation (e.g., 'currentPassword'). */
-  path: Scalars['String']['output'];
-};
-
-/** A key-value pair for validation constraint parameters. */
-export type ValidationErrorParam = {
-  __typename?: 'ValidationErrorParam';
-  /** The parameter name (e.g., 'min', 'max'). */
-  name: Scalars['String']['output'];
-  /** The parameter value. */
-  value: Scalars['String']['output'];
-};
-
-/** Workspace of a user. */
-export type Workspace = {
-  __typename?: 'Workspace';
-  /** Analytics data for this workspace. */
-  analytics: WorkspaceAnalytics;
-  /** Categories in this workspace with cursor-based pagination. */
-  categories: CategoriesConnection;
-  /** Returns a category by its ID if it belongs to this workspace, or null if not found. */
-  category?: Maybe<Category>;
-  /** Returns a customer by its ID if it belongs to this workspace, or null if not found. */
-  customer?: Maybe<Customer>;
-  /** Customers in this workspace with cursor-based pagination. */
-  customers: CustomersConnection;
-  /** Default currency of the workspace. */
-  defaultCurrency: Scalars['String']['output'];
-  /** Documents in this workspace with cursor-based pagination. */
-  documents: DocumentsConnection;
-  /** Returns an expense by its ID if it belongs to this workspace, or null if not found. */
-  expense?: Maybe<Expense>;
-  /** Expenses in this workspace with cursor-based pagination. */
-  expenses: ExpensesConnection;
-  /** Returns a general tax by its ID if it belongs to this workspace, or null if not found. */
-  generalTax?: Maybe<GeneralTax>;
-  /** General taxes in this workspace with cursor-based pagination. */
-  generalTaxes: GeneralTaxesConnection;
-  /** ID of the workspace. */
-  id: Scalars['Long']['output'];
-  /** Returns an income by its ID if it belongs to this workspace, or null if not found. */
-  income?: Maybe<Income>;
-  /** Returns an income tax payment by its ID if it belongs to this workspace, or null if not found. */
-  incomeTaxPayment?: Maybe<IncomeTaxPayment>;
-  /** Income tax payments in this workspace with cursor-based pagination. */
-  incomeTaxPayments: IncomeTaxPaymentsConnection;
-  /** Incomes in this workspace with cursor-based pagination. */
-  incomes: IncomesConnection;
-  /** Returns an invoice by its ID if it belongs to this workspace, or null if not found. */
-  invoice?: Maybe<Invoice>;
-  /** Invoices in this workspace with cursor-based pagination. */
-  invoices: InvoicesConnection;
-  /** Name of the workspace. */
-  name: Scalars['String']['output'];
-  /** Workspace access tokens in this workspace with cursor-based pagination. */
-  workspaceAccessTokens: WorkspaceAccessTokensConnection;
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceCategoriesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceCategoryArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceCustomerArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceCustomersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceDocumentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceExpenseArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceExpensesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceGeneralTaxArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceGeneralTaxesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceIncomeArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceIncomeTaxPaymentArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceIncomeTaxPaymentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceIncomesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceInvoiceArgs = {
-  id: Scalars['Long']['input'];
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceInvoicesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
-  statusIn?: InputMaybe<Array<InvoiceStatus>>;
-};
-
-
-/** Workspace of a user. */
-export type WorkspaceWorkspaceAccessTokensArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first: Scalars['Int']['input'];
-};
-
-/** An access token for sharing workspace access. */
-export type WorkspaceAccessToken = {
-  __typename?: 'WorkspaceAccessToken';
-  /** ID of the access token. */
-  id: Scalars['Long']['output'];
-  /** Whether this token has been revoked. */
-  revoked: Scalars['Boolean']['output'];
-  /** The token value used to share workspace access. */
-  token: Scalars['String']['output'];
-  /** The expiration time of this token. */
-  validTill: Scalars['DateTime']['output'];
-  /** Version of the access token. */
-  version: Scalars['Int']['output'];
-};
-
-/** An edge in a workspace access tokens connection. */
-export type WorkspaceAccessTokenEdge = {
-  __typename?: 'WorkspaceAccessTokenEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The workspace access token at the end of this edge. */
-  node: WorkspaceAccessToken;
-};
-
-/** A paginated connection of workspace access tokens following the GraphQL Cursor Connections Specification. */
-export type WorkspaceAccessTokensConnection = {
-  __typename?: 'WorkspaceAccessTokensConnection';
-  /** The list of edges in the current page. */
-  edges: Array<WorkspaceAccessTokenEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** Analytics data for a workspace. */
-export type WorkspaceAnalytics = {
-  __typename?: 'WorkspaceAnalytics';
-  /** Shortlist of recently used currency codes, sorted by usage frequency. */
-  currenciesShortlist: Array<Scalars['String']['output']>;
-  /** Summary of expenses in the given date range. */
-  expensesSummary: ExpensesSummary;
-  /** Summary of general taxes in the given date range. */
-  generalTaxesSummary: GeneralTaxesSummary;
-  /** Summary of income tax payments in the given date range. */
-  incomeTaxPaymentsSummary: IncomeTaxPaymentsSummary;
-  /** Summary of incomes in the given date range. */
-  incomesSummary: IncomesSummary;
-};
-
-
-/** Analytics data for a workspace. */
-export type WorkspaceAnalyticsExpensesSummaryArgs = {
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
-};
-
-
-/** Analytics data for a workspace. */
-export type WorkspaceAnalyticsGeneralTaxesSummaryArgs = {
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
-};
-
-
-/** Analytics data for a workspace. */
-export type WorkspaceAnalyticsIncomeTaxPaymentsSummaryArgs = {
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
-};
-
-
-/** Analytics data for a workspace. */
-export type WorkspaceAnalyticsIncomesSummaryArgs = {
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
-};
-
-/** An edge in a workspaces connection. */
-export type WorkspaceEdge = {
-  __typename?: 'WorkspaceEdge';
-  /** The cursor of this edge, which can be used for pagination. */
-  cursor: Scalars['String']['output'];
-  /** The workspace at the end of this edge. */
-  node: Workspace;
-};
-
-/** A paginated connection of workspaces following the GraphQL Cursor Connections Specification. */
-export type WorkspacesConnection = {
-  __typename?: 'WorkspacesConnection';
-  /** The list of edges in the current page. */
-  edges: Array<WorkspaceEdge>;
-  /** Pagination information about the current page. */
-  pageInfo: PageInfo;
-  /** The total number of items in the connection across all pages. */
-  totalCount: Scalars['Int']['output'];
-};
+  | 'INVOICE';
+
+export type ExpenseStatus =
+  | 'FINALIZED'
+  | 'PENDING_CONVERSION'
+  | 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES';
+
+export type IncomeStatus =
+  | 'FINALIZED'
+  | 'PENDING_CONVERSION'
+  | 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES';
+
+export type InvoiceStatus =
+  | 'CANCELLED'
+  | 'DRAFT'
+  | 'OVERDUE'
+  | 'PAID'
+  | 'SENT';
 
 export type GetCategoriesForInputQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: number;
 }>;
 
 
-export type GetCategoriesForInputQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', categories: { __typename?: 'CategoriesConnection', edges: Array<{ __typename?: 'CategoryEdge', node: { __typename?: 'Category', id: number, name: string } }> } } };
+export type GetCategoriesForInputQuery = { workspace: { categories: { edges: Array<{ node: { id: number, name: string } }> } } };
 
 export type GetCurrenciesShortlistQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: number;
 }>;
 
 
-export type GetCurrenciesShortlistQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', analytics: { __typename?: 'WorkspaceAnalytics', currenciesShortlist: Array<string> } } };
+export type GetCurrenciesShortlistQuery = { workspace: { analytics: { currenciesShortlist: Array<string> } } };
 
 export type GetCustomersForInputQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: number;
 }>;
 
 
-export type GetCustomersForInputQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', customers: { __typename?: 'CustomersConnection', edges: Array<{ __typename?: 'CustomerEdge', node: { __typename?: 'Customer', id: number, name: string } }> } } };
+export type GetCustomersForInputQuery = { workspace: { customers: { edges: Array<{ node: { id: number, name: string } }> } } };
 
 export type CreateDocumentDownloadUrlMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  documentId: Scalars['Long']['input'];
+  workspaceId: number;
+  documentId: number;
 }>;
 
 
-export type CreateDocumentDownloadUrlMutation = { __typename?: 'Mutation', createDocumentDownloadUrl: { __typename?: 'CreateDocumentDownloadUrlResponse', url: string } };
+export type CreateDocumentDownloadUrlMutation = { createDocumentDownloadUrl: { url: string } };
 
 export type CreateDocumentUploadUrlMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: number;
 }>;
 
 
-export type CreateDocumentUploadUrlMutation = { __typename?: 'Mutation', createDocumentUploadUrl: { __typename?: 'CreateDocumentUploadUrlResponse', url: string, filePartName: string } };
+export type CreateDocumentUploadUrlMutation = { createDocumentUploadUrl: { url: string, filePartName: string } };
 
 export type DownloadDocumentStoragesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DownloadDocumentStoragesQuery = { __typename?: 'Query', getDownloadDocumentStorages: Array<{ __typename?: 'DownloadDocumentStorageResponse', id: string }> };
+export type DownloadDocumentStoragesQuery = { getDownloadDocumentStorages: Array<{ id: string }> };
 
 export type DocumentsUploadStorageStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DocumentsUploadStorageStatusQuery = { __typename?: 'Query', documentsStorageStatus: { __typename?: 'DocumentsStorageStatusResponse', active: boolean }, getDownloadDocumentStorages: Array<{ __typename?: 'DownloadDocumentStorageResponse', id: string }> };
+export type DocumentsUploadStorageStatusQuery = { documentsStorageStatus: { active: boolean }, getDownloadDocumentStorages: Array<{ id: string }> };
 
-export type DocumentDataFragment = { __typename?: 'Document', id: number, name: string, sizeInBytes?: number | null, storageId: string } & { ' $fragmentName'?: 'DocumentDataFragment' };
+export type DocumentDataFragment = { id: number, name: string, sizeInBytes: number | null, storageId: string } & { ' $fragmentName'?: 'DocumentDataFragment' };
 
 export type GoogleDriveStorageIntegrationStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GoogleDriveStorageIntegrationStatusQuery = { __typename?: 'Query', googleDriveStorageIntegrationStatus: { __typename?: 'GoogleDriveStorageIntegrationStatusResponse', authorizationRequired: boolean, authorizationUrl?: string | null, folderId?: string | null, folderName?: string | null } };
+export type GoogleDriveStorageIntegrationStatusQuery = { googleDriveStorageIntegrationStatus: { authorizationRequired: boolean, authorizationUrl: string | null, folderId: string | null, folderName: string | null } };
 
 export type DocumentsStorageStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DocumentsStorageStatusQuery = { __typename?: 'Query', documentsStorageStatus: { __typename?: 'DocumentsStorageStatusResponse', active: boolean } };
+export type DocumentsStorageStatusQuery = { documentsStorageStatus: { active: boolean } };
 
 export type GetInvoicesForSelectQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  freeSearchText?: string | null | undefined;
 }>;
 
 
-export type GetInvoicesForSelectQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', invoices: { __typename?: 'InvoicesConnection', totalCount: number, edges: Array<{ __typename?: 'InvoiceEdge', node: { __typename?: 'Invoice', id: number, title: string, dateIssued: string, amount: number, currency: string } }> } } };
+export type GetInvoicesForSelectQuery = { workspace: { invoices: { totalCount: number, edges: Array<{ node: { id: number, title: string, dateIssued: string, amount: number, currency: string } }> } } };
 
 export type GetInvoiceForSelectQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  invoiceId: Scalars['Long']['input'];
+  workspaceId: number;
+  invoiceId: number;
 }>;
 
 
-export type GetInvoiceForSelectQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', invoice?: { __typename?: 'Invoice', id: number, title: string, dateIssued: string, amount: number, currency: string } | null } };
+export type GetInvoiceForSelectQuery = { workspace: { invoice: { id: number, title: string, dateIssued: string, amount: number, currency: string } | null } };
 
 export type GetGeneralTaxesForInputQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: number;
 }>;
 
 
-export type GetGeneralTaxesForInputQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', generalTaxes: { __typename?: 'GeneralTaxesConnection', edges: Array<{ __typename?: 'GeneralTaxEdge', node: { __typename?: 'GeneralTax', id: number, title: string } }> } } };
+export type GetGeneralTaxesForInputQuery = { workspace: { generalTaxes: { edges: Array<{ node: { id: number, title: string } }> } } };
 
-export type PaginationPageInfoFragment = { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } & { ' $fragmentName'?: 'PaginationPageInfoFragment' };
+export type PaginationPageInfoFragment = { endCursor: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor: string | null } & { ' $fragmentName'?: 'PaginationPageInfoFragment' };
 
 export type SaveSharedWorkspaceLoginByLinkMutationVariables = Exact<{
-  token: Scalars['String']['input'];
+  token: string;
 }>;
 
 
-export type SaveSharedWorkspaceLoginByLinkMutation = { __typename?: 'Mutation', saveSharedWorkspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } };
+export type SaveSharedWorkspaceLoginByLinkMutation = { saveSharedWorkspace: { id: number, name: string, defaultCurrency: string } };
 
 export type TokenByValueQueryVariables = Exact<{
-  token: Scalars['String']['input'];
+  token: string;
 }>;
 
 
-export type TokenByValueQuery = { __typename?: 'Query', tokenByValue?: { __typename?: 'UserActivationTokenGqlDto', token: string } | null };
+export type TokenByValueQuery = { tokenByValue: { token: string } | null };
 
 export type ActivateUserMutationVariables = Exact<{
-  token: Scalars['String']['input'];
-  password: Scalars['String']['input'];
+  token: string;
+  password: string;
 }>;
 
 
-export type ActivateUserMutation = { __typename?: 'Mutation', activateUser: { __typename?: 'ActivateUserResponse', success: boolean } };
+export type ActivateUserMutation = { activateUser: { success: boolean } };
 
 export type CreateWorkspaceAccountSetupMutationVariables = Exact<{
-  name: Scalars['String']['input'];
-  defaultCurrency: Scalars['String']['input'];
+  name: string;
+  defaultCurrency: string;
 }>;
 
 
-export type CreateWorkspaceAccountSetupMutation = { __typename?: 'Mutation', createWorkspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } };
+export type CreateWorkspaceAccountSetupMutation = { createWorkspace: { id: number, name: string, defaultCurrency: string } };
 
 export type GetUserForEditQueryVariables = Exact<{
-  userId: Scalars['Long']['input'];
+  userId: number;
 }>;
 
 
-export type GetUserForEditQuery = { __typename?: 'Query', user: { __typename?: 'PlatformUser', id: number, userName: string, activated: boolean, admin: boolean } };
+export type GetUserForEditQuery = { user: { id: number, userName: string, activated: boolean, admin: boolean } };
 
 export type CreateUserMutationVariables = Exact<{
-  userName: Scalars['String']['input'];
-  admin: Scalars['Boolean']['input'];
+  userName: string;
+  admin: boolean;
 }>;
 
 
-export type CreateUserMutation = { __typename?: 'Mutation', createUser: { __typename?: 'PlatformUser', id: number, userName: string } };
+export type CreateUserMutation = { createUser: { id: number, userName: string } };
 
 export type EditUserMutationVariables = Exact<{
-  id: Scalars['Long']['input'];
-  userName: Scalars['String']['input'];
+  id: number;
+  userName: string;
 }>;
 
 
-export type EditUserMutation = { __typename?: 'Mutation', editUser: { __typename?: 'PlatformUser', id: number, userName: string } };
+export type EditUserMutation = { editUser: { id: number, userName: string } };
 
 export type TokenByUserQueryVariables = Exact<{
-  userId: Scalars['Long']['input'];
+  userId: number;
 }>;
 
 
-export type TokenByUserQuery = { __typename?: 'Query', tokenByUser?: { __typename?: 'UserActivationTokenGqlDto', token: string } | null };
+export type TokenByUserQuery = { tokenByUser: { token: string } | null };
 
 export type CreateUserActivationTokenMutationVariables = Exact<{
-  userId: Scalars['Long']['input'];
+  userId: number;
 }>;
 
 
-export type CreateUserActivationTokenMutation = { __typename?: 'Mutation', createUserActivationToken: { __typename?: 'UserActivationTokenGqlDto', token: string } };
+export type CreateUserActivationTokenMutation = { createUserActivationToken: { token: string } };
 
 export type UsersPageQueryVariables = Exact<{
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  first: number;
+  after?: string | null | undefined;
+  freeSearchText?: string | null | undefined;
 }>;
 
 
-export type UsersPageQuery = { __typename?: 'Query', users: { __typename?: 'PlatformUsersConnection', totalCount: number, edges: Array<{ __typename?: 'PlatformUserEdge', cursor: string, node: { __typename?: 'PlatformUser', id: number, userName: string, admin: boolean, activated: boolean } }>, pageInfo: (
-      { __typename?: 'PageInfo' }
-      & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-    ) } };
+export type UsersPageQuery = { users: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, userName: string, admin: boolean, activated: boolean } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } };
 
 export type GetDashboardAnalyticsQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
+  workspaceId: number;
+  fromDate: string;
+  toDate: string;
 }>;
 
 
-export type GetDashboardAnalyticsQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', analytics: { __typename?: 'WorkspaceAnalytics', expensesSummary: { __typename?: 'ExpensesSummary', totalAmount: number, finalizedCount: number, pendingCount: number, currencyExchangeDifference: number, items: Array<{ __typename?: 'ExpensesSummaryItem', totalAmount: number, category?: { __typename?: 'Category', name: string } | null }> }, incomesSummary: { __typename?: 'IncomesSummary', totalAmount: number, finalizedCount: number, pendingCount: number, currencyExchangeDifference: number, items: Array<{ __typename?: 'IncomesSummaryItem', totalAmount: number, category?: { __typename?: 'Category', name: string } | null }> }, incomeTaxPaymentsSummary: { __typename?: 'IncomeTaxPaymentsSummary', totalTaxPayments: number } }, invoices: { __typename?: 'InvoicesConnection', edges: Array<{ __typename?: 'InvoiceEdge', node: { __typename?: 'Invoice', id: number, title: string, amount: number, currency: string, dateIssued: string, dateSent?: string | null, dueDate: string, status: InvoiceStatus, customer?: { __typename?: 'Customer', name: string } | null } }> } } };
+export type GetDashboardAnalyticsQuery = { workspace: { analytics: { expensesSummary: { totalAmount: number, finalizedCount: number, pendingCount: number, currencyExchangeDifference: number, items: Array<{ totalAmount: number, category: { name: string } | null }> }, incomesSummary: { totalAmount: number, finalizedCount: number, pendingCount: number, currencyExchangeDifference: number, items: Array<{ totalAmount: number, category: { name: string } | null }> }, incomeTaxPaymentsSummary: { totalTaxPayments: number } }, invoices: { edges: Array<{ node: { id: number, title: string, amount: number, currency: string, dateIssued: string, dateSent: string | null, dueDate: string, status: InvoiceStatus, customer: { name: string } | null } }> } } };
 
 export type DocumentsPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type DocumentsPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', documents: { __typename?: 'DocumentsConnection', totalCount: number, edges: Array<{ __typename?: 'DocumentEdge', cursor: string, node: { __typename?: 'Document', id: number, name: string, timeUploaded: string, storageId: string, usedBy: Array<{ __typename?: 'DocumentUsage', type: DocumentUsageType, relatedEntityId: number, displayName: string }> } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type DocumentsPageQuery = { workspace: { documents: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, name: string, timeUploaded: string, storageId: string, usedBy: Array<{ type: DocumentUsageType, relatedEntityId: number, displayName: string }> } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetExpenseForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  expenseId: Scalars['Long']['input'];
+  workspaceId: number;
+  expenseId: number;
 }>;
 
 
-export type GetExpenseForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', expense?: { __typename?: 'Expense', id: number, title: string, datePaid: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes?: string | null, percentOnBusiness: number, generalTaxId?: number | null, category?: { __typename?: 'Category', id: number } | null, convertedAmounts: { __typename?: 'ExpenseAmounts', originalAmountInDefaultCurrency?: number | null }, incomeTaxableAmounts: { __typename?: 'ExpenseAmounts', originalAmountInDefaultCurrency?: number | null }, attachments: Array<(
-        { __typename?: 'Document' }
-        & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-      )> } | null } };
+export type GetExpenseForEditQuery = { workspace: { expense: { id: number, title: string, datePaid: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes: string | null, percentOnBusiness: number, generalTaxId: number | null, category: { id: number } | null, convertedAmounts: { originalAmountInDefaultCurrency: number | null }, incomeTaxableAmounts: { originalAmountInDefaultCurrency: number | null }, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } | null } };
 
 export type CreateExpenseMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  originalAmount: Scalars['Long']['input'];
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  title: string;
+  datePaid: string;
+  currency: string;
+  originalAmount: number;
+  convertedAmountInDefaultCurrency?: number | null | undefined;
+  useDifferentExchangeRateForIncomeTaxPurposes: boolean;
+  incomeTaxableAmountInDefaultCurrency?: number | null | undefined;
+  notes?: string | null | undefined;
+  percentOnBusiness?: number | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  categoryId?: number | null | undefined;
+  generalTaxId?: number | null | undefined;
 }>;
 
 
-export type CreateExpenseMutationMutation = { __typename?: 'Mutation', createExpense: { __typename?: 'Expense', id: number } };
+export type CreateExpenseMutationMutation = { createExpense: { id: number } };
 
 export type EditExpenseMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  originalAmount: Scalars['Long']['input'];
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  id: number;
+  title: string;
+  datePaid: string;
+  currency: string;
+  originalAmount: number;
+  convertedAmountInDefaultCurrency?: number | null | undefined;
+  useDifferentExchangeRateForIncomeTaxPurposes: boolean;
+  incomeTaxableAmountInDefaultCurrency?: number | null | undefined;
+  notes?: string | null | undefined;
+  percentOnBusiness?: number | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  categoryId?: number | null | undefined;
+  generalTaxId?: number | null | undefined;
 }>;
 
 
-export type EditExpenseMutationMutation = { __typename?: 'Mutation', editExpense: { __typename?: 'Expense', id: number } };
+export type EditExpenseMutationMutation = { editExpense: { id: number } };
 
 export type ExpensesPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
+  freeSearchText?: string | null | undefined;
 }>;
 
 
-export type ExpensesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', expenses: { __typename?: 'ExpensesConnection', totalCount: number, edges: Array<{ __typename?: 'ExpenseEdge', cursor: string, node: { __typename?: 'Expense', id: number, version: number, title: string, datePaid: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, percentOnBusiness: number, notes?: string | null, status: ExpenseStatus, generalTaxRateInBps?: number | null, generalTaxAmount?: number | null, convertedAmounts: { __typename?: 'ExpenseAmounts', originalAmountInDefaultCurrency?: number | null, adjustedAmountInDefaultCurrency?: number | null }, incomeTaxableAmounts: { __typename?: 'ExpenseAmounts', originalAmountInDefaultCurrency?: number | null, adjustedAmountInDefaultCurrency?: number | null }, generalTax?: { __typename?: 'GeneralTax', title: string } | null, category?: { __typename?: 'Category', name: string } | null, attachments: Array<(
-            { __typename?: 'Document' }
-            & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-          )> } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type ExpensesPageQuery = { workspace: { expenses: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, version: number, title: string, datePaid: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, percentOnBusiness: number, notes: string | null, status: ExpenseStatus, generalTaxRateInBps: number | null, generalTaxAmount: number | null, convertedAmounts: { originalAmountInDefaultCurrency: number | null, adjustedAmountInDefaultCurrency: number | null }, incomeTaxableAmounts: { originalAmountInDefaultCurrency: number | null, adjustedAmountInDefaultCurrency: number | null }, generalTax: { title: string } | null, category: { name: string } | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetIncomeTaxPaymentForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
+  workspaceId: number;
+  id: number;
 }>;
 
 
-export type GetIncomeTaxPaymentForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', incomeTaxPayment?: { __typename?: 'IncomeTaxPayment', id: number, title: string, datePaid: string, reportingDate: string, amount: number, notes?: string | null, attachments: Array<(
-        { __typename?: 'Document' }
-        & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-      )> } | null } };
+export type GetIncomeTaxPaymentForEditQuery = { workspace: { incomeTaxPayment: { id: number, title: string, datePaid: string, reportingDate: string, amount: number, notes: string | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } | null } };
 
 export type CreateIncomeTaxPaymentMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
-  amount: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
+  workspaceId: number;
+  title: string;
+  datePaid: string;
+  reportingDate?: string | null | undefined;
+  amount: number;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
 }>;
 
 
-export type CreateIncomeTaxPaymentMutation = { __typename?: 'Mutation', createIncomeTaxPayment: { __typename?: 'IncomeTaxPayment', id: number } };
+export type CreateIncomeTaxPaymentMutation = { createIncomeTaxPayment: { id: number } };
 
 export type EditIncomeTaxPaymentMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  datePaid: Scalars['LocalDate']['input'];
-  reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
-  amount: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
+  workspaceId: number;
+  id: number;
+  title: string;
+  datePaid: string;
+  reportingDate?: string | null | undefined;
+  amount: number;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
 }>;
 
 
-export type EditIncomeTaxPaymentMutation = { __typename?: 'Mutation', editIncomeTaxPayment: { __typename?: 'IncomeTaxPayment', id: number } };
+export type EditIncomeTaxPaymentMutation = { editIncomeTaxPayment: { id: number } };
 
 export type IncomeTaxPaymentsPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type IncomeTaxPaymentsPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', incomeTaxPayments: { __typename?: 'IncomeTaxPaymentsConnection', totalCount: number, edges: Array<{ __typename?: 'IncomeTaxPaymentEdge', cursor: string, node: { __typename?: 'IncomeTaxPayment', id: number, title: string, datePaid: string, reportingDate: string, amount: number, notes?: string | null, attachments: Array<(
-            { __typename?: 'Document' }
-            & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-          )> } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type IncomeTaxPaymentsPageQuery = { workspace: { incomeTaxPayments: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, title: string, datePaid: string, reportingDate: string, amount: number, notes: string | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetSourceInvoiceForIncomeQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  invoiceId: Scalars['Long']['input'];
+  workspaceId: number;
+  invoiceId: number;
 }>;
 
 
-export type GetSourceInvoiceForIncomeQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', invoice?: { __typename?: 'Invoice', title: string, currency: string, amount: number, generalTax?: { __typename?: 'GeneralTax', id: number } | null } | null } };
+export type GetSourceInvoiceForIncomeQuery = { workspace: { invoice: { title: string, currency: string, amount: number, generalTax: { id: number } | null } | null } };
 
 export type GetIncomeForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  incomeId: Scalars['Long']['input'];
+  workspaceId: number;
+  incomeId: number;
 }>;
 
 
-export type GetIncomeForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', income?: { __typename?: 'Income', id: number, title: string, dateReceived: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes?: string | null, category?: { __typename?: 'Category', id: number } | null, convertedAmounts: { __typename?: 'IncomeAmounts', originalAmountInDefaultCurrency?: number | null }, incomeTaxableAmounts: { __typename?: 'IncomeAmounts', originalAmountInDefaultCurrency?: number | null }, generalTax?: { __typename?: 'GeneralTax', id: number } | null, linkedInvoice?: { __typename?: 'Invoice', id: number } | null, attachments: Array<(
-        { __typename?: 'Document' }
-        & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-      )> } | null } };
+export type GetIncomeForEditQuery = { workspace: { income: { id: number, title: string, dateReceived: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes: string | null, category: { id: number } | null, convertedAmounts: { originalAmountInDefaultCurrency: number | null }, incomeTaxableAmounts: { originalAmountInDefaultCurrency: number | null }, generalTax: { id: number } | null, linkedInvoice: { id: number } | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } | null } };
 
 export type CreateIncomeMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  dateReceived: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  originalAmount: Scalars['Long']['input'];
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  title: string;
+  dateReceived: string;
+  currency: string;
+  originalAmount: number;
+  convertedAmountInDefaultCurrency?: number | null | undefined;
+  useDifferentExchangeRateForIncomeTaxPurposes: boolean;
+  incomeTaxableAmountInDefaultCurrency?: number | null | undefined;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  categoryId?: number | null | undefined;
+  generalTaxId?: number | null | undefined;
+  linkedInvoiceId?: number | null | undefined;
 }>;
 
 
-export type CreateIncomeMutationMutation = { __typename?: 'Mutation', createIncome: { __typename?: 'Income', id: number } };
+export type CreateIncomeMutationMutation = { createIncome: { id: number } };
 
 export type EditIncomeMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  dateReceived: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  originalAmount: Scalars['Long']['input'];
-  convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  id: number;
+  title: string;
+  dateReceived: string;
+  currency: string;
+  originalAmount: number;
+  convertedAmountInDefaultCurrency?: number | null | undefined;
+  useDifferentExchangeRateForIncomeTaxPurposes: boolean;
+  incomeTaxableAmountInDefaultCurrency?: number | null | undefined;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  categoryId?: number | null | undefined;
+  generalTaxId?: number | null | undefined;
+  linkedInvoiceId?: number | null | undefined;
 }>;
 
 
-export type EditIncomeMutationMutation = { __typename?: 'Mutation', editIncome: { __typename?: 'Income', id: number } };
+export type EditIncomeMutationMutation = { editIncome: { id: number } };
 
 export type IncomesPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
+  freeSearchText?: string | null | undefined;
 }>;
 
 
-export type IncomesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', incomes: { __typename?: 'IncomesConnection', totalCount: number, edges: Array<{ __typename?: 'IncomeEdge', cursor: string, node: { __typename?: 'Income', id: number, version: number, title: string, dateReceived: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes?: string | null, status: IncomeStatus, generalTaxRateInBps?: number | null, generalTaxAmount?: number | null, convertedAmounts: { __typename?: 'IncomeAmounts', originalAmountInDefaultCurrency?: number | null, adjustedAmountInDefaultCurrency?: number | null }, incomeTaxableAmounts: { __typename?: 'IncomeAmounts', originalAmountInDefaultCurrency?: number | null, adjustedAmountInDefaultCurrency?: number | null }, generalTax?: { __typename?: 'GeneralTax', title: string } | null, linkedInvoice?: { __typename?: 'Invoice', id: number, title: string } | null, category?: { __typename?: 'Category', name: string } | null, attachments: Array<(
-            { __typename?: 'Document' }
-            & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-          )> } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type IncomesPageQuery = { workspace: { incomes: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, version: number, title: string, dateReceived: string, currency: string, originalAmount: number, useDifferentExchangeRateForIncomeTaxPurposes: boolean, notes: string | null, status: IncomeStatus, generalTaxRateInBps: number | null, generalTaxAmount: number | null, convertedAmounts: { originalAmountInDefaultCurrency: number | null, adjustedAmountInDefaultCurrency: number | null }, incomeTaxableAmounts: { originalAmountInDefaultCurrency: number | null, adjustedAmountInDefaultCurrency: number | null }, generalTax: { title: string } | null, linkedInvoice: { id: number, title: string } | null, category: { name: string } | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetInvoiceForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  invoiceId: Scalars['Long']['input'];
+  workspaceId: number;
+  invoiceId: number;
 }>;
 
 
-export type GetInvoiceForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', invoice?: { __typename?: 'Invoice', id: number, title: string, dateIssued: string, dateSent?: string | null, datePaid?: string | null, dueDate: string, currency: string, amount: number, notes?: string | null, status: InvoiceStatus, customer?: { __typename?: 'Customer', id: number } | null, generalTax?: { __typename?: 'GeneralTax', id: number } | null, attachments: Array<(
-        { __typename?: 'Document' }
-        & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-      )> } | null } };
+export type GetInvoiceForEditQuery = { workspace: { invoice: { id: number, title: string, dateIssued: string, dateSent: string | null, datePaid: string | null, dueDate: string, currency: string, amount: number, notes: string | null, status: InvoiceStatus, customer: { id: number } | null, generalTax: { id: number } | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } | null } };
 
 export type CreateInvoiceMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  customerId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  dateIssued: Scalars['LocalDate']['input'];
-  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
-  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
-  dueDate: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  amount: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  customerId: number;
+  title: string;
+  dateIssued: string;
+  dateSent?: string | null | undefined;
+  datePaid?: string | null | undefined;
+  dueDate: string;
+  currency: string;
+  amount: number;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  generalTaxId?: number | null | undefined;
 }>;
 
 
-export type CreateInvoiceMutationMutation = { __typename?: 'Mutation', createInvoice: { __typename?: 'Invoice', id: number } };
+export type CreateInvoiceMutationMutation = { createInvoice: { id: number } };
 
 export type EditInvoiceMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  customerId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  dateIssued: Scalars['LocalDate']['input'];
-  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
-  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
-  dueDate: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  amount: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  id: number;
+  customerId: number;
+  title: string;
+  dateIssued: string;
+  dateSent?: string | null | undefined;
+  datePaid?: string | null | undefined;
+  dueDate: string;
+  currency: string;
+  amount: number;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  generalTaxId?: number | null | undefined;
 }>;
 
 
-export type EditInvoiceMutationMutation = { __typename?: 'Mutation', editInvoice: { __typename?: 'Invoice', id: number } };
+export type EditInvoiceMutationMutation = { editInvoice: { id: number } };
 
 export type CancelInvoiceMutationMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  invoiceId: Scalars['Long']['input'];
+  workspaceId: number;
+  invoiceId: number;
 }>;
 
 
-export type CancelInvoiceMutationMutation = { __typename?: 'Mutation', cancelInvoice: { __typename?: 'Invoice', id: number, status: InvoiceStatus } };
+export type CancelInvoiceMutationMutation = { cancelInvoice: { id: number, status: InvoiceStatus } };
 
 export type InvoicesPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
+  freeSearchText?: string | null | undefined;
 }>;
 
 
-export type InvoicesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', invoices: { __typename?: 'InvoicesConnection', totalCount: number, edges: Array<{ __typename?: 'InvoiceEdge', cursor: string, node: { __typename?: 'Invoice', id: number, version: number, title: string, dateIssued: string, dateSent?: string | null, datePaid?: string | null, dueDate: string, currency: string, amount: number, notes?: string | null, status: InvoiceStatus, customer?: { __typename?: 'Customer', id: number, name: string } | null, generalTax?: { __typename?: 'GeneralTax', id: number, title: string, rateInBps: number } | null, attachments: Array<(
-            { __typename?: 'Document' }
-            & { ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }
-          )> } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type InvoicesPageQuery = { workspace: { invoices: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, version: number, title: string, dateIssued: string, dateSent: string | null, datePaid: string | null, dueDate: string, currency: string, amount: number, notes: string | null, status: InvoiceStatus, customer: { id: number, name: string } | null, generalTax: { id: number, title: string, rateInBps: number } | null, attachments: Array<{ ' $fragmentRefs'?: { 'DocumentDataFragment': DocumentDataFragment } }> } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type EditInvoiceForMarkAsSentMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  customerId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  dateIssued: Scalars['LocalDate']['input'];
-  dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
-  datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
-  dueDate: Scalars['LocalDate']['input'];
-  currency: Scalars['String']['input'];
-  amount: Scalars['Long']['input'];
-  notes?: InputMaybe<Scalars['String']['input']>;
-  attachments?: InputMaybe<Array<Scalars['Long']['input']> | Scalars['Long']['input']>;
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  workspaceId: number;
+  id: number;
+  customerId: number;
+  title: string;
+  dateIssued: string;
+  dateSent?: string | null | undefined;
+  datePaid?: string | null | undefined;
+  dueDate: string;
+  currency: string;
+  amount: number;
+  notes?: string | null | undefined;
+  attachments?: Array<number> | number | null | undefined;
+  generalTaxId?: number | null | undefined;
 }>;
 
 
-export type EditInvoiceForMarkAsSentMutation = { __typename?: 'Mutation', editInvoice: { __typename?: 'Invoice', id: number } };
+export type EditInvoiceForMarkAsSentMutation = { editInvoice: { id: number } };
 
 export type UserProfileLoginQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserProfileLoginQuery = { __typename?: 'Query', userProfile: { __typename?: 'UserProfile', i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
+export type UserProfileLoginQuery = { userProfile: { i18n: { language: string, locale: string } } };
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserProfileQuery = { __typename?: 'Query', userProfile: { __typename?: 'UserProfile', documentsStorage?: string | null, userName: string, i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
+export type UserProfileQuery = { userProfile: { documentsStorage: string | null, userName: string, i18n: { language: string, locale: string } } };
 
 export type ChangePasswordMutationVariables = Exact<{
-  currentPassword: Scalars['String']['input'];
-  newPassword: Scalars['String']['input'];
+  currentPassword: string;
+  newPassword: string;
 }>;
 
 
-export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'ChangePasswordResponse', success: boolean } };
+export type ChangePasswordMutation = { changePassword: { success: boolean } };
 
 export type DocumentsStorageConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DocumentsStorageConfigQuery = { __typename?: 'Query', documentsStorageStatistics: Array<{ __typename?: 'DocumentsStorageStatisticsItem', storageId: string, documentsCount: number }>, systemSettings: { __typename?: 'SystemSettings', localFileSystemDocumentsStorageEnabled: boolean } };
+export type DocumentsStorageConfigQuery = { documentsStorageStatistics: Array<{ storageId: string, documentsCount: number }>, systemSettings: { localFileSystemDocumentsStorageEnabled: boolean } };
 
 export type UpdateProfileStorageMutationVariables = Exact<{
-  documentsStorage?: InputMaybe<Scalars['String']['input']>;
-  locale: Scalars['String']['input'];
-  language: Scalars['String']['input'];
+  documentsStorage?: string | null | undefined;
+  locale: string;
+  language: string;
 }>;
 
 
-export type UpdateProfileStorageMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserProfile', documentsStorage?: string | null, userName: string, i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
+export type UpdateProfileStorageMutation = { updateProfile: { documentsStorage: string | null, userName: string, i18n: { language: string, locale: string } } };
 
 export type UpdateProfileLanguageMutationVariables = Exact<{
-  documentsStorage?: InputMaybe<Scalars['String']['input']>;
-  locale: Scalars['String']['input'];
-  language: Scalars['String']['input'];
+  documentsStorage?: string | null | undefined;
+  locale: string;
+  language: string;
 }>;
 
 
-export type UpdateProfileLanguageMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'UserProfile', documentsStorage?: string | null, userName: string, i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
+export type UpdateProfileLanguageMutation = { updateProfile: { documentsStorage: string | null, userName: string, i18n: { language: string, locale: string } } };
 
 export type CompleteOAuth2FlowMutationVariables = Exact<{
-  code?: InputMaybe<Scalars['String']['input']>;
-  error?: InputMaybe<Scalars['String']['input']>;
-  state: Scalars['String']['input'];
+  code?: string | null | undefined;
+  error?: string | null | undefined;
+  state: string;
 }>;
 
 
-export type CompleteOAuth2FlowMutation = { __typename?: 'Mutation', completeOAuth2Flow: { __typename?: 'CompleteOAuth2FlowResponse', success: boolean, errorId?: string | null } };
+export type CompleteOAuth2FlowMutation = { completeOAuth2Flow: { success: boolean, errorId: string | null } };
 
 export type GetGeneralTaxReportQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  fromDate: Scalars['LocalDate']['input'];
-  toDate: Scalars['LocalDate']['input'];
+  workspaceId: number;
+  fromDate: string;
+  toDate: string;
 }>;
 
 
-export type GetGeneralTaxReportQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', analytics: { __typename?: 'WorkspaceAnalytics', generalTaxesSummary: { __typename?: 'GeneralTaxesSummary', finalizedCollectedTaxes: Array<{ __typename?: 'FinalizedGeneralTaxSummaryItem', taxAmount: number, includedItemsNumber: number, includedItemsAmount: number, tax: { __typename?: 'GeneralTax', title: string } }>, finalizedPaidTaxes: Array<{ __typename?: 'FinalizedGeneralTaxSummaryItem', taxAmount: number, includedItemsNumber: number, includedItemsAmount: number, tax: { __typename?: 'GeneralTax', title: string } }>, pendingCollectedTaxes: Array<{ __typename?: 'PendingGeneralTaxSummaryItem', includedItemsNumber: number, tax: { __typename?: 'GeneralTax', title: string } }>, pendingPaidTaxes: Array<{ __typename?: 'PendingGeneralTaxSummaryItem', includedItemsNumber: number, tax: { __typename?: 'GeneralTax', title: string } }> } } } };
+export type GetGeneralTaxReportQuery = { workspace: { analytics: { generalTaxesSummary: { finalizedCollectedTaxes: Array<{ taxAmount: number, includedItemsNumber: number, includedItemsAmount: number, tax: { title: string } }>, finalizedPaidTaxes: Array<{ taxAmount: number, includedItemsNumber: number, includedItemsAmount: number, tax: { title: string } }>, pendingCollectedTaxes: Array<{ includedItemsNumber: number, tax: { title: string } }>, pendingPaidTaxes: Array<{ includedItemsNumber: number, tax: { title: string } }> } } } };
 
 export type CategoriesPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type CategoriesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', categories: { __typename?: 'CategoriesConnection', totalCount: number, edges: Array<{ __typename?: 'CategoryEdge', cursor: string, node: { __typename?: 'Category', id: number, name: string, description?: string | null, income: boolean, expense: boolean } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type CategoriesPageQuery = { workspace: { categories: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, name: string, description: string | null, income: boolean, expense: boolean } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetCategoryForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  categoryId: Scalars['Long']['input'];
+  workspaceId: number;
+  categoryId: number;
 }>;
 
 
-export type GetCategoryForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', category?: { __typename?: 'Category', id: number, name: string, description?: string | null, income: boolean, expense: boolean } | null } };
+export type GetCategoryForEditQuery = { workspace: { category: { id: number, name: string, description: string | null, income: boolean, expense: boolean } | null } };
 
 export type CreateCategoryMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  income: Scalars['Boolean']['input'];
-  expense: Scalars['Boolean']['input'];
+  workspaceId: number;
+  name: string;
+  description?: string | null | undefined;
+  income: boolean;
+  expense: boolean;
 }>;
 
 
-export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'Category', id: number } };
+export type CreateCategoryMutation = { createCategory: { id: number } };
 
 export type EditCategoryMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  income: Scalars['Boolean']['input'];
-  expense: Scalars['Boolean']['input'];
+  workspaceId: number;
+  id: number;
+  name: string;
+  description?: string | null | undefined;
+  income: boolean;
+  expense: boolean;
 }>;
 
 
-export type EditCategoryMutation = { __typename?: 'Mutation', editCategory: { __typename?: 'Category', id: number } };
+export type EditCategoryMutation = { editCategory: { id: number } };
 
 export type CustomersPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type CustomersPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', customers: { __typename?: 'CustomersConnection', totalCount: number, edges: Array<{ __typename?: 'CustomerEdge', cursor: string, node: { __typename?: 'Customer', id: number, name: string } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type CustomersPageQuery = { workspace: { customers: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, name: string } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetCustomerForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  customerId: Scalars['Long']['input'];
+  workspaceId: number;
+  customerId: number;
 }>;
 
 
-export type GetCustomerForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', customer?: { __typename?: 'Customer', id: number, name: string } | null } };
+export type GetCustomerForEditQuery = { workspace: { customer: { id: number, name: string } | null } };
 
 export type CreateCustomerMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
+  workspaceId: number;
+  name: string;
 }>;
 
 
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer: { __typename?: 'Customer', id: number } };
+export type CreateCustomerMutation = { createCustomer: { id: number } };
 
 export type EditCustomerMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
+  workspaceId: number;
+  id: number;
+  name: string;
 }>;
 
 
-export type EditCustomerMutation = { __typename?: 'Mutation', editCustomer: { __typename?: 'Customer', id: number } };
+export type EditCustomerMutation = { editCustomer: { id: number } };
 
 export type GetGeneralTaxForEditQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  taxId: Scalars['Long']['input'];
+  workspaceId: number;
+  taxId: number;
 }>;
 
 
-export type GetGeneralTaxForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', generalTax?: { __typename?: 'GeneralTax', id: number, title: string, description?: string | null, rateInBps: number } | null } };
+export type GetGeneralTaxForEditQuery = { workspace: { generalTax: { id: number, title: string, description: string | null, rateInBps: number } | null } };
 
 export type CreateGeneralTaxMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  rateInBps: Scalars['Int']['input'];
+  workspaceId: number;
+  title: string;
+  description?: string | null | undefined;
+  rateInBps: number;
 }>;
 
 
-export type CreateGeneralTaxMutation = { __typename?: 'Mutation', createGeneralTax: { __typename?: 'GeneralTax', id: number } };
+export type CreateGeneralTaxMutation = { createGeneralTax: { id: number } };
 
 export type EditGeneralTaxMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  id: Scalars['Long']['input'];
-  title: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  rateInBps: Scalars['Int']['input'];
+  workspaceId: number;
+  id: number;
+  title: string;
+  description?: string | null | undefined;
+  rateInBps: number;
 }>;
 
 
-export type EditGeneralTaxMutation = { __typename?: 'Mutation', editGeneralTax: { __typename?: 'GeneralTax', id: number } };
+export type EditGeneralTaxMutation = { editGeneralTax: { id: number } };
 
 export type GeneralTaxesPageQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: number;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type GeneralTaxesPageQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', generalTaxes: { __typename?: 'GeneralTaxesConnection', totalCount: number, edges: Array<{ __typename?: 'GeneralTaxEdge', cursor: string, node: { __typename?: 'GeneralTax', id: number, title: string, description?: string | null, rateInBps: number } }>, pageInfo: (
-        { __typename?: 'PageInfo' }
-        & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-      ) } } };
+export type GeneralTaxesPageQuery = { workspace: { generalTaxes: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, title: string, description: string | null, rateInBps: number } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } } };
 
 export type GetWorkspaceForEditQueryVariables = Exact<{
-  id: Scalars['Long']['input'];
+  id: number;
 }>;
 
 
-export type GetWorkspaceForEditQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } };
+export type GetWorkspaceForEditQuery = { workspace: { id: number, name: string, defaultCurrency: string } };
 
 export type CreateWorkspaceMutationVariables = Exact<{
-  name: Scalars['String']['input'];
-  defaultCurrency: Scalars['String']['input'];
+  name: string;
+  defaultCurrency: string;
 }>;
 
 
-export type CreateWorkspaceMutation = { __typename?: 'Mutation', createWorkspace: { __typename?: 'Workspace', id: number } };
+export type CreateWorkspaceMutation = { createWorkspace: { id: number } };
 
 export type EditWorkspaceMutationVariables = Exact<{
-  id: Scalars['Long']['input'];
-  name: Scalars['String']['input'];
+  id: number;
+  name: string;
 }>;
 
 
-export type EditWorkspaceMutation = { __typename?: 'Mutation', editWorkspace: { __typename?: 'Workspace', id: number } };
+export type EditWorkspaceMutation = { editWorkspace: { id: number } };
 
 export type WorkspacesPageQueryVariables = Exact<{
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
+  first: number;
+  after?: string | null | undefined;
 }>;
 
 
-export type WorkspacesPageQuery = { __typename?: 'Query', workspaces: { __typename?: 'WorkspacesConnection', totalCount: number, edges: Array<{ __typename?: 'WorkspaceEdge', cursor: string, node: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } }>, pageInfo: (
-      { __typename?: 'PageInfo' }
-      & { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } }
-    ) } };
+export type WorkspacesPageQuery = { workspaces: { totalCount: number, edges: Array<{ cursor: string, node: { id: number, name: string, defaultCurrency: string } }>, pageInfo: { ' $fragmentRefs'?: { 'PaginationPageInfoFragment': PaginationPageInfoFragment } } } };
 
 export type WorkspaceAccessTokensPanelQueryVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  first: Scalars['Int']['input'];
+  workspaceId: number;
+  first: number;
 }>;
 
 
-export type WorkspaceAccessTokensPanelQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', workspaceAccessTokens: { __typename?: 'WorkspaceAccessTokensConnection', edges: Array<{ __typename?: 'WorkspaceAccessTokenEdge', node: { __typename?: 'WorkspaceAccessToken', validTill: string, token: string } }> } } };
+export type WorkspaceAccessTokensPanelQuery = { workspace: { workspaceAccessTokens: { edges: Array<{ node: { validTill: string, token: string } }> } } };
 
 export type CreateWorkspaceAccessTokenPanelMutationVariables = Exact<{
-  workspaceId: Scalars['Long']['input'];
-  validTill: Scalars['DateTime']['input'];
+  workspaceId: number;
+  validTill: string;
 }>;
 
 
-export type CreateWorkspaceAccessTokenPanelMutation = { __typename?: 'Mutation', createWorkspaceAccessToken: { __typename?: 'WorkspaceAccessToken', token: string } };
+export type CreateWorkspaceAccessTokenPanelMutation = { createWorkspaceAccessToken: { token: string } };
 
 export type RefreshAccessTokenMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RefreshAccessTokenMutation = { __typename?: 'Mutation', refreshAccessToken: { __typename?: 'RefreshAccessTokenResponse', accessToken?: string | null } };
+export type RefreshAccessTokenMutation = { refreshAccessToken: { accessToken: string | null } };
 
 export type CreateAccessTokenByCredentialsMutationVariables = Exact<{
-  userName: Scalars['String']['input'];
-  password: Scalars['String']['input'];
-  issueRefreshTokenCookie?: InputMaybe<Scalars['Boolean']['input']>;
+  userName: string;
+  password: string;
+  issueRefreshTokenCookie?: boolean | null | undefined;
 }>;
 
 
-export type CreateAccessTokenByCredentialsMutation = { __typename?: 'Mutation', createAccessTokenByCredentials: { __typename?: 'CreateAccessTokenByCredentialsResponse', accessToken: string } };
+export type CreateAccessTokenByCredentialsMutation = { createAccessTokenByCredentials: { accessToken: string } };
 
 export type CreateAccessTokenByWorkspaceAccessTokenMutationVariables = Exact<{
-  workspaceAccessToken: Scalars['String']['input'];
+  workspaceAccessToken: string;
 }>;
 
 
-export type CreateAccessTokenByWorkspaceAccessTokenMutation = { __typename?: 'Mutation', createAccessTokenByWorkspaceAccessToken: { __typename?: 'CreateAccessTokenByWorkspaceAccessTokenResponse', accessToken: string, workspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } } };
+export type CreateAccessTokenByWorkspaceAccessTokenMutation = { createAccessTokenByWorkspaceAccessToken: { accessToken: string, workspace: { id: number, name: string, defaultCurrency: string } } };
 
 export type PushNotificationsSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PushNotificationsSubscriptionSubscription = { __typename?: 'Subscription', pushNotifications: { __typename?: 'PushNotificationMessage', eventName: string, data?: string | null } };
+export type PushNotificationsSubscriptionSubscription = { pushNotifications: { eventName: string, data: string | null } };
 
 export type AllWorkspacesQueryVariables = Exact<{
-  first: Scalars['Int']['input'];
+  first: number;
 }>;
 
 
-export type AllWorkspacesQuery = { __typename?: 'Query', workspaces: { __typename?: 'WorkspacesConnection', edges: Array<{ __typename?: 'WorkspaceEdge', node: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } }> } };
+export type AllWorkspacesQuery = { workspaces: { edges: Array<{ node: { id: number, name: string, defaultCurrency: string } }> } };
 
 export type WorkspaceByIdQueryVariables = Exact<{
-  id: Scalars['Long']['input'];
+  id: number;
 }>;
 
 
-export type WorkspaceByIdQuery = { __typename?: 'Query', workspace: { __typename?: 'Workspace', id: number, name: string, defaultCurrency: string } };
+export type WorkspaceByIdQuery = { workspace: { id: number, name: string, defaultCurrency: string } };
 
 export type UserProfileBootstrapQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserProfileBootstrapQuery = { __typename?: 'Query', userProfile: { __typename?: 'UserProfile', i18n: { __typename?: 'I18nSettings', language: string, locale: string } } };
+export type UserProfileBootstrapQuery = { userProfile: { i18n: { language: string, locale: string } } };
 
 export const DocumentDataFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DocumentData"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Document"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"sizeInBytes"}},{"kind":"Field","name":{"kind":"Name","value":"storageId"}}]}}]} as unknown as DocumentNode<DocumentDataFragment, unknown>;
 export const PaginationPageInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PaginationPageInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PageInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"startCursor"}}]}}]} as unknown as DocumentNode<PaginationPageInfoFragment, unknown>;

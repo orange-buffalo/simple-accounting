@@ -6,6 +6,24 @@ const config: CodegenConfig = {
   documents: ['src/**/*.vue', 'src/**/*.ts'],
   ignoreNoDocuments: true,
   generates: {
+    './src/services/api/gql/schema-types.ts': {
+      plugins: [
+        {
+          add: {
+            content: '/* eslint-disable */',
+          },
+        },
+        'typescript',
+      ],
+      config: {
+        useTypeImports: true,
+        scalars: {
+          LocalDate: 'string',
+          Long: 'number',
+          DateTime: 'string',
+        },
+      },
+    },
     './src/services/api/gql/': {
       preset: 'client',
       config: {

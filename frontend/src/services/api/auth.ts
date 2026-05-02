@@ -3,7 +3,7 @@ import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { graphql } from '@/services/api/gql';
 import { executeRawGqlMutation } from '@/services/api/gql-raw-client';
 import { handleGqlApiBusinessError } from '@/services/api/api-utils';
-import { CreateAccessTokenByWorkspaceAccessTokenErrorCodes } from '@/services/api/gql/graphql';
+import { CreateAccessTokenByWorkspaceAccessTokenErrorCodes } from '@/services/api/gql/schema-types';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {

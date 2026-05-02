@@ -65,7 +65,7 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import { handleGqlApiBusinessError } from '@/services/api';
-  import { ActivateUserErrorCodes } from '@/services/api/gql/graphql.ts';
+  import { ActivateUserErrorCodes } from '@/services/api/gql/schema-types.ts';
 
   const props = defineProps<{
     token: string,

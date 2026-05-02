@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import {
   ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
 } from '@/services/api/api-errors.ts';
-import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
+import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/schema-types.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
