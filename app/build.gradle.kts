@@ -175,9 +175,15 @@ val copyFrontendTask = tasks.register<Copy>("copyFrontend") {
     into("build/resources/main")
 }
 
+val forceSimpleAccountingFrontendBuild: Boolean? by project
 tasks.withType<KotlinCompile> {
     ifCi {
         dependsOn(copyFrontendTask)
+    }
+    ifLocal {
+        if (forceSimpleAccountingFrontendBuild == true) {
+            dependsOn(copyFrontendTask)
+        }
     }
 }
 
