@@ -2,8 +2,8 @@
 awaitility = "4.3.0"
 rerunnerJupiter = "2.1.6"
 dsgCodegen = "8.4.3"
-# version pinned as newer has major JGit changed which is not compatible with jreleaser
-gitSemverPlugin = "0.13.0"
+# 0.18.0 brings in JGit 7.x, which supports linked worktrees.
+gitSemverPlugin = "0.18.0"
 graphqlKotlin = "9.2.0"
 guava = "33.6.0-jre"
 javaxEl = "3.0.1-b12"
