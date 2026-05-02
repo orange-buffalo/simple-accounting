@@ -995,17 +995,29 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
 
             saveButton.click()
 
-            title {
-                shouldHaveValidationError("Please provide the title")
-            }
-            amount {
-                shouldHaveValidationError("Please provide invoice amount")
-            }
+            // Server-side validation reports one missing required variable at a time before method validation runs.
             dueDate {
-                shouldHaveValidationError("Please provide the date when invoice is due")
+                shouldHaveValidationError("This value is required")
             }
+            shouldHaveNotifications { validationFailed() }
 
             reportRendering("edit-invoice.validation-errors")
+
+            dueDate { input.fill("3025-02-01") }
+            saveButton.click()
+
+            amount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            amount { input.fill("100.00") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
