@@ -47,7 +47,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
-  import { DocumentUsageType } from '@/services/api/gql/graphql';
+  import type { DocumentUsageType } from '@/services/api/gql/graphql';
 
   interface DocumentUsage {
     type: DocumentUsageType,
@@ -81,10 +81,10 @@
   });
 
   const usageTypeToRouteMap: Record<DocumentUsageType, string> = {
-    [DocumentUsageType.Expense]: 'edit-expense',
-    [DocumentUsageType.Income]: 'edit-income',
-    [DocumentUsageType.Invoice]: 'edit-invoice',
-    [DocumentUsageType.IncomeTaxPayment]: 'edit-income-tax-payment',
+    EXPENSE: 'edit-expense',
+    INCOME: 'edit-income',
+    INVOICE: 'edit-invoice',
+    INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
   };
 
   const navigateToUsage = (usage: DocumentUsage) => {

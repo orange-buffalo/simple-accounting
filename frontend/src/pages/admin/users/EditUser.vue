@@ -49,9 +49,8 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
-  import {
-    CreateUserErrorCodes, CreateUserMutationVariables, EditUserErrorCodes, EditUserMutationVariables,
-  } from '@/services/api/gql/graphql.ts';
+  import type { CreateUserMutationVariables, EditUserMutationVariables } from '@/services/api/gql/graphql.ts';
+  import { CreateUserErrorCodes, EditUserErrorCodes } from '@/services/api/gql/schema-types.ts';
 
   const props = defineProps<{
     id?: number

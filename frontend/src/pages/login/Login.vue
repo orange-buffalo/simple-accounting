@@ -80,7 +80,7 @@
   import {
     CreateAccessTokenByCredentialsErrorCodes,
     type AccountLockedErrorExtensions,
-  } from '@/services/api/gql/graphql.ts';
+  } from '@/services/api/gql/schema-types.ts';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';

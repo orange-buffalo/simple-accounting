@@ -83,7 +83,7 @@
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
-  import type { GoogleDriveStorageIntegrationStatusResponse } from '@/services/api/gql/graphql';
+  import type { GoogleDriveStorageIntegrationStatusResponse } from '@/services/api/gql/schema-types';
 
   class IntegrationStatus {
     status: 'unknown' | 'authorizationInProgress' | 'authorizationRequired'

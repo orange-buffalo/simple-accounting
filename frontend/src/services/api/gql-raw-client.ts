@@ -1,5 +1,5 @@
 import { ApiBusinessError, ApiError } from '@/services/api/api-errors';
-import { SaGrapQlErrorType } from '@/services/api/gql/graphql';
+import { SaGrapQlErrorType } from '@/services/api/gql/schema-types';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import type { OperationDefinitionNode } from 'graphql';
 import { print } from 'graphql';

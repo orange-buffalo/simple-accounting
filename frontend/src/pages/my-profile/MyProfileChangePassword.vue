@@ -52,7 +52,8 @@
   import { AsFormValues, ClientSideValidationError, FieldError, toRequestArgs } from '@/components/form/sa-form-api';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { ChangePasswordErrorCodes, ChangePasswordMutationVariables } from '@/services/api/gql/graphql.ts';
+  import type { ChangePasswordMutationVariables } from '@/services/api/gql/graphql.ts';
+  import { ChangePasswordErrorCodes } from '@/services/api/gql/schema-types.ts';
 
   type PasswordFormValues = AsFormValues<[ChangePasswordMutationVariables]> & {
     newPasswordConfirmation?: string | null,

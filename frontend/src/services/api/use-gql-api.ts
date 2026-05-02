@@ -7,6 +7,7 @@ import useNotifications, {
   NOTIFICATION_ALWAYS_VISIBLE_DURATION,
 } from '@/components/notifications/use-notifications.ts';
 import { $t } from '@/services/i18n';
+import { useAuth } from '@/services/api/auth.ts';
 
 type ErrorHandler = (e: unknown) => Promise<never>;
 
@@ -15,16 +16,21 @@ let authErrorHandling: Promise<void> | null = null;
 function useGqlErrorHandler(): ErrorHandler {
   const { navigateByPath } = useNavigation();
   const { showWarningNotification } = useNotifications();
+  const { isLoggedIn } = useAuth();
   return async (e: unknown): Promise<never> => {
     if (e instanceof ApiAuthError) {
       if (!authErrorHandling) {
         authErrorHandling = (async () => {
-          showWarningNotification($t.value.infra.sessionExpired(), {
-            duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
-          });
+          if (isLoggedIn()) {
+            showWarningNotification($t.value.infra.sessionExpired(), {
+              duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+            });
+          }
           await nextTick();
           await navigateByPath('/login');
-        })();
+        })().finally(() => {
+          authErrorHandling = null;
+        });
       }
       await authErrorHandling;
     }
