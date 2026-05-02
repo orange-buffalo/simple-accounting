@@ -67,9 +67,11 @@ updates:
         versions: [ "1.21.0" ]
       # until JReleaser migrates to JGit 7x
       - dependency-name: "com.github.jmongard.git-semver-plugin"
-      # 2.3.20 is not compatible with our code
+      # 2.3.x is not compatible with our code
       - dependency-name: "org.jetbrains.kotlin:*"
-        versions: [ "2.3.20" ]
+        versions: [ "< 2.4.0" ]
+      - dependency-name: "org.jetbrains.kotlin.*"
+        versions: [ "< 2.4.0" ]
     groups:
       # Spring Boot ecosystem (same organization)
       spring:
@@ -82,6 +84,7 @@ updates:
       kotlin:
         patterns:
           - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlin.*"
           - "org.jetbrains.kotlinx:*"
       # JOOQ organization
       jooq:
