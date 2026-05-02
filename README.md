@@ -29,7 +29,7 @@ a pull request, please refer to [Contributing](./docs/CONTRIBUTING.md) and [Deve
 
 ## Credits
 
-Simple Accounting is using icons from this talented creators:
+Simple Accounting is using icons from these talented creators:
 * [Smashicons](https://www.flaticon.com/authors/smashicons) from [Flaticon](https://www.flaticon.com/) 
    licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
 * [Skyclick](https://www.flaticon.com/authors/skyclick) from [Flaticon](https://www.flaticon.com/) 
