@@ -231,20 +231,11 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Verify all required fields show validation errors
+            // Server-side validation reports one missing required variable at a time.
             customer {
-                shouldHaveValidationError("Please select a customer")
+                shouldHaveValidationError("This value is required")
             }
-            title {
-                shouldHaveValidationError("Please provide the title")
-            }
-            amount {
-                shouldHaveValidationError("Please provide invoice amount")
-            }
-            // Date Issued gets a default value from the clock, so it won't have a validation error
-            dueDate {
-                shouldHaveValidationError("Please provide the date when invoice is due")
-            }
+            shouldHaveNotifications { validationFailed() }
 
             reportRendering("create-invoice.validation-errors")
 
@@ -252,6 +243,54 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             currency {
                 shouldNotHaveValidationErrors()
             }
+
+            customer { input.selectOption("Spaceship Repairs Inc") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Delivery to Mars") }
+            saveButton.click()
+
+            dueDate {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            dueDate { input.fill("3025-02-15") }
+            saveButton.click()
+
+            amount {
+                shouldHaveValidationError("This value is required")
+            }
+            shouldHaveNotifications { validationFailed() }
+        }
+    }
+
+    @Test
+    fun `should show validation errors for constraint violations`(page: Page) {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            customer { input.selectOption("Spaceship Repairs Inc") }
+            amount { input.fill("123.45") }
+            dueDate { input.fill("3025-02-15") }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("Robot oil refill") }
+            notes { input.fill("x".repeat(1025)) }
+            saveButton.click()
+            notes {
+                shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
