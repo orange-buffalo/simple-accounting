@@ -106,6 +106,26 @@ To enable this mode:
 Once the test is started, changing any code and compiling the project will reload the changes. In most cases,
 they will be picked up on the next test loop iteration.
 
+### CLDR locale bundles
+
+Frontend i18n uses pre-generated CLDR JSON bundles committed to the repository under `frontend/src/services/i18n/l10n/`.
+
+Builds and tests consume these committed files directly; CLDR generation is not part of `postinstall` anymore.
+
+When translations language files change or CLDR dependency/version changes, regenerate bundles manually:
+
+```bash
+cd frontend
+bun install --frozen-lockfile
+bun run generate-l10n-bundles
+```
+
+Generation behavior:
+* only locales whose language tag exists in translation files (`frontend/src/services/i18n/t9n/*.ts`, excluding `index.ts` and `formatter.ts`) are included;
+* CLDR download is filtered via `cldr-data-urls-filter` in `frontend/package.json` to avoid unnecessary calendar archives.
+
+After regeneration, commit updated files from `frontend/src/services/i18n/l10n/`.
+
 ### GraphQL Schema Management
 
 Simple Accounting uses `graphql-kotlin` with a code-first approach to define the GraphQL API. The schema is automatically

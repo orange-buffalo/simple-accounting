@@ -27,10 +27,6 @@ coverage
 *.sln
 *.sw?
 
-# generated files
-src/services/i18n/l10n
-
-
 # local env files
 .env.local
 .env.*.local
@@ -43,5 +39,4 @@ components.d.ts
 
 .pnp.loader.mjs
 .pnp.cjs
-
 

@@ -25,9 +25,35 @@ const baseCldrDataDir = import.meta.resolve('cldr-data')
   .replace('index.js', '');
 
 function prepareCodeGenDir() {
-  if (!fs.existsSync(baseCodeGenDir)) {
-    fs.mkdirSync(baseCodeGenDir, { recursive: true });
-  }
+  fs.rmSync(baseCodeGenDir, { recursive: true, force: true });
+  fs.mkdirSync(baseCodeGenDir, { recursive: true });
+}
+
+function extractSupportedLanguages() {
+  const messagesDir = 'src/services/i18n/t9n';
+  return fs.readdirSync(messagesDir)
+    .filter((it) => it.endsWith('.ts'))
+    .filter((it) => it !== 'index.ts')
+    .filter((it) => it !== 'formatter.ts')
+    .sort()
+    .map((it) => it.replace('.ts', ''));
+}
+
+function getSupportedLocalesCodes() {
+  const supportedLanguages = extractSupportedLanguages();
+  const baseLocalesDir = `${baseCldrDataDir}/main`;
+  const localesDirectories = fs.readdirSync(baseLocalesDir).sort();
+  const localesCodes = localesDirectories
+    .filter((localeCode) => {
+      const [languageTag] = localeCode.split('-');
+      return supportedLanguages.includes(languageTag);
+    });
+
+  return {
+    baseLocalesDir,
+    localesCodes,
+    supportedLanguages,
+  };
 }
 
 function generateBaseLocalBundleJson() {
@@ -46,20 +72,7 @@ function generateBaseLocalBundleJson() {
   );
 }
 
-function getSupportedLocalesCodes() {
-  const baseLocalesDir = `${baseCldrDataDir}/main`;
-  const localesDirectories = fs.readdirSync(baseLocalesDir);
-  return {
-    baseLocalesDir,
-    localesCodes: localesDirectories,
-  };
-}
-
-function generateLocalesBundlesJsons() {
-  const {
-    baseLocalesDir,
-    localesCodes,
-  } = getSupportedLocalesCodes();
+function generateLocalesBundlesJsons(localesCodes, baseLocalesDir) {
   localesCodes.forEach((locale) => {
     mergeAndSaveCldrJsonFiles(
       `${baseLocalesDir}/${locale}`,
@@ -75,18 +88,8 @@ function generateLocalesBundlesJsons() {
   });
 }
 
-function generateLocalesDisplayNames() {
-  const messagesDir = 'src/services/i18n/t9n';
-  const messagesFiles = fs.readdirSync(messagesDir)
-    .filter((it) => it !== 'index.ts')
-    .filter((it) => it !== 'formatter.ts');
-
-  const { localesCodes } = getSupportedLocalesCodes();
-
-  messagesFiles.forEach((messagesFile) => {
-    const languageRx = /(.*?)\.ts/g;
-    const [, language] = languageRx.exec(messagesFile);
-
+function generateLocalesDisplayNames(localesCodes, supportedLanguages) {
+  supportedLanguages.forEach((language) => {
     const languageCldrJson = getMergedCldrJson(baseCldrDataDir, [
       'supplemental/likelySubtags',
       `main/${language}/languages`,
@@ -143,15 +146,15 @@ function generateLocalesDisplayNames() {
   });
 }
 
-function generateSupportedLocales() {
-  const { localesCodes } = getSupportedLocalesCodes();
+function generateSupportedLocales(localesCodes) {
   fs.writeFileSync(`${baseCodeGenDir}/supported-locales.json`, JSON.stringify(localesCodes));
 }
 
 export function generateLocaleBundles() {
   prepareCodeGenDir();
+  const { baseLocalesDir, localesCodes, supportedLanguages } = getSupportedLocalesCodes();
   generateBaseLocalBundleJson();
-  generateLocalesBundlesJsons();
-  generateLocalesDisplayNames();
-  generateSupportedLocales();
+  generateLocalesBundlesJsons(localesCodes, baseLocalesDir);
+  generateLocalesDisplayNames(localesCodes, supportedLanguages);
+  generateSupportedLocales(localesCodes);
 }

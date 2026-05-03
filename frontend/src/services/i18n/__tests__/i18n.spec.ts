@@ -33,7 +33,7 @@ describe('i18n', () => {
 
   test('should setup up after initialization from browser', async () => {
     Object.defineProperty(global.navigator, 'languages', {
-      value: ['fr', 'en'],
+      value: ['en-GB', 'uk'],
       configurable: true,
     });
 
@@ -47,7 +47,7 @@ describe('i18n', () => {
     expect(getCurrentLanguage())
       .toBe('en');
     expect(getCurrentLocale())
-      .toBe('fr');
+      .toBe('en-GB');
   });
 
   test('should render template without parameters', async () => {

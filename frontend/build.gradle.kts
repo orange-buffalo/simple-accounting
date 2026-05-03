@@ -72,7 +72,6 @@ tasks.register("check") {
 val cleanFrontend by tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
-        delete(files("src/services/i18n/l10n"))
         delete(files("dist"))
     }
 }

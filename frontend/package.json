@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "bun build-config/post-install/post-install.js",
     "dev": "bun run --bun vite",
     "build": "bun run typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
@@ -11,7 +10,8 @@
     "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "bun run --bun eslint . --fix",
     "graphql-codegen": "graphql-codegen",
-    "verify-gql-types": "bun build-config/verify-gql-types.js"
+    "verify-gql-types": "bun build-config/verify-gql-types.js",
+    "generate-l10n-bundles": "bun build-config/post-install/post-install.js"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",
@@ -77,5 +77,6 @@
     "vue-eslint-parser": "10.4.0",
     "vue-tsc": "3.2.7",
     "whatwg-fetch": "3.6.20"
-  }
+  },
+  "cldr-data-urls-filter": "(cldr-core|cldr-dates-modern|cldr-localenames-modern|cldr-misc-modern|cldr-numbers-modern|cldr-units-modern)"
 }
