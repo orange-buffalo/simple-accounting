@@ -1,0 +1,9 @@
+# <type>[optional scope]: <concise description> [(#issue)]
+#
+# Use a single-line commit message only. Do not add a detailed body.
+# Common types: feat, fix, refactor, chore, tests, docs, build.
+# Use tests for all test-code-only changes, including fixes, refactoring, and test infrastructure updates.
+#
+# Examples:
+#   fix: Correct tax amount rounding (#123)
+#   tests: Stabilize invoice loading scenario
