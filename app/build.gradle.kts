@@ -175,13 +175,15 @@ val copyFrontendTask = tasks.register<Copy>("copyFrontend") {
     into("build/resources/main")
 }
 
-val forceSimpleAccountingFrontendBuild: Boolean? by project
+val forceSimpleAccountingFrontendBuild = providers.gradleProperty("forceSimpleAccountingFrontendBuild")
+    .map(String::toBoolean)
+    .getOrElse(false)
 tasks.withType<KotlinCompile> {
     ifCi {
         dependsOn(copyFrontendTask)
     }
     ifLocal {
-        if (forceSimpleAccountingFrontendBuild == true) {
+        if (forceSimpleAccountingFrontendBuild) {
             dependsOn(copyFrontendTask)
         }
     }
