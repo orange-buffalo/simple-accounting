@@ -129,12 +129,12 @@ class SaMoneyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should use locale-specific separators for de_DE locale`(page: Page) {
+    fun `should use locale-specific separators for uk_UA locale`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
-                    i18nSettings = I18nSettings(locale = "de_DE", language = "en")
+                    i18nSettings = I18nSettings(locale = "uk_UA", language = "en")
                 )
                 val workspace = workspace(owner = fry, defaultCurrency = "EUR")
                 val expense = expense(
@@ -151,12 +151,11 @@ class SaMoneyInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             originalAmount {
-                // German locale uses . for thousands separator and , for decimal
                 input.fill("1234,56")
-                input.shouldHaveValue("1.234,56")
+                input.shouldHaveValue("1\u00A0234,56")
                 input.shouldHaveCurrency("EUR")
             }
-            reportRendering("money-input.filled-de-locale")
+            reportRendering("money-input.filled-uk-locale")
 
             saveButton.click()
         }
@@ -170,12 +169,12 @@ class SaMoneyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should use locale-specific separators for fr_FR locale`(page: Page) {
+    fun `should use supported en_GB locale separators`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
-                    i18nSettings = I18nSettings(locale = "fr_FR", language = "en")
+                    i18nSettings = I18nSettings(locale = "en_GB", language = "en")
                 )
                 val workspace = workspace(owner = fry, defaultCurrency = "EUR")
                 val expense = expense(
@@ -192,11 +191,11 @@ class SaMoneyInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             originalAmount {
-                // French locale uses space (non-breaking) for thousands separator and , for decimal
-                input.fill("9876,54")
+                input.fill("9876.54")
+                input.shouldHaveValue("9,876.54")
                 input.shouldHaveCurrency("EUR")
             }
-            reportRendering("money-input.filled-fr-locale")
+            reportRendering("money-input.filled-en-gb-locale")
 
             saveButton.click()
         }

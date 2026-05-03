@@ -126,7 +126,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
                 // Change locale
                 locale {
-                    input.selectOption("Albanian")
+                    input.selectOption("British English")
                 }
             }
 
@@ -138,7 +138,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         assertOnlyI18nFieldChanged(
             user, I18nSettings(
                 language = user.i18nSettings.language,
-                locale = "sq"
+                locale = "en_GB"
             )
         )
     }
