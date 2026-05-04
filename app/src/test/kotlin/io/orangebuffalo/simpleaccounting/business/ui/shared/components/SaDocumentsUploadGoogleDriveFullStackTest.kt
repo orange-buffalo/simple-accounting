@@ -11,10 +11,12 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePa
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthRecordedRequest
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -37,6 +39,52 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @Test
+    fun `should refresh expired Google Drive token before showing upload control`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
+                    save(
+                        GoogleDriveStorageIntegration(
+                            userId = it.id!!,
+                            folderId = "root-folder-id",
+                        )
+                    )
+                }
+                val expense = expense(workspace = workspace(owner = fry))
+            }
+        }
+
+        GoogleOAuthMocks.token("old-token")
+            .persist(
+                user = preconditions.fry,
+                expired = true,
+                refreshToken = "refresh-token-x",
+            )
+        val refreshedToken = GoogleOAuthMocks.token("refreshed-token").enqueue()
+
+        GoogleDriveApiMocks.mockFindFile(
+            fileId = "root-folder-id",
+            fileName = "simple-accounting",
+            expectedAuthToken = refreshedToken,
+        )
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocuments(DocumentsUpload.EmptyDocument)
+            }
+        }
+
+        withHint("Should refresh the expired Google Drive token while checking upload readiness") {
+            GoogleOAuthMocks.recordedRequests().shouldBe(
+                listOf(OAuthRecordedRequest.TokenByRefreshToken("refresh-token-x"))
+            )
+        }
+    }
 
     @Test
     fun `should upload single file to Google Drive`(page: Page) {

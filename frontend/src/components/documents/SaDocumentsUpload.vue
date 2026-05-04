@@ -31,7 +31,7 @@
   import SaDocumentUpload, { type UploadedDocumentDto } from '@/components/documents/SaDocumentUpload.vue';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { graphql } from '@/services/api/gql';
-  import { useMultiQuery } from '@/services/api/use-gql-api';
+  import { useLazyQuery, useQuery } from '@/services/api/use-gql-api';
   import { useFragment } from '@/services/api/gql/fragment-masking';
   import { DocumentDataFragment, type DocumentDataFragmentType } from '@/components/documents/documents-gql-types';
 
@@ -92,28 +92,56 @@
     (e: 'uploads-completed'): void,
   }>();
 
-  const [storageQueryLoading, storageQueryData] = useMultiQuery(graphql(/* GraphQL */ `
-    query documentsUploadStorageStatus {
+  const [storageQueryLoading, storageStatus] = useQuery(graphql(/* GraphQL */ `
+    query documentsStorageStatus {
       documentsStorageStatus {
         active
       }
+    }
+  `), 'documentsStorageStatus');
+
+  const loadDownloadStoragesQuery = useLazyQuery(graphql(/* GraphQL */ `
+    query downloadDocumentStorages {
       getDownloadDocumentStorages {
         id
       }
     }
-  `));
+  `), 'getDownloadDocumentStorages');
 
   const uploadStorageActive = computed(
-    () => storageQueryData.value?.documentsStorageStatus?.active ?? false,
+    () => storageStatus.value?.active ?? false,
   );
 
-  const downloadStorageIds = computed(
-    () => new Set((storageQueryData.value?.getDownloadDocumentStorages ?? []).map((s) => s.id)),
-  );
+  const downloadStoragesLoading = ref(false);
+  const downloadStoragesLoaded = ref(false);
+  const downloadStorageIds = ref(new Set<string>());
+
+  const loadDownloadStorages = async () => {
+    if (downloadStoragesLoading.value || downloadStoragesLoaded.value) {
+      return;
+    }
+
+    downloadStoragesLoading.value = true;
+    try {
+      const downloadStorages = await loadDownloadStoragesQuery({});
+      downloadStorageIds.value = new Set(downloadStorages.map((s) => s.id));
+      downloadStoragesLoaded.value = true;
+    } finally {
+      downloadStoragesLoading.value = false;
+    }
+  };
 
   const documentsAggregates = ref<DocumentAggregate[]>([]);
   const hasUnsupportedStorages = computed(() => {
-    if (storageQueryLoading.value || props.documents.length === 0) return false;
+    if (
+      storageQueryLoading.value
+      || downloadStoragesLoading.value
+      || !downloadStoragesLoaded.value
+      || props.documents.length === 0
+    ) {
+      return false;
+    }
+
     const resolved = props.documents.map((d) => useFragment(DocumentDataFragment, d));
     return resolved.some(
       (doc) => !downloadStorageIds.value.has(doc.storageId),
@@ -221,13 +249,25 @@
     documentsReassigned.value = true;
   }, { immediate: false });
 
+  watch([() => props.documents.length, uploadStorageActive], ([documentsCount, storageActive]) => {
+    if (documentsCount > 0 && storageActive) {
+      loadDownloadStorages();
+    }
+  }, { immediate: true });
+
+  const checkingDownloadStorages = computed(
+    () => props.documents.length > 0
+      && uploadStorageActive.value
+      && (downloadStoragesLoading.value || !downloadStoragesLoaded.value),
+  );
+
   const uiState = computed(() => {
     const state = {
       initialLoading: false,
       storageActive: true,
     };
 
-    if (storageQueryLoading.value) {
+    if (storageQueryLoading.value || checkingDownloadStorages.value) {
       state.initialLoading = true;
     } else if (!uploadStorageActive.value) {
       state.storageActive = false;
