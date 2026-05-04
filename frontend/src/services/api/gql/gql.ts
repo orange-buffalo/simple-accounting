@@ -19,10 +19,10 @@ type Documents = {
     "\n    query getCustomersForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        customers(first: 500) {\n          edges {\n            node {\n              id\n              name\n            }\n          }\n        }\n      }\n    }\n  ": typeof types.GetCustomersForInputDocument,
     "\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  ": typeof types.CreateDocumentDownloadUrlDocument,
     "\n    mutation createDocumentUploadUrl($workspaceId: Long!) {\n      createDocumentUploadUrl(workspaceId: $workspaceId) {\n        url\n        filePartName\n      }\n    }\n  ": typeof types.CreateDocumentUploadUrlDocument,
-    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
-    "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsStorageStatusDocument,
     "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n": typeof types.DocumentDataFragmentDoc,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": typeof types.GoogleDriveStorageIntegrationStatusDocument,
+    "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": typeof types.DocumentsStorageStatusDocument,
+    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
     "\n    query getInvoicesForSelect($workspaceId: Long!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        invoices(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n              dateIssued\n              amount\n              currency\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.GetInvoicesForSelectDocument,
     "\n    query getInvoiceForSelect($workspaceId: Long!, $invoiceId: Long!) {\n      workspace(id: $workspaceId) {\n        invoice(id: $invoiceId) {\n          id\n          title\n          dateIssued\n          amount\n          currency\n        }\n      }\n    }\n  ": typeof types.GetInvoiceForSelectDocument,
     "\n    query getGeneralTaxesForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: 500) {\n          edges {\n            node {\n              id\n              title\n            }\n          }\n        }\n      }\n    }\n  ": typeof types.GetGeneralTaxesForInputDocument,
@@ -98,10 +98,10 @@ const documents: Documents = {
     "\n    query getCustomersForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        customers(first: 500) {\n          edges {\n            node {\n              id\n              name\n            }\n          }\n        }\n      }\n    }\n  ": types.GetCustomersForInputDocument,
     "\n    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {\n      createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {\n        url\n      }\n    }\n  ": types.CreateDocumentDownloadUrlDocument,
     "\n    mutation createDocumentUploadUrl($workspaceId: Long!) {\n      createDocumentUploadUrl(workspaceId: $workspaceId) {\n        url\n        filePartName\n      }\n    }\n  ": types.CreateDocumentUploadUrlDocument,
-    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
-    "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsStorageStatusDocument,
     "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n": types.DocumentDataFragmentDoc,
     "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  ": types.GoogleDriveStorageIntegrationStatusDocument,
+    "\n    query documentsStorageStatus {\n      documentsStorageStatus {\n        active\n      }\n    }\n  ": types.DocumentsStorageStatusDocument,
+    "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
     "\n    query getInvoicesForSelect($workspaceId: Long!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        invoices(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n              dateIssued\n              amount\n              currency\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.GetInvoicesForSelectDocument,
     "\n    query getInvoiceForSelect($workspaceId: Long!, $invoiceId: Long!) {\n      workspace(id: $workspaceId) {\n        invoice(id: $invoiceId) {\n          id\n          title\n          dateIssued\n          amount\n          currency\n        }\n      }\n    }\n  ": types.GetInvoiceForSelectDocument,
     "\n    query getGeneralTaxesForInput($workspaceId: Long!) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: 500) {\n          edges {\n            node {\n              id\n              title\n            }\n          }\n        }\n      }\n    }\n  ": types.GetGeneralTaxesForInputDocument,
@@ -209,7 +209,11 @@ export function graphql(source: "\n    mutation createDocumentUploadUrl($workspa
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
+export function graphql(source: "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n"): (typeof documents)["\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  "): (typeof documents)["\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -217,11 +221,7 @@ export function graphql(source: "\n    query documentsStorageStatus {\n      doc
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n"): (typeof documents)["\n  fragment DocumentData on Document {\n    id\n    name\n    sizeInBytes\n    storageId\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  "): (typeof documents)["\n    query googleDriveStorageIntegrationStatus {\n      googleDriveStorageIntegrationStatus {\n        authorizationRequired\n        authorizationUrl\n        folderId\n        folderName\n      }\n    }\n  "];
+export function graphql(source: "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "): (typeof documents)["\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

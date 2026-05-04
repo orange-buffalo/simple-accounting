@@ -32,6 +32,7 @@ import AccountActivationPage from '@/pages/account-activation/AccountActivationP
 import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
 import EditUser from '@/pages/admin/users/EditUser.vue';
 import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
+import { resetDocumentsStorageStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
 const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
@@ -81,6 +82,8 @@ function setupAuthenticationHooks(router: Router) {
     tryAutoLogin,
   } = useAuth();
   router.beforeEach(async (to, _, next) => {
+    resetDocumentsStorageStatus();
+
     const { setLastView } = useLastView();
     if (to.name !== 'login'
       && to.name !== 'oauth-callback'

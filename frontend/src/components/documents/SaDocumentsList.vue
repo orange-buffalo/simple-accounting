@@ -27,19 +27,12 @@
   import SaDocument from '@/components/documents/SaDocument.vue';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { useFragment } from '@/services/api/gql/fragment-masking';
-  import { graphql } from '@/services/api/gql';
-  import { useQuery } from '@/services/api/use-gql-api';
   import { DocumentDataFragment, type DocumentDataFragmentType } from '@/components/documents/documents-gql-types';
+  import { useDownloadDocumentStoragesStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
 
   const props = defineProps<{ documents: ReadonlyArray<DocumentDataFragmentType> }>();
 
-  const [downloadStoragesLoading, downloadStoragesData] = useQuery(graphql(/* GraphQL */ `
-    query downloadDocumentStorages {
-      getDownloadDocumentStorages {
-        id
-      }
-    }
-  `), 'getDownloadDocumentStorages');
+  const { downloadStoragesStatus } = useDownloadDocumentStoragesStatus();
 
   const resolvedDocuments = computed(
     () => props.documents.map((d) => useFragment(DocumentDataFragment, d)),
@@ -50,14 +43,15 @@
   );
 
   const hasUnsupportedStorages = computed(() => {
-    if (downloadStoragesLoading.value) return false;
-    const availableStorageIds = new Set(
-      (downloadStoragesData.value ?? []).map((s) => s.id),
-    );
+    if (downloadStoragesStatus.value.loading) return false;
     return resolvedDocuments.value.some(
-      (doc) => !availableStorageIds.has(doc.storageId),
+      (doc) => !downloadStoragesStatus.value.ids.has(doc.storageId),
     );
   });
+
+  const downloadStoragesLoading = computed(
+    () => downloadStoragesStatus.value.loading || !downloadStoragesStatus.value.loaded,
+  );
 </script>
 
 <style lang="scss">

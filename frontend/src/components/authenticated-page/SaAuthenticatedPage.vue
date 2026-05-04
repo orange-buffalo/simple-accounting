@@ -24,6 +24,9 @@
   import SaSideMenu from '@/components/side-menu/SaSideMenu.vue';
   import SaAuthenticatedPageLoadingProgress
     from '@/components/authenticated-page/SaAuthenticatedPageLoadingProgress.vue';
+  import { provideDocumentsStorageStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
+
+  provideDocumentsStorageStatus();
 </script>
 
 <style lang="scss">
