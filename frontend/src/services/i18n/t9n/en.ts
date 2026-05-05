@@ -380,6 +380,10 @@ export default {
       unknown: () => 'Unknown',
     },
     unused: () => 'Unused',
+    download: {
+      waitingForStorage: () => 'Waiting for the storage to become available',
+      storageInactive: () => 'You need to (re-)activate the documents storage to download this document. Navigate to your profile settings and check there.',
+    },
   },
 
   myProfile: {

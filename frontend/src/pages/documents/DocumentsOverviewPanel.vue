@@ -37,6 +37,16 @@
         {{ $t.documentsOverviewPanel.unused() }}
       </SaStatusLabel>
     </template>
+
+    <template #last-column>
+      <SaDocumentDownloadLink
+        :document-id="document.id"
+        :document-name="document.name"
+        :disabled="downloadDisabled"
+        :disabled-tooltip="downloadDisabledTooltip"
+        class="documents-overview-panel__download-link"
+      />
+    </template>
   </SaOverviewItem>
 </template>
 
@@ -45,6 +55,8 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
+  import { useDownloadDocumentStoragesStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import type { DocumentUsageType } from '@/services/api/gql/graphql';
@@ -68,6 +80,29 @@
   }>();
 
   const { navigateToView } = useNavigation();
+  const { downloadStoragesStatus } = useDownloadDocumentStoragesStatus();
+
+  const downloadStoragesLoading = computed(
+    () => downloadStoragesStatus.value.loading || !downloadStoragesStatus.value.loaded,
+  );
+
+  const documentStorageAvailable = computed(
+    () => downloadStoragesStatus.value.ids.has(props.document.storageId),
+  );
+
+  const downloadDisabled = computed(
+    () => downloadStoragesLoading.value || !documentStorageAvailable.value,
+  );
+
+  const downloadDisabledTooltip = computed(() => {
+    if (downloadStoragesLoading.value) {
+      return $t.value.documentsOverviewPanel.download.waitingForStorage();
+    }
+    if (!documentStorageAvailable.value) {
+      return $t.value.documentsOverviewPanel.download.storageInactive();
+    }
+    return undefined;
+  });
 
   const storageLabel = computed(() => {
     switch (props.document.storageId) {
