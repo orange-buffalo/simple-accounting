@@ -1,14 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
-import com.microsoft.playwright.Download
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import org.junit.jupiter.api.fail
-import java.nio.file.Files
 import java.nio.file.Path
 
 class DocumentsUpload private constructor(
@@ -97,15 +96,9 @@ class DocumentsUpload private constructor(
     fun downloadDocument(fileName: String): ByteArray {
         val documentLocator = findDocumentByName(fileName)
         val downloadLink = documentLocator.locator(".sa-document__file-description__file-extras__download-link button")
-
-        val download: Download = page.waitForDownload {
+        return page.downloadBytes {
             downloadLink.click()
         }
-
-        val downloadPath = download.path()
-        val content = Files.readAllBytes(downloadPath)
-        Files.delete(downloadPath)
-        return content
     }
 
     private fun findDocumentByName(fileName: String): Locator {

@@ -141,6 +141,12 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun clickLastColumnAction(actionText: String) {
+        panel.locator(".overview-item__last-column")
+            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(actionText).setExact(true))
+            .click()
+    }
+
     companion object {
         fun ComponentsAccessors.overviewItems() =
             pageableItems(

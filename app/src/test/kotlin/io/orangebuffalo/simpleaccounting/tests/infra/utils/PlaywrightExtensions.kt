@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.utils
 
+import com.microsoft.playwright.Download
 import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
@@ -14,6 +15,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaMarkdownOut
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import java.nio.file.Files
 import kotlin.time.Duration.Companion.milliseconds
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
@@ -63,6 +65,14 @@ fun Locator.innerTextOrNull(): String? = this.innerText().normalizeToNull()
 
 fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
     Notifications(this).spec()
+}
+
+fun Page.downloadBytes(downloadTrigger: () -> Unit): ByteArray {
+    val download: Download = waitForDownload(downloadTrigger)
+    val downloadPath = download.path()
+    val content = Files.readAllBytes(downloadPath)
+    Files.delete(downloadPath)
+    return content
 }
 
 /**

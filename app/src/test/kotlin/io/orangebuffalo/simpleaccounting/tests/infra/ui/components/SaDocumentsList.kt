@@ -1,15 +1,14 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
-import com.microsoft.playwright.Download
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.visualToData
-import java.nio.file.Files
 
 class SaDocumentsList private constructor(
     private val rootLocator: Locator,
@@ -64,13 +63,9 @@ class SaDocumentsList private constructor(
     fun downloadDocument(documentName: String): ByteArray {
         val documentLocator = findDocumentByName(documentName)
         val downloadLink = documentLocator.locator(".sa-document__file-description__file-extras__download-link button")
-        val download: Download = page.waitForDownload {
+        return page.downloadBytes {
             downloadLink.click()
         }
-        val downloadPath = download.path()
-        val content = Files.readAllBytes(downloadPath)
-        Files.delete(downloadPath)
-        return content
     }
 
     fun reportRendering(name: String): SaDocumentsList {

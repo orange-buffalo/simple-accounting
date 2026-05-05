@@ -37,6 +37,14 @@
         {{ $t.documentsOverviewPanel.unused() }}
       </SaStatusLabel>
     </template>
+
+    <template #last-column>
+      <SaDocumentDownloadLink
+        :document-id="document.id"
+        :document-name="document.name"
+        class="documents-overview-panel__download-link"
+      />
+    </template>
   </SaOverviewItem>
 </template>
 
@@ -45,6 +53,7 @@
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import type { DocumentUsageType } from '@/services/api/gql/graphql';

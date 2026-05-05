@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
@@ -8,18 +10,37 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePa
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.EditIncomePage.Companion.shouldBeEditIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.EditIncomeTaxPaymentPage.Companion.shouldBeEditIncomeTaxPaymentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePage.Companion.shouldBeEditInvoicePage
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Instant
+import kotlin.io.path.writeBytes
 
 class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
+
+    @TempDir
+    private lateinit var tempDir: Path
+
+    @BeforeEach
+    fun setupLocalFsStorage() {
+        whenever(localFsStorageProperties.baseDirectory) doReturn tempDir
+    }
 
     @Test
     fun `should display documents with all possible attribute variations`(page: Page) {
@@ -106,6 +127,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Google Drive"
                         ),
                         middleColumnContent = unusedStatus(),
+                        lastColumnContent = "Download",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -115,6 +137,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Unknown"
                         ),
                         middleColumnContent = "Robot oilDelivery commission",
+                        lastColumnContent = "Download",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -124,6 +147,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Unknown"
                         ),
                         middleColumnContent = "Slurm supplies",
+                        lastColumnContent = "Download",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -133,6 +157,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Unknown"
                         ),
                         middleColumnContent = unusedStatus(),
+                        lastColumnContent = "Download",
                         hasDetails = false,
                     ),
                 )
@@ -152,6 +177,127 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     )
 
     private fun unusedStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Unused")
+
+    @Test
+    fun `should download document from test storage`(page: Page) {
+        val documentContent = "Good news, everyone! Slurm receipt from test storage".toByteArray()
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                )
+                val workspace = workspace(owner = fry)
+
+                init {
+                    document(
+                        workspace = workspace,
+                        name = "slurm-test-storage-receipt.pdf",
+                        storageId = TestDocumentsStorage.STORAGE_ID,
+                        storageLocation = "slurm-test-storage-receipt-location",
+                        sizeInBytes = documentContent.size.toLong(),
+                        timeUploaded = MOCK_TIME,
+                        mimeType = "application/pdf",
+                    )
+                }
+            }
+        }
+        testDocumentsStorage.mockDocumentContent("slurm-test-storage-receipt-location", documentContent)
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val documentItem = shouldHaveItemSatisfying { it.title == "slurm-test-storage-receipt.pdf" }
+                page.downloadBytes {
+                    documentItem.clickLastColumnAction("Download")
+                }.shouldBe(documentContent)
+            }
+        }
+    }
+
+    @Test
+    fun `should download document from local file system`(page: Page) {
+        val documentContent = "Good news, everyone! Local delivery contract for Omicron Persei 8".toByteArray()
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "local-fs")
+                val workspace = workspace(owner = fry)
+
+                init {
+                    document(
+                        workspace = workspace,
+                        name = "local-delivery-contract.pdf",
+                        storageId = "local-fs",
+                        storageLocation = "${workspace.id}/local-delivery-contract.pdf",
+                        sizeInBytes = documentContent.size.toLong(),
+                        timeUploaded = MOCK_TIME,
+                        mimeType = "application/pdf",
+                    )
+                }
+            }
+        }
+        val storedFile = tempDir.resolve("${testData.workspace.id}/local-delivery-contract.pdf")
+        Files.createDirectories(storedFile.parent)
+        storedFile.writeBytes(documentContent)
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val documentItem = shouldHaveItemSatisfying { it.title == "local-delivery-contract.pdf" }
+                page.downloadBytes {
+                    documentItem.clickLastColumnAction("Download")
+                }.shouldBe(documentContent)
+            }
+        }
+    }
+
+    @Test
+    fun `should download document from Google Drive`(page: Page) {
+        val documentContent = "Good news, everyone! Google Drive delivery contract for Mars".toByteArray()
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
+                    save(
+                        GoogleDriveStorageIntegration(
+                            userId = it.id!!,
+                            folderId = "root-folder-id",
+                        )
+                    )
+                }
+                val workspace = workspace(owner = fry)
+
+                init {
+                    document(
+                        workspace = workspace,
+                        name = "gdrive-delivery-contract.pdf",
+                        storageId = "google-drive",
+                        storageLocation = "gdrive-delivery-contract-file-id",
+                        sizeInBytes = documentContent.size.toLong(),
+                        timeUploaded = MOCK_TIME,
+                        mimeType = "application/pdf",
+                    )
+                }
+            }
+        }
+        val accessToken = GoogleOAuthMocks.token()
+            .enqueue()
+            .persist(testData.fry)
+        GoogleDriveApiMocks.mockDownloadFile(
+            fileId = "gdrive-delivery-contract-file-id",
+            content = documentContent,
+            expectedAuthToken = accessToken,
+        )
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val documentItem = shouldHaveItemSatisfying { it.title == "gdrive-delivery-contract.pdf" }
+                page.downloadBytes {
+                    documentItem.clickLastColumnAction("Download")
+                }.shouldBe(documentContent)
+            }
+        }
+    }
 
     @Test
     fun `should navigate to edit expense page from usage link`(page: Page) {
