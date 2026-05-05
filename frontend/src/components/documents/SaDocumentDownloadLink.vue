@@ -4,7 +4,10 @@
     :disabled="!disabledTooltip"
     placement="bottom"
   >
-    <span>
+    <span
+      v-bind="$attrs"
+      class="sa-document-download-link"
+    >
       <span
         v-if="creatingDownloadLink"
         class="sa-download-link__loader"
@@ -37,6 +40,10 @@
       }
     }
   `), 'createDocumentDownloadUrl');
+
+  defineOptions({
+    inheritAttrs: false,
+  });
 
   function useDownloadUrl(documentId: number) {
     const creatingDownloadLink = ref(false);
