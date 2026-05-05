@@ -179,6 +179,78 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     private fun unusedStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Unused")
 
     @Test
+    fun `should disable download while document storages status is loading`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                )
+
+                init {
+                    document(
+                        workspace = workspace(owner = fry),
+                        name = "loading-storage-receipt.pdf",
+                        storageId = TestDocumentsStorage.STORAGE_ID,
+                        storageLocation = "loading-storage-receipt-location",
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.withBlockedGqlApiResponse(
+            "downloadDocumentStorages",
+            initiator = {
+                page.openDocumentsOverviewPage { }
+            },
+            blockedRequestSpec = {
+                page.shouldBeDocumentsOverviewPage {
+                    pageItems {
+                        val documentItem = shouldHaveItemSatisfying { it.title == "loading-storage-receipt.pdf" }
+                        documentItem.shouldHaveLastColumnActionDisabled("Download")
+                        documentItem.shouldHaveLastColumnActionTooltip(
+                            "Download",
+                            "Waiting for the storage to become available",
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+    @Test
+    fun `should disable download when document storage is inactive`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive")
+
+                init {
+                    document(
+                        workspace = workspace(owner = fry),
+                        name = "inactive-gdrive-contract.pdf",
+                        storageId = "google-drive",
+                        storageLocation = "inactive-gdrive-contract-file-id",
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val documentItem = shouldHaveItemSatisfying { it.title == "inactive-gdrive-contract.pdf" }
+                documentItem.shouldHaveLastColumnActionDisabled("Download")
+                documentItem.shouldHaveLastColumnActionTooltip(
+                    "Download",
+                    "You need to (re-)activate the documents storage to download this document. " +
+                            "Navigate to your profile settings and check there.",
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should download document from test storage`(page: Page) {
         val documentContent = "Good news, everyone! Slurm receipt from test storage".toByteArray()
         val testData = preconditions {
@@ -282,6 +354,11 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         val accessToken = GoogleOAuthMocks.token()
             .enqueue()
             .persist(testData.fry)
+        GoogleDriveApiMocks.mockFindFile(
+            fileId = "root-folder-id",
+            fileName = "simple-accounting",
+            expectedAuthToken = accessToken,
+        )
         GoogleDriveApiMocks.mockDownloadFile(
             fileId = "gdrive-delivery-contract-file-id",
             content = documentContent,

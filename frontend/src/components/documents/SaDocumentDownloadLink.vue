@@ -1,19 +1,26 @@
 <template>
-  <span>
-    <span
-      v-if="creatingDownloadLink"
-      class="sa-download-link__loader"
-    >
-      {{ $t.saDocumentDownloadLink.creatingLinkMessage() }}
+  <ElTooltip
+    :content="disabledTooltip"
+    :disabled="!disabledTooltip"
+    placement="bottom"
+  >
+    <span>
+      <span
+        v-if="creatingDownloadLink"
+        class="sa-download-link__loader"
+      >
+        {{ $t.saDocumentDownloadLink.creatingLinkMessage() }}
+      </span>
+      <ElButton
+        v-else
+        link
+        :disabled="disabled"
+        @click="startDownload"
+      >
+        {{ $t.saDocumentDownloadLink.label() }}
+      </ElButton>
     </span>
-    <ElButton
-      v-else
-      link
-      @click="startDownload"
-    >
-      {{ $t.saDocumentDownloadLink.label() }}
-    </ElButton>
-  </span>
+  </ElTooltip>
 </template>
 
 <script lang="ts" setup>
@@ -64,10 +71,15 @@
     document.body.removeChild(a);
   }
 
-  const props = defineProps<{
+  const props = withDefaults(defineProps<{
     documentName: string,
-    documentId: number
-  }>();
+    documentId: number,
+    disabled?: boolean,
+    disabledTooltip?: string,
+  }>(), {
+    disabled: false,
+    disabledTooltip: undefined,
+  });
 
   const {
     getDownloadUrl,
@@ -75,6 +87,7 @@
   } = useDownloadUrl(props.documentId);
 
   async function startDownload() {
+    if (props.disabled) return;
     const downloadUrl = await getDownloadUrl();
     downloadFile(downloadUrl, props.documentName);
   }

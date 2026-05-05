@@ -3,6 +3,10 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.string.shouldNotBeBlank
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.Serializable
@@ -142,10 +146,31 @@ class SaOverviewItem private constructor(
     }
 
     fun clickLastColumnAction(actionText: String) {
-        panel.locator(".overview-item__last-column")
-            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(actionText).setExact(true))
-            .click()
+        lastColumnActionButton(actionText).click()
     }
+
+    fun shouldHaveLastColumnActionDisabled(actionText: String) {
+        lastColumnActionButton(actionText).shouldBeDisabled()
+    }
+
+    fun shouldHaveLastColumnActionEnabled(actionText: String) {
+        lastColumnActionButton(actionText).shouldBeEnabled()
+    }
+
+    fun shouldHaveLastColumnActionTooltip(actionText: String, tooltip: String) {
+        val trigger = lastColumnActionTrigger(actionText)
+        trigger.hover()
+        trigger.shouldSatisfy {
+            val popperId = getAttribute("aria-describedby").shouldNotBeBlank()
+            panel.page().locator("#$popperId").shouldHaveText(tooltip)
+        }
+    }
+
+    private fun lastColumnActionButton(actionText: String) = panel.locator(".overview-item__last-column")
+        .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(actionText).setExact(true))
+
+    private fun lastColumnActionTrigger(actionText: String) = lastColumnActionButton(actionText)
+        .locator("xpath=ancestor::*[${XPath.hasClass("el-tooltip__trigger")}][1]")
 
     companion object {
         fun ComponentsAccessors.overviewItems() =
