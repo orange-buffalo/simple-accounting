@@ -73,7 +73,7 @@ class CompleteOAuth2FlowMutationTest(
         fun `should return failure response with errorId when provider throws exception`() {
             whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
             authorizationProvider.stub {
-                onBlocking { handleAuthorizationResponse(any()) } doThrow IllegalStateException("State is not known")
+                on { handleAuthorizationResponse(any()) } doThrow IllegalStateException("State is not known")
             }
 
             client
@@ -91,7 +91,7 @@ class CompleteOAuth2FlowMutationTest(
         fun `should return failure response with errorId when provider receives error response`() {
             whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
             authorizationProvider.stub {
-                onBlocking { handleAuthorizationResponse(any()) } doThrow RuntimeException("Authorization failed with error access_denied")
+                on { handleAuthorizationResponse(any()) } doThrow RuntimeException("Authorization failed with error access_denied")
             }
 
             client

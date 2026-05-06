@@ -25,7 +25,7 @@ class OAuth2SucceededEventTest {
         }
 
         principal.shouldNotBeNull()
-        principal!!.userName.shouldBe("Fry")
+        principal.userName.shouldBe("Fry")
     }
 
     private fun fry() = PlatformUser(
