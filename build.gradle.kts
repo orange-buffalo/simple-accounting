@@ -38,9 +38,8 @@ subprojects {
 
         withType<Test> {
             useJUnitPlatform()
-            beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
-            afterTest(KotlinClosure2<TestDescriptor, TestResult, Any>(project::printTestResultDuringBuild))
             testLogging {
+                events("started", "passed", "skipped", "failed")
                 showStandardStreams = true
             }
         }
