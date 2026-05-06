@@ -1,9 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import kotlinx.coroutines.runBlocking
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -97,15 +98,16 @@ class InvoicesServiceTest(
 
     @ParameterizedTest
     @MethodSource("invoiceStatusTestData")
-    @WithMockFryUser
     fun `should save invoice and set proper status`(testDataFactory: (EntitiesFactoryInfra) -> InvoiceStatusTestData) {
         val testData = testDataFactory(entitiesFactoryInfra)
 
         val savedInvoice = runBlocking {
-            invoicesService.saveInvoice(
-                invoice = testData.invoice,
-                workspaceId = testData.workspace.id!!
-            )
+            runAs(testData.fry.toSecurityPrincipal()) {
+                invoicesService.saveInvoice(
+                    invoice = testData.invoice,
+                    workspaceId = testData.workspace.id!!
+                )
+            }
         }
 
         savedInvoice.id.shouldBe(testData.invoice.id)

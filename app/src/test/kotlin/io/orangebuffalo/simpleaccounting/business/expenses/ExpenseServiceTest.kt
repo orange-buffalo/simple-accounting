@@ -2,8 +2,9 @@ package io.orangebuffalo.simpleaccounting.business.expenses
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
@@ -32,7 +33,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should reset the values for default currency`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -65,7 +65,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate percent on business for default currency`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -104,7 +103,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax on default currency`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -143,7 +141,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax on default currency with percent on business`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -182,7 +179,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep amounts as null if not yet converted`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -215,7 +211,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should set amount to null if not yet converted and same rate used for conversion`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -251,7 +246,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount if not yet converted and different rate used for conversion`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -287,7 +281,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should propagate converted amount if same rate is used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -320,7 +313,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount if different rate is used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -353,7 +345,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount empty if different rate is used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -389,7 +380,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should use converted amounts to calculate percent on business`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -428,7 +418,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax based on income taxable amount if different rate is used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -467,7 +456,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax bases on converted amount if same rate is used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -506,7 +494,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax based on income taxable amount if percent on business provided and different rate used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -545,7 +532,6 @@ internal class ExpenseServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax based on converted amount if percent on business provided and same rate used`() {
         executeSaveExpenseAndAssert(
             expense = Expense(
@@ -595,7 +581,9 @@ internal class ExpenseServiceTest(
         expectedUseDifferentExchangeRates: Boolean
     ) {
         val actualExpense = runBlocking {
-            expenseService.saveExpense(expense)
+            runAs(preconditions.fry.toSecurityPrincipal()) {
+                expenseService.saveExpense(expense)
+            }
         }
 
         actualExpense.originalAmount.shouldBe(expectedOriginalAmount)

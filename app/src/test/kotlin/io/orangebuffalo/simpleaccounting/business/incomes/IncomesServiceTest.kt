@@ -4,8 +4,9 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import kotlinx.coroutines.runBlocking
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -40,7 +41,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should reset the values for default currency`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -70,7 +70,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax on default currency`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -106,7 +105,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep amounts as null if not yet converted`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -136,7 +134,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should set amount to null if not yet converted and same rate used for conversion`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -169,7 +166,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount if not yet converted and different rate used for conversion`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -202,7 +198,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should propagate converted amount if same rate is used`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -232,7 +227,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount if different rate is used`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -262,7 +256,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should keep income taxable amount empty if different rate is used`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -295,7 +288,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax based on income taxable amount if different rate is used`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -331,7 +323,6 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should calculate tax bases on converted amount if same rate is used`() {
         executeSaveIncomeAndAssert(
             income = Income(
@@ -367,10 +358,39 @@ internal class IncomesServiceTest(
     }
 
     @Test
-    @WithMockFryUser
     fun `should validate invoice if provided`() {
         shouldThrow<EntityNotFoundException> {
             runBlocking {
+                runAs(preconditions.fry.toSecurityPrincipal()) {
+                    incomesService.saveIncome(
+                        Income(
+                            generalTaxId = preconditions.generalTaxFromWorkspace.id,
+                            originalAmount = 45,
+                            convertedAmounts = AmountsInDefaultCurrency(41, 41),
+                            incomeTaxableAmounts = AmountsInDefaultCurrency(100, 100),
+                            generalTaxRateInBps = 33,
+                            generalTaxAmount = 33,
+                            currency = preconditions.nonDefaultCurrency,
+                            workspaceId = preconditions.workspace.id!!,
+                            useDifferentExchangeRateForIncomeTaxPurposes = false,
+                            status = IncomeStatus.PENDING_CONVERSION,
+                            categoryId = null,
+                            dateReceived = LocalDate.now(),
+                            title = "test",
+                            linkedInvoiceId = 100
+                        ),
+                    )
+                }
+            }
+        }.message.shouldBe("Invoice 100 is not found")
+    }
+
+    @Test
+    fun `should update invoice if provided`() {
+        val invoiceId = preconditions.invoiceFromWorkspace.id
+
+        runBlocking {
+            runAs(preconditions.fry.toSecurityPrincipal()) {
                 incomesService.saveIncome(
                     Income(
                         generalTaxId = preconditions.generalTaxFromWorkspace.id,
@@ -384,39 +404,12 @@ internal class IncomesServiceTest(
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
                         status = IncomeStatus.PENDING_CONVERSION,
                         categoryId = null,
-                        dateReceived = LocalDate.now(),
                         title = "test",
-                        linkedInvoiceId = 100
+                        linkedInvoiceId = invoiceId,
+                        dateReceived = LocalDate.of(3000, 5, 13),
                     ),
                 )
             }
-        }.message.shouldBe("Invoice 100 is not found")
-    }
-
-    @Test
-    @WithMockFryUser
-    fun `should update invoice if provided`() {
-        val invoiceId = preconditions.invoiceFromWorkspace.id
-
-        runBlocking {
-            incomesService.saveIncome(
-                Income(
-                    generalTaxId = preconditions.generalTaxFromWorkspace.id,
-                    originalAmount = 45,
-                    convertedAmounts = AmountsInDefaultCurrency(41, 41),
-                    incomeTaxableAmounts = AmountsInDefaultCurrency(100, 100),
-                    generalTaxRateInBps = 33,
-                    generalTaxAmount = 33,
-                    currency = preconditions.nonDefaultCurrency,
-                    workspaceId = preconditions.workspace.id!!,
-                    useDifferentExchangeRateForIncomeTaxPurposes = false,
-                    status = IncomeStatus.PENDING_CONVERSION,
-                    categoryId = null,
-                    title = "test",
-                    linkedInvoiceId = invoiceId,
-                    dateReceived = LocalDate.of(3000, 5, 13),
-                ),
-            )
         }
 
         aggregateTemplate.findAll(Invoice::class.java)
@@ -437,7 +430,9 @@ internal class IncomesServiceTest(
         expectedUseDifferentExchangeRates: Boolean
     ) {
         val actualIncome = runBlocking {
-            incomesService.saveIncome(income)
+            runAs(preconditions.fry.toSecurityPrincipal()) {
+                incomesService.saveIncome(income)
+            }
         }
 
         actualIncome.originalAmount.shouldBe(expectedOriginalAmount)
