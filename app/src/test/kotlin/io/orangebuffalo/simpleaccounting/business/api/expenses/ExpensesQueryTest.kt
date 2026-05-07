@@ -607,7 +607,7 @@ class ExpensesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("id", testData.expense.id!!.toInt())
-                                        put("version", testData.expense.version!!.toInt())
+                                        put("version", testData.expense.version!!)
                                         put("title", "Slurm delivery invoice")
                                         put("datePaid", "3025-01-15")
                                         put("currency", "EUR")

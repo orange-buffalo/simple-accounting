@@ -293,7 +293,7 @@ class IncomesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("id", testData.income.id!!.toInt())
-                                        put("version", testData.income.version!!.toInt())
+                                        put("version", testData.income.version!!)
                                         put("title", "Planet Express delivery fee")
                                         put("dateReceived", "3025-01-15")
                                         put("currency", "EUR")

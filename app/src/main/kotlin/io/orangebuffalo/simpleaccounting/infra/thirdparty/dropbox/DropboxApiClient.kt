@@ -13,15 +13,21 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonClassDiscriminator
 import mu.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.readBytes
+import kotlin.time.Instant
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -204,8 +210,10 @@ data class FileListFolderEntry(
     @SerialName("id")
     val id: String,
     @SerialName("client_modified")
+    @Serializable(with = InstantIso8601Serializer::class)
     val clientModified: Instant,
     @SerialName("server_modified")
+    @Serializable(with = InstantIso8601Serializer::class)
     val serverModified: Instant,
     @SerialName("rev")
     val revision: String,
@@ -214,6 +222,16 @@ data class FileListFolderEntry(
     @SerialName("content_hash")
     val contentHash: String,
 ) : ListFolderEntry
+
+private object InstantIso8601Serializer : KSerializer<Instant> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant = Instant.parse(decoder.decodeString())
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(value.toString())
+    }
+}
 
 @Suppress("unused")
 @Serializable

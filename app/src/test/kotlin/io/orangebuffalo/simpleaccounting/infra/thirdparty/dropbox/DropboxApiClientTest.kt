@@ -8,12 +8,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnResponse
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Instant
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.time.Instant
 
 @WireMockTest
 internal class DropboxApiClientTest {

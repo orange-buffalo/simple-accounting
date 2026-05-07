@@ -644,7 +644,7 @@ class InvoicesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("id", testData.invoice.id!!.toInt())
-                                        put("version", testData.invoice.version!!.toInt())
+                                        put("version", testData.invoice.version!!)
                                         put("title", "Slurm delivery invoice")
                                         put("dateIssued", "3025-01-15")
                                         put("dateSent", "3025-01-16")

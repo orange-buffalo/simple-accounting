@@ -62,7 +62,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
 
     fun userActivationToken(
         user: PlatformUser? = null,
-        token: String = RandomStringUtils.randomAlphabetic(10),
+        token: String = RandomStringUtils.secure().nextAlphabetic(10),
         expiresAt: Instant = MOCK_TIME,
     ): UserActivationToken {
         val userId = if (user == null) platformUser().id else user.id
