@@ -36,7 +36,7 @@ class SaGraphQLContextFactory(
             val currentReactorContext = coroutineContext[ReactorContext]?.context
                 ?: reactor.util.context.Context.empty()
             val authReactorContext = currentReactorContext.putAll(
-                ReactiveSecurityContextHolder.withAuthentication(authentication)
+                ReactiveSecurityContextHolder.withAuthentication(authentication).readOnly()
             )
             contextBuilder.put(CoroutineContext::class, ReactorContext(authReactorContext))
         }
