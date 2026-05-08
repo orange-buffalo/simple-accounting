@@ -3,7 +3,7 @@ awaitility = "4.3.0"
 rerunnerJupiter = "2.1.6"
 dsgCodegen = "8.5.0"
 # 0.18.0 brings in JGit 7.x, which supports linked worktrees.
-gitSemverPlugin = "0.18.0"
+gitSemverPlugin = "0.19.0"
 graphqlKotlin = "9.2.0"
 guava = "33.6.0-jre"
 javaxEl = "3.0.1-b12"
