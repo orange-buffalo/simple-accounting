@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 import java.nio.file.Path
 
-@ConfigurationProperties(prefix = "simpleaccounting.documents.storage.local-fs")
+@ConfigurationProperties(prefix = "sa.documents.storage.local-fs")
 @Component
 class LocalFileSystemDocumentsStorageProperties {
 

@@ -26,7 +26,7 @@ private val log = mu.KotlinLogging.logger {}
 @Component
 class GoogleDriveApiAdapter(
     private val webClientBuilderProvider: OAuth2WebClientBuilderProvider,
-    @Value("\${simpleaccounting.documents.storage.google-drive.base-api-url}") private val baseApiUrl: String
+    @Value("\${sa.documents.storage.google-drive.base-api-url}") private val baseApiUrl: String
 ) {
 
     suspend fun uploadFile(

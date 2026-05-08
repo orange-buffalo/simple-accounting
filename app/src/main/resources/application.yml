@@ -5,6 +5,8 @@ spring:
 
   datasource:
     url: jdbc:h2:/data/db/simple-accounting
+    username: "${sa.database.username}"
+    password: "${sa.database.password}"
 
   security:
     oauth2:
@@ -14,9 +16,9 @@ spring:
             provider: "google"
             scope:
               - "https://www.googleapis.com/auth/drive.file"
-            redirect-uri: "${simpleaccounting.public-url}/oauth-callback"
-            client-id: "<replace>"
-            client-secret: "<replace>"
+            redirect-uri: "${sa.public-url}/oauth-callback"
+            client-id: "${sa.documents.storage.google-drive.client-id}"
+            client-secret: "${sa.documents.storage.google-drive.client-secret}"
 
   jpa:
     properties:
@@ -36,19 +38,29 @@ server:
     whitelabel:
       enabled: false
 
-simpleaccounting:
+sa:
   public-url: "https://simple-accounting.orange-buffalo.io"
+  database:
+    username: "sa"
+    password: ""
   documents:
     storage:
       local-fs:
+        enabled: false
         base-directory: /data/documents-storage/local
       google-drive:
         base-api-url: "https://www.googleapis.com"
+        client-id: "<replace>"
+        client-secret: "<replace>"
   backup:
     enabled: false
     scheduling-delay-in-hours: 12
     dropbox:
       active: false
+      access-token: ""
+      refresh-token: ""
+      client-id: ""
+      client-secret: ""
 graphql:
   packages:
     - "io.orangebuffalo.simpleaccounting"
@@ -80,7 +92,7 @@ spring:
     activate:
       on-profile: development
 
-simpleaccounting:
+sa:
   documents:
     storage:
       local-fs:

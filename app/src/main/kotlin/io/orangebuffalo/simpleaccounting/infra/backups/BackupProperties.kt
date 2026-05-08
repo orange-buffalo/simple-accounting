@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.infra.backups
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
-@ConfigurationProperties("simpleaccounting.backup")
+@ConfigurationProperties("sa.backup")
 @Component
 data class BackupProperties(
     var enabled: Boolean = false,

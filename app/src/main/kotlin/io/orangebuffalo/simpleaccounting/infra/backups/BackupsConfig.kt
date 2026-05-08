@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class BackupsConfig {
 
-    @ConditionalOnProperty("simpleaccounting.backup.dropbox.active", havingValue = "true")
+    @ConditionalOnProperty("sa.backup.dropbox.active", havingValue = "true")
     @Configuration
     class DropboxBackupConfig {
         @Bean

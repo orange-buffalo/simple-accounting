@@ -13,7 +13,7 @@ This URL must be the address that **end users** use to reach the application —
 
 For example, if the application is behind a reverse proxy at `https://accounting.example.com`, configure:
 
-* `SIMPLEACCOUNTING_PUBLIC_URL` = `https://accounting.example.com`
+* `SA_PUBLIC_URL` = `https://accounting.example.com`
 
 If running locally on the default port, use `http://localhost:9393`.
 
@@ -48,16 +48,16 @@ We use automatic schema migration, so the database will be updated to the latest
 
 We highly recommend providing the following environment parameters to change the default credentials for the database:
 
-* `SPRING_DATASOURCE_PASSWORD` - database password.
-* `SPRING_DATASOURCE_USERNAME` - database username.
+* `SA_DATABASE_PASSWORD` - database password.
+* `SA_DATABASE_USERNAME` - database username.
 
 ### Google Drive integration
 
-Simple Accounting can Google Drive to store related documents. To enable this feature, you need to provide
+Simple Accounting can use Google Drive to store related documents. To enable this feature, you need to provide
 the following environment parameters:
 
-* `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE-DRIVE_CLIENT-ID` - Google Drive client ID.
-* `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE-DRIVE_CLIENT-SECRET` - Google Drive client secret.
+* `SA_DOCUMENTS_STORAGE_GOOGLE_DRIVE_CLIENT_ID` - Google Drive client ID.
+* `SA_DOCUMENTS_STORAGE_GOOGLE_DRIVE_CLIENT_SECRET` - Google Drive client secret.
 
 #### Setting up Google Drive client
 
@@ -83,21 +83,21 @@ base directory is on a persistent volume (for example under `/data`, which is al
 
 The feature is disabled by default. Enable it and set the base directory with these environment parameters:
 
-* `SIMPLEACCOUNTING_DOCUMENTS_STORAGE_LOCAL_FS_ENABLED` = `true` — enable local file system storage (default: `false`).
-* `SIMPLEACCOUNTING_DOCUMENTS_STORAGE_LOCAL_FS_BASE_DIRECTORY` — absolute path to the directory where documents will
-  be stored. There is no default; this property must be set when the feature is enabled.
+* `SA_DOCUMENTS_STORAGE_LOCAL_FS_ENABLED` = `true` — enable local file system storage (default: `false`).
+* `SA_DOCUMENTS_STORAGE_LOCAL_FS_BASE_DIRECTORY` — absolute path to the directory where documents will
+  be stored (default: `/data/documents-storage/local`).
 
 ### Enabling backups
 
 Simple Accounting can automatically backup the database to Dropbox. To enable this feature, you need to provide
 the following environment parameters:
 
-* `SIMPLEACCOUNTING_BACKUP_ENABLED` = `true` - enable backups.
-* `SIMPLEACCOUNTING_BACKUP_DROPBOX_ACTIVE` = `true` - enable Dropbox backup.
-* `SIMPLEACCOUNTING_BACKUP_DROPBOX_ACCESSTOKEN` - Dropbox access token.
-* `SIMPLEACCOUNTING_BACKUP_DROPBOX_REFRESHTOKEN` - Dropbox refresh token.
-* `SIMPLEACCOUNTING_BACKUP_DROPBOX_CLIENTID` - Dropbox client ID.
-* `SIMPLEACCOUNTING_BACKUP_DROPBOX_CLIENTSECRET` - Dropbox client secret.
+* `SA_BACKUP_ENABLED` = `true` - enable backups.
+* `SA_BACKUP_DROPBOX_ACTIVE` = `true` - enable Dropbox backup.
+* `SA_BACKUP_DROPBOX_ACCESSTOKEN` - Dropbox access token.
+* `SA_BACKUP_DROPBOX_REFRESHTOKEN` - Dropbox refresh token.
+* `SA_BACKUP_DROPBOX_CLIENTID` - Dropbox client ID.
+* `SA_BACKUP_DROPBOX_CLIENTSECRET` - Dropbox client secret.
 
 Refer to [Dropbox docs](https://www.dropbox.com/developers/reference/developer-guide) for how to setup the app
 and get the credentials. You can then use
