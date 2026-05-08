@@ -1,6 +1,5 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jreleaser.model.Active
 
 buildscript {
     repositories {
@@ -20,7 +19,6 @@ plugins {
     alias(libs.plugins.springBoot)
     jacoco
     alias(libs.plugins.jib)
-    alias(libs.plugins.jreleaser)
 }
 
 apply<SaJooqCodeGenPlugin>()
@@ -193,37 +191,6 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
         // vendor is set in SaHotReloadPlugin
-    }
-}
-
-jreleaser {
-    gitRootSearch = true
-    release {
-        github {
-            dryrun = project.version.get().endsWith("-SNAPSHOT")
-
-            uploadAssets = Active.NEVER
-            prerelease {
-                enabled = true
-            }
-            changelog {
-                formatted = Active.ALWAYS
-                preset = "conventional-commits"
-                skipMergeCommits = true
-                hide {
-                    uncategorized = true
-                    contributor("[bot]")
-                    contributor("orange-buffalo")
-                    contributor("GitHub")
-                }
-            }
-        }
-    }
-    signing {
-        active = Active.NEVER
-    }
-    deploy {
-        active = Active.NEVER
     }
 }
 
