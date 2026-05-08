@@ -15,8 +15,8 @@ plugins {
 }
 
 semver {
-    // tags managed by jreleaser
-    createReleaseTag = false
+    createReleaseTag = true
+    releaseTagNameFormat = "v%s"
 }
 val ver = semver.version
 allprojects {

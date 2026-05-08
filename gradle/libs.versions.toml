@@ -10,7 +10,6 @@ javaxEl = "3.0.1-b12"
 jib = "3.5.3"
 jjwt = "0.13.0"
 jooq = "3.21.3"
-jreleaser = "1.24.0"
 jsonUnit = "5.1.1"
 kotest = "6.1.11"
 kotestPlaywrightAssertions = "0.2.1"
@@ -79,7 +78,6 @@ zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjs
 [plugins]
 gitSemverPlugin = { id = "com.github.jmongard.git-semver-plugin", version.ref = "gitSemverPlugin" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
-jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }

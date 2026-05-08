@@ -62,11 +62,6 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     ignore:
-      # https://github.com/jreleaser/jreleaser/issues/2009
-      - dependency-name: "org.jreleaser:jreleaser"
-        versions: [ "1.21.0" ]
-      # until JReleaser migrates to JGit 7x
-      - dependency-name: "com.github.jmongard.git-semver-plugin"
       # 2.3.x is not compatible with our code
       - dependency-name: "org.jetbrains.kotlin:*"
         versions: [ "< 2.4.0" ]

@@ -90,12 +90,14 @@ jobs:
 
       - name: "Publish (Pre-) Release"
         if: ${{ github.ref == 'refs/heads/master' }}
-        env:
-          JRELEASER_CONFIG_CONTENT: ${{ secrets.JRELEASER_CONFIG_CONTENT }}
         run: |
-          mkdir -p ~/.jreleaser
-          echo "$JRELEASER_CONFIG_CONTENT" > ~/.jreleaser/config.toml
-          ./gradlew jib jreleaserFullRelease --scan --console=plain --build-cache \
+          version="$(./gradlew -q printVersion | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | tail -n 1)"
+          if [[ "$version" == *-SNAPSHOT ]]; then
+            echo "Version $version is not a release version; skipping Docker image publishing."
+            exit 0
+          fi
+
+          ./gradlew jib --scan --console=plain --build-cache \
                 -Djib.to.auth.username=orangebuffalo \
                 -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
 
