@@ -173,14 +173,14 @@ The notes must follow the current JReleaser-style output used by the project:
 ### Documentation
 - Documentation update (#126)
 
-### Dependency Updates
-- Dependency update summary (#127)
-
 ### Refactorings
 - Refactoring summary only when useful for maintainers (#128)
 
 ### Tests
 - Test-only change summary only when useful for maintainers (#129)
+
+### Dependency Updates
+- Dependency update summary (#127)
 ```
 
 Formatting rules:
@@ -188,6 +188,7 @@ Formatting rules:
 - Start with `## What's Changed`.
 - Use Markdown headings exactly as shown above.
 - Use plain ASCII headings; do not add emoji.
+- Keep `Dependency Updates` as the last section when present.
 - Omit empty categories.
 - Skip merge commits.
 - Hide uncategorized commits by default.
@@ -255,8 +256,10 @@ After pushing, find the CI run for the release commit on `master`:
 
 ```bash
 release_sha="$(git rev-parse HEAD)"
-ci_url="$(gh run list --workflow 'Continuous Integration' --branch master --commit "$release_sha" --json url --jq '.[0].url' --limit 1)"
+ci_url="$(gh run list --workflow ci.yml --branch master --commit "$release_sha" --json url --jq '.[0].url' --limit 1)"
 ```
+
+Use the workflow file name (`ci.yml`), not the display name, because GitHub CLI can report ambiguous matches for workflow names.
 
 If the run is not available yet, provide this fallback link:
 
