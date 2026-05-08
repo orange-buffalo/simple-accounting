@@ -1,4 +1,4 @@
-simpleaccounting:
+sa:
   documents:
     storage:
       local-fs:

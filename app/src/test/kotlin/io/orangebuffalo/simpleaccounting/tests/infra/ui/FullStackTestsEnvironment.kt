@@ -80,7 +80,7 @@ class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<Con
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
             applicationContext,
             "server.port=$springContextPort",
-            "simpleaccounting.public-url=$browserUrl",
+            "sa.public-url=$browserUrl",
         )
     }
 }

@@ -30,7 +30,7 @@ class DropboxBackupProvider(
         val refreshToken = backupProperties.dropbox.refreshToken
         val clientId = backupProperties.dropbox.clientId
         val clientSecret = backupProperties.dropbox.clientSecret
-        require(accessToken != null && refreshToken != null && clientId != null && clientSecret != null) {
+        require(!accessToken.isNullOrBlank() && !refreshToken.isNullOrBlank() && !clientId.isNullOrBlank() && !clientSecret.isNullOrBlank()) {
             "Dropbox tokens are not configured"
         }
         DropboxApiClient(

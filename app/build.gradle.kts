@@ -212,7 +212,7 @@ tasks.register<Test>("updateGraphqlSchema") {
         includeTestsMatching("*GraphqlSchemaTest*")
     }
 
-    systemProperty("simpleaccounting.graphql.updateSchema", "true")
+    systemProperty("sa.graphql.updateSchema", "true")
 
     // Ensure the test runs even if it was previously successful
     outputs.upToDateWhen { false }

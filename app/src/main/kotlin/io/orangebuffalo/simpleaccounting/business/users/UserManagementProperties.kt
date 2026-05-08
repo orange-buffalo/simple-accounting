@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 /**
  * Configuration properties for user management.
  */
-@ConfigurationProperties("simpleaccounting.user-management")
+@ConfigurationProperties("sa.user-management")
 @Component
 data class UserManagementProperties(
     /**
