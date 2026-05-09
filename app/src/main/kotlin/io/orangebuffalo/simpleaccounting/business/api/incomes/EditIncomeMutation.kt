@@ -24,9 +24,9 @@ class EditIncomeMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editIncome(
         @GraphQLDescription("ID of the workspace the income belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the income to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New title of the income.")
         @NotBlank
         @Size(max = 255)
@@ -48,13 +48,13 @@ class EditIncomeMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this income.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
         @GraphQLDescription("New ID of the category for this income.")
-        categoryId: Long? = null,
+        categoryId: String? = null,
         @GraphQLDescription("New ID of the general tax applied to this income.")
-        generalTaxId: Long? = null,
+        generalTaxId: String? = null,
         @GraphQLDescription("New ID of the invoice linked to this income.")
-        linkedInvoiceId: Long? = null,
+        linkedInvoiceId: String? = null,
     ): IncomeGqlDto {
         val income = incomesService.getIncomeByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Income $id is not found")
@@ -81,6 +81,6 @@ class EditIncomeMutation(
         return incomesService.saveIncome(income).toIncomeGqlDto()
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<IncomeAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeAttachment> =
         attachmentIds?.map(::IncomeAttachment)?.toSet() ?: emptySet()
 }

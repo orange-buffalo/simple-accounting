@@ -11,7 +11,7 @@ private val stickyHashRegistry: AtomicLong = AtomicLong()
 abstract class AbstractEntity {
 
     @Id
-    var id: Long? = null
+    var id: String? = null
 
     @Version
     var version: Int? = null
@@ -19,7 +19,7 @@ abstract class AbstractEntity {
     var createdAt: Instant? = null
 
     @delegate:Transient
-    private val stickyHash: Long by lazy(LazyThreadSafetyMode.NONE) { id ?: stickyHashRegistry.incrementAndGet() }
+    private val stickyHash: Any by lazy(LazyThreadSafetyMode.NONE) { id ?: stickyHashRegistry.incrementAndGet() }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -71,13 +71,13 @@ class ExpenseService(
 
     private suspend fun validateCategoryAndAttachments(
         expense: Expense,
-        workspaceId: Long
+        workspaceId: String
     ) = executeInParallel {
         step { validateCategory(expense, workspaceId) }
         step { validateAttachments(expense, workspaceId) }
     }
 
-    private suspend fun validateAttachments(expense: Expense, workspaceId: Long) {
+    private suspend fun validateAttachments(expense: Expense, workspaceId: String) {
         if (expense.attachments.isNotEmpty()) {
             val attachmentsIds = expense.attachments.map { it.documentId }
             documentsService.validateDocuments(workspaceId, attachmentsIds)
@@ -86,7 +86,7 @@ class ExpenseService(
 
     private suspend fun validateCategory(
         expense: Expense,
-        workspaceId: Long
+        workspaceId: String
     ) {
         if (expense.categoryId != null) categoriesService.validateCategory(expense.categoryId!!, workspaceId)
     }
@@ -115,14 +115,14 @@ class ExpenseService(
         )
     }
 
-    suspend fun getExpenseByIdAndWorkspace(id: Long, workspaceId: Long): Expense? = withDbContext {
+    suspend fun getExpenseByIdAndWorkspace(id: String, workspaceId: String): Expense? = withDbContext {
         expensesRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun getExpensesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<ExpensesStatistics> = withDbContext {
         expensesRepository.getStatistics(fromDate, toDate, workspaceId)
     }

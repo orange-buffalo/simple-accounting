@@ -106,7 +106,7 @@ class CreateWorkspaceAccessTokenMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateWorkspaceAccessToken to buildJsonObject {
-                        put("id", JsonValues.ANY_NUMBER)
+                        put("id", JsonValues.ANY_STRING)
                         put("version", 0)
                         put("token", "new-share-token")
                         put("validTill", VALID_TILL_VALUE)
@@ -130,7 +130,7 @@ class CreateWorkspaceAccessTokenMutationTest(
     }
 
     private fun MutationProjection.createWorkspaceAccessTokenMutation(
-        workspaceId: Long,
+        workspaceId: String,
         validTill: Instant = VALID_TILL,
     ): MutationProjection = createWorkspaceAccessToken(
         workspaceId = workspaceId,

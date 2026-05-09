@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 @GraphQLDescription("Business expense.")
 data class ExpenseGqlDto(
     @GraphQLDescription("ID of the expense.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Version of the expense for optimistic locking.")
     val version: Int,
@@ -58,7 +58,7 @@ data class ExpenseGqlDto(
     val status: ExpenseStatus,
 
     @GraphQLDescription("ID of the general tax applied to this expense.")
-    val generalTaxId: Long?,
+    val generalTaxId: String?,
 
     @GraphQLDescription("Rate of the general tax in basis points.")
     val generalTaxRateInBps: Int?,
@@ -66,11 +66,11 @@ data class ExpenseGqlDto(
     @GraphQLDescription("Amount of the general tax in cents.")
     val generalTaxAmount: Long?,
 
-    @GraphQLIgnore val categoryId: Long?,
+    @GraphQLIgnore val categoryId: String?,
 
-    @GraphQLIgnore val attachmentIds: List<Long>,
+    @GraphQLIgnore val attachmentIds: List<String>,
 
-    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val workspaceId: String,
 ) {
     @GraphQLDescription("Category of the expense.")
     fun category(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {

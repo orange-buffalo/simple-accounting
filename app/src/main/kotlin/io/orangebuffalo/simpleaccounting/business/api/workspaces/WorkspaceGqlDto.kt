@@ -36,7 +36,7 @@ import org.jooq.DSLContext
 @GraphQLDescription("Workspace of a user.")
 data class WorkspaceGqlDto(
     @GraphQLDescription("ID of the workspace.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Name of the workspace.")
     val name: String,
@@ -73,7 +73,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns a category by its ID if it belongs to this workspace, or null if not found.")
     fun category(
-        @GraphQLDescription("ID of the category.") id: Long,
+        @GraphQLDescription("ID of the category.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadCategoryByWorkspaceAndId(workspaceId = this.id, categoryId = id)
 
@@ -95,7 +95,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns an expense by its ID if it belongs to this workspace, or null if not found.")
     fun expense(
-        @GraphQLDescription("ID of the expense.") id: Long,
+        @GraphQLDescription("ID of the expense.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadExpenseByWorkspaceAndId(workspaceId = this.id, expenseId = id)
 
@@ -117,7 +117,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns an income by its ID if it belongs to this workspace, or null if not found.")
     suspend fun income(
-        @GraphQLDescription("ID of the income.") id: Long,
+        @GraphQLDescription("ID of the income.") id: String,
         env: DataFetchingEnvironment,
     ): IncomeGqlDto? {
         return env.graphQlContext.getBean<IncomesGqlApi>()
@@ -144,7 +144,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
     suspend fun invoice(
-        @GraphQLDescription("ID of the invoice.") id: Long,
+        @GraphQLDescription("ID of the invoice.") id: String,
         env: DataFetchingEnvironment,
     ): InvoiceGqlDto? {
         return env.graphQlContext.getBean<InvoicesGqlApi>()
@@ -210,7 +210,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns a customer by its ID if it belongs to this workspace, or null if not found.")
     fun customer(
-        @GraphQLDescription("ID of the customer.") id: Long,
+        @GraphQLDescription("ID of the customer.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadCustomerByWorkspaceAndId(workspaceId = this.id, customerId = id)
 
@@ -263,7 +263,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns an income tax payment by its ID if it belongs to this workspace, or null if not found.")
     fun incomeTaxPayment(
-        @GraphQLDescription("ID of the income tax payment.") id: Long,
+        @GraphQLDescription("ID of the income tax payment.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadIncomeTaxPaymentByWorkspaceAndId(workspaceId = this.id, paymentId = id)
 
@@ -293,7 +293,7 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Returns a general tax by its ID if it belongs to this workspace, or null if not found.")
     fun generalTax(
-        @GraphQLDescription("ID of the general tax.") id: Long,
+        @GraphQLDescription("ID of the general tax.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadGeneralTaxByWorkspaceAndId(workspaceId = this.id, taxId = id)
 

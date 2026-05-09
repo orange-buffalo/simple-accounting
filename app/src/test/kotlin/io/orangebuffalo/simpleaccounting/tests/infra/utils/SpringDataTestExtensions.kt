@@ -17,7 +17,7 @@ inline fun <reified T : Any> JdbcAggregateTemplate.findSingle(): T =
 /**
  * Finds a single entity of the specified type by ID. Fails if there are no entities found.
  */
-inline fun <reified T : Any> JdbcAggregateTemplate.findSingle(id: Long): T =
+inline fun <reified T : Any> JdbcAggregateTemplate.findSingle(id: String): T =
     withHint("Exactly one entity of ${T::class} is expected for ID $id") {
         this.findById(id, T::class.java).shouldNotBeNull()
     }

@@ -15,11 +15,11 @@ private const val NAME = "documentsByIds"
 @Component
 class DocumentsByIdsDataLoader(
     private val documentsRepository: DocumentsRepository,
-) : KotlinDataLoader<List<Long>, List<DocumentGqlDto>> {
+) : KotlinDataLoader<List<String>, List<DocumentGqlDto>> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<List<Long>, List<DocumentGqlDto>> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<List<String>, List<DocumentGqlDto>> =
         newAsyncMappedDataLoader { idLists ->
             val allDocumentIds = idLists.flatten().toSet()
             val documents = documentsRepository.findAllById(allDocumentIds)
@@ -36,13 +36,16 @@ class DocumentsByIdsDataLoader(
                     usedBy = usagesByDocId[document.id] ?: emptyList(),
                 )
             }
-            idLists.associateWith { ids -> ids.mapNotNull { id -> documentDtoById[id] } }
+            idLists.associateWith { ids ->
+                ids.mapNotNull { id -> documentDtoById[id] }
+                    .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
+            }
         }
 }
 
 suspend fun DataFetchingEnvironment.loadDocumentsByIds(
-    documentIds: List<Long>,
-): List<DocumentGqlDto> = getDataLoader<List<Long>, List<DocumentGqlDto>>(NAME)!!
+    documentIds: List<String>,
+): List<DocumentGqlDto> = getDataLoader<List<String>, List<DocumentGqlDto>>(NAME)!!
     .load(documentIds)
     .dispatchIfNeeded(this)
     .await()

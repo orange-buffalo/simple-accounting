@@ -42,7 +42,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -50,7 +50,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getGeneralTaxQuery = useLazyQuery(graphql(`
-    query getGeneralTaxForEdit($workspaceId: Long!, $taxId: Long!) {
+    query getGeneralTaxForEdit($workspaceId: String!, $taxId: String!) {
       workspace(id: $workspaceId) {
         generalTax(id: $taxId) {
           id
@@ -64,7 +64,7 @@
 
   const createGeneralTax = useMutation(graphql(`
     mutation createGeneralTax(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $title: String!,
       $description: String,
       $rateInBps: Int!
@@ -82,8 +82,8 @@
 
   const editGeneralTax = useMutation(graphql(`
     mutation editGeneralTax(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $title: String!,
       $description: String,
       $rateInBps: Int!

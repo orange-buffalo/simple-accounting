@@ -102,7 +102,7 @@ class GeneralTaxesReportingRepository(private val dslContext: DSLContext) {
 
         return dslContext
             .select(
-                taxData.fieldOrFail<Long>(TaxReportFields.taxId)
+                taxData.fieldOrFail<String>(TaxReportFields.taxId)
                     .mapTo(GeneralTaxReportRawItem::taxId),
                 sum(taxData.field(TaxReportFields.taxAmount, Long::class.java))
                     .mapTo(GeneralTaxReportRawItem::taxAmount),
@@ -119,7 +119,7 @@ class GeneralTaxesReportingRepository(private val dslContext: DSLContext) {
             .where(
                 taxData.fieldOrFail<LocalDate>(TaxReportFields.targetDateField).greaterOrEqual(fromDate),
                 taxData.fieldOrFail<LocalDate>(TaxReportFields.targetDateField).lessOrEqual(toDate),
-                taxData.fieldOrFail<Long>(TaxReportFields.workspaceIdField).eq(workspace.id)
+                taxData.fieldOrFail<String>(TaxReportFields.workspaceIdField).eq(workspace.id)
             )
             .groupBy(
                 taxData.field(TaxReportFields.taxId),
@@ -131,7 +131,7 @@ class GeneralTaxesReportingRepository(private val dslContext: DSLContext) {
 }
 
 class GeneralTaxReportRawItem {
-    var taxId: Long? = null
+    var taxId: String? = null
     var taxAmount: Long? = null
     var itemsCount: Long? = null
     var itemsAmount: Long? = null
@@ -147,13 +147,13 @@ data class GeneralTaxReport(
 )
 
 data class FinalizedGeneralTaxSummaryItem(
-    var tax: Long,
+    var tax: String,
     var taxAmount: Long,
     var includedItemsNumber: Long,
     var includedItemsAmount: Long
 )
 
 data class PendingGeneralTaxSummaryItem(
-    var tax: Long,
+    var tax: String,
     var includedItemsNumber: Long
 )

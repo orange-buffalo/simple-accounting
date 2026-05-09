@@ -64,17 +64,17 @@
 
   const props = defineProps<{
     labelProvider:(option: HasOptionalId) => string,
-    modelValue?: number,
+    modelValue?: string,
     placeholder?: string,
     optionsProvider: (pageRequest: ApiPageRequest,
                       query: string | undefined,
                       requestInit: RequestInit) => Promise<ApiPage<HasOptionalId>>,
-    optionProvider: (id: number,
+    optionProvider: (id: string,
                      requestInit: RequestInit) => Promise<HasOptionalId>,
     clearable?: boolean
   }>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
+  const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
 
   let requestConfigData: RequestConfigReturn | undefined;
 
@@ -130,7 +130,7 @@
     }
   };
 
-  const selectedValue = ref<number | string | undefined>();
+  const selectedValue = ref<string | undefined>();
   const selectedValueLoadingState = ref({
     loading: false,
     error: false,
@@ -139,7 +139,7 @@
   // optimization to avoid API lookups if we loaded the value previously
   const knownSelectedValues: Array<HasOptionalId> = [];
 
-  async function loadSelectedValue(entityId: number) {
+  async function loadSelectedValue(entityId: string) {
     selectedValueLoadingState.value.error = false;
     const knownValue = knownSelectedValues.find((it) => it.id === entityId);
     if (knownValue) {
@@ -158,7 +158,7 @@
   }
 
   watch(() => props.modelValue, (newValue) => {
-    if (newValue === undefined) {
+    if (newValue === undefined || newValue === null) {
       selectedValue.value = undefined;
     } else {
       loadSelectedValue(newValue);
@@ -166,9 +166,9 @@
   }, { immediate: true });
 
   watch(() => selectedValue.value, (entityIdOrLabel) => {
-    if (entityIdOrLabel === undefined) {
+    if (!entityIdOrLabel) {
       emit('update:modelValue', undefined);
-    } else if (typeof entityIdOrLabel === 'number') {
+    } else {
       const selectedOption = availableValues.value.find((it) => it.key === entityIdOrLabel);
       if (selectedOption) {
         knownSelectedValues.push(ensureDefined(selectedOption.entity));

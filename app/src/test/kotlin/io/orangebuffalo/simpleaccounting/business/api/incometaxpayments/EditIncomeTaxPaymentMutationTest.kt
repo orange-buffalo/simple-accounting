@@ -51,7 +51,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .graphqlMutation {
                     editIncomeTaxPaymentMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -64,7 +64,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .graphqlMutation {
                     editIncomeTaxPaymentMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -77,7 +77,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .graphqlMutation {
                     editIncomeTaxPaymentMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -183,7 +183,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditIncomeTaxPayment to buildJsonObject {
-                        put("id", payment.id!!.toInt())
+                        put("id", payment.id!!)
                         put("title", "Updated Q2 Tax")
                         put("datePaid", "3025-07-01")
                         put("reportingDate", "3025-06-30")
@@ -225,7 +225,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditIncomeTaxPayment to buildJsonObject {
-                        put("id", payment.id!!.toInt())
+                        put("id", payment.id!!)
                         put("title", "Q1 Tax")
                         put("datePaid", MOCK_DATE.toString())
                         put("reportingDate", MOCK_DATE.toString())
@@ -253,7 +253,7 @@ class EditIncomeTaxPaymentMutationTest(
                 .graphqlMutation {
                     editIncomeTaxPaymentMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -279,14 +279,14 @@ class EditIncomeTaxPaymentMutationTest(
     }
 
     private fun MutationProjection.editIncomeTaxPaymentMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         title: String = "Q1 Tax",
         datePaid: LocalDate = MOCK_DATE,
         reportingDate: LocalDate? = null,
         amount: Long = 100,
         notes: String? = null,
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
     ): MutationProjection = editIncomeTaxPayment(
         workspaceId = workspaceId,
         id = id,

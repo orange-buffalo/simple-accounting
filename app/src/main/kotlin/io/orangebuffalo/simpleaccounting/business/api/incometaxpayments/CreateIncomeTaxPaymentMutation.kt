@@ -24,7 +24,7 @@ class CreateIncomeTaxPaymentMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createIncomeTaxPayment(
         @GraphQLDescription("ID of the workspace to create the income tax payment in.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("Title of the income tax payment.")
         @NotBlank
         @Size(max = 255)
@@ -40,7 +40,7 @@ class CreateIncomeTaxPaymentMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this income tax payment.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.saveTaxPayment(
             IncomeTaxPayment(
@@ -56,6 +56,6 @@ class CreateIncomeTaxPaymentMutation(
         return payment.toIncomeTaxPaymentGqlDto()
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<IncomeTaxPaymentAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeTaxPaymentAttachment> =
         attachmentIds?.map(::IncomeTaxPaymentAttachment)?.toSet() ?: emptySet()
 }

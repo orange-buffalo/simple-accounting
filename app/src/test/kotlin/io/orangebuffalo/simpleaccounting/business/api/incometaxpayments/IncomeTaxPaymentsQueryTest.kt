@@ -346,7 +346,7 @@ class IncomeTaxPaymentsQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.payment.id!!.toInt())
+                                        put("id", testData.payment.id!!)
                                         put("title", "Annual tax payment")
                                         put("datePaid", "3025-01-15")
                                         put("reportingDate", "3025-01-31")
@@ -456,7 +456,7 @@ class IncomeTaxPaymentsQueryTest(
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.doc.id!!.toInt())
+                                                put("id", testData.doc.id!!)
                                                 put("name", "Slurm delivery receipt")
                                             })
                                         }
@@ -501,11 +501,11 @@ class IncomeTaxPaymentsQueryTest(
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.doc1.id!!.toInt())
+                                                put("id", testData.doc1.id!!)
                                                 put("name", "Robot oil receipt")
                                             })
                                             add(buildJsonObject {
-                                                put("id", testData.doc2.id!!.toInt())
+                                                put("id", testData.doc2.id!!)
                                                 put("name", "Slurm delivery receipt")
                                             })
                                         }
@@ -544,7 +544,7 @@ class IncomeTaxPaymentsQueryTest(
             .executeAndVerifyResponse(
                 "workspace" to buildJsonObject {
                     put("incomeTaxPayment", buildJsonObject {
-                        put("id", testData.payment.id!!.toInt())
+                        put("id", testData.payment.id!!)
                         put("title", "Q1 Tax")
                         put("amount", 50000)
                     })
@@ -562,7 +562,7 @@ class IncomeTaxPaymentsQueryTest(
         }
         client.graphql {
             workspace(id = testData.workspace.id!!) {
-                incomeTaxPayment(id = Long.MAX_VALUE) {
+                incomeTaxPayment(id = "missing-id") {
                     id
                     title
                 }

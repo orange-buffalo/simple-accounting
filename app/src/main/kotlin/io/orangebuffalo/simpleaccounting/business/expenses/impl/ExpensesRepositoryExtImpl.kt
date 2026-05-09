@@ -35,17 +35,18 @@ class ExpensesRepositoryExtImpl(
     override fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<ExpensesStatistics> {
         val incomeTaxableAmount = expense.incomeTaxableAdjustedAmountInDefaultCurrency
+        val totalAmount = sum(
+            case_()
+                .`when`(incomeTaxableAmount.isNull, 0L)
+                .otherwise(incomeTaxableAmount)
+        )
         return dslContext
             .select(
                 expense.categoryId.mapTo(ExpensesStatistics::categoryId),
-                sum(
-                    case_()
-                        .`when`(incomeTaxableAmount.isNull, 0L)
-                        .otherwise(incomeTaxableAmount)
-                ).mapTo(ExpensesStatistics::totalAmount),
+                totalAmount.mapTo(ExpensesStatistics::totalAmount),
                 count(
                     case_()
                         .`when`(expense.status.eq(ExpenseStatus.FINALIZED), 1L)
@@ -72,6 +73,7 @@ class ExpensesRepositoryExtImpl(
                 expense.datePaid.lessOrEqual(toDate)
             )
             .groupBy(expense.categoryId)
+            .orderBy(totalAmount.asc())
             .fetchListOf()
     }
 }

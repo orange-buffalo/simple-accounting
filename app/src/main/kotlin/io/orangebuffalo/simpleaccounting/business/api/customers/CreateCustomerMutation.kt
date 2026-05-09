@@ -21,7 +21,7 @@ class CreateCustomerMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createCustomer(
         @GraphQLDescription("ID of the workspace to create the customer in.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("Name of the customer.")
         @NotBlank
         @Size(max = 255)

@@ -23,7 +23,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
-    modelValue?: number,
+    modelValue?: string,
     placeholder?: string,
     clearable?: boolean,
   }>();
@@ -31,7 +31,7 @@
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
   const getCustomersQuery = useLazyQuery(graphql(`
-    query getCustomersForInput($workspaceId: Long!) {
+    query getCustomersForInput($workspaceId: String!) {
       workspace(id: $workspaceId) {
         customers(first: 500) {
           edges {

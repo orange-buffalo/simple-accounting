@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.categories.Category
 @GraphQLDescription("Category of incomes or expenses.")
 data class CategoryGqlDto(
     @GraphQLDescription("ID of the category.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Name of the category.")
     val name: String,

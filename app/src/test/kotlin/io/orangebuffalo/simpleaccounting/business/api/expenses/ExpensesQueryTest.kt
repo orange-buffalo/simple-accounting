@@ -606,7 +606,7 @@ class ExpensesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.expense.id!!.toInt())
+                                        put("id", testData.expense.id!!)
                                         put("version", testData.expense.version!!)
                                         put("title", "Slurm delivery invoice")
                                         put("datePaid", "3025-01-15")
@@ -711,7 +711,7 @@ class ExpensesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("category", buildJsonObject {
-                                            put("id", testData.category.id!!.toInt())
+                                            put("id", testData.category.id!!)
                                             put("name", "Delivery")
                                         })
                                     })
@@ -818,7 +818,7 @@ class ExpensesQueryTest(
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.doc.id!!.toInt())
+                                                put("id", testData.doc.id!!)
                                                 put("name", "Slurm delivery receipt")
                                             })
                                         }
@@ -863,11 +863,11 @@ class ExpensesQueryTest(
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.doc1.id!!.toInt())
+                                                put("id", testData.doc1.id!!)
                                                 put("name", "Robot oil receipt")
                                             })
                                             add(buildJsonObject {
-                                                put("id", testData.doc2.id!!.toInt())
+                                                put("id", testData.doc2.id!!)
                                                 put("name", "Slurm delivery receipt")
                                             })
                                         }
@@ -906,7 +906,7 @@ class ExpensesQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("expense", buildJsonObject {
-                            put("id", testData.expense.id!!.toInt())
+                            put("id", testData.expense.id!!)
                             put("title", "Slurm supplies")
                             put("originalAmount", 5000)
                         })
@@ -924,7 +924,7 @@ class ExpensesQueryTest(
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
-                    expense(id = Long.MAX_VALUE) {
+                    expense(id = "missing-id") {
                         id
                         title
                     }

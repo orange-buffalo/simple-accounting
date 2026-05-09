@@ -10,7 +10,7 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
-data class WorkspaceInvoiceKey(val workspaceId: Long, val invoiceId: Long)
+data class WorkspaceInvoiceKey(val workspaceId: String, val invoiceId: String)
 
 private const val NAME = "invoiceByWorkspaceAndId"
 
@@ -77,7 +77,7 @@ class InvoiceByWorkspaceAndIdDataLoader(
 }
 
 fun DataFetchingEnvironment.loadInvoiceByWorkspaceAndId(
-    workspaceId: Long,
-    invoiceId: Long,
+    workspaceId: String,
+    invoiceId: String,
 ): CompletableFuture<InvoiceGqlDto?> =
     getDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto?>(NAME)!!.load(WorkspaceInvoiceKey(workspaceId, invoiceId))

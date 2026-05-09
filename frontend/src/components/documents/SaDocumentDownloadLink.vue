@@ -34,7 +34,7 @@
   import { useMutation } from '@/services/api/use-gql-api';
 
   const createDocumentDownloadUrl = useMutation(graphql(/* GraphQL */ `
-    mutation createDocumentDownloadUrl($workspaceId: Long!, $documentId: Long!) {
+    mutation createDocumentDownloadUrl($workspaceId: String!, $documentId: String!) {
       createDocumentDownloadUrl(workspaceId: $workspaceId, documentId: $documentId) {
         url
       }
@@ -45,7 +45,7 @@
     inheritAttrs: false,
   });
 
-  function useDownloadUrl(documentId: number) {
+  function useDownloadUrl(documentId: string) {
     const creatingDownloadLink = ref(false);
     const { currentWorkspaceId } = useCurrentWorkspace();
 
@@ -80,7 +80,7 @@
 
   const props = withDefaults(defineProps<{
     documentName: string,
-    documentId: number,
+    documentId: string,
     disabled?: boolean,
     disabledTooltip?: string,
   }>(), {

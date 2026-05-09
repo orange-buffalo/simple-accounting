@@ -13,5 +13,5 @@ class GeneralTax(
     var title: String,
     var rateInBps: Int,
     var description: String? = null,
-    val workspaceId: Long
+    val workspaceId: String
 ) : AbstractEntity()

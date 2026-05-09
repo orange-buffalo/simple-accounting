@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 @GraphQLDescription("Invoice for a customer.")
 data class InvoiceGqlDto(
     @GraphQLDescription("ID of the invoice.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Version of the invoice for optimistic locking.")
     val version: Int,
@@ -57,13 +57,13 @@ data class InvoiceGqlDto(
     @GraphQLDescription("Status of the invoice.")
     val status: InvoiceStatus,
 
-    @GraphQLIgnore val generalTaxId: Long?,
+    @GraphQLIgnore val generalTaxId: String?,
 
-    @GraphQLIgnore val customerId: Long,
+    @GraphQLIgnore val customerId: String,
 
-    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val workspaceId: String,
 
-    @GraphQLIgnore val attachmentIds: List<Long>,
+    @GraphQLIgnore val attachmentIds: List<String>,
 ) {
     @GraphQLDescription("General tax applied to this invoice.")
     fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {
@@ -82,7 +82,7 @@ data class InvoiceGqlDto(
     }
 }
 
-fun io.orangebuffalo.simpleaccounting.business.invoices.Invoice.toInvoiceGqlDto(workspaceId: Long) = InvoiceGqlDto(
+fun io.orangebuffalo.simpleaccounting.business.invoices.Invoice.toInvoiceGqlDto(workspaceId: String) = InvoiceGqlDto(
     id = id!!,
     version = version!!,
     title = title,

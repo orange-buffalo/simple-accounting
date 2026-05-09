@@ -94,7 +94,7 @@ class CreateUserMutationTest(
                 .from(preconditions.farnsworth)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateUser to buildJsonObject {
-                        put("id", JsonValues.ANY_NUMBER)
+                        put("id", JsonValues.ANY_STRING)
                         put("userName", "Leela")
                         put("admin", false)
                         put("activated", false)
@@ -123,7 +123,7 @@ class CreateUserMutationTest(
                 .from(preconditions.farnsworth)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateUser to buildJsonObject {
-                        put("id", JsonValues.ANY_NUMBER)
+                        put("id", JsonValues.ANY_STRING)
                         put("userName", "Wernstrom")
                         put("admin", true)
                         put("activated", false)

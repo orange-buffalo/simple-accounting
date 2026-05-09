@@ -32,14 +32,14 @@ class IncomeTaxPaymentService(
         documentsService.validateDocuments(taxPayment.workspaceId, attachmentsIds)
     }
 
-    suspend fun getTaxPaymentByIdAndWorkspace(id: Long, workspaceId: Long): IncomeTaxPayment? = withDbContext {
+    suspend fun getTaxPaymentByIdAndWorkspace(id: String, workspaceId: String): IncomeTaxPayment? = withDbContext {
         taxPaymentRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun getTaxPaymentStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): IncomeTaxPaymentsStatistics = withDbContext {
         taxPaymentRepository.getTaxPaymentsStatistics(fromDate, toDate, workspaceId)
     }

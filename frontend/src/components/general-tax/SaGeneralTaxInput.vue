@@ -23,7 +23,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
-    modelValue?: number,
+    modelValue?: string,
     placeholder?: string,
     clearable?: boolean,
   }>();
@@ -31,7 +31,7 @@
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
   const getGeneralTaxesQuery = useLazyQuery(graphql(`
-    query getGeneralTaxesForInput($workspaceId: Long!) {
+    query getGeneralTaxesForInput($workspaceId: String!) {
       workspace(id: $workspaceId) {
         generalTaxes(first: 500) {
           edges {

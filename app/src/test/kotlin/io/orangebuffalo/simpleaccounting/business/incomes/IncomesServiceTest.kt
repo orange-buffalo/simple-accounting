@@ -377,7 +377,7 @@ internal class IncomesServiceTest(
                             categoryId = null,
                             dateReceived = LocalDate.now(),
                             title = "test",
-                            linkedInvoiceId = 100
+                            linkedInvoiceId = "100"
                         ),
                     )
                 }

@@ -27,7 +27,7 @@ class EditUserMutation(
     )
     suspend fun editUser(
         @GraphQLDescription("ID of the user to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New username / login for the user.")
         @NotBlank
         @Size(max = 255)

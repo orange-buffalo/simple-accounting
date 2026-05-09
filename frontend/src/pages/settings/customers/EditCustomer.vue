@@ -30,7 +30,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -38,7 +38,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCustomerQuery = useLazyQuery(graphql(`
-    query getCustomerForEdit($workspaceId: Long!, $customerId: Long!) {
+    query getCustomerForEdit($workspaceId: String!, $customerId: String!) {
       workspace(id: $workspaceId) {
         customer(id: $customerId) {
           id
@@ -50,7 +50,7 @@
 
   const createCustomer = useMutation(graphql(`
     mutation createCustomer(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $name: String!
     ) {
       createCustomer(
@@ -64,8 +64,8 @@
 
   const editCustomer = useMutation(graphql(`
     mutation editCustomer(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $name: String!
     ) {
       editCustomer(

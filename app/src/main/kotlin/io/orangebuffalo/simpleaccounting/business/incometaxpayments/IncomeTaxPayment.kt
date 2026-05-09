@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Table
 class IncomeTaxPayment(
 
-    var workspaceId: Long,
+    var workspaceId: String,
     var datePaid: LocalDate,
     var reportingDate: LocalDate,
     var amount: Long,
@@ -23,5 +23,5 @@ class IncomeTaxPayment(
 
 @Table("INCOME_TAX_PAYMENT_ATTACHMENTS")
 data class IncomeTaxPaymentAttachment(
-    val documentId: Long
+    val documentId: String
 )

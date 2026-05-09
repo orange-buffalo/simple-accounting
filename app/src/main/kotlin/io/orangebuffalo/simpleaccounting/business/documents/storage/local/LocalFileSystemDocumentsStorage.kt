@@ -47,7 +47,7 @@ class LocalFileSystemDocumentsStorage(
 
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
-    override suspend fun isDownloadAvailableForUser(userId: Long) = true
+    override suspend fun isDownloadAvailableForUser(userId: String) = true
 
     override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse =
         withContext(localFsStorageContext) {

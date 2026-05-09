@@ -32,17 +32,18 @@ class IncomesRepositoryExtImpl(
     override fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<IncomesStatistics> {
         val incomeTaxableAmount = income.incomeTaxableAdjustedAmountInDefaultCurrency
+        val totalAmount = sum(
+            case_()
+                .`when`(incomeTaxableAmount.isNull, 0L)
+                .otherwise(incomeTaxableAmount)
+        )
         return dslContext
             .select(
                 income.categoryId.mapTo(IncomesStatistics::categoryId),
-                sum(
-                    case_()
-                        .`when`(incomeTaxableAmount.isNull, 0L)
-                        .otherwise(incomeTaxableAmount)
-                ).mapTo(IncomesStatistics::totalAmount),
+                totalAmount.mapTo(IncomesStatistics::totalAmount),
                 count(
                     case_()
                         .`when`(income.status.eq(IncomeStatus.FINALIZED), 1L)
@@ -69,6 +70,7 @@ class IncomesRepositoryExtImpl(
                 income.dateReceived.lessOrEqual(toDate)
             )
             .groupBy(income.categoryId)
+            .orderBy(totalAmount.asc())
             .fetchListOf()
     }
 }

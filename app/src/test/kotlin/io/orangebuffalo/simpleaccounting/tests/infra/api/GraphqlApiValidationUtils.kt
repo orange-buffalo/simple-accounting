@@ -290,7 +290,7 @@ fun numberRangeConstraintTestCases(
  * Generates test cases for optional (nullable) GraphQL fields. Produces:
  * - **absent** field → fully successful execution (the field defaults to null via the Kotlin `= null` default)
  *
- * Use this for optional nullable fields (e.g., `notes: String?`, `categoryId: Long?`).
+ * Use this for optional nullable fields (e.g., `notes: String?`, `categoryId: String?`).
  * Without a Kotlin default value (`= null`), an absent field causes graphql-kotlin to throw an
  * internal server error (missing required parameter in reflection `callBy`).
  * This test case verifies that the field correctly defaults to null and the mutation succeeds.

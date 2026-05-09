@@ -48,7 +48,7 @@ class CancelInvoiceMutationTest(
                 .graphqlMutation {
                     cancelInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        invoiceId = 1,
+                        invoiceId = "1",
                     )
                 }
                 .fromAnonymous()
@@ -61,7 +61,7 @@ class CancelInvoiceMutationTest(
                 .graphqlMutation {
                     cancelInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        invoiceId = 1,
+                        invoiceId = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -74,7 +74,7 @@ class CancelInvoiceMutationTest(
                 .graphqlMutation {
                     cancelInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        invoiceId = 1,
+                        invoiceId = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -102,7 +102,7 @@ class CancelInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CancelInvoice to buildJsonObject {
-                        put("id", invoice.id!!.toInt())
+                        put("id", invoice.id!!)
                         put("status", "CANCELLED")
                     }
                 )
@@ -119,7 +119,7 @@ class CancelInvoiceMutationTest(
                 .graphqlMutation {
                     cancelInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        invoiceId = Long.MAX_VALUE,
+                        invoiceId = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -146,8 +146,8 @@ class CancelInvoiceMutationTest(
     }
 
     private fun MutationProjection.cancelInvoiceMutation(
-        workspaceId: Long,
-        invoiceId: Long,
+        workspaceId: String,
+        invoiceId: String,
     ): MutationProjection = cancelInvoice(
         workspaceId = workspaceId,
         invoiceId = invoiceId,

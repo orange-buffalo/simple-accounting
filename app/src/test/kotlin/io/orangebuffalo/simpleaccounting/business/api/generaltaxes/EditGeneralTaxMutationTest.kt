@@ -49,7 +49,7 @@ class EditGeneralTaxMutationTest(
                 .graphqlMutation {
                     editGeneralTaxMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -62,7 +62,7 @@ class EditGeneralTaxMutationTest(
                 .graphqlMutation {
                     editGeneralTaxMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -75,7 +75,7 @@ class EditGeneralTaxMutationTest(
                 .graphqlMutation {
                     editGeneralTaxMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -165,7 +165,7 @@ class EditGeneralTaxMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditGeneralTax to buildJsonObject {
-                        put("id", tax.id!!.toInt())
+                        put("id", tax.id!!)
                         put("title", "GST")
                         put("description", "Goods and Services Tax for Moon deliveries")
                         put("rateInBps", 15_00)
@@ -203,7 +203,7 @@ class EditGeneralTaxMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditGeneralTax to buildJsonObject {
-                        put("id", tax.id!!.toInt())
+                        put("id", tax.id!!)
                         put("title", "VAT")
                         put("description", JsonNull)
                         put("rateInBps", tax.rateInBps)
@@ -217,7 +217,7 @@ class EditGeneralTaxMutationTest(
                 .graphqlMutation {
                     editGeneralTaxMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -241,8 +241,8 @@ class EditGeneralTaxMutationTest(
     }
 
     private fun MutationProjection.editGeneralTaxMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         title: String = "VAT",
         description: String? = null,
         rateInBps: Int = 10_00,

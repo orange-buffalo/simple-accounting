@@ -90,7 +90,7 @@
   }>();
 
   const workspaceAccessTokensQuery = graphql(`
-    query workspaceAccessTokensPanel($workspaceId: Long!, $first: Int!) {
+    query workspaceAccessTokensPanel($workspaceId: String!, $first: Int!) {
       workspace(id: $workspaceId) {
         workspaceAccessTokens(first: $first) {
           edges {
@@ -105,7 +105,7 @@
   `);
 
   const createWorkspaceAccessTokenMutation = graphql(`
-    mutation createWorkspaceAccessTokenPanel($workspaceId: Long!, $validTill: DateTime!) {
+    mutation createWorkspaceAccessTokenPanel($workspaceId: String!, $validTill: DateTime!) {
       createWorkspaceAccessToken(workspaceId: $workspaceId, validTill: $validTill) {
         token
       }

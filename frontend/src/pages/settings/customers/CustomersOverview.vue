@@ -39,7 +39,7 @@
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
   const customersPageQuery = graphql(`
-    query customersPage($workspaceId: Long!, $first: Int!, $after: String) {
+    query customersPage($workspaceId: String!, $first: Int!, $after: String) {
       workspace(id: $workspaceId) {
         customers(first: $first, after: $after) {
           edges {

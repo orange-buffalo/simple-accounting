@@ -26,7 +26,7 @@ class CreateUserActivationTokenMutation(
     )
     suspend fun createUserActivationToken(
         @GraphQLDescription("The ID of the user to create the activation token for.")
-        userId: Long,
+        userId: String,
     ): UserActivationTokenGqlDto {
         return userService.createUserActivationToken(userId).mapToGqlDto()
     }

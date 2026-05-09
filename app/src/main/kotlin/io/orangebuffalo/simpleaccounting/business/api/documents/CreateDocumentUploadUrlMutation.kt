@@ -27,7 +27,7 @@ class CreateDocumentUploadUrlMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createDocumentUploadUrl(
         @GraphQLDescription("ID of the workspace to upload the document to.")
-        workspaceId: Long,
+        workspaceId: String,
     ): CreateDocumentUploadUrlResponse {
         val token = documentsService.getUploadToken(workspaceId)
         val baseUrl = simpleAccountingProperties.publicUrl.trimEnd('/')

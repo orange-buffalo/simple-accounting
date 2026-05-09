@@ -4,14 +4,14 @@ import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentUsageGql
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 
 interface DocumentsRepository : AbstractEntityRepository<Document>, DocumentsRepositoryExt {
-    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Document?
+    fun findByIdAndWorkspaceId(id: String, workspaceId: String): Document?
 }
 
 interface DocumentsRepositoryExt {
-    fun findValidIds(ids: Collection<Long>, workspaceId: Long): Collection<Long>
-    fun getStorageStatsByOwner(ownerId: Long): List<DocumentStorageStatisticsRecord>
+    fun findValidIds(ids: Collection<String>, workspaceId: String): Collection<String>
+    fun getStorageStatsByOwner(ownerId: String): List<DocumentStorageStatisticsRecord>
 
-    fun findUsagesByDocumentIds(documentIds: Collection<Long>): Map<Long, List<DocumentUsageGqlDto>>
+    fun findUsagesByDocumentIds(documentIds: Collection<String>): Map<String, List<DocumentUsageGqlDto>>
 }
 
 data class DocumentStorageStatisticsRecord(

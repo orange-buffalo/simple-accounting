@@ -9,8 +9,8 @@ import java.time.LocalDate
 
 @Table
 class Expense(
-    var categoryId: Long?,
-    var workspaceId: Long,
+    var categoryId: String?,
+    var workspaceId: String,
     var title: String,
     var datePaid: LocalDate,
 
@@ -48,7 +48,7 @@ class Expense(
 
     var percentOnBusiness: Int,
 
-    var generalTaxId: Long?,
+    var generalTaxId: String?,
 
     var generalTaxRateInBps: Int? = null,
 
@@ -68,7 +68,7 @@ class Expense(
 
 @Table("EXPENSE_ATTACHMENTS")
 data class ExpenseAttachment(
-    val documentId: Long
+    val documentId: String
 )
 
 enum class ExpenseStatus {

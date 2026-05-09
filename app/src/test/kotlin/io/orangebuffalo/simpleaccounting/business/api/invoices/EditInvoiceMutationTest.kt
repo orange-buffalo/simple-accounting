@@ -53,7 +53,7 @@ class EditInvoiceMutationTest(
                 .graphqlMutation {
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -66,7 +66,7 @@ class EditInvoiceMutationTest(
                 .graphqlMutation {
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -79,7 +79,7 @@ class EditInvoiceMutationTest(
                 .graphqlMutation {
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -151,7 +151,7 @@ class EditInvoiceMutationTest(
                 editInvoiceMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryInvoice.id!!,
-                    generalTaxId = 1,
+                    generalTaxId = "1",
                 )
             },
             requiredFieldRejectedTestCases("id") {
@@ -217,7 +217,7 @@ class EditInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditInvoice to buildJsonObject {
-                        put("id", invoice.id!!.toInt())
+                        put("id", invoice.id!!)
                         put("title", "Updated Slurm delivery")
                         put("dateIssued", "3025-03-10")
                         put("dateSent", "3025-03-11")
@@ -267,7 +267,7 @@ class EditInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditInvoice to buildJsonObject {
-                        put("id", invoice.id!!.toInt())
+                        put("id", invoice.id!!)
                         put("title", "Spaceship parts")
                         put("dateIssued", MOCK_DATE.toString())
                         put("dateSent", JsonNull)
@@ -304,7 +304,7 @@ class EditInvoiceMutationTest(
                 .graphqlMutation {
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -331,9 +331,9 @@ class EditInvoiceMutationTest(
     }
 
     private fun MutationProjection.editInvoiceMutation(
-        workspaceId: Long,
-        id: Long,
-        customerId: Long = preconditions.fryCustomer.id!!,
+        workspaceId: String,
+        id: String,
+        customerId: String = preconditions.fryCustomer.id!!,
         title: String = "Spaceship parts",
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
@@ -342,8 +342,8 @@ class EditInvoiceMutationTest(
         currency: String = "USD",
         amount: Long = 100,
         notes: String? = null,
-        attachments: List<Long>? = null,
-        generalTaxId: Long? = null,
+        attachments: List<String>? = null,
+        generalTaxId: String? = null,
     ): MutationProjection = editInvoice(
         workspaceId = workspaceId,
         id = id,

@@ -63,14 +63,14 @@ class WorkspaceAnalyticsQueryTest(
                                 put("currencyExchangeDifference", -1000)
                                 putJsonArray("items") {
                                     addJsonObject {
-                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!.toInt()) })
+                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!) })
                                         put("totalAmount", 2100)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 0)
                                         put("currencyExchangeDifference", -1000)
                                     }
                                     addJsonObject {
-                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!.toInt()) })
+                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!) })
                                         put("totalAmount", 10010)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 3)
@@ -125,14 +125,14 @@ class WorkspaceAnalyticsQueryTest(
                                 put("currencyExchangeDifference", -110)
                                 putJsonArray("items") {
                                     addJsonObject {
-                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!.toInt()) })
+                                        put("category", buildJsonObject { put("id", preconditions.firstCategory.id!!) })
                                         put("totalAmount", 220)
                                         put("finalizedCount", 2)
                                         put("pendingCount", 0)
                                         put("currencyExchangeDifference", -110)
                                     }
                                     addJsonObject {
-                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!.toInt()) })
+                                        put("category", buildJsonObject { put("id", preconditions.secondCategory.id!!) })
                                         put("totalAmount", 1000)
                                         put("finalizedCount", 1)
                                         put("pendingCount", 2)
@@ -299,7 +299,7 @@ class WorkspaceAnalyticsQueryTest(
                             put("generalTaxesSummary", buildJsonObject {
                                 putJsonArray("finalizedCollectedTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!) })
                                         put("taxAmount", 100)
                                         put("includedItemsNumber", 1)
                                         put("includedItemsAmount", 800)
@@ -307,7 +307,7 @@ class WorkspaceAnalyticsQueryTest(
                                 }
                                 putJsonArray("finalizedPaidTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!) })
                                         put("taxAmount", 50)
                                         put("includedItemsNumber", 1)
                                         put("includedItemsAmount", 400)
@@ -315,13 +315,13 @@ class WorkspaceAnalyticsQueryTest(
                                 }
                                 putJsonArray("pendingCollectedTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.deliveryTax.id!!) })
                                         put("includedItemsNumber", 1)
                                     }
                                 }
                                 putJsonArray("pendingPaidTaxes") {
                                     addJsonObject {
-                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!.toInt()) })
+                                        put("tax", buildJsonObject { put("id", testData.robotOilTax.id!!) })
                                         put("includedItemsNumber", 1)
                                     }
                                 }

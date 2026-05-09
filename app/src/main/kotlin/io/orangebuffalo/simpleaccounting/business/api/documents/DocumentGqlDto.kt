@@ -9,7 +9,7 @@ import java.time.Instant
 @GraphQLDescription("A document in a workspace.")
 data class DocumentGqlDto(
     @GraphQLDescription("ID of the document.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Version of the document for optimistic locking.")
     val version: Int,

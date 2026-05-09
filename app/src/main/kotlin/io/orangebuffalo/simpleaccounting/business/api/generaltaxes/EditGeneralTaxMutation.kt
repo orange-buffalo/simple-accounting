@@ -23,9 +23,9 @@ class EditGeneralTaxMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editGeneralTax(
         @GraphQLDescription("ID of the workspace the general tax belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the general tax to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New title of the general tax.")
         @NotBlank
         @Size(max = 255)

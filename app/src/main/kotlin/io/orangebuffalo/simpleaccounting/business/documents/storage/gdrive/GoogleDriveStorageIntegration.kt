@@ -5,6 +5,6 @@ import org.springframework.data.relational.core.mapping.Table
 
 @Table
 class GoogleDriveStorageIntegration(
-    val userId: Long,
+    val userId: String,
     var folderId: String? = null
 ) : AbstractEntity()

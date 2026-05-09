@@ -57,13 +57,13 @@ class InvoicesService(
     /**
      * If tax is provided, it is always calculated on top of reported amount
      */
-    suspend fun saveInvoice(invoice: Invoice, workspaceId: Long): Invoice {
+    suspend fun saveInvoice(invoice: Invoice, workspaceId: String): Invoice {
         validateInvoice(invoice, workspaceId)
         updateInvoiceStatus(invoice)
         return withDbContext { invoicesRepository.save(invoice) }
     }
 
-    suspend fun cancelInvoice(invoiceId: Long, workspaceId: Long): Invoice {
+    suspend fun cancelInvoice(invoiceId: String, workspaceId: String): Invoice {
         val invoice = withDbContext {
             invoicesRepository.findById(invoiceId)
                 .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
@@ -102,7 +102,7 @@ class InvoicesService(
 
     private suspend fun validateInvoice(
         invoice: Invoice,
-        workspaceId: Long
+        workspaceId: String
     ) = executeInParallel {
         step {
             workspacesService.validateWorkspaceAccess(
@@ -117,21 +117,21 @@ class InvoicesService(
 
     private suspend fun validateGeneralTax(
         invoice: Invoice,
-        workspaceId: Long
+        workspaceId: String
     ) {
         if (invoice.generalTaxId != null) {
             generalTaxesService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
         }
     }
 
-    private suspend fun validateAttachments(invoice: Invoice, workspaceId: Long) {
+    private suspend fun validateAttachments(invoice: Invoice, workspaceId: String) {
         if (invoice.attachments.isNotEmpty()) {
             val attachmentsIds = invoice.attachments.map { it.documentId }
             documentsService.validateDocuments(workspaceId, attachmentsIds)
         }
     }
 
-    suspend fun getInvoiceByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice? = withDbContext {
+    suspend fun getInvoiceByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? = withDbContext {
         invoicesRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 }

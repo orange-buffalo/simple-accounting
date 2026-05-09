@@ -9,7 +9,7 @@ import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
-data class WorkspaceCategoryKey(val workspaceId: Long, val categoryId: Long)
+data class WorkspaceCategoryKey(val workspaceId: String, val categoryId: String)
 
 private const val NAME = "categoryByWorkspaceAndId"
 
@@ -40,7 +40,7 @@ class CategoryByWorkspaceAndIdDataLoader(
 }
 
 fun DataFetchingEnvironment.loadCategoryByWorkspaceAndId(
-    workspaceId: Long,
-    categoryId: Long,
+    workspaceId: String,
+    categoryId: String,
 ): CompletableFuture<CategoryGqlDto?> =
     getDataLoader<WorkspaceCategoryKey, CategoryGqlDto?>(NAME)!!.load(WorkspaceCategoryKey(workspaceId, categoryId))

@@ -7,7 +7,7 @@ import java.time.Instant
 @Table
 class Document(
     var name: String,
-    val workspaceId: Long,
+    val workspaceId: String,
     val timeUploaded: Instant,
     var storageId: String,
     var storageLocation: String?,

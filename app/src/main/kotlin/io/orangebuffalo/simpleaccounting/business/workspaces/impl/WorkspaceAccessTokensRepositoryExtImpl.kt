@@ -30,7 +30,7 @@ class WorkspaceAccessTokensRepositoryExtImpl(
 
     override fun findWorkspaceByValidToken(
         token: String,
-        workspaceId: Long?
+        workspaceId: String?
     ): Workspace? {
         val workspace = Tables.WORKSPACE
         return dslContext

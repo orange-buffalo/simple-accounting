@@ -4,14 +4,14 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 import java.time.LocalDate
 
 interface IncomeTaxPaymentsRepository : AbstractEntityRepository<IncomeTaxPayment>, IncomeTaxPaymentsRepositoryExt {
-    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): IncomeTaxPayment?
+    fun findByIdAndWorkspaceId(id: String, workspaceId: String): IncomeTaxPayment?
 }
 
 interface IncomeTaxPaymentsRepositoryExt {
     fun getTaxPaymentsStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): IncomeTaxPaymentsStatistics
 }
 

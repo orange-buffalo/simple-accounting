@@ -35,7 +35,7 @@ class PushNotificationService(
 
     suspend fun sendPushNotification(
         eventName: String,
-        userId: Long? = null,
+        userId: String? = null,
         data: Any? = null
     ) {
         notificationsFlow.emit(PushNotificationMessage(eventName, userId, data))
@@ -46,6 +46,6 @@ class PushNotificationService(
 
 data class PushNotificationMessage(
     val eventName: String,
-    val userId: Long?,
+    val userId: String?,
     val data: Any?
 )

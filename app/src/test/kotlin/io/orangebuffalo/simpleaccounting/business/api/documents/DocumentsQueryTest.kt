@@ -353,7 +353,7 @@ class DocumentsQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.doc.id!!.toInt())
+                                        put("id", testData.doc.id!!)
                                         put("version", testData.doc.version!!)
                                         put("name", "Dark matter fuel receipt")
                                         put("timeUploaded", "3024-06-15T10:30:00Z")
@@ -417,7 +417,7 @@ class DocumentsQueryTest(
     inner class DocumentUsages {
 
         private fun executeAndVerifyUsages(
-            preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Triple<String, Long, String>>,
+            preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Triple<String, String, String>>,
         ) {
             val testData = preconditions {
                 object {
@@ -425,6 +425,7 @@ class DocumentsQueryTest(
                     val workspace = workspace(owner = fry, name = "Planet Express")
                     val doc = document(workspace = workspace, name = "Test receipt")
                     val usages = preconditionsSpec(workspace, doc)
+                        .sortedWith(compareBy({ it.first }, { it.second }))
                 }
             }
             client.graphql {
@@ -454,7 +455,7 @@ class DocumentsQueryTest(
                                         putJsonArray("usedBy") {
                                             testData.usages
                                                 .forEach { (type, id, displayName) ->
-                                                    add(usageJson(type, id.toInt(), displayName))
+                                                    add(usageJson(type, id, displayName))
                                                 }
                                         }
                                     })
@@ -562,7 +563,7 @@ class DocumentsQueryTest(
                                     put("node", buildJsonObject {
                                         put("name", "Used receipt")
                                         putJsonArray("usedBy") {
-                                            add(usageJson("EXPENSE", testData.expense.id!!.toInt(), "Slurm supplies"))
+                                            add(usageJson("EXPENSE", testData.expense.id!!, "Slurm supplies"))
                                         }
                                     })
                                 })
@@ -574,7 +575,7 @@ class DocumentsQueryTest(
     }
 }
 
-private fun usageJson(type: String, relatedEntityId: Int, displayName: String): JsonElement = buildJsonObject {
+private fun usageJson(type: String, relatedEntityId: String, displayName: String): JsonElement = buildJsonObject {
     put("type", type)
     put("relatedEntityId", relatedEntityId)
     put("displayName", displayName)

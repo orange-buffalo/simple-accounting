@@ -9,7 +9,7 @@ import java.time.Instant
 @GraphQLDescription("An access token for sharing workspace access.")
 data class WorkspaceAccessTokenGqlDto(
     @GraphQLDescription("ID of the access token.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Version of the access token.")
     val version: Int,

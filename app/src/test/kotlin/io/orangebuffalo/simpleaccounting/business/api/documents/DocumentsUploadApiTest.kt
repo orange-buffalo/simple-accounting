@@ -62,7 +62,7 @@ class DocumentsUploadApiTest(
                 .uri("/api/documents/upload/$token")
                 .bodyValue(createDefaultFileToUpload().build())
                 .verifyOkAndJsonBodyEqualTo {
-                    put("id", "${JsonValues.ANY_NUMBER}")
+                    put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
                     put("name", "test-file.txt")
                     put("timeUploaded", MOCK_TIME_VALUE)
@@ -97,7 +97,7 @@ class DocumentsUploadApiTest(
                 .uri("/api/documents/upload/$token")
                 .bodyValue(body.build())
                 .verifyOkAndJsonBodyEqualTo {
-                    put("id", "${JsonValues.ANY_NUMBER}")
+                    put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
                     put("name", "binary-data.bin")
                     put("timeUploaded", MOCK_TIME_VALUE)

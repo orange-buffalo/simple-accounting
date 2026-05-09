@@ -341,7 +341,7 @@ class GeneralTaxesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.tax.id!!.toInt())
+                                        put("id", testData.tax.id!!)
                                         put("title", "VAT")
                                         put("description", "Value Added Tax for interplanetary deliveries")
                                         put("rateInBps", 20_00)

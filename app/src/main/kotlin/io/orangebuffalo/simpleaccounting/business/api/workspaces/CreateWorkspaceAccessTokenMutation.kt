@@ -20,7 +20,7 @@ class CreateWorkspaceAccessTokenMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createWorkspaceAccessToken(
         @GraphQLDescription("ID of the workspace to create the token for.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("The expiration time of the token.")
         validTill: Instant,
     ): WorkspaceAccessTokenGqlDto {

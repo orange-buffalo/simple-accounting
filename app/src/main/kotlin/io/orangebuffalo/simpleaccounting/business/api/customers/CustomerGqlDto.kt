@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.customers.Customer
 @GraphQLDescription("A customer in a workspace.")
 data class CustomerGqlDto(
     @GraphQLDescription("ID of the customer.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Name of the customer.")
     val name: String,

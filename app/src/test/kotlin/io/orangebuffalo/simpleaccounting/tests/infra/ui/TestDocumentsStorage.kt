@@ -29,7 +29,7 @@ class TestDocumentsStorage : DocumentsStorage {
 
     override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus = storageStatus
 
-    override suspend fun isDownloadAvailableForUser(userId: Long) = true
+    override suspend fun isDownloadAvailableForUser(userId: String) = true
 
     override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
         val os = ByteArrayOutputStream()

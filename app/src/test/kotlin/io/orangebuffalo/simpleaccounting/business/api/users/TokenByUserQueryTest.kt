@@ -42,14 +42,14 @@ class TokenByUserQueryTest(
     inner class Authorization {
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
-            client.graphql { tokenByUser(userId = 42) { token } }
+            client.graphql { tokenByUser(userId = "42") { token } }
                 .fromAnonymous()
                 .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.TokenByUser, ignoreExtraData = true)
         }
 
         @Test
         fun `should return NOT_AUTHORIZED error for regular user`() {
-            client.graphql { tokenByUser(userId = 42) { token } }
+            client.graphql { tokenByUser(userId = "42") { token } }
                 .from(preconditions.fry)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.QUERY.TokenByUser, ignoreExtraData = true)
         }
@@ -60,7 +60,7 @@ class TokenByUserQueryTest(
     inner class BusinessFlow {
         @Test
         fun `should return null for non-existing token`() {
-            client.graphql { fullTokenByUser(userId = 42) }
+            client.graphql { fullTokenByUser(userId = "42") }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyResponse(
                     DgsConstants.QUERY.TokenByUser to JsonNull
@@ -94,7 +94,7 @@ class TokenByUserQueryTest(
         }
     }
 
-    private fun QueryProjection.fullTokenByUser(userId: Long): QueryProjection =
+    private fun QueryProjection.fullTokenByUser(userId: String): QueryProjection =
         tokenByUser(userId = userId) {
             token
             expiresAt

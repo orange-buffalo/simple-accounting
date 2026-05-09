@@ -19,7 +19,7 @@ class TokenByUserQuery(
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
     suspend fun tokenByUser(
         @GraphQLDescription("The ID of the user to retrieve the activation token for.")
-        userId: Long,
+        userId: String,
     ): UserActivationTokenGqlDto? {
         return userService.getUserActivationTokenForUser(userId)?.mapToGqlDto()
     }

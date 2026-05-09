@@ -17,5 +17,5 @@
     placeholder?: string,
   }>();
 
-  const inputValue = ref<number | undefined>(undefined);
+  const inputValue = ref<string | undefined>(undefined);
 </script>

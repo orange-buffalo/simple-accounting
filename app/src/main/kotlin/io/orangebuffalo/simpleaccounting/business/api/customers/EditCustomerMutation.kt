@@ -21,9 +21,9 @@ class EditCustomerMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editCustomer(
         @GraphQLDescription("ID of the workspace the customer belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the customer to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New name of the customer.")
         @NotBlank
         @Size(max = 255)

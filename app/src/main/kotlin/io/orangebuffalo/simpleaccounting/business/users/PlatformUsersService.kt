@@ -80,7 +80,7 @@ class PlatformUsersService(
         return user
     }
 
-    suspend fun getUserByUserId(userId: Long): PlatformUser = withDbContext {
+    suspend fun getUserByUserId(userId: String): PlatformUser = withDbContext {
         userRepository.findById(userId)
             .orElseThrow { EntityNotFoundException("User $userId is not found") }
     }
@@ -90,7 +90,7 @@ class PlatformUsersService(
      * In case the token is not found, or is expired, null is returned.
      * In case the token is expired, it is removed.
      */
-    suspend fun getUserActivationTokenForUser(userId: Long): UserActivationToken? {
+    suspend fun getUserActivationTokenForUser(userId: String): UserActivationToken? {
         val token = withDbContext {
             userActivationTokensRepository.findByUserId(userId)
         }
@@ -124,7 +124,7 @@ class PlatformUsersService(
      * Creates a new user activation token for the user with the specified id.
      * In case there is an existing token for the user, it is replaced with a new one.
      */
-    suspend fun createUserActivationToken(userId: Long): UserActivationToken {
+    suspend fun createUserActivationToken(userId: String): UserActivationToken {
         val user = withDbContext {
             userRepository.findByIdOrNull(userId)
         }
@@ -145,7 +145,7 @@ class PlatformUsersService(
         return setupUserActivationToken(userId)
     }
 
-    private suspend fun setupUserActivationToken(userId: Long) = withDbContext {
+    private suspend fun setupUserActivationToken(userId: String) = withDbContext {
         userActivationTokensRepository.save(
             UserActivationToken(
                 userId = userId,

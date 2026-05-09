@@ -109,7 +109,7 @@ class SaveSharedWorkspaceMutationTest(
                 .from(preconditions.zoidberg)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.SaveSharedWorkspace to buildJsonObject {
-                        put("id", preconditions.fryWorkspace.id!!.toInt())
+                        put("id", preconditions.fryWorkspace.id!!)
                         put("name", preconditions.fryWorkspace.name)
                         put("defaultCurrency", preconditions.fryWorkspace.defaultCurrency)
                     }

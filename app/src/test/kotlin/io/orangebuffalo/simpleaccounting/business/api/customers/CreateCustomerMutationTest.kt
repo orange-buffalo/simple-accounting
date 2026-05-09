@@ -136,7 +136,7 @@ class CreateCustomerMutationTest(
     }
 
     private fun MutationProjection.createCustomerMutation(
-        workspaceId: Long,
+        workspaceId: String,
         name: String = "Planet Express",
     ): MutationProjection = createCustomer(
         workspaceId = workspaceId,

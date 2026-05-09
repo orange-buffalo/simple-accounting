@@ -108,7 +108,7 @@ class CreateWorkspaceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateWorkspace to buildJsonObject {
-                        put("id", JsonValues.ANY_NUMBER)
+                        put("id", JsonValues.ANY_STRING)
                         put("name", "Robot Arms Apts")
                         put("defaultCurrency", "EUR")
                     }

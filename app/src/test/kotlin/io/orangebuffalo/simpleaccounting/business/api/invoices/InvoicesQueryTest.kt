@@ -643,7 +643,7 @@ class InvoicesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.invoice.id!!.toInt())
+                                        put("id", testData.invoice.id!!)
                                         put("version", testData.invoice.version!!)
                                         put("title", "Slurm delivery invoice")
                                         put("dateIssued", "3025-01-15")
@@ -657,15 +657,15 @@ class InvoicesQueryTest(
                                         put("createdAt", MOCK_TIME_VALUE)
                                         put("status", "DRAFT")
                                         put("generalTax", buildJsonObject {
-                                            put("id", testData.generalTax.id!!.toInt())
+                                            put("id", testData.generalTax.id!!)
                                         })
                                         put("customer", buildJsonObject {
-                                            put("id", testData.customer.id!!.toInt())
+                                            put("id", testData.customer.id!!)
                                             put("name", "MomCorp")
                                         })
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.document.id!!.toInt())
+                                                put("id", testData.document.id!!)
                                             })
                                         }
                                     })
@@ -769,7 +769,7 @@ class InvoicesQueryTest(
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
-                    invoice(id = Long.MAX_VALUE) {
+                    invoice(id = "missing-id") {
                         title
                     }
                 }

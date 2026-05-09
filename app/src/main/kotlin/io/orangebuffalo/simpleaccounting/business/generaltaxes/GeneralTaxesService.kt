@@ -17,16 +17,16 @@ class GeneralTaxesService(
         return withDbContext { repository.save(tax) }
     }
 
-    suspend fun getTaxByIdAndWorkspace(id: Long, workspaceId: Long): GeneralTax? = withDbContext {
+    suspend fun getTaxByIdAndWorkspace(id: String, workspaceId: String): GeneralTax? = withDbContext {
         repository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
-    suspend fun getValidGeneralTax(taxId: Long, workspaceId: Long): GeneralTax? = withDbContext {
+    suspend fun getValidGeneralTax(taxId: String, workspaceId: String): GeneralTax? = withDbContext {
         repository.findByIdAndWorkspaceId(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
     }
 
-    suspend fun validateGeneralTax(taxId: Long, workspaceId: Long) = withDbContext {
+    suspend fun validateGeneralTax(taxId: String, workspaceId: String) = withDbContext {
         if (!repository.existsByIdAndWorkspaceId(taxId, workspaceId)) {
             throw EntityNotFoundException("Tax $taxId is not found")
         }

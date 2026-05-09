@@ -25,7 +25,7 @@ class WorkspacesRepositoryExtImpl(
             .fetchListOf()
     }
 
-    override fun findByIdAndOwnerUserName(workspaceId: Long, userName: String): Workspace? {
+    override fun findByIdAndOwnerUserName(workspaceId: String, userName: String): Workspace? {
         val owner = Tables.PLATFORM_USER
         return dslContext
             .select(*workspace.fields())

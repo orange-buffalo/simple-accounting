@@ -78,7 +78,7 @@
 
   const props = withDefaults(defineProps<{
     documentName?: string,
-    documentId?: number,
+    documentId?: string,
     removable?: boolean,
     inProgress?: boolean
     progress?: number,

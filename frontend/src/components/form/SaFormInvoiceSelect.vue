@@ -12,8 +12,8 @@
 
   const props = defineProps<SaFormComponentProps>();
 
-  const inputValue = ref<number | null | undefined>(undefined);
-  const invoiceSelectValue = computed<number | undefined>({
+  const inputValue = ref<string | null | undefined>(undefined);
+  const invoiceSelectValue = computed<string | undefined>({
     get: () => inputValue.value ?? undefined,
     set: value => {
       inputValue.value = value ?? null;

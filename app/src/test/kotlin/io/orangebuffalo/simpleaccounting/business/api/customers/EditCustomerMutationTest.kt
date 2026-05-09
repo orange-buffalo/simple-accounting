@@ -48,7 +48,7 @@ class EditCustomerMutationTest(
                 .graphqlMutation {
                     editCustomerMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -61,7 +61,7 @@ class EditCustomerMutationTest(
                 .graphqlMutation {
                     editCustomerMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -74,7 +74,7 @@ class EditCustomerMutationTest(
                 .graphqlMutation {
                     editCustomerMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -138,7 +138,7 @@ class EditCustomerMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditCustomer to buildJsonObject {
-                        put("id", customer.id!!.toInt())
+                        put("id", customer.id!!)
                         put("name", "Slurm Inc")
                     }
                 )
@@ -158,7 +158,7 @@ class EditCustomerMutationTest(
                 .graphqlMutation {
                     editCustomerMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -182,8 +182,8 @@ class EditCustomerMutationTest(
     }
 
     private fun MutationProjection.editCustomerMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         name: String = "Planet Express",
     ): MutationProjection = editCustomer(
         workspaceId = workspaceId,
