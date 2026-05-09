@@ -59,26 +59,28 @@ class EditIncomeMutation(
         val income = incomesService.getIncomeByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Income $id is not found")
 
-        income.categoryId = categoryId
-        income.title = title
-        income.dateReceived = dateReceived
-        income.currency = currency
-        income.originalAmount = originalAmount
-        income.convertedAmounts = AmountsInDefaultCurrency(
-            originalAmountInDefaultCurrency = convertedAmountInDefaultCurrency,
-            adjustedAmountInDefaultCurrency = null,
-        )
-        income.incomeTaxableAmounts = AmountsInDefaultCurrency(
-            originalAmountInDefaultCurrency = incomeTaxableAmountInDefaultCurrency,
-            adjustedAmountInDefaultCurrency = null,
-        )
-        income.useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes
-        income.notes = notes
-        income.attachments = mapAttachments(attachments)
-        income.generalTaxId = generalTaxId
-        income.linkedInvoiceId = linkedInvoiceId
-
-        return incomesService.saveIncome(income).toIncomeGqlDto()
+        return incomesService.saveIncome(
+            income.copy(
+                categoryId = categoryId,
+                title = title,
+                dateReceived = dateReceived,
+                currency = currency,
+                originalAmount = originalAmount,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = convertedAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null,
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = incomeTaxableAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null,
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+                notes = notes,
+                attachments = mapAttachments(attachments),
+                generalTaxId = generalTaxId,
+                linkedInvoiceId = linkedInvoiceId,
+            )
+        ).toIncomeGqlDto()
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeAttachment> =

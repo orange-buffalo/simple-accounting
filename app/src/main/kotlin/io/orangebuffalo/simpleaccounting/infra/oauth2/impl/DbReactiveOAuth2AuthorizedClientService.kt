@@ -83,15 +83,16 @@ class DbReactiveOAuth2AuthorizedClientService(
                     )
                 )
             } else {
-                existingClient.accessToken = accessToken.tokenValue
-                existingClient.accessTokenExpiresAt = accessToken.expiresAt
-                existingClient.accessTokenIssuedAt = accessToken.issuedAt
-                existingClient.accessTokenScopes = accessToken.scopes.map { ClientTokenScope(it) }.toSet()
-                if (refreshToken != null) {
-                    existingClient.refreshToken = refreshToken.tokenValue
-                    existingClient.refreshTokenIssuedAt = refreshToken.issuedAt
-                }
-                authorizedClientRepository.save(existingClient)
+                authorizedClientRepository.save(
+                    existingClient.copy(
+                        accessToken = accessToken.tokenValue,
+                        accessTokenExpiresAt = accessToken.expiresAt,
+                        accessTokenIssuedAt = accessToken.issuedAt,
+                        accessTokenScopes = accessToken.scopes.map { ClientTokenScope(it) }.toSet(),
+                        refreshToken = refreshToken?.tokenValue ?: existingClient.refreshToken,
+                        refreshTokenIssuedAt = refreshToken?.issuedAt ?: existingClient.refreshTokenIssuedAt,
+                    )
+                )
             }
         }
     }

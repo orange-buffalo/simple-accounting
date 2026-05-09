@@ -315,14 +315,29 @@ class BruteForceDefenseTest(
         }
     }
 
-    private fun setupFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
+    private fun setupFryLoginStatistics(spec: MutableLoginStatistics.() -> Unit) {
         transactionTemplate.execute {
             val fry = platformUsersRepository.findByUserName("Fry")
                 ?: throw IllegalStateException("Fry is not found?!")
-            fry.loginStatistics.spec()
-            platformUsersRepository.save(fry)
+            val loginStatistics = MutableLoginStatistics(
+                failedAttemptsCount = fry.loginStatistics.failedAttemptsCount,
+                temporaryLockExpirationTime = fry.loginStatistics.temporaryLockExpirationTime,
+            ).apply(spec)
+            platformUsersRepository.save(
+                fry.copy(
+                    loginStatistics = LoginStatistics(
+                        failedAttemptsCount = loginStatistics.failedAttemptsCount,
+                        temporaryLockExpirationTime = loginStatistics.temporaryLockExpirationTime,
+                    )
+                )
+            )
         }
     }
+
+    private data class MutableLoginStatistics(
+        var failedAttemptsCount: Int,
+        var temporaryLockExpirationTime: Instant?,
+    )
 
     private fun MutationProjection.loginMutation(): MutationProjection =
         createAccessTokenByCredentials(password = "qwerty", userName = "Fry") { accessToken }

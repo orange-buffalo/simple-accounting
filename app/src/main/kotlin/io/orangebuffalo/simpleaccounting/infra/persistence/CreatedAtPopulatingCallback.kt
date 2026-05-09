@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class CreatedAtPopulatingCallback(
-    private val timeService: TimeService
+    private val timeService: TimeService,
+    private val entityPropertyUpdater: EntityPropertyUpdater,
 ) : BeforeConvertCallback<AbstractEntity> {
 
     override fun onBeforeConvert(entity: AbstractEntity): AbstractEntity {
-        if (entity.version == null && entity.createdAt == null) {
-            entity.createdAt = timeService.currentTime()
-        }
-        return entity
+        return if (entity.version == null && entity.createdAt == null) {
+            entityPropertyUpdater.update(entity, AbstractEntity::createdAt.name, timeService.currentTime())
+        } else entity
     }
 }

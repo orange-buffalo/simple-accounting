@@ -56,19 +56,22 @@ class EditInvoiceMutation(
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Invoice $id is not found")
 
-        invoice.customerId = customerId
-        invoice.title = title
-        invoice.dateIssued = dateIssued
-        invoice.dateSent = dateSent
-        invoice.datePaid = datePaid
-        invoice.dueDate = dueDate
-        invoice.currency = currency
-        invoice.amount = amount
-        invoice.notes = notes
-        invoice.attachments = mapAttachments(attachments)
-        invoice.generalTaxId = generalTaxId
-
-        return invoicesService.saveInvoice(invoice, workspaceId).toInvoiceGqlDto(workspaceId)
+        return invoicesService.saveInvoice(
+            invoice.copy(
+                customerId = customerId,
+                title = title,
+                dateIssued = dateIssued,
+                dateSent = dateSent,
+                datePaid = datePaid,
+                dueDate = dueDate,
+                currency = currency,
+                amount = amount,
+                notes = notes,
+                attachments = mapAttachments(attachments),
+                generalTaxId = generalTaxId,
+            ),
+            workspaceId,
+        ).toInvoiceGqlDto(workspaceId)
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<InvoiceAttachment> =

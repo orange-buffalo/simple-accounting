@@ -5,52 +5,53 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import org.springframework.data.relational.core.mapping.Embedded
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
 import java.time.LocalDate
 
 @Table
-class Expense(
-    var categoryId: String?,
-    var workspaceId: String,
-    var title: String,
-    var datePaid: LocalDate,
+data class Expense(
+    val categoryId: String?,
+    val workspaceId: String,
+    val title: String,
+    val datePaid: LocalDate,
 
     /**
      * Original currency of this receipt/invoice/etc.
      */
-    var currency: String,
+    val currency: String,
 
     /**
      * Amount in original currency as stated in the receipt/invoice/etc.
      */
-    var originalAmount: Long,
+    val originalAmount: Long,
 
     /**
      * Converted amounts in default currency (i.e. from bank transaction in domestic currency).
      */
     @field:Embedded.Empty(prefix = "CONVERTED_")
-    var convertedAmounts: AmountsInDefaultCurrency,
+    val convertedAmounts: AmountsInDefaultCurrency,
 
     /**
      * Indicates if [incomeTaxableAmounts] are using different exchange rate than [convertedAmounts]
      * (i.e. by using Tax Office exchange rate).
      */
-    var useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
 
     /**
      * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes]
      * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different.
      */
     @field:Embedded.Empty(prefix = "INCOME_TAXABLE_")
-    var incomeTaxableAmounts: AmountsInDefaultCurrency,
+    val incomeTaxableAmounts: AmountsInDefaultCurrency,
 
     @field:MappedCollection(idColumn = "EXPENSE_ID")
-    var attachments: Set<ExpenseAttachment> = setOf(),
+    val attachments: Set<ExpenseAttachment> = setOf(),
 
-    var percentOnBusiness: Int,
+    val percentOnBusiness: Int,
 
-    var generalTaxId: String?,
+    val generalTaxId: String?,
 
-    var generalTaxRateInBps: Int? = null,
+    val generalTaxRateInBps: Int? = null,
 
     /**
      * Amount that is a part of original amount (after conversion to the default currency,
@@ -58,11 +59,14 @@ class Expense(
      * This amount is deducted from the `originalAmountInDefaultCurrency` when
      * `adjustedAmountInDefaultCurrency` is calculated.
      */
-    var generalTaxAmount: Long? = null,
+    val generalTaxAmount: Long? = null,
 
-    var notes: String? = null,
+    val notes: String? = null,
 
-    var status: ExpenseStatus
+    val status: ExpenseStatus,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 
 ) : AbstractEntity()
 

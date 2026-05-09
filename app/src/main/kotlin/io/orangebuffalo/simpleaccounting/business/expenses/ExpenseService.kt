@@ -32,35 +32,45 @@ class ExpenseService(
         val workspace = workspacesService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateCategoryAndAttachments(expense, workspace.id!!)
 
-        val defaultCurrency = workspace.defaultCurrency
-        if (defaultCurrency == expense.currency) {
-            expense.convertedAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
-            expense.incomeTaxableAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
-            expense.useDifferentExchangeRateForIncomeTaxPurposes = false
-        }
-
-        if (!expense.useDifferentExchangeRateForIncomeTaxPurposes) {
-            expense.incomeTaxableAmounts = expense.convertedAmounts
-        }
+        val isDefaultCurrency = workspace.defaultCurrency == expense.currency
+        val convertedAmounts = if (isDefaultCurrency) {
+            AmountsInDefaultCurrency(expense.originalAmount, null)
+        } else expense.convertedAmounts
+        val useDifferentExchangeRateForIncomeTaxPurposes =
+            !isDefaultCurrency && expense.useDifferentExchangeRateForIncomeTaxPurposes
+        val incomeTaxableAmounts = if (useDifferentExchangeRateForIncomeTaxPurposes) {
+            expense.incomeTaxableAmounts
+        } else convertedAmounts
 
         val generalTax = getGeneralTax(expense)
-        expense.generalTaxRateInBps = generalTax?.rateInBps
+        val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, convertedAmounts, generalTax)
+        val adjustedConvertedAmounts = convertedAmounts.copy(
+            adjustedAmountInDefaultCurrency = convertedAdjustedAmounts.adjustedAmount
+        )
 
-        val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, expense.convertedAmounts, generalTax)
-        expense.convertedAmounts.adjustedAmountInDefaultCurrency = convertedAdjustedAmounts.adjustedAmount
-
-        val incomeTaxableAdjustedAmounts = calculateAdjustedAmounts(expense, expense.incomeTaxableAmounts, generalTax)
-        expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency = incomeTaxableAdjustedAmounts.adjustedAmount
-        expense.generalTaxAmount = incomeTaxableAdjustedAmounts.generalTaxAmount
-
-        expense.status = when {
-            expense.convertedAmounts.adjustedAmountInDefaultCurrency == null -> ExpenseStatus.PENDING_CONVERSION
-            expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency == null ->
+        val incomeTaxableAdjustedAmounts = calculateAdjustedAmounts(expense, incomeTaxableAmounts, generalTax)
+        val adjustedIncomeTaxableAmounts = incomeTaxableAmounts.copy(
+            adjustedAmountInDefaultCurrency = incomeTaxableAdjustedAmounts.adjustedAmount
+        )
+        val status = when {
+            adjustedConvertedAmounts.adjustedAmountInDefaultCurrency == null -> ExpenseStatus.PENDING_CONVERSION
+            adjustedIncomeTaxableAmounts.adjustedAmountInDefaultCurrency == null ->
                 ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
             else -> ExpenseStatus.FINALIZED
         }
 
-        return withDbContext { expensesRepository.save(expense) }
+        return withDbContext {
+            expensesRepository.save(
+                expense.copy(
+                    convertedAmounts = adjustedConvertedAmounts,
+                    incomeTaxableAmounts = adjustedIncomeTaxableAmounts,
+                    useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+                    generalTaxRateInBps = generalTax?.rateInBps,
+                    generalTaxAmount = incomeTaxableAdjustedAmounts.generalTaxAmount,
+                    status = status,
+                )
+            )
+        }
     }
 
     private suspend fun getGeneralTax(expense: Expense): GeneralTax? =

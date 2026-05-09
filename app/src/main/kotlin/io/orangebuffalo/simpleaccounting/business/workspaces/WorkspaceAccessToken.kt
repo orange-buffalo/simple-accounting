@@ -5,10 +5,13 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
 @Table
-class WorkspaceAccessToken(
-    var workspaceId: String,
+data class WorkspaceAccessToken(
+    val workspaceId: String,
     val timeCreated: Instant,
     val validTill: Instant,
     val revoked: Boolean,
-    val token: String
+    val token: String,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 ) : AbstractEntity()

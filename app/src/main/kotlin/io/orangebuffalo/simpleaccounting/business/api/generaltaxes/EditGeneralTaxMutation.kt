@@ -41,10 +41,12 @@ class EditGeneralTaxMutation(
         val tax = generalTaxesService.getTaxByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("GeneralTax $id is not found")
 
-        tax.title = title
-        tax.description = description
-        tax.rateInBps = rateInBps
-
-        return generalTaxesService.saveTax(tax).toGeneralTaxGqlDto()
+        return generalTaxesService.saveTax(
+            tax.copy(
+                title = title,
+                description = description,
+                rateInBps = rateInBps,
+            )
+        ).toGeneralTaxGqlDto()
     }
 }

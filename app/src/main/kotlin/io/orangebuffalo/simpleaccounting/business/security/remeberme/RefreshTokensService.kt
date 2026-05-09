@@ -62,8 +62,11 @@ class RefreshTokensService(
         withDbContext {
             val refreshToken = refreshTokensRepository.findByToken(refreshTokenString)
                 ?: throw IllegalArgumentException("Bad token $refreshTokenString")
-            refreshToken.expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
-            refreshTokensRepository.save(refreshToken)
+            refreshTokensRepository.save(
+                refreshToken.copy(
+                    expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
+                )
+            )
             refreshToken.token
         }
 }

@@ -34,7 +34,6 @@ class EditUserMutation(
         userName: String,
     ): PlatformUserGqlDto {
         val user = platformUsersService.getUserByUserId(id)
-        user.userName = userName
-        return platformUsersService.updateUser(user).toPlatformUserGqlDto()
+        return platformUsersService.updateUser(user.copy(userName = userName)).toPlatformUserGqlDto()
     }
 }

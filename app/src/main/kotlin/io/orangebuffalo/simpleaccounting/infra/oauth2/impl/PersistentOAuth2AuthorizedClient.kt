@@ -7,18 +7,21 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
 @Table("PERSISTENT_OAUTH2_AUTHORIZED_CLIENT")
-class PersistentOAuth2AuthorizedClient(
+data class PersistentOAuth2AuthorizedClient(
     val clientRegistrationId: String,
     val userName: String,
-    var accessToken: String,
-    var accessTokenIssuedAt: Instant?,
-    var accessTokenExpiresAt: Instant?,
+    val accessToken: String,
+    val accessTokenIssuedAt: Instant?,
+    val accessTokenExpiresAt: Instant?,
 
     @field:MappedCollection(idColumn = "CLIENT_ID")
-    var accessTokenScopes: Set<ClientTokenScope>,
+    val accessTokenScopes: Set<ClientTokenScope>,
 
-    var refreshToken: String?,
-    var refreshTokenIssuedAt: Instant?
+    val refreshToken: String?,
+    val refreshTokenIssuedAt: Instant?,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 
 ) : AbstractEntity()
 

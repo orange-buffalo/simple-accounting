@@ -7,21 +7,24 @@ import java.time.Instant
 import java.time.LocalDate
 
 @Table
-class Invoice(
-    var customerId: String,
-    var title: String,
-    var dateIssued: LocalDate,
-    var dateSent: LocalDate? = null,
-    var datePaid: LocalDate? = null,
-    var timeCancelled: Instant? = null,
-    var dueDate: LocalDate,
-    var currency: String,
-    var amount: Long,
+data class Invoice(
+    val customerId: String,
+    val title: String,
+    val dateIssued: LocalDate,
+    val dateSent: LocalDate? = null,
+    val datePaid: LocalDate? = null,
+    val timeCancelled: Instant? = null,
+    val dueDate: LocalDate,
+    val currency: String,
+    val amount: Long,
     @field:MappedCollection(idColumn = "INVOICE_ID")
-    var attachments: Set<InvoiceAttachment> = setOf(),
-    var notes: String? = null,
-    var generalTaxId: String? = null,
-    var status: InvoiceStatus = InvoiceStatus.DRAFT
+    val attachments: Set<InvoiceAttachment> = setOf(),
+    val notes: String? = null,
+    val generalTaxId: String? = null,
+    val status: InvoiceStatus = InvoiceStatus.DRAFT,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 
 ) : AbstractEntity()
 

@@ -120,15 +120,11 @@ class GoogleDriveDocumentsStorage(
                     ?: GoogleDriveStorageIntegration(userId = user.id!!)
             }
 
-            val rootFolder = ensureRootFolder(integration)
-
-            withDbContext {
-                repository.save(integration)
-            }
+            val (rootFolder, savedIntegration) = ensureRootFolder(integration)
 
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                userId = integration.userId,
+                userId = savedIntegration.userId,
                 data = GoogleDriveStorageIntegrationStatus(
                     folderId = rootFolder.id,
                     folderName = rootFolder.name,
@@ -150,7 +146,9 @@ class GoogleDriveDocumentsStorage(
             )
         }
 
-    private suspend fun ensureRootFolder(integration: GoogleDriveStorageIntegration): FolderResponse {
+    private suspend fun ensureRootFolder(
+        integration: GoogleDriveStorageIntegration
+    ): Pair<FolderResponse, GoogleDriveStorageIntegration> {
         log.debug { "Ensuring root folder for Google Drive integration $integration" }
 
         val rootFolder = try {
@@ -159,12 +157,12 @@ class GoogleDriveDocumentsStorage(
             log.debug { "Root folder not found: ${e.message}" }
             null
         }
-        return rootFolder ?: googleDriveApi
+        return rootFolder?.let { it to integration } ?: googleDriveApi
             .createFolder(folderName = "simple-accounting", parentFolderId = null)
-            .also { driveFolder ->
-                integration.folderId = driveFolder.id
-                repository.save(integration)
-                log.debug { "Root folder created $driveFolder and saved to integration $integration" }
+            .let { driveFolder ->
+                val savedIntegration = repository.save(integration.copy(folderId = driveFolder.id))
+                log.debug { "Root folder created $driveFolder and saved to integration $savedIntegration" }
+                driveFolder to savedIntegration
             }
     }
 
@@ -184,7 +182,7 @@ class GoogleDriveDocumentsStorage(
         )
 
         val rootFolder = try {
-            ensureRootFolder(integration)
+            ensureRootFolder(integration).first
         } catch (_: StorageAuthorizationRequiredException) {
             log.debug { "Authorization required for Google Drive integration" }
             return integrationStatus.copy(

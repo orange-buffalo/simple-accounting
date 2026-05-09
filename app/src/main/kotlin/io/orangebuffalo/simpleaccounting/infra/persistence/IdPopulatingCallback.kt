@@ -10,12 +10,12 @@ private const val ENTITY_ID_LENGTH = 10
 @Component
 class IdPopulatingCallback(
     private val tokenGenerator: TokenGenerator,
+    private val entityPropertyUpdater: EntityPropertyUpdater,
 ) : BeforeConvertCallback<AbstractEntity> {
 
     override fun onBeforeConvert(entity: AbstractEntity): AbstractEntity {
-        if (entity.id == null) {
-            entity.id = tokenGenerator.generateToken(ENTITY_ID_LENGTH)
-        }
-        return entity
+        return if (entity.id == null) {
+            entityPropertyUpdater.update(entity, AbstractEntity::id.name, tokenGenerator.generateToken(ENTITY_ID_LENGTH))
+        } else entity
     }
 }

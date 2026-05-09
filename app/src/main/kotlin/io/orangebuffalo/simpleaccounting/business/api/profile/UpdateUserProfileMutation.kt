@@ -31,10 +31,15 @@ class UpdateUserProfileMutation(
         language: String,
     ): UserProfile {
         val user = platformUsersService.getCurrentUser()
-        user.documentsStorage = documentsStorage
-        user.i18nSettings.language = language
-        user.i18nSettings.locale = locale
-        val savedUser = platformUsersService.save(user)
+        val savedUser = platformUsersService.save(
+            user.copy(
+                documentsStorage = documentsStorage,
+                i18nSettings = user.i18nSettings.copy(
+                    locale = locale,
+                    language = language,
+                )
+            )
+        )
         return UserProfile(
             userName = savedUser.userName,
             documentsStorage = savedUser.documentsStorage,

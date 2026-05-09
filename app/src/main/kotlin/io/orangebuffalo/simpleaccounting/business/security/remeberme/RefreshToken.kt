@@ -5,8 +5,11 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
 @Table
-class RefreshToken(
+data class RefreshToken(
     val userId: String,
     val token: String,
-    var expirationTime: Instant
+    val expirationTime: Instant,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 ) : AbstractEntity()
