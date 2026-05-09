@@ -6,12 +6,12 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
 @Table
-class PlatformUser(
-    var userName: String,
-    var passwordHash: String,
-    var isAdmin: Boolean,
-    var activated: Boolean,
-    var documentsStorage: String? = null,
+data class PlatformUser(
+    val userName: String,
+    val passwordHash: String,
+    val isAdmin: Boolean,
+    val activated: Boolean,
+    val documentsStorage: String? = null,
 
     @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
     val loginStatistics: LoginStatistics = LoginStatistics(0, null),
@@ -20,21 +20,18 @@ class PlatformUser(
     val i18nSettings: I18nSettings = I18nSettings(
         locale = "en_AU",
         language = "en"
-    )
+    ),
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 ) : AbstractEntity()
 
 data class LoginStatistics(
-    var failedAttemptsCount: Int,
-    var temporaryLockExpirationTime: Instant?
-) {
-
-    fun reset() {
-        failedAttemptsCount = 0
-        temporaryLockExpirationTime = null
-    }
-}
+    val failedAttemptsCount: Int,
+    val temporaryLockExpirationTime: Instant?
+)
 
 data class I18nSettings(
-    var locale: String,
-    var language: String
+    val locale: String,
+    val language: String
 )

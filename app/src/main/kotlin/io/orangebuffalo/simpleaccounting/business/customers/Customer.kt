@@ -2,9 +2,13 @@ package io.orangebuffalo.simpleaccounting.business.customers
 
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
 
 @Table
-class Customer(
-    var name: String,
-    val workspaceId: String
+data class Customer(
+    val name: String,
+    val workspaceId: String,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 ) : AbstractEntity()

@@ -5,58 +5,62 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import org.springframework.data.relational.core.mapping.Embedded
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
 import java.time.LocalDate
 
 @Table
-class Income(
-    var categoryId: String?,
-    var workspaceId: String,
-    var title: String,
-    var dateReceived: LocalDate,
+data class Income(
+    val categoryId: String?,
+    val workspaceId: String,
+    val title: String,
+    val dateReceived: LocalDate,
 
     /**
      * Original currency of this income.
      */
-    var currency: String,
+    val currency: String,
 
     /**
      * Amount in original currency.
      */
-    var originalAmount: Long,
+    val originalAmount: Long,
 
     /**
      * Converted amounts in default currency (i.e. from bank transaction in domestic currency).
      */
     @field:Embedded.Empty(prefix = "CONVERTED_")
-    var convertedAmounts: AmountsInDefaultCurrency,
+    val convertedAmounts: AmountsInDefaultCurrency,
 
     /**
      * Indicates if [incomeTaxableAmounts] are using different exchange rate than [convertedAmounts]
      * (i.e. by using Tax Office exchange rate).
      */
-    var useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
 
     /**
      * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes]
      * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different.
      */
     @field:Embedded.Empty(prefix = "INCOME_TAXABLE_")
-    var incomeTaxableAmounts: AmountsInDefaultCurrency,
+    val incomeTaxableAmounts: AmountsInDefaultCurrency,
 
     @field:MappedCollection(idColumn = "INCOME_ID")
-    var attachments: Set<IncomeAttachment> = setOf(),
+    val attachments: Set<IncomeAttachment> = setOf(),
 
-    var notes: String? = null,
+    val notes: String? = null,
 
-    var generalTaxId: String?,
+    val generalTaxId: String?,
 
-    var generalTaxRateInBps: Int? = null,
+    val generalTaxRateInBps: Int? = null,
 
-    var generalTaxAmount: Long? = null,
+    val generalTaxAmount: Long? = null,
 
-    var status: IncomeStatus,
+    val status: IncomeStatus,
 
-    var linkedInvoiceId: String? = null
+    val linkedInvoiceId: String? = null,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 
 ) : AbstractEntity()
 

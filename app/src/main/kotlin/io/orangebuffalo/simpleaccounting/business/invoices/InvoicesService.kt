@@ -46,10 +46,7 @@ class InvoicesService(
         logger.info { "Started moving invoices to overdue" }
         runBlocking {
             val overdueInvoices = withDbContext { invoicesRepository.findAllOverdue() }
-            overdueInvoices.forEach { invoice ->
-                invoice.status = InvoiceStatus.OVERDUE
-            }
-            withDbContext { invoicesRepository.saveAll(overdueInvoices) }
+            withDbContext { invoicesRepository.saveAll(overdueInvoices.map { it.copy(status = InvoiceStatus.OVERDUE) }) }
         }
         logger.info { "All eligible invoices moved to overdue state" }
     }
@@ -59,8 +56,7 @@ class InvoicesService(
      */
     suspend fun saveInvoice(invoice: Invoice, workspaceId: String): Invoice {
         validateInvoice(invoice, workspaceId)
-        updateInvoiceStatus(invoice)
-        return withDbContext { invoicesRepository.save(invoice) }
+        return withDbContext { invoicesRepository.save(updateInvoiceStatus(invoice)) }
     }
 
     suspend fun cancelInvoice(invoiceId: String, workspaceId: String): Invoice {
@@ -79,23 +75,26 @@ class InvoicesService(
             throw EntityNotFoundException("Invoice $invoiceId is not found")
         }
 
-        invoice.status = InvoiceStatus.CANCELLED
-        invoice.timeCancelled = timeService.currentTime()
-        return withDbContext { invoicesRepository.save(invoice) }
+        return withDbContext {
+            invoicesRepository.save(
+                invoice.copy(
+                    status = InvoiceStatus.CANCELLED,
+                    timeCancelled = timeService.currentTime(),
+                )
+            )
+        }
     }
 
-    private fun updateInvoiceStatus(invoice: Invoice) {
-        if (invoice.status != InvoiceStatus.CANCELLED) {
-            if (invoice.datePaid != null) {
-                invoice.status = InvoiceStatus.PAID
-            } else if (invoice.dateSent != null && isOverdue(invoice)) {
-                invoice.status = InvoiceStatus.OVERDUE
-            } else if (invoice.dateSent != null) {
-                invoice.status = InvoiceStatus.SENT
-            } else {
-                invoice.status = InvoiceStatus.DRAFT
-            }
-        }
+    private fun updateInvoiceStatus(invoice: Invoice): Invoice = if (invoice.status == InvoiceStatus.CANCELLED) {
+        invoice
+    } else if (invoice.datePaid != null) {
+        invoice.copy(status = InvoiceStatus.PAID)
+    } else if (invoice.dateSent != null && isOverdue(invoice)) {
+        invoice.copy(status = InvoiceStatus.OVERDUE)
+    } else if (invoice.dateSent != null) {
+        invoice.copy(status = InvoiceStatus.SENT)
+    } else {
+        invoice.copy(status = InvoiceStatus.DRAFT)
     }
 
     private fun isOverdue(invoice: Invoice) = invoice.dueDate.isBefore(timeService.currentDate())

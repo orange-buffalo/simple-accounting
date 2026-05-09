@@ -31,35 +31,45 @@ class IncomesService(
         validateCategoryAndAttachments(income)
         updateInvoiceIfLinked(income)
 
-        val defaultCurrency = workspace.defaultCurrency
-        if (defaultCurrency == income.currency) {
-            income.convertedAmounts = AmountsInDefaultCurrency(income.originalAmount, null)
-            income.incomeTaxableAmounts = AmountsInDefaultCurrency(income.originalAmount, null)
-            income.useDifferentExchangeRateForIncomeTaxPurposes = false
-        }
-
-        if (!income.useDifferentExchangeRateForIncomeTaxPurposes) {
-            income.incomeTaxableAmounts = income.convertedAmounts
-        }
+        val isDefaultCurrency = workspace.defaultCurrency == income.currency
+        val convertedAmounts = if (isDefaultCurrency) {
+            AmountsInDefaultCurrency(income.originalAmount, null)
+        } else income.convertedAmounts
+        val useDifferentExchangeRateForIncomeTaxPurposes =
+            !isDefaultCurrency && income.useDifferentExchangeRateForIncomeTaxPurposes
+        val incomeTaxableAmounts = if (useDifferentExchangeRateForIncomeTaxPurposes) {
+            income.incomeTaxableAmounts
+        } else convertedAmounts
 
         val generalTax = getGeneralTax(income)
-        income.generalTaxRateInBps = generalTax?.rateInBps
+        val convertedAdjustedAmounts = calculateAdjustedAmount(convertedAmounts, generalTax)
+        val adjustedConvertedAmounts = convertedAmounts.copy(
+            adjustedAmountInDefaultCurrency = convertedAdjustedAmounts.adjustedAmount
+        )
 
-        val convertedAdjustedAmounts = calculateAdjustedAmount(income.convertedAmounts, generalTax)
-        income.convertedAmounts.adjustedAmountInDefaultCurrency = convertedAdjustedAmounts.adjustedAmount
-
-        val incomeTaxableAdjustedAmounts = calculateAdjustedAmount(income.incomeTaxableAmounts, generalTax)
-        income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency = incomeTaxableAdjustedAmounts.adjustedAmount
-        income.generalTaxAmount = incomeTaxableAdjustedAmounts.generalTaxAmount
-
-        income.status = when {
-            income.convertedAmounts.adjustedAmountInDefaultCurrency == null -> IncomeStatus.PENDING_CONVERSION
-            income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency == null ->
+        val incomeTaxableAdjustedAmounts = calculateAdjustedAmount(incomeTaxableAmounts, generalTax)
+        val adjustedIncomeTaxableAmounts = incomeTaxableAmounts.copy(
+            adjustedAmountInDefaultCurrency = incomeTaxableAdjustedAmounts.adjustedAmount
+        )
+        val status = when {
+            adjustedConvertedAmounts.adjustedAmountInDefaultCurrency == null -> IncomeStatus.PENDING_CONVERSION
+            adjustedIncomeTaxableAmounts.adjustedAmountInDefaultCurrency == null ->
                 IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
             else -> IncomeStatus.FINALIZED
         }
 
-        return withDbContext { incomeRepository.save(income) }
+        return withDbContext {
+            incomeRepository.save(
+                income.copy(
+                    convertedAmounts = adjustedConvertedAmounts,
+                    incomeTaxableAmounts = adjustedIncomeTaxableAmounts,
+                    useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+                    generalTaxRateInBps = generalTax?.rateInBps,
+                    generalTaxAmount = incomeTaxableAdjustedAmounts.generalTaxAmount,
+                    status = status,
+                )
+            )
+        }
     }
 
     private suspend fun updateInvoiceIfLinked(income: Income) {
@@ -68,8 +78,7 @@ class IncomesService(
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = income.workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
-        invoice.datePaid = income.dateReceived
-        invoicesService.saveInvoice(invoice, income.workspaceId)
+        invoicesService.saveInvoice(invoice.copy(datePaid = income.dateReceived), income.workspaceId)
     }
 
     private suspend fun getGeneralTax(income: Income): GeneralTax? =

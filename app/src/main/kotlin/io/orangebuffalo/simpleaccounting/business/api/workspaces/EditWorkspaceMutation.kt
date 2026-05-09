@@ -28,7 +28,6 @@ class EditWorkspaceMutation(
         name: String,
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.ADMIN)
-        workspace.name = name
-        return workspacesService.save(workspace).toWorkspaceGqlDto()
+        return workspacesService.save(workspace.copy(name = name)).toWorkspaceGqlDto()
     }
 }

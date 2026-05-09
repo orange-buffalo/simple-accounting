@@ -47,14 +47,16 @@ class EditIncomeTaxPaymentMutation(
         val payment = incomeTaxPaymentService.getTaxPaymentByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
 
-        payment.title = title
-        payment.datePaid = datePaid
-        payment.reportingDate = reportingDate ?: datePaid
-        payment.amount = amount
-        payment.notes = notes
-        payment.attachments = mapAttachments(attachments)
-
-        return incomeTaxPaymentService.saveTaxPayment(payment).toIncomeTaxPaymentGqlDto()
+        return incomeTaxPaymentService.saveTaxPayment(
+            payment.copy(
+                title = title,
+                datePaid = datePaid,
+                reportingDate = reportingDate ?: datePaid,
+                amount = amount,
+                notes = notes,
+                attachments = mapAttachments(attachments),
+            )
+        ).toIncomeTaxPaymentGqlDto()
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeTaxPaymentAttachment> =

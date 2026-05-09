@@ -177,11 +177,12 @@ class PlatformUsersService(
                 .orElseThrow { IllegalStateException("User ${userActivationToken.userId} is not found") }
         }
 
-        authenticationService.getObject().setUserPassword(user, password)
-        user.activated = true
+        val activatedUser = authenticationService.getObject()
+            .setUserPassword(user, password)
+            .copy(activated = true)
 
         withDbContext {
-            userRepository.save(user)
+            userRepository.save(activatedUser)
             userActivationTokensRepository.delete(userActivationToken)
         }
     }

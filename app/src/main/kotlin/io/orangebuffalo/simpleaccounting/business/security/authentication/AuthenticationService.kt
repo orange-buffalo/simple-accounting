@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
+import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -52,8 +53,9 @@ class AuthenticationService(
     }
 
     private suspend fun resetLoginStatistics(user: PlatformUser) {
-        user.loginStatistics.reset()
-        platformUsersService.save(user)
+        platformUsersService.save(
+            user.copy(loginStatistics = LoginStatistics(failedAttemptsCount = 0, temporaryLockExpirationTime = null))
+        )
     }
 
     private suspend fun validatePassword(
@@ -70,19 +72,26 @@ class AuthenticationService(
         passwordEncoder.matches(credentials, user.passwordHash)
 
     private suspend fun updateLoginStatisticsOnBadCredentials(user: PlatformUser) {
-        val loginStatistics = user.loginStatistics
-        loginStatistics.failedAttemptsCount++
-        if (loginStatistics.failedAttemptsCount > MAX_FAILED_ATTEMPTS_BEFORE_LOCKING) {
-            val numberOfLockingAttempts = loginStatistics.failedAttemptsCount - MAX_FAILED_ATTEMPTS_BEFORE_LOCKING
+        val failedAttemptsCount = user.loginStatistics.failedAttemptsCount + 1
+        if (failedAttemptsCount > MAX_FAILED_ATTEMPTS_BEFORE_LOCKING) {
+            val numberOfLockingAttempts = failedAttemptsCount - MAX_FAILED_ATTEMPTS_BEFORE_LOCKING
             val lockPeriodInMs = INITIAL_LOCK_PERIOD_MS.toBigDecimal()
                 .multiply(LOCKING_TIME_PROGRESSION_RATIO.pow(numberOfLockingAttempts - 1))
                 .min(MAX_LOCK_PERIOD_MS)
                 .toLong()
-            loginStatistics.temporaryLockExpirationTime = timeService.currentTime().plusMillis(lockPeriodInMs)
-            platformUsersService.save(user)
+            platformUsersService.save(
+                user.copy(
+                    loginStatistics = user.loginStatistics.copy(
+                        failedAttemptsCount = failedAttemptsCount,
+                        temporaryLockExpirationTime = timeService.currentTime().plusMillis(lockPeriodInMs),
+                    )
+                )
+            )
             throw AccountIsTemporaryLockedException(lockPeriodInMs / 1000)
         }
-        platformUsersService.save(user)
+        platformUsersService.save(
+            user.copy(loginStatistics = user.loginStatistics.copy(failedAttemptsCount = failedAttemptsCount))
+        )
     }
 
     suspend fun changeCurrentUserPassword(currentPassword: String, newPassword: String) {
@@ -96,13 +105,11 @@ class AuthenticationService(
         if (!checkCredentials(user, currentPassword)) {
             throw PasswordChangeException.InvalidCurrentPasswordException()
         }
-        setUserPassword(user, newPassword)
-        platformUsersService.save(user)
+        platformUsersService.save(setUserPassword(user, newPassword))
     }
 
-    fun setUserPassword(user: PlatformUser, password: String) {
-        user.passwordHash = passwordEncoder.encode(password)
-    }
+    fun setUserPassword(user: PlatformUser, password: String): PlatformUser =
+        user.copy(passwordHash = passwordEncoder.encode(password))
 }
 
 sealed class PasswordChangeException(message: String) : RuntimeException(message) {

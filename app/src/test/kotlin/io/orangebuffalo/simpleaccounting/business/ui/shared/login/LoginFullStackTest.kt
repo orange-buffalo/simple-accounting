@@ -258,11 +258,26 @@ class LoginFullStackTest : SaFullStackTestBase() {
         fry.loginStatistics.spec()
     }
 
-    private fun setupFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
+    private fun setupFryLoginStatistics(spec: MutableLoginStatistics.() -> Unit) {
         val fry = aggregateTemplate.findById<PlatformUser>(preconditions.fry.id!!)!!
-        fry.loginStatistics.spec()
-        aggregateTemplate.save(fry)
+        val loginStatistics = MutableLoginStatistics(
+            failedAttemptsCount = fry.loginStatistics.failedAttemptsCount,
+            temporaryLockExpirationTime = fry.loginStatistics.temporaryLockExpirationTime,
+        ).apply(spec)
+        aggregateTemplate.save(
+            fry.copy(
+                loginStatistics = LoginStatistics(
+                    failedAttemptsCount = loginStatistics.failedAttemptsCount,
+                    temporaryLockExpirationTime = loginStatistics.temporaryLockExpirationTime,
+                )
+            )
+        )
     }
+
+    private data class MutableLoginStatistics(
+        var failedAttemptsCount: Int,
+        var temporaryLockExpirationTime: Instant?,
+    )
 
     private val preconditions by lazyPreconditions {
         object {

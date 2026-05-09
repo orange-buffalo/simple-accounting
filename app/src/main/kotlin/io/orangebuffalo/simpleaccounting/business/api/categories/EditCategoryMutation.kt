@@ -39,11 +39,13 @@ class EditCategoryMutation(
         val category = categoriesService.getCategoryByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Category $id is not found")
 
-        category.name = name
-        category.description = description
-        category.income = income
-        category.expense = expense
-
-        return categoriesService.saveCategory(category).toCategoryGqlDto()
+        return categoriesService.saveCategory(
+            category.copy(
+                name = name,
+                description = description,
+                income = income,
+                expense = expense,
+            )
+        ).toCategoryGqlDto()
     }
 }

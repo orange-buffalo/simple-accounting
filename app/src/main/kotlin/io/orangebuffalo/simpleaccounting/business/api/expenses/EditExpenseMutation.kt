@@ -63,26 +63,28 @@ class EditExpenseMutation(
         val expense = expenseService.getExpenseByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Expense $id is not found")
 
-        expense.categoryId = categoryId
-        expense.title = title
-        expense.datePaid = datePaid
-        expense.currency = currency
-        expense.originalAmount = originalAmount
-        expense.convertedAmounts = AmountsInDefaultCurrency(
-            originalAmountInDefaultCurrency = convertedAmountInDefaultCurrency,
-            adjustedAmountInDefaultCurrency = null,
-        )
-        expense.incomeTaxableAmounts = AmountsInDefaultCurrency(
-            originalAmountInDefaultCurrency = incomeTaxableAmountInDefaultCurrency,
-            adjustedAmountInDefaultCurrency = null,
-        )
-        expense.useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes
-        expense.notes = notes
-        expense.percentOnBusiness = percentOnBusiness ?: 100
-        expense.attachments = mapAttachments(attachments)
-        expense.generalTaxId = generalTaxId
-
-        return expenseService.saveExpense(expense).toExpenseGqlDto()
+        return expenseService.saveExpense(
+            expense.copy(
+                categoryId = categoryId,
+                title = title,
+                datePaid = datePaid,
+                currency = currency,
+                originalAmount = originalAmount,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = convertedAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null,
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = incomeTaxableAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null,
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+                notes = notes,
+                percentOnBusiness = percentOnBusiness ?: 100,
+                attachments = mapAttachments(attachments),
+                generalTaxId = generalTaxId,
+            )
+        ).toExpenseGqlDto()
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<ExpenseAttachment> =

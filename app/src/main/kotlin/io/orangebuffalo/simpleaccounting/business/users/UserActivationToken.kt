@@ -11,7 +11,7 @@ import java.time.Instant
  * The user then uses the token to activate the account and set the password.
  */
 @Table
-class UserActivationToken(
+data class UserActivationToken(
     /**
      * User this token is intended for. It is not possible to activate a user account with a token that is not
      * intended for this user.
@@ -26,5 +26,8 @@ class UserActivationToken(
     /**
      * The time when the token expires. After this time, the token is no longer valid.
      */
-    val expiresAt: Instant
+    val expiresAt: Instant,
+    override val id: String? = null,
+    override val version: Int? = null,
+    override val createdAt: Instant? = null,
 ) : AbstractEntity()

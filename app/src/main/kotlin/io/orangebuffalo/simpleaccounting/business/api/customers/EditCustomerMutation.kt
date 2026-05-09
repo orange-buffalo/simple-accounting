@@ -32,8 +32,6 @@ class EditCustomerMutation(
         val customer = customersService.getCustomerByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Customer $id is not found")
 
-        customer.name = name
-
-        return customersService.saveCustomer(customer).toCustomerGqlDto()
+        return customersService.saveCustomer(customer.copy(name = name)).toCustomerGqlDto()
     }
 }

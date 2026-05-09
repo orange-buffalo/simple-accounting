@@ -57,8 +57,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         isAdmin = isAdmin,
         documentsStorage = documentsStorage,
         i18nSettings = i18nSettings,
-        activated = activated
-    ).also { it.createdAt = createdAt }.save()
+        activated = activated,
+        createdAt = createdAt,
+    ).save()
 
     fun userActivationToken(
         user: PlatformUser? = null,
@@ -131,8 +132,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         return Workspace(
             name = name,
             ownerId = ownerId!!,
-            defaultCurrency = defaultCurrency
-        ).also { it.createdAt = createdAt }.save()
+            defaultCurrency = defaultCurrency,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun workspaceAccessToken(
@@ -149,8 +151,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             timeCreated = timeCreated,
             validTill = validTill,
             revoked = revoked,
-            token = token
-        ).also { it.createdAt = createdAt }.save()
+            token = token,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun document(
@@ -171,8 +174,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             storageLocation = storageLocation,
             timeUploaded = timeUploaded,
             sizeInBytes = sizeInBytes,
-            mimeType = mimeType
-        ).also { it.createdAt = createdAt }.save()
+            mimeType = mimeType,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun category(
@@ -189,8 +193,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             workspaceId = workspaceId!!,
             income = income,
             expense = expense,
-            description = description
-        ).also { it.createdAt = createdAt }.save()
+            description = description,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun generalTax(
@@ -205,8 +210,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             title = title,
             workspaceId = workspaceId!!,
             rateInBps = rateInBps,
-            description = description
-        ).also { it.createdAt = createdAt }.save()
+            description = description,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun expense(
@@ -245,8 +251,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             generalTaxAmount = generalTaxAmount,
             generalTaxRateInBps = generalTaxRateInBps,
             notes = notes,
-            status = status
-        ).also { it.createdAt = createdAt }.save()
+            status = status,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun amountsInDefaultCurrency(
@@ -294,8 +301,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             dateReceived = dateReceived,
             originalAmount = originalAmount,
             title = title,
-            linkedInvoiceId = linkedInvoice?.id
-        ).also { it.createdAt = createdAt }.save()
+            linkedInvoiceId = linkedInvoice?.id,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun customer(
@@ -307,7 +315,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         return Customer(
             name = name,
             workspaceId = workspaceId!!,
-        ).also { it.createdAt = createdAt }.save()
+            createdAt = createdAt,
+        ).save()
     }
 
     fun invoice(
@@ -342,8 +351,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             }.toSet(),
             notes = notes,
             generalTaxId = generalTax?.id,
-            status = status
-        ).also { it.createdAt = createdAt }.save()
+            status = status,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun incomeTaxPayment(
@@ -364,8 +374,9 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             amount = amount,
             title = title,
             attachments = attachments.asSequence().map { IncomeTaxPaymentAttachment(it.id!!) }.toSet(),
-            notes = notes
-        ).also { it.createdAt = createdAt }.save()
+            notes = notes,
+            createdAt = createdAt,
+        ).save()
     }
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
