@@ -15,7 +15,7 @@ interface DocumentsStorage {
 
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus
 
-    suspend fun isDownloadAvailableForUser(userId: Long): Boolean
+    suspend fun isDownloadAvailableForUser(userId: String): Boolean
 }
 
 data class SaveDocumentResponse(val storageLocation: String, val sizeInBytes: Long?)

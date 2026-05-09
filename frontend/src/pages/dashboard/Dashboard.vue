@@ -80,7 +80,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getDashboardAnalyticsQuery = useLazyQuery(graphql(`
-    query getDashboardAnalytics($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
+    query getDashboardAnalytics($workspaceId: String!, $fromDate: LocalDate!, $toDate: LocalDate!) {
       workspace(id: $workspaceId) {
         analytics {
           expensesSummary(fromDate: $fromDate, toDate: $toDate) {

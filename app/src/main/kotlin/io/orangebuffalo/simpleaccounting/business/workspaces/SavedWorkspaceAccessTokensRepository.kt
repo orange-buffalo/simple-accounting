@@ -6,8 +6,8 @@ interface SavedWorkspaceAccessTokensRepository
     : AbstractEntityRepository<SavedWorkspaceAccessToken>, SavedWorkspaceAccessTokensRepositoryExt {
 
     fun findByWorkspaceAccessTokenIdAndOwnerId(
-        workspaceAccessTokenId: Long,
-        ownerId: Long
+        workspaceAccessTokenId: String,
+        ownerId: String
     ): SavedWorkspaceAccessToken?
 }
 
@@ -15,7 +15,7 @@ interface SavedWorkspaceAccessTokensRepositoryExt {
 
     fun findAllValidByOwner(owner: String): List<SavedWorkspaceAccessToken>
 
-    fun findWorkspaceByValidTokenOwnerAndId(owner: String, workspaceId: Long): Workspace?
+    fun findWorkspaceByValidTokenOwnerAndId(owner: String, workspaceId: String): Workspace?
 
     fun findWorkspacesByValidTokenOwner(owner: String): List<Workspace>
 }

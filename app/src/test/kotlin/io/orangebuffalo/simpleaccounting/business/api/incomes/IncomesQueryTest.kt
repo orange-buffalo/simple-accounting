@@ -292,7 +292,7 @@ class IncomesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.income.id!!.toInt())
+                                        put("id", testData.income.id!!)
                                         put("version", testData.income.version!!)
                                         put("title", "Planet Express delivery fee")
                                         put("dateReceived", "3025-01-15")
@@ -394,7 +394,7 @@ class IncomesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("category", buildJsonObject {
-                                            put("id", testData.category.id!!.toInt())
+                                            put("id", testData.category.id!!)
                                             put("name", "Delivery")
                                         })
                                     })
@@ -466,7 +466,7 @@ class IncomesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("generalTax", buildJsonObject {
-                                            put("id", testData.tax.id!!.toInt())
+                                            put("id", testData.tax.id!!)
                                             put("title", "VAT 10%")
                                             put("rateInBps", 1000)
                                         })
@@ -574,7 +574,7 @@ class IncomesQueryTest(
                                     put("node", buildJsonObject {
                                         putJsonArray("attachments") {
                                             add(buildJsonObject {
-                                                put("id", testData.doc.id!!.toInt())
+                                                put("id", testData.doc.id!!)
                                                 put("name", "Slurm invoice")
                                             })
                                         }
@@ -614,7 +614,7 @@ class IncomesQueryTest(
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
                                         put("linkedInvoice", buildJsonObject {
-                                            put("id", testData.invoice.id!!.toInt())
+                                            put("id", testData.invoice.id!!)
                                             put("title", "Robot oil invoice")
                                         })
                                     })
@@ -686,7 +686,7 @@ class IncomesQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("income", buildJsonObject {
-                            put("id", testData.income.id!!.toInt())
+                            put("id", testData.income.id!!)
                             put("title", "Slurm payment")
                             put("originalAmount", 5000)
                         })
@@ -704,7 +704,7 @@ class IncomesQueryTest(
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
-                    income(id = Long.MAX_VALUE) {
+                    income(id = "missing-id") {
                         id
                         title
                     }

@@ -95,7 +95,7 @@ class GoogleDriveDocumentsStorage(
         )
     }
 
-    override suspend fun isDownloadAvailableForUser(userId: Long): Boolean {
+    override suspend fun isDownloadAvailableForUser(userId: String): Boolean {
         val integration = withDbContext { repository.findByUserId(userId) } ?: return false
         if (integration.folderId == null) return false
         return try {

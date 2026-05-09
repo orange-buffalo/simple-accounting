@@ -11,5 +11,5 @@ export interface ApiPageRequest {
 }
 
 export interface HasOptionalId {
-  id?: number,
+  id?: string,
 }

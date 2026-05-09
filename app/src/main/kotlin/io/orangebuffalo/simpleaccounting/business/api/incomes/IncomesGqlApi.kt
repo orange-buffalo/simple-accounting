@@ -19,7 +19,7 @@ class IncomesGqlApi(
     private val incomeAttachments = Tables.INCOME_ATTACHMENTS
 
     suspend fun loadIncomes(
-        workspaceId: Long,
+        workspaceId: String,
         first: Int,
         after: String?,
         freeSearchText: String?,
@@ -88,7 +88,7 @@ class IncomesGqlApi(
             )
     }
 
-    suspend fun loadIncome(workspaceId: Long, incomeId: Long): IncomeGqlDto? {
+    suspend fun loadIncome(workspaceId: String, incomeId: String): IncomeGqlDto? {
         return incomesService.getIncomeByIdAndWorkspaceId(incomeId, workspaceId)
             ?.toIncomeGqlDto()
     }

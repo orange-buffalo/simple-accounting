@@ -4,4 +4,4 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 
 @NoRepositoryBean
-interface AbstractEntityRepository<T : AbstractEntity> : CrudRepository<T, Long>
+interface AbstractEntityRepository<T : AbstractEntity> : CrudRepository<T, String>

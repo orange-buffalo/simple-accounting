@@ -39,10 +39,10 @@
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
-    modelValue?: number,
+    modelValue?: string,
   }>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
+  const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
 
   type InvoiceItem = HasOptionalId & {
     title: string,
@@ -57,7 +57,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getInvoicesQuery = useLazyQuery(graphql(`
-    query getInvoicesForSelect($workspaceId: Long!, $first: Int!, $freeSearchText: String) {
+    query getInvoicesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {
       workspace(id: $workspaceId) {
         invoices(first: $first, freeSearchText: $freeSearchText) {
           edges {
@@ -76,7 +76,7 @@
   `), 'workspace');
 
   const getInvoiceQuery = useLazyQuery(graphql(`
-    query getInvoiceForSelect($workspaceId: Long!, $invoiceId: Long!) {
+    query getInvoiceForSelect($workspaceId: String!, $invoiceId: String!) {
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
           id
@@ -114,7 +114,7 @@
   };
 
   const optionProvider = async (
-    id: number,
+    id: string,
   ) => {
     const workspace = await getInvoiceQuery({
       workspaceId: currentWorkspaceId,

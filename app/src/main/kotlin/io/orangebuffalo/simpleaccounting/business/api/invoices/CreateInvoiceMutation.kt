@@ -23,9 +23,9 @@ class CreateInvoiceMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createInvoice(
         @GraphQLDescription("ID of the workspace to create the invoice in.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the customer for this invoice.")
-        customerId: Long,
+        customerId: String,
         @GraphQLDescription("Title of the invoice.")
         @NotBlank
         @Size(max = 255)
@@ -47,9 +47,9 @@ class CreateInvoiceMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this invoice.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
         @GraphQLDescription("ID of the general tax applied to this invoice.")
-        generalTaxId: Long? = null,
+        generalTaxId: String? = null,
     ): InvoiceGqlDto {
         val invoice = invoicesService.saveInvoice(
             Invoice(
@@ -70,6 +70,6 @@ class CreateInvoiceMutation(
         return invoice.toInvoiceGqlDto(workspaceId)
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<InvoiceAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<InvoiceAttachment> =
         attachmentIds?.map(::InvoiceAttachment)?.toSet() ?: emptySet()
 }

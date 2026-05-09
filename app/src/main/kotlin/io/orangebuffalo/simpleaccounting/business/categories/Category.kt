@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 class Category(
     var name: String,
     var description: String? = null,
-    val workspaceId: Long,
+    val workspaceId: String,
     var income: Boolean,
     var expense: Boolean
 ) : AbstractEntity()

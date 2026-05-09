@@ -15,7 +15,7 @@ class UserQuery(
     @GraphQLDescription("Returns the user with the given ID.")
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
     suspend fun user(
-        @GraphQLDescription("ID of the user.") id: Long,
+        @GraphQLDescription("ID of the user.") id: String,
     ): PlatformUserGqlDto {
         return platformUsersService.getUserByUserId(id).toPlatformUserGqlDto()
     }

@@ -25,7 +25,7 @@ class CreateIncomeMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun createIncome(
         @GraphQLDescription("ID of the workspace to create the income in.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("Title of the income.")
         @NotBlank
         @Size(max = 255)
@@ -47,13 +47,13 @@ class CreateIncomeMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("IDs of documents attached to this income.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
         @GraphQLDescription("ID of the category for this income.")
-        categoryId: Long? = null,
+        categoryId: String? = null,
         @GraphQLDescription("ID of the general tax applied to this income.")
-        generalTaxId: Long? = null,
+        generalTaxId: String? = null,
         @GraphQLDescription("ID of the invoice linked to this income.")
-        linkedInvoiceId: Long? = null,
+        linkedInvoiceId: String? = null,
     ): IncomeGqlDto {
         val income = incomesService.saveIncome(
             Income(
@@ -82,6 +82,6 @@ class CreateIncomeMutation(
         return income.toIncomeGqlDto()
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<IncomeAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeAttachment> =
         attachmentIds?.map(::IncomeAttachment)?.toSet() ?: emptySet()
 }

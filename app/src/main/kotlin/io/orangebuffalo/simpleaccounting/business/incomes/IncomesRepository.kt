@@ -6,21 +6,21 @@ import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageSta
 import java.time.LocalDate
 
 interface IncomesRepository : AbstractEntityRepository<Income>, IncomesRepositoryExt {
-    fun findByIdAndWorkspaceId(incomeId: Long, workspaceId: Long): Income?
+    fun findByIdAndWorkspaceId(incomeId: String, workspaceId: String): Income?
 }
 
 interface IncomesRepositoryExt {
     fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<IncomesStatistics>
 
     fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>
 }
 
 data class IncomesStatistics(
-    val categoryId: Long?,
+    val categoryId: String?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long,

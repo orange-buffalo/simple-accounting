@@ -9,7 +9,7 @@ import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
-data class WorkspaceGeneralTaxKey(val workspaceId: Long, val taxId: Long)
+data class WorkspaceGeneralTaxKey(val workspaceId: String, val taxId: String)
 
 private const val NAME = "generalTaxByWorkspaceAndId"
 
@@ -39,7 +39,7 @@ class GeneralTaxByWorkspaceAndIdDataLoader(
 }
 
 fun DataFetchingEnvironment.loadGeneralTaxByWorkspaceAndId(
-    workspaceId: Long,
-    taxId: Long,
+    workspaceId: String,
+    taxId: String,
 ): CompletableFuture<GeneralTaxGqlDto?> =
     getDataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto?>(NAME)!!.load(WorkspaceGeneralTaxKey(workspaceId, taxId))

@@ -343,7 +343,7 @@ class CategoriesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.category.id!!.toInt())
+                                        put("id", testData.category.id!!)
                                         put("name", "Delivery")
                                         put("description", "Interplanetary delivery expenses")
                                         put("income", false)

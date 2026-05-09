@@ -22,11 +22,11 @@ class CategoriesService(
         return withDbContext { categoriesRepository.save(category) }
     }
 
-    suspend fun getCategoryByIdAndWorkspace(categoryId: Long, workspaceId: Long): Category? = withDbContext {
+    suspend fun getCategoryByIdAndWorkspace(categoryId: String, workspaceId: String): Category? = withDbContext {
         categoriesRepository.findByIdAndWorkspaceId(categoryId, workspaceId)
     }
 
-    suspend fun validateCategory(categoryId: Long, workspaceId: Long) = withDbContext {
+    suspend fun validateCategory(categoryId: String, workspaceId: String) = withDbContext {
         if (!categoriesRepository.existsByIdAndWorkspaceId(categoryId, workspaceId)) {
             throw EntityNotFoundException("Category $categoryId is not found")
         }

@@ -56,7 +56,7 @@
   import { graphql } from '@/services/api/gql';
 
   const invoicesPageQuery = graphql(`
-    query invoicesPage($workspaceId: Long!, $first: Int!, $after: String, $freeSearchText: String) {
+    query invoicesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
       workspace(id: $workspaceId) {
         invoices(first: $first, after: $after, freeSearchText: $freeSearchText) {
           edges {

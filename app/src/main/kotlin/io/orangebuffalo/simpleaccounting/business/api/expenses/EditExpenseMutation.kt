@@ -26,9 +26,9 @@ class EditExpenseMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editExpense(
         @GraphQLDescription("ID of the workspace the expense belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the expense to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New title of the expense.")
         @NotBlank
         @Size(max = 255)
@@ -54,11 +54,11 @@ class EditExpenseMutation(
         @Max(100)
         percentOnBusiness: Int? = null,
         @GraphQLDescription("New IDs of documents attached to this expense.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
         @GraphQLDescription("New ID of the category for this expense.")
-        categoryId: Long? = null,
+        categoryId: String? = null,
         @GraphQLDescription("New ID of the general tax applied to this expense.")
-        generalTaxId: Long? = null,
+        generalTaxId: String? = null,
     ): ExpenseGqlDto {
         val expense = expenseService.getExpenseByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Expense $id is not found")
@@ -85,6 +85,6 @@ class EditExpenseMutation(
         return expenseService.saveExpense(expense).toExpenseGqlDto()
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<ExpenseAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<ExpenseAttachment> =
         attachmentIds?.map(::ExpenseAttachment)?.toSet() ?: emptySet()
 }

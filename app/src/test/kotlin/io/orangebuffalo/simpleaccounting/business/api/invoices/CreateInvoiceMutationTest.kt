@@ -103,7 +103,7 @@ class CreateInvoiceMutationTest(
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },
             optionalFieldAbsentTestCases("generalTaxId") {
-                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = "1")
             },
             requiredFieldRejectedTestCases("customerId") {
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!)
@@ -255,8 +255,8 @@ class CreateInvoiceMutationTest(
     }
 
     private fun MutationProjection.createInvoiceMutation(
-        workspaceId: Long,
-        customerId: Long = preconditions.fryCustomer.id!!,
+        workspaceId: String,
+        customerId: String = preconditions.fryCustomer.id!!,
         title: String = "Spaceship parts",
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
@@ -265,8 +265,8 @@ class CreateInvoiceMutationTest(
         currency: String = "USD",
         amount: Long = 100,
         notes: String? = null,
-        attachments: List<Long>? = null,
-        generalTaxId: Long? = null,
+        attachments: List<String>? = null,
+        generalTaxId: String? = null,
     ): MutationProjection = createInvoice(
         workspaceId = workspaceId,
         customerId = customerId,

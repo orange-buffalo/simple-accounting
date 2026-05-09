@@ -16,7 +16,7 @@ internal class AbstractEntityTest {
         val testEntity = TestEntity()
         val initialHashcode = testEntity.hashCode()
 
-        testEntity.id = 42
+        testEntity.id = "42"
 
         testEntity.hashCode().shouldBe(initialHashcode)
     }
@@ -24,10 +24,10 @@ internal class AbstractEntityTest {
     @Test
     fun `two objects with the same ID should be equal`() {
         val firstEntity = TestEntity()
-        firstEntity.id = 42
+        firstEntity.id = "42"
 
         val secondEntity = TestEntity()
-        secondEntity.id = 42
+        secondEntity.id = "42"
 
         firstEntity.shouldBe(secondEntity)
     }
@@ -35,10 +35,10 @@ internal class AbstractEntityTest {
     @Test
     fun `two entities with the same ID should have the same hashcode`() {
         val firstEntity = TestEntity()
-        firstEntity.id = 42
+        firstEntity.id = "42"
 
         val secondEntity = TestEntity()
-        secondEntity.id = 42
+        secondEntity.id = "42"
 
         firstEntity.hashCode().shouldBe(secondEntity.hashCode())
     }

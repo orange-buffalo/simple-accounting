@@ -7,5 +7,5 @@ interface WorkspacesRepository : AbstractEntityRepository<Workspace>, Workspaces
 interface WorkspacesRepositoryExt {
     fun findAllByOwnerUserName(userName: String): List<Workspace>
 
-    fun findByIdAndOwnerUserName(workspaceId: Long, userName: String): Workspace?
+    fun findByIdAndOwnerUserName(workspaceId: String, userName: String): Workspace?
 }

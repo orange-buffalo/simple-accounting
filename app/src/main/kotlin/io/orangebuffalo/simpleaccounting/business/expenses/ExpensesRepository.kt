@@ -6,23 +6,23 @@ import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageSta
 import java.time.LocalDate
 
 interface ExpensesRepository : AbstractEntityRepository<Expense>, ExpensesRepositoryExt {
-    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Expense?
-    fun findAllByWorkspaceId(workspaceId: Long): List<Expense>
-    fun findAllByWorkspaceIdIn(workspaceIds: Set<Long>): List<Expense>
+    fun findByIdAndWorkspaceId(id: String, workspaceId: String): Expense?
+    fun findAllByWorkspaceId(workspaceId: String): List<Expense>
+    fun findAllByWorkspaceIdIn(workspaceIds: Set<String>): List<Expense>
 }
 
 interface ExpensesRepositoryExt {
     fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<ExpensesStatistics>
 
     fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>
 }
 
 data class ExpensesStatistics(
-    val categoryId: Long?,
+    val categoryId: String?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long,

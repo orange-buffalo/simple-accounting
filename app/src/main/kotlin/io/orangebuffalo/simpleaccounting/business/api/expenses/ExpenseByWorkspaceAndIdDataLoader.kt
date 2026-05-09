@@ -9,7 +9,7 @@ import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
-data class WorkspaceExpenseKey(val workspaceId: Long, val expenseId: Long)
+data class WorkspaceExpenseKey(val workspaceId: String, val expenseId: String)
 
 private const val NAME = "expenseByWorkspaceAndId"
 
@@ -30,7 +30,7 @@ class ExpenseByWorkspaceAndIdDataLoader(
 }
 
 fun DataFetchingEnvironment.loadExpenseByWorkspaceAndId(
-    workspaceId: Long,
-    expenseId: Long,
+    workspaceId: String,
+    expenseId: String,
 ): CompletableFuture<ExpenseGqlDto?> =
     getDataLoader<WorkspaceExpenseKey, ExpenseGqlDto?>(NAME)!!.load(WorkspaceExpenseKey(workspaceId, expenseId))

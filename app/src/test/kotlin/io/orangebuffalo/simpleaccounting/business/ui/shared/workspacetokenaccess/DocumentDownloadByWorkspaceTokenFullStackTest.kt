@@ -147,7 +147,7 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
     private data class TestData(
         val fry: PlatformUser,
         val workspace: Workspace,
-        val invoiceId: Long,
+        val invoiceId: String,
         val workspaceToken: String,
     )
 

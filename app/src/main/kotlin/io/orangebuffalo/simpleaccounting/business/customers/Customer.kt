@@ -6,5 +6,5 @@ import org.springframework.data.relational.core.mapping.Table
 @Table
 class Customer(
     var name: String,
-    val workspaceId: Long
+    val workspaceId: String
 ) : AbstractEntity()

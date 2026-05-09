@@ -18,17 +18,17 @@ class CustomersService(
         return withDbContext { customersRepository.save(customer) }
     }
 
-    suspend fun getCustomerByIdAndWorkspace(id: Long, workspaceId: Long): Customer? = withDbContext {
+    suspend fun getCustomerByIdAndWorkspace(id: String, workspaceId: String): Customer? = withDbContext {
         customersRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
-    suspend fun validateCustomer(customerId: Long, workspaceId: Long) = withDbContext {
+    suspend fun validateCustomer(customerId: String, workspaceId: String) = withDbContext {
         if (!customersRepository.existsByIdAndWorkspaceId(customerId, workspaceId)) {
             throw EntityNotFoundException("Customer $customerId is not found")
         }
     }
 
-    suspend fun findById(customerId: Long): Customer? = withDbContext {
+    suspend fun findById(customerId: String): Customer? = withDbContext {
         customersRepository.findById(customerId).toNullable()
     }
 }

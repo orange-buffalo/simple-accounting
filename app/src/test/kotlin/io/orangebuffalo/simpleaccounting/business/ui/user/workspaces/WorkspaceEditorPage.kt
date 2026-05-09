@@ -53,7 +53,7 @@ class EditWorkspacePage private constructor(page: Page) : WorkspaceEditorPageBas
             }
         }
 
-        fun Page.openEditWorkspacePage(workspaceId: Long, spec: EditWorkspacePage.() -> Unit = {}) {
+        fun Page.openEditWorkspacePage(workspaceId: String, spec: EditWorkspacePage.() -> Unit = {}) {
             navigate("/settings/workspaces/$workspaceId/edit")
             shouldBeEditWorkspacePage(spec)
         }

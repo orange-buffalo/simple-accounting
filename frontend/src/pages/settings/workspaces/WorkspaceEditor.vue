@@ -29,7 +29,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
   }>();
 
   const isEditing = props.id !== undefined;
@@ -41,7 +41,7 @@
   const navigateToWorkspacesOverview = async () => navigateByViewName('workspaces-overview');
 
   const loadWorkspaceQuery = useLazyQuery(graphql(`
-    query getWorkspaceForEdit($id: Long!) {
+    query getWorkspaceForEdit($id: String!) {
       workspace(id: $id) {
         id
         name
@@ -59,7 +59,7 @@
   `), 'createWorkspace');
 
   const editWorkspaceMutation = useMutation(graphql(`
-    mutation editWorkspace($id: Long!, $name: String!) {
+    mutation editWorkspace($id: String!, $name: String!) {
       editWorkspace(id: $id, name: $name) {
         id
       }

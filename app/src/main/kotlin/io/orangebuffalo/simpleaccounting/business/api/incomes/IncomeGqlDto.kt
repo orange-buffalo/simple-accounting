@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture
 @GraphQLDescription("Income record of a workspace.")
 data class IncomeGqlDto(
     @GraphQLDescription("ID of the income.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Version of the income for optimistic locking.")
     val version: Int,
@@ -62,15 +62,15 @@ data class IncomeGqlDto(
     @GraphQLDescription("Amount of general tax applied to this income.")
     val generalTaxAmount: Long?,
 
-    @GraphQLIgnore val generalTaxId: Long?,
+    @GraphQLIgnore val generalTaxId: String?,
 
-    @GraphQLIgnore val linkedInvoiceId: Long?,
+    @GraphQLIgnore val linkedInvoiceId: String?,
 
-    @GraphQLIgnore val categoryId: Long?,
+    @GraphQLIgnore val categoryId: String?,
 
-    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val workspaceId: String,
 
-    @GraphQLIgnore val attachmentIds: List<Long>,
+    @GraphQLIgnore val attachmentIds: List<String>,
 ) {
     @GraphQLDescription("General tax applied to this income.")
     fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {

@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture
 
 @GraphQLName("WorkspaceAnalytics")
 @GraphQLDescription("Analytics data for a workspace.")
-class AnalyticsGqlDto(private val workspaceId: Long) {
+class AnalyticsGqlDto(private val workspaceId: String) {
 
     @GraphQLDescription("Summary of expenses in the given date range.")
     suspend fun expensesSummary(
@@ -154,7 +154,7 @@ data class ExpensesSummaryGqlDto(
 @GraphQLName("ExpensesSummaryItem")
 @GraphQLDescription("Expenses summary for a single category.")
 data class ExpensesSummaryItemGqlDto(
-    @GraphQLIgnore val categoryId: Long?,
+    @GraphQLIgnore val categoryId: String?,
     @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized expenses.")
@@ -193,7 +193,7 @@ data class IncomesSummaryGqlDto(
 @GraphQLName("IncomesSummaryItem")
 @GraphQLDescription("Incomes summary for a single category.")
 data class IncomesSummaryItemGqlDto(
-    @GraphQLIgnore val categoryId: Long?,
+    @GraphQLIgnore val categoryId: String?,
     @GraphQLDescription("Total amount for this category.")
     val totalAmount: Long,
     @GraphQLDescription("Number of finalized incomes.")
@@ -220,7 +220,7 @@ data class IncomeTaxPaymentsSummaryGqlDto(
 @GraphQLName("GeneralTaxesSummary")
 @GraphQLDescription("Summary of general taxes for a date range.")
 data class GeneralTaxesSummaryGqlDto(
-    @GraphQLIgnore val workspaceId: Long,
+    @GraphQLIgnore val workspaceId: String,
     @GraphQLDescription("Finalized taxes collected on incomes.")
     val finalizedCollectedTaxes: List<FinalizedGeneralTaxSummaryItemGqlDto>,
     @GraphQLDescription("Finalized taxes paid on expenses.")
@@ -234,8 +234,8 @@ data class GeneralTaxesSummaryGqlDto(
 @GraphQLName("FinalizedGeneralTaxSummaryItem")
 @GraphQLDescription("Summary of a finalized general tax.")
 data class FinalizedGeneralTaxSummaryItemGqlDto(
-    @GraphQLIgnore val workspaceId: Long,
-    @GraphQLIgnore val taxId: Long,
+    @GraphQLIgnore val workspaceId: String,
+    @GraphQLIgnore val taxId: String,
     @GraphQLDescription("Total amount of tax collected or paid.")
     val taxAmount: Long,
     @GraphQLDescription("Number of items contributing to this tax.")
@@ -252,8 +252,8 @@ data class FinalizedGeneralTaxSummaryItemGqlDto(
 @GraphQLName("PendingGeneralTaxSummaryItem")
 @GraphQLDescription("Summary of a pending general tax.")
 data class PendingGeneralTaxSummaryItemGqlDto(
-    @GraphQLIgnore val workspaceId: Long,
-    @GraphQLIgnore val taxId: Long,
+    @GraphQLIgnore val workspaceId: String,
+    @GraphQLIgnore val taxId: String,
     @GraphQLDescription("Number of items contributing to this tax.")
     val includedItemsNumber: Long,
 ) {

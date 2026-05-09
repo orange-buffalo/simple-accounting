@@ -6,7 +6,7 @@ import java.time.Instant
 
 @Table
 class RefreshToken(
-    val userId: Long,
+    val userId: String,
     val token: String,
     var expirationTime: Instant
 ) : AbstractEntity()

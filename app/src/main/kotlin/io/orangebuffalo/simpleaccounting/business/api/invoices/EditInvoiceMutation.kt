@@ -23,11 +23,11 @@ class EditInvoiceMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editInvoice(
         @GraphQLDescription("ID of the workspace the invoice belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the invoice to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("ID of the customer for this invoice.")
-        customerId: Long,
+        customerId: String,
         @GraphQLDescription("New title of the invoice.")
         @NotBlank
         @Size(max = 255)
@@ -49,9 +49,9 @@ class EditInvoiceMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this invoice.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
         @GraphQLDescription("New ID of the general tax applied to this invoice.")
-        generalTaxId: Long? = null,
+        generalTaxId: String? = null,
     ): InvoiceGqlDto {
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Invoice $id is not found")
@@ -71,6 +71,6 @@ class EditInvoiceMutation(
         return invoicesService.saveInvoice(invoice, workspaceId).toInvoiceGqlDto(workspaceId)
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<InvoiceAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<InvoiceAttachment> =
         attachmentIds?.map(::InvoiceAttachment)?.toSet() ?: emptySet()
 }

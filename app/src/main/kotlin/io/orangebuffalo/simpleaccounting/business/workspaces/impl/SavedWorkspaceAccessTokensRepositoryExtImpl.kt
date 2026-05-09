@@ -33,7 +33,7 @@ class SavedWorkspaceAccessTokensRepositoryExtImpl(
 
     override fun findWorkspaceByValidTokenOwnerAndId(
         owner: String,
-        workspaceId: Long
+        workspaceId: String
     ): Workspace? {
         val tokenOwner = Tables.PLATFORM_USER
         val workspace = Tables.WORKSPACE

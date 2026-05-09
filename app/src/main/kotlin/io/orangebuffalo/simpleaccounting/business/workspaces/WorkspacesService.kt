@@ -68,14 +68,14 @@ class WorkspacesService(
     }
 
     suspend fun validateWorkspaceAccess(
-        workspaceId: Long,
+        workspaceId: String,
         accessMode: WorkspaceAccessMode
     ) {
         getAccessibleWorkspace(workspaceId, accessMode)
     }
 
     suspend fun getAccessibleWorkspace(
-        workspaceId: Long,
+        workspaceId: String,
         accessMode: WorkspaceAccessMode
     ): Workspace {
 
@@ -89,7 +89,7 @@ class WorkspacesService(
     }
 
     private suspend fun getAccessibleWorkspaceForRegularUser(
-        workspaceId: Long,
+        workspaceId: String,
         currentPrincipal: SecurityPrincipal,
         accessMode: WorkspaceAccessMode
     ): Workspace {
@@ -112,7 +112,7 @@ class WorkspacesService(
 
     private suspend fun getAccessibleWorkspaceForTransientUser(
         accessMode: WorkspaceAccessMode,
-        workspaceId: Long,
+        workspaceId: String,
         currentPrincipal: SecurityPrincipal
     ): Workspace {
         if (accessMode != WorkspaceAccessMode.READ_ONLY) {
@@ -128,7 +128,7 @@ class WorkspacesService(
         }
     }
 
-    suspend fun getWorkspace(workspaceId: Long): Workspace = withDbContext {
+    suspend fun getWorkspace(workspaceId: String): Workspace = withDbContext {
         workspacesRepository.findById(workspaceId)
             .orElseThrow { EntityNotFoundException("Workspace $workspaceId is not found") }
     }

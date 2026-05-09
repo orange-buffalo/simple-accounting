@@ -53,7 +53,7 @@ class EditExpenseMutationTest(
                 .graphqlMutation {
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -66,7 +66,7 @@ class EditExpenseMutationTest(
                 .graphqlMutation {
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -79,7 +79,7 @@ class EditExpenseMutationTest(
                 .graphqlMutation {
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -165,14 +165,14 @@ class EditExpenseMutationTest(
                 editExpenseMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryExpense.id!!,
-                    categoryId = 1,
+                    categoryId = "1",
                 )
             },
             optionalFieldAbsentTestCases("generalTaxId") {
                 editExpenseMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryExpense.id!!,
-                    generalTaxId = 1,
+                    generalTaxId = "1",
                 )
             },
             requiredFieldRejectedTestCases("id") {
@@ -235,7 +235,7 @@ class EditExpenseMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditExpense to buildJsonObject {
-                        put("id", expense.id!!.toInt())
+                        put("id", expense.id!!)
                         put("title", "Updated Slurm supplies")
                         put("datePaid", "3025-03-10")
                         put("currency", "EUR")
@@ -291,7 +291,7 @@ class EditExpenseMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditExpense to buildJsonObject {
-                        put("id", expense.id!!.toInt())
+                        put("id", expense.id!!)
                         put("title", "Spaceship parts")
                         put("datePaid", MOCK_DATE.toString())
                         put("currency", preconditions.fryWorkspace.defaultCurrency)
@@ -328,7 +328,7 @@ class EditExpenseMutationTest(
                 .graphqlMutation {
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -354,8 +354,8 @@ class EditExpenseMutationTest(
     }
 
     private fun MutationProjection.editExpenseMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         title: String = "Spaceship parts",
         datePaid: LocalDate = MOCK_DATE,
         currency: String = preconditions.fryWorkspace.defaultCurrency,
@@ -365,9 +365,9 @@ class EditExpenseMutationTest(
         incomeTaxableAmountInDefaultCurrency: Long? = null,
         notes: String? = null,
         percentOnBusiness: Int? = null,
-        attachments: List<Long>? = null,
-        categoryId: Long? = null,
-        generalTaxId: Long? = null,
+        attachments: List<String>? = null,
+        categoryId: String? = null,
+        generalTaxId: String? = null,
     ): MutationProjection = editExpense(
         workspaceId = workspaceId,
         id = id,

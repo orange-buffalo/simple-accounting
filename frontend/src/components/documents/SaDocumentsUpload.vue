@@ -38,7 +38,7 @@
   } from '@/components/documents/storage/useDocumentsStorageStatus';
 
   type DocumentAggregateDocument = {
-    id?: number;
+    id?: string;
     name?: string;
     sizeInBytes?: number | null;
   };
@@ -90,7 +90,7 @@
 
   const emit = defineEmits<{
     (e: 'uploads-failed'): void,
-    (e: 'update:documentsIds', documentIds: number[]): void,
+    (e: 'update:documentsIds', documentIds: string[]): void,
     (e: 'uploads-completed'): void,
   }>();
 

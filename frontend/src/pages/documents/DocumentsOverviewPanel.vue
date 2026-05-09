@@ -63,12 +63,12 @@
 
   interface DocumentUsage {
     type: DocumentUsageType,
-    relatedEntityId: number,
+    relatedEntityId: string,
     displayName: string,
   }
 
   interface DocumentItem {
-    id: number,
+    id: string,
     name: string,
     timeUploaded: string,
     storageId: string,

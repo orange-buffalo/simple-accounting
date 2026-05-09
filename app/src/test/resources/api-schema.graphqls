@@ -98,7 +98,7 @@ type Category {
   "Whether this category is used for expenses."
   expense: Boolean!
   "ID of the category."
-  id: Long!
+  id: String!
   "Whether this category is used for incomes."
   income: Boolean!
   "Name of the category."
@@ -157,7 +157,7 @@ type CreateDocumentUploadUrlResponse {
 "A customer in a workspace."
 type Customer {
   "ID of the customer."
-  id: Long!
+  id: String!
   "Name of the customer."
   name: String!
 }
@@ -183,7 +183,7 @@ type CustomersConnection {
 "A document in a workspace."
 type Document {
   "ID of the document."
-  id: Long!
+  id: String!
   "MIME type of the document."
   mimeType: String!
   "Name of the document."
@@ -213,7 +213,7 @@ type DocumentUsage {
   "Display name of the entity using the document."
   displayName: String!
   "ID of the entity using the document."
-  relatedEntityId: Long!
+  relatedEntityId: String!
   "Type of entity using the document."
   type: DocumentUsageType!
 }
@@ -267,11 +267,11 @@ type Expense {
   "Amount of the general tax in cents."
   generalTaxAmount: Long
   "ID of the general tax applied to this expense."
-  generalTaxId: Long
+  generalTaxId: String
   "Rate of the general tax in basis points."
   generalTaxRateInBps: Int
   "ID of the expense."
-  id: Long!
+  id: String!
   "Amounts for income tax purposes in the default currency."
   incomeTaxableAmounts: ExpenseAmounts!
   "Optional notes for the expense."
@@ -361,7 +361,7 @@ type GeneralTax {
   "Description of the general tax."
   description: String
   "ID of the general tax."
-  id: Long!
+  id: String!
   "Rate of the general tax in basis points (1/100 of a percent)."
   rateInBps: Int!
   "Title of the general tax."
@@ -439,7 +439,7 @@ type Income {
   "Rate in basis points of the general tax applied to this income."
   generalTaxRateInBps: Int
   "ID of the income."
-  id: Long!
+  id: String!
   "Amounts for income tax purposes."
   incomeTaxableAmounts: IncomeAmounts!
   "Invoice linked to this income."
@@ -483,7 +483,7 @@ type IncomeTaxPayment {
   "Date when the tax payment was made."
   datePaid: LocalDate!
   "ID of the income tax payment."
-  id: Long!
+  id: String!
   "Optional notes for the income tax payment."
   notes: String
   "Date used for reporting purposes."
@@ -577,7 +577,7 @@ type Invoice {
   "General tax applied to this invoice."
   generalTax: GeneralTax
   "ID of the invoice."
-  id: Long!
+  id: String!
   "Optional notes for the invoice."
   notes: String
   "Status of the invoice."
@@ -619,9 +619,9 @@ type Mutation {
   "Cancels an existing invoice in the specified workspace."
   cancelInvoice(
     "ID of the invoice to cancel."
-    invoiceId: Long!,
+    invoiceId: String!,
     "ID of the workspace the invoice belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
   "Changes the password of the current user."
   changePassword(
@@ -664,33 +664,33 @@ type Mutation {
     "Name of the category."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the category in."
-    workspaceId: Long!
+    workspaceId: String!
   ): Category! @auth(type : REGULAR_USER)
   "Creates a new customer in the specified workspace."
   createCustomer(
     "Name of the customer."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the customer in."
-    workspaceId: Long!
+    workspaceId: String!
   ): Customer! @auth(type : REGULAR_USER)
   "Creates a short-lived download URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to download the document content. The URL does not require authentication."
   createDocumentDownloadUrl(
     "ID of the document to create a download URL for."
-    documentId: Long!,
+    documentId: String!,
     "ID of the workspace the document belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): CreateDocumentDownloadUrlResponse! @auth(type : AUTHENTICATED_ACTOR)
   "Creates a short-lived upload URL for a document (token expires in 2 minutes). The URL is absolute and can be used directly by the client to upload a document. The URL does not require authentication. The upload should be done as a multipart/form-data POST request, with the file content in a part named as specified in `filePartName`. The response of the upload request is a JSON object matching the `Document` type in this schema."
   createDocumentUploadUrl(
     "ID of the workspace to upload the document to."
-    workspaceId: Long!
+    workspaceId: String!
   ): CreateDocumentUploadUrlResponse! @auth(type : REGULAR_USER)
   "Creates a new expense in the specified workspace."
   createExpense(
     "IDs of documents attached to this expense."
-    attachments: [Long!],
+    attachments: [String!],
     "ID of the category for this expense."
-    categoryId: Long,
+    categoryId: String,
     "Converted amount in the default currency, in cents. Null if not yet converted."
     convertedAmountInDefaultCurrency: Long,
     "Currency of the expense."
@@ -698,7 +698,7 @@ type Mutation {
     "Date when the expense was paid."
     datePaid: LocalDate!,
     "ID of the general tax applied to this expense."
-    generalTaxId: Long,
+    generalTaxId: String,
     "Amount for income tax purposes in the default currency, in cents. Null if not yet converted."
     incomeTaxableAmountInDefaultCurrency: Long,
     "Optional notes for the expense."
@@ -712,7 +712,7 @@ type Mutation {
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
     "ID of the workspace to create the expense in."
-    workspaceId: Long!
+    workspaceId: String!
   ): Expense! @auth(type : REGULAR_USER)
   "Creates a new general tax in the specified workspace."
   createGeneralTax(
@@ -723,14 +723,14 @@ type Mutation {
     "Title of the general tax."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the general tax in."
-    workspaceId: Long!
+    workspaceId: String!
   ): GeneralTax! @auth(type : REGULAR_USER)
   "Creates a new income in the specified workspace."
   createIncome(
     "IDs of documents attached to this income."
-    attachments: [Long!],
+    attachments: [String!],
     "ID of the category for this income."
-    categoryId: Long,
+    categoryId: String,
     "Converted amount in the default currency, in cents. Null if not yet converted."
     convertedAmountInDefaultCurrency: Long,
     "Currency of the income."
@@ -738,11 +738,11 @@ type Mutation {
     "Date when the income was received."
     dateReceived: LocalDate!,
     "ID of the general tax applied to this income."
-    generalTaxId: Long,
+    generalTaxId: String,
     "Amount for income tax purposes in the default currency, in cents. Null if not yet converted."
     incomeTaxableAmountInDefaultCurrency: Long,
     "ID of the invoice linked to this income."
-    linkedInvoiceId: Long,
+    linkedInvoiceId: String,
     "Optional notes for the income."
     notes: String @size(max : 1024, min : 0),
     "Original amount of the income in original currency, in cents."
@@ -752,14 +752,14 @@ type Mutation {
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
     "ID of the workspace to create the income in."
-    workspaceId: Long!
+    workspaceId: String!
   ): Income! @auth(type : REGULAR_USER)
   "Creates a new income tax payment in the specified workspace."
   createIncomeTaxPayment(
     "Amount of the tax payment in cents."
     amount: Long! @min(value : 1),
     "IDs of documents attached to this income tax payment."
-    attachments: [Long!],
+    attachments: [String!],
     "Date when the tax payment was made."
     datePaid: LocalDate!,
     "Optional notes for the income tax payment."
@@ -769,18 +769,18 @@ type Mutation {
     "Title of the income tax payment."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the income tax payment in."
-    workspaceId: Long!
+    workspaceId: String!
   ): IncomeTaxPayment! @auth(type : REGULAR_USER)
   "Creates a new invoice in the specified workspace."
   createInvoice(
     "Amount of the invoice in cents."
     amount: Long!,
     "IDs of documents attached to this invoice."
-    attachments: [Long!],
+    attachments: [String!],
     "Currency of the invoice."
     currency: String! @notBlank,
     "ID of the customer for this invoice."
-    customerId: Long!,
+    customerId: String!,
     "Date when the invoice was issued."
     dateIssued: LocalDate!,
     "Date when the invoice was paid."
@@ -790,13 +790,13 @@ type Mutation {
     "Due date of the invoice."
     dueDate: LocalDate!,
     "ID of the general tax applied to this invoice."
-    generalTaxId: Long,
+    generalTaxId: String,
     "Optional notes for the invoice."
     notes: String @size(max : 1024, min : 0),
     "Title of the invoice."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the invoice in."
-    workspaceId: Long!
+    workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
   "Creates a new user account."
   createUser(
@@ -808,7 +808,7 @@ type Mutation {
   "Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users."
   createUserActivationToken(
     "The ID of the user to create the activation token for."
-    userId: Long!
+    userId: String!
   ): UserActivationTokenGqlDto! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_ACTIVATED", errorCodeDescription : "The user is already activated and cannot receive an activation token.")
   "Creates a new workspace for the current user."
   createWorkspace(
@@ -822,7 +822,7 @@ type Mutation {
     "The expiration time of the token."
     validTill: DateTime!,
     "ID of the workspace to create the token for."
-    workspaceId: Long!
+    workspaceId: String!
   ): WorkspaceAccessToken! @auth(type : REGULAR_USER)
   "Updates an existing category in the specified workspace."
   editCategory(
@@ -831,29 +831,29 @@ type Mutation {
     "Whether this category is used for expenses."
     expense: Boolean!,
     "ID of the category to update."
-    id: Long!,
+    id: String!,
     "Whether this category is used for incomes."
     income: Boolean!,
     "New name of the category."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the category belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Category! @auth(type : REGULAR_USER)
   "Updates an existing customer in the specified workspace."
   editCustomer(
     "ID of the customer to update."
-    id: Long!,
+    id: String!,
     "New name of the customer."
     name: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the customer belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Customer! @auth(type : REGULAR_USER)
   "Updates an existing expense in the specified workspace."
   editExpense(
     "New IDs of documents attached to this expense."
-    attachments: [Long!],
+    attachments: [String!],
     "New ID of the category for this expense."
-    categoryId: Long,
+    categoryId: String,
     "New converted amount in the default currency, in cents. Null if not yet converted."
     convertedAmountInDefaultCurrency: Long,
     "New currency of the expense."
@@ -861,9 +861,9 @@ type Mutation {
     "New date when the expense was paid."
     datePaid: LocalDate!,
     "New ID of the general tax applied to this expense."
-    generalTaxId: Long,
+    generalTaxId: String,
     "ID of the expense to update."
-    id: Long!,
+    id: String!,
     "New amount for income tax purposes in the default currency, in cents. Null if not yet converted."
     incomeTaxableAmountInDefaultCurrency: Long,
     "New optional notes for the expense."
@@ -877,27 +877,27 @@ type Mutation {
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
     "ID of the workspace the expense belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Expense! @auth(type : REGULAR_USER)
   "Updates an existing general tax in the specified workspace."
   editGeneralTax(
     "New description of the general tax."
     description: String @size(max : 255, min : 0),
     "ID of the general tax to update."
-    id: Long!,
+    id: String!,
     "New rate of the general tax in basis points (1/100 of a percent)."
     rateInBps: Int! @max(value : 10000) @min(value : 0),
     "New title of the general tax."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the general tax belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): GeneralTax! @auth(type : REGULAR_USER)
   "Updates an existing income in the specified workspace."
   editIncome(
     "New IDs of documents attached to this income."
-    attachments: [Long!],
+    attachments: [String!],
     "New ID of the category for this income."
-    categoryId: Long,
+    categoryId: String,
     "New converted amount in the default currency, in cents. Null if not yet converted."
     convertedAmountInDefaultCurrency: Long,
     "New currency of the income."
@@ -905,13 +905,13 @@ type Mutation {
     "New date when the income was received."
     dateReceived: LocalDate!,
     "New ID of the general tax applied to this income."
-    generalTaxId: Long,
+    generalTaxId: String,
     "ID of the income to update."
-    id: Long!,
+    id: String!,
     "New amount for income tax purposes in the default currency, in cents. Null if not yet converted."
     incomeTaxableAmountInDefaultCurrency: Long,
     "New ID of the invoice linked to this income."
-    linkedInvoiceId: Long,
+    linkedInvoiceId: String,
     "New optional notes for the income."
     notes: String @size(max : 1024, min : 0),
     "New original amount of the income in original currency, in cents."
@@ -921,18 +921,18 @@ type Mutation {
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
     "ID of the workspace the income belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Income! @auth(type : REGULAR_USER)
   "Updates an existing income tax payment in the specified workspace."
   editIncomeTaxPayment(
     "New amount of the tax payment in cents."
     amount: Long! @min(value : 1),
     "New IDs of documents attached to this income tax payment."
-    attachments: [Long!],
+    attachments: [String!],
     "New date when the tax payment was made."
     datePaid: LocalDate!,
     "ID of the income tax payment to update."
-    id: Long!,
+    id: String!,
     "New optional notes for the income tax payment."
     notes: String @size(max : 1024, min : 0),
     "New date used for reporting purposes. Defaults to datePaid if not specified."
@@ -940,18 +940,18 @@ type Mutation {
     "New title of the income tax payment."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the income tax payment belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): IncomeTaxPayment! @auth(type : REGULAR_USER)
   "Updates an existing invoice in the specified workspace."
   editInvoice(
     "New amount of the invoice in cents."
     amount: Long!,
     "New IDs of documents attached to this invoice."
-    attachments: [Long!],
+    attachments: [String!],
     "New currency of the invoice."
     currency: String! @notBlank,
     "ID of the customer for this invoice."
-    customerId: Long!,
+    customerId: String!,
     "New date when the invoice was issued."
     dateIssued: LocalDate!,
     "New date when the invoice was paid."
@@ -961,27 +961,27 @@ type Mutation {
     "New due date of the invoice."
     dueDate: LocalDate!,
     "New ID of the general tax applied to this invoice."
-    generalTaxId: Long,
+    generalTaxId: String,
     "ID of the invoice to update."
-    id: Long!,
+    id: String!,
     "New optional notes for the invoice."
     notes: String @size(max : 1024, min : 0),
     "New title of the invoice."
     title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace the invoice belongs to."
-    workspaceId: Long!
+    workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
   "Updates an existing user's username."
   editUser(
     "ID of the user to update."
-    id: Long!,
+    id: String!,
     "New username / login for the user."
     userName: String! @notBlank @size(max : 255, min : 0)
   ): PlatformUser! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_EXISTS", errorCodeDescription : "A user with the given username already exists.")
   "Updates an existing workspace."
   editWorkspace(
     "ID of the workspace to update."
-    id: Long!,
+    id: String!,
     "New name of the workspace."
     name: String! @notBlank @size(max : 255, min : 0)
   ): Workspace! @auth(type : REGULAR_USER)
@@ -1032,7 +1032,7 @@ type PlatformUser {
   "Whether the user has admin privileges."
   admin: Boolean!
   "The unique ID of the user."
-  id: Long!
+  id: String!
   "The username / login of the user."
   userName: String!
 }
@@ -1077,7 +1077,7 @@ type Query {
   "Retrieves the activation token for a user by their ID. Returns null if the token does not exist or has expired. Only accessible by admin users."
   tokenByUser(
     "The ID of the user to retrieve the activation token for."
-    userId: Long!
+    userId: String!
   ): UserActivationTokenGqlDto @auth(type : ADMIN_USER)
   "Retrieves an activation token by its value. Returns null if the token does not exist or has expired. Accessible by anonymous users."
   tokenByValue(
@@ -1087,7 +1087,7 @@ type Query {
   "Returns the user with the given ID."
   user(
     "ID of the user."
-    id: Long!
+    id: String!
   ): PlatformUser! @auth(type : ADMIN_USER)
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
@@ -1103,7 +1103,7 @@ type Query {
   "Returns a workspace by its ID, if accessible by the current user."
   workspace(
     "ID of the workspace."
-    id: Long!
+    id: String!
   ): Workspace! @auth(type : AUTHENTICATED_ACTOR)
   "Returns all workspaces accessible by the current user with cursor-based pagination."
   workspaces(
@@ -1183,12 +1183,12 @@ type Workspace {
   "Returns a category by its ID if it belongs to this workspace, or null if not found."
   category(
     "ID of the category."
-    id: Long!
+    id: String!
   ): Category
   "Returns a customer by its ID if it belongs to this workspace, or null if not found."
   customer(
     "ID of the customer."
-    id: Long!
+    id: String!
   ): Customer
   "Customers in this workspace with cursor-based pagination."
   customers(
@@ -1209,7 +1209,7 @@ type Workspace {
   "Returns an expense by its ID if it belongs to this workspace, or null if not found."
   expense(
     "ID of the expense."
-    id: Long!
+    id: String!
   ): Expense
   "Expenses in this workspace with cursor-based pagination."
   expenses(
@@ -1223,7 +1223,7 @@ type Workspace {
   "Returns a general tax by its ID if it belongs to this workspace, or null if not found."
   generalTax(
     "ID of the general tax."
-    id: Long!
+    id: String!
   ): GeneralTax
   "General taxes in this workspace with cursor-based pagination."
   generalTaxes(
@@ -1233,16 +1233,16 @@ type Workspace {
     first: Int!
   ): GeneralTaxesConnection!
   "ID of the workspace."
-  id: Long!
+  id: String!
   "Returns an income by its ID if it belongs to this workspace, or null if not found."
   income(
     "ID of the income."
-    id: Long!
+    id: String!
   ): Income
   "Returns an income tax payment by its ID if it belongs to this workspace, or null if not found."
   incomeTaxPayment(
     "ID of the income tax payment."
-    id: Long!
+    id: String!
   ): IncomeTaxPayment
   "Income tax payments in this workspace with cursor-based pagination."
   incomeTaxPayments(
@@ -1263,7 +1263,7 @@ type Workspace {
   "Returns an invoice by its ID if it belongs to this workspace, or null if not found."
   invoice(
     "ID of the invoice."
-    id: Long!
+    id: String!
   ): Invoice
   "Invoices in this workspace with cursor-based pagination."
   invoices(
@@ -1290,7 +1290,7 @@ type Workspace {
 "An access token for sharing workspace access."
 type WorkspaceAccessToken {
   "ID of the access token."
-  id: Long!
+  id: String!
   "Whether this token has been revoked."
   revoked: Boolean!
   "The token value used to share workspace access."

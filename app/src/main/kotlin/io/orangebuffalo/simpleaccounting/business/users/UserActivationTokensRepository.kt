@@ -6,5 +6,5 @@ interface UserActivationTokensRepository : AbstractEntityRepository<UserActivati
 
     fun findByToken(token: String): UserActivationToken?
 
-    fun findByUserId(userId: Long): UserActivationToken?
+    fun findByUserId(userId: String): UserActivationToken?
 }

@@ -6,7 +6,7 @@ import java.time.Instant
 
 @Table
 class WorkspaceAccessToken(
-    var workspaceId: Long,
+    var workspaceId: String,
     val timeCreated: Instant,
     val validTill: Instant,
     val revoked: Boolean,

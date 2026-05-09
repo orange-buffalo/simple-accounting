@@ -39,7 +39,7 @@
   import { $t } from '@/services/i18n';
 
   const generalTaxesPageQuery = graphql(`
-    query generalTaxesPage($workspaceId: Long!, $first: Int!, $after: String) {
+    query generalTaxesPage($workspaceId: String!, $first: Int!, $after: String) {
       workspace(id: $workspaceId) {
         generalTaxes(first: $first, after: $after) {
           edges {

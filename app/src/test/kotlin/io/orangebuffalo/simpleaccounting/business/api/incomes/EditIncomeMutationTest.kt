@@ -151,21 +151,21 @@ class EditIncomeMutationTest(
                 editIncomeMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryIncome.id!!,
-                    categoryId = 1,
+                    categoryId = "1",
                 )
             },
             optionalFieldAbsentTestCases("generalTaxId") {
                 editIncomeMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryIncome.id!!,
-                    generalTaxId = 1,
+                    generalTaxId = "1",
                 )
             },
             optionalFieldAbsentTestCases("linkedInvoiceId") {
                 editIncomeMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryIncome.id!!,
-                    linkedInvoiceId = 1,
+                    linkedInvoiceId = "1",
                 )
             },
             requiredFieldRejectedTestCases("id") {
@@ -229,7 +229,7 @@ class EditIncomeMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditIncome to buildJsonObject {
-                        put("id", income.id!!.toInt())
+                        put("id", income.id!!)
                         put("title", "Updated Planet Express delivery")
                         put("dateReceived", "3025-03-10")
                         put("currency", "EUR")
@@ -285,7 +285,7 @@ class EditIncomeMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditIncome to buildJsonObject {
-                        put("id", income.id!!.toInt())
+                        put("id", income.id!!)
                         put("title", "Interplanetary cargo income")
                         put("dateReceived", MOCK_DATE.toString())
                         put("currency", preconditions.fryWorkspace.defaultCurrency)
@@ -333,7 +333,7 @@ class EditIncomeMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditIncome to buildJsonObject {
-                        put("id", income.id!!.toInt())
+                        put("id", income.id!!)
                         put("title", "Interplanetary cargo income")
                         put("dateReceived", MOCK_DATE.toString())
                         put("currency", preconditions.fryWorkspace.defaultCurrency)
@@ -368,7 +368,7 @@ class EditIncomeMutationTest(
                 .graphqlMutation {
                     editIncomeMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -394,8 +394,8 @@ class EditIncomeMutationTest(
     }
 
     private fun MutationProjection.editIncomeMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         title: String = "Interplanetary cargo income",
         dateReceived: LocalDate = MOCK_DATE,
         currency: String = preconditions.fryWorkspace.defaultCurrency,
@@ -404,10 +404,10 @@ class EditIncomeMutationTest(
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
         incomeTaxableAmountInDefaultCurrency: Long? = null,
         notes: String? = null,
-        attachments: List<Long>? = null,
-        categoryId: Long? = null,
-        generalTaxId: Long? = null,
-        linkedInvoiceId: Long? = null,
+        attachments: List<String>? = null,
+        categoryId: String? = null,
+        generalTaxId: String? = null,
+        linkedInvoiceId: String? = null,
     ): MutationProjection = editIncome(
         workspaceId = workspaceId,
         id = id,

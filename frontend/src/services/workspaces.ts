@@ -4,7 +4,7 @@ import { graphql } from '@/services/api/gql';
 import { gqlClient } from '@/services/api/gql-api-client.ts';
 
 export interface WorkspaceInfo {
-  id: number;
+  id: string;
   name: string;
   defaultCurrency: string;
   editable: boolean;
@@ -12,7 +12,7 @@ export interface WorkspaceInfo {
 
 let currentWorkspace: WorkspaceInfo | null;
 let workspaces: WorkspaceInfo[];
-const storage = useStorage<number>('current-workspace');
+const storage = useStorage<string>('current-workspace');
 
 const allWorkspacesQuery = graphql(`
   query allWorkspaces($first: Int!) {
@@ -29,7 +29,7 @@ const allWorkspacesQuery = graphql(`
 `);
 
 const workspaceByIdQuery = graphql(`
-  query workspaceById($id: Long!) {
+  query workspaceById($id: String!) {
     workspace(id: $id) {
       id
       name

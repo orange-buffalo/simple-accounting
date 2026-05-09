@@ -118,7 +118,7 @@ class EditUserMutationTest(
         @Test
         fun `should return entity not found error for non-existent user`() {
             client.graphqlMutation {
-                editUserMutation(id = Long.MAX_VALUE, userName = "Ghost")
+                editUserMutation(id = "missing-id", userName = "Ghost")
             }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditUser)
@@ -139,7 +139,7 @@ class EditUserMutationTest(
     }
 
     private fun MutationProjection.editUserMutation(
-        id: Long,
+        id: String,
         userName: String = "Hermes",
     ) = editUser(id = id, userName = userName) {
         this.id

@@ -21,7 +21,7 @@ class EditWorkspaceMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editWorkspace(
         @GraphQLDescription("ID of the workspace to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New name of the workspace.")
         @NotBlank
         @Size(max = 255)

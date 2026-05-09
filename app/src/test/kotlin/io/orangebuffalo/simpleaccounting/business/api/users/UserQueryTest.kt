@@ -67,14 +67,14 @@ class UserQueryTest(
         @Test
         fun `should return entity not found error for non-existent user`() {
             client.graphql {
-                userQuery(id = Long.MAX_VALUE)
+                userQuery(id = "missing-id")
             }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.QUERY.User)
         }
     }
 
-    private fun io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection.userQuery(id: Long) =
+    private fun io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection.userQuery(id: String) =
         user(id = id) {
             this.id
             this.userName

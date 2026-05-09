@@ -13,14 +13,14 @@ export const DocumentDataFragment = graphql(`
 
 export type DocumentDataFragmentType = FragmentType<typeof DocumentDataFragment>;
 
-export function getDocumentIds(attachments: ReadonlyArray<DocumentDataFragmentType>): number[] {
+export function getDocumentIds(attachments: ReadonlyArray<DocumentDataFragmentType>): string[] {
   return attachments.map(a => useFragment(DocumentDataFragment, a).id);
 }
 
 export function useDocumentAttachments() {
   const resolvedDocuments = ref<DocumentDataFragmentType[]>([]);
 
-  function setDocuments(attachments: ReadonlyArray<DocumentDataFragmentType>): number[] {
+  function setDocuments(attachments: ReadonlyArray<DocumentDataFragmentType>): string[] {
     resolvedDocuments.value = [...attachments];
     return getDocumentIds(attachments);
   }

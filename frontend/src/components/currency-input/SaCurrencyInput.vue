@@ -47,7 +47,7 @@
   const loading = ref(true);
 
   const getCurrenciesShortlistQuery = useLazyQuery(graphql(`
-    query getCurrenciesShortlist($workspaceId: Long!) {
+    query getCurrenciesShortlist($workspaceId: String!) {
       workspace(id: $workspaceId) {
         analytics {
           currenciesShortlist

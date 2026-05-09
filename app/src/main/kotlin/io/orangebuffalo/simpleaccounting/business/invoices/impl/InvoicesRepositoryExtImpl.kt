@@ -18,7 +18,7 @@ class InvoicesRepositoryExtImpl(
     private val invoice = Tables.INVOICE
     private val customer = Tables.CUSTOMER
 
-    override fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice? = dslContext
+    override fun findByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? = dslContext
         .select(*invoice.fields())
         .from(invoice)
         .join(customer).on(invoice.customerId.eq(customer.id))

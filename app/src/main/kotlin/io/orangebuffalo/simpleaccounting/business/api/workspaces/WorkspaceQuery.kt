@@ -15,7 +15,7 @@ class WorkspaceQuery(
     @GraphQLDescription("Returns a workspace by its ID, if accessible by the current user.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     suspend fun workspace(
-        @GraphQLDescription("ID of the workspace.") id: Long,
+        @GraphQLDescription("ID of the workspace.") id: String,
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.READ_ONLY)
         return WorkspaceGqlDto(

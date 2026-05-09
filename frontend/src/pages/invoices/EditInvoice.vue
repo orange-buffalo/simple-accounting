@@ -150,7 +150,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number
+    id?: string
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -190,7 +190,7 @@
   });
 
   const getInvoiceQuery = useLazyQuery(graphql(`
-    query getInvoiceForEdit($workspaceId: Long!, $invoiceId: Long!) {
+    query getInvoiceForEdit($workspaceId: String!, $invoiceId: String!) {
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
           id
@@ -238,8 +238,8 @@
 
   const createInvoiceMutation = useMutation(graphql(`
     mutation createInvoiceMutation(
-      $workspaceId: Long!,
-      $customerId: Long!,
+      $workspaceId: String!,
+      $customerId: String!,
       $title: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
@@ -248,8 +248,8 @@
       $currency: String!,
       $amount: Long!,
       $notes: String,
-      $attachments: [Long!],
-      $generalTaxId: Long
+      $attachments: [String!],
+      $generalTaxId: String
     ) {
       createInvoice(
         workspaceId: $workspaceId,
@@ -272,9 +272,9 @@
 
   const editInvoiceMutation = useMutation(graphql(`
     mutation editInvoiceMutation(
-      $workspaceId: Long!,
-      $id: Long!,
-      $customerId: Long!,
+      $workspaceId: String!,
+      $id: String!,
+      $customerId: String!,
       $title: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
@@ -283,8 +283,8 @@
       $currency: String!,
       $amount: Long!,
       $notes: String,
-      $attachments: [Long!],
-      $generalTaxId: Long
+      $attachments: [String!],
+      $generalTaxId: String
     ) {
       editInvoice(
         workspaceId: $workspaceId,
@@ -307,7 +307,7 @@
   `), 'editInvoice');
 
   const cancelInvoiceMutation = useMutation(graphql(`
-    mutation cancelInvoiceMutation($workspaceId: Long!, $invoiceId: Long!) {
+    mutation cancelInvoiceMutation($workspaceId: String!, $invoiceId: String!) {
       cancelInvoice(workspaceId: $workspaceId, invoiceId: $invoiceId) {
         id
         status

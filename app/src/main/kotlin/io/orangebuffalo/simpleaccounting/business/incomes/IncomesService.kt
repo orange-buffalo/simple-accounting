@@ -115,10 +115,10 @@ class IncomesService(
         )
     }
 
-    suspend fun getIncomeByIdAndWorkspace(incomeId: Long, workspace: Workspace): Income? =
+    suspend fun getIncomeByIdAndWorkspace(incomeId: String, workspace: Workspace): Income? =
         getIncomeByIdAndWorkspaceId(incomeId, workspace.id!!)
 
-    suspend fun getIncomeByIdAndWorkspaceId(incomeId: Long, workspaceId: Long): Income? =
+    suspend fun getIncomeByIdAndWorkspaceId(incomeId: String, workspaceId: String): Income? =
         withDbContext {
             incomeRepository.findByIdAndWorkspaceId(incomeId, workspaceId)
         }
@@ -126,7 +126,7 @@ class IncomesService(
     suspend fun getIncomesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): List<IncomesStatistics> = withDbContext {
         incomeRepository.getStatistics(fromDate, toDate, workspaceId)
     }

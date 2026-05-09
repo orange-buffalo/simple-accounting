@@ -9,5 +9,5 @@ interface WorkspaceAccessTokensRepositoryExt {
 
     fun findValidByToken(token: String): WorkspaceAccessToken?
 
-    fun findWorkspaceByValidToken(token: String, workspaceId: Long? = null): Workspace?
+    fun findWorkspaceByValidToken(token: String, workspaceId: String? = null): Workspace?
 }

@@ -68,7 +68,7 @@ export type Category = {
   /** Whether this category is used for expenses. */
   expense: Scalars['Boolean']['output'];
   /** ID of the category. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Whether this category is used for incomes. */
   income: Scalars['Boolean']['output'];
   /** Name of the category. */
@@ -171,7 +171,7 @@ export enum CreateUserErrorCodes {
 export type Customer = {
   __typename?: 'Customer';
   /** ID of the customer. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Name of the customer. */
   name: Scalars['String']['output'];
 };
@@ -200,7 +200,7 @@ export type CustomersConnection = {
 export type Document = {
   __typename?: 'Document';
   /** ID of the document. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** MIME type of the document. */
   mimeType: Scalars['String']['output'];
   /** Name of the document. */
@@ -232,7 +232,7 @@ export type DocumentUsage = {
   /** Display name of the entity using the document. */
   displayName: Scalars['String']['output'];
   /** ID of the entity using the document. */
-  relatedEntityId: Scalars['Long']['output'];
+  relatedEntityId: Scalars['String']['output'];
   /** Type of entity using the document. */
   type: DocumentUsageType;
 };
@@ -309,11 +309,11 @@ export type Expense = {
   /** Amount of the general tax in cents. */
   generalTaxAmount?: Maybe<Scalars['Long']['output']>;
   /** ID of the general tax applied to this expense. */
-  generalTaxId?: Maybe<Scalars['Long']['output']>;
+  generalTaxId?: Maybe<Scalars['String']['output']>;
   /** Rate of the general tax in basis points. */
   generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
   /** ID of the expense. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Amounts for income tax purposes in the default currency. */
   incomeTaxableAmounts: ExpenseAmounts;
   /** Optional notes for the expense. */
@@ -416,7 +416,7 @@ export type GeneralTax = {
   /** Description of the general tax. */
   description?: Maybe<Scalars['String']['output']>;
   /** ID of the general tax. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Rate of the general tax in basis points (1/100 of a percent). */
   rateInBps: Scalars['Int']['output'];
   /** Title of the general tax. */
@@ -500,7 +500,7 @@ export type Income = {
   /** Rate in basis points of the general tax applied to this income. */
   generalTaxRateInBps?: Maybe<Scalars['Int']['output']>;
   /** ID of the income. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Amounts for income tax purposes. */
   incomeTaxableAmounts: IncomeAmounts;
   /** Invoice linked to this income. */
@@ -553,7 +553,7 @@ export type IncomeTaxPayment = {
   /** Date when the tax payment was made. */
   datePaid: Scalars['LocalDate']['output'];
   /** ID of the income tax payment. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Optional notes for the income tax payment. */
   notes?: Maybe<Scalars['String']['output']>;
   /** Date used for reporting purposes. */
@@ -654,7 +654,7 @@ export type Invoice = {
   /** General tax applied to this invoice. */
   generalTax?: Maybe<GeneralTax>;
   /** ID of the invoice. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Optional notes for the invoice. */
   notes?: Maybe<Scalars['String']['output']>;
   /** Status of the invoice. */
@@ -771,8 +771,8 @@ export type MutationActivateUserArgs = {
 
 
 export type MutationCancelInvoiceArgs = {
-  invoiceId: Scalars['Long']['input'];
-  workspaceId: Scalars['Long']['input'];
+  invoiceId: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
@@ -806,41 +806,41 @@ export type MutationCreateCategoryArgs = {
   expense: Scalars['Boolean']['input'];
   income: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateCustomerArgs = {
   name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateDocumentDownloadUrlArgs = {
-  documentId: Scalars['Long']['input'];
-  workspaceId: Scalars['Long']['input'];
+  documentId: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateDocumentUploadUrlArgs = {
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateExpenseArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   currency: Scalars['String']['input'];
   datePaid: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
   incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   originalAmount: Scalars['Long']['input'];
   percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
@@ -848,51 +848,51 @@ export type MutationCreateGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateIncomeArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   currency: Scalars['String']['input'];
   dateReceived: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
   incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  linkedInvoiceId?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   originalAmount: Scalars['Long']['input'];
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateIncomeTaxPaymentArgs = {
   amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
   datePaid: Scalars['LocalDate']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationCreateInvoiceArgs = {
   amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
   currency: Scalars['String']['input'];
-  customerId: Scalars['Long']['input'];
+  customerId: Scalars['String']['input'];
   dateIssued: Scalars['LocalDate']['input'];
   datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
   dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
   dueDate: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
@@ -903,7 +903,7 @@ export type MutationCreateUserArgs = {
 
 
 export type MutationCreateUserActivationTokenArgs = {
-  userId: Scalars['Long']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -915,109 +915,109 @@ export type MutationCreateWorkspaceArgs = {
 
 export type MutationCreateWorkspaceAccessTokenArgs = {
   validTill: Scalars['DateTime']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditCategoryArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   expense: Scalars['Boolean']['input'];
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   income: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditCustomerArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditExpenseArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   currency: Scalars['String']['input'];
   datePaid: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
   incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   originalAmount: Scalars['Long']['input'];
   percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditGeneralTaxArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditIncomeArgs = {
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
-  categoryId?: InputMaybe<Scalars['Long']['input']>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
   convertedAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
   currency: Scalars['String']['input'];
   dateReceived: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
   incomeTaxableAmountInDefaultCurrency?: InputMaybe<Scalars['Long']['input']>;
-  linkedInvoiceId?: InputMaybe<Scalars['Long']['input']>;
+  linkedInvoiceId?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   originalAmount: Scalars['Long']['input'];
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditIncomeTaxPaymentArgs = {
   amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
   datePaid: Scalars['LocalDate']['input'];
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditInvoiceArgs = {
   amount: Scalars['Long']['input'];
-  attachments?: InputMaybe<Array<Scalars['Long']['input']>>;
+  attachments?: InputMaybe<Array<Scalars['String']['input']>>;
   currency: Scalars['String']['input'];
-  customerId: Scalars['Long']['input'];
+  customerId: Scalars['String']['input'];
   dateIssued: Scalars['LocalDate']['input'];
   datePaid?: InputMaybe<Scalars['LocalDate']['input']>;
   dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
   dueDate: Scalars['LocalDate']['input'];
-  generalTaxId?: InputMaybe<Scalars['Long']['input']>;
-  id: Scalars['Long']['input'];
+  generalTaxId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
-  workspaceId: Scalars['Long']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 
 export type MutationEditUserArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   userName: Scalars['String']['input'];
 };
 
 
 export type MutationEditWorkspaceArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
   name: Scalars['String']['input'];
 };
 
@@ -1063,7 +1063,7 @@ export type PlatformUser = {
   /** Whether the user has admin privileges. */
   admin: Scalars['Boolean']['output'];
   /** The unique ID of the user. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** The username / login of the user. */
   userName: Scalars['String']['output'];
 };
@@ -1127,7 +1127,7 @@ export type Query = {
 
 
 export type QueryTokenByUserArgs = {
-  userId: Scalars['Long']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -1137,7 +1137,7 @@ export type QueryTokenByValueArgs = {
 
 
 export type QueryUserArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1149,7 +1149,7 @@ export type QueryUsersArgs = {
 
 
 export type QueryWorkspaceArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1278,7 +1278,7 @@ export type Workspace = {
   /** General taxes in this workspace with cursor-based pagination. */
   generalTaxes: GeneralTaxesConnection;
   /** ID of the workspace. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Returns an income by its ID if it belongs to this workspace, or null if not found. */
   income?: Maybe<Income>;
   /** Returns an income tax payment by its ID if it belongs to this workspace, or null if not found. */
@@ -1307,13 +1307,13 @@ export type WorkspaceCategoriesArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceCategoryArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
 /** Workspace of a user. */
 export type WorkspaceCustomerArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1333,7 +1333,7 @@ export type WorkspaceDocumentsArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceExpenseArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1347,7 +1347,7 @@ export type WorkspaceExpensesArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceGeneralTaxArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1360,13 +1360,13 @@ export type WorkspaceGeneralTaxesArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceIncomeArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
 /** Workspace of a user. */
 export type WorkspaceIncomeTaxPaymentArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1387,7 +1387,7 @@ export type WorkspaceIncomesArgs = {
 
 /** Workspace of a user. */
 export type WorkspaceInvoiceArgs = {
-  id: Scalars['Long']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -1410,7 +1410,7 @@ export type WorkspaceWorkspaceAccessTokensArgs = {
 export type WorkspaceAccessToken = {
   __typename?: 'WorkspaceAccessToken';
   /** ID of the access token. */
-  id: Scalars['Long']['output'];
+  id: Scalars['String']['output'];
   /** Whether this token has been revoked. */
   revoked: Scalars['Boolean']['output'];
   /** The token value used to share workspace access. */

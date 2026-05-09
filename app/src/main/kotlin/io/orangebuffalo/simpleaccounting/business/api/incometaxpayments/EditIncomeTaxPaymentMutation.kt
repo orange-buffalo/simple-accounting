@@ -24,9 +24,9 @@ class EditIncomeTaxPaymentMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editIncomeTaxPayment(
         @GraphQLDescription("ID of the workspace the income tax payment belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the income tax payment to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New title of the income tax payment.")
         @NotBlank
         @Size(max = 255)
@@ -42,7 +42,7 @@ class EditIncomeTaxPaymentMutation(
         @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this income tax payment.")
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.getTaxPaymentByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
@@ -57,6 +57,6 @@ class EditIncomeTaxPaymentMutation(
         return incomeTaxPaymentService.saveTaxPayment(payment).toIncomeTaxPaymentGqlDto()
     }
 
-    private fun mapAttachments(attachmentIds: List<Long>?): Set<IncomeTaxPaymentAttachment> =
+    private fun mapAttachments(attachmentIds: List<String>?): Set<IncomeTaxPaymentAttachment> =
         attachmentIds?.map(::IncomeTaxPaymentAttachment)?.toSet() ?: emptySet()
 }

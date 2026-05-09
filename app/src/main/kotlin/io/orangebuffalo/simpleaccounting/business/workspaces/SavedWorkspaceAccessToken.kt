@@ -5,6 +5,6 @@ import org.springframework.data.relational.core.mapping.Table
 
 @Table
 class SavedWorkspaceAccessToken(
-    var workspaceAccessTokenId: Long,
-    var ownerId: Long
+    var workspaceAccessTokenId: String,
+    var ownerId: String
 ) : AbstractEntity()

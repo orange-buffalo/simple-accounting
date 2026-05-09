@@ -29,16 +29,16 @@ class DocumentsRepositoryExtImpl(
     private val invoice = Tables.INVOICE
     private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
 
-    override fun findValidIds(ids: Collection<Long>, workspaceId: Long): Collection<Long> = dslContext
+    override fun findValidIds(ids: Collection<String>, workspaceId: String): Collection<String> = dslContext
         .select(document.id)
         .from(document)
         .where(
             document.id.`in`(ids),
             document.workspaceId.eq(workspaceId)
         )
-        .fetchInto(Long::class.java)
+        .fetchInto(String::class.java)
 
-    override fun getStorageStatsByOwner(ownerId: Long): List<DocumentStorageStatisticsRecord> = dslContext
+    override fun getStorageStatsByOwner(ownerId: String): List<DocumentStorageStatisticsRecord> = dslContext
         .select(document.storageId, count(document.id))
         .from(document)
         .join(workspace).on(workspace.id.eq(document.workspaceId))
@@ -52,11 +52,11 @@ class DocumentsRepositoryExtImpl(
             )
         }
 
-    override fun findUsagesByDocumentIds(documentIds: Collection<Long>): Map<Long, List<DocumentUsageGqlDto>> {
+    override fun findUsagesByDocumentIds(documentIds: Collection<String>): Map<String, List<DocumentUsageGqlDto>> {
         if (documentIds.isEmpty()) return emptyMap()
 
-        val docIdField = field(name("doc_id"), Long::class.java)
-        val entityIdField = field(name("entity_id"), Long::class.java)
+        val docIdField = field(name("doc_id"), String::class.java)
+        val entityIdField = field(name("entity_id"), String::class.java)
         val usageTypeField = field(name("usage_type"), String::class.java)
         val displayNameField = field(name("display_name"), String::class.java)
 

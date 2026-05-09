@@ -54,14 +54,14 @@ class DocumentsService(
         }
     }
 
-    private suspend fun getDocumentStorageByUser(userId: Long): DocumentsStorage? {
+    private suspend fun getDocumentStorageByUser(userId: String): DocumentsStorage? {
         val user = platformUsersService.getUserByUserId(userId)
         return documentsStorages.firstOrNull { it.getId() == user.documentsStorage }
     }
 
     suspend fun getDocumentByIdAndWorkspaceId(
-        documentId: Long,
-        workspaceId: Long
+        documentId: String,
+        workspaceId: String
     ): Document? = withDbContext {
         documentRepository.findByIdAndWorkspaceId(documentId, workspaceId)
     }
@@ -77,7 +77,7 @@ class DocumentsService(
     private fun getDocumentStorageById(storageId: String) = documentsStorages
         .first { it.getId() == storageId }
 
-    suspend fun validateDocuments(workspaceId: Long, documentsIds: Collection<Long>) {
+    suspend fun validateDocuments(workspaceId: String, documentsIds: Collection<String>) {
         val validDocumentsIds = withDbContext {
             documentRepository.findValidIds(documentsIds, workspaceId)
         }
@@ -107,7 +107,7 @@ class DocumentsService(
             .sorted()
     }
 
-    suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {
+    suspend fun getDownloadToken(workspaceId: String, documentId: String): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
@@ -116,7 +116,7 @@ class DocumentsService(
         }
     }
 
-    suspend fun getUploadToken(workspaceId: Long): String {
+    suspend fun getUploadToken(workspaceId: String): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val userName = getCurrentPrincipal().userName
         return tokenGenerator.generateToken(tokenLength = 30)
@@ -180,10 +180,10 @@ class DocumentsService(
 }
 
 data class DocumentDownloadMetadata(
-    val documentId: Long
+    val documentId: String
 )
 
 data class PersistentUploadRequest(
-    val workspaceId: Long,
+    val workspaceId: String,
     val userName: String,
 )

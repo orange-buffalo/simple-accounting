@@ -21,7 +21,7 @@ class IncomeTaxPaymentsRepositoryExtImpl(
     override fun getTaxPaymentsStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspaceId: Long
+        workspaceId: String
     ): IncomeTaxPaymentsStatistics = dslContext
         .select(coalesce(sum(taxPayment.amount), 0L).mapTo(IncomeTaxPaymentsStatistics::totalTaxPayments))
         .from(taxPayment)

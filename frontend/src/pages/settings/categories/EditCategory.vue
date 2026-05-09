@@ -30,7 +30,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -38,7 +38,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoryQuery = useLazyQuery(graphql(`
-    query getCategoryForEdit($workspaceId: Long!, $categoryId: Long!) {
+    query getCategoryForEdit($workspaceId: String!, $categoryId: String!) {
       workspace(id: $workspaceId) {
         category(id: $categoryId) {
           id
@@ -53,7 +53,7 @@
 
   const createCategory = useMutation(graphql(`
     mutation createCategory(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $name: String!,
       $description: String,
       $income: Boolean!,
@@ -73,8 +73,8 @@
 
   const editCategory = useMutation(graphql(`
     mutation editCategory(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $name: String!,
       $description: String,
       $income: Boolean!,

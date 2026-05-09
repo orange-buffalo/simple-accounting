@@ -90,7 +90,7 @@
   const emit = defineEmits<{(e: 'report-loaded'): void }>();
 
   const getGeneralTaxReportQuery = useLazyQuery(graphql(`
-    query getGeneralTaxReport($workspaceId: Long!, $fromDate: LocalDate!, $toDate: LocalDate!) {
+    query getGeneralTaxReport($workspaceId: String!, $fromDate: LocalDate!, $toDate: LocalDate!) {
       workspace(id: $workspaceId) {
         analytics {
           generalTaxesSummary(fromDate: $fromDate, toDate: $toDate) {

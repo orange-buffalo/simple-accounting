@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 @Table
 class Invoice(
-    var customerId: Long,
+    var customerId: String,
     var title: String,
     var dateIssued: LocalDate,
     var dateSent: LocalDate? = null,
@@ -20,14 +20,14 @@ class Invoice(
     @field:MappedCollection(idColumn = "INVOICE_ID")
     var attachments: Set<InvoiceAttachment> = setOf(),
     var notes: String? = null,
-    var generalTaxId: Long? = null,
+    var generalTaxId: String? = null,
     var status: InvoiceStatus = InvoiceStatus.DRAFT
 
 ) : AbstractEntity()
 
 @Table("INVOICE_ATTACHMENTS")
 data class InvoiceAttachment(
-    val documentId: Long
+    val documentId: String
 )
 
 enum class InvoiceStatus {

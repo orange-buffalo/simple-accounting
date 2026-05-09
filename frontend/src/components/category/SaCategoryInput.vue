@@ -23,7 +23,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
   defineProps<{
-    modelValue?: number,
+    modelValue?: string,
     placeholder?: string,
     clearable?: boolean,
   }>();
@@ -31,7 +31,7 @@
   const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
 
   const getCategoriesQuery = useLazyQuery(graphql(`
-    query getCategoriesForInput($workspaceId: Long!) {
+    query getCategoriesForInput($workspaceId: String!) {
       workspace(id: $workspaceId) {
         categories(first: 500) {
           edges {

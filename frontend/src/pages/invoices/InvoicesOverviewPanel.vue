@@ -250,9 +250,9 @@
 
   const editInvoiceMutation = useMutation(graphql(`
     mutation editInvoiceForMarkAsSent(
-      $workspaceId: Long!,
-      $id: Long!,
-      $customerId: Long!,
+      $workspaceId: String!,
+      $id: String!,
+      $customerId: String!,
       $title: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
@@ -261,8 +261,8 @@
       $currency: String!,
       $amount: Long!,
       $notes: String,
-      $attachments: [Long!],
-      $generalTaxId: Long
+      $attachments: [String!],
+      $generalTaxId: String
     ) {
       editInvoice(
         workspaceId: $workspaceId,

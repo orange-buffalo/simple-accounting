@@ -17,7 +17,7 @@ class UserActivationToken(
      * intended for this user.
      */
 
-    val userId: Long,
+    val userId: String,
     /**
      * The token value. It is a essentially a random string.
      */

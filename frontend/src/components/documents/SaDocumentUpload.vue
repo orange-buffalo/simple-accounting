@@ -57,13 +57,13 @@
   Dropzone.autoDiscover = false;
 
   export interface UploadedDocumentDto {
-    id: number;
+    id: string;
     name: string;
     sizeInBytes?: number;
   }
 
   const props = defineProps<{
-    documentId?: number,
+    documentId?: string,
     documentName?: string,
     documentSizeInBytes?: number,
   }>();
@@ -117,7 +117,7 @@
   });
 
   const createDocumentUploadUrlMutation = graphql(`
-    mutation createDocumentUploadUrl($workspaceId: Long!) {
+    mutation createDocumentUploadUrl($workspaceId: String!) {
       createDocumentUploadUrl(workspaceId: $workspaceId) {
         url
         filePartName

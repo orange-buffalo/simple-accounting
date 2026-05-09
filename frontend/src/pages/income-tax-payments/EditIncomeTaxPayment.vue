@@ -81,7 +81,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -93,7 +93,7 @@
   } = useCurrentWorkspace();
 
   const getIncomeTaxPaymentQuery = useLazyQuery(graphql(`
-    query getIncomeTaxPaymentForEdit($workspaceId: Long!, $id: Long!) {
+    query getIncomeTaxPaymentForEdit($workspaceId: String!, $id: String!) {
       workspace(id: $workspaceId) {
         incomeTaxPayment(id: $id) {
           id
@@ -112,13 +112,13 @@
 
   const createIncomeTaxPaymentMutation = useMutation(graphql(`
     mutation createIncomeTaxPayment(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $title: String!,
       $datePaid: LocalDate!,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
-      $attachments: [Long!],
+      $attachments: [String!],
     ) {
       createIncomeTaxPayment(
         workspaceId: $workspaceId,
@@ -136,14 +136,14 @@
 
   const editIncomeTaxPaymentMutation = useMutation(graphql(`
     mutation editIncomeTaxPayment(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $title: String!,
       $datePaid: LocalDate!,
       $reportingDate: LocalDate,
       $amount: Long!,
       $notes: String,
-      $attachments: [Long!],
+      $attachments: [String!],
     ) {
       editIncomeTaxPayment(
         workspaceId: $workspaceId,

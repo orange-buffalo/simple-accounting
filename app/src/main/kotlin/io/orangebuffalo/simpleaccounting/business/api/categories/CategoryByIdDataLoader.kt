@@ -14,11 +14,11 @@ private const val NAME = "categoryById"
 @Component
 class CategoryByIdDataLoader(
     private val categoriesRepository: CategoriesRepository,
-) : KotlinDataLoader<Long, CategoryGqlDto?> {
+) : KotlinDataLoader<String, CategoryGqlDto?> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<Long, CategoryGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, CategoryGqlDto?> =
         newAsyncMappedDataLoader { categoryIds ->
             val categories = categoriesRepository.findAllById(categoryIds)
             categories.associate {
@@ -34,5 +34,5 @@ class CategoryByIdDataLoader(
 }
 
 fun DataFetchingEnvironment.loadCategoryById(
-    categoryId: Long,
-): CompletableFuture<CategoryGqlDto?> = getDataLoader<Long, CategoryGqlDto?>(NAME)!!.load(categoryId)
+    categoryId: String,
+): CompletableFuture<CategoryGqlDto?> = getDataLoader<String, CategoryGqlDto?>(NAME)!!.load(categoryId)

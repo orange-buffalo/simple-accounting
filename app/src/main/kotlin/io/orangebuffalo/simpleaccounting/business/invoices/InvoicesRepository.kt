@@ -5,6 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 interface InvoicesRepository : AbstractEntityRepository<Invoice>, InvoicesRepositoryExt
 
 interface InvoicesRepositoryExt {
-    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice?
+    fun findByIdAndWorkspaceId(id: String, workspaceId: String): Invoice?
     fun findAllOverdue() : List<Invoice>
 }

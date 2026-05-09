@@ -125,7 +125,7 @@
   import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
     sourceInvoiceId?: string,
   }>();
 
@@ -140,7 +140,7 @@
   } = useCurrentWorkspace();
 
   const getSourceInvoiceQuery = useLazyQuery(graphql(`
-    query getSourceInvoiceForIncome($workspaceId: Long!, $invoiceId: Long!) {
+    query getSourceInvoiceForIncome($workspaceId: String!, $invoiceId: String!) {
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
           title
@@ -155,7 +155,7 @@
   `), 'workspace');
 
   const getIncomeForEditQuery = useLazyQuery(graphql(`
-    query getIncomeForEdit($workspaceId: Long!, $incomeId: Long!) {
+    query getIncomeForEdit($workspaceId: String!, $incomeId: String!) {
       workspace(id: $workspaceId) {
         income(id: $incomeId) {
           id
@@ -190,7 +190,7 @@
 
   const createIncomeMutation = useMutation(graphql(`
     mutation createIncomeMutation(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $title: String!,
       $dateReceived: LocalDate!,
       $currency: String!,
@@ -199,10 +199,10 @@
       $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
       $incomeTaxableAmountInDefaultCurrency: Long,
       $notes: String,
-      $attachments: [Long!],
-      $categoryId: Long,
-      $generalTaxId: Long,
-      $linkedInvoiceId: Long
+      $attachments: [String!],
+      $categoryId: String,
+      $generalTaxId: String,
+      $linkedInvoiceId: String
     ) {
       createIncome(
         workspaceId: $workspaceId,
@@ -226,8 +226,8 @@
 
   const editIncomeMutation = useMutation(graphql(`
     mutation editIncomeMutation(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $title: String!,
       $dateReceived: LocalDate!,
       $currency: String!,
@@ -236,10 +236,10 @@
       $useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
       $incomeTaxableAmountInDefaultCurrency: Long,
       $notes: String,
-      $attachments: [Long!],
-      $categoryId: Long,
-      $generalTaxId: Long,
-      $linkedInvoiceId: Long
+      $attachments: [String!],
+      $categoryId: String,
+      $generalTaxId: String,
+      $linkedInvoiceId: String
     ) {
       editIncome(
         workspaceId: $workspaceId,
@@ -273,7 +273,7 @@
     dateReceived: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
-    linkedInvoiceId: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
+    linkedInvoiceId: props.sourceInvoiceId ? props.sourceInvoiceId : undefined,
     attachments: [],
   });
 
@@ -298,7 +298,7 @@
     } else {
       const workspace = await getSourceInvoiceQuery({
         workspaceId: currentWorkspaceId,
-        invoiceId: Number(props.sourceInvoiceId),
+        invoiceId: props.sourceInvoiceId!,
       });
       const sourceInvoice = workspace.invoice;
       if (sourceInvoice) {

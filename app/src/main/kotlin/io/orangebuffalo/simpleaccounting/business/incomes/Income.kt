@@ -9,8 +9,8 @@ import java.time.LocalDate
 
 @Table
 class Income(
-    var categoryId: Long?,
-    var workspaceId: Long,
+    var categoryId: String?,
+    var workspaceId: String,
     var title: String,
     var dateReceived: LocalDate,
 
@@ -48,7 +48,7 @@ class Income(
 
     var notes: String? = null,
 
-    var generalTaxId: Long?,
+    var generalTaxId: String?,
 
     var generalTaxRateInBps: Int? = null,
 
@@ -56,13 +56,13 @@ class Income(
 
     var status: IncomeStatus,
 
-    var linkedInvoiceId: Long? = null
+    var linkedInvoiceId: String? = null
 
 ) : AbstractEntity()
 
 @Table("INCOME_ATTACHMENTS")
 data class IncomeAttachment(
-    val documentId: Long
+    val documentId: String
 )
 
 enum class IncomeStatus {

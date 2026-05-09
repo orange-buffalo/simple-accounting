@@ -49,7 +49,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQuery(
                 """
                 mutation {
-                  createGeneralTax(workspaceId: ${preconditions.workspace.id}, title: "VAT", rateInBps: null) {
+                  createGeneralTax(workspaceId: "${preconditions.workspace.id}", title: "VAT", rateInBps: null) {
                     rateInBps
                   }
                 }
@@ -76,7 +76,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQuery(
                 """
                 mutation {
-                  createGeneralTax(workspaceId: ${preconditions.workspace.id}, title: "VAT") {
+                  createGeneralTax(workspaceId: "${preconditions.workspace.id}", title: "VAT") {
                     rateInBps
                   }
                 }
@@ -108,7 +108,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQueryWithVariables(
                 query = """
                 mutation(${'$'}rateInBps: Int!) {
-                  createGeneralTax(workspaceId: ${preconditions.workspace.id}, title: "VAT", rateInBps: ${'$'}rateInBps) {
+                  createGeneralTax(workspaceId: "${preconditions.workspace.id}", title: "VAT", rateInBps: ${'$'}rateInBps) {
                     rateInBps
                   }
                 }

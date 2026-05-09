@@ -163,7 +163,7 @@ class CreateDocumentDownloadUrlMutationTest(
             client
                 .graphqlMutation {
                     createDocumentDownloadUrlMutation(
-                        workspaceId = 5634632,
+                        workspaceId = "5634632",
                         documentId = preconditions.coffeeReceipt.id!!,
                     )
                 }
@@ -261,8 +261,8 @@ class CreateDocumentDownloadUrlMutationTest(
     }
 
     private fun MutationProjection.createDocumentDownloadUrlMutation(
-        workspaceId: Long,
-        documentId: Long,
+        workspaceId: String,
+        documentId: String,
     ): MutationProjection = createDocumentDownloadUrl(
         workspaceId = workspaceId,
         documentId = documentId,

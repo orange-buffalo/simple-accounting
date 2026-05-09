@@ -49,7 +49,7 @@ class EditCategoryMutationTest(
                 .graphqlMutation {
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .fromAnonymous()
@@ -62,7 +62,7 @@ class EditCategoryMutationTest(
                 .graphqlMutation {
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .from(preconditions.farnsworth)
@@ -75,7 +75,7 @@ class EditCategoryMutationTest(
                 .graphqlMutation {
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = 1,
+                        id = "1",
                     )
                 }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
@@ -162,7 +162,7 @@ class EditCategoryMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditCategory to buildJsonObject {
-                        put("id", category.id!!.toInt())
+                        put("id", category.id!!)
                         put("name", "Spaceship fuel")
                         put("description", "Delivery to Omicron Persei 8")
                         put("income", false)
@@ -202,7 +202,7 @@ class EditCategoryMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditCategory to buildJsonObject {
-                        put("id", category.id!!.toInt())
+                        put("id", category.id!!)
                         put("name", "Slurm supplies")
                         put("description", JsonNull)
                         put("income", true)
@@ -217,7 +217,7 @@ class EditCategoryMutationTest(
                 .graphqlMutation {
                     editCategoryMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
-                        id = Long.MAX_VALUE,
+                        id = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
@@ -241,8 +241,8 @@ class EditCategoryMutationTest(
     }
 
     private fun MutationProjection.editCategoryMutation(
-        workspaceId: Long,
-        id: Long,
+        workspaceId: String,
+        id: String,
         name: String = "Delivery",
         description: String? = null,
         income: Boolean = true,

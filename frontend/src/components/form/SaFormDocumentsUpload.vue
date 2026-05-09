@@ -22,7 +22,7 @@
   const formApi = useSaFormComponentsApi();
   const documentsUploadRef = ref<InstanceType<typeof SaDocumentsUpload> | null>(null);
 
-  const onDocumentsIdsUpdate = (ids: number[]) => {
+  const onDocumentsIdsUpdate = (ids: string[]) => {
     (formApi.formValues.value as Record<string, unknown>)[props.prop] = ids;
   };
 

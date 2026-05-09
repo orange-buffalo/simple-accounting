@@ -217,7 +217,7 @@ class WorkspaceAccessTokensQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.token.id!!.toInt())
+                                        put("id", testData.token.id!!)
                                         put("version", 0)
                                         put("token", "my-share-token")
                                         put("validTill", MOCK_TIME.plusSeconds(9999).toString())

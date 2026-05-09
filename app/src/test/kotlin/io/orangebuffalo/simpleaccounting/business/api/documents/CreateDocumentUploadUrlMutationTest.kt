@@ -137,7 +137,7 @@ class CreateDocumentUploadUrlMutationTest(
             client
                 .graphqlMutation {
                     createDocumentUploadUrlMutation(
-                        workspaceId = 5634632,
+                        workspaceId = "5634632",
                     )
                 }
                 .from(preconditions.fry)
@@ -177,7 +177,7 @@ class CreateDocumentUploadUrlMutationTest(
     }
 
     private fun MutationProjection.createDocumentUploadUrlMutation(
-        workspaceId: Long,
+        workspaceId: String,
     ): MutationProjection = createDocumentUploadUrl(
         workspaceId = workspaceId,
     ) {

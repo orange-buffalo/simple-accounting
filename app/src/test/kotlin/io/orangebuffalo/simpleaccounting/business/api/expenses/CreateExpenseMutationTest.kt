@@ -109,10 +109,10 @@ class CreateExpenseMutationTest(
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },
             optionalFieldAbsentTestCases("categoryId") {
-                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = 1)
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = "1")
             },
             optionalFieldAbsentTestCases("generalTaxId") {
-                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
+                createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = "1")
             },
             requiredFieldRejectedTestCases("datePaid") {
                 createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!)
@@ -269,7 +269,7 @@ class CreateExpenseMutationTest(
     }
 
     private fun MutationProjection.createExpenseMutation(
-        workspaceId: Long,
+        workspaceId: String,
         title: String = "Spaceship parts",
         datePaid: LocalDate = MOCK_DATE,
         currency: String = "USD",
@@ -279,9 +279,9 @@ class CreateExpenseMutationTest(
         incomeTaxableAmountInDefaultCurrency: Long? = null,
         notes: String? = null,
         percentOnBusiness: Int? = null,
-        attachments: List<Long>? = null,
-        categoryId: Long? = null,
-        generalTaxId: Long? = null,
+        attachments: List<String>? = null,
+        categoryId: String? = null,
+        generalTaxId: String? = null,
     ): MutationProjection = createExpense(
         workspaceId = workspaceId,
         title = title,

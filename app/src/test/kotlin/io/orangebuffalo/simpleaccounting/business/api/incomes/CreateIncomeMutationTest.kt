@@ -103,13 +103,13 @@ class CreateIncomeMutationTest(
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
             },
             optionalFieldAbsentTestCases("categoryId") {
-                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = 1)
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, categoryId = "1")
             },
             optionalFieldAbsentTestCases("generalTaxId") {
-                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = 1)
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, generalTaxId = "1")
             },
             optionalFieldAbsentTestCases("linkedInvoiceId") {
-                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, linkedInvoiceId = 1)
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, linkedInvoiceId = "1")
             },
             requiredFieldRejectedTestCases("dateReceived") {
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!)
@@ -311,7 +311,7 @@ class CreateIncomeMutationTest(
     }
 
     private fun MutationProjection.createIncomeMutation(
-        workspaceId: Long,
+        workspaceId: String,
         title: String = "Interplanetary cargo income",
         dateReceived: LocalDate = MOCK_DATE,
         currency: String = "USD",
@@ -320,10 +320,10 @@ class CreateIncomeMutationTest(
         useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
         incomeTaxableAmountInDefaultCurrency: Long? = null,
         notes: String? = null,
-        attachments: List<Long>? = null,
-        categoryId: Long? = null,
-        generalTaxId: Long? = null,
-        linkedInvoiceId: Long? = null,
+        attachments: List<String>? = null,
+        categoryId: String? = null,
+        generalTaxId: String? = null,
+        linkedInvoiceId: String? = null,
     ): MutationProjection = createIncome(
         workspaceId = workspaceId,
         title = title,

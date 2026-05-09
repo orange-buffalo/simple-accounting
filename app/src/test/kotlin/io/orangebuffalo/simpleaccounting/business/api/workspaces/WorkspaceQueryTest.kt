@@ -177,7 +177,7 @@ class WorkspaceQueryTest(
         @Test
         fun `should return error when workspace does not exist`() {
             client.graphql {
-                workspace(id = -1) {
+                workspace(id = "missing-id") {
                     name
                 }
             }
@@ -217,7 +217,7 @@ class WorkspaceQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("category", buildJsonObject {
-                            put("id", categoryPreconditions.deliveryCategory.id!!.toInt())
+                            put("id", categoryPreconditions.deliveryCategory.id!!)
                             put("name", "Delivery")
                         })
                     }
@@ -245,7 +245,7 @@ class WorkspaceQueryTest(
         fun `should return null when category does not exist`() {
             client.graphql {
                 workspace(id = categoryPreconditions.fryWorkspace.id!!) {
-                    category(id = -1) {
+                    category(id = "missing-id") {
                         name
                     }
                 }
@@ -288,7 +288,7 @@ class WorkspaceQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("customer", buildJsonObject {
-                            put("id", customerPreconditions.momCorpCustomer.id!!.toInt())
+                            put("id", customerPreconditions.momCorpCustomer.id!!)
                             put("name", "MomCorp")
                         })
                     }
@@ -316,7 +316,7 @@ class WorkspaceQueryTest(
         fun `should return null when customer does not exist`() {
             client.graphql {
                 workspace(id = customerPreconditions.fryWorkspace.id!!) {
-                    customer(id = -1) {
+                    customer(id = "missing-id") {
                         name
                     }
                 }

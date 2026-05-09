@@ -21,9 +21,9 @@ class EditCategoryMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun editCategory(
         @GraphQLDescription("ID of the workspace the category belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the category to update.")
-        id: Long,
+        id: String,
         @GraphQLDescription("New name of the category.")
         @NotBlank
         @Size(max = 255)

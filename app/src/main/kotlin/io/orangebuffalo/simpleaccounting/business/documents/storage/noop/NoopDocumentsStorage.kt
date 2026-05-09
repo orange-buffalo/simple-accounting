@@ -59,5 +59,5 @@ class NoopDocumentsStorage : DocumentsStorage {
 
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
-    override suspend fun isDownloadAvailableForUser(userId: Long) = true
+    override suspend fun isDownloadAvailableForUser(userId: String) = true
 }

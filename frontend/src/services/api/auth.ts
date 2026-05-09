@@ -208,7 +208,7 @@ export interface Auth {
 
   isCurrentUserRegular(): boolean;
 
-  loginBySharedToken: (sharedToken: string) => Promise<{ id: number; name: string; defaultCurrency: string; } | null>;
+  loginBySharedToken: (sharedToken: string) => Promise<{ id: string; name: string; defaultCurrency: string; } | null>;
 }
 
 export function useAuth(): Auth {

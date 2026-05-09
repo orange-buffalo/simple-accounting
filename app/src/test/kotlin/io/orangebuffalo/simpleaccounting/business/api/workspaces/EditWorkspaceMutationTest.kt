@@ -111,7 +111,7 @@ class EditWorkspaceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditWorkspace to buildJsonObject {
-                        put("id", preconditions.fryWorkspace.id!!.toInt())
+                        put("id", preconditions.fryWorkspace.id!!)
                         put("name", "New New York Express")
                         put("defaultCurrency", preconditions.fryWorkspace.defaultCurrency)
                     }
@@ -143,7 +143,7 @@ class EditWorkspaceMutationTest(
         fun `should return entity not found error for non-existent workspace`() {
             client
                 .graphqlMutation {
-                    editWorkspaceMutation(id = Long.MAX_VALUE)
+                    editWorkspaceMutation(id = "missing-id")
                 }
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditWorkspace)
@@ -151,7 +151,7 @@ class EditWorkspaceMutationTest(
     }
 
     private fun MutationProjection.editWorkspaceMutation(
-        id: Long,
+        id: String,
         name: String = "Planet Express",
     ): MutationProjection = editWorkspace(
         id = id,

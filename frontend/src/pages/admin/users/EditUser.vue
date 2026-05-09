@@ -53,7 +53,7 @@
   import { CreateUserErrorCodes, EditUserErrorCodes } from '@/services/api/gql/schema-types.ts';
 
   const props = defineProps<{
-    id?: number
+    id?: string
   }>();
 
   const editMode = computed(() => props.id !== undefined);
@@ -64,7 +64,7 @@
   const navigateToUsersOverview = async () => {
     await navigateByViewName('users-overview');
   };
-  const navigateToEditUser = async (id: number) => {
+  const navigateToEditUser = async (id: string) => {
     await navigateToView({
       name: 'edit-user',
       params: {
@@ -74,7 +74,7 @@
   };
 
   const getUserQuery = useLazyQuery(graphql(/* GraphQL */ `
-    query getUserForEdit($userId: Long!) {
+    query getUserForEdit($userId: String!) {
       user(id: $userId) {
         id
         userName
@@ -94,7 +94,7 @@
   `), 'createUser');
 
   const editUserMutation = useMutation(graphql(/* GraphQL */ `
-    mutation editUser($id: Long!, $userName: String!) {
+    mutation editUser($id: String!, $userName: String!) {
       editUser(id: $id, userName: $userName) {
         id
         userName
@@ -103,7 +103,7 @@
   `), 'editUser');
 
   const tokenByUserQuery = useLazyQuery(graphql(/* GraphQL */ `
-    query tokenByUser($userId: Long!) {
+    query tokenByUser($userId: String!) {
       tokenByUser(userId: $userId) {
         token
       }
@@ -111,7 +111,7 @@
   `), 'tokenByUser');
 
   const createUserActivationTokenMutation = useMutation(graphql(/* GraphQL */ `
-    mutation createUserActivationToken($userId: Long!) {
+    mutation createUserActivationToken($userId: String!) {
       createUserActivationToken(userId: $userId) {
         token
       }

@@ -210,13 +210,13 @@ class CreateIncomeTaxPaymentMutationTest(
     }
 
     private fun MutationProjection.createIncomeTaxPaymentMutation(
-        workspaceId: Long,
+        workspaceId: String,
         title: String = "Q1 Tax",
         datePaid: LocalDate = MOCK_DATE,
         reportingDate: LocalDate? = null,
         amount: Long = 100,
         notes: String? = null,
-        attachments: List<Long>? = null,
+        attachments: List<String>? = null,
     ): MutationProjection = createIncomeTaxPayment(
         workspaceId = workspaceId,
         title = title,

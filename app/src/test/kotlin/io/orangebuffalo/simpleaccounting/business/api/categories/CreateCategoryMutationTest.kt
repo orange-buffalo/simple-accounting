@@ -183,7 +183,7 @@ class CreateCategoryMutationTest(
     }
 
     private fun MutationProjection.createCategoryMutation(
-        workspaceId: Long,
+        workspaceId: String,
         name: String = "Delivery",
         description: String? = null,
         income: Boolean = true,

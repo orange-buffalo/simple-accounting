@@ -181,7 +181,7 @@ class CreateGeneralTaxMutationTest(
     }
 
     private fun MutationProjection.createGeneralTaxMutation(
-        workspaceId: Long,
+        workspaceId: String,
         title: String = "VAT",
         description: String? = null,
         rateInBps: Int = 10_00,

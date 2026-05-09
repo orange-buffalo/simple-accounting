@@ -18,9 +18,9 @@ class CancelInvoiceMutation(
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     suspend fun cancelInvoice(
         @GraphQLDescription("ID of the workspace the invoice belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the invoice to cancel.")
-        invoiceId: Long,
+        invoiceId: String,
     ): InvoiceGqlDto {
         val invoice = invoicesService.cancelInvoice(invoiceId, workspaceId)
         return invoice.toInvoiceGqlDto(workspaceId)

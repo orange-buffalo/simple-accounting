@@ -24,9 +24,9 @@ class CreateDocumentDownloadUrlMutation(
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     suspend fun createDocumentDownloadUrl(
         @GraphQLDescription("ID of the workspace the document belongs to.")
-        workspaceId: Long,
+        workspaceId: String,
         @GraphQLDescription("ID of the document to create a download URL for.")
-        documentId: Long,
+        documentId: String,
     ): CreateDocumentDownloadUrlResponse {
         val token = documentsService.getDownloadToken(workspaceId, documentId)
         val baseUrl = simpleAccountingProperties.publicUrl.trimEnd('/')

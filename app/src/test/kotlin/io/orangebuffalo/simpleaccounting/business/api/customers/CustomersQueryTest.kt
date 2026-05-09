@@ -334,7 +334,7 @@ class CustomersQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("node", buildJsonObject {
-                                        put("id", testData.customer.id!!.toInt())
+                                        put("id", testData.customer.id!!)
                                         put("name", "MomCorp")
                                     })
                                 })

@@ -132,7 +132,7 @@
   import { AsFormValues } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
-    id?: number,
+    id?: string,
     prototype?: string,
   }>();
 
@@ -147,7 +147,7 @@
   } = useCurrentWorkspace();
 
   const getExpenseQuery = useLazyQuery(graphql(`
-    query getExpenseForEdit($workspaceId: Long!, $expenseId: Long!) {
+    query getExpenseForEdit($workspaceId: String!, $expenseId: String!) {
       workspace(id: $workspaceId) {
         expense(id: $expenseId) {
           id
@@ -178,7 +178,7 @@
 
   const createExpenseMutation = useMutation(graphql(`
     mutation createExpenseMutation(
-      $workspaceId: Long!,
+      $workspaceId: String!,
       $title: String!,
       $datePaid: LocalDate!,
       $currency: String!,
@@ -188,9 +188,9 @@
       $incomeTaxableAmountInDefaultCurrency: Long,
       $notes: String,
       $percentOnBusiness: Int,
-      $attachments: [Long!],
-      $categoryId: Long,
-      $generalTaxId: Long
+      $attachments: [String!],
+      $categoryId: String,
+      $generalTaxId: String
     ) {
       createExpense(
         workspaceId: $workspaceId,
@@ -214,8 +214,8 @@
 
   const editExpenseMutation = useMutation(graphql(`
     mutation editExpenseMutation(
-      $workspaceId: Long!,
-      $id: Long!,
+      $workspaceId: String!,
+      $id: String!,
       $title: String!,
       $datePaid: LocalDate!,
       $currency: String!,
@@ -225,9 +225,9 @@
       $incomeTaxableAmountInDefaultCurrency: Long,
       $notes: String,
       $percentOnBusiness: Int,
-      $attachments: [Long!],
-      $categoryId: Long,
-      $generalTaxId: Long
+      $attachments: [String!],
+      $categoryId: String,
+      $generalTaxId: String
     ) {
       editExpense(
         workspaceId: $workspaceId,
@@ -275,7 +275,7 @@
 
   const loadExpense = (props.id !== undefined || props.prototype !== undefined) ? async () => {
     const isEdit = props.id !== undefined;
-    const expenseId = isEdit ? props.id! : Number(props.prototype);
+    const expenseId = isEdit ? props.id! : props.prototype!;
     const workspace = await getExpenseQuery({
       workspaceId: currentWorkspaceId,
       expenseId,

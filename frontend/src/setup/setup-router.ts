@@ -34,7 +34,7 @@ import EditUser from '@/pages/admin/users/EditUser.vue';
 import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
 import { resetDocumentsStorageStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
 
-const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
+const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: route.params.id as string });
 const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
   const result: { prototype?: string } = {};
   if (route.params.prototype) {

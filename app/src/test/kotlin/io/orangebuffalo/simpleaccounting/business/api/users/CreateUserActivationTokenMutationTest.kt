@@ -43,14 +43,14 @@ class CreateUserActivationTokenMutationTest(
     inner class Authorization {
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
-            client.graphqlMutation { createUserActivationTokenMutation(userId = 42) }
+            client.graphqlMutation { createUserActivationTokenMutation(userId = "42") }
                 .fromAnonymous()
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateUserActivationToken)
         }
 
         @Test
         fun `should return NOT_AUTHORIZED error for regular user`() {
-            client.graphqlMutation { createUserActivationTokenMutation(userId = 42) }
+            client.graphqlMutation { createUserActivationTokenMutation(userId = "42") }
                 .from(preconditions.fry)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.CreateUserActivationToken)
         }
@@ -61,7 +61,7 @@ class CreateUserActivationTokenMutationTest(
     inner class BusinessFlow {
         @Test
         fun `should return ENTITY_NOT_FOUND for non-existing user`() {
-            client.graphqlMutation { createUserActivationTokenMutation(userId = 100500) }
+            client.graphqlMutation { createUserActivationTokenMutation(userId = "100500") }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateUserActivationToken)
         }
@@ -125,7 +125,7 @@ class CreateUserActivationTokenMutationTest(
         }
     }
 
-    private fun MutationProjection.createUserActivationTokenMutation(userId: Long): MutationProjection =
+    private fun MutationProjection.createUserActivationTokenMutation(userId: String): MutationProjection =
         createUserActivationToken(userId = userId) {
             token
             expiresAt

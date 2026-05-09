@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 @GraphQLDescription("General tax applicable to incomes or expenses.")
 data class GeneralTaxGqlDto(
     @GraphQLDescription("ID of the general tax.")
-    val id: Long,
+    val id: String,
 
     @GraphQLDescription("Title of the general tax.")
     val title: String,

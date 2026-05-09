@@ -10,6 +10,6 @@ sealed class UserActivationTokenCreationException(
     /**
      * Indicates that the user is already activated.
      */
-    class UserAlreadyActivatedException(userId: Long) :
+    class UserAlreadyActivatedException(userId: String) :
         UserActivationTokenCreationException("User $userId is already activated")
 }
