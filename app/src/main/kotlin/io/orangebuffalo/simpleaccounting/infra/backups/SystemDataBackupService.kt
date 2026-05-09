@@ -26,7 +26,7 @@ class SystemDataBackupService(
     private val backupProperties: BackupProperties,
 ) {
 
-    @Scheduled(fixedDelayString = "\${sa.backup.scheduling-delay-in-hours}", timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelayString = "#{@backupProperties.schedulingDelayInHours}", timeUnit = TimeUnit.HOURS)
     fun executeBackup() = runBlocking {
         if (!backupProperties.enabled) {
             logger.info { "Backup is disabled" }

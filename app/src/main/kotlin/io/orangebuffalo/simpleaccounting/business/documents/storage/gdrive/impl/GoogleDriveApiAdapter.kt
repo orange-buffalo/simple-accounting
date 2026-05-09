@@ -2,13 +2,13 @@ package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.impl
 
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentStorageException
 import io.orangebuffalo.simpleaccounting.business.documents.storage.StorageAuthorizationRequiredException
+import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveDocumentsStorageProperties
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2WebClientBuilderProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -26,7 +26,7 @@ private val log = mu.KotlinLogging.logger {}
 @Component
 class GoogleDriveApiAdapter(
     private val webClientBuilderProvider: OAuth2WebClientBuilderProvider,
-    @Value("\${sa.documents.storage.google-drive.base-api-url}") private val baseApiUrl: String
+    private val googleDriveDocumentsStorageProperties: GoogleDriveDocumentsStorageProperties,
 ) {
 
     suspend fun uploadFile(
@@ -165,7 +165,7 @@ class GoogleDriveApiAdapter(
 
     private fun createWebClient() = webClientBuilderProvider
         .forClient(OAUTH2_CLIENT_REGISTRATION_ID)
-        .baseUrl(baseApiUrl)
+        .baseUrl(googleDriveDocumentsStorageProperties.baseApiUrl)
         .build()
 
     private suspend inline fun WebClient.RequestHeadersSpec<*>.executeDriveRequest(
