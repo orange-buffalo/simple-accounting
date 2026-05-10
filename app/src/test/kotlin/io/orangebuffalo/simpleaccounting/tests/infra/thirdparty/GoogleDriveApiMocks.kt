@@ -159,6 +159,17 @@ object GoogleDriveApiMocks {
         )
     }
 
+    fun mockDeleteFile(
+        fileId: String,
+        expectedAuthToken: OAuthMocksToken,
+    ) {
+        wireMockServer.stubFor(
+            delete(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files/$fileId"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .willReturn(aResponse().withStatus(204))
+        )
+    }
+
     fun mockFindFolder(
         parentFolderId: String,
         folderName: String,
@@ -201,6 +212,12 @@ object GoogleDriveApiMocks {
     fun verifyUploadFileRequest() {
         wireMockServer.verify(
             postRequestedFor(urlPathMatching("${GDRIVE_MOCKS_ROOT_PATH}upload/drive/v3/files"))
+        )
+    }
+
+    fun verifyDeleteFileRequest(fileId: String) {
+        wireMockServer.verify(
+            deleteRequestedFor(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files/$fileId"))
         )
     }
 
