@@ -166,6 +166,10 @@ class SaOverviewItem private constructor(
         }
     }
 
+    fun shouldHaveLastColumnContent(content: String) {
+        panel.locator(".overview-item__last-column").shouldHaveText(content)
+    }
+
     private fun lastColumnActionButton(actionText: String) = panel.locator(".overview-item__last-column")
         .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(actionText).setExact(true))
 

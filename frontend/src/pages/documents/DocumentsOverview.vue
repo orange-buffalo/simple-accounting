@@ -13,17 +13,22 @@
     </div>
 
     <SaPageableItems
+      ref="pageItems"
       :page-query="documentsPageQuery"
       path="workspace.documents"
       :page-query-arguments="{ workspaceId: currentWorkspaceId }"
       #default="{ item }"
     >
-      <DocumentsOverviewPanel :document="item" />
+      <DocumentsOverviewPanel
+        :document="item"
+        @deleted="reloadDocuments"
+      />
     </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { ref } from 'vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
@@ -31,6 +36,9 @@
   import { $t } from '@/services/i18n';
 
   const { currentWorkspaceId } = useCurrentWorkspace();
+  const pageItems = ref<{ reload: () => void }>();
+
+  const reloadDocuments = () => pageItems.value?.reload();
 
   const documentsPageQuery = graphql(`
     query documentsPage($workspaceId: String!, $first: Int!, $after: String) {

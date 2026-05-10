@@ -384,6 +384,15 @@ export default {
       waitingForStorage: () => 'Waiting for the storage to become available',
       storageInactive: () => 'You need to (re-)activate the documents storage to download this document. Navigate to your profile settings and check there.',
     },
+    delete: {
+      label: () => 'Delete',
+      confirm: {
+        title: () => 'Delete document?',
+        message: () => 'This document only exists in the document storage and is not used by any record. Delete it permanently?',
+        yes: () => 'Delete',
+        no: () => 'Keep document',
+      },
+    },
   },
 
   myProfile: {

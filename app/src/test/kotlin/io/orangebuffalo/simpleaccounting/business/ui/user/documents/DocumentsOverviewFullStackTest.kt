@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.nulls.shouldBeNull
+import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
@@ -21,6 +24,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTit
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +34,7 @@ import org.mockito.kotlin.whenever
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
+import kotlin.io.path.exists
 import kotlin.io.path.writeBytes
 
 class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
@@ -127,7 +132,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Google Drive"
                         ),
                         middleColumnContent = unusedStatus(),
-                        lastColumnContent = "Download",
+                        lastColumnContent = "DownloadDelete",
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -157,7 +162,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Unknown"
                         ),
                         middleColumnContent = unusedStatus(),
-                        lastColumnContent = "Download",
+                        lastColumnContent = "DownloadDelete",
                         hasDetails = false,
                     ),
                 )
@@ -213,6 +218,11 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Download",
                             "Waiting for the storage to become available",
                         )
+                        documentItem.shouldHaveLastColumnActionDisabled("Delete")
+                        documentItem.shouldHaveLastColumnActionTooltip(
+                            "Delete",
+                            "Waiting for the storage to become available",
+                        )
                     }
                 }
             }
@@ -246,8 +256,67 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     "You need to (re-)activate the documents storage to download this document. " +
                             "Navigate to your profile settings and check there.",
                 )
+                documentItem.shouldHaveLastColumnActionDisabled("Delete")
+                documentItem.shouldHaveLastColumnActionTooltip(
+                    "Delete",
+                    "You need to (re-)activate the documents storage to download this document. " +
+                            "Navigate to your profile settings and check there.",
+                )
             }
         }
+    }
+
+    @Test
+    fun `should delete unused document from overview`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                )
+                val workspace = workspace(owner = fry)
+                val unusedDocument = document(
+                    workspace = workspace,
+                    name = "Unused Slurm Receipt.pdf",
+                    storageId = TestDocumentsStorage.STORAGE_ID,
+                    storageLocation = "unused-slurm-receipt-location",
+                )
+
+                init {
+                    val usedDocument = document(
+                        workspace = workspace,
+                        name = "Used Robot Oil Receipt.pdf",
+                        storageId = TestDocumentsStorage.STORAGE_ID,
+                        storageLocation = "used-robot-oil-receipt-location",
+                    )
+                    expense(
+                        workspace = workspace,
+                        title = "Robot oil",
+                        attachments = setOf(usedDocument),
+                    )
+                }
+            }
+        }
+        testDocumentsStorage.mockDocumentContent(
+            "unused-slurm-receipt-location",
+            "Good news, everyone! unused Slurm receipt".toByteArray()
+        )
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val unusedItem = shouldHaveItemSatisfying { it.title == "Unused Slurm Receipt.pdf" }
+                unusedItem.shouldHaveLastColumnActionEnabled("Delete")
+                shouldHaveItemSatisfying { it.title == "Used Robot Oil Receipt.pdf" }
+                    .shouldHaveLastColumnContent("Download")
+                unusedItem.clickLastColumnAction("Delete")
+            }
+            confirmDocumentDeletion()
+            pageItems.shouldHaveTitles("Used Robot Oil Receipt.pdf")
+        }
+
+        aggregateTemplate.findById(testData.unusedDocument.id!!, Document::class.java).shouldBeNull()
+        testDocumentsStorage.hasUploadedContent("unused-slurm-receipt-location").shouldBeFalse()
     }
 
     @Test
@@ -324,6 +393,42 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should delete document from local file system`(page: Page) {
+        val documentContent = "Good news, everyone! Local document to delete".toByteArray()
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "local-fs")
+                val workspace = workspace(owner = fry)
+                val document = document(
+                    workspace = workspace,
+                    name = "local-deletable-contract.pdf",
+                    storageId = "local-fs",
+                    storageLocation = "${workspace.id}/local-deletable-contract.pdf",
+                    sizeInBytes = documentContent.size.toLong(),
+                    timeUploaded = MOCK_TIME,
+                    mimeType = "application/pdf",
+                )
+            }
+        }
+        val storedFile = tempDir.resolve("${testData.workspace.id}/local-deletable-contract.pdf")
+        Files.createDirectories(storedFile.parent)
+        storedFile.writeBytes(documentContent)
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "local-deletable-contract.pdf" }
+                    .clickLastColumnAction("Delete")
+            }
+            confirmDocumentDeletion()
+            pageItems.shouldHaveTitles()
+        }
+
+        aggregateTemplate.findById(testData.document.id!!, Document::class.java).shouldBeNull()
+        storedFile.exists().shouldBeFalse()
+    }
+
+    @Test
     fun `should download document from Google Drive`(page: Page) {
         val documentContent = "Good news, everyone! Google Drive delivery contract for Mars".toByteArray()
         val testData = preconditions {
@@ -374,6 +479,55 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 }.shouldBe(documentContent)
             }
         }
+    }
+
+    @Test
+    fun `should delete document from Google Drive`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "google-drive").also {
+                    save(
+                        GoogleDriveStorageIntegration(
+                            userId = it.id!!,
+                            folderId = "root-folder-id",
+                        )
+                    )
+                }
+                val document = document(
+                    workspace = workspace(owner = fry),
+                    name = "gdrive-deletable-contract.pdf",
+                    storageId = "google-drive",
+                    storageLocation = "gdrive-deletable-contract-file-id",
+                    timeUploaded = MOCK_TIME,
+                    mimeType = "application/pdf",
+                )
+            }
+        }
+        val accessToken = GoogleOAuthMocks.token()
+            .enqueue()
+            .persist(testData.fry)
+        GoogleDriveApiMocks.mockFindFile(
+            fileId = "root-folder-id",
+            fileName = "simple-accounting",
+            expectedAuthToken = accessToken,
+        )
+        GoogleDriveApiMocks.mockDeleteFile(
+            fileId = "gdrive-deletable-contract-file-id",
+            expectedAuthToken = accessToken,
+        )
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                shouldHaveItemSatisfying { it.title == "gdrive-deletable-contract.pdf" }
+                    .clickLastColumnAction("Delete")
+            }
+            confirmDocumentDeletion()
+            pageItems.shouldHaveTitles()
+        }
+
+        aggregateTemplate.findById(testData.document.id!!, Document::class.java).shouldBeNull()
+        GoogleDriveApiMocks.verifyDeleteFileRequest("gdrive-deletable-contract-file-id")
     }
 
     @Test
