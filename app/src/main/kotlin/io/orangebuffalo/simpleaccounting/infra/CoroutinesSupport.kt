@@ -4,16 +4,21 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.reactor.ReactorContext
 import org.springframework.web.server.ServerWebExchange
 import reactor.util.context.Context
+import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.coroutineContext
 
 @OptIn(DelicateCoroutinesApi::class)
 private val dbContext = newFixedThreadPoolContext(20, "db-context")
+private val dbContextExecutor = dbContext.asExecutor()
 
 suspend fun <T> withDbContext(block: suspend CoroutineScope.() -> T): T = withContext(dbContext, block)
 
 suspend fun <T> withDbContextAsync(block: suspend CoroutineScope.() -> T): Deferred<T> = coroutineScope {
     async(context = dbContext, block = block)
 }
+
+fun <T> supplyAsyncWithDbContext(block: () -> T): CompletableFuture<T> =
+    CompletableFuture.supplyAsync(block, dbContextExecutor)
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 suspend fun getReactorContext(): Context {

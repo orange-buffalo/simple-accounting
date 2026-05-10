@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import io.orangebuffalo.simpleaccounting.infra.supplyAsyncWithDbContext
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
-import java.util.concurrent.CompletableFuture
 
 /**
  * Creates a mapped [DataLoader] that executes the batch function asynchronously.
@@ -13,5 +13,5 @@ import java.util.concurrent.CompletableFuture
 fun <K : Any, V> newAsyncMappedDataLoader(
     batchLoader: (Set<K>) -> Map<K, V>,
 ): DataLoader<K, V> = DataLoaderFactory.newMappedDataLoader { keys ->
-    CompletableFuture.supplyAsync { batchLoader(keys) }
+    supplyAsyncWithDbContext { batchLoader(keys) }
 }
