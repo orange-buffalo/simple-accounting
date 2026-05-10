@@ -196,6 +196,12 @@ export type CustomersConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Possible business error codes for the deleteDocument operation. */
+export enum DeleteDocumentErrorCodes {
+  /** The document is attached to another entity and cannot be deleted. */
+  DocumentIsUsed = 'DOCUMENT_IS_USED'
+}
+
 /** A document in a workspace. */
 export type Document = {
   __typename?: 'Document';
@@ -735,6 +741,8 @@ export type Mutation = {
   createWorkspace: Workspace;
   /** Creates a new access token for sharing workspace access. */
   createWorkspaceAccessToken: WorkspaceAccessToken;
+  /** Deletes an unused document from the database and the backing document storage. */
+  deleteDocument: Scalars['Boolean']['output'];
   /** Updates an existing category in the specified workspace. */
   editCategory: Category;
   /** Updates an existing customer in the specified workspace. */
@@ -915,6 +923,12 @@ export type MutationCreateWorkspaceArgs = {
 
 export type MutationCreateWorkspaceAccessTokenArgs = {
   validTill: Scalars['DateTime']['input'];
+  workspaceId: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteDocumentArgs = {
+  documentId: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
 };
 

@@ -51,6 +51,10 @@ class TestDocumentsStorage : DocumentsStorage {
         return flowOf(DefaultDataBufferFactory.sharedInstance.wrap(content))
     }
 
+    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+        uploadedDocuments.remove(storageLocation)
+    }
+
     fun mockDocumentContent(storageLocation: String, content: ByteArray) {
         uploadedDocuments[storageLocation] = content
     }
@@ -63,6 +67,8 @@ class TestDocumentsStorage : DocumentsStorage {
         return uploadedDocuments[storageLocation]
             ?: throw IllegalStateException("No content found for location: $storageLocation")
     }
+
+    fun hasUploadedContent(storageLocation: String): Boolean = uploadedDocuments.containsKey(storageLocation)
 
     fun reset() {
         uploadedDocuments.clear()

@@ -45,6 +45,12 @@ class LocalFileSystemDocumentsStorage(
         ).asFlow()
     }
 
+    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+        withContext(localFsStorageContext) {
+            File(config.baseDirectory.toFile(), storageLocation).delete()
+        }
+    }
+
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
     override suspend fun isDownloadAvailableForUser(userId: String) = true

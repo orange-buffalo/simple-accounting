@@ -88,6 +88,10 @@ class GoogleDriveDocumentsStorage(
     override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> =
         googleDriveApi.downloadFile(storageLocation)
 
+    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+        googleDriveApi.deleteFile(storageLocation)
+    }
+
     override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
         val integrationStatus = getCurrentUserIntegrationStatus()
         return DocumentsStorageStatus(
