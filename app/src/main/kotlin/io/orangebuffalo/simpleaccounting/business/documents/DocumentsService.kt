@@ -116,6 +116,27 @@ class DocumentsService(
         }
     }
 
+    suspend fun deleteDocument(workspaceId: String, documentId: String) {
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val document = getDocumentByIdAndWorkspaceId(documentId, workspaceId)
+            ?: throw EntityNotFoundException("Document $documentId is not found")
+
+        val documentUsages = withDbContext {
+            documentRepository.findUsagesByDocumentIds(listOf(documentId))[documentId].orEmpty()
+        }
+        if (documentUsages.isNotEmpty()) {
+            throw DocumentIsUsedException(documentId)
+        }
+
+        getDocumentStorageById(document.storageId).deleteDocument(
+            workspace,
+            document.storageLocation ?: throw IllegalStateException("$document has not location assigned")
+        )
+        withDbContext {
+            documentRepository.delete(document)
+        }
+    }
+
     suspend fun getUploadToken(workspaceId: String): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val userName = getCurrentPrincipal().userName
@@ -187,3 +208,5 @@ data class PersistentUploadRequest(
     val workspaceId: String,
     val userName: String,
 )
+
+class DocumentIsUsedException(documentId: String) : RuntimeException("Document $documentId is used and cannot be deleted")

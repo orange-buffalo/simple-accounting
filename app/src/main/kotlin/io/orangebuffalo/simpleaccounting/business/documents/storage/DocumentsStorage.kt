@@ -13,6 +13,8 @@ interface DocumentsStorage {
 
     suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer>
 
+    suspend fun deleteDocument(workspace: Workspace, storageLocation: String)
+
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus
 
     suspend fun isDownloadAvailableForUser(userId: String): Boolean

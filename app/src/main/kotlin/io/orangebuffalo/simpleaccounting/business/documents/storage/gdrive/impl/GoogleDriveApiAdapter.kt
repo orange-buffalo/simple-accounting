@@ -84,6 +84,18 @@ class GoogleDriveApiAdapter(
             .asFlow()
     }
 
+    suspend fun deleteFile(fileId: String) {
+        createWebClient()
+            .delete()
+            .uri { builder ->
+                builder.path("/drive/v3/files/$fileId")
+                    .build()
+            }
+            .executeDriveRequest(setOf(HttpStatus.OK, HttpStatus.NO_CONTENT)) { errorJson ->
+                "Error while deleting $fileId: $errorJson"
+            }
+    }
+
     suspend fun findFolderByNameAndParent(
         folderName: String,
         parentFolderId: String
@@ -169,6 +181,7 @@ class GoogleDriveApiAdapter(
         .build()
 
     private suspend inline fun WebClient.RequestHeadersSpec<*>.executeDriveRequest(
+        successStatuses: Set<HttpStatus> = setOf(HttpStatus.OK),
         errorDescriptor: (errorJson: String?) -> String
     ): ClientResponse {
         log.debug { "Executing request: $this" }
@@ -185,7 +198,7 @@ class GoogleDriveApiAdapter(
         if (statusCode == HttpStatus.UNAUTHORIZED || statusCode == HttpStatus.FORBIDDEN) {
             log.debug { "Authorization required: $statusCode" }
             throw StorageAuthorizationRequiredException(message = "Not authorized: $statusCode")
-        } else if (statusCode != HttpStatus.OK) {
+        } else if (statusCode !in successStatuses) {
             val errorJson = clientResponse.bodyToMono(String::class.java).awaitFirstOrNull()
             log.debug { "Error response with code $statusCode: $errorJson" }
             if (statusCode == HttpStatus.NOT_FOUND) {

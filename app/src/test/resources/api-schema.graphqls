@@ -824,6 +824,13 @@ type Mutation {
     "ID of the workspace to create the token for."
     workspaceId: String!
   ): WorkspaceAccessToken! @auth(type : REGULAR_USER)
+  "Deletes an unused document from the database and the backing document storage."
+  deleteDocument(
+    "ID of the document to delete."
+    documentId: String!,
+    "ID of the workspace the document belongs to."
+    workspaceId: String!
+  ): Boolean! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENT_IS_USED", errorCodeDescription : "The document is attached to another entity and cannot be deleted.")
   "Updates an existing category in the specified workspace."
   editCategory(
     "New description of the category."
@@ -1425,6 +1432,12 @@ enum CreateUserActivationTokenErrorCodes {
 enum CreateUserErrorCodes {
   "A user with the given username already exists."
   USER_ALREADY_EXISTS
+}
+
+"Possible business error codes for the deleteDocument operation."
+enum DeleteDocumentErrorCodes {
+  "The document is attached to another entity and cannot be deleted."
+  DOCUMENT_IS_USED
 }
 
 "Type of entity that uses a document."

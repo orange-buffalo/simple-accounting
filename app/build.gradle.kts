@@ -208,6 +208,11 @@ tasks.register<Test>("updateGraphqlSchema") {
     group = "verification"
     description = "Updates the Git-managed GraphQL schema by running GraphqlSchemaTest with override enabled."
 
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    inputs.files(sourceSets.main.get().allSource)
+    inputs.files(sourceSets.test.get().allSource)
+
     filter {
         includeTestsMatching("*GraphqlSchemaTest*")
     }

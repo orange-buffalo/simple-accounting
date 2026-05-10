@@ -57,6 +57,9 @@ class NoopDocumentsStorage : DocumentsStorage {
             }
     }
 
+    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+    }
+
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
     override suspend fun isDownloadAvailableForUser(userId: String) = true

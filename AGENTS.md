@@ -54,6 +54,9 @@ cd frontend && bun run lint
 
 # GraphQL schema generation
 ./gradlew :app:updateGraphqlSchema
+
+# Frontend GraphQL type generation
+cd frontend && bun run graphql-codegen
 ```
 
 ### Development Commands
@@ -95,7 +98,7 @@ After making changes, choose validation based on the assessed blast radius:
    ./gradlew assemble check --console=plain
    ```
 For GraphQL changes, regenerate committed artifacts as needed before validation:
-- Endpoint/schema changes require schema and frontend TypeScript type regeneration.
+- Endpoint/schema changes always require both schema and frontend TypeScript type regeneration.
 - Frontend query or mutation changes require frontend TypeScript type regeneration.
 - See the GraphQL API Development section for the exact commands.
 
@@ -104,8 +107,9 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 **Code-first GraphQL** with schema generation:
 - After GraphQL changes, run: `./gradlew :app:updateGraphqlSchema`
 - Regenerates `app/src/test/resources/api-schema.graphqls`
+- After every GraphQL API change, also run: `cd frontend && bun run graphql-codegen`
 - Frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the `verifyGqlTypes` Gradle task (part of `check`)
-- To regenerate frontend TypeScript types during development, run: `cd frontend && bun run graphql-codegen`
+- Always commit regenerated frontend GraphQL types when the schema or frontend GraphQL operations change.
 
 ## File Locations
 
