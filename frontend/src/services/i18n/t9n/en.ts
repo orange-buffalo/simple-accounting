@@ -379,7 +379,16 @@ export default {
       internalSystem: () => 'Internal System',
       unknown: () => 'Unknown',
     },
-    unused: () => 'Unused',
+    usage: {
+      expense: () => 'expense',
+      income: () => 'income',
+      invoice: () => 'invoice',
+      incomeTaxPayment: () => 'income tax payment',
+      navigateTooltip: (usageType: string) => `Click to navigate to the ${usageType}`,
+    },
+    actions: {
+      label: () => 'More actions',
+    },
     download: {
       waitingForStorage: () => 'Waiting for the storage to become available',
       storageInactive: () => 'You need to (re-)activate the documents storage to download this document. Navigate to your profile settings and check there.',
