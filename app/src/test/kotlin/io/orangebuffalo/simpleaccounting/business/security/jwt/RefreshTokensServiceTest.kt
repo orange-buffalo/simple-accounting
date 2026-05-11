@@ -30,7 +30,7 @@ class RefreshTokensServiceTest(
         val currentTime = Instant.parse("2018-05-03T16:03:23Z")
         val expirationTime = Instant.parse("2018-06-02T16:03:23Z")
 
-        whenever(timeService.currentTime()) doReturn currentTime
+        doReturn(currentTime).whenever(timeService).currentTime()
 
         val token = runBlocking {
             refreshTokensService.generateRefreshToken(preconditions.fry.userName)
@@ -47,7 +47,7 @@ class RefreshTokensServiceTest(
 
     @Test
     fun `should build user details if token is valid`() {
-        whenever(timeService.currentTime()) doReturn MOCK_TIME
+        doReturn(MOCK_TIME).whenever(timeService).currentTime()
 
         val userDetails = runBlocking {
             refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token)
@@ -61,7 +61,7 @@ class RefreshTokensServiceTest(
 
     @Test
     fun `should fail on validation if token is expired`() {
-        whenever(timeService.currentTime()) doReturn MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)
+        doReturn(MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)).whenever(timeService).currentTime()
 
         shouldThrow<BadCredentialsException> {
             runBlocking { refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token) }
@@ -76,7 +76,7 @@ class RefreshTokensServiceTest(
 
     @Test
     fun `should prolong the token`() {
-        whenever(timeService.currentTime()) doReturn MOCK_TIME.minus(100, ChronoUnit.DAYS)
+        doReturn(MOCK_TIME.minus(100, ChronoUnit.DAYS)).whenever(timeService).currentTime()
 
         val updatedTokenString = runBlocking {
             refreshTokensService.prolongToken(preconditions.refreshToken.token)

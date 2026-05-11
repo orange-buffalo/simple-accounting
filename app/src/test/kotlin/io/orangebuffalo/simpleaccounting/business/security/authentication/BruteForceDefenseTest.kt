@@ -37,7 +37,7 @@ class BruteForceDefenseTest(
 
     @BeforeEach
     fun setupCurrentTime() {
-        whenever(timeService.currentTime()) doReturn CURRENT_TIME
+        doReturn(CURRENT_TIME).whenever(timeService).currentTime()
     }
 
     @Test

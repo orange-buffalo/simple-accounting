@@ -19,6 +19,7 @@ import org.springframework.core.env.Environment
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.Disposable
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 import java.net.URI
@@ -165,9 +166,8 @@ class PushNotificationsSubscriptionTest(
                 )
             )
 
-            outgoingSink.tryEmitNext(connectionInit)
-
-            val outgoing = outgoingSink.asFlux().map { session.textMessage(it) }
+            val outgoing = Flux.concat(Mono.just(connectionInit), outgoingSink.asFlux())
+                .map { session.textMessage(it) }
 
             val incoming = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
