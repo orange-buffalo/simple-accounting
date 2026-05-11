@@ -34,7 +34,7 @@ class AccountActivationFullStackTest(
             )
 
             init {
-                whenever(timeServiceSpy.currentTime()) doReturn token.expiresAt
+                doReturn(token.expiresAt).whenever(timeServiceSpy).currentTime()
             }
         }
     }
@@ -60,7 +60,7 @@ class AccountActivationFullStackTest(
             loginButton { shouldBeHidden() }
 
             // now, token is expired - to simulate token expiration during activation
-            whenever(timeServiceSpy.currentTime()) doReturn preconditions.token.expiresAt.plusSeconds(1)
+            doReturn(preconditions.token.expiresAt.plusSeconds(1)).whenever(timeServiceSpy).currentTime()
 
             form {
                 newPassword {
@@ -166,7 +166,7 @@ class AccountActivationFullStackTest(
         }
 
         // reset time to generate valid JWT token on login
-        whenever(timeServiceSpy.currentTime()) doReturn Instant.now()
+        doReturn(Instant.now()).whenever(timeServiceSpy).currentTime()
 
         withHint("Should update database with activated user") {
             aggregateTemplate.findSingle<PlatformUser>().should {
