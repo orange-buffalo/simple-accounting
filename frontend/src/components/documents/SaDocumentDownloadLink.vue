@@ -20,6 +20,11 @@
         :disabled="disabled"
         @click="startDownload"
       >
+        <SaIcon
+          v-if="showIcon"
+          icon="download"
+          class="sa-document-download-link__icon"
+        />
         {{ $t.saDocumentDownloadLink.label() }}
       </ElButton>
     </span>
@@ -28,6 +33,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import SaIcon from '@/components/SaIcon.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
@@ -83,9 +89,11 @@
     documentId: string,
     disabled?: boolean,
     disabledTooltip?: string,
+    showIcon?: boolean,
   }>(), {
     disabled: false,
     disabledTooltip: undefined,
+    showIcon: false,
   });
 
   const {
@@ -104,6 +112,12 @@
   .sa-download-link {
     &__loader {
       font-size: 80%;
+    }
+  }
+
+  .sa-document-download-link {
+    &__icon {
+      margin-right: 4px;
     }
   }
 </style>

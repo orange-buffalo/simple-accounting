@@ -16,10 +16,10 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePa
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
@@ -131,28 +131,28 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "13 Jan 3025, 8:00 am",
                             "Google Drive"
                         ),
-                        middleColumnContent = unusedStatus(),
-                        lastColumnContent = "DownloadDelete",
+                        lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Multi Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
                             "14 Jan 3025, 9:00 am",
-                            "Unknown"
+                            "Unknown",
+                            primaryAttribute(SaIconType.EXPENSE, text = "Robot oil"),
+                            primaryAttribute(SaIconType.INCOME, text = "Delivery commission"),
                         ),
-                        middleColumnContent = "Robot oilDelivery commission",
-                        lastColumnContent = "Download",
+                        lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
                             "15 Jan 3025, 9:30 pm",
-                            "Unknown"
+                            "Unknown",
+                            primaryAttribute(SaIconType.EXPENSE, text = "Slurm supplies"),
                         ),
-                        middleColumnContent = "Slurm supplies",
-                        lastColumnContent = "Download",
+                        lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -161,8 +161,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "28 Mar 1999, 11:01 pm",
                             "Unknown"
                         ),
-                        middleColumnContent = unusedStatus(),
-                        lastColumnContent = "DownloadDelete",
+                        lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                 )
@@ -176,12 +175,16 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         }
     }
 
-    private fun primaryAttributes(dateTime: String, storage: String) = listOf(
+    private fun primaryAttributes(dateTime: String, storage: String, vararg usages: String) = listOf(
         primaryAttribute(SaIconType.CALENDAR, text = dateTime),
         primaryAttribute(SaIconType.UPLOAD, text = storage),
+        *usages,
     )
 
-    private fun unusedStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Unused")
+    private fun lastColumnActions() = dataValues(
+        SaIcon.iconValue(SaIconType.DOWNLOAD),
+        "Download",
+    )
 
     @Test
     fun `should disable download while document storages status is loading`(page: Page) {
@@ -218,9 +221,8 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Download",
                             "Waiting for the storage to become available",
                         )
-                        documentItem.shouldHaveLastColumnActionDisabled("Delete")
-                        documentItem.shouldHaveLastColumnActionTooltip(
-                            "Delete",
+                        documentItem.shouldHaveActionMenuDisabled()
+                        documentItem.shouldHaveActionMenuTooltip(
                             "Waiting for the storage to become available",
                         )
                     }
@@ -256,9 +258,8 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     "You need to (re-)activate the documents storage to download this document. " +
                             "Navigate to your profile settings and check there.",
                 )
-                documentItem.shouldHaveLastColumnActionDisabled("Delete")
-                documentItem.shouldHaveLastColumnActionTooltip(
-                    "Delete",
+                documentItem.shouldHaveActionMenuDisabled()
+                documentItem.shouldHaveActionMenuTooltip(
                     "You need to (re-)activate the documents storage to download this document. " +
                             "Navigate to your profile settings and check there.",
                 )
@@ -306,10 +307,9 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 val unusedItem = shouldHaveItemSatisfying { it.title == "Unused Slurm Receipt.pdf" }
-                unusedItem.shouldHaveLastColumnActionEnabled("Delete")
                 shouldHaveItemSatisfying { it.title == "Used Robot Oil Receipt.pdf" }
                     .shouldHaveLastColumnContent("Download")
-                unusedItem.clickLastColumnAction("Delete")
+                unusedItem.clickActionMenuItem("Delete")
             }
             confirmDocumentDeletion()
             pageItems.shouldHaveTitles("Used Robot Oil Receipt.pdf")
@@ -418,7 +418,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveItemSatisfying { it.title == "local-deletable-contract.pdf" }
-                    .clickLastColumnAction("Delete")
+                    .clickActionMenuItem("Delete")
             }
             confirmDocumentDeletion()
             pageItems.shouldHaveTitles()
@@ -520,7 +520,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveItemSatisfying { it.title == "gdrive-deletable-contract.pdf" }
-                    .clickLastColumnAction("Delete")
+                    .clickActionMenuItem("Delete")
             }
             confirmDocumentDeletion()
             pageItems.shouldHaveTitles()
@@ -553,7 +553,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Expense Receipt.pdf")
-                staticItems[0].clickMiddleColumnLink("Slurm supplies")
+                staticItems[0].clickPrimaryAttributeLink("Slurm supplies")
             }
         }
 
@@ -587,7 +587,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Income Receipt.pdf")
-                staticItems[0].clickMiddleColumnLink("Delivery commission")
+                staticItems[0].clickPrimaryAttributeLink("Delivery commission")
             }
         }
 
@@ -622,7 +622,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Invoice Attachment.pdf")
-                staticItems[0].clickMiddleColumnLink("Delivery to Omicron Persei 8")
+                staticItems[0].clickPrimaryAttributeLink("Delivery to Omicron Persei 8")
             }
         }
 
@@ -656,7 +656,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Tax Payment Receipt.pdf")
-                staticItems[0].clickMiddleColumnLink("Q1 Corporate Tax")
+                staticItems[0].clickPrimaryAttributeLink("Q1 Corporate Tax")
             }
         }
 

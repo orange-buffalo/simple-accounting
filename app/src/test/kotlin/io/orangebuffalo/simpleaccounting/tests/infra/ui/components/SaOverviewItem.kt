@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -145,6 +146,12 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun clickPrimaryAttributeLink(linkText: String) {
+        panel.locator(".overview-item-primary-attribute")
+            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(linkText).setExact(true))
+            .click()
+    }
+
     fun clickLastColumnAction(actionText: String) {
         lastColumnActionButton(actionText).click()
     }
@@ -166,6 +173,32 @@ class SaOverviewItem private constructor(
         }
     }
 
+    fun shouldHaveActionMenuDisabled() {
+        actionMenuButton().shouldBeDisabled()
+    }
+
+    fun shouldHaveActionMenuTooltip(tooltip: String) {
+        actionMenuTrigger().hover()
+        panel.page()
+            .locator(".el-popper")
+            .filter(Locator.FilterOptions().setHasText(tooltip))
+            // Previous action tooltips with identical text may still be mounted; Element Plus appends the active one last.
+            .last()
+            .shouldBeVisible()
+    }
+
+    fun openActionMenu() {
+        actionMenuButton().click()
+    }
+
+    fun clickActionMenuItem(actionText: String) {
+        openActionMenu()
+        panel.page()
+            .locator(".el-dropdown-menu__item")
+            .filter(Locator.FilterOptions().setHasText(actionText))
+            .click()
+    }
+
     fun shouldHaveLastColumnContent(content: String) {
         panel.locator(".overview-item__last-column").shouldHaveText(content)
     }
@@ -175,6 +208,12 @@ class SaOverviewItem private constructor(
 
     private fun lastColumnActionTrigger(actionText: String) = lastColumnActionButton(actionText)
         .locator("xpath=ancestor::*[${XPath.hasClass("el-tooltip__trigger")}][1]")
+
+    private fun actionMenuButton() = panel.locator(".overview-item__last-column .el-dropdown .el-button")
+
+    private fun actionMenuTrigger() = panel.locator(
+        ".overview-item__last-column .el-dropdown .el-tooltip__trigger[aria-haspopup='menu']"
+    )
 
     companion object {
         fun ComponentsAccessors.overviewItems() =

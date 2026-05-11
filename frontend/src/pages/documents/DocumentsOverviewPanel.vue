@@ -14,28 +14,21 @@
       >
         {{ storageLabel }}
       </SaOverviewItemPrimaryAttribute>
-    </template>
 
-    <template #middle-column>
-      <div
-        v-if="document.usedBy.length > 0"
-        class="documents-overview-panel__usages"
+      <SaOverviewItemPrimaryAttribute
+        v-for="usage in document.usedBy"
+        :key="`${usage.type}-${usage.relatedEntityId}`"
+        :tooltip="usageTooltip(usage)"
+        :icon="usageIcon(usage.type)"
       >
         <ElButton
-          v-for="usage in document.usedBy"
-          :key="`${usage.type}-${usage.relatedEntityId}`"
           link
+          class="documents-overview-panel__usage-link"
           @click="navigateToUsage(usage)"
         >
           {{ usage.displayName }}
         </ElButton>
-      </div>
-      <SaStatusLabel
-        v-else
-        status="pending"
-      >
-        {{ $t.documentsOverviewPanel.unused() }}
-      </SaStatusLabel>
+      </SaOverviewItemPrimaryAttribute>
     </template>
 
     <template #last-column>
@@ -45,24 +38,48 @@
           :document-name="document.name"
           :disabled="storageActionDisabled"
           :disabled-tooltip="storageActionDisabledTooltip"
+          show-icon
           class="documents-overview-panel__download-link"
         />
-        <ElTooltip
+        <ElDropdown
           v-if="canDelete"
-          :content="storageActionDisabledTooltip"
-          :disabled="!storageActionDisabledTooltip"
-          placement="bottom"
+          trigger="click"
+          @command="handleActionCommand"
         >
-          <span class="documents-overview-panel__delete-link">
-            <ElButton
-              link
-              :disabled="storageActionDisabled || deleting"
-              @click="deleteDocument"
+          <span>
+            <ElTooltip
+              :content="storageActionDisabledTooltip"
+              :disabled="!storageActionDisabledTooltip"
+              placement="bottom"
             >
-              {{ $t.documentsOverviewPanel.delete.label() }}
-            </ElButton>
+              <span>
+                <ElButton
+                  link
+                  :aria-label="$t.documentsOverviewPanel.actions.label()"
+                  :disabled="storageActionDisabled || deleting"
+                >
+                  <SaIcon icon="menu" />
+                </ElButton>
+              </span>
+            </ElTooltip>
           </span>
-        </ElTooltip>
+
+          <template #dropdown>
+            <ElDropdownMenu>
+              <ElDropdownItem
+                command="delete"
+                :disabled="deleting"
+                class="documents-overview-panel__danger-action"
+              >
+                <SaIcon
+                  icon="delete"
+                  class="documents-overview-panel__action-icon"
+                />
+                {{ $t.documentsOverviewPanel.delete.label() }}
+              </ElDropdownItem>
+            </ElDropdownMenu>
+          </template>
+        </ElDropdown>
       </div>
     </template>
   </SaOverviewItem>
@@ -70,9 +87,10 @@
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import { ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus';
+  import SaIcon from '@/components/SaIcon.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
   import { useDownloadDocumentStoragesStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
@@ -163,6 +181,12 @@
     },
   );
 
+  const handleActionCommand = (command: string) => {
+    if (command === 'delete') {
+      deleteDocument();
+    }
+  };
+
   const storageLabel = computed(() => {
     switch (props.document.storageId) {
     case 'google-drive':
@@ -181,6 +205,32 @@
     INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
   };
 
+  const usageTypeToIconMap: Record<DocumentUsageType, string> = {
+    EXPENSE: 'expense',
+    INCOME: 'income',
+    INVOICE: 'invoices-overview',
+    INCOME_TAX_PAYMENT: 'income-tax-payments-overview',
+  };
+
+  const usageIcon = (usageType: DocumentUsageType) => usageTypeToIconMap[usageType];
+
+  const usageLabel = (usageType: DocumentUsageType) => {
+    switch (usageType) {
+    case 'EXPENSE':
+      return $t.value.documentsOverviewPanel.usage.expense();
+    case 'INCOME':
+      return $t.value.documentsOverviewPanel.usage.income();
+    case 'INVOICE':
+      return $t.value.documentsOverviewPanel.usage.invoice();
+    case 'INCOME_TAX_PAYMENT':
+      return $t.value.documentsOverviewPanel.usage.incomeTaxPayment();
+    }
+  };
+
+  const usageTooltip = (usage: DocumentUsage) => (
+    $t.value.documentsOverviewPanel.usage.navigateTooltip(usageLabel(usage.type))
+  );
+
   const navigateToUsage = (usage: DocumentUsage) => {
     const routeName = usageTypeToRouteMap[usage.type];
     navigateToView({
@@ -192,10 +242,9 @@
 
 <style lang="scss">
   .documents-overview-panel {
-    &__usages {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    &__usage-link {
+      padding: 0;
+      height: auto;
     }
 
     &__actions {
@@ -203,6 +252,14 @@
       gap: 12px;
       justify-content: flex-end;
       flex-wrap: wrap;
+    }
+
+    &__action-icon {
+      margin-right: 4px;
+    }
+
+    &__danger-action {
+      color: var(--el-color-danger);
     }
   }
 </style>

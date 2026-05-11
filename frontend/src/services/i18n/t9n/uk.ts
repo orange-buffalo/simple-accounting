@@ -378,7 +378,16 @@ export default {
       internalSystem: () => 'Внутрішня система',
       unknown: () => 'Невідомо',
     },
-    unused: () => 'Не використовується',
+    usage: {
+      expense: () => 'витрати',
+      income: () => 'доходу',
+      invoice: () => 'рахунку',
+      incomeTaxPayment: () => 'платежу податку на дохід',
+      navigateTooltip: (usageType: string) => `Натисніть, щоб перейти до ${usageType}`,
+    },
+    actions: {
+      label: () => 'Більше дій',
+    },
     download: {
       waitingForStorage: () => 'Очікуємо, поки сховище стане доступним',
       storageInactive: () => 'Потрібно повторно активувати сховище документів, щоб завантажити цей документ. Перейдіть до налаштувань профілю та перевірте його там.',
