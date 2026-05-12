@@ -17,4 +17,7 @@ enum class DocumentUsageType {
 
     @GraphQLDescription("Document is used by an income tax payment.")
     INCOME_TAX_PAYMENT,
+
+    @GraphQLDescription("Document is used by a standalone document.")
+    STANDALONE_DOCUMENT,
 }

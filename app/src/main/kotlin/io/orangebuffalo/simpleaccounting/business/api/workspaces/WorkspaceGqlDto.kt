@@ -17,6 +17,8 @@ import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentsGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -266,6 +268,20 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("ID of the income tax payment.") id: String,
         env: DataFetchingEnvironment,
     ) = env.loadIncomeTaxPaymentByWorkspaceAndId(workspaceId = this.id, paymentId = id)
+
+    @Suppress("unused")
+    @GraphQLDescription("Standalone documents in this workspace with cursor-based pagination.")
+    suspend fun standaloneDocuments(
+        @GraphQLDescription("The maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<StandaloneDocumentGqlDto> {
+        return env.graphQlContext.getBean<StandaloneDocumentsGqlApi>()
+            .loadStandaloneDocuments(workspaceId = id, first = first, after = after)
+    }
 
     @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")

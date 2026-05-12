@@ -13,7 +13,9 @@ export type DocumentUsageType =
   /** Document is used by an income tax payment. */
   | 'INCOME_TAX_PAYMENT'
   /** Document is used by an invoice. */
-  | 'INVOICE';
+  | 'INVOICE'
+  /** Document is used by a standalone document. */
+  | 'STANDALONE_DOCUMENT';
 
 export type ExpenseStatus =
   | 'FINALIZED'
