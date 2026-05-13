@@ -1359,6 +1359,8 @@ export type Workspace = {
   invoices: InvoicesConnection;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+  /** Returns a standalone document by its ID if it belongs to this workspace, or null if not found. */
+  standaloneDocument?: Maybe<StandaloneDocument>;
   /** Standalone documents in this workspace with cursor-based pagination. */
   standaloneDocuments: StandaloneDocumentsConnection;
   /** Workspace access tokens in this workspace with cursor-based pagination. */
@@ -1465,6 +1467,12 @@ export type WorkspaceInvoicesArgs = {
   first: Scalars['Int']['input'];
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
   statusIn?: InputMaybe<Array<InvoiceStatus>>;
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceStandaloneDocumentArgs = {
+  id: Scalars['String']['input'];
 };
 
 

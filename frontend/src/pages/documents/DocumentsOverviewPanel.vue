@@ -203,6 +203,7 @@
     INCOME: 'edit-income',
     INVOICE: 'edit-invoice',
     INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
+    STANDALONE_DOCUMENT: 'documents-overview',
   };
 
   const usageTypeToIconMap: Record<DocumentUsageType, string> = {
@@ -210,6 +211,7 @@
     INCOME: 'income',
     INVOICE: 'invoices-overview',
     INCOME_TAX_PAYMENT: 'income-tax-payments-overview',
+    STANDALONE_DOCUMENT: 'documents-overview',
   };
 
   const usageIcon = (usageType: DocumentUsageType) => usageTypeToIconMap[usageType];
@@ -224,6 +226,8 @@
       return $t.value.documentsOverviewPanel.usage.invoice();
     case 'INCOME_TAX_PAYMENT':
       return $t.value.documentsOverviewPanel.usage.incomeTaxPayment();
+    case 'STANDALONE_DOCUMENT':
+      return $t.value.documentsOverviewPanel.usage.standaloneDocument();
     }
   };
 

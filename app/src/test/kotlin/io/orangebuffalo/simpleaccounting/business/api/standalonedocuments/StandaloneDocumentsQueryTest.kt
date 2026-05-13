@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlRawQuery
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
@@ -207,6 +208,76 @@ class StandaloneDocumentsQueryTest(
                                 })
                             }
                         })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return standalone document by id`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val document = document(workspace = workspace, name = "Slurm receipt")
+                    val standaloneDocument = standaloneDocument(
+                        document = document,
+                        title = "Slurm supplies",
+                    )
+                }
+            }
+            client.graphqlRawQuery(
+                """
+                    query {
+                      workspace(id: "${testData.workspace.id!!}") {
+                        standaloneDocument(id: "${testData.standaloneDocument.id!!}") {
+                          id
+                          title
+                          documentId
+                        }
+                      }
+                    }
+                """.trimIndent()
+            )
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("standaloneDocument", buildJsonObject {
+                            put("id", testData.standaloneDocument.id!!)
+                            put("title", "Slurm supplies")
+                            put("documentId", testData.document.id!!)
+                        })
+                    }
+                )
+        }
+
+        @Test
+        fun `should return null when standalone document belongs to another workspace`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val otherWorkspace = workspace(owner = fry)
+                    val otherStandaloneDocument = standaloneDocument(
+                        document = document(workspace = otherWorkspace),
+                        title = "Moon cargo receipt",
+                    )
+                }
+            }
+            client.graphqlRawQuery(
+                """
+                    query {
+                      workspace(id: "${testData.workspace.id!!}") {
+                        standaloneDocument(id: "${testData.otherStandaloneDocument.id!!}") {
+                          id
+                        }
+                      }
+                    }
+                """.trimIndent()
+            )
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("standaloneDocument", null as String?)
                     }
                 )
         }

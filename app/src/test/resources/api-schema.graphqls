@@ -1333,6 +1333,11 @@ type Workspace {
   ): InvoicesConnection!
   "Name of the workspace."
   name: String!
+  "Returns a standalone document by its ID if it belongs to this workspace, or null if not found."
+  standaloneDocument(
+    "ID of the standalone document."
+    id: String!
+  ): StandaloneDocument
   "Standalone documents in this workspace with cursor-based pagination."
   standaloneDocuments(
     "Cursor after which to return items."

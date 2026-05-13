@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentsGqlApi
+import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.loadStandaloneDocumentByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
@@ -33,6 +34,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.jooq.DSLContext
+import java.util.concurrent.CompletableFuture
 
 @GraphQLName("Workspace")
 @GraphQLDescription("Workspace of a user.")
@@ -282,6 +284,13 @@ data class WorkspaceGqlDto(
         return env.graphQlContext.getBean<StandaloneDocumentsGqlApi>()
             .loadStandaloneDocuments(workspaceId = id, first = first, after = after)
     }
+
+    @GraphQLDescription("Returns a standalone document by its ID if it belongs to this workspace, or null if not found.")
+    fun standaloneDocument(
+        @GraphQLDescription("ID of the standalone document.") id: String,
+        env: DataFetchingEnvironment,
+    ): CompletableFuture<StandaloneDocumentGqlDto?> =
+        env.loadStandaloneDocumentByWorkspaceAndId(workspaceId = this.id, standaloneDocumentId = id)
 
     @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
