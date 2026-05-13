@@ -211,7 +211,7 @@
     INCOME: 'income',
     INVOICE: 'invoices-overview',
     INCOME_TAX_PAYMENT: 'income-tax-payments-overview',
-    STANDALONE_DOCUMENT: 'documents-overview',
+    STANDALONE_DOCUMENT: 'attachment',
   };
 
   const usageIcon = (usageType: DocumentUsageType) => usageTypeToIconMap[usageType];

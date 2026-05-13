@@ -366,6 +366,24 @@ export default {
     filters: {
       announcement: () => 'Фільтри будуть незабаром',
     },
+    create: () => 'Завантажити',
+  },
+
+  createStandaloneDocument: {
+    pageHeader: () => 'Завантажити Документ',
+    generalInformation: {
+      header: () => 'Загальна Інформація',
+      title: {
+        label: () => 'Назва',
+        placeholder: () => 'наприклад, Маніфест доставки',
+      },
+    },
+    document: {
+      header: () => 'Документ',
+      errors: {
+        required: () => 'Виберіть файл для завантаження',
+      },
+    },
   },
 
   documentsOverviewPanel: {

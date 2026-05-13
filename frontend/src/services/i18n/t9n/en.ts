@@ -367,6 +367,24 @@ export default {
     filters: {
       announcement: () => 'Filters coming soon',
     },
+    create: () => 'Upload',
+  },
+
+  createStandaloneDocument: {
+    pageHeader: () => 'Upload Document',
+    generalInformation: {
+      header: () => 'General Information',
+      title: {
+        label: () => 'Title',
+        placeholder: () => 'e.g. Delivery manifest',
+      },
+    },
+    document: {
+      header: () => 'Document',
+      errors: {
+        required: () => 'Select a file to upload',
+      },
+    },
   },
 
   documentsOverviewPanel: {

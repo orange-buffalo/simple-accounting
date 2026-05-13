@@ -8,7 +8,15 @@
           <span>{{ $t.documentsOverview.filters.announcement() }}</span>
         </div>
 
-        <span />
+        <ElButton
+          v-if="isCurrentUserRegular()"
+          round
+          :disabled="!currentWorkspace.editable"
+          @click="navigateToCreateStandaloneDocumentView"
+        >
+          <SaIcon icon="plus-thin" />
+          {{ $t.documentsOverview.create() }}
+        </ElButton>
       </div>
     </div>
 
@@ -29,16 +37,22 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import SaIcon from '@/components/SaIcon.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { $t } from '@/services/i18n';
+  import useNavigation from '@/services/use-navigation';
+  import { useAuth } from '@/services/api';
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
+  const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
+  const { isCurrentUserRegular } = useAuth();
   const pageItems = ref<{ reload: () => void }>();
+  const { navigateByViewName } = useNavigation();
 
   const reloadDocuments = () => pageItems.value?.reload();
+  const navigateToCreateStandaloneDocumentView = () => navigateByViewName('create-standalone-document');
 
   const documentsPageQuery = graphql(`
     query documentsPage($workspaceId: String!, $first: Int!, $after: String) {

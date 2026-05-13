@@ -2,6 +2,7 @@
   <SaDocumentsUpload
     ref="documentsUploadRef"
     :documents="documents"
+    :single="single"
     @update:documents-ids="onDocumentsIdsUpdate"
     @uploads-failed="onUploadsFailed"
   />
@@ -17,6 +18,7 @@
   const props = defineProps<{
     prop: string,
     documents: ReadonlyArray<DocumentDataFragmentType>,
+    single?: boolean,
   }>();
 
   const formApi = useSaFormComponentsApi();

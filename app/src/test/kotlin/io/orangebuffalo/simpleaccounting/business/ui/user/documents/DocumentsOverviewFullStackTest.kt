@@ -6,7 +6,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.nulls.shouldBeNull
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.CreateStandaloneDocumentPage.Companion.shouldBeCreateStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
@@ -16,10 +18,14 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePa
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload.DocumentState.PENDING
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload.Companion.EmptyDocument
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload.UploadedDocument
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
@@ -45,6 +51,71 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     @BeforeEach
     fun setupLocalFsStorage() {
         whenever(localFsStorageProperties.baseDirectory) doReturn tempDir
+    }
+
+    @Test
+    fun `should create standalone document from uploaded file`(page: Page) {
+        val fileContent = "Planet Express crew roster".toByteArray()
+        val testFile = tempDir.resolve("crew-roster.pdf").also { it.writeBytes(fileContent) }
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "local-fs").also {
+                    workspace(owner = it)
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            uploadButton.click()
+        }
+
+        page.shouldBeCreateStandaloneDocumentPage {
+            generalInformationHeader.shouldBeVisible()
+            documentHeader.shouldBeVisible()
+            title {
+                input.fill("Planet Express crew roster")
+            }
+            documentsUpload {
+                shouldHaveDocuments(EmptyDocument)
+                selectFileForUpload(testFile)
+                shouldHaveDocuments(UploadedDocument("crew-roster.pdf", PENDING))
+            }
+            saveButton.click()
+        }
+
+        page.shouldBeDocumentsOverviewPage {
+            pageItems.shouldHaveTitles("crew-roster.pdf")
+        }
+
+        val standaloneDocument = aggregateTemplate.findSingle<StandaloneDocument>()
+        standaloneDocument.title.shouldBe("Planet Express crew roster")
+        val uploadedDocument = aggregateTemplate.findSingle<Document>(standaloneDocument.documentId)
+        uploadedDocument.name.shouldBe("crew-roster.pdf")
+        uploadedDocument.storageId.shouldBe("local-fs")
+        tempDir.resolve(uploadedDocument.storageLocation!!).toFile().readBytes().shouldBe(fileContent)
+    }
+
+    @Test
+    fun `should not offer standalone document upload to workspace token users`(page: Page) {
+        val testData = preconditions {
+            object {
+                val token = fry().let { fry ->
+                    workspaceAccessToken(
+                        workspace = workspace(owner = fry),
+                        token = "document-overview-token",
+                        validTill = Instant.parse("9999-12-31T23:59:59Z"),
+                        timeCreated = MOCK_TIME,
+                    ).token
+                }
+            }
+        }
+
+        page.navigate("/login-by-link/${testData.token}")
+        page.shouldHaveSideMenu().clickDocuments()
+        page.shouldBeDocumentsOverviewPage {
+            uploadButton.shouldBeHidden()
+        }
     }
 
     @Test
