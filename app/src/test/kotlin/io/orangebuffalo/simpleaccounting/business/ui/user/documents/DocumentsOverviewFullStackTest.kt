@@ -20,6 +20,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
@@ -45,6 +46,28 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     @BeforeEach
     fun setupLocalFsStorage() {
         whenever(localFsStorageProperties.baseDirectory) doReturn tempDir
+    }
+
+    @Test
+    fun `should not offer standalone document upload to workspace token users`(page: Page) {
+        val testData = preconditions {
+            object {
+                val token = fry().let { fry ->
+                    workspaceAccessToken(
+                        workspace = workspace(owner = fry),
+                        token = "document-overview-token",
+                        validTill = Instant.parse("9999-12-31T23:59:59Z"),
+                        timeCreated = MOCK_TIME,
+                    ).token
+                }
+            }
+        }
+
+        page.navigate("/login-by-link/${testData.token}")
+        page.shouldHaveSideMenu().clickDocuments()
+        page.shouldBeDocumentsOverviewPage {
+            uploadButton.shouldBeHidden()
+        }
     }
 
     @Test

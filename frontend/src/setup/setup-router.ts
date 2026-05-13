@@ -15,6 +15,7 @@ import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaym
 import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 import Reporting from '@/pages/reporting/Reporting.vue';
 import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
+import CreateStandaloneDocument from '@/pages/documents/CreateStandaloneDocument.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
 import EditCategory from '@/pages/settings/categories/EditCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
@@ -276,6 +277,11 @@ export default function setupRouter() {
             path: 'documents',
             name: 'documents-overview',
             component: DocumentsOverview,
+          },
+          {
+            path: 'documents/create',
+            name: 'create-standalone-document',
+            component: CreateStandaloneDocument,
           },
           {
             path: 'admin/users',

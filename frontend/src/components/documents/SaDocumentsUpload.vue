@@ -85,7 +85,8 @@
 
   const props = defineProps<{
     documents: ReadonlyArray<DocumentDataFragmentType>,
-    loadingOnCreate?: boolean
+    loadingOnCreate?: boolean,
+    single?: boolean,
   }>();
 
   const emit = defineEmits<{
@@ -122,16 +123,16 @@
   });
 
   const addEmptyDocumentAggregateIfNecessary = () => {
+    if (props.single && documentsAggregates.value.length > 0) {
+      return;
+    }
+
     const emptyUpload = documentsAggregates.value
       .find((it) => it.state === 'empty');
     if (!emptyUpload) {
       // eslint-disable-next-line no-use-before-define
       documentsAggregates.value.push(new DocumentAggregate(onDocumentAggregateChange));
     }
-  };
-
-  const onDocumentRemoval = (documentAggregateKey: string) => {
-    documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
   };
 
   let pendingSubmit: {
@@ -179,6 +180,11 @@
     emit('update:documentsIds', documentsIds);
     emit('uploads-completed');
     resolvePendingSubmit();
+  };
+
+  const onDocumentRemoval = (documentAggregateKey: string) => {
+    documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
+    onDocumentAggregateChange();
   };
 
   const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
