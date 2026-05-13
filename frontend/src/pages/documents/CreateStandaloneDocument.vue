@@ -44,7 +44,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { AsFormValues, ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+  import { AsFormValues, ClientSideValidationError, toRequestArgs } from '@/components/form/sa-form-api.ts';
   import { CreateStandaloneDocumentMutationVariables } from '@/services/api/gql/graphql.ts';
 
   type CreateStandaloneDocumentFormValues = AsFormValues<[CreateStandaloneDocumentMutationVariables]> & {
@@ -87,11 +87,8 @@
       }]);
     }
 
-    await createStandaloneDocumentMutation({
-      workspaceId: currentWorkspaceId,
-      title: formValues.value.title ?? '',
-      documentId,
-    });
+    formValues.value.documentId = documentId;
+    await createStandaloneDocumentMutation(toRequestArgs(formValues));
     await navigateToDocumentsOverview();
   };
 </script>
