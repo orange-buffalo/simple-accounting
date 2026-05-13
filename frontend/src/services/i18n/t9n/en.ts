@@ -384,6 +384,7 @@ export default {
       income: () => 'income',
       invoice: () => 'invoice',
       incomeTaxPayment: () => 'income tax payment',
+      standaloneDocument: () => 'standalone document',
       navigateTooltip: (usageType: string) => `Click to navigate to the ${usageType}`,
     },
     actions: {

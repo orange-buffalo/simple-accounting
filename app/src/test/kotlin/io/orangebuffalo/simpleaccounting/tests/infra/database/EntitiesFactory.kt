@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
@@ -194,6 +195,20 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             income = income,
             expense = expense,
             description = description,
+            createdAt = createdAt,
+        ).save()
+    }
+
+    fun standaloneDocument(
+        title: String = "Slurm receipt",
+        document: Document? = null,
+        workspace: Workspace? = null,
+        createdAt: Instant = MOCK_TIME,
+    ): StandaloneDocument {
+        val linkedDocument = document ?: this.document(workspace = workspace)
+        return StandaloneDocument(
+            title = title,
+            documentId = linkedDocument.id!!,
             createdAt = createdAt,
         ).save()
     }

@@ -252,7 +252,9 @@ export enum DocumentUsageType {
   /** Document is used by an income tax payment. */
   IncomeTaxPayment = 'INCOME_TAX_PAYMENT',
   /** Document is used by an invoice. */
-  Invoice = 'INVOICE'
+  Invoice = 'INVOICE',
+  /** Document is used by a standalone document. */
+  StandaloneDocument = 'STANDALONE_DOCUMENT'
 }
 
 /** A paginated connection of documents following the GraphQL Cursor Connections Specification. */
@@ -733,6 +735,8 @@ export type Mutation = {
   createIncomeTaxPayment: IncomeTaxPayment;
   /** Creates a new invoice in the specified workspace. */
   createInvoice: Invoice;
+  /** Creates a new standalone document in the specified workspace. */
+  createStandaloneDocument: StandaloneDocument;
   /** Creates a new user account. */
   createUser: PlatformUser;
   /** Creates a new activation token for the specified user. If an existing token is present, it will be replaced. Only accessible by admin users. */
@@ -757,6 +761,8 @@ export type Mutation = {
   editIncomeTaxPayment: IncomeTaxPayment;
   /** Updates an existing invoice in the specified workspace. */
   editInvoice: Invoice;
+  /** Updates an existing standalone document in the specified workspace. */
+  editStandaloneDocument: StandaloneDocument;
   /** Updates an existing user's username. */
   editUser: PlatformUser;
   /** Updates an existing workspace. */
@@ -904,6 +910,13 @@ export type MutationCreateInvoiceArgs = {
 };
 
 
+export type MutationCreateStandaloneDocumentArgs = {
+  documentId: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
+};
+
+
 export type MutationCreateUserArgs = {
   admin: Scalars['Boolean']['input'];
   userName: Scalars['String']['input'];
@@ -1019,6 +1032,14 @@ export type MutationEditInvoiceArgs = {
   generalTaxId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
+};
+
+
+export type MutationEditStandaloneDocumentArgs = {
+  documentId: Scalars['String']['input'];
+  id: Scalars['String']['input'];
   title: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
 };
@@ -1197,6 +1218,37 @@ export enum SaveSharedWorkspaceErrorCodes {
   InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
 }
 
+/** A standalone document in a workspace. */
+export type StandaloneDocument = {
+  __typename?: 'StandaloneDocument';
+  /** ID of the linked document. */
+  documentId: Scalars['String']['output'];
+  /** ID of the standalone document. */
+  id: Scalars['String']['output'];
+  /** Title of the standalone document. */
+  title: Scalars['String']['output'];
+};
+
+/** An edge in a standalone documents connection. */
+export type StandaloneDocumentEdge = {
+  __typename?: 'StandaloneDocumentEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The standalone document at the end of this edge. */
+  node: StandaloneDocument;
+};
+
+/** A paginated connection of standalone documents following the GraphQL Cursor Connections Specification. */
+export type StandaloneDocumentsConnection = {
+  __typename?: 'StandaloneDocumentsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<StandaloneDocumentEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
@@ -1307,6 +1359,10 @@ export type Workspace = {
   invoices: InvoicesConnection;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+  /** Returns a standalone document by its ID if it belongs to this workspace, or null if not found. */
+  standaloneDocument?: Maybe<StandaloneDocument>;
+  /** Standalone documents in this workspace with cursor-based pagination. */
+  standaloneDocuments: StandaloneDocumentsConnection;
   /** Workspace access tokens in this workspace with cursor-based pagination. */
   workspaceAccessTokens: WorkspaceAccessTokensConnection;
 };
@@ -1411,6 +1467,19 @@ export type WorkspaceInvoicesArgs = {
   first: Scalars['Int']['input'];
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
   statusIn?: InputMaybe<Array<InvoiceStatus>>;
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceStandaloneDocumentArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceStandaloneDocumentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 

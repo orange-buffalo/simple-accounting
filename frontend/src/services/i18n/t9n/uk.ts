@@ -383,6 +383,7 @@ export default {
       income: () => 'доходу',
       invoice: () => 'рахунку',
       incomeTaxPayment: () => 'платежу податку на дохід',
+      standaloneDocument: () => 'окремого документа',
       navigateTooltip: (usageType: string) => `Натисніть, щоб перейти до ${usageType}`,
     },
     actions: {

@@ -28,6 +28,7 @@ class DocumentsRepositoryExtImpl(
     private val income = Tables.INCOME
     private val invoice = Tables.INVOICE
     private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
+    private val standaloneDocument = Tables.STANDALONE_DOCUMENT
 
     override fun findValidIds(ids: Collection<String>, workspaceId: String): Collection<String> = dslContext
         .select(document.id)
@@ -102,6 +103,16 @@ class DocumentsRepositoryExtImpl(
                     .from(itpa)
                     .join(incomeTaxPayment).on(incomeTaxPayment.id.eq(itpa.incomeTaxPaymentId))
                     .where(itpa.documentId.`in`(documentIds))
+            )
+            .unionAll(
+                select(
+                    standaloneDocument.documentId.`as`("doc_id"),
+                    standaloneDocument.id.`as`("entity_id"),
+                    inline("STANDALONE_DOCUMENT").`as`("usage_type"),
+                    standaloneDocument.title.`as`("display_name"),
+                )
+                    .from(standaloneDocument)
+                    .where(standaloneDocument.documentId.`in`(documentIds))
             )
             .orderBy(docIdField, usageTypeField, entityIdField)
             .fetch()

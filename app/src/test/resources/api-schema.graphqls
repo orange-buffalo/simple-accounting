@@ -798,6 +798,15 @@ type Mutation {
     "ID of the workspace to create the invoice in."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Creates a new standalone document in the specified workspace."
+  createStandaloneDocument(
+    "ID of the linked document."
+    documentId: String!,
+    "Title of the standalone document."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace to create the standalone document in."
+    workspaceId: String!
+  ): StandaloneDocument! @auth(type : REGULAR_USER)
   "Creates a new user account."
   createUser(
     "Whether the new user should have admin privileges."
@@ -978,6 +987,17 @@ type Mutation {
     "ID of the workspace the invoice belongs to."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Updates an existing standalone document in the specified workspace."
+  editStandaloneDocument(
+    "New ID of the linked document."
+    documentId: String!,
+    "ID of the standalone document to update."
+    id: String!,
+    "New title of the standalone document."
+    title: String! @notBlank @size(max : 255, min : 0),
+    "ID of the workspace the standalone document belongs to."
+    workspaceId: String!
+  ): StandaloneDocument! @auth(type : REGULAR_USER)
   "Updates an existing user's username."
   editUser(
     "ID of the user to update."
@@ -1125,6 +1145,34 @@ type Query {
 type RefreshAccessTokenResponse {
   "The new access token if authentication was successful, null otherwise."
   accessToken: String
+}
+
+"A standalone document in a workspace."
+type StandaloneDocument {
+  "ID of the linked document."
+  documentId: String!
+  "ID of the standalone document."
+  id: String!
+  "Title of the standalone document."
+  title: String!
+}
+
+"An edge in a standalone documents connection."
+type StandaloneDocumentEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The standalone document at the end of this edge."
+  node: StandaloneDocument!
+}
+
+"A paginated connection of standalone documents following the GraphQL Cursor Connections Specification."
+type StandaloneDocumentsConnection {
+  "The list of edges in the current page."
+  edges: [StandaloneDocumentEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
 }
 
 type Subscription {
@@ -1285,6 +1333,18 @@ type Workspace {
   ): InvoicesConnection!
   "Name of the workspace."
   name: String!
+  "Returns a standalone document by its ID if it belongs to this workspace, or null if not found."
+  standaloneDocument(
+    "ID of the standalone document."
+    id: String!
+  ): StandaloneDocument
+  "Standalone documents in this workspace with cursor-based pagination."
+  standaloneDocuments(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int!
+  ): StandaloneDocumentsConnection!
   "Workspace access tokens in this workspace with cursor-based pagination."
   workspaceAccessTokens(
     "Cursor after which to return items."
@@ -1450,6 +1510,8 @@ enum DocumentUsageType {
   INCOME_TAX_PAYMENT
   "Document is used by an invoice."
   INVOICE
+  "Document is used by a standalone document."
+  STANDALONE_DOCUMENT
 }
 
 "Possible business error codes for the editUser operation."
