@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.dataloader.DataLoader
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -26,15 +27,16 @@ class StandaloneDocumentByWorkspaceAndIdDataLoader(
 
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto?> =
         newAsyncMappedDataLoader { keys ->
-            val standaloneDocumentIds = keys.map { it.standaloneDocumentId }.toSet()
-            val workspaceIds = keys.map { it.workspaceId }.toSet()
+            val requestedPairsPredicate = DSL.or(keys.map { key ->
+                standaloneDocument.id.eq(key.standaloneDocumentId)
+                    .and(document.workspaceId.eq(key.workspaceId))
+            })
 
             val dtosByKey = dslContext
                 .select(standaloneDocument.fields().toList() + document.workspaceId)
                 .from(standaloneDocument)
                 .join(document).on(document.id.eq(standaloneDocument.documentId))
-                .where(standaloneDocument.id.`in`(standaloneDocumentIds))
-                .and(document.workspaceId.`in`(workspaceIds))
+                .where(requestedPairsPredicate)
                 .fetch()
                 .associate { record ->
                     val standaloneDocumentId = record[standaloneDocument.id]!!
