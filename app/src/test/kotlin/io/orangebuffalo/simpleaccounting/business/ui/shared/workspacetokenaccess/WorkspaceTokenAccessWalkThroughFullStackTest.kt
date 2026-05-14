@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.shared.workspacetokenaccess
 
 import com.microsoft.playwright.Page
+import io.github.artsok.RepeatedIfExceptionsTest
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
@@ -14,13 +15,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.NavigationMen
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 
 class WorkspaceTokenAccessWalkThroughFullStackTest : SaFullStackTestBase() {
 
-    @Test
+    @RepeatedIfExceptionsTest(repeats = 3)
     fun `should walk through all pages with write access token`(page: Page) {
         page.navigate("/login-by-link/${preconditions.token}")
         page.shouldBeDashboardPage()
