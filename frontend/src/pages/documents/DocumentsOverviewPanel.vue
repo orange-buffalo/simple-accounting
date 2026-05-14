@@ -65,6 +65,7 @@
               <span>
                 <ElButton
                   link
+                  type="danger"
                   :icon="Delete"
                   :disabled="storageActionDisabled || deleting"
                   class="documents-overview-panel__action documents-overview-panel__danger-action"
@@ -260,6 +261,7 @@
     display: inline-flex;
     flex-direction: column;
     align-items: stretch;
+    gap: 5px;
     min-width: max-content;
 
     .documents-overview-panel__action,
