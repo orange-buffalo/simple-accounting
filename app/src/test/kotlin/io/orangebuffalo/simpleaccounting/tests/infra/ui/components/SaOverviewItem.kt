@@ -153,19 +153,23 @@ class SaOverviewItem private constructor(
     }
 
     fun clickLastColumnAction(actionText: String) {
-        lastColumnActionButton(actionText).click()
+        openActionMenu()
+        actionMenuItemButton(actionText).click()
     }
 
     fun shouldHaveLastColumnActionDisabled(actionText: String) {
-        lastColumnActionButton(actionText).shouldBeDisabled()
+        openActionMenu()
+        actionMenuItemButton(actionText).shouldBeDisabled()
     }
 
     fun shouldHaveLastColumnActionEnabled(actionText: String) {
-        lastColumnActionButton(actionText).shouldBeEnabled()
+        openActionMenu()
+        actionMenuItemButton(actionText).shouldBeEnabled()
     }
 
     fun shouldHaveLastColumnActionTooltip(actionText: String, tooltip: String) {
-        val trigger = lastColumnActionTrigger(actionText)
+        openActionMenu()
+        val trigger = actionMenuItemTrigger(actionText)
         trigger.hover()
         trigger.shouldSatisfy {
             val popperId = getAttribute("aria-describedby").shouldNotBeBlank()
@@ -188,32 +192,43 @@ class SaOverviewItem private constructor(
     }
 
     fun openActionMenu() {
+        panel.page().keyboard().press("Escape")
         actionMenuButton().click()
+        actionPopover().shouldBeVisible()
+    }
+
+    fun shouldHaveActionMenuItems(vararg actionTexts: String) {
+        openActionMenu()
+        actionPopover().locator(".documents-overview-panel__action").shouldSatisfy {
+            allInnerTexts().shouldContainExactly(actionTexts.toList())
+        }
     }
 
     fun clickActionMenuItem(actionText: String) {
         openActionMenu()
-        panel.page()
-            .locator(".el-dropdown-menu__item")
-            .filter(Locator.FilterOptions().setHasText(actionText))
-            .click()
+        actionMenuItemButton(actionText).click()
     }
 
     fun shouldHaveLastColumnContent(content: String) {
         panel.locator(".overview-item__last-column").shouldHaveText(content)
     }
 
-    private fun lastColumnActionButton(actionText: String) = panel.locator(".overview-item__last-column")
-        .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(actionText).setExact(true))
+    private fun actionMenuItemButton(actionText: String) = actionPopover()
+        .locator("button.documents-overview-panel__action, .documents-overview-panel__action button")
+        .filter(Locator.FilterOptions().setHasText(actionText))
 
-    private fun lastColumnActionTrigger(actionText: String) = lastColumnActionButton(actionText)
+    private fun actionMenuItemTrigger(actionText: String) = actionMenuItemButton(actionText)
         .locator("xpath=ancestor::*[${XPath.hasClass("el-tooltip__trigger")}][1]")
 
-    private fun actionMenuButton() = panel.locator(".overview-item__last-column .el-dropdown .el-button")
+    private fun actionMenuButton() = panel.locator(".overview-item__last-column .documents-overview-panel__actions-trigger")
 
     private fun actionMenuTrigger() = panel.locator(
-        ".overview-item__last-column .el-dropdown .el-tooltip__trigger[aria-haspopup='menu']"
+        ".overview-item__last-column .documents-overview-panel__actions-trigger"
     )
+
+    private fun actionPopover() = panel.page()
+        .locator(".documents-overview-panel__actions-popover:visible")
+        .last()
 
     companion object {
         fun ComponentsAccessors.overviewItems() =
