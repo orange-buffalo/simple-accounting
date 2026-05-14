@@ -33,21 +33,31 @@
 
     <template #last-column>
       <div class="documents-overview-panel__actions">
-        <SaDocumentDownloadLink
-          :document-id="document.id"
-          :document-name="document.name"
-          :disabled="storageActionDisabled"
-          :disabled-tooltip="storageActionDisabledTooltip"
-          show-icon
-          class="documents-overview-panel__download-link"
-        />
-        <ElDropdown
-          v-if="canDelete"
+        <ElPopover
           trigger="click"
-          @command="handleActionCommand"
+          placement="bottom-end"
+          popper-class="documents-overview-panel__actions-popover"
         >
-          <span>
+          <template #reference>
+            <ElButton
+              link
+              :icon="Menu"
+              :aria-label="$t.documentsOverviewPanel.actions.label()"
+              class="documents-overview-panel__actions-trigger"
+            />
+          </template>
+
+          <div class="documents-overview-panel__actions-menu">
+            <SaDocumentDownloadLink
+              :document-id="document.id"
+              :document-name="document.name"
+              :disabled="storageActionDisabled"
+              :disabled-tooltip="storageActionDisabledTooltip"
+              show-icon
+              class="documents-overview-panel__action"
+            />
             <ElTooltip
+              v-if="canDelete"
               :content="storageActionDisabledTooltip"
               :disabled="!storageActionDisabledTooltip"
               placement="bottom"
@@ -55,31 +65,18 @@
               <span>
                 <ElButton
                   link
-                  :aria-label="$t.documentsOverviewPanel.actions.label()"
+                  type="danger"
+                  :icon="Delete"
                   :disabled="storageActionDisabled || deleting"
+                  class="documents-overview-panel__action documents-overview-panel__danger-action"
+                  @click="deleteDocument"
                 >
-                  <SaIcon icon="menu" />
+                  {{ $t.documentsOverviewPanel.delete.label() }}
                 </ElButton>
               </span>
             </ElTooltip>
-          </span>
-
-          <template #dropdown>
-            <ElDropdownMenu>
-              <ElDropdownItem
-                command="delete"
-                :disabled="deleting"
-                class="documents-overview-panel__danger-action"
-              >
-                <SaIcon
-                  icon="delete"
-                  class="documents-overview-panel__action-icon"
-                />
-                {{ $t.documentsOverviewPanel.delete.label() }}
-              </ElDropdownItem>
-            </ElDropdownMenu>
-          </template>
-        </ElDropdown>
+          </div>
+        </ElPopover>
       </div>
     </template>
   </SaOverviewItem>
@@ -87,8 +84,8 @@
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
-  import { ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus';
-  import SaIcon from '@/components/SaIcon.vue';
+  import { ElPopover } from 'element-plus';
+  import { Delete, Menu } from '@element-plus/icons-vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
@@ -181,12 +178,6 @@
     },
   );
 
-  const handleActionCommand = (command: string) => {
-    if (command === 'delete') {
-      deleteDocument();
-    }
-  };
-
   const storageLabel = computed(() => {
     switch (props.document.storageId) {
     case 'google-drive':
@@ -253,17 +244,35 @@
 
     &__actions {
       display: flex;
-      gap: 12px;
       justify-content: flex-end;
-      flex-wrap: wrap;
-    }
-
-    &__action-icon {
-      margin-right: 4px;
     }
 
     &__danger-action {
       color: var(--el-color-danger);
+    }
+  }
+
+  .documents-overview-panel__actions-popover {
+    width: max-content !important;
+    min-width: 0 !important;
+  }
+
+  .documents-overview-panel__actions-menu {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+    min-width: max-content;
+
+    .documents-overview-panel__action,
+    .sa-document-download-link,
+    .el-button {
+      width: 100%;
+    }
+
+    .el-button {
+      justify-content: flex-start;
+      margin-left: 0;
     }
   }
 </style>

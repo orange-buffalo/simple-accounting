@@ -16,14 +16,12 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePa
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
@@ -195,6 +193,12 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 }
             }
             reportRendering("documents-overview.loaded")
+
+            pageItems {
+                val unusedDocument = shouldHaveItemSatisfying { it.title == "Unused Receipt.pdf" }
+                unusedDocument.shouldHaveActionMenuItems("Download", "Delete")
+            }
+            reportRenderingWithPopovers("documents-overview.actions-menu")
         }
     }
 
@@ -204,10 +208,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         *usages,
     )
 
-    private fun lastColumnActions() = dataValues(
-        SaIcon.iconValue(SaIconType.DOWNLOAD),
-        "Download",
-    )
+    private fun lastColumnActions(): String? = null
 
     @Test
     fun `should disable download while document storages status is loading`(page: Page) {
@@ -244,10 +245,6 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             "Download",
                             "Waiting for the storage to become available",
                         )
-                        documentItem.shouldHaveActionMenuDisabled()
-                        documentItem.shouldHaveActionMenuTooltip(
-                            "Waiting for the storage to become available",
-                        )
                     }
                 }
             }
@@ -278,11 +275,6 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 documentItem.shouldHaveLastColumnActionDisabled("Download")
                 documentItem.shouldHaveLastColumnActionTooltip(
                     "Download",
-                    "You need to (re-)activate the documents storage to download this document. " +
-                            "Navigate to your profile settings and check there.",
-                )
-                documentItem.shouldHaveActionMenuDisabled()
-                documentItem.shouldHaveActionMenuTooltip(
                     "You need to (re-)activate the documents storage to download this document. " +
                             "Navigate to your profile settings and check there.",
                 )
@@ -331,7 +323,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 val unusedItem = shouldHaveItemSatisfying { it.title == "Unused Slurm Receipt.pdf" }
                 shouldHaveItemSatisfying { it.title == "Used Robot Oil Receipt.pdf" }
-                    .shouldHaveLastColumnContent("Download")
+                    .shouldHaveActionMenuItems("Download")
                 unusedItem.clickActionMenuItem("Delete")
             }
             confirmDocumentDeletion()

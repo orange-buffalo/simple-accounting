@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationD
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 class DocumentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Documents")
@@ -20,6 +21,10 @@ class DocumentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
         components.confirmationDialog()
             .shouldBeVisible()
             .clickButton("Delete")
+    }
+
+    fun reportRenderingWithPopovers(name: String) {
+        page.locator("body").reportRendering(name)
     }
 
     companion object {
