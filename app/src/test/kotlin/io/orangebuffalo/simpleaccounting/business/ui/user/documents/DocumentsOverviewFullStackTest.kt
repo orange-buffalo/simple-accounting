@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.nulls.shouldBeNull
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
@@ -124,6 +125,18 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         timeUploaded = Instant.parse("3025-01-13T08:00:00Z"),
                         storageId = "google-drive",
                     )
+
+                    val standaloneDoc = document(
+                        workspace = workspace,
+                        name = "Standalone License.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(4),
+                        timeUploaded = Instant.parse("3025-01-12T07:00:00Z"),
+                    )
+                    standaloneDocument(
+                        workspace = workspace,
+                        document = standaloneDoc,
+                        title = "Planet Express License",
+                    )
                 }
             }
         }
@@ -146,6 +159,16 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeDocumentsOverviewPage {
             pageItems {
                 shouldHaveExactData(
+                    SaOverviewItemData(
+                        title = "Standalone License.pdf",
+                        primaryAttributes = primaryAttributes(
+                            "12 Jan 3025, 7:00 am",
+                            "Unknown",
+                            primaryAttribute(SaIconType.ATTACHMENT, text = "Planet Express License"),
+                        ),
+                        lastColumnContent = lastColumnActions(),
+                        hasDetails = false,
+                    ),
                     SaOverviewItemData(
                         title = "Google Drive Doc.pdf",
                         primaryAttributes = primaryAttributes(
@@ -197,6 +220,13 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 val unusedDocument = shouldHaveItemSatisfying { it.title == "Unused Receipt.pdf" }
                 unusedDocument.shouldHaveActionMenuItems("Download", "Delete")
+                unusedDocument.shouldHaveLastColumnActionEnabled("Download")
+                unusedDocument.shouldHaveLastColumnActionEnabled("Delete")
+
+                shouldHaveItemSatisfying { it.title == "Single Usage Doc.pdf" }
+                    .shouldHaveLastColumnActionEnabled("Download")
+                shouldHaveItemSatisfying { it.title == "Standalone License.pdf" }
+                    .shouldHaveLastColumnActionEnabled("Delete")
             }
             reportRenderingWithPopovers("documents-overview.actions-menu")
         }
@@ -332,6 +362,51 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findById(testData.unusedDocument.id!!, Document::class.java).shouldBeNull()
         testDocumentsStorage.hasUploadedContent("unused-slurm-receipt-location").shouldBeFalse()
+    }
+
+    @Test
+    fun `should remove standalone document and unused linked document from overview`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                )
+                val workspace = workspace(owner = fry)
+                val document = document(
+                    workspace = workspace,
+                    name = "Standalone delivery permit.pdf",
+                    storageId = TestDocumentsStorage.STORAGE_ID,
+                    storageLocation = "standalone-delivery-permit-location",
+                )
+                val standaloneDocument = standaloneDocument(
+                    workspace = workspace,
+                    document = document,
+                    title = "Planet Express delivery permit",
+                )
+            }
+        }
+        testDocumentsStorage.mockDocumentContent(
+            "standalone-delivery-permit-location",
+            "Good news, everyone! Standalone delivery permit".toByteArray()
+        )
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems {
+                val standaloneItem = shouldHaveItemSatisfying { it.title == "Standalone delivery permit.pdf" }
+                standaloneItem.shouldHaveActionMenuItems("Download", "Delete")
+                standaloneItem.shouldHaveLastColumnActionEnabled("Download")
+                standaloneItem.shouldHaveLastColumnActionEnabled("Delete")
+                standaloneItem.clickActionMenuItem("Delete")
+            }
+            confirmDocumentDeletion()
+            pageItems.shouldHaveTitles()
+        }
+
+        aggregateTemplate.findById(testData.standaloneDocument.id!!, StandaloneDocument::class.java).shouldBeNull()
+        aggregateTemplate.findById(testData.document.id!!, Document::class.java).shouldBeNull()
+        testDocumentsStorage.hasUploadedContent("standalone-delivery-permit-location").shouldBeFalse()
     }
 
     @Test
