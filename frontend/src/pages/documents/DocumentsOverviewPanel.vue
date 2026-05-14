@@ -58,8 +58,8 @@
             />
             <ElTooltip
               v-if="canDelete"
-              :content="storageActionDisabledTooltip"
-              :disabled="!storageActionDisabledTooltip"
+              :content="deleteDisabledTooltip"
+              :disabled="!deleteDisabledTooltip"
               placement="bottom"
             >
               <span>
@@ -67,7 +67,7 @@
                   link
                   type="danger"
                   :icon="Delete"
-                  :disabled="storageActionDisabled || deleting"
+                  :disabled="deleteDisabled"
                   class="documents-overview-panel__action documents-overview-panel__danger-action"
                   @click="deleteDocument"
                 >
@@ -103,6 +103,20 @@
       deleteDocument(workspaceId: $workspaceId, documentId: $documentId)
     }
   `), 'deleteDocument');
+
+  const removeStandaloneDocumentMutation = useMutation(graphql(/* GraphQL */ `
+    mutation removeStandaloneDocument(
+      $workspaceId: String!,
+      $standaloneDocumentId: String!,
+      $removeDocumentIfUnused: Boolean
+    ) {
+      removeStandaloneDocument(
+        workspaceId: $workspaceId,
+        standaloneDocumentId: $standaloneDocumentId,
+        removeDocumentIfUnused: $removeDocumentIfUnused
+      )
+    }
+  `), 'removeStandaloneDocument');
 
   interface DocumentUsage {
     type: DocumentUsageType,
@@ -153,7 +167,22 @@
     return undefined;
   });
 
-  const canDelete = computed(() => props.document.usedBy.length === 0);
+  const standaloneDocumentUsage = computed(() => {
+    if (props.document.usedBy.length !== 1) return undefined;
+
+    const usage = props.document.usedBy[0];
+    return usage.type === 'STANDALONE_DOCUMENT' ? usage : undefined;
+  });
+
+  const canDelete = computed(() => props.document.usedBy.length === 0 || standaloneDocumentUsage.value != null);
+
+  const deleteDisabled = computed(() => deleting.value || (
+    standaloneDocumentUsage.value == null && storageActionDisabled.value
+  ));
+
+  const deleteDisabledTooltip = computed(() => (
+    standaloneDocumentUsage.value == null ? storageActionDisabledTooltip.value : undefined
+  ));
 
   const deleteDocument = useConfirmation(
     $t.value.documentsOverviewPanel.delete.confirm.message(),
@@ -164,13 +193,21 @@
       type: 'warning',
     },
     async () => {
-      if (storageActionDisabled.value) return;
+      if (deleteDisabled.value) return;
       deleting.value = true;
       try {
-        await deleteDocumentMutation({
-          workspaceId: currentWorkspaceId,
-          documentId: props.document.id,
-        });
+        if (standaloneDocumentUsage.value) {
+          await removeStandaloneDocumentMutation({
+            workspaceId: currentWorkspaceId,
+            standaloneDocumentId: standaloneDocumentUsage.value.relatedEntityId,
+            removeDocumentIfUnused: true,
+          });
+        } else {
+          await deleteDocumentMutation({
+            workspaceId: currentWorkspaceId,
+            documentId: props.document.id,
+          });
+        }
         emit('deleted');
       } finally {
         deleting.value = false;
