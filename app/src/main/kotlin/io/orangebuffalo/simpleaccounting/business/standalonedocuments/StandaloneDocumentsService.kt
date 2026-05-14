@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.standalonedocuments
 
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentIsUsedException
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -27,5 +28,27 @@ class StandaloneDocumentsService(
 
     suspend fun getStandaloneDocumentByIdAndWorkspaceId(id: String, workspaceId: String): StandaloneDocument? = withDbContext {
         standaloneDocumentsRepository.findByIdAndWorkspaceId(id, workspaceId)
+    }
+
+    suspend fun removeStandaloneDocument(
+        workspaceId: String,
+        standaloneDocumentId: String,
+        removeDocumentIfUnused: Boolean,
+    ): StandaloneDocument? {
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val standaloneDocument = getStandaloneDocumentByIdAndWorkspaceId(standaloneDocumentId, workspaceId)
+            ?: return null
+
+        withDbContext { standaloneDocumentsRepository.delete(standaloneDocument) }
+
+        if (removeDocumentIfUnused) {
+            try {
+                documentsService.deleteDocument(workspaceId, standaloneDocument.documentId)
+            } catch (_: DocumentIsUsedException) {
+                // The standalone reference is removed; keep the linked document when another entity still uses it.
+            }
+        }
+
+        return standaloneDocument
     }
 }

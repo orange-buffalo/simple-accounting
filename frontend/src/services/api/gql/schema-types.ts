@@ -771,6 +771,8 @@ export type Mutation = {
   invalidateRefreshToken: Scalars['Boolean']['output'];
   /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
   refreshAccessToken: RefreshAccessTokenResponse;
+  /** Removes a standalone document from the specified workspace. */
+  removeStandaloneDocument: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
   /** Updates the current user profile information. */
@@ -1054,6 +1056,13 @@ export type MutationEditUserArgs = {
 export type MutationEditWorkspaceArgs = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveStandaloneDocumentArgs = {
+  removeDocumentIfUnused?: InputMaybe<Scalars['Boolean']['input']>;
+  standaloneDocumentId: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 

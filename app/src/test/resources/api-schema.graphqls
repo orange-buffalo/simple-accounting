@@ -1016,6 +1016,15 @@ type Mutation {
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
+  "Removes a standalone document from the specified workspace."
+  removeStandaloneDocument(
+    "Whether to also delete the linked document when it is no longer used. Defaults to true when omitted."
+    removeDocumentIfUnused: Boolean,
+    "ID of the standalone document to remove."
+    standaloneDocumentId: String!,
+    "ID of the workspace the standalone document belongs to."
+    workspaceId: String!
+  ): Boolean! @auth(type : REGULAR_USER)
   "Saves a shared workspace to the current user's list using an access token."
   saveSharedWorkspace(
     "The workspace access token."
