@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.business.ui.user.documents.CreateStandaloneDocumentPage.Companion.shouldBeEditStandaloneDocumentPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.EditStandaloneDocumentPage.Companion.shouldBeEditStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
@@ -158,6 +158,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         )
 
         page.shouldBeDocumentsOverviewPage {
+            val documentsOverviewPage = this
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
@@ -230,6 +231,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     it.shouldHaveActionMenuItems("Download", "Edit", "Delete")
                     it.shouldHaveLastColumnActionEnabled("Edit")
                     it.shouldHaveLastColumnActionEnabled("Delete")
+                    documentsOverviewPage.reportRenderingWithPopovers("documents-overview.actions-menu")
                     it.clickActionMenuItem("Edit")
                 }
             }
