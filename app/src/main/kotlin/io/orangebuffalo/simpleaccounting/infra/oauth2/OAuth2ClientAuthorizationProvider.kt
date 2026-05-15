@@ -5,8 +5,10 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.withContext
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
@@ -132,13 +134,17 @@ class OAuth2ClientAuthorizationProvider(
         }
     }
 
-    private suspend fun publishFailedAuthEvent(savedRequest: SavedAuthorizationRequest) = eventPublisher.publishEvent(
-        OAuth2FailedEvent(
+    private suspend fun publishFailedAuthEvent(savedRequest: SavedAuthorizationRequest) = publishAuthEvent(
+        event = OAuth2FailedEvent(
             user = savedRequest.owner,
             clientRegistrationId = savedRequest.clientRegistrationId,
-            context = coroutineContext
+            context = coroutineContext,
         )
     )
+
+    private suspend fun publishAuthEvent(event: Any) = withContext(Dispatchers.Default) {
+        eventPublisher.publishEvent(event)
+    }
 
     private suspend fun handleSuccessfulAuthorization(
         savedRequest: SavedAuthorizationRequest,
@@ -183,11 +189,11 @@ class OAuth2ClientAuthorizationProvider(
             )
         }
 
-        eventPublisher.publishEvent(
-            OAuth2SucceededEvent(
+        publishAuthEvent(
+            event = OAuth2SucceededEvent(
                 user = savedRequest.owner,
                 clientRegistrationId = savedRequest.clientRegistrationId,
-                context = coroutineContext
+                context = coroutineContext,
             )
         )
     }

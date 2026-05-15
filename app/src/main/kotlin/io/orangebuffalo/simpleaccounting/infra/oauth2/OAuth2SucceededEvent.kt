@@ -4,8 +4,10 @@ import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -21,8 +23,11 @@ data class OAuth2SucceededEvent(
     @OptIn(DelicateCoroutinesApi::class)
     fun executeInSourceContext(clientRegistrationId: String, block: suspend () -> Unit) {
         if (this.clientRegistrationId == clientRegistrationId) {
+            val sourceContext = context
+                .minusKey(ContinuationInterceptor)
+                .minusKey(Job)
             runBlocking {
-                withContext(context) {
+                withContext(sourceContext) {
                     runAs(user.toSecurityPrincipal(), block)
                 }
             }
