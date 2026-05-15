@@ -1,12 +1,13 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>{{ $t.createStandaloneDocument.pageHeader() }}</h1>
+      <h1>{{ pageHeader }}</h1>
     </div>
 
     <SaForm
       v-model="formValues"
       :on-submit="saveStandaloneDocument"
+      :on-load="loadStandaloneDocument"
       :on-cancel="navigateToDocumentsOverview"
     >
       <div class="row">
@@ -20,7 +21,10 @@
           />
         </div>
 
-        <div class="col col-xs-12 col-lg-6">
+        <div
+          v-if="!isEditing"
+          class="col col-xs-12 col-lg-6"
+        >
           <h2>{{ $t.createStandaloneDocument.document.header() }}</h2>
 
           <SaFormDocumentsUpload
@@ -35,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormDocumentsUpload from '@/components/form/SaFormDocumentsUpload.vue';
@@ -43,19 +47,46 @@
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
-  import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { AsFormValues, ClientSideValidationError, toRequestArgs } from '@/components/form/sa-form-api.ts';
-  import { CreateStandaloneDocumentMutationVariables } from '@/services/api/gql/graphql.ts';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import {
+    AsFormValues,
+    ClientSideValidationError,
+    toRequestArgs,
+    updateFormValues,
+  } from '@/components/form/sa-form-api.ts';
+  import {
+    CreateStandaloneDocumentMutationVariables,
+    EditStandaloneDocumentMutationVariables,
+  } from '@/services/api/gql/graphql.ts';
 
-  type CreateStandaloneDocumentFormValues = AsFormValues<[CreateStandaloneDocumentMutationVariables]> & {
+  type StandaloneDocumentFormValues = AsFormValues<[
+    CreateStandaloneDocumentMutationVariables,
+    EditStandaloneDocumentMutationVariables,
+  ]> & {
     documents?: string[] | null,
   };
+
+  const props = defineProps<{
+    id?: string,
+  }>();
 
   const { currentWorkspaceId } = useCurrentWorkspace();
   const { navigateByViewName } = useNavigation();
   const navigateToDocumentsOverview = async () => {
     await navigateByViewName('documents-overview');
   };
+
+  const getStandaloneDocumentForEditQuery = useLazyQuery(graphql(`
+    query getStandaloneDocumentForEdit($workspaceId: String!, $standaloneDocumentId: String!) {
+      workspace(id: $workspaceId) {
+        standaloneDocument(id: $standaloneDocumentId) {
+          id
+          title
+          documentId
+        }
+      }
+    }
+  `), 'workspace');
 
   const createStandaloneDocumentMutation = useMutation(graphql(`
     mutation createStandaloneDocument(
@@ -73,12 +104,50 @@
     }
   `), 'createStandaloneDocument');
 
-  const formValues = ref<CreateStandaloneDocumentFormValues>({
+  const editStandaloneDocumentMutation = useMutation(graphql(`
+    mutation editStandaloneDocument(
+      $workspaceId: String!,
+      $id: String!,
+      $title: String!,
+      $documentId: String!
+    ) {
+      editStandaloneDocument(
+        workspaceId: $workspaceId,
+        id: $id,
+        title: $title,
+        documentId: $documentId
+      ) {
+        id
+      }
+    }
+  `), 'editStandaloneDocument');
+
+  const formValues = ref<StandaloneDocumentFormValues>({
     workspaceId: currentWorkspaceId,
+    id: props.id,
     documents: [],
   });
 
+  const isEditing = computed(() => props.id !== undefined);
+  const pageHeader = computed(() => (isEditing.value
+    ? $t.value.editStandaloneDocument.pageHeader()
+    : $t.value.createStandaloneDocument.pageHeader()));
+
+  const loadStandaloneDocument = props.id !== undefined ? async () => {
+    const workspace = await getStandaloneDocumentForEditQuery({
+      workspaceId: currentWorkspaceId,
+      standaloneDocumentId: props.id!,
+    });
+    updateFormValues(formValues, workspace.standaloneDocument);
+  } : undefined;
+
   const saveStandaloneDocument = async () => {
+    if (isEditing.value) {
+      await editStandaloneDocumentMutation(toRequestArgs(formValues));
+      await navigateToDocumentsOverview();
+      return;
+    }
+
     const documentId = formValues.value.documents?.[0];
     if (!documentId) {
       throw new ClientSideValidationError([{

@@ -387,6 +387,10 @@ export default {
     },
   },
 
+  editStandaloneDocument: {
+    pageHeader: () => 'Edit Document',
+  },
+
   documentsOverviewPanel: {
     timeUploaded: {
       label: () => 'Uploaded',
@@ -411,6 +415,9 @@ export default {
     download: {
       waitingForStorage: () => 'Waiting for the storage to become available',
       storageInactive: () => 'You need to (re-)activate the documents storage to download this document. Navigate to your profile settings and check there.',
+    },
+    edit: {
+      label: () => 'Edit',
     },
     delete: {
       label: () => 'Delete',

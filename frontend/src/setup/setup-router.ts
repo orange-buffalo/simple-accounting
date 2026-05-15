@@ -284,6 +284,12 @@ export default function setupRouter() {
             component: CreateStandaloneDocument,
           },
           {
+            path: 'documents/:id/edit',
+            name: 'edit-standalone-document',
+            component: CreateStandaloneDocument,
+            props: ID_ROUTER_PARAM_PROCESSOR,
+          },
+          {
             path: 'admin/users',
             name: 'users-overview',
             component: UsersOverview,
