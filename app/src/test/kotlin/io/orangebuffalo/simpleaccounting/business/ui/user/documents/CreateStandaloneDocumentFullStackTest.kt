@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.CreateStandaloneDocumentPage.Companion.openCreateStandaloneDocumentPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.CreateStandaloneDocumentPage.Companion.openEditStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload.DocumentState.PENDING
@@ -90,6 +91,77 @@ class CreateStandaloneDocumentFullStackTest : SaFullStackTestBase() {
                 selectFileForUpload(secondFile)
                 shouldHaveDocuments(UploadedDocument("delivery-manifest.pdf", PENDING))
             }
+        }
+    }
+
+    @Test
+    fun `should edit standalone document title without changing linked document`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val document = document(workspace = workspace, name = "delivery-permit.pdf")
+                val standaloneDocument = standaloneDocument(
+                    workspace = workspace,
+                    document = document,
+                    title = "Old delivery permit",
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openEditStandaloneDocumentPage(testData.standaloneDocument.id!!) {
+            title {
+                input.shouldHaveValue("Old delivery permit")
+                input.fill("Updated delivery permit")
+            }
+            documentsUpload.shouldBeHidden()
+            reportRendering("edit-standalone-document.ready-to-save")
+            saveButton.click()
+        }
+
+        page.shouldBeDocumentsOverviewPage()
+
+        aggregateTemplate.findSingle<StandaloneDocument>(testData.standaloneDocument.id!!)
+            .shouldBeEntityWithFields(
+                StandaloneDocument(
+                    title = "Updated delivery permit",
+                    documentId = testData.document.id!!,
+                )
+            )
+    }
+
+    @Test
+    fun `should show validation errors when editing standalone document`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val standaloneDocument = standaloneDocument(
+                    workspace = workspace,
+                    document = document(workspace = workspace, name = "slurm-license.pdf"),
+                    title = "Slurm license",
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openEditStandaloneDocumentPage(testData.standaloneDocument.id!!) {
+            title { input.fill("") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            shouldHaveNotifications { validationFailed() }
+
+            title { input.fill("x".repeat(256)) }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("The length of this value should be no longer than 255 characters")
+            }
+            shouldHaveNotifications { validationFailed() }
         }
     }
 
