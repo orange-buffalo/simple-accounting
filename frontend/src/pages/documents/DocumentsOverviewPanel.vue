@@ -62,7 +62,10 @@
               class="documents-overview-panel__action"
               @click="navigateToEditStandaloneDocument"
             >
-              <SaIcon icon="pencil-solid" />
+              <SaIcon
+                icon="pencil-solid"
+                class="documents-overview-panel__action-icon"
+              />
               {{ $t.documentsOverviewPanel.edit.label() }}
             </ElButton>
             <ElTooltip
@@ -305,6 +308,10 @@
 
     &__danger-action {
       color: var(--el-color-danger);
+    }
+
+    &__action-icon {
+      margin-right: 4px;
     }
   }
 
