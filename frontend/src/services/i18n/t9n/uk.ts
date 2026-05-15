@@ -386,6 +386,10 @@ export default {
     },
   },
 
+  editStandaloneDocument: {
+    pageHeader: () => 'Редагувати Документ',
+  },
+
   documentsOverviewPanel: {
     timeUploaded: {
       label: () => 'Завантажено',
@@ -410,6 +414,9 @@ export default {
     download: {
       waitingForStorage: () => 'Очікуємо, поки сховище стане доступним',
       storageInactive: () => 'Потрібно повторно активувати сховище документів, щоб завантажити цей документ. Перейдіть до налаштувань профілю та перевірте його там.',
+    },
+    edit: {
+      label: () => 'Редагувати',
     },
     delete: {
       label: () => 'Видалити',

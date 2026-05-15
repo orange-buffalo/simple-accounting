@@ -56,6 +56,18 @@
               show-icon
               class="documents-overview-panel__action"
             />
+            <ElButton
+              v-if="standaloneDocumentUsage && currentWorkspace.editable"
+              link
+              class="documents-overview-panel__action"
+              @click="navigateToEditStandaloneDocument"
+            >
+              <SaIcon
+                icon="pencil-solid"
+                class="documents-overview-panel__action-icon"
+              />
+              {{ $t.documentsOverviewPanel.edit.label() }}
+            </ElButton>
             <ElTooltip
               v-if="canDelete"
               :content="deleteDisabledTooltip"
@@ -88,6 +100,7 @@
   import { Delete, Menu } from '@element-plus/icons-vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+  import SaIcon from '@/components/SaIcon.vue';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
   import { useDownloadDocumentStoragesStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
@@ -141,7 +154,7 @@
   }>();
 
   const { navigateToView } = useNavigation();
-  const { currentWorkspaceId } = useCurrentWorkspace();
+  const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
   const { downloadStoragesStatus } = useDownloadDocumentStoragesStatus();
   const deleting = ref(false);
 
@@ -270,6 +283,15 @@
       params: { id: usage.relatedEntityId },
     });
   };
+
+  const navigateToEditStandaloneDocument = () => {
+    if (!standaloneDocumentUsage.value) return;
+
+    navigateToView({
+      name: 'edit-standalone-document',
+      params: { id: standaloneDocumentUsage.value.relatedEntityId },
+    });
+  };
 </script>
 
 <style lang="scss">
@@ -286,6 +308,10 @@
 
     &__danger-action {
       color: var(--el-color-danger);
+    }
+
+    &__action-icon {
+      margin-right: 4px;
     }
   }
 

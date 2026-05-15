@@ -4,6 +4,7 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.downloadBytes
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
@@ -21,6 +22,11 @@ class DocumentsUpload private constructor(
 
     fun shouldBeVisible(): DocumentsUpload {
         rootLocator.shouldBeVisible()
+        return this
+    }
+
+    fun shouldBeHidden(): DocumentsUpload {
+        rootLocator.shouldBeHidden()
         return this
     }
 

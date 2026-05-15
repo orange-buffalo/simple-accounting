@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.EditStandaloneDocumentPage.Companion.shouldBeEditStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.openDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
@@ -157,6 +158,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         )
 
         page.shouldBeDocumentsOverviewPage {
+            val documentsOverviewPage = this
             pageItems {
                 shouldHaveExactData(
                     SaOverviewItemData(
@@ -225,10 +227,18 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
                 shouldHaveItemSatisfying { it.title == "Single Usage Doc.pdf" }
                     .shouldHaveLastColumnActionEnabled("Download")
-                shouldHaveItemSatisfying { it.title == "Standalone License.pdf" }
-                    .shouldHaveLastColumnActionEnabled("Delete")
+                shouldHaveItemSatisfying { it.title == "Standalone License.pdf" }.also {
+                    it.shouldHaveActionMenuItems("Download", "Edit", "Delete")
+                    it.shouldHaveLastColumnActionEnabled("Edit")
+                    it.shouldHaveLastColumnActionEnabled("Delete")
+                    documentsOverviewPage.reportRenderingWithPopovers("documents-overview.actions-menu")
+                    it.clickActionMenuItem("Edit")
+                }
             }
-            reportRenderingWithPopovers("documents-overview.actions-menu")
+        }
+
+        page.shouldBeEditStandaloneDocumentPage {
+            title { input.shouldHaveValue("Planet Express License") }
         }
     }
 
@@ -395,7 +405,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 val standaloneItem = shouldHaveItemSatisfying { it.title == "Standalone delivery permit.pdf" }
-                standaloneItem.shouldHaveActionMenuItems("Download", "Delete")
+                standaloneItem.shouldHaveActionMenuItems("Download", "Edit", "Delete")
                 standaloneItem.shouldHaveLastColumnActionEnabled("Download")
                 standaloneItem.shouldHaveLastColumnActionEnabled("Delete")
                 standaloneItem.clickActionMenuItem("Delete")
