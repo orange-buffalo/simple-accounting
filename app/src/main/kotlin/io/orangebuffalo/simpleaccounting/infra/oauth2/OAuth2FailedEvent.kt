@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,8 +20,9 @@ data class OAuth2FailedEvent(
     @OptIn(DelicateCoroutinesApi::class)
     fun executeInSourceContext(clientRegistrationId: String, block: suspend () -> Unit) {
         if (this.clientRegistrationId == clientRegistrationId) {
+            val sourceContext = context.minusKey(ContinuationInterceptor)
             runBlocking {
-                withContext(context) {
+                withContext(sourceContext) {
                     block()
                 }
             }
