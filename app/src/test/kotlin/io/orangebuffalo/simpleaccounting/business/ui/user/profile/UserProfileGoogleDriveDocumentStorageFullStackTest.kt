@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.profile
 
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.Route
-import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -102,8 +101,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should show authorization failed status when OAuth provider denies access and recover on retry`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.calculon) {
@@ -163,8 +161,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         preconditions.calculon.assertIntegrationFolderId("test-created-folder-id")
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should create new root folder if not created before`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.scruffy) {
@@ -194,8 +191,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         )
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should successfully reauthorize GDrive when folder exists but auth was missing`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.yivo) {
@@ -217,8 +213,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         )
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should re-create the folder upon authorization if trashed`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.yivo) {
@@ -249,8 +244,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         assertPreviousRootFolderIsRequestedFromGoogleDrive()
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should re-create the folder upon authorization if not found`(
         page: Page
     ) = page.onGoogleDriveSection(preconditions.yivo) {
@@ -281,8 +275,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         assertPreviousRootFolderIsRequestedFromGoogleDrive()
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should provide success status if auth configured before`(
         page: Page
     ) {
@@ -302,8 +295,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should create root folder if not created before but auth configured`(
         page: Page
     ) {
@@ -323,8 +315,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should re-create root folder if deleted and auth configured before`(
         page: Page
     ) {
@@ -351,8 +342,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should re-create root folder if not found by ID and auth configured before`(
         page: Page
     ) {
@@ -379,8 +369,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         }
     }
 
-    // Retries cover a CI-only full-stack race where the Google Drive status push/API update can stay pending.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should issue a new token and use it if previous token expired and refresh token persisted`(
         page: Page
     ) {
