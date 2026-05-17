@@ -411,7 +411,8 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
             infoMessage.shouldBeVisible()
             infoMessage.shouldHaveText(
                 "3 documents have been uploaded with Google Drive. " +
-                    "You need to keep the authorization active in order to download them."
+                    "You need to keep the authorization active in order to download them. " +
+                    "Navigate to the Documents Migration page to move the documents to the current storage."
             )
         }
     }

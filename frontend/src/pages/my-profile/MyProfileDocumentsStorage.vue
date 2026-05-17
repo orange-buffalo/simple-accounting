@@ -31,6 +31,10 @@
               class="sa-documents-storage-section__storage-info"
             >
               {{ $t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount) }}
+              <RouterLink :to="{ name: 'documents-migration' }">
+                {{ $t.documentsMigration.pageHeader() }}
+              </RouterLink>
+              {{ $t.myProfile.documentsStorage.documentsMigrationLinkSuffix() }}
             </p>
             <SaGoogleDriveIntegrationSetup />
           </div>
