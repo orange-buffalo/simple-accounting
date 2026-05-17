@@ -441,7 +441,8 @@ export default {
       useForUploads: () => 'Use for uploads',
       localStorageDisabledStatus: () => 'Not available',
       localStorageDisabledDetails: () => 'Local storage has not been enabled by the system administrator.',
-      googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them.`,
+      googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them. Navigate to the`,
+      documentsMigrationLinkSuffix: () => 'page to move the documents to the current storage.',
     },
     languagePreferences: {
       header: () => 'Language Preferences',
@@ -482,6 +483,11 @@ export default {
         success: () => 'Password has been changed',
       },
     },
+  },
+
+  documentsMigration: {
+    pageHeader: () => 'Documents Migration',
+    description: (count: number) => `${count} document${count === 1 ? ' is' : 's are'} outside of the upload storage. This page can help migrate them to the current storage.`,
   },
 
   editIncome: {
