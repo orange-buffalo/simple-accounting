@@ -440,8 +440,7 @@ export default {
       useForUploads: () => 'Використовувати для завантажень',
       localStorageDisabledStatus: () => 'Недоступно',
       localStorageDisabledDetails: () => 'Локальне сховище не було увімкнено системним адміністратором.',
-      googleDriveDocumentsNotice: (count: number) => `${count} документ${count === 1 ? '' : 'ів'} було завантажено через Google Drive. Необхідно підтримувати авторизацію активною для можливості їх завантаження. Перейдіть на`,
-      documentsMigrationLinkSuffix: () => 'щоб перемістити документи до поточного сховища.',
+      googleDriveDocumentsNotice: (count: number) => `${count} документ${count === 1 ? '' : 'ів'} було завантажено через Google Drive. Необхідно підтримувати авторизацію активною для можливості їх завантаження. Перейдіть на сторінку {migrationLink}, щоб перемістити документи до поточного сховища.`,
     },
     languagePreferences: {
       header: () => 'Мовні Уподобання',
