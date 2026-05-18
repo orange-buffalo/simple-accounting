@@ -9,22 +9,22 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
 import kotlinx.coroutines.future.await
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 private const val NAME = "documentsByIds"
 
 @Component
 class DocumentsByIdsDataLoader(
     private val documentsRepository: DocumentsRepository,
-) : KotlinDataLoader<List<String>, List<DocumentGqlDto>> {
+) : KotlinDataLoader<String, DocumentGqlDto?> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<List<String>, List<DocumentGqlDto>> =
-        newAsyncMappedDataLoader { idLists ->
-            val allDocumentIds = idLists.flatten().toSet()
-            val documents = documentsRepository.findAllById(allDocumentIds)
-            val usagesByDocId = documentsRepository.findUsagesByDocumentIds(allDocumentIds)
-            val documentDtoById = documents.associate { document ->
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, DocumentGqlDto?> =
+        newAsyncMappedDataLoader { documentIds ->
+            val documents = documentsRepository.findAllById(documentIds)
+            val usagesByDocId = documentsRepository.findUsagesByDocumentIds(documentIds)
+            documents.associate { document ->
                 document.id!! to DocumentGqlDto(
                     id = document.id!!,
                     version = document.version!!,
@@ -36,16 +36,26 @@ class DocumentsByIdsDataLoader(
                     usedBy = usagesByDocId[document.id] ?: emptyList(),
                 )
             }
-            idLists.associateWith { ids ->
-                ids.mapNotNull { id -> documentDtoById[id] }
-                    .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
-            }
         }
 }
 
 suspend fun DataFetchingEnvironment.loadDocumentsByIds(
     documentIds: List<String>,
-): List<DocumentGqlDto> = getDataLoader<List<String>, List<DocumentGqlDto>>(NAME)!!
-    .load(documentIds)
+): List<DocumentGqlDto> = getDataLoader<String, DocumentGqlDto?>(NAME)!!
+    .loadMany(documentIds)
     .dispatchIfNeeded(this)
     .await()
+    .filterNotNull()
+    .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
+
+fun DataFetchingEnvironment.loadDocumentsByIdsAsync(
+    documentIds: List<String>
+): CompletableFuture<List<DocumentGqlDto>> {
+    val dataLoader = getDataLoader<String, DocumentGqlDto?>(NAME)!!
+    val documentsFuture = dataLoader.loadMany(documentIds)
+    dataLoader.dispatch()
+    return documentsFuture.thenApply { documents ->
+        documents.filterNotNull()
+            .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
+    }
+}

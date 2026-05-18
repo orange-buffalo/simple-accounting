@@ -271,14 +271,14 @@ export type DocumentsConnection = {
 /** Documents migration task for the current user. */
 export type DocumentsMigration = {
   __typename?: 'DocumentsMigration';
-  /** IDs of documents that should be migrated. */
-  documentsToMigrate: Array<Scalars['String']['output']>;
+  /** Time when the migration was completed. */
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Documents that should be migrated. */
+  documentsToMigrate: Array<Document>;
   /** ID of the documents migration task. */
   id: Scalars['String']['output'];
   /** Number of documents already migrated. */
   migratedDocumentsCount: Scalars['Int']['output'];
-  /** ID of the user who owns this migration task. */
-  userId: Scalars['String']['output'];
 };
 
 /** Statistics about document storage usage. */
@@ -1272,6 +1272,12 @@ export type StandaloneDocumentsConnection = {
   /** The total number of items in the connection across all pages. */
   totalCount: Scalars['Int']['output'];
 };
+
+/** Possible business error codes for the startDocumentsMigration operation. */
+export enum StartDocumentsMigrationErrorCodes {
+  /** Documents storage is not configured for the current user. */
+  DocumentsStorageNotConfigured = 'DOCUMENTS_STORAGE_NOT_CONFIGURED'
+}
 
 export type Subscription = {
   __typename?: 'Subscription';

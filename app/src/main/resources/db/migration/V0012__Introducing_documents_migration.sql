@@ -2,6 +2,7 @@ create table "DOCUMENTS_MIGRATION" (
     "ID"                       varchar(10) not null,
     "VERSION"                  integer     not null,
     "CREATED_AT"               timestamp   not null,
+    "COMPLETED_AT"             timestamp,
     "USER_ID"                  varchar(10) not null,
     "MIGRATED_DOCUMENTS_COUNT" integer     not null
 );

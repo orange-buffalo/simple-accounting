@@ -1,12 +1,20 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.server.operations.Mutation
+import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIdsAsync
+import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigrationService
+import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsStorageNotConfiguredException
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 @Component
 class StartDocumentsMigrationMutation(
@@ -16,6 +24,11 @@ class StartDocumentsMigrationMutation(
     @Suppress("unused")
     @GraphQLDescription("Starts migration of documents that are not stored in the current upload storage.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+    @BusinessError(
+        exceptionClass = DocumentsStorageNotConfiguredException::class,
+        errorCode = "DOCUMENTS_STORAGE_NOT_CONFIGURED",
+        errorCodeDescription = "Documents storage is not configured for the current user.",
+    )
     suspend fun startDocumentsMigration(): DocumentsMigrationGqlDto {
         return documentsMigrationService.startDocumentsMigration().toGqlDto()
     }
@@ -26,17 +39,21 @@ class StartDocumentsMigrationMutation(
 data class DocumentsMigrationGqlDto(
     @GraphQLDescription("ID of the documents migration task.")
     val id: String,
-    @GraphQLDescription("ID of the user who owns this migration task.")
-    val userId: String,
-    @GraphQLDescription("IDs of documents that should be migrated.")
-    val documentsToMigrate: List<String>,
     @GraphQLDescription("Number of documents already migrated.")
     val migratedDocumentsCount: Int,
-)
+    @GraphQLDescription("Time when the migration was completed.")
+    val completedAt: Instant?,
+    @GraphQLIgnore val documentIdsToMigrate: List<String>,
+) {
+    @GraphQLDescription("Documents that should be migrated.")
+    fun documentsToMigrate(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
+        return env.loadDocumentsByIdsAsync(documentIdsToMigrate)
+    }
+}
 
 private fun DocumentsMigration.toGqlDto() = DocumentsMigrationGqlDto(
     id = id!!,
-    userId = userId,
-    documentsToMigrate = documentsToMigrate.map { it.documentId }.sorted(),
     migratedDocumentsCount = migratedDocumentsCount,
+    completedAt = completedAt,
+    documentIdsToMigrate = documentsToMigrate.map { it.documentId }.sorted(),
 )

@@ -6,7 +6,6 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentStorageStati
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
-import org.jooq.impl.DSL.noCondition
 import org.jooq.impl.DSL.count
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.inline
@@ -54,13 +53,13 @@ class DocumentsRepositoryExtImpl(
             )
         }
 
-    override fun findIdsByOwnerAndStorageIdNot(ownerId: String, storageId: String?): List<String> = dslContext
+    override fun findIdsByOwnerAndStorageIdNot(ownerId: String, storageId: String): List<String> = dslContext
         .select(document.id)
         .from(document)
         .join(workspace).on(workspace.id.eq(document.workspaceId))
         .where(
             workspace.ownerId.eq(ownerId),
-            storageId?.let { document.storageId.ne(it) } ?: noCondition(),
+            document.storageId.ne(storageId),
         )
         .orderBy(document.createdAt, document.id)
         .fetchInto(String::class.java)

@@ -11,6 +11,7 @@ data class DocumentsMigration(
     @field:MappedCollection(idColumn = "MIGRATION_ID")
     val documentsToMigrate: Set<DocumentsMigrationDocument> = setOf(),
     val migratedDocumentsCount: Int = 0,
+    val completedAt: Instant? = null,
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
