@@ -107,9 +107,15 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 **Code-first GraphQL** with schema generation:
 - After GraphQL changes, run: `./gradlew :app:updateGraphqlSchema`
 - Regenerates `app/src/test/resources/api-schema.graphqls`
+- Backend tests use DGS-generated Kotlin query builders/projections generated from the committed schema. After changing the
+  schema, run `./gradlew :app:generateJava --rerun-tasks` before relying on new projection methods in tests.
 - After every GraphQL API change, also run: `cd frontend && bun run graphql-codegen`
 - Frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the `verifyGqlTypes` Gradle task (part of `check`)
 - Always commit regenerated frontend GraphQL types when the schema or frontend GraphQL operations change.
+- If a test already references a new generated DGS projection method before the schema has been regenerated,
+  `:app:updateGraphqlSchema` may fail at `compileTestKotlin` because the old generated projection does not contain that
+  method yet. Regenerate the schema first, regenerate DGS code with `:app:generateJava --rerun-tasks`, then add or restore
+  the test projection selection.
 
 ## File Locations
 
@@ -135,8 +141,9 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 ### After changing GraphQL API:
 ```bash
 ./gradlew :app:updateGraphqlSchema
+./gradlew :app:generateJava --rerun-tasks
 cd frontend && bun run graphql-codegen
-# commit the regenerated files in frontend/src/services/api/gql/
+# commit app/src/test/resources/api-schema.graphqls and regenerated files in frontend/src/services/api/gql/
 ```
 
 ### Before committing changes:
@@ -217,9 +224,11 @@ Key point about the GraphQL API setup:
    - Use `DgsClient.buildMutation()` for generating mutation strings
 
 3. **Schema Generation**:
-   - After adding new GraphQL operations, run `GraphqlSchemaTest` to generate updated schema
-   - Update `app/src/test/resources/api-schema.graphqls` manually if needed
-   - Run `./gradlew :app:generateJava` to regenerate DGS client code for testing
+   - After adding new GraphQL operations, run `./gradlew :app:updateGraphqlSchema` to generate the updated schema
+   - Avoid manually editing `app/src/test/resources/api-schema.graphqls` unless generation is blocked and the manual edit is
+     only used to unblock regeneration
+   - Run `./gradlew :app:generateJava --rerun-tasks` to regenerate DGS client code for testing
+   - Run `cd frontend && bun run graphql-codegen` to regenerate committed frontend GraphQL types
 
 4. **Exception Handling**:
    - Never catch generic exceptions (e.g., `Exception`, `RuntimeException`) in business code
