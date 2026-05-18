@@ -268,6 +268,19 @@ export type DocumentsConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Documents migration task for the current user. */
+export type DocumentsMigration = {
+  __typename?: 'DocumentsMigration';
+  /** IDs of documents that should be migrated. */
+  documentsToMigrate: Array<Scalars['String']['output']>;
+  /** ID of the documents migration task. */
+  id: Scalars['String']['output'];
+  /** Number of documents already migrated. */
+  migratedDocumentsCount: Scalars['Int']['output'];
+  /** ID of the user who owns this migration task. */
+  userId: Scalars['String']['output'];
+};
+
 /** Statistics about document storage usage. */
 export type DocumentsStorageStatisticsItem = {
   __typename?: 'DocumentsStorageStatisticsItem';
@@ -775,6 +788,8 @@ export type Mutation = {
   removeStandaloneDocument: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
+  /** Starts migration of documents that are not stored in the current upload storage. */
+  startDocumentsMigration: DocumentsMigration;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
 };
