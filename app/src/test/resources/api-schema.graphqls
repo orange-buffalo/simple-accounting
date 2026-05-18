@@ -238,6 +238,8 @@ type DocumentsMigration {
   id: String!
   "Number of documents already migrated."
   migratedDocumentsCount: Int!
+  "Number of documents requested for migration."
+  requestedDocumentsCount: Int!
 }
 
 "Statistics about document storage usage."
