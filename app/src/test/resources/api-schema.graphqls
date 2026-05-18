@@ -228,6 +228,18 @@ type DocumentsConnection {
   totalCount: Int!
 }
 
+"Documents migration task for the current user."
+type DocumentsMigration {
+  "IDs of documents that should be migrated."
+  documentsToMigrate: [String!]!
+  "ID of the documents migration task."
+  id: String!
+  "Number of documents already migrated."
+  migratedDocumentsCount: Int!
+  "ID of the user who owns this migration task."
+  userId: String!
+}
+
 "Statistics about document storage usage."
 type DocumentsStorageStatisticsItem {
   "The total number of documents stored in this storage across all workspaces of the current user."
@@ -1030,6 +1042,8 @@ type Mutation {
     "The workspace access token."
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
+  "Starts migration of documents that are not stored in the current upload storage."
+  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER)
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
