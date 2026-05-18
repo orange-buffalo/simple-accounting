@@ -279,6 +279,8 @@ export type DocumentsMigration = {
   id: Scalars['String']['output'];
   /** Number of documents already migrated. */
   migratedDocumentsCount: Scalars['Int']['output'];
+  /** Number of documents requested for migration. */
+  requestedDocumentsCount: Scalars['Int']['output'];
 };
 
 /** Statistics about document storage usage. */

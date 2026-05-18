@@ -39,6 +39,8 @@ class StartDocumentsMigrationMutation(
 data class DocumentsMigrationGqlDto(
     @GraphQLDescription("ID of the documents migration task.")
     val id: String,
+    @GraphQLDescription("Number of documents requested for migration.")
+    val requestedDocumentsCount: Int,
     @GraphQLDescription("Number of documents already migrated.")
     val migratedDocumentsCount: Int,
     @GraphQLDescription("Time when the migration was completed.")
@@ -53,6 +55,7 @@ data class DocumentsMigrationGqlDto(
 
 private fun DocumentsMigration.toGqlDto() = DocumentsMigrationGqlDto(
     id = id!!,
+    requestedDocumentsCount = documentsToMigrate.size,
     migratedDocumentsCount = migratedDocumentsCount,
     completedAt = completedAt,
     documentIdsToMigrate = documentsToMigrate.map { it.documentId }.sorted(),

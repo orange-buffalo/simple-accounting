@@ -43,7 +43,7 @@ class StartDocumentsMigrationMutationTest(
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client
-                .startDocumentsMigrationMutation()
+                .graphqlMutation { startDocumentsMigrationMutation() }
                 .fromAnonymous()
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.StartDocumentsMigration)
         }
@@ -51,7 +51,7 @@ class StartDocumentsMigrationMutationTest(
         @Test
         fun `should return NOT_AUTHORIZED error for admin user`() {
             client
-                .startDocumentsMigrationMutation()
+                .graphqlMutation { startDocumentsMigrationMutation() }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.StartDocumentsMigration)
         }
@@ -59,7 +59,7 @@ class StartDocumentsMigrationMutationTest(
         @Test
         fun `should return NOT_AUTHORIZED error for workspace access token`() {
             client
-                .startDocumentsMigrationMutation()
+                .graphqlMutation { startDocumentsMigrationMutation() }
                 .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
                 .executeAndVerifyNotAuthorized(path = DgsConstants.MUTATION.StartDocumentsMigration)
         }
@@ -102,7 +102,7 @@ class StartDocumentsMigrationMutationTest(
             }
 
             client
-                .startDocumentsMigrationMutation()
+                .graphqlMutation { startDocumentsMigrationMutation() }
                 .from(testData.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
@@ -119,6 +119,7 @@ class StartDocumentsMigrationMutationTest(
                                 put("storageId", "local-fs")
                             })
                         })
+                        put("requestedDocumentsCount", 2)
                         put("migratedDocumentsCount", 0)
                         put("completedAt", JsonNull)
                     }
@@ -153,7 +154,7 @@ class StartDocumentsMigrationMutationTest(
             }
 
             client
-                .startDocumentsMigrationMutation()
+                .graphqlMutation { startDocumentsMigrationMutation() }
                 .from(testData.fry)
                 .executeAndVerifyBusinessError(
                     message = "Documents storage is not configured",
@@ -163,12 +164,9 @@ class StartDocumentsMigrationMutationTest(
         }
     }
 
-    private fun ApiTestClient.startDocumentsMigrationMutation(): GraphqlClientRequestExecutor = graphqlMutation {
-        startDocumentsMigrationMutation()
-    }
-
     private fun MutationProjection.startDocumentsMigrationMutation(): MutationProjection = startDocumentsMigration {
         id
+        requestedDocumentsCount
         migratedDocumentsCount
         completedAt
         documentsToMigrate {
