@@ -230,14 +230,14 @@ type DocumentsConnection {
 
 "Documents migration task for the current user."
 type DocumentsMigration {
-  "IDs of documents that should be migrated."
-  documentsToMigrate: [String!]!
+  "Time when the migration was completed."
+  completedAt: DateTime
+  "Documents that should be migrated."
+  documentsToMigrate: [Document!]!
   "ID of the documents migration task."
   id: String!
   "Number of documents already migrated."
   migratedDocumentsCount: Int!
-  "ID of the user who owns this migration task."
-  userId: String!
 }
 
 "Statistics about document storage usage."
@@ -1043,7 +1043,7 @@ type Mutation {
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
   "Starts migration of documents that are not stored in the current upload storage."
-  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER)
+  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.")
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
@@ -1579,6 +1579,12 @@ enum SaGrapQlErrorType {
 enum SaveSharedWorkspaceErrorCodes {
   "The provided workspace access token is not valid (unknown, expired, or revoked)."
   INVALID_WORKSPACE_ACCESS_TOKEN
+}
+
+"Possible business error codes for the startDocumentsMigration operation."
+enum StartDocumentsMigrationErrorCodes {
+  "Documents storage is not configured for the current user."
+  DOCUMENTS_STORAGE_NOT_CONFIGURED
 }
 
 "Error codes for validation failures, matching REST API constraint violation error keys."

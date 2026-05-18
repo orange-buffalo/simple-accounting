@@ -14,11 +14,12 @@ class DocumentsMigrationService(
     suspend fun startDocumentsMigration(): DocumentsMigration {
         val currentUser = platformUsersService.getCurrentUser()
         val userId = currentUser.id!!
+        val uploadStorageId = currentUser.documentsStorage ?: throw DocumentsStorageNotConfiguredException()
 
         return withDbContext {
             val documentsToMigrate = documentsRepository.findIdsByOwnerAndStorageIdNot(
                 ownerId = userId,
-                storageId = currentUser.documentsStorage,
+                storageId = uploadStorageId,
             )
             documentsMigrationRepository.save(
                 DocumentsMigration(
@@ -31,3 +32,5 @@ class DocumentsMigrationService(
         }
     }
 }
+
+class DocumentsStorageNotConfiguredException : RuntimeException("Documents storage is not configured")
