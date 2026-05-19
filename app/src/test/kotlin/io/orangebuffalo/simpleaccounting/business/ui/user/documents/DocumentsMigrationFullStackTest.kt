@@ -31,7 +31,7 @@ class DocumentsMigrationFullStackTest : SaFullStackTestBase() {
                     reportRendering("profile.documents-storage.migration-link")
 
                     page.withBlockedGqlApiResponse(
-                        "documentsMigrationStorageStatistics",
+                        "documentsMigrationPageData",
                         initiator = {
                             clickMigrationLink()
                         },
