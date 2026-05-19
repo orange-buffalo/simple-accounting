@@ -74,7 +74,7 @@
   type DocumentsMigration = StartDocumentsMigrationFromPageMutation['startDocumentsMigration'];
 
   const [loading, migrationData] = useMultiQuery(graphql(/* GraphQL */ `
-    query documentsMigrationStorageStatistics {
+    query documentsMigrationPageData {
       documentsStorageStatistics {
         storageId
         documentsCount
