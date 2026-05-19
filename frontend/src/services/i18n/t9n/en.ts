@@ -486,7 +486,12 @@ export default {
 
   documentsMigration: {
     pageHeader: () => 'Documents Migration',
-    description: (count: number) => `${count} document${count === 1 ? ' is' : 's are'} outside of the upload storage. This page can help migrate them to the current storage.`,
+    storageUnavailable: () => 'One of the required storages is not available. Please configure it on your profile page.',
+    noMigrationRequired: () => 'All your documents are in the upload storage, no migration is required.',
+    migrationInProgress: () => 'We are currently migrating your documents, please avoid editing existing entries until we complete the migration.',
+    migrationProgress: (migrated: number, total: number) => `${migrated}/${total} migrated`,
+    description: (count: number) => `${count} document${count === 1 ? ' is' : 's are'} outside of the upload storage. We can migrate all the documents to the current upload storage. To start the process, use the button below. Please note it is not reversible and cannot be interrupted until finished.`,
+    startMigration: () => 'Start migration',
   },
 
   editIncome: {
