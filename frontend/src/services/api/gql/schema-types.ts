@@ -283,6 +283,26 @@ export type DocumentsMigration = {
   requestedDocumentsCount: Scalars['Int']['output'];
 };
 
+/** An edge in a documents migrations connection. */
+export type DocumentsMigrationEdge = {
+  __typename?: 'DocumentsMigrationEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The documents migration at the end of this edge. */
+  node: DocumentsMigration;
+};
+
+/** A paginated connection of documents migrations following the GraphQL Cursor Connections Specification. */
+export type DocumentsMigrationsConnection = {
+  __typename?: 'DocumentsMigrationsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<DocumentsMigrationEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Statistics about document storage usage. */
 export type DocumentsStorageStatisticsItem = {
   __typename?: 'DocumentsStorageStatisticsItem';
@@ -1160,6 +1180,8 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first. */
+  documentsMigrations: DocumentsMigrationsConnection;
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
   documentsStorageStatistics: Array<DocumentsStorageStatisticsItem>;
   /** Returns the current user's documents storage status. */
@@ -1184,6 +1206,12 @@ export type Query = {
   workspace: Workspace;
   /** Returns all workspaces accessible by the current user with cursor-based pagination. */
   workspaces: WorkspacesConnection;
+};
+
+
+export type QueryDocumentsMigrationsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 

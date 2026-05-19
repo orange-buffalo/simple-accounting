@@ -4,6 +4,8 @@ import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.business.documents.Document
+import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
+import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigrationDocument
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
@@ -209,6 +211,23 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         return StandaloneDocument(
             title = title,
             documentId = linkedDocument.id!!,
+            createdAt = createdAt,
+        ).save()
+    }
+
+    fun documentsMigration(
+        user: PlatformUser? = null,
+        documentsToMigrate: Set<Document> = setOf(),
+        migratedDocumentsCount: Int = 0,
+        completedAt: Instant? = null,
+        createdAt: Instant = MOCK_TIME,
+    ): DocumentsMigration {
+        val userId = if (user == null) platformUser().id else user.id
+        return DocumentsMigration(
+            userId = userId!!,
+            documentsToMigrate = documentsToMigrate.map { DocumentsMigrationDocument(it.id!!) }.toSet(),
+            migratedDocumentsCount = migratedDocumentsCount,
+            completedAt = completedAt,
             createdAt = createdAt,
         ).save()
     }
