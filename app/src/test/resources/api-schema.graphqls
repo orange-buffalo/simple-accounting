@@ -228,6 +228,38 @@ type DocumentsConnection {
   totalCount: Int!
 }
 
+"Documents migration task for the current user."
+type DocumentsMigration {
+  "Time when the migration was completed."
+  completedAt: DateTime
+  "Documents that should be migrated."
+  documentsToMigrate: [Document!]!
+  "ID of the documents migration task."
+  id: String!
+  "Number of documents already migrated."
+  migratedDocumentsCount: Int!
+  "Number of documents requested for migration."
+  requestedDocumentsCount: Int!
+}
+
+"An edge in a documents migrations connection."
+type DocumentsMigrationEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The documents migration at the end of this edge."
+  node: DocumentsMigration!
+}
+
+"A paginated connection of documents migrations following the GraphQL Cursor Connections Specification."
+type DocumentsMigrationsConnection {
+  "The list of edges in the current page."
+  edges: [DocumentsMigrationEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Statistics about document storage usage."
 type DocumentsStorageStatisticsItem {
   "The total number of documents stored in this storage across all workspaces of the current user."
@@ -1030,6 +1062,8 @@ type Mutation {
     "The workspace access token."
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
+  "Starts migration of documents that are not stored in the current upload storage."
+  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.")
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
@@ -1100,6 +1134,13 @@ type PushNotificationMessage {
 }
 
 type Query {
+  "Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first."
+  documentsMigrations(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int! @max(value : 500) @min(value : 1)
+  ): DocumentsMigrationsConnection! @auth(type : REGULAR_USER)
   "Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included."
   documentsStorageStatistics: [DocumentsStorageStatisticsItem!]! @auth(type : AUTHENTICATED_USER)
   "Returns the current user's documents storage status."
@@ -1565,6 +1606,12 @@ enum SaGrapQlErrorType {
 enum SaveSharedWorkspaceErrorCodes {
   "The provided workspace access token is not valid (unknown, expired, or revoked)."
   INVALID_WORKSPACE_ACCESS_TOKEN
+}
+
+"Possible business error codes for the startDocumentsMigration operation."
+enum StartDocumentsMigrationErrorCodes {
+  "Documents storage is not configured for the current user."
+  DOCUMENTS_STORAGE_NOT_CONFIGURED
 }
 
 "Error codes for validation failures, matching REST API constraint violation error keys."

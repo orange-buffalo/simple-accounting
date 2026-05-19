@@ -30,7 +30,13 @@
               v-if="!isGoogleDriveUsedForUploads && googleDriveDocumentsCount > 0"
               class="sa-documents-storage-section__storage-info"
             >
-              {{ $t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount) }}
+              <SaI18n :message="$t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount)">
+                <template #migrationLink>
+                  <RouterLink :to="{ name: 'documents-migration' }">
+                    {{ $t.documentsMigration.pageHeader() }}
+                  </RouterLink>
+                </template>
+              </SaI18n>
             </p>
             <SaGoogleDriveIntegrationSetup />
           </div>
@@ -67,6 +73,7 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaI18n from '@/components/SaI18n.vue';
   import SaGoogleDriveIntegrationSetup
     from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
   import { $t } from '@/services/i18n';

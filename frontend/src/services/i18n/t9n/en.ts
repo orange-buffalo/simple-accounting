@@ -441,7 +441,7 @@ export default {
       useForUploads: () => 'Use for uploads',
       localStorageDisabledStatus: () => 'Not available',
       localStorageDisabledDetails: () => 'Local storage has not been enabled by the system administrator.',
-      googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them.`,
+      googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them. Navigate to the {migrationLink} page to move the documents to the current storage.`,
     },
     languagePreferences: {
       header: () => 'Language Preferences',
@@ -482,6 +482,16 @@ export default {
         success: () => 'Password has been changed',
       },
     },
+  },
+
+  documentsMigration: {
+    pageHeader: () => 'Documents Migration',
+    storageUnavailable: () => 'One of the required storages is not available. Please configure it on your profile page.',
+    noMigrationRequired: () => 'All your documents are in the upload storage, no migration is required.',
+    migrationInProgress: () => 'We are currently migrating your documents, please avoid editing existing entries until we complete the migration.',
+    migrationProgress: (migrated: number, total: number) => `${migrated}/${total} migrated`,
+    description: (count: number) => `${count} document${count === 1 ? ' is' : 's are'} outside of the upload storage. We can migrate all the documents to the current upload storage. To start the process, use the button below. Please note it is not reversible and cannot be interrupted until finished.`,
+    startMigration: () => 'Start migration',
   },
 
   editIncome: {

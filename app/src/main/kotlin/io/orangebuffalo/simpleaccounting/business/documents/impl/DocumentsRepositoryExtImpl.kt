@@ -53,6 +53,17 @@ class DocumentsRepositoryExtImpl(
             )
         }
 
+    override fun findIdsByOwnerAndStorageIdNot(ownerId: String, storageId: String): List<String> = dslContext
+        .select(document.id)
+        .from(document)
+        .join(workspace).on(workspace.id.eq(document.workspaceId))
+        .where(
+            workspace.ownerId.eq(ownerId),
+            document.storageId.ne(storageId),
+        )
+        .orderBy(document.createdAt, document.id)
+        .fetchInto(String::class.java)
+
     override fun findUsagesByDocumentIds(documentIds: Collection<String>): Map<String, List<DocumentUsageGqlDto>> {
         if (documentIds.isEmpty()) return emptyMap()
 

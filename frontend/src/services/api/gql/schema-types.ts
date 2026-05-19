@@ -268,6 +268,41 @@ export type DocumentsConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Documents migration task for the current user. */
+export type DocumentsMigration = {
+  __typename?: 'DocumentsMigration';
+  /** Time when the migration was completed. */
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Documents that should be migrated. */
+  documentsToMigrate: Array<Document>;
+  /** ID of the documents migration task. */
+  id: Scalars['String']['output'];
+  /** Number of documents already migrated. */
+  migratedDocumentsCount: Scalars['Int']['output'];
+  /** Number of documents requested for migration. */
+  requestedDocumentsCount: Scalars['Int']['output'];
+};
+
+/** An edge in a documents migrations connection. */
+export type DocumentsMigrationEdge = {
+  __typename?: 'DocumentsMigrationEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The documents migration at the end of this edge. */
+  node: DocumentsMigration;
+};
+
+/** A paginated connection of documents migrations following the GraphQL Cursor Connections Specification. */
+export type DocumentsMigrationsConnection = {
+  __typename?: 'DocumentsMigrationsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<DocumentsMigrationEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Statistics about document storage usage. */
 export type DocumentsStorageStatisticsItem = {
   __typename?: 'DocumentsStorageStatisticsItem';
@@ -775,6 +810,8 @@ export type Mutation = {
   removeStandaloneDocument: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
+  /** Starts migration of documents that are not stored in the current upload storage. */
+  startDocumentsMigration: DocumentsMigration;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
 };
@@ -1143,6 +1180,8 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first. */
+  documentsMigrations: DocumentsMigrationsConnection;
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
   documentsStorageStatistics: Array<DocumentsStorageStatisticsItem>;
   /** Returns the current user's documents storage status. */
@@ -1167,6 +1206,12 @@ export type Query = {
   workspace: Workspace;
   /** Returns all workspaces accessible by the current user with cursor-based pagination. */
   workspaces: WorkspacesConnection;
+};
+
+
+export type QueryDocumentsMigrationsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
 };
 
 
@@ -1257,6 +1302,12 @@ export type StandaloneDocumentsConnection = {
   /** The total number of items in the connection across all pages. */
   totalCount: Scalars['Int']['output'];
 };
+
+/** Possible business error codes for the startDocumentsMigration operation. */
+export enum StartDocumentsMigrationErrorCodes {
+  /** Documents storage is not configured for the current user. */
+  DocumentsStorageNotConfigured = 'DOCUMENTS_STORAGE_NOT_CONFIGURED'
+}
 
 export type Subscription = {
   __typename?: 'Subscription';

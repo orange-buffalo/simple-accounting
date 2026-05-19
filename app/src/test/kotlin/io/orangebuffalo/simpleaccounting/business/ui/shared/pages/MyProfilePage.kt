@@ -104,6 +104,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
             val useForUploadsButton = container.locator(".sa-documents-storage-item__use-action")
             val settings = settingsProvider(container)
             val infoMessage = container.locator(".sa-documents-storage-section__storage-info")
+            val migrationLink = infoMessage.getByText("Documents Migration")
 
             fun shouldBeVisible() {
                 container.shouldBeVisible()
@@ -121,6 +122,10 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
             fun clickUseForUploads() {
                 useForUploadsButton.click()
+            }
+
+            fun clickMigrationLink() {
+                migrationLink.click()
             }
 
             fun shouldHaveNotAvailableStatus() {
