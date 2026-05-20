@@ -4,6 +4,9 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
@@ -11,8 +14,10 @@ import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactor.asFlux
@@ -22,6 +27,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.support.TransactionTemplate
+import kotlin.coroutines.ContinuationInterceptor
 
 private val log = KotlinLogging.logger {}
 
@@ -30,6 +36,7 @@ class DocumentsMigrationProcessor(
     private val documentsMigrationRepository: DocumentsMigrationRepository,
     private val documentsRepository: DocumentsRepository,
     private val documentsStorages: List<DocumentsStorage>,
+    private val platformUsersService: PlatformUsersService,
     private val workspacesService: WorkspacesService,
     private val timeService: TimeService,
     transactionManager: PlatformTransactionManager,
@@ -39,29 +46,35 @@ class DocumentsMigrationProcessor(
         propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
     }
 
-    fun startMigration(migrationId: String) {
-        scope.launch {
+    suspend fun startMigration(migrationId: String) {
+        val sourceContext = currentCoroutineContext()
+            .minusKey(Job)
+            .minusKey(ContinuationInterceptor)
+        scope.launch(sourceContext) {
             processMigration(migrationId)
         }
     }
 
     suspend fun processMigration(migrationId: String) {
         val migration = withDbContext { documentsMigrationRepository.findByIdOrNull(migrationId) } ?: return
+        val user = platformUsersService.getUserByUserId(migration.userId)
 
-        try {
-            migration.documentsToMigrate
-                .map { it.documentId }
-                .sorted()
-                .forEach { documentId ->
-                    scope.ensureActive()
-                    processDocument(migration, documentId)
-                }
-            completeMigration(migrationId)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            log.error(e) { "Unexpected failure while processing documents migration $migrationId" }
-            completeMigration(migrationId)
+        runAs(user.toSecurityPrincipal()) {
+            try {
+                migration.documentsToMigrate
+                    .map { it.documentId }
+                    .sorted()
+                    .forEach { documentId ->
+                        scope.ensureActive()
+                        processDocument(migration, documentId)
+                    }
+                completeMigration(migrationId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.error(e) { "Unexpected failure while processing documents migration $migrationId" }
+                completeMigration(migrationId)
+            }
         }
     }
 
@@ -87,7 +100,9 @@ class DocumentsMigrationProcessor(
             ?: throw IllegalStateException("Document $documentId is not found")
         val sourceStorageLocation = document.storageLocation
             ?: throw IllegalStateException("Document $documentId has no storage location")
-        val uploadStorage = getStorage(migration.uploadStorageId)
+        val uploadStorageId = platformUsersService.getUserByUserId(migration.userId).documentsStorage
+            ?: throw IllegalStateException("Documents storage is not configured for user ${migration.userId}")
+        val uploadStorage = getStorage(uploadStorageId)
         val sourceStorage = getStorage(document.storageId)
         val workspace = workspacesService.getWorkspace(document.workspaceId)
 

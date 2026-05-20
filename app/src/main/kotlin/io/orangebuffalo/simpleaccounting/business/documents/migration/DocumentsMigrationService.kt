@@ -44,7 +44,6 @@ class DocumentsMigrationService(
             documentsMigrationRepository.save(
                 DocumentsMigration(
                     userId = userId,
-                    uploadStorageId = uploadStorageId,
                     documentsToMigrate = documentsToMigrate
                         .map { DocumentsMigrationDocument(documentId = it) }
                         .toSet(),

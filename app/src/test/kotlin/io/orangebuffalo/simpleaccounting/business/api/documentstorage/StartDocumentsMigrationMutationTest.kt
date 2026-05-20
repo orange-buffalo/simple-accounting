@@ -12,8 +12,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -107,19 +105,6 @@ class StartDocumentsMigrationMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
                         put("id", JsonValues.ANY_STRING)
-                        put("documentsToMigrate", buildJsonArray {
-                            listOf(
-                                testData.moonDeliveryDocument to "Moon delivery receipt",
-                                testData.marsDeliveryDocument to "Mars delivery receipt",
-                            ).sortedBy { (document) -> document.id!! }
-                                .forEach { (document, name) ->
-                                    add(buildJsonObject {
-                                        put("id", document.id!!)
-                                        put("name", name)
-                                        put("storageId", "noop")
-                                    })
-                                }
-                        })
                         put("requestedDocumentsCount", 2)
                         put("migratedDocumentsCount", 0)
                         put("completedAt", JsonNull)
@@ -251,10 +236,5 @@ class StartDocumentsMigrationMutationTest(
         requestedDocumentsCount
         migratedDocumentsCount
         completedAt
-        documentsToMigrate {
-            id
-            name
-            storageId
-        }
     }
 }

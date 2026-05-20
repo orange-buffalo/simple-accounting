@@ -217,7 +217,6 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
 
     fun documentsMigration(
         user: PlatformUser? = null,
-        uploadStorageId: String = TestDocumentsStorage.STORAGE_ID,
         documentsToMigrate: Set<Document> = setOf(),
         migratedDocumentsCount: Int = 0,
         completedAt: Instant? = null,
@@ -226,7 +225,6 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         val userId = if (user == null) platformUser().id else user.id
         return DocumentsMigration(
             userId = userId!!,
-            uploadStorageId = uploadStorageId,
             documentsToMigrate = documentsToMigrate.map { DocumentsMigrationDocument(it.id!!) }.toSet(),
             migratedDocumentsCount = migratedDocumentsCount,
             completedAt = completedAt,
