@@ -228,11 +228,10 @@ class StartDocumentsMigrationMutationTest(
                     val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
 
                     init {
-                        documentsMigration(user = fry)
+                        documentsMigration(user = fry, completedAt = null)
                         document(
                             workspace = workspace(owner = fry),
                             storageId = "local-fs",
-                            createdAt = MOCK_TIME.plusSeconds(1),
                         )
                     }
                 }
