@@ -195,6 +195,59 @@ class DocumentsMigrationProcessorTest(
         migration.completedAt.shouldBe(MOCK_TIME)
     }
 
+    @Test
+    fun `should keep documents already in upload storage untouched`() {
+        val sourceContent = "Delivery permit".toByteArray()
+        val testData = preconditions {
+            object {
+                val fry = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val workspace = workspace(owner = fry)
+                val sourceLocation = "migration-source/delivery-permit.txt"
+                val sourceDocument = document(
+                    workspace = workspace,
+                    storageId = "local-fs",
+                    storageLocation = sourceLocation,
+                    sizeInBytes = sourceContent.size.toLong(),
+                    mimeType = "text/plain",
+                )
+                val uploadedDocument = document(
+                    workspace = workspace,
+                    storageId = TestDocumentsStorage.STORAGE_ID,
+                    storageLocation = "already-uploaded/slurm-receipt.txt",
+                    sizeInBytes = 42,
+                    mimeType = "text/plain",
+                )
+                val migration = documentsMigration(
+                    user = fry,
+                    documentsToMigrate = setOf(sourceDocument),
+                    completedAt = null,
+                )
+            }
+        }
+        val sourceFile = localFsDir.resolve(testData.sourceLocation)
+        Files.createDirectories(sourceFile.parent)
+        Files.write(sourceFile, sourceContent)
+
+        runBlocking { processMigration(testData.migration.id!!) }
+
+        aggregateTemplate.findSingle<Document>(testData.uploadedDocument.id!!)
+            .shouldBeEntityWithFields(testData.uploadedDocument)
+
+        val migratedDocument = aggregateTemplate.findSingle<Document>(testData.sourceDocument.id!!)
+        migratedDocument.shouldBeEntityWithFields(
+            testData.sourceDocument.copy(
+                storageId = TestDocumentsStorage.STORAGE_ID,
+                storageLocation = migratedDocument.storageLocation,
+                sizeInBytes = sourceContent.size.toLong(),
+            )
+        )
+        testDocumentsStorage.getUploadedContent(migratedDocument.storageLocation!!).shouldBe(sourceContent)
+
+        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id!!)
+        migration.migratedDocumentsCount.shouldBe(1)
+        migration.completedAt.shouldBe(MOCK_TIME)
+    }
+
     @Nested
     inner class SupportedStoragesMigration {
 

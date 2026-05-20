@@ -2,16 +2,19 @@ package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -120,6 +123,53 @@ class StartDocumentsMigrationMutationTest(
                 testData.moonDeliveryDocument.id!!,
                 testData.marsDeliveryDocument.id!!,
             )
+
+            shouldEventually("Background documents migration should complete") {
+                aggregateTemplate.findAll<DocumentsMigration>()
+                    .filter { it.userId == testData.fry.id && it.completedAt != null }
+                    .shouldHaveSize(1)
+                    .single()
+                    .migratedDocumentsCount.shouldBe(2)
+            }
+        }
+
+        @Test
+        fun `should return documents to migrate when requested`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+                    val moonDeliveryDocument = document(
+                        workspace = workspace(owner = fry),
+                        name = "Moon delivery receipt",
+                        storageId = "noop",
+                    )
+                }
+            }
+
+            client
+                .graphqlMutation {
+                    startDocumentsMigration {
+                        id
+                        documentsToMigrate { name }
+                    }
+                }
+                .from(testData.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
+                        put("id", JsonValues.ANY_STRING)
+                        put("documentsToMigrate", buildJsonArray {
+                            add(buildJsonObject { put("name", testData.moonDeliveryDocument.name) })
+                        })
+                    }
+                )
+
+            shouldEventually("Background documents migration should complete") {
+                aggregateTemplate.findAll<DocumentsMigration>()
+                    .filter { it.userId == testData.fry.id && it.completedAt != null }
+                    .shouldHaveSize(1)
+                    .single()
+                    .migratedDocumentsCount.shouldBe(1)
+            }
         }
 
         @Test
