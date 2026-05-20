@@ -9,11 +9,11 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @DisplayName("startDocumentsMigration mutation")
 class StartDocumentsMigrationMutationTest(
     @Autowired private val client: ApiTestClient,
+    @Autowired private val testDocumentsStorage: TestDocumentsStorage,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {
@@ -73,16 +74,16 @@ class StartDocumentsMigrationMutationTest(
             val testData = preconditions {
                 object {
                     val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
-                    val googleDriveDocument = document(
+                    val moonDeliveryDocument = document(
                         workspace = workspace(owner = fry),
-                        name = "Google Drive receipt",
-                        storageId = "google-drive",
+                        name = "Moon delivery receipt",
+                        storageId = "noop",
                         createdAt = MOCK_TIME.plusSeconds(2),
                     )
-                    val localFsDocument = document(
+                    val marsDeliveryDocument = document(
                         workspace = workspace(owner = fry),
-                        name = "Local storage receipt",
-                        storageId = "local-fs",
+                        name = "Mars delivery receipt",
+                        storageId = "noop",
                         createdAt = MOCK_TIME.plusSeconds(3),
                     )
 
@@ -107,18 +108,6 @@ class StartDocumentsMigrationMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
                         put("id", JsonValues.ANY_STRING)
-                        put("documentsToMigrate", buildJsonArray {
-                            add(buildJsonObject {
-                                put("id", testData.googleDriveDocument.id!!)
-                                put("name", "Google Drive receipt")
-                                put("storageId", "google-drive")
-                            })
-                            add(buildJsonObject {
-                                put("id", testData.localFsDocument.id!!)
-                                put("name", "Local storage receipt")
-                                put("storageId", "local-fs")
-                            })
-                        })
                         put("requestedDocumentsCount", 2)
                         put("migratedDocumentsCount", 0)
                         put("completedAt", JsonNull)
@@ -131,11 +120,56 @@ class StartDocumentsMigrationMutationTest(
                 .single()
 
             migration.documentsToMigrate.map { it.documentId }.shouldContainExactlyInAnyOrder(
-                testData.googleDriveDocument.id!!,
-                testData.localFsDocument.id!!,
+                testData.moonDeliveryDocument.id!!,
+                testData.marsDeliveryDocument.id!!,
             )
-            migration.migratedDocumentsCount.shouldBe(0)
-            migration.completedAt.shouldBe(null)
+
+            shouldEventually("Background documents migration should complete") {
+                aggregateTemplate.findAll<DocumentsMigration>()
+                    .filter { it.userId == testData.fry.id && it.completedAt != null }
+                    .shouldHaveSize(1)
+                    .single()
+                    .migratedDocumentsCount.shouldBe(2)
+            }
+        }
+
+        @Test
+        fun `should return documents to migrate when requested`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+                    val moonDeliveryDocument = document(
+                        workspace = workspace(owner = fry),
+                        name = "Moon delivery receipt",
+                        storageId = "noop",
+                    )
+                }
+            }
+
+            client
+                .graphqlMutation {
+                    startDocumentsMigration {
+                        id
+                        documentsToMigrate { name }
+                    }
+                }
+                .from(testData.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
+                        put("id", JsonValues.ANY_STRING)
+                        put("documentsToMigrate", buildJsonArray {
+                            add(buildJsonObject { put("name", testData.moonDeliveryDocument.name) })
+                        })
+                    }
+                )
+
+            shouldEventually("Background documents migration should complete") {
+                aggregateTemplate.findAll<DocumentsMigration>()
+                    .filter { it.userId == testData.fry.id && it.completedAt != null }
+                    .shouldHaveSize(1)
+                    .single()
+                    .migratedDocumentsCount.shouldBe(1)
+            }
         }
 
         @Test
@@ -162,6 +196,89 @@ class StartDocumentsMigrationMutationTest(
                     path = DgsConstants.MUTATION.StartDocumentsMigration,
                 )
         }
+
+        @Test
+        fun `should return business error when upload storage is not active`() {
+            testDocumentsStorage.setStorageStatus(active = false)
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "local-fs",
+                            createdAt = MOCK_TIME.plusSeconds(1),
+                        )
+                    }
+                }
+            }
+
+            try {
+                client
+                    .graphqlMutation { startDocumentsMigrationMutation() }
+                    .from(testData.fry)
+                    .executeAndVerifyBusinessError(
+                        message = "Documents upload storage is not active",
+                        errorCode = "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE",
+                        path = DgsConstants.MUTATION.StartDocumentsMigration,
+                    )
+            } finally {
+                testDocumentsStorage.setStorageStatus(active = true)
+            }
+        }
+
+        @Test
+        fun `should return business error when source storage is not active`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "google-drive",
+                            createdAt = MOCK_TIME.plusSeconds(1),
+                        )
+                    }
+                }
+            }
+
+            client
+                .graphqlMutation { startDocumentsMigrationMutation() }
+                .from(testData.fry)
+                .executeAndVerifyBusinessError(
+                    message = "Documents migration source storages are not active: google-drive",
+                    errorCode = "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE",
+                    path = DgsConstants.MUTATION.StartDocumentsMigration,
+                )
+        }
+
+        @Test
+        fun `should return business error when user has incomplete migration`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        documentsMigration(user = fry, completedAt = null)
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "local-fs",
+                        )
+                    }
+                }
+            }
+
+            client
+                .graphqlMutation { startDocumentsMigrationMutation() }
+                .from(testData.fry)
+                .executeAndVerifyBusinessError(
+                    message = "Documents migration is already in progress",
+                    errorCode = "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS",
+                    path = DgsConstants.MUTATION.StartDocumentsMigration,
+                )
+        }
     }
 
     private fun MutationProjection.startDocumentsMigrationMutation(): MutationProjection = startDocumentsMigration {
@@ -169,10 +286,5 @@ class StartDocumentsMigrationMutationTest(
         requestedDocumentsCount
         migratedDocumentsCount
         completedAt
-        documentsToMigrate {
-            id
-            name
-            storageId
-        }
     }
 }

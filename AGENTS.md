@@ -352,6 +352,8 @@ This keeps preconditions clean and makes it clear what data the test actually de
 
 **Only provide parameter values that are directly relevant to what the test verifies.** Rely on factory method defaults for all other parameters. This keeps tests focused and readable.
 
+If a value is part of the test subject or influences the behavior being verified, provide it explicitly even when it matches the factory default. For example, use `documentsMigration(completedAt = null)` when testing incomplete migrations.
+
 - ❌ Bad: `customer(workspace = workspace, name = "MomCorp")` followed by `invoice(customer = customer, ...)` — when only the invoice attachment matters
 - ✅ Good: `invoice(attachments = setOf(doc))` — the factory creates a default customer automatically
 

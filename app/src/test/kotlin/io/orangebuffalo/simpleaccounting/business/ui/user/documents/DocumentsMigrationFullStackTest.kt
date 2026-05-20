@@ -1,14 +1,20 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.simpleaccounting.business.documents.Document
+import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsMigrationPage.Companion.openDocumentsMigrationPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsMigrationPage.Companion.shouldBeDocumentsMigrationPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
@@ -138,6 +144,41 @@ class DocumentsMigrationFullStackTest : SaFullStackTestBase() {
             )
             shouldHaveProgress("0/2 migrated")
             reportRendering("documents-migration.started")
+        }
+    }
+
+    @Test
+    fun `should complete migration after start`(page: Page) {
+        val testData = preconditions {
+            object {
+                val leela = platformUser(userName = "Leela", documentsStorage = TestDocumentsStorage.STORAGE_ID).also {
+                    val workspace = workspace(owner = it)
+                    document(workspace = workspace, storageId = "noop", name = "Moon delivery receipt")
+                    document(workspace = workspace, storageId = "noop", name = "Mars delivery receipt")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.leela)
+        page.openDocumentsMigrationPage {
+            clickStartMigration()
+        }
+
+        shouldEventually("Documents migration should complete") {
+            val migration = aggregateTemplate.findAll<DocumentsMigration>()
+                .filter { it.userId == testData.leela.id }
+                .shouldHaveSize(1)
+                .single()
+            migration.migratedDocumentsCount.shouldBe(2)
+            migration.completedAt.shouldBe(MOCK_TIME)
+
+            aggregateTemplate.findAll<Document>()
+                .filter { it.storageId == TestDocumentsStorage.STORAGE_ID }
+                .shouldHaveSize(2)
+        }
+
+        page.openDocumentsMigrationPage {
+            shouldHaveDescription("All your documents are in the upload storage, no migration is required.")
         }
     }
 

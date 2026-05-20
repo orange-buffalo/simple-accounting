@@ -1305,8 +1305,14 @@ export type StandaloneDocumentsConnection = {
 
 /** Possible business error codes for the startDocumentsMigration operation. */
 export enum StartDocumentsMigrationErrorCodes {
+  /** The current user already has an incomplete documents migration. */
+  DocumentsMigrationAlreadyInProgress = 'DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS',
+  /** At least one source storage required for migration is not active for the current user. */
+  DocumentsMigrationSourceStorageNotActive = 'DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE',
   /** Documents storage is not configured for the current user. */
-  DocumentsStorageNotConfigured = 'DOCUMENTS_STORAGE_NOT_CONFIGURED'
+  DocumentsStorageNotConfigured = 'DOCUMENTS_STORAGE_NOT_CONFIGURED',
+  /** Current upload storage is not active for the current user. */
+  DocumentsUploadStorageNotActive = 'DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE'
 }
 
 export type Subscription = {
