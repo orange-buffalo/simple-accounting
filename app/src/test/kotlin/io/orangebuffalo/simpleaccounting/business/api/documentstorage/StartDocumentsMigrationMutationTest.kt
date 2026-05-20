@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @DisplayName("startDocumentsMigration mutation")
 class StartDocumentsMigrationMutationTest(
     @Autowired private val client: ApiTestClient,
+    @Autowired private val testDocumentsStorage: TestDocumentsStorage,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {
@@ -73,16 +74,16 @@ class StartDocumentsMigrationMutationTest(
             val testData = preconditions {
                 object {
                     val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
-                    val googleDriveDocument = document(
-                        workspace = workspace(owner = fry),
-                        name = "Google Drive receipt",
-                        storageId = "google-drive",
-                        createdAt = MOCK_TIME.plusSeconds(2),
-                    )
                     val localFsDocument = document(
                         workspace = workspace(owner = fry),
                         name = "Local storage receipt",
                         storageId = "local-fs",
+                        createdAt = MOCK_TIME.plusSeconds(2),
+                    )
+                    val noopDocument = document(
+                        workspace = workspace(owner = fry),
+                        name = "Noop storage receipt",
+                        storageId = "noop",
                         createdAt = MOCK_TIME.plusSeconds(3),
                     )
 
@@ -109,14 +110,14 @@ class StartDocumentsMigrationMutationTest(
                         put("id", JsonValues.ANY_STRING)
                         put("documentsToMigrate", buildJsonArray {
                             add(buildJsonObject {
-                                put("id", testData.googleDriveDocument.id!!)
-                                put("name", "Google Drive receipt")
-                                put("storageId", "google-drive")
-                            })
-                            add(buildJsonObject {
                                 put("id", testData.localFsDocument.id!!)
                                 put("name", "Local storage receipt")
                                 put("storageId", "local-fs")
+                            })
+                            add(buildJsonObject {
+                                put("id", testData.noopDocument.id!!)
+                                put("name", "Noop storage receipt")
+                                put("storageId", "noop")
                             })
                         })
                         put("requestedDocumentsCount", 2)
@@ -131,8 +132,8 @@ class StartDocumentsMigrationMutationTest(
                 .single()
 
             migration.documentsToMigrate.map { it.documentId }.shouldContainExactlyInAnyOrder(
-                testData.googleDriveDocument.id!!,
                 testData.localFsDocument.id!!,
+                testData.noopDocument.id!!,
             )
             migration.migratedDocumentsCount.shouldBe(0)
             migration.completedAt.shouldBe(null)
@@ -159,6 +160,90 @@ class StartDocumentsMigrationMutationTest(
                 .executeAndVerifyBusinessError(
                     message = "Documents storage is not configured",
                     errorCode = "DOCUMENTS_STORAGE_NOT_CONFIGURED",
+                    path = DgsConstants.MUTATION.StartDocumentsMigration,
+                )
+        }
+
+        @Test
+        fun `should return business error when upload storage is not active`() {
+            testDocumentsStorage.setStorageStatus(active = false)
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "local-fs",
+                            createdAt = MOCK_TIME.plusSeconds(1),
+                        )
+                    }
+                }
+            }
+
+            try {
+                client
+                    .graphqlMutation { startDocumentsMigrationMutation() }
+                    .from(testData.fry)
+                    .executeAndVerifyBusinessError(
+                        message = "Documents upload storage is not active",
+                        errorCode = "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE",
+                        path = DgsConstants.MUTATION.StartDocumentsMigration,
+                    )
+            } finally {
+                testDocumentsStorage.setStorageStatus(active = true)
+            }
+        }
+
+        @Test
+        fun `should return business error when source storage is not active`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "google-drive",
+                            createdAt = MOCK_TIME.plusSeconds(1),
+                        )
+                    }
+                }
+            }
+
+            client
+                .graphqlMutation { startDocumentsMigrationMutation() }
+                .from(testData.fry)
+                .executeAndVerifyBusinessError(
+                    message = "Documents migration source storages are not active: google-drive",
+                    errorCode = "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE",
+                    path = DgsConstants.MUTATION.StartDocumentsMigration,
+                )
+        }
+
+        @Test
+        fun `should return business error when user has incomplete migration`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
+
+                    init {
+                        documentsMigration(user = fry)
+                        document(
+                            workspace = workspace(owner = fry),
+                            storageId = "local-fs",
+                            createdAt = MOCK_TIME.plusSeconds(1),
+                        )
+                    }
+                }
+            }
+
+            client
+                .graphqlMutation { startDocumentsMigrationMutation() }
+                .from(testData.fry)
+                .executeAndVerifyBusinessError(
+                    message = "Documents migration is already in progress",
+                    errorCode = "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS",
                     path = DgsConstants.MUTATION.StartDocumentsMigration,
                 )
         }

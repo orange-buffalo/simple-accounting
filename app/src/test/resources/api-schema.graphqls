@@ -1063,7 +1063,7 @@ type Mutation {
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
   "Starts migration of documents that are not stored in the current upload storage."
-  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.")
+  startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.") @businessError(errorCode : "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE", errorCodeDescription : "Current upload storage is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE", errorCodeDescription : "At least one source storage required for migration is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS", errorCodeDescription : "The current user already has an incomplete documents migration.")
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
@@ -1610,8 +1610,14 @@ enum SaveSharedWorkspaceErrorCodes {
 
 "Possible business error codes for the startDocumentsMigration operation."
 enum StartDocumentsMigrationErrorCodes {
+  "The current user already has an incomplete documents migration."
+  DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS
+  "At least one source storage required for migration is not active for the current user."
+  DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE
   "Documents storage is not configured for the current user."
   DOCUMENTS_STORAGE_NOT_CONFIGURED
+  "Current upload storage is not active for the current user."
+  DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE
 }
 
 "Error codes for validation failures, matching REST API constraint violation error keys."
