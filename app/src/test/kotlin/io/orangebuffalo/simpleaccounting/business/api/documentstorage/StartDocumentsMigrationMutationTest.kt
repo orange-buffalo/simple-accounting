@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -74,15 +73,15 @@ class StartDocumentsMigrationMutationTest(
             val testData = preconditions {
                 object {
                     val fry = fry().copy(documentsStorage = TestDocumentsStorage.STORAGE_ID).save()
-                    val localFsDocument = document(
+                    val moonDeliveryDocument = document(
                         workspace = workspace(owner = fry),
-                        name = "Local storage receipt",
-                        storageId = "local-fs",
+                        name = "Moon delivery receipt",
+                        storageId = "noop",
                         createdAt = MOCK_TIME.plusSeconds(2),
                     )
-                    val noopDocument = document(
+                    val marsDeliveryDocument = document(
                         workspace = workspace(owner = fry),
-                        name = "Noop storage receipt",
+                        name = "Mars delivery receipt",
                         storageId = "noop",
                         createdAt = MOCK_TIME.plusSeconds(3),
                     )
@@ -109,16 +108,17 @@ class StartDocumentsMigrationMutationTest(
                     DgsConstants.MUTATION.StartDocumentsMigration to buildJsonObject {
                         put("id", JsonValues.ANY_STRING)
                         put("documentsToMigrate", buildJsonArray {
-                            add(buildJsonObject {
-                                put("id", testData.localFsDocument.id!!)
-                                put("name", "Local storage receipt")
-                                put("storageId", "local-fs")
-                            })
-                            add(buildJsonObject {
-                                put("id", testData.noopDocument.id!!)
-                                put("name", "Noop storage receipt")
-                                put("storageId", "noop")
-                            })
+                            listOf(
+                                testData.moonDeliveryDocument to "Moon delivery receipt",
+                                testData.marsDeliveryDocument to "Mars delivery receipt",
+                            ).sortedBy { (document) -> document.id!! }
+                                .forEach { (document, name) ->
+                                    add(buildJsonObject {
+                                        put("id", document.id!!)
+                                        put("name", name)
+                                        put("storageId", "noop")
+                                    })
+                                }
                         })
                         put("requestedDocumentsCount", 2)
                         put("migratedDocumentsCount", 0)
@@ -132,11 +132,9 @@ class StartDocumentsMigrationMutationTest(
                 .single()
 
             migration.documentsToMigrate.map { it.documentId }.shouldContainExactlyInAnyOrder(
-                testData.localFsDocument.id!!,
-                testData.noopDocument.id!!,
+                testData.moonDeliveryDocument.id!!,
+                testData.marsDeliveryDocument.id!!,
             )
-            migration.migratedDocumentsCount.shouldBe(0)
-            migration.completedAt.shouldBe(null)
         }
 
         @Test

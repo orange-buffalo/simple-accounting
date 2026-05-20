@@ -11,6 +11,7 @@ class DocumentsMigrationService(
     private val documentsMigrationRepository: DocumentsMigrationRepository,
     private val documentsRepository: DocumentsRepository,
     private val documentsStorages: List<DocumentsStorage>,
+    private val documentsMigrationProcessor: DocumentsMigrationProcessor,
     private val platformUsersService: PlatformUsersService,
 ) {
     suspend fun startDocumentsMigration(): DocumentsMigration {
@@ -35,7 +36,7 @@ class DocumentsMigrationService(
         }
         validateDownloadStorages(userId, storageIdsToMigrateFrom)
 
-        val documentsToMigrate = withDbContext {
+        val migration = withDbContext {
             val documentsToMigrate = documentsRepository.findIdsByOwnerAndStorageIdNot(
                 ownerId = userId,
                 storageId = uploadStorageId,
@@ -43,6 +44,7 @@ class DocumentsMigrationService(
             documentsMigrationRepository.save(
                 DocumentsMigration(
                     userId = userId,
+                    uploadStorageId = uploadStorageId,
                     documentsToMigrate = documentsToMigrate
                         .map { DocumentsMigrationDocument(documentId = it) }
                         .toSet(),
@@ -50,7 +52,8 @@ class DocumentsMigrationService(
             )
         }
 
-        return documentsToMigrate
+        documentsMigrationProcessor.startMigration(migration.id!!)
+        return migration
     }
 
     private suspend fun validateDownloadStorages(userId: String, storageIds: List<String>) {

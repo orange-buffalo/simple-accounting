@@ -8,6 +8,7 @@ import java.time.Instant
 @Table("DOCUMENTS_MIGRATION")
 data class DocumentsMigration(
     val userId: String,
+    val uploadStorageId: String,
     @field:MappedCollection(idColumn = "MIGRATION_ID")
     val documentsToMigrate: Set<DocumentsMigrationDocument> = setOf(),
     val migratedDocumentsCount: Int = 0,
