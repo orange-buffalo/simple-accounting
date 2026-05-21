@@ -1144,6 +1144,9 @@ export default {
 
   categoriesOverview: {
     header: () => 'Категорії',
+    filters: {
+      announcement: () => 'Фільтри незабаром',
+    },
     create: () => 'Додати новий',
     edit: () => 'Редагувати',
     type: {

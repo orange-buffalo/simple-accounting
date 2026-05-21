@@ -109,6 +109,10 @@ tasks.resolveMainClassName {
     enabled = false
 }
 
+tasks.bootRun {
+    mainClass.set("io.orangebuffalo.simpleaccounting.SimpleAccountingApplicationKt")
+}
+
 jib {
     from {
         image = "eclipse-temurin:21-jre-jammy"

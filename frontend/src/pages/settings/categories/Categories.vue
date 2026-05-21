@@ -1,17 +1,21 @@
 <template>
-    <div class="categories-overview">
-      <div class="sa-page-header">
-        <h1>{{ $t.categoriesOverview.header() }}</h1>
-      </div>
+  <div>
+    <div class="sa-page-header">
+      <h1>{{ $t.categoriesOverview.header() }}</h1>
 
-    <div class="top-buttons-bar">
-      <ElButton
-        round
-        @click="navigateToNewCategoryView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.categoriesOverview.create() }}
-      </ElButton>
+      <div class="sa-header-options">
+        <div>
+          <span>{{ $t.categoriesOverview.filters.announcement() }}</span>
+        </div>
+
+        <ElButton
+          round
+          @click="navigateToNewCategoryView"
+        >
+          <SaIcon icon="plus-thin" />
+          {{ $t.categoriesOverview.create() }}
+        </ElButton>
+      </div>
     </div>
 
     <SaPageableItems
@@ -64,12 +68,3 @@
     navigateByViewName('create-new-category');
   };
 </script>
-
-<style lang="scss">
-  .categories-overview {
-    .top-buttons-bar {
-      margin-bottom: 30px;
-      margin-top: -10px;
-    }
-  }
-</style>

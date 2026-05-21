@@ -1145,6 +1145,9 @@ export default {
 
   categoriesOverview: {
     header: () => 'Categories',
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
     create: () => 'Add new',
     edit: () => 'Edit',
     type: {
