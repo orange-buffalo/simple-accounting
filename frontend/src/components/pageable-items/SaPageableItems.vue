@@ -223,8 +223,8 @@
     .el-pagination {
       text-align: right;
 
-      .btn-prev, .btn-next, .el-pager li {
-        background-color: transparent;
+      .btn-prev, .btn-next, .btn-prev:disabled, .btn-next:disabled, .el-pager li {
+        background: transparent;
       }
     }
 
