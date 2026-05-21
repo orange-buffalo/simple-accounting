@@ -9,19 +9,15 @@ import io.orangebuffalo.simpleaccounting.business.ui.shared.accountactivation.Ac
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountsetup.AccountSetupPage.Companion.shouldBeAccountSetupPage
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
-import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 
-class AccountActivationFullStackTest(
-    @Autowired private val timeServiceSpy: TimeService,
-) : SaFullStackTestBase() {
+class AccountActivationFullStackTest : SaFullStackTestBase() {
     private val preconditions by lazyPreconditions {
         object {
             val user = platformUser(
@@ -34,7 +30,7 @@ class AccountActivationFullStackTest(
             )
 
             init {
-                doReturn(token.expiresAt).whenever(timeServiceSpy).currentTime()
+                doReturn(token.expiresAt).whenever(timeService).currentTime()
             }
         }
     }
@@ -60,7 +56,7 @@ class AccountActivationFullStackTest(
             loginButton { shouldBeHidden() }
 
             // now, token is expired - to simulate token expiration during activation
-            doReturn(preconditions.token.expiresAt.plusSeconds(1)).whenever(timeServiceSpy).currentTime()
+            doReturn(preconditions.token.expiresAt.plusSeconds(1)).whenever(timeService).currentTime()
 
             form {
                 newPassword {
@@ -166,7 +162,7 @@ class AccountActivationFullStackTest(
         }
 
         // reset time to generate valid JWT token on login
-        doReturn(Instant.now()).whenever(timeServiceSpy).currentTime()
+        doReturn(Instant.now()).whenever(timeService).currentTime()
 
         withHint("Should update database with activated user") {
             aggregateTemplate.findSingle<PlatformUser>().should {

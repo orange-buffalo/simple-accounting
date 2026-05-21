@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting
 
 import io.orangebuffalo.simpleaccounting.business.documents.storage.local.LocalFileSystemDocumentsStorageProperties
+import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
@@ -58,6 +60,12 @@ abstract class SaIntegrationTestBase {
 
     @MockitoSpyBean
     protected lateinit var tokenGenerator: TokenGenerator
+
+    @MockitoSpyBean
+    protected lateinit var jwtService: JwtService
+
+    @MockitoSpyBean
+    protected lateinit var refreshTokensService: RefreshTokensService
 
     @Autowired
     private lateinit var platformTransactionManager: PlatformTransactionManager

@@ -1,8 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
@@ -19,18 +17,10 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 
 class CreateAccessTokenByCredentialsMutationTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
-
-    @MockitoBean
-    lateinit var refreshTokensService: RefreshTokensService
-
-    @MockitoSpyBean
-    lateinit var jwtService: JwtService
 
     private val preconditions by lazyPreconditions {
         object {
@@ -205,7 +195,8 @@ class CreateAccessTokenByCredentialsMutationTest(
             whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
             runBlocking {
-                whenever(refreshTokensService.generateRefreshToken(preconditions.fry.userName)) doReturn "refreshTokenForFry"
+                doReturn("refreshTokenForFry")
+                    .whenever(refreshTokensService).generateRefreshToken(preconditions.fry.userName)
             }
 
             client

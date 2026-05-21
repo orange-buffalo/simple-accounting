@@ -1,19 +1,15 @@
 package io.orangebuffalo.simpleaccounting.business.ui
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.openLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.deleteAll
 
-class UiInfrastructureFullStackTest(
-    @Autowired private val jwtService: JwtService,
-) : SaFullStackTestBase() {
+class UiInfrastructureFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should redirect to login page when auth expired`(page: Page) {
