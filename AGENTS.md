@@ -19,6 +19,10 @@
 - `./gradlew check`: ~3-4 minutes for unit/integration tests 
 - Full test suites (with Playwright): ~5-10 minutes
 
+**Do not run `bun` directly.** Always execute the corresponding Gradle task instead so builds use Gradle caching,
+Gradle task state, and the same execution path as the final build. If a required frontend Bun command has no Gradle task,
+add or request one rather than invoking `bun` directly.
+
 ## Environment Setup
 
 Required dependencies (pre-installed in CI environment):
@@ -47,23 +51,22 @@ Simple Accounting is a **Spring Boot + Vue.js** application:
 ./gradlew check
 
 # Frontend unit tests only (fast)
-cd frontend && bun run test:unit
+./gradlew :frontend:testFrontend --console=plain
 
 # Frontend linting
-cd frontend && bun run lint
+./gradlew :frontend:lint --console=plain
 
 # GraphQL schema generation
 ./gradlew :app:updateGraphqlSchema
 
-# Frontend GraphQL type generation
-cd frontend && bun run graphql-codegen
+# Frontend GraphQL type verification
+./gradlew :frontend:verifyGqlTypes --console=plain
 ```
 
 ### Development Commands
 ```bash
 # Frontend development server with hot reload
-cd frontend && bun dev
-# Runs on Vite dev server, proxies API to Spring Boot on port 9393
+# Do not run `bun dev` directly; add/use a Gradle task for the dev server when needed.
 ```
 
 ## Validation Workflow
@@ -85,11 +88,11 @@ After making changes, choose validation based on the assessed blast radius:
      ```
    - Frontend lint:
      ```bash
-     cd frontend && bun run lint
+     ./gradlew :frontend:lint --console=plain
      ```
    - Frontend unit tests:
      ```bash
-     cd frontend && bun run test:unit
+     ./gradlew :frontend:testFrontend --console=plain
      ```
 
 2. **Broad or unclear changes**: If the change touches shared infrastructure, cross-module behavior, generated APIs, build
@@ -109,7 +112,8 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 - Regenerates `app/src/test/resources/api-schema.graphqls`
 - Backend tests use DGS-generated Kotlin query builders/projections generated from the committed schema. After changing the
   schema, run `./gradlew :app:generateJava --rerun-tasks` before relying on new projection methods in tests.
-- After every GraphQL API change, also run: `cd frontend && bun run graphql-codegen`
+- After every GraphQL API change, also run the corresponding Gradle task for frontend GraphQL type generation. Do not run
+  `bun` directly; add the Gradle task first if one is missing.
 - Frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the `verifyGqlTypes` Gradle task (part of `check`)
 - Always commit regenerated frontend GraphQL types when the schema or frontend GraphQL operations change.
 - If a test already references a new generated DGS projection method before the schema has been regenerated,
@@ -142,7 +146,7 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 ```bash
 ./gradlew :app:updateGraphqlSchema
 ./gradlew :app:generateJava --rerun-tasks
-cd frontend && bun run graphql-codegen
+# Run frontend GraphQL type generation through Gradle; do not invoke bun directly.
 # commit app/src/test/resources/api-schema.graphqls and regenerated files in frontend/src/services/api/gql/
 ```
 
@@ -206,11 +210,11 @@ Key point about the GraphQL API setup:
   generate the queries strings using DGS. The execution of the requests in standard Spring test client with
   customization on top (see `ApiTestClient` and `ApiTestUtils.kt` for the extensions).
 5. The frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the
-  `verifyGqlTypes` Gradle task (part of `check`). After changing GraphQL queries or the schema, regenerate
-  them with `cd frontend && bun run graphql-codegen` and commit the result.
+   `verifyGqlTypes` Gradle task (part of `check`). After changing GraphQL queries or the schema, regenerate
+  them through the corresponding Gradle task and commit the result.
 6. We use `urql` framework with its `graphql-codegen` and Vue 3 integration to call the API from the frontend.
-  See `frontend/src/services/api/gql-api-client.ts` for the entry point.
-  Whenever a query is wrapped into `graphql` for type-safe access to the API, execute `cd frontend && bun run graphql-codegen`
+   See `frontend/src/services/api/gql-api-client.ts` for the entry point.
+  Whenever a query is wrapped into `graphql` for type-safe access to the API, execute the corresponding Gradle task
   to regenerate the types and commit the updated files in `frontend/src/services/api/gql/`.
 
 ### GraphQL API Implementation Guidelines
@@ -228,7 +232,7 @@ Key point about the GraphQL API setup:
    - Avoid manually editing `app/src/test/resources/api-schema.graphqls` unless generation is blocked and the manual edit is
      only used to unblock regeneration
    - Run `./gradlew :app:generateJava --rerun-tasks` to regenerate DGS client code for testing
-   - Run `cd frontend && bun run graphql-codegen` to regenerate committed frontend GraphQL types
+   - Run frontend GraphQL type generation through Gradle to regenerate committed frontend GraphQL types
 
 4. **Exception Handling**:
    - Never catch generic exceptions (e.g., `Exception`, `RuntimeException`) in business code
