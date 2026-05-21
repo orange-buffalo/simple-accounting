@@ -10,12 +10,13 @@
 
         <div>
           <ElInput
+            class="sa-header-options__filter-input"
             v-model="freeSearchText"
             :placeholder="$t.usersOverview.filters.input.placeholder()"
             clearable
           >
             <template #prefix>
-              <i class="el-icon-search el-input__icon" />
+              <Search class="sa-header-options__filter-input__icon" />
             </template>
           </ElInput>
         </div>
@@ -43,6 +44,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { Search } from '@element-plus/icons-vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
