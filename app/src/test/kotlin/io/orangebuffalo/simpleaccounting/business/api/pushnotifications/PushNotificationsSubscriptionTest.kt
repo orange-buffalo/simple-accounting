@@ -6,7 +6,6 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
-import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.runBlocking
@@ -32,7 +31,6 @@ import java.util.concurrent.atomic.AtomicLong
 @DisplayName("Push Notifications Subscription")
 class PushNotificationsSubscriptionTest(
     @Autowired private val pushNotificationService: PushNotificationService,
-    @Autowired private val jwtService: JwtService,
     @Autowired private val environment: Environment,
     @Autowired private val objectMapper: ObjectMapper,
 ) : SaIntegrationTestBase() {

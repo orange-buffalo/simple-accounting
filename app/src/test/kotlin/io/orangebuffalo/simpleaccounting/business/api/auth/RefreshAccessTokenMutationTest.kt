@@ -2,8 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
-import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
@@ -18,18 +16,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.Duration
 
 class RefreshAccessTokenMutationTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
-
-    @MockitoBean
-    lateinit var jwtService: JwtService
-
-    @MockitoBean
-    lateinit var refreshTokensService: RefreshTokensService
 
     private val preconditions by lazyPreconditions {
         object {
@@ -76,8 +67,9 @@ class RefreshAccessTokenMutationTest(
         suspend fun `should return JWT token when token endpoint is hit and cookie is valid`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 
-            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
-            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
+            doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(principal)
+            doReturn(principal)
+                .whenever(refreshTokensService).validateTokenAndBuildUserDetails("refreshTokenForFry")
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -94,8 +86,9 @@ class RefreshAccessTokenMutationTest(
         suspend fun `should return JWT token when token endpoint is hit and cookie is valid for admin user`() {
             val principal = preconditions.farnsworth.toSecurityPrincipal()
 
-            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFarnsworth"
-            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFarnsworth")) doReturn principal
+            doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(principal)
+            doReturn(principal)
+                .whenever(refreshTokensService).validateTokenAndBuildUserDetails("refreshTokenForFarnsworth")
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -112,7 +105,7 @@ class RefreshAccessTokenMutationTest(
         suspend fun `should return JWT token when user is authenticated with regular user`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 
-            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
+            doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(principal)
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -128,7 +121,7 @@ class RefreshAccessTokenMutationTest(
         suspend fun `should return JWT token when user is authenticated with admin user`() {
             val principal = preconditions.farnsworth.toSecurityPrincipal()
 
-            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFarnsworth"
+            doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(principal)
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -147,12 +140,12 @@ class RefreshAccessTokenMutationTest(
             val validTill = preconditions.validAccessToken.validTill
 
             // Mock JWT validation for the valid token
-            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                    createTransientUserPrincipal(tokenValue)
+            doReturn(createTransientUserPrincipal(tokenValue))
+                .whenever(jwtService).validateTokenAndBuildUserDetails(any())
 
-            whenever(jwtService.buildJwtToken(argThat {
+            doReturn("jwtTokenForTransientUser").whenever(jwtService).buildJwtToken(argThat {
                 userName == "validToken" && isTransient
-            }, eq(validTill))) doReturn "jwtTokenForTransientUser"
+            }, eq(validTill))
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -170,8 +163,8 @@ class RefreshAccessTokenMutationTest(
             val tokenValue = preconditions.revokedAccessToken.token
 
             // Mock JWT validation for the revoked token
-            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                    createTransientUserPrincipal(tokenValue)
+            doReturn(createTransientUserPrincipal(tokenValue))
+                .whenever(jwtService).validateTokenAndBuildUserDetails(any())
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -189,8 +182,8 @@ class RefreshAccessTokenMutationTest(
             val tokenValue = preconditions.expiredAccessToken.token
 
             // Mock JWT validation for the expired token
-            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                    createTransientUserPrincipal(tokenValue)
+            doReturn(createTransientUserPrincipal(tokenValue))
+                .whenever(jwtService).validateTokenAndBuildUserDetails(any())
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
