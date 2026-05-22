@@ -171,7 +171,7 @@
 </script>
 
 <style lang="scss">
-  @use "@/styles/main.scss" as *;
+  @use "@/styles/mixins.scss" as *;
   @use "@/styles/vars.scss" as *;
 
   .workspace-panel {
@@ -180,7 +180,7 @@
     margin-bottom: 10px;
 
     &__info-panel {
-      @extend .sa-item-info-panel;
+      @include item-info-panel;
       border-radius: 2px 1px 1px 2px;
       flex-grow: 1;
 

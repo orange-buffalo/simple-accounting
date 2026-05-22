@@ -77,73 +77,7 @@ textarea {
 }
 
 .sa-item-info-panel {
-  padding: 20px;
-  border: 1px solid $secondary-grey;
-  background-color: $white;
-  border-radius: 2px;
-  overflow: hidden;
-
-  .sa-item-title-panel {
-    display: flex;
-    justify-content: space-between;
-
-    h3 {
-      margin: 0;
-    }
-
-    .sa-item-edit-link {
-      color: $components-color;
-      display: flex;
-      align-items: center;
-
-      .sa-icon {
-        margin-right: 3px;
-        max-height: 13px;
-        max-width: 13px;
-      }
-
-      .el-button {
-        padding: 0;
-        height: auto;
-      }
-    }
-  }
-
-  .sa-item-attributes {
-
-    .sa-item-attribute {
-      display: inline-flex;
-      align-items: center;
-      margin-right: 30px;
-      margin-top: 15px;
-
-      .sa-icon {
-        margin-right: 5px;
-        width: 18px;
-        height: 18px;
-      }
-
-      .sa-secondary-text {
-        margin-left: 5px;
-      }
-
-      .sa-clickable {
-        cursor: pointer;
-      }
-    }
-  }
-
-  .sa-item-section {
-    margin-top: 20px;
-
-    h4 {
-      margin: 0;
-    }
-
-    .sa-item-additional-info {
-      font-style: italic;
-    }
-  }
+  @include item-info-panel;
 }
 
 a {
@@ -157,4 +91,13 @@ a {
 
 .text-right {
   text-align: right;
+}
+
+@keyframes loading-placeholder-animation {
+  0% {
+    background-position: 100% 0
+  }
+  100% {
+    background-position: -100% 0
+  }
 }
