@@ -31,7 +31,6 @@ const apiToken: ApiToken = {
   isTransient: false,
 };
 
-// TODO remove export and make private one migrated fully to GraphQL
 export function updateApiToken(jwtToken: string | null) {
   apiToken.jwtToken = jwtToken;
   apiToken.isAdmin = false;
@@ -70,7 +69,7 @@ async function refreshToken() {
   }
 }
 
-export async function tryAutoLogin() {
+async function tryAutoLogin() {
   cancelTokenRefresh();
 
   try {
@@ -90,13 +89,6 @@ export async function tryAutoLogin() {
     }
     throw error;
   }
-}
-
-export function getAuthorizationHeader(): string | null {
-  if (apiToken.jwtToken) {
-    return `Bearer ${apiToken.jwtToken}`;
-  }
-  return null;
 }
 
 const loginMutation = graphql(/* GraphQL */ `
@@ -191,7 +183,7 @@ function isCurrentUserTransient() {
   return apiToken.isTransient;
 }
 
-export interface Auth {
+interface Auth {
   logout: () => Promise<void>;
 
   getToken(): (string | null);

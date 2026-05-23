@@ -75,7 +75,7 @@ const gqlNativeClient = new Client({
   requestPolicy: 'network-only',
 });
 
-export interface GrapQlClient {
+interface GrapQlClient {
   query<Data = any, Variables extends AnyVariables = AnyVariables>(
     query: DocumentInput<Data, Variables>,
     variables: Variables,

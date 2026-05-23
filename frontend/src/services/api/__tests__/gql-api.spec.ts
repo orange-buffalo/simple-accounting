@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
-import type { Auth } from '@/services/api';
-import { GrapQlClient } from '@/services/api/gql-api-client.ts';
 import { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/schema-types.ts';
 
@@ -24,8 +22,8 @@ type MockedRequest = {
 fetchMock.mockGlobal();
 
 describe('GraphQL API Client', () => {
-  let useAuth: () => Auth;
-  let gqlClient: GrapQlClient;
+  let useAuth: typeof import('@/services/api').useAuth;
+  let gqlClient: typeof import('@/services/api/gql-api-client').gqlClient;
   let mockedRequests: Array<MockedRequest> = [];
   const apiCallPath = '/api/graphql';
 
@@ -232,10 +230,6 @@ describe('GraphQL API Client', () => {
       error: 'CURRENT_PASSWORD_MISMATCH',
       message: 'The provided current password does not match the user\'s actual password.',
     });
-    expect(error.errorAs<{ error: string; message: string }>()).toEqual({
-      error: 'CURRENT_PASSWORD_MISMATCH',
-      message: 'The provided current password does not match the user\'s actual password.',
-    });
   });
 
   test('throws ApiBusinessError with minimal message on business error response', async () => {
@@ -254,46 +248,6 @@ describe('GraphQL API Client', () => {
     expect(error.error.message).toBe('Error message');
     expect(error.message).toBe('Business error: SOME_ERROR_CODE');
   });
-
-  // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
-  // test('throws ApiTimeoutError on timeout', async () => {
-  //   vi.useRealTimers();
-  //
-  //   fetchMock.post(apiCallPath, 200, {
-  //     delay: 6000,
-  //   });
-  //
-  //   const error = await expectToFailWith<ApiTimeoutError>(async () => {
-  //     await apiCall();
-  //   }, 'ApiTimeoutError');
-  //   expect(error.message)
-  //     .toBe('Request timed out');
-  //
-  //   assertRegularRequestEvents();
-  // });
-
-  // test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
-  //   vi.useRealTimers();
-  //
-  //   fetchMock.get(apiCallPath, 200, {
-  //     delay: 20000,
-  //   });
-  //
-  //   const {
-  //     requestConfig,
-  //     cancelRequest,
-  //   } = useRequestConfig({});
-  //
-  //   setTimeout(() => cancelRequest(), 500);
-  //
-  //   const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
-  //     await apiCall(requestConfig);
-  //   }, 'ApiRequestCancelledError');
-  //   expect(error.message)
-  //     .toBe('Request was cancelled before it was completed');
-  //
-  //   assertRegularRequestEvents();
-  // });
 
   beforeEach(async () => {
     vi.useFakeTimers();

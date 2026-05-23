@@ -50,16 +50,6 @@ export class ServerApiError extends ApiError {
 }
 
 /**
- * Indicates a 404 error response.
- */
-export class ResourceNotFoundError extends ServerApiError {
-  constructor(response: Response) {
-    super('Resource or endpoint is not found', response);
-    this.name = 'ResourceNotFoundError';
-  }
-}
-
-/**
  * Indicates a field-level validation error (400 HTTP status with detailed information about failing fields).
  */
 export class ApiFieldLevelValidationError extends ServerApiError {
@@ -94,30 +84,6 @@ export class ApiBusinessError extends ServerApiError {
 
   extensionsAs<T>(): T {
     return this.extensions as T;
-  }
-
-  errorAs<T extends ApiBusinessErrorInfo>(): T {
-    return this.error as T;
-  }
-}
-
-/**
- * Indicates an 5xx error response or unsupported 4xx response (e.g. non-standard JSON body).
- */
-export class FatalApiError extends ServerApiError {
-  constructor(message: string, response: Response) {
-    super(message, response);
-    this.name = 'FatalApiError';
-  }
-}
-
-/**
- * Indicates a timeout error during API request.
- */
-export class ApiTimeoutError extends ApiError {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ApiTimeoutError';
   }
 }
 
