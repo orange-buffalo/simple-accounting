@@ -31,6 +31,13 @@ class EntitySelect private constructor(
         searchInput.fill(query)
     }
 
+    fun typeSearch(query: String) {
+        input.click()
+        val searchInput = rootLocator.locator("input.el-select__input")
+        searchInput.fill("")
+        searchInput.pressSequentially(query, Locator.PressSequentiallyOptions().setDelay(50.0))
+    }
+
     /**
      * Selects an option from the dropdown by its text.
      * For remote selects, searches for the option text first.

@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
+  import { onBeforeUnmount, ref, watch } from 'vue';
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
   import { $t } from '@/services/i18n';
@@ -58,9 +58,11 @@
     ApiConnection, ApiConnectionRequest, HasOptionalId, RequestConfigReturn,
   } from '@/services/api';
   import { useRequestConfig } from '@/services/api';
+  import { ApiRequestCancelledError } from '@/services/api/api-errors.ts';
   import { ensureDefined } from '@/services/utils';
 
   const itemsToDisplay = 10;
+  const searchDebounceMs = 500;
 
   const props = defineProps<{
     labelProvider:(option: HasOptionalId) => string,
@@ -77,6 +79,8 @@
   const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
 
   let requestConfigData: RequestConfigReturn | undefined;
+  let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let latestSearchId = 0;
 
   const loading = ref(false);
 
@@ -90,17 +94,35 @@
 
   const availableValues = ref<Array<ListItem>>([]);
 
-  const executeSearch = async (query?: string) => {
+  const executeSearch = (query?: string) => {
+    latestSearchId += 1;
+    const searchId = latestSearchId;
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
     if (requestConfigData) {
       requestConfigData.cancelRequest();
+      requestConfigData = undefined;
     }
     loading.value = true;
-    requestConfigData = useRequestConfig({});
+    searchDebounceTimer = setTimeout(() => {
+      searchDebounceTimer = undefined;
+      void loadOptions(query, searchId);
+    }, searchDebounceMs);
+  };
+
+  async function loadOptions(query: string | undefined, searchId: number) {
+    const currentRequestConfig = useRequestConfig({});
+    requestConfigData = currentRequestConfig;
     try {
       const providerData = await props.optionsProvider({
         first: itemsToDisplay,
         after: null,
-      }, query, requestConfigData.requestConfig);
+      }, query, currentRequestConfig.requestConfig);
+
+      if (searchId !== latestSearchId) {
+        return;
+      }
 
       availableValues.value = providerData.edges.map(({ node }) => ({
         entity: node,
@@ -114,7 +136,13 @@
           label: $t.value.saEntitySelect.moreElements.text(providerData.totalCount - itemsToDisplay),
         });
       }
-    } catch (_) {
+    } catch (error) {
+      if (error instanceof ApiRequestCancelledError) {
+        return;
+      }
+      if (searchId !== latestSearchId) {
+        return;
+      }
       // TODO #458 cancellation
       // if (!api.isCancel(thrown)) {
       //   availableValues.value = [];
@@ -126,10 +154,19 @@
         isInfo: true,
       }];
     } finally {
-      requestConfigData = undefined;
-      loading.value = false;
+      if (searchId === latestSearchId) {
+        requestConfigData = undefined;
+        loading.value = false;
+      }
     }
-  };
+  }
+
+  onBeforeUnmount(() => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+    requestConfigData?.cancelRequest();
+  });
 
   const selectedValue = ref<string | undefined>();
   const selectedValueLoadingState = ref({

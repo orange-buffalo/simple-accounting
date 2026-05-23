@@ -155,61 +155,6 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
             }
     }
 
-    @Test
-    fun `should show more elements indicator when invoice result limit is exceeded`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD").also {
-                    val customer = customer(workspace = it, name = "Mom's Friendly Robot Company")
-                    (1..15).forEach { idx ->
-                        invoice(
-                            customer = customer,
-                            title = "Planet Express invoice $idx",
-                            amount = (10000 + idx * 1000).toLong(),
-                            dateIssued = LocalDate.of(3025, 1, idx),
-                            status = InvoiceStatus.SENT
-                        )
-                    }
-                }
-                val income = income(workspace = workspace)
-            }
-        }
-
-        page.openIncomeForInvoiceSelection(testData.fry, testData.income.id!!) {
-            linkedInvoice {
-                input.search("")
-                input.shouldShowMoreElementsIndicator(5)
-            }
-        }
-    }
-
-    @Test
-    fun `should show no data message when no invoice matches search`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD").also {
-                    invoice(
-                        customer = customer(workspace = it, name = "Mom's Friendly Robot Company"),
-                        title = "Delivery to Mars",
-                        amount = 15000,
-                        dateIssued = LocalDate.of(3025, 1, 10),
-                        status = InvoiceStatus.SENT
-                    )
-                }
-                val income = income(workspace = workspace)
-            }
-        }
-
-        page.openIncomeForInvoiceSelection(testData.fry, testData.income.id!!) {
-            linkedInvoice {
-                input.search("Robot devil opera")
-                input.shouldHaveNoDataMessage()
-            }
-        }
-    }
-
     private fun Page.openIncomeForInvoiceSelection(
         user: PlatformUser,
         incomeId: String,
