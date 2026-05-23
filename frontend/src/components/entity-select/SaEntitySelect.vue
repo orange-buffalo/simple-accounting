@@ -55,7 +55,7 @@
   import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
   import { $t } from '@/services/i18n';
   import type {
-    ApiPage, ApiPageRequest, HasOptionalId, RequestConfigReturn,
+    ApiConnection, ApiConnectionRequest, HasOptionalId, RequestConfigReturn,
   } from '@/services/api';
   import { useRequestConfig } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
@@ -66,9 +66,9 @@
     labelProvider:(option: HasOptionalId) => string,
     modelValue?: string,
     placeholder?: string,
-    optionsProvider: (pageRequest: ApiPageRequest,
+    optionsProvider: (connectionRequest: ApiConnectionRequest,
                       query: string | undefined,
-                      requestInit: RequestInit) => Promise<ApiPage<HasOptionalId>>,
+                      requestInit: RequestInit) => Promise<ApiConnection<HasOptionalId>>,
     optionProvider: (id: string,
                      requestInit: RequestInit) => Promise<HasOptionalId>,
     clearable?: boolean
@@ -98,19 +98,20 @@
     requestConfigData = useRequestConfig({});
     try {
       const providerData = await props.optionsProvider({
-        pageSize: itemsToDisplay,
+        first: itemsToDisplay,
+        after: null,
       }, query, requestConfigData.requestConfig);
 
-      availableValues.value = providerData.data.map((entity) => ({
-        entity,
-        key: ensureDefined(entity.id),
-        label: props.labelProvider(entity),
+      availableValues.value = providerData.edges.map(({ node }) => ({
+        entity: node,
+        key: ensureDefined(node.id),
+        label: props.labelProvider(node),
       }));
-      if (providerData.totalElements > itemsToDisplay) {
+      if (providerData.totalCount > itemsToDisplay) {
         availableValues.value.push({
           key: 'overflow',
           isInfo: true,
-          label: $t.value.saEntitySelect.moreElements.text(providerData.totalElements - itemsToDisplay),
+          label: $t.value.saEntitySelect.moreElements.text(providerData.totalCount - itemsToDisplay),
         });
       }
     } catch (_) {

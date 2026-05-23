@@ -33,7 +33,7 @@
   import SaIcon from '@/components/SaIcon.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
-  import type { ApiPageRequest, HasOptionalId } from '@/services/api';
+  import type { ApiConnectionRequest, HasOptionalId } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
@@ -90,26 +90,20 @@
   `), 'workspace');
 
   const optionsProvider = async (
-    pageRequest: ApiPageRequest,
+    connectionRequest: ApiConnectionRequest,
     query: string | undefined,
   ) => {
     const workspace = await getInvoicesQuery({
       workspaceId: currentWorkspaceId,
-      first: pageRequest.pageSize ?? 10,
+      first: connectionRequest.first ?? 10,
       freeSearchText: query ?? null,
     });
     const edges = workspace?.invoices.edges ?? [];
     return {
-      pageNumber: 1,
-      totalElements: workspace?.invoices.totalCount ?? 0,
-      pageSize: pageRequest.pageSize ?? 10,
-      data: edges.map(e => ({
-        id: e.node.id,
-        title: e.node.title,
-        dateIssued: e.node.dateIssued,
-        amount: e.node.amount,
-        currency: e.node.currency,
-      } as InvoiceItem)),
+      edges: edges.map(({ node }) => ({
+        node: { ...node } as InvoiceItem,
+      })),
+      totalCount: workspace?.invoices.totalCount ?? 0,
     };
   };
 
