@@ -92,11 +92,14 @@
   const optionsProvider = async (
     connectionRequest: ApiConnectionRequest,
     query: string | undefined,
+    requestInit: RequestInit,
   ) => {
     const workspace = await getInvoicesQuery({
       workspaceId: currentWorkspaceId,
       first: connectionRequest.first ?? 10,
       freeSearchText: query ?? null,
+    }, {
+      requestConfig: requestInit,
     });
     const edges = workspace?.invoices.edges ?? [];
     return {
@@ -109,10 +112,13 @@
 
   const optionProvider = async (
     id: string,
+    requestInit: RequestInit,
   ) => {
     const workspace = await getInvoiceQuery({
       workspaceId: currentWorkspaceId,
       invoiceId: id,
+    }, {
+      requestConfig: requestInit,
     });
     const inv = workspace?.invoice;
     if (!inv) throw new Error(`Invoice ${id} not found`);

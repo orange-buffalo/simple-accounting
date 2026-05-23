@@ -5,7 +5,8 @@ import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import {
-  ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
+  ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ApiRequestCancelledError, ClientApiError,
+  FieldError,
 } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/schema-types.ts';
 
@@ -112,7 +113,10 @@ async function executeGqlRequestAndHandleErrors<Data>(
   const result = await operation();
   if (result.error) {
     if (result.error.networkError) {
-      if (result.error.response.status === 401) {
+      if (isCancelledRequestError(result.error.networkError)) {
+        throw new ApiRequestCancelledError();
+      }
+      if (result.error.response?.status === 401) {
         throw new ApiAuthError();
       }
       throw new ClientApiError(`Network error`, result.error.networkError);
@@ -156,14 +160,64 @@ async function executeGqlRequestAndHandleErrors<Data>(
   return result.data!;
 }
 
+function isCancelledRequestError(error: Error) {
+  return error instanceof ApiRequestCancelledError
+    || error.name === 'ApiRequestCancelledError'
+    || error.name === 'AbortError';
+}
+
 export const gqlClient: GrapQlClient = {
   async query(query, variables, context) {
-    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.query(query, variables, context)
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.query(
+      query,
+      variables,
+      withRequestSignalSupport(context),
+    )
       .toPromise());
   },
 
   async mutation(query, variables, context) {
-    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.mutation(query, variables, context)
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.mutation(
+      query,
+      variables,
+      withRequestSignalSupport(context),
+    )
       .toPromise());
   },
 };
+
+function withRequestSignalSupport(context?: Partial<OperationContext>): Partial<OperationContext> | undefined {
+  const fetchOptions = typeof context?.fetchOptions === 'function'
+    ? context.fetchOptions()
+    : context?.fetchOptions;
+  if (!fetchOptions?.signal) {
+    return context;
+  }
+
+  const requestSignal = fetchOptions.signal;
+  const { signal: _signal, ...fetchOptionsWithoutSignal } = fetchOptions;
+  const originalFetch = context?.fetch;
+
+  return {
+    ...context,
+    fetchOptions: fetchOptionsWithoutSignal,
+    fetch: (input, init) => (originalFetch ?? fetch)(input, {
+      ...init,
+      signal: init?.signal ? anyAbortSignal(requestSignal, init.signal) : requestSignal,
+    }),
+  };
+}
+
+function anyAbortSignal(...signals: AbortSignal[]) {
+  const controller = new AbortController();
+  signals.forEach((signal) => {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return;
+    }
+    signal.addEventListener('abort', function onAbort() {
+      controller.abort(this.reason);
+    }, { once: true });
+  });
+  return controller.signal;
+}
