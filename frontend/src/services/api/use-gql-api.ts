@@ -1,5 +1,5 @@
 import { nextTick, ref, Ref } from 'vue';
-import { AnyVariables, DocumentInput } from '@urql/core';
+import { AnyVariables, DocumentInput, OperationContext } from '@urql/core';
 import { gqlClient } from '@/services/api/gql-api-client.ts';
 import useNavigation from '@/services/use-navigation.ts';
 import { ApiAuthError } from '@/services/api/api-errors.ts';
@@ -45,6 +45,20 @@ export type UseGqlQueryType<Data> = [
 
 export type UseGqlOptions<Variables extends AnyVariables> = {
   variables?: Variables,
+  requestConfig?: RequestInit,
+}
+
+export type GqlRequestOptions = {
+  requestConfig?: RequestInit,
+}
+
+function gqlRequestOptionsToContext(options?: GqlRequestOptions): Partial<OperationContext> | undefined {
+  if (!options?.requestConfig) {
+    return undefined;
+  }
+  return {
+    fetchOptions: options.requestConfig,
+  };
 }
 
 export function useQuery<
@@ -62,7 +76,7 @@ export function useQuery<
 
   const doLoad = async () => {
     try {
-      const result = await gqlClient.query(query, options.variables);
+      const result = await gqlClient.query(query, options.variables, gqlRequestOptionsToContext(options));
       data.value = result[returnValuePath];
     } catch (e: unknown) {
       await handleError(e);
@@ -90,7 +104,7 @@ export function useMultiQuery<
 
   const doLoad = async () => {
     try {
-      data.value = await gqlClient.query(query, options.variables);
+      data.value = await gqlClient.query(query, options.variables, gqlRequestOptionsToContext(options));
     } catch (e: unknown) {
       await handleError(e);
     } finally {
@@ -106,6 +120,7 @@ export function useMultiQuery<
 
 export type MutationExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
   variables: Variables,
+  options?: GqlRequestOptions,
 ) => Promise<GqlResponse[K]>;
 
 export function useMutation<
@@ -118,9 +133,9 @@ export function useMutation<
 ): MutationExecutor<GqlResponse, K, Variables> {
   const handleError = useGqlErrorHandler();
 
-  return async (variables: Variables): Promise<GqlResponse[K]> => {
+  return async (variables: Variables, options?: GqlRequestOptions): Promise<GqlResponse[K]> => {
     try {
-      const result = await gqlClient.mutation(mutation, variables);
+      const result = await gqlClient.mutation(mutation, variables, gqlRequestOptionsToContext(options));
       return result[returnValuePath];
     } catch (e: unknown) {
       return await handleError(e);
@@ -130,6 +145,7 @@ export function useMutation<
 
 export type LazyQueryExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
   variables: Variables,
+  options?: GqlRequestOptions,
 ) => Promise<GqlResponse[K]>;
 
 export function useLazyQuery<
@@ -142,9 +158,9 @@ export function useLazyQuery<
 ): LazyQueryExecutor<GqlResponse, K, Variables> {
   const handleError = useGqlErrorHandler();
 
-  return async (variables: Variables): Promise<GqlResponse[K]> => {
+  return async (variables: Variables, options?: GqlRequestOptions): Promise<GqlResponse[K]> => {
     try {
-      const result = await gqlClient.query(query, variables);
+      const result = await gqlClient.query(query, variables, gqlRequestOptionsToContext(options));
       return result[returnValuePath];
     } catch (e: unknown) {
       return await handleError(e);

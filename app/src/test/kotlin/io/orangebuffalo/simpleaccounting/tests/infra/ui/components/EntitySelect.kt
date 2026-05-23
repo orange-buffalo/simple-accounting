@@ -6,7 +6,6 @@ import com.microsoft.playwright.Locator
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
-import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.InvoiceOption
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 /**
@@ -30,6 +29,13 @@ class EntitySelect private constructor(
         input.click()
         val searchInput = rootLocator.locator("input.el-select__input")
         searchInput.fill(query)
+    }
+
+    fun typeSearch(query: String) {
+        input.click()
+        val searchInput = rootLocator.locator("input.el-select__input")
+        searchInput.fill("")
+        searchInput.pressSequentially(query, Locator.PressSequentiallyOptions().setDelay(50.0))
     }
 
     /**
@@ -98,6 +104,12 @@ class EntitySelect private constructor(
         }
     }
 
+    fun shouldHaveNoDataMessage() {
+        withDropdownOpen {
+            locator(".el-select-dropdown__empty").shouldHaveText("No data found")
+        }
+    }
+
     /**
      * Clears the current selection by clicking the clear button.
      * Only works when clearable=true is set on the component.
@@ -140,3 +152,9 @@ class EntitySelect private constructor(
         fun byContainer(container: Locator) = EntitySelect(container)
     }
 }
+
+data class InvoiceOption(
+    val title: String,
+    val date: String,
+    val amount: String
+)

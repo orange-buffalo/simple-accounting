@@ -23,6 +23,9 @@
 Gradle task state, and the same execution path as the final build. If a required frontend Bun command has no Gradle task,
 add or request one rather than invoking `bun` directly.
 
+**Do not run multiple frontend Gradle commands in parallel.** If a frontend change needs more than one Gradle validation
+task, run them in a single Gradle invocation, e.g. `./gradlew :frontend:lint :frontend:testFrontend --console=plain`.
+
 ## Environment Setup
 
 Required dependencies (pre-installed in CI environment):
@@ -90,9 +93,13 @@ After making changes, choose validation based on the assessed blast radius:
      ```bash
      ./gradlew :frontend:lint --console=plain
      ```
-   - Frontend unit tests:
+    - Frontend unit tests:
+      ```bash
+      ./gradlew :frontend:testFrontend --console=plain
+      ```
+   - Frontend lint and unit tests:
      ```bash
-     ./gradlew :frontend:testFrontend --console=plain
+     ./gradlew :frontend:lint :frontend:testFrontend --console=plain
      ```
 
 2. **Broad or unclear changes**: If the change touches shared infrastructure, cross-module behavior, generated APIs, build

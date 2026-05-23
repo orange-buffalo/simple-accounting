@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
-import type { Auth } from '@/services/api';
-import { GrapQlClient } from '@/services/api/gql-api-client.ts';
-import { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+import {
+  ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError, ApiRequestCancelledError,
+} from '@/services/api/api-errors.ts';
+import { OperationContext } from '@urql/core';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/schema-types.ts';
 
 // eslint-disable-next-line vue/max-len
@@ -17,15 +18,15 @@ API_TIME.setUTCSeconds(TOKEN_EXP_EPOCH_SECONDS - 3 * 60); // 3 minutes before to
 type MockedRequestAssertions = (options: RequestInit) => void;
 type MockedRequest = {
   requestAssertions: MockedRequestAssertions;
-  responseBody: any;
+  responseBody: any | ((options: RequestInit) => any);
   responseStatus?: number;
 }
 
 fetchMock.mockGlobal();
 
 describe('GraphQL API Client', () => {
-  let useAuth: () => Auth;
-  let gqlClient: GrapQlClient;
+  let useAuth: typeof import('@/services/api').useAuth;
+  let gqlClient: typeof import('@/services/api/gql-api-client').gqlClient;
   let mockedRequests: Array<MockedRequest> = [];
   const apiCallPath = '/api/graphql';
 
@@ -232,10 +233,6 @@ describe('GraphQL API Client', () => {
       error: 'CURRENT_PASSWORD_MISMATCH',
       message: 'The provided current password does not match the user\'s actual password.',
     });
-    expect(error.errorAs<{ error: string; message: string }>()).toEqual({
-      error: 'CURRENT_PASSWORD_MISMATCH',
-      message: 'The provided current password does not match the user\'s actual password.',
-    });
   });
 
   test('throws ApiBusinessError with minimal message on business error response', async () => {
@@ -255,45 +252,56 @@ describe('GraphQL API Client', () => {
     expect(error.message).toBe('Business error: SOME_ERROR_CODE');
   });
 
-  // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
-  // test('throws ApiTimeoutError on timeout', async () => {
-  //   vi.useRealTimers();
-  //
-  //   fetchMock.post(apiCallPath, 200, {
-  //     delay: 6000,
-  //   });
-  //
-  //   const error = await expectToFailWith<ApiTimeoutError>(async () => {
-  //     await apiCall();
-  //   }, 'ApiTimeoutError');
-  //   expect(error.message)
-  //     .toBe('Request timed out');
-  //
-  //   assertRegularRequestEvents();
-  // });
+  test('passes request signal to fetch', async () => {
+    await setApiToken(TOKEN);
+    const abortController = new AbortController();
+    const fetchSignal: { value?: AbortSignal } = {};
 
-  // test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
-  //   vi.useRealTimers();
-  //
-  //   fetchMock.get(apiCallPath, 200, {
-  //     delay: 20000,
-  //   });
-  //
-  //   const {
-  //     requestConfig,
-  //     cancelRequest,
-  //   } = useRequestConfig({});
-  //
-  //   setTimeout(() => cancelRequest(), 500);
-  //
-  //   const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
-  //     await apiCall(requestConfig);
-  //   }, 'ApiRequestCancelledError');
-  //   expect(error.message)
-  //     .toBe('Request was cancelled before it was completed');
-  //
-  //   assertRegularRequestEvents();
-  // });
+    mockRequest((options) => {
+      apiQueryAssertions(TOKEN)(options);
+      fetchSignal.value = options.signal as AbortSignal;
+    }, successApiQueryResponse());
+
+    const response = await executeApiCall({
+      fetchOptions: {
+        signal: abortController.signal,
+      },
+    });
+
+    assertSuccessResponse(response);
+    if (!fetchSignal.value) {
+      throw new Error('Expected fetch signal to be captured');
+    }
+    abortController.abort(new ApiRequestCancelledError());
+    expect(fetchSignal.value.aborted)
+      .toBe(true);
+  });
+
+  test('throws ApiRequestCancelledError on aborted request', async () => {
+    await setApiToken(TOKEN);
+    const abortController = new AbortController();
+    let requestStarted: (() => void) | undefined;
+    const requestStartedPromise = new Promise<void>((resolve) => {
+      requestStarted = resolve;
+    });
+
+    mockRequest(apiQueryAssertions(TOKEN), (options: RequestInit) => new Promise((_resolve, reject) => {
+      requestStarted?.();
+      options.signal?.addEventListener('abort', () => reject(options.signal?.reason), { once: true });
+    }));
+
+    const requestPromise = executeApiCall({
+      fetchOptions: {
+        signal: abortController.signal,
+      },
+    });
+    await requestStartedPromise;
+    abortController.abort(new ApiRequestCancelledError());
+
+    await expectToFailWith<ApiRequestCancelledError>(async () => {
+      await requestPromise;
+    }, 'ApiRequestCancelledError');
+  });
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -333,6 +341,9 @@ describe('GraphQL API Client', () => {
         console.error(`[mockedRequests] Request assertions failed on request #${currentRequestIndex}`, e);
         throw e;
       }
+      if (typeof mockedRequest.responseBody === 'function') {
+        return mockedRequest.responseBody(options);
+      }
       return {
         status: mockedRequest.responseStatus ?? 200,
         body: mockedRequest.responseBody,
@@ -354,7 +365,7 @@ describe('GraphQL API Client', () => {
       .toBe(token);
   }
 
-  async function executeApiCall() {
+  async function executeApiCall(context?: Partial<OperationContext>) {
     return await gqlClient
       .query(`
       query {
@@ -362,7 +373,7 @@ describe('GraphQL API Client', () => {
           someProperty
         }
       }
-    `, {});
+    `, {}, context);
   }
 
   async function executeApiMutation() {
