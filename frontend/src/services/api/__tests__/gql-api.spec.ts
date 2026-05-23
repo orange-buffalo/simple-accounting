@@ -255,11 +255,11 @@ describe('GraphQL API Client', () => {
   test('passes request signal to fetch', async () => {
     await setApiToken(TOKEN);
     const abortController = new AbortController();
-    let fetchSignal: AbortSignal | null = null;
+    const fetchSignal: { value?: AbortSignal } = {};
 
     mockRequest((options) => {
       apiQueryAssertions(TOKEN)(options);
-      fetchSignal = options.signal as AbortSignal;
+      fetchSignal.value = options.signal as AbortSignal;
     }, successApiQueryResponse());
 
     const response = await executeApiCall({
@@ -269,10 +269,11 @@ describe('GraphQL API Client', () => {
     });
 
     assertSuccessResponse(response);
-    expect(fetchSignal)
-      .not.toBeNull();
+    if (!fetchSignal.value) {
+      throw new Error('Expected fetch signal to be captured');
+    }
     abortController.abort(new ApiRequestCancelledError());
-    expect(fetchSignal?.aborted)
+    expect(fetchSignal.value.aborted)
       .toBe(true);
   });
 
