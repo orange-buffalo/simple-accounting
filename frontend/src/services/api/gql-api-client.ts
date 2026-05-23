@@ -186,6 +186,8 @@ export const gqlClient: GrapQlClient = {
   },
 };
 
+// urql replaces fetchOptions.signal with its own operation signal before calling fetch.
+// Wrap fetch so caller-provided cancellation and urql teardown cancellation both abort the same network request.
 function withRequestSignalSupport(context?: Partial<OperationContext>): Partial<OperationContext> | undefined {
   const fetchOptions = typeof context?.fetchOptions === 'function'
     ? context.fetchOptions()
