@@ -5,6 +5,10 @@
 
       <div class="sa-header-options">
         <div>
+          <span>{{ $t.customersOverview.filters.announcement() }}</span>
+        </div>
+
+        <div>
           <ElInput
             class="sa-header-options__filter-input"
             v-model="freeSearchText"
