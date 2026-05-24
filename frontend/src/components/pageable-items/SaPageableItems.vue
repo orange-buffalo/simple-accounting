@@ -2,10 +2,12 @@
   <div class="sa-pageable-items">
     <ElPagination
       v-if="paginatorVisible"
+      :key="`top-${pageNumber}`"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
       layout="prev, slot, next"
       :total="totalElements"
+      @current-change="onPageNumberChange"
     >
       <span class="sa-pageable-items__page-indicator">
         {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
@@ -51,10 +53,12 @@
 
     <ElPagination
       v-if="paginatorVisible"
+      :key="`bottom-${pageNumber}`"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
       layout="prev, slot, next"
       :total="totalElements"
+      @current-change="onPageNumberChange"
     >
       <span class="sa-pageable-items__page-indicator">
         {{ $t.saPageableItems.pageIndicator(pageNumber, totalPages) }}
@@ -69,14 +73,16 @@
   generic="TResponse, TPath extends string, TVariables extends PageVars = PageVars"
 >
   import {
-    computed, ref, shallowRef, watch,
+    computed, onBeforeUnmount, ref, shallowRef, watch,
   } from 'vue';
-  import { throttle } from 'lodash';
+  import { debounce, throttle } from 'lodash';
   import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
   import { useLazyQuery } from '@/services/api/use-gql-api';
   import { useFragment } from '@/services/api/gql/fragment-masking';
+  import { useRequestConfig, type RequestConfigReturn } from '@/services/api';
+  import { ApiRequestCancelledError } from '@/services/api/api-errors.ts';
   import {
     PaginationPageInfoFragment,
     type GqlConnection,
@@ -134,6 +140,7 @@
   const totalElements = ref(0);
   const pageSize = ref(10);
   const data = shallowRef<TNode[]>([]);
+  const searchDebounceMs = 500;
 
   const {
     loading,
@@ -155,8 +162,15 @@
   // Stores the endCursor from each visited page for backward navigation.
   // endCursors[0] = endCursor of page 1, endCursors[1] = endCursor of page 2, etc.
   let endCursors: string[] = [];
+  let requestConfigData: RequestConfigReturn | undefined;
+  let latestLoadId = 0;
 
-  const reloadData = throttle(async () => {
+  const loadData = async () => {
+    latestLoadId += 1;
+    const loadId = latestLoadId;
+    requestConfigData?.cancelRequest();
+    const currentRequestConfig = useRequestConfig({});
+    requestConfigData = currentRequestConfig;
     startLoading();
 
     const after = pageNumber.value === 1
@@ -168,7 +182,13 @@
         ...props.pageQueryArguments,
         first: pageSize.value,
         after,
-      } as TVariables);
+      } as TVariables, {
+        requestConfig: currentRequestConfig.requestConfig,
+      });
+
+      if (loadId !== latestLoadId) {
+        return;
+      }
 
       let connectionValue: unknown = queryResult;
       for (const key of subPath) {
@@ -183,29 +203,46 @@
       if (pageInfo.endCursor) {
         endCursors[pageNumber.value - 1] = pageInfo.endCursor;
       }
-
-      stopLoading();
     } catch (e) {
-      stopLoading();
+      if (e instanceof ApiRequestCancelledError) {
+        return;
+      }
       throw e;
+    } finally {
+      if (requestConfigData === currentRequestConfig) {
+        requestConfigData = undefined;
+      }
+      stopLoading();
     }
-  }, 300, {
-    trailing: true,
-    leading: false,
-  });
+  };
+
+  const reloadData = () => {
+    void loadData();
+  };
+
+  const scheduleReloadData = debounce(reloadData, searchDebounceMs);
+
+  const onPageNumberChange = (newPageNumber: number) => {
+    scheduleReloadData.cancel();
+    pageNumber.value = newPageNumber;
+    reloadData();
+  };
 
   watch(() => props.pageQueryArguments, () => {
+    latestLoadId += 1;
+    requestConfigData?.cancelRequest();
     endCursors = [];
     pageNumber.value = 1;
-    reloadData();
+    scheduleReloadData();
   }, {
     deep: true,
   });
 
-  watch(pageNumber, () => {
-    reloadData();
-  }, {
-    immediate: true,
+  reloadData();
+
+  onBeforeUnmount(() => {
+    scheduleReloadData.cancel();
+    requestConfigData?.cancelRequest();
   });
 
   const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
