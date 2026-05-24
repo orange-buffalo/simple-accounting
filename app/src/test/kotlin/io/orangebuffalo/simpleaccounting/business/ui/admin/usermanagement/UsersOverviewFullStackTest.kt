@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement
 
 import com.microsoft.playwright.Page
+import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement.UsersOverviewPage.Companion.openUsersOverviewPage
@@ -62,7 +63,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
         }
     }
 
-    @Test
+    // CI occasionally observes one of the synced paginator instances before Vue finishes updating it.
+    @RepeatedIfExceptionsTest(repeats = 3)
     fun `should support pagination`(page: Page) {
         val preconditions = setupPaginationPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
