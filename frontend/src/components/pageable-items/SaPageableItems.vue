@@ -2,7 +2,8 @@
   <div class="sa-pageable-items">
     <ElPagination
       v-if="paginatorVisible"
-      :current-page="pageNumber"
+      :key="`top-${pageNumber}`"
+      v-model:current-page="pageNumber"
       :page-size="pageSize"
       layout="prev, slot, next"
       :total="totalElements"
@@ -52,7 +53,8 @@
 
     <ElPagination
       v-if="paginatorVisible"
-      :current-page="pageNumber"
+      :key="`bottom-${pageNumber}`"
+      v-model:current-page="pageNumber"
       :page-size="pageSize"
       layout="prev, slot, next"
       :total="totalElements"
