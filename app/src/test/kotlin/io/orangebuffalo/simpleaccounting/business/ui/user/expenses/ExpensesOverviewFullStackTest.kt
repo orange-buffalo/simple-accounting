@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.expenses
 
 import com.microsoft.playwright.Page
-import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
@@ -357,8 +356,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
     private fun pendingStatus(label: String = "Pending") =
         dataValues(SaStatusLabel.pendingStatusValue(), label)
 
-    // CI occasionally observes one of the synced paginator instances before Vue finishes updating it.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
         // Expenses are sorted by datePaid descending (newest first)

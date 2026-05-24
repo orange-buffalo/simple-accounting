@@ -56,10 +56,12 @@ class Paginator private constructor(
 
     fun next() {
         instances.first().locator(".btn-next").click()
+        locator.page().clock().runFor(1)
     }
 
     fun previous() {
         instances.first().locator(".btn-prev").click()
+        locator.page().clock().runFor(1)
     }
 
     companion object {
