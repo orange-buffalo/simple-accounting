@@ -14,6 +14,11 @@ class TextInput private constructor(
     private val input = rootLocator.locator("input, textarea").first()
     fun fill(text: String) = input.fill(text)
 
+    fun typeText(text: String) {
+        input.fill("")
+        input.pressSequentially(text, Locator.PressSequentiallyOptions().setDelay(50.0))
+    }
+
     fun shouldBeVisible() = input.shouldBeVisible()
 
     fun shouldBeHidden() = input.shouldBeHidden()
