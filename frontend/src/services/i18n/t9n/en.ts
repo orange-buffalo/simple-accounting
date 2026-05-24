@@ -1223,7 +1223,9 @@ export default {
   customersOverview: {
     header: () => 'Customers',
     filters: {
-      announcement: () => 'Filters coming soon',
+      input: {
+        placeholder: () => 'Search customers',
+      },
     },
     create: () => 'Add new',
     edit: () => 'Edit',

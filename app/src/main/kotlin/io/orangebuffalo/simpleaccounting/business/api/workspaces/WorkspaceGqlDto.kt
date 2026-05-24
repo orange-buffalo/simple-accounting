@@ -198,12 +198,19 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter customers by name.")
+        freeSearchText: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CustomerGqlDto> {
         val customer = Tables.CUSTOMER
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(customer)
             .addPredicate(customer.workspaceId.eq(id))
+            .also {
+                if (freeSearchText != null) {
+                    it.addPredicate(customer.name.containsIgnoreCase(freeSearchText))
+                }
+            }
             .page(first, after) { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!,

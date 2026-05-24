@@ -110,4 +110,32 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
             }
         }
     }
+
+    @Test
+    fun `should support filtering by free text search`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+
+                init {
+                    customer(workspace = workspace, name = "Slurm Corp")
+                    customer(workspace = workspace, name = "Mom's Friendly Robot Company")
+                    customer(workspace = workspace, name = "Planet Express")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openCustomersOverviewPage {
+            pageItems {
+                shouldHaveTitles("Slurm Corp", "Mom's Friendly Robot Company", "Planet Express")
+            }
+
+            filterInput { fill("robot") }
+            pageItems {
+                shouldHaveTitles("Mom's Friendly Robot Company")
+            }
+        }
+    }
 }

@@ -1222,7 +1222,9 @@ export default {
   customersOverview: {
     header: () => 'Клієнти',
     filters: {
-      announcement: () => 'Фільтри незабаром',
+      input: {
+        placeholder: () => 'Шукати клієнтів',
+      },
     },
     create: () => 'Додати новий',
     edit: () => 'Редагувати',

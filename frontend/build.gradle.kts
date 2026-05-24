@@ -38,6 +38,22 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
 }
 
 val verifyGqlTypesOutput = layout.buildDirectory.dir("verify-gql-types")
+val generateGqlTypes by tasks.register<SaFrontendTask>("generateGqlTypes") {
+    args.set("run graphql-codegen")
+    inputs.files(
+        project.fileTree(projectDir) {
+            include("src/**/*.vue")
+            include("src/**/*.ts")
+            include("codegen.ts")
+            include("package.json")
+            include("bun.lock")
+        },
+        "../app/src/test/resources/api-schema.graphqls",
+    )
+    outputs.dir("src/services/api/gql")
+    dependsOn(installFrontendDependencies)
+}
+
 val verifyGqlTypes by tasks.register<SaFrontendTask>("verifyGqlTypes") {
     args.set("run verify-gql-types")
     inputs.files(
