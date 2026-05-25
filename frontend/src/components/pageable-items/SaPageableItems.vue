@@ -2,9 +2,9 @@
   <div class="sa-pageable-items">
     <ElPagination
       v-if="paginatorVisible"
-      :key="`top-${pageNumber}`"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
+      :disabled="loading"
       layout="prev, slot, next"
       :total="totalElements"
       @current-change="onPageNumberChange"
@@ -53,9 +53,9 @@
 
     <ElPagination
       v-if="paginatorVisible"
-      :key="`bottom-${pageNumber}`"
       v-model:current-page="pageNumber"
       :page-size="pageSize"
+      :disabled="loading"
       layout="prev, slot, next"
       :total="totalElements"
       @current-change="onPageNumberChange"
@@ -245,7 +245,7 @@
     requestConfigData?.cancelRequest();
   });
 
-  const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
+  const paginatorVisible = computed(() => totalElements.value > 0);
 
   defineExpose({
     reload: reloadData,

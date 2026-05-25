@@ -5,10 +5,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 
 class CustomersOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Customers")
     val pageItems = components.overviewItems()
+    val filterInput = components.textInputByPlaceholder("Search customers")
     val createButton = components.buttonByText("Add new")
 
     private fun shouldBeOpen() {

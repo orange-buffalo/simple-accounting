@@ -1300,7 +1300,9 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int!,
+    "Optional free text search to filter customers by name."
+    freeSearchText: String
   ): CustomersConnection!
   "Default currency of the workspace."
   defaultCurrency: String!

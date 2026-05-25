@@ -242,7 +242,6 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
         authenticateViaCookie(admin)
         openUsersOverviewPage {
             pageItems {
-                finishLoadingWhenTimeMocked()
                 val userUnderEditItem = shouldHaveItemSatisfying {
                     it.title == userUnderEdit.userName
                 }

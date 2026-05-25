@@ -92,8 +92,7 @@ If the template exists, read it and use its sections exactly. Fill unavailable s
 PR description rules:
 
 - Summarize the user-visible or maintainer-visible change.
-- Do not run validation commands as part of this skill. Tests, linting, compilation, and similar checks are the responsibility of previous actors before invoking this workflow.
-- If the pull request template asks for validation, state that validation was completed before invoking this publish workflow when the session context confirms it; otherwise state that validation was not performed by this workflow.
+- Do not run validation commands as part of this skill. Tests, linting, compilation, and similar checks are the responsibility of previous actors before invoking this workflow. Do no state validation in the PR description.
 - Keep the description factual and concise.
 
 ### 3. Commit Pending Changes
@@ -239,8 +238,7 @@ Use this information in the final response.
 
 Do not run tests, linting, compilation, builds, schema generation, GraphQL code generation, or other validation commands as part of this skill.
 
-Assume validation and generated artifacts were handled by previous actors before this publish workflow was invoked. If the session context clearly says validation was performed, include that in the PR description. If not, state that validation was not performed by this workflow.
-
+Assume validation and generated artifacts were handled by previous actors before this publish workflow was invoked.
 ## Final Report
 
 Report the result with these fields:

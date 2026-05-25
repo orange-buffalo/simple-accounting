@@ -301,6 +301,41 @@ class CustomersQueryTest(
                     }
                 )
         }
+
+        @Test
+        fun `should apply freeSearchText filter by customer name`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                }.also {
+                    customer(workspace = it.workspace, name = "Slurm Corp", createdAt = MOCK_TIME.plusSeconds(100))
+                    customer(workspace = it.workspace, name = "Mom's Friendly Robot Company", createdAt = MOCK_TIME.plusSeconds(200))
+                    customer(workspace = it.workspace, name = "Planet Express", createdAt = MOCK_TIME.plusSeconds(300))
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    customers(first = 10, freeSearchText = "robot") {
+                        edges {
+                            node { name }
+                        }
+                        totalCount
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("customers", buildJsonObject {
+                            putJsonArray("edges") {
+                                customerEdge(name = "Mom's Friendly Robot Company")
+                            }
+                            put("totalCount", 1)
+                        })
+                    }
+                )
+        }
     }
 
     @Nested

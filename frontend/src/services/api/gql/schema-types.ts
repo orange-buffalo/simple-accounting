@@ -1457,6 +1457,7 @@ export type WorkspaceCustomerArgs = {
 export type WorkspaceCustomersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
