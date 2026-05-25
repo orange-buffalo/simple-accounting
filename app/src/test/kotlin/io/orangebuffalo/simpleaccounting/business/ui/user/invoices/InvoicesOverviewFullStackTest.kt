@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.invoices
 
 import com.microsoft.playwright.Page
-import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
@@ -339,8 +338,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
     private fun cancelledStatus(label: String = "Cancelled") =
         dataValues(SaStatusLabel.regularStatusValue(), label)
 
-    // CI occasionally observes one of the synced paginator instances before Vue finishes updating it.
-    @RepeatedIfExceptionsTest(repeats = 3)
+    @Test
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
         // Invoices are sorted by dateIssued descending (newest first)

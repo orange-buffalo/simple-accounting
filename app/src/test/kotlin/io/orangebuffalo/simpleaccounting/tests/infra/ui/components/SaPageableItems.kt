@@ -57,13 +57,6 @@ class SaPageableItems<I, D : Any> private constructor(
     }
 
     /**
-     * Loader is debounced and requires a tick to finish loading.
-     */
-    fun finishLoadingWhenTimeMocked() {
-        container.page().clock().runFor(1)
-    }
-
-    /**
      * Verifies that the loading indicator is visible.
      */
     fun shouldHaveLoadingIndicatorVisible() {
@@ -74,7 +67,6 @@ class SaPageableItems<I, D : Any> private constructor(
      * Asserts that the data of the pageable items satisfies the given specification.
      */
     fun shouldHaveDataSatisfying(dataSpec: (data: List<D>) -> Unit) {
-        finishLoadingWhenTimeMocked()
         shouldSatisfy("Pageable items data should satisfy the expected specification") {
             val data = getData()
             dataSpec(data)
