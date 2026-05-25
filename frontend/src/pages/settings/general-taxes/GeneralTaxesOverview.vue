@@ -8,6 +8,19 @@
           <span>{{ $t.generalTaxesOverview.filters.announcement() }}</span>
         </div>
 
+        <div>
+          <ElInput
+            class="sa-header-options__filter-input"
+            v-model="freeSearchText"
+            :placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
+            clearable
+          >
+            <template #prefix>
+              <Search class="sa-header-options__filter-input__icon" />
+            </template>
+          </ElInput>
+        </div>
+
         <ElButton
           round
           @click="navigateToCreateTaxView"
@@ -21,7 +34,7 @@
     <SaPageableItems
       :page-query="generalTaxesPageQuery"
       path="workspace.generalTaxes"
-      :page-query-arguments="{ workspaceId: currentWorkspaceId }"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
       #default="{ item }"
     >
       <GeneralTaxOverviewPanel :tax="item" />
@@ -30,6 +43,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { ref } from 'vue';
+  import { Search } from '@element-plus/icons-vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
@@ -39,9 +54,9 @@
   import { $t } from '@/services/i18n';
 
   const generalTaxesPageQuery = graphql(`
-    query generalTaxesPage($workspaceId: String!, $first: Int!, $after: String) {
+    query generalTaxesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
       workspace(id: $workspaceId) {
-        generalTaxes(first: $first, after: $after) {
+        generalTaxes(first: $first, after: $after, freeSearchText: $freeSearchText) {
           edges {
             cursor
             node {
@@ -64,4 +79,6 @@
   const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
+
+  const freeSearchText = ref<string | undefined>();
 </script>

@@ -1492,6 +1492,7 @@ export type WorkspaceGeneralTaxArgs = {
 export type WorkspaceGeneralTaxesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 

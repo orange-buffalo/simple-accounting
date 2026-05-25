@@ -307,12 +307,19 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter general taxes by title.")
+        freeSearchText: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<GeneralTaxGqlDto> {
         val generalTax = Tables.GENERAL_TAX
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(generalTax)
             .addPredicate(generalTax.workspaceId.eq(id))
+            .also {
+                if (freeSearchText != null) {
+                    it.addPredicate(generalTax.title.containsIgnoreCase(freeSearchText))
+                }
+            }
             .page(first, after) { record ->
                 GeneralTaxGqlDto(
                     id = record[generalTax.id]!!,
