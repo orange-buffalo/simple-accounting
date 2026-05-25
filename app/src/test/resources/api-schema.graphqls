@@ -1337,7 +1337,9 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int!,
+    "Optional free text search to filter general taxes by title."
+    freeSearchText: String
   ): GeneralTaxesConnection!
   "ID of the workspace."
   id: String!

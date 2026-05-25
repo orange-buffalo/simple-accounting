@@ -1194,6 +1194,9 @@ export default {
     header: () => 'General Taxes',
     filters: {
       announcement: () => 'Filters coming soon',
+      input: {
+        placeholder: () => 'Search general taxes',
+      },
     },
     create: () => 'Add new',
     edit: () => 'Edit',

@@ -1193,6 +1193,9 @@ export default {
     header: () => 'Загальні податки',
     filters: {
       announcement: () => 'Фільтри незабаром',
+      input: {
+        placeholder: () => 'Шукати загальні податки',
+      },
     },
     create: () => 'Додати новий',
     edit: () => 'Редагувати',

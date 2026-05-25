@@ -301,6 +301,41 @@ class GeneralTaxesQueryTest(
                     }
                 )
         }
+
+        @Test
+        fun `should apply freeSearchText filter by general tax title`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                }.also {
+                    generalTax(workspace = it.workspace, title = "Space VAT", createdAt = MOCK_TIME.plusSeconds(100))
+                    generalTax(workspace = it.workspace, title = "Robot Oil Duty", createdAt = MOCK_TIME.plusSeconds(200))
+                    generalTax(workspace = it.workspace, title = "Slurm Tax", createdAt = MOCK_TIME.plusSeconds(300))
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    generalTaxes(first = 10, freeSearchText = "robot") {
+                        edges {
+                            node { title }
+                        }
+                        totalCount
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("generalTaxes", buildJsonObject {
+                            putJsonArray("edges") {
+                                generalTaxEdge(title = "Robot Oil Duty")
+                            }
+                            put("totalCount", 1)
+                        })
+                    }
+                )
+        }
     }
 
     @Nested
