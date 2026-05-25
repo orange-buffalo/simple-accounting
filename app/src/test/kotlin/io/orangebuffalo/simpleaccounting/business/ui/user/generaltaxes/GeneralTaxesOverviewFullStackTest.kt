@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.GeneralTa
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
@@ -110,6 +111,34 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditGeneralTaxPage {
             title {
                 input.shouldHaveValue("VAT")
+            }
+        }
+    }
+
+    @Test
+    fun `should support filtering by free text search`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+
+                init {
+                    generalTax(workspace = workspace, title = "Space VAT", rateInBps = 20_00, createdAt = MOCK_TIME.plusSeconds(100))
+                    generalTax(workspace = workspace, title = "Robot Oil Duty", rateInBps = 15_00, createdAt = MOCK_TIME.plusSeconds(200))
+                    generalTax(workspace = workspace, title = "Slurm Tax", rateInBps = 10_00, createdAt = MOCK_TIME.plusSeconds(300))
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openGeneralTaxesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Slurm Tax (10%)", "Robot Oil Duty (15%)", "Space VAT (20%)")
+            }
+
+            filterInput { fill("robot") }
+            pageItems {
+                shouldHaveTitles("Robot Oil Duty (15%)")
             }
         }
     }
