@@ -49,7 +49,7 @@ class WorkspacePanel(
 
 class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader()
-    val createButton = components.buttonByContainer(page.locator(".sa-page-header .sa-header-options"))
+    val createButton = components.buttonByContainer(page.locator(".sa-page__header-options"))
 
     val pageItems = components.workspacePanelItems()
 

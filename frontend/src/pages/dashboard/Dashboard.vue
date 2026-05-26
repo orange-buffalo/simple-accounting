@@ -1,5 +1,5 @@
 <template>
-  <SaPage class="sa-dashboard" :header="$t.dashboard.header()">
+  <SaPage :header="$t.dashboard.header()">
     <template #header-options>
       <span>&nbsp;</span>
 

@@ -1,5 +1,5 @@
 <template>
-  <SaPage class="sa-documents-migration-page" :header="$t.documentsMigration.pageHeader()">
+  <SaPage :header="$t.documentsMigration.pageHeader()">
 
     <div
       v-if="loading"
