@@ -2,7 +2,7 @@
   <SaPage :header="header">
     <template #header-options>
       <div>
-        <span>{{ announcement }}</span>
+        <span>{{ $t.overviewPage.filters.announcement() }}</span>
       </div>
 
       <div v-if="filterPlaceholder">
@@ -29,10 +29,10 @@
 <script lang="ts" setup>
   import { Search } from '@element-plus/icons-vue';
   import SaPage from '@/components/SaPage.vue';
+  import { $t } from '@/services/i18n';
 
   defineProps<{
     header: string,
-    announcement: string,
     filterPlaceholder?: string,
     modelValue?: string,
   }>();

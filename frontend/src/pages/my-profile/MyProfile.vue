@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.myProfile.pageHeader() }}</h1>
-    </div>
+  <SaPage :header="$t.myProfile.pageHeader()">
 
     <MyProfileDocumentsStorage
       v-if="!isAdmin()"
@@ -18,10 +15,11 @@
     />
 
     <MyProfileChangePassword />
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
+  import SaPage from '@/components/SaPage.vue';
   import MyProfileDocumentsStorage from '@/pages/my-profile/MyProfileDocumentsStorage.vue';
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
   import { useAuth } from '@/services/api';

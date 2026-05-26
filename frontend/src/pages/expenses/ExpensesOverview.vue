@@ -2,7 +2,6 @@
   <SaOverviewPage
     v-model="freeSearchText"
     :header="$t.expensesOverview.header()"
-    :announcement="$t.expensesOverview.filters.announcement()"
     :filter-placeholder="$t.expensesOverview.filters.input.placeholder()"
   >
     <template #actions>

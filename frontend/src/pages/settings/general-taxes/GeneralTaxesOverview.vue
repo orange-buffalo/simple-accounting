@@ -1,35 +1,18 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.generalTaxesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.generalTaxesOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="freeSearchText"
-            :placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          @click="navigateToCreateTaxView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.generalTaxesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
+  <SaOverviewPage
+    v-model="freeSearchText"
+    :header="$t.generalTaxesOverview.header()"
+    :filter-placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
+  >
+    <template #actions>
+      <ElButton
+        round
+        @click="navigateToCreateTaxView"
+      >
+        <SaIcon icon="plus-thin" />
+        {{ $t.generalTaxesOverview.create() }}
+      </ElButton>
+    </template>
 
     <SaPageableItems
       :page-query="generalTaxesPageQuery"
@@ -39,12 +22,12 @@
     >
       <GeneralTaxOverviewPanel :tax="item" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';

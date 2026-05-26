@@ -1,8 +1,5 @@
 <template>
-  <div class="sa-documents-migration-page">
-    <div class="sa-page-header">
-      <h1>{{ $t.documentsMigration.pageHeader() }}</h1>
-    </div>
+  <SaPage class="sa-documents-migration-page" :header="$t.documentsMigration.pageHeader()">
 
     <div
       v-if="loading"
@@ -61,11 +58,12 @@
         </div>
       </div>
     </div>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import SaPage from '@/components/SaPage.vue';
   import { graphql } from '@/services/api/gql';
   import { useMultiQuery, useMutation } from '@/services/api/use-gql-api.ts';
   import { $t } from '@/services/i18n';

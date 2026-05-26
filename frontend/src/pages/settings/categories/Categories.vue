@@ -1,22 +1,14 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.categoriesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.categoriesOverview.filters.announcement() }}</span>
-        </div>
-
-        <ElButton
-          round
-          @click="navigateToNewCategoryView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.categoriesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
+  <SaOverviewPage :header="$t.categoriesOverview.header()">
+    <template #actions>
+      <ElButton
+        round
+        @click="navigateToNewCategoryView"
+      >
+        <SaIcon icon="plus-thin" />
+        {{ $t.categoriesOverview.create() }}
+      </ElButton>
+    </template>
 
     <SaPageableItems
       :page-query="categoriesPageQuery"
@@ -26,10 +18,11 @@
     >
       <CategoriesOverviewPanel :category="item" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import CategoriesOverviewPanel from '@/pages/settings/categories/CategoriesOverviewPanel.vue';

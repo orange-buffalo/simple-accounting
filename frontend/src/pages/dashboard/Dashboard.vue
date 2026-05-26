@@ -1,23 +1,19 @@
 <template>
-  <div class="sa-dashboard">
-    <div class="sa-page-header">
-      <h1>{{ $t.dashboard.header() }}</h1>
+  <SaPage class="sa-dashboard" :header="$t.dashboard.header()">
+    <template #header-options>
+      <span>&nbsp;</span>
 
-      <div class="sa-header-options">
-        <span>&nbsp;</span>
-
-        <!--suppress HtmlDeprecatedAttribute -->
-        <ElDatePicker
-          v-model="selectedDateRange"
-          type="daterange"
-          align="right"
-          unlink-panels
-          :range-separator="$t.dashboard.dateRange.separator()"
-          :start-placeholder="$t.dashboard.dateRange.startPlaceholder()"
-          :end-placeholder="$t.dashboard.dateRange.endPlaceholder()"
-        />
-      </div>
-    </div>
+      <!--suppress HtmlDeprecatedAttribute -->
+      <ElDatePicker
+        v-model="selectedDateRange"
+        type="daterange"
+        align="right"
+        unlink-panels
+        :range-separator="$t.dashboard.dateRange.separator()"
+        :start-placeholder="$t.dashboard.dateRange.startPlaceholder()"
+        :end-placeholder="$t.dashboard.dateRange.endPlaceholder()"
+      />
+    </template>
 
     <div class="sa-dashboard__row">
       <DashboardCardExpenses
@@ -39,11 +35,12 @@
         :invoices="invoicesData"
       />
     </div>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { ref, computed, watch } from 'vue';
+  import SaPage from '@/components/SaPage.vue';
   import { useStorage } from '@/services/storage';
   import DashboardCardExpenses from '@/pages/dashboard/DashboardCardExpenses.vue';
   import DashboardCardIncomes from '@/pages/dashboard/DashboardCardIncomes.vue';

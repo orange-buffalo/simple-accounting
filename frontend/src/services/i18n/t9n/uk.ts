@@ -24,6 +24,12 @@ export default {
     save: () => 'Зберегти',
   },
 
+  overviewPage: {
+    filters: {
+      announcement: () => 'Фільтри будуть незабаром',
+    },
+  },
+
   loginPage: {
     announcement: () => 'Вперше тут? Ми запускаємо публічний доступ скоро.',
     userName: {
@@ -289,7 +295,6 @@ export default {
   expensesOverview: {
     header: () => 'Витрати',
     filters: {
-      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Витрати на пошук ',
       },
@@ -355,17 +360,11 @@ export default {
 
   incomeTaxPaymentsOverview: {
     header: () => 'Прибутковий Податок ',
-    filters: {
-      announcement: () => 'Фільтри будуть незабаром',
-    },
     create: () => 'Додати новий',
   },
 
   documentsOverview: {
     header: () => 'Документи',
-    filters: {
-      announcement: () => 'Фільтри будуть незабаром',
-    },
     create: () => 'Завантажити',
   },
 
@@ -645,7 +644,6 @@ export default {
   incomesOverview: {
     header: () => 'Доходи',
     filters: {
-      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Пошук доходи ',
       },
@@ -737,7 +735,6 @@ export default {
   invoicesOverview: {
     header: () => 'Рахунки-фактури',
     filters: {
-      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Пошук рахунків-фактур',
       },
@@ -963,7 +960,6 @@ export default {
   usersOverview: {
     header: () => 'Користувачі',
     filters: {
-      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Пошук користувачів',
       },
@@ -1144,9 +1140,6 @@ export default {
 
   categoriesOverview: {
     header: () => 'Категорії',
-    filters: {
-      announcement: () => 'Фільтри незабаром',
-    },
     create: () => 'Додати новий',
     edit: () => 'Редагувати',
     type: {
@@ -1192,7 +1185,6 @@ export default {
   generalTaxesOverview: {
     header: () => 'Загальні податки',
     filters: {
-      announcement: () => 'Фільтри незабаром',
       input: {
         placeholder: () => 'Шукати загальні податки',
       },
@@ -1225,7 +1217,6 @@ export default {
   customersOverview: {
     header: () => 'Клієнти',
     filters: {
-      announcement: () => 'Фільтри незабаром',
       input: {
         placeholder: () => 'Шукати клієнтів',
       },

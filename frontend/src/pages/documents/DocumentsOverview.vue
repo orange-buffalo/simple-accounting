@@ -1,24 +1,16 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.documentsOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.documentsOverview.filters.announcement() }}</span>
-        </div>
-
-        <ElButton
-          v-if="isCurrentUserRegular()"
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateStandaloneDocumentView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.documentsOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
+  <SaOverviewPage :header="$t.documentsOverview.header()">
+    <template #actions>
+      <ElButton
+        v-if="isCurrentUserRegular()"
+        round
+        :disabled="!currentWorkspace.editable"
+        @click="navigateToCreateStandaloneDocumentView"
+      >
+        <SaIcon icon="plus-thin" />
+        {{ $t.documentsOverview.create() }}
+      </ElButton>
+    </template>
 
     <SaPageableItems
       ref="pageItems"
@@ -32,11 +24,12 @@
         @deleted="reloadDocuments"
       />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';

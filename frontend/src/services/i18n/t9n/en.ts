@@ -24,6 +24,12 @@ export default {
     save: () => 'Save',
   },
 
+  overviewPage: {
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
+  },
+
   loginPage: {
     announcement: () => 'New here? We are launching public access soon.',
     userName: {
@@ -289,7 +295,6 @@ export default {
   expensesOverview: {
     header: () => 'Expenses',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search expenses',
       },
@@ -356,17 +361,11 @@ export default {
 
   incomeTaxPaymentsOverview: {
     header: () => 'Income Tax Payments',
-    filters: {
-      announcement: () => 'Filters coming soon',
-    },
     create: () => 'Add new',
   },
 
   documentsOverview: {
     header: () => 'Documents',
-    filters: {
-      announcement: () => 'Filters coming soon',
-    },
     create: () => 'Upload',
   },
 
@@ -646,7 +645,6 @@ export default {
   incomesOverview: {
     header: () => 'Incomes',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search incomes',
       },
@@ -738,7 +736,6 @@ export default {
   invoicesOverview: {
     header: () => 'Invoices',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search invoices',
       },
@@ -964,7 +961,6 @@ export default {
   usersOverview: {
     header: () => 'Users',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search users',
       },
@@ -1145,9 +1141,6 @@ export default {
 
   categoriesOverview: {
     header: () => 'Categories',
-    filters: {
-      announcement: () => 'Filters coming soon',
-    },
     create: () => 'Add new',
     edit: () => 'Edit',
     type: {
@@ -1193,7 +1186,6 @@ export default {
   generalTaxesOverview: {
     header: () => 'General Taxes',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search general taxes',
       },
@@ -1226,7 +1218,6 @@ export default {
   customersOverview: {
     header: () => 'Customers',
     filters: {
-      announcement: () => 'Filters coming soon',
       input: {
         placeholder: () => 'Search customers',
       },

@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.reporting.header() }}</h1>
-    </div>
+  <SaPage :header="$t.reporting.header()">
 
     <!-- todo #64: navigation between steps-->
 
@@ -79,11 +76,12 @@
         />
       </div>
     </div>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import SaPage from '@/components/SaPage.vue';
   import GeneralTaxReport from '@/pages/reporting/GeneralTaxReport.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { apiDateString } from '@/services/api';

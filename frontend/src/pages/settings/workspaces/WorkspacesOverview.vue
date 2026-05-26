@@ -1,20 +1,14 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.workspacesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <span />
-
-        <ElButton
-          round
-          @click="navigateToCreateWorkspace"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.workspacesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
+  <SaOverviewPage :header="$t.workspacesOverview.header()">
+    <template #actions>
+      <ElButton
+        round
+        @click="navigateToCreateWorkspace"
+      >
+        <SaIcon icon="plus-thin" />
+        {{ $t.workspacesOverview.create() }}
+      </ElButton>
+    </template>
 
     <SaPageableItems
       ref="pageableItems"
@@ -24,10 +18,11 @@
     >
       <WorkspacesOverviewItemPanel :workspace="item" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';

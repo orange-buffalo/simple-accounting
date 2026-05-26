@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ pageHeader }}</h1>
-    </div>
+  <SaPage :header="pageHeader">
     <SaForm v-model="formValues" :on-submit="saveUser" :on-load="loadUser" :on-cancel="navigateToUsersOverview">
       <SaFormInput prop="userName" :label="$t.editUser.form.userName.label()" />
       <SaFormSelect
@@ -29,12 +26,13 @@
         </template>
       </ElFormItem>
     </SaForm>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
+  import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import useNavigation from '@/services/use-navigation';
   import { handleGqlApiBusinessError } from '@/services/api';
