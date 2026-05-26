@@ -1283,7 +1283,11 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int!,
+    "Optional free text search to filter categories by name."
+    freeSearchText: String,
+    "Optional filter to include categories matching any of the specified usage types."
+    typeIn: [CategoryType!]
   ): CategoriesConnection!
   "Returns a category by its ID if it belongs to this workspace, or null if not found."
   category(
@@ -1510,6 +1514,12 @@ enum AuthType {
   AUTHENTICATED_USER
   "Requires a request to be executed by a regular user, i.e. authenticated and not an admin user."
   REGULAR_USER
+}
+
+"Category usage type."
+enum CategoryType {
+  EXPENSE
+  INCOME
 }
 
 "Possible business error codes for the changePassword operation."
