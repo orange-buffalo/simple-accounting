@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlRawQuery
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonElement
@@ -356,7 +357,175 @@ class CategoriesQueryTest(
                 )
         }
     }
+
+    @Nested
+    @DisplayName("Filtering")
+    inner class Filtering {
+
+        private fun EntitiesFactory.categoriesForFiltering() = object {
+            val fry = fry()
+            val workspace = workspace(owner = fry)
+        }.also {
+            category(
+                workspace = it.workspace,
+                name = "Delivery income",
+                income = true,
+                expense = false,
+                createdAt = MOCK_TIME.plusSeconds(100),
+            )
+            category(
+                workspace = it.workspace,
+                name = "Delivery expense",
+                income = false,
+                expense = true,
+                createdAt = MOCK_TIME.plusSeconds(200),
+            )
+            category(
+                workspace = it.workspace,
+                name = "Robot maintenance",
+                income = false,
+                expense = true,
+                createdAt = MOCK_TIME.plusSeconds(300),
+            )
+            category(
+                workspace = it.workspace,
+                name = "Slurm sales",
+                income = true,
+                expense = true,
+                createdAt = MOCK_TIME.plusSeconds(400),
+            )
+            category(
+                workspace = it.workspace,
+                name = "Neutral archive",
+                income = false,
+                expense = false,
+                createdAt = MOCK_TIME.plusSeconds(500),
+            )
+        }
+
+        @Test
+        fun `should filter categories by free search text in name`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "freeSearchText: \"delivery\"")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse("Delivery expense", "Delivery income", totalCount = 2))
+        }
+
+        @Test
+        fun `should filter categories by free search text case insensitively`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "freeSearchText: \"rObOt\"")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse("Robot maintenance", totalCount = 1))
+        }
+
+        @Test
+        fun `should filter categories by income type`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "typeIn: [INCOME]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse("Slurm sales", "Delivery income", totalCount = 2))
+        }
+
+        @Test
+        fun `should filter categories by expense type`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "typeIn: [EXPENSE]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse(
+                    "Slurm sales",
+                    "Robot maintenance",
+                    "Delivery expense",
+                    totalCount = 3,
+                ))
+        }
+
+        @Test
+        fun `should apply OR logic between category types`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "typeIn: [INCOME, EXPENSE]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse(
+                    "Slurm sales",
+                    "Robot maintenance",
+                    "Delivery expense",
+                    "Delivery income",
+                    totalCount = 4,
+                ))
+        }
+
+        @Test
+        fun `should not apply category type filter when empty list is provided`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "typeIn: []")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse(
+                    "Neutral archive",
+                    "Slurm sales",
+                    "Robot maintenance",
+                    "Delivery expense",
+                    "Delivery income",
+                    totalCount = 5,
+                ))
+        }
+
+        @Test
+        fun `should combine free search and type filters with AND logic`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "freeSearchText: \"delivery\", typeIn: [EXPENSE]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(categoriesResponse("Delivery expense", totalCount = 1))
+        }
+
+        @Test
+        fun `should return empty connection when combined filters do not match`() {
+            val testData = preconditions { categoriesForFiltering() }
+
+            client.categoriesRawQuery(testData.workspace.id!!, "freeSearchText: \"robot\", typeIn: [INCOME]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("categories", buildJsonObject {
+                            putJsonArray("edges") {}
+                            put("totalCount", 0)
+                        })
+                    }
+                )
+        }
+    }
 }
+
+private fun ApiTestClient.categoriesRawQuery(workspaceId: String, args: String) = graphqlRawQuery(
+    """
+        query {
+          workspace(id: "$workspaceId") {
+            categories(first: 10, $args) {
+              edges {
+                node { name }
+              }
+              totalCount
+            }
+          }
+        }
+    """.trimIndent()
+)
+
+private fun categoriesResponse(vararg categoryNames: String, totalCount: Int): Pair<String, JsonElement> =
+    "workspace" to buildJsonObject {
+        put("categories", buildJsonObject {
+            putJsonArray("edges") {
+                categoryNames.forEach { categoryEdge(name = it) }
+            }
+            put("totalCount", totalCount)
+        })
+    }
 
 private fun kotlinx.serialization.json.JsonArrayBuilder.categoryEdge(name: String) {
     add(buildJsonObject {

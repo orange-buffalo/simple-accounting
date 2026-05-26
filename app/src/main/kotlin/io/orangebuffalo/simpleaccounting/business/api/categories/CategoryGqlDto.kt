@@ -23,6 +23,13 @@ data class CategoryGqlDto(
     val expense: Boolean,
 )
 
+@GraphQLName("CategoryType")
+@GraphQLDescription("Category usage type.")
+enum class CategoryTypeGqlDto {
+    INCOME,
+    EXPENSE,
+}
+
 fun Category.toCategoryGqlDto() = CategoryGqlDto(
     id = id!!,
     name = name,

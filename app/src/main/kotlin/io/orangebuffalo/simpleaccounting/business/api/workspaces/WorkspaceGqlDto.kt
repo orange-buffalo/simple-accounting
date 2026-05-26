@@ -5,6 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.analytics.AnalyticsGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryTypeGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWorkspaceAndId
@@ -34,6 +35,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import java.util.concurrent.CompletableFuture
 
 @GraphQLName("Workspace")
@@ -58,12 +60,31 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter categories by name.")
+        freeSearchText: String? = null,
+        @GraphQLDescription("Optional filter to include categories matching any of the specified usage types.")
+        typeIn: List<CategoryTypeGqlDto>? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<CategoryGqlDto> {
         val categoryTable = Tables.CATEGORY
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(categoryTable)
             .addPredicate(categoryTable.workspaceId.eq(id))
+            .also {
+                if (freeSearchText != null) {
+                    it.addPredicate(categoryTable.name.containsIgnoreCase(freeSearchText))
+                }
+                if (!typeIn.isNullOrEmpty()) {
+                    it.addPredicate(
+                        DSL.or(typeIn.map { type ->
+                            when (type) {
+                                CategoryTypeGqlDto.INCOME -> categoryTable.income.isTrue
+                                CategoryTypeGqlDto.EXPENSE -> categoryTable.expense.isTrue
+                            }
+                        })
+                    )
+                }
+            }
             .page(first, after) { record ->
                 CategoryGqlDto(
                     id = record[categoryTable.id]!!,

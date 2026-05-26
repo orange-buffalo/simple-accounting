@@ -84,6 +84,12 @@ export type CategoryEdge = {
   node: Category;
 };
 
+/** Category usage type. */
+export enum CategoryType {
+  Expense = 'EXPENSE',
+  Income = 'INCOME'
+}
+
 /** Possible business error codes for the changePassword operation. */
 export enum ChangePasswordErrorCodes {
   /** The provided current password does not match the user's actual password. */
@@ -1438,6 +1444,8 @@ export type Workspace = {
 export type WorkspaceCategoriesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  typeIn?: InputMaybe<Array<CategoryType>>;
 };
 
 
