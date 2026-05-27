@@ -1,25 +1,11 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.documentsOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.documentsOverview.filters.announcement() }}</span>
-        </div>
-
-        <ElButton
-          v-if="isCurrentUserRegular()"
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateStandaloneDocumentView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.documentsOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    :header="$t.documentsOverview.header()"
+    :create-action-label="$t.documentsOverview.create()"
+    create-action-view-name="create-standalone-document"
+    :create-action-available="isCurrentUserRegular()"
+    :create-action-disabled="!currentWorkspace.editable"
+  >
     <SaPageableItems
       ref="pageItems"
       :page-query="documentsPageQuery"
@@ -32,27 +18,24 @@
         @deleted="reloadDocuments"
       />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaIcon from '@/components/SaIcon.vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
   import { $t } from '@/services/i18n';
-  import useNavigation from '@/services/use-navigation';
   import { useAuth } from '@/services/api';
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
   const { isCurrentUserRegular } = useAuth();
   const pageItems = ref<{ reload: () => void }>();
-  const { navigateByViewName } = useNavigation();
 
   const reloadDocuments = () => pageItems.value?.reload();
-  const navigateToCreateStandaloneDocumentView = () => navigateByViewName('create-standalone-document');
 
   const documentsPageQuery = graphql(`
     query documentsPage($workspaceId: String!, $first: Int!, $after: String) {

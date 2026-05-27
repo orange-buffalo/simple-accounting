@@ -1,37 +1,12 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.expensesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.expensesOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="freeSearchText"
-            :placeholder="$t.expensesOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateExpenseView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.expensesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    v-model="freeSearchText"
+    :header="$t.expensesOverview.header()"
+    :filter-placeholder="$t.expensesOverview.filters.input.placeholder()"
+    :create-action-label="$t.expensesOverview.create()"
+    create-action-view-name="create-new-expense"
+    :create-action-disabled="!currentWorkspace.editable"
+  >
     <SaPageableItems
       #default="{ item: expense }"
       :page-query="expensesPageQuery"
@@ -40,17 +15,15 @@
     >
       <ExpensesOverviewPanel :expense="expense" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
-  import SaIcon from '@/components/SaIcon.vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n/i18n-services';
   import { graphql } from '@/services/api/gql';
 
@@ -104,7 +77,4 @@
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');
 </script>

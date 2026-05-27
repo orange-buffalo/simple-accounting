@@ -1,20 +1,18 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ pageHeader }}</h1>
-    </div>
+  <SaPage :header="pageHeader">
 
     <SaForm v-model="formValues" :on-submit="saveWorkspace" :on-load="loadWorkspaceData" :on-cancel="navigateToWorkspacesOverview">
       <h2>{{ $t.workspaceEditor.generalInformation.header() }}</h2>
       <SaFormInput prop="name" :label="$t.workspaceEditor.generalInformation.workspaceName.label()" />
       <SaFormCurrencyInput prop="defaultCurrency" :label="$t.workspaceEditor.generalInformation.defaultCurrency.label()" :disabled="isEditing" />
     </SaForm>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { $t } from '@/services/i18n';
+  import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';

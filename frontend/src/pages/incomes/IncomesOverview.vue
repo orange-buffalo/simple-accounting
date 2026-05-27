@@ -1,37 +1,12 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.incomesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.incomesOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="freeSearchText"
-            :placeholder="$t.incomesOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateIncomeView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.incomesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    v-model="freeSearchText"
+    :header="$t.incomesOverview.header()"
+    :filter-placeholder="$t.incomesOverview.filters.input.placeholder()"
+    :create-action-label="$t.incomesOverview.create()"
+    create-action-view-name="create-new-income"
+    :create-action-disabled="!currentWorkspace.editable"
+  >
     <SaPageableItems
       #default="{ item: income }"
       :page-query="incomesPageQuery"
@@ -40,17 +15,15 @@
     >
       <IncomesOverviewPanel :income="income" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
   import IncomesOverviewPanel from '@/pages/incomes/IncomesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
 
@@ -107,7 +80,4 @@
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateIncomeView = () => navigateByViewName('create-new-income');
 </script>

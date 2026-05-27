@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ pageHeader }}</h1>
-    </div>
+  <SaPage :header="pageHeader">
 
     <SaForm
       v-model="formValues"
@@ -102,11 +99,12 @@
         </div>
       </div>
     </SaForm>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormMoneyInput from '@/components/form/SaFormMoneyInput.vue';

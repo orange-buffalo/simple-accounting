@@ -1,36 +1,11 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.customersOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.customersOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="freeSearchText"
-            :placeholder="$t.customersOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          @click="navigateToCreateCustomerView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.customersOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    v-model="freeSearchText"
+    :header="$t.customersOverview.header()"
+    :filter-placeholder="$t.customersOverview.filters.input.placeholder()"
+    :create-action-label="$t.customersOverview.create()"
+    create-action-view-name="create-new-customer"
+  >
     <SaPageableItems
       :page-query="customersPageQuery"
       path="workspace.customers"
@@ -39,14 +14,12 @@
     >
       <CustomersOverviewPanel :customer="item" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
   import { $t } from '@/services/i18n';
@@ -72,9 +45,6 @@
       }
     }
   `);
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 

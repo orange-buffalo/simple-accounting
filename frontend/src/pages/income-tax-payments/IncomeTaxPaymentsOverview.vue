@@ -1,24 +1,10 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.incomeTaxPaymentsOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.incomeTaxPaymentsOverview.filters.announcement() }}</span>
-        </div>
-
-        <ElButton
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateTaxPaymentView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.incomeTaxPaymentsOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    :header="$t.incomeTaxPaymentsOverview.header()"
+    :create-action-label="$t.incomeTaxPaymentsOverview.create()"
+    create-action-view-name="create-new-income-tax-payment"
+    :create-action-disabled="!currentWorkspace.editable"
+  >
     <SaPageableItems
       :page-query="incomeTaxPaymentsPageQuery"
       path="workspace.incomeTaxPayments"
@@ -27,14 +13,13 @@
     >
       <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
   import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
-  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
@@ -66,8 +51,6 @@
     }
   `);
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateTaxPaymentView = () => navigateByViewName('create-new-income-tax-payment');
   const {
     currentWorkspace,
     currentWorkspaceId,

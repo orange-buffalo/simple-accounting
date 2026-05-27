@@ -1,36 +1,11 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.usersOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.usersOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="freeSearchText"
-            :placeholder="$t.usersOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          @click="navigateToCreateUserView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.usersOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    v-model="freeSearchText"
+    :header="$t.usersOverview.header()"
+    :filter-placeholder="$t.usersOverview.filters.input.placeholder()"
+    :create-action-label="$t.usersOverview.create()"
+    create-action-view-name="create-new-user"
+  >
     <SaPageableItems
       :page-query="usersPageQuery"
       path="users"
@@ -39,14 +14,12 @@
     >
       <UsersOverviewPanel :user="item" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
@@ -74,6 +47,4 @@
 
   const freeSearchText = ref<string | undefined>();
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateUserView = () => navigateByViewName('create-new-user');
 </script>

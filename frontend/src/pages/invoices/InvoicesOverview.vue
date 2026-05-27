@@ -1,37 +1,12 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ $t.invoicesOverview.header() }}</h1>
-
-      <div class="sa-header-options">
-        <div>
-          <span>{{ $t.invoicesOverview.filters.announcement() }}</span>
-        </div>
-
-        <div>
-          <ElInput
-            class="sa-header-options__filter-input"
-            v-model="invoicesFilter"
-            :placeholder="$t.invoicesOverview.filters.input.placeholder()"
-            clearable
-          >
-            <template #prefix>
-              <Search class="sa-header-options__filter-input__icon" />
-            </template>
-          </ElInput>
-        </div>
-
-        <ElButton
-          round
-          :disabled="!currentWorkspace.editable"
-          @click="navigateToCreateInvoiceView"
-        >
-          <SaIcon icon="plus-thin" />
-          {{ $t.invoicesOverview.create() }}
-        </ElButton>
-      </div>
-    </div>
-
+  <SaOverviewPage
+    v-model="invoicesFilter"
+    :header="$t.invoicesOverview.header()"
+    :filter-placeholder="$t.invoicesOverview.filters.input.placeholder()"
+    :create-action-label="$t.invoicesOverview.create()"
+    create-action-view-name="create-new-invoice"
+    :create-action-disabled="!currentWorkspace.editable"
+  >
     <SaPageableItems
       ref="pageableItemsRef"
       #default="{ item: invoice }"
@@ -41,16 +16,14 @@
     >
       <InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />
     </SaPageableItems>
-  </div>
+  </SaOverviewPage>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
   import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
-  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
@@ -102,12 +75,6 @@
     currentWorkspaceId,
     currentWorkspace,
   } = useCurrentWorkspace();
-
-  const { navigateByViewName } = useNavigation();
-
-  const navigateToCreateInvoiceView = () => {
-    navigateByViewName('create-new-invoice');
-  };
 
   const onInvoiceUpdate = () => {
     pageableItemsRef.value?.reload();

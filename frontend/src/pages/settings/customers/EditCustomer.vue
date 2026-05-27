@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div class="sa-page-header">
-      <h1>{{ pageHeader }}</h1>
-    </div>
+  <SaPage :header="pageHeader">
 
     <SaForm v-model="formValues" :on-submit="saveCustomer" :on-load="loadCustomer" :on-cancel="navigateToCustomersOverview">
       <SaFormInput
@@ -11,11 +8,12 @@
         :placeholder="$t.editCustomer.form.name.placeholder()"
       />
     </SaForm>
-  </div>
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNavigation from '@/services/use-navigation';
