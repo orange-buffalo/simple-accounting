@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.invoices
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -417,7 +417,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer {
                 input.search("")
                 input.shouldHaveOptions { options ->
-                    options.shouldContainExactlyInAnyOrder(
+                    options.shouldContainExactly(
                         "Bender's Big Score LLC",
                         "Hypnotoad Productions",
                         "Nibbler Enterprises"
@@ -429,7 +429,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             generalTax {
                 input.search("T")
                 input.shouldHaveOptions { options ->
-                    options.shouldContainExactlyInAnyOrder("GST", "VAT")
+                    options.shouldContainExactly("GST", "VAT")
                 }
             }
         }

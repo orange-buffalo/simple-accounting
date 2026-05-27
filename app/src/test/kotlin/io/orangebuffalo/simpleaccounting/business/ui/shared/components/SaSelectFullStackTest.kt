@@ -239,7 +239,7 @@ class SaSelectFullStackTest : SaFullStackTestBase() {
                 input.search("Category")
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should have 10 categories") {
-                        shouldContainExactlyInAnyOrder(
+                        shouldContainExactly(
                             "Category 1", "Category 10", "Category 2", "Category 3", "Category 4",
                             "Category 5", "Category 6", "Category 7", "Category 8", "Category 9"
                         )

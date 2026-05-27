@@ -28,6 +28,7 @@ private fun extractCursorPart(field: Field<*>, record: Record): String =
     when (field.type) {
         Instant::class.java -> (record.get(field) as Instant).toEpochMilli().toString()
         LocalDate::class.java -> (record.get(field) as LocalDate).toEpochDay().toString()
+        String::class.java -> record.get(field) as String
         else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
     }
 
@@ -36,6 +37,7 @@ private fun buildCursorCondition(sortFields: List<SortField<*>>, cursorParts: Li
     fun parseFieldValue(field: Field<*>, part: String): Any = when (field.type) {
         Instant::class.java -> Instant.ofEpochMilli(part.toLong())
         LocalDate::class.java -> LocalDate.ofEpochDay(part.toLong())
+        String::class.java -> part
         else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
     }
 
@@ -105,18 +107,19 @@ class PaginationQueryBuilder<R : Record>(
     suspend fun <N : Any> page(
         first: Int,
         after: String?,
-        sortFields: List<SortField<*>> = listOf(createdAtField.desc()),
+        sortFields: List<SortField<*>>? = null,
         mapRecord: (Record) -> N,
     ): ConnectionGqlDto<N> = page(first, after, sortFields, mapQueryRecord = mapRecord, postProcess = { it })
 
     suspend fun <Q : Any, N : Any> page(
         first: Int,
         after: String?,
-        sortFields: List<SortField<*>> = listOf(createdAtField.desc()),
+        sortFields: List<SortField<*>>? = null,
         mapQueryRecord: (Record) -> Q,
         postProcess: (List<Q>) -> List<N>,
     ): ConnectionGqlDto<N> = withDbContext {
-        val dataRecords = executeDataQuery(first, after, sortFields)
+        val effectiveSortFields = sortFields ?: listOf(createdAtField.desc())
+        val dataRecords = executeDataQuery(first, after, effectiveSortFields)
         val totalCount = executeCountQuery()
 
         val hasNextPage = dataRecords.size > first
@@ -130,15 +133,15 @@ class PaginationQueryBuilder<R : Record>(
 
         val edges = pageRecords.zip(processedNodes).map { (record, node) ->
             EdgeGqlDto(
-                cursor = encodeCursorParts(sortFields.map { extractCursorPart(it.`$field`(), record) }),
+                cursor = encodeCursorParts(effectiveSortFields.map { extractCursorPart(it.`$field`(), record) }),
                 node = node,
             )
         }
 
         val startCursor = pageRecords.firstOrNull()
-            ?.let { encodeCursorParts(sortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
+            ?.let { encodeCursorParts(effectiveSortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
         val endCursor = pageRecords.lastOrNull()
-            ?.let { encodeCursorParts(sortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
+            ?.let { encodeCursorParts(effectiveSortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
 
         ConnectionGqlDto(
             edges = edges,
