@@ -88,6 +88,13 @@ class EntitySelect private constructor(
         input.locator(".el-select__placeholder").shouldHaveText(placeholder)
     }
 
+    fun shouldBeLoading() {
+        withDropdownOpen {
+            locator(".el-select-dropdown__loading, .el-select-dropdown__empty")
+                .shouldHaveText("Loading...")
+        }
+    }
+
     /**
      * Verifies invoice options with rich content (title, date, amount).
      * Parses the invoice option structure and validates against expected data.

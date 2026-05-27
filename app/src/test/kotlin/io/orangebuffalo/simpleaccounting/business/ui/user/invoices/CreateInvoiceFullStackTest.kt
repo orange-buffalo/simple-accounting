@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.invoices
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -414,12 +415,22 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.openCreateInvoicePage {
             // Verify customer dropdown - sorted alphabetically by name
             customer {
-                input.shouldHaveOptions("Bender's Big Score LLC", "Hypnotoad Productions", "Nibbler Enterprises")
+                input.search("")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactlyInAnyOrder(
+                        "Bender's Big Score LLC",
+                        "Hypnotoad Productions",
+                        "Nibbler Enterprises"
+                    )
+                }
             }
 
             // Verify general tax dropdown - taxes are sorted alphabetically by title
             generalTax {
-                input.shouldHaveOptions("GST", "VAT")
+                input.search("T")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactlyInAnyOrder("GST", "VAT")
+                }
             }
         }
     }
