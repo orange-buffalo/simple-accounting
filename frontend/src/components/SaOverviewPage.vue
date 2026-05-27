@@ -19,6 +19,16 @@
         </ElInput>
       </div>
 
+      <ElButton
+        v-if="createActionVisible"
+        round
+        :disabled="createActionDisabled"
+        @click="navigateToCreateAction"
+      >
+        <SaIcon icon="plus-thin" />
+        {{ createActionLabel }}
+      </ElButton>
+
       <slot name="actions" />
     </template>
 
@@ -27,19 +37,35 @@
 </template>
 
 <script lang="ts" setup>
+  import { computed } from 'vue';
   import { Search } from '@element-plus/icons-vue';
   import SaPage from '@/components/SaPage.vue';
+  import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
+  import useNavigation from '@/services/use-navigation';
 
-  defineProps<{
+  const props = withDefaults(defineProps<{
     header: string,
     filterPlaceholder?: string,
     modelValue?: string,
-  }>();
+    createActionAvailable?: boolean,
+    createActionDisabled?: boolean,
+    createActionLabel?: string,
+    createActionViewName?: string,
+  }>(), {
+    createActionAvailable: true,
+    createActionDisabled: false,
+  });
 
   const emit = defineEmits<{
     'update:modelValue': [value: string | undefined],
   }>();
+
+  const { navigateByViewName } = useNavigation();
+  const createActionVisible = computed(() => props.createActionAvailable
+    && props.createActionLabel != null
+    && props.createActionViewName != null);
+  const navigateToCreateAction = () => navigateByViewName(props.createActionViewName!);
 </script>
 
 <style lang="scss" scoped>

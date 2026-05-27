@@ -1,15 +1,9 @@
 <template>
-  <SaOverviewPage :header="$t.workspacesOverview.header()">
-    <template #actions>
-      <ElButton
-        round
-        @click="navigateToCreateWorkspace"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.workspacesOverview.create() }}
-      </ElButton>
-    </template>
-
+  <SaOverviewPage
+    :header="$t.workspacesOverview.header()"
+    :create-action-label="$t.workspacesOverview.create()"
+    create-action-view-name="create-new-workspace"
+  >
     <SaPageableItems
       ref="pageableItems"
       :page-query="workspacesPageQuery"
@@ -23,8 +17,6 @@
 
 <script lang="ts" setup>
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
   import { graphql } from '@/services/api/gql';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
@@ -49,6 +41,4 @@
     }
   `);
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateWorkspace = () => navigateByViewName('create-new-workspace');
 </script>

@@ -3,17 +3,9 @@
     v-model="freeSearchText"
     :header="$t.generalTaxesOverview.header()"
     :filter-placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
+    :create-action-label="$t.generalTaxesOverview.create()"
+    create-action-view-name="create-new-general-tax"
   >
-    <template #actions>
-      <ElButton
-        round
-        @click="navigateToCreateTaxView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.generalTaxesOverview.create() }}
-      </ElButton>
-    </template>
-
     <SaPageableItems
       :page-query="generalTaxesPageQuery"
       path="workspace.generalTaxes"
@@ -29,8 +21,6 @@
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
@@ -57,9 +47,6 @@
       }
     }
   `);
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 

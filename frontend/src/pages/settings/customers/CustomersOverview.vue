@@ -3,17 +3,9 @@
     v-model="freeSearchText"
     :header="$t.customersOverview.header()"
     :filter-placeholder="$t.customersOverview.filters.input.placeholder()"
+    :create-action-label="$t.customersOverview.create()"
+    create-action-view-name="create-new-customer"
   >
-    <template #actions>
-      <ElButton
-        round
-        @click="navigateToCreateCustomerView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.customersOverview.create() }}
-      </ElButton>
-    </template>
-
     <SaPageableItems
       :page-query="customersPageQuery"
       path="workspace.customers"
@@ -28,8 +20,6 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
   import { $t } from '@/services/i18n';
@@ -55,9 +45,6 @@
       }
     }
   `);
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 

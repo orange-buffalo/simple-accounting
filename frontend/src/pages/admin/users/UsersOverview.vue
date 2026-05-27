@@ -3,17 +3,9 @@
     v-model="freeSearchText"
     :header="$t.usersOverview.header()"
     :filter-placeholder="$t.usersOverview.filters.input.placeholder()"
+    :create-action-label="$t.usersOverview.create()"
+    create-action-view-name="create-new-user"
   >
-    <template #actions>
-      <ElButton
-        round
-        @click="navigateToCreateUserView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.usersOverview.create() }}
-      </ElButton>
-    </template>
-
     <SaPageableItems
       :page-query="usersPageQuery"
       path="users"
@@ -28,8 +20,6 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
@@ -57,6 +47,4 @@
 
   const freeSearchText = ref<string | undefined>();
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateUserView = () => navigateByViewName('create-new-user');
 </script>

@@ -3,18 +3,10 @@
     v-model="freeSearchText"
     :header="$t.incomesOverview.header()"
     :filter-placeholder="$t.incomesOverview.filters.input.placeholder()"
+    :create-action-label="$t.incomesOverview.create()"
+    create-action-view-name="create-new-income"
+    :create-action-disabled="!currentWorkspace.editable"
   >
-    <template #actions>
-      <ElButton
-        round
-        :disabled="!currentWorkspace.editable"
-        @click="navigateToCreateIncomeView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.incomesOverview.create() }}
-      </ElButton>
-    </template>
-
     <SaPageableItems
       #default="{ item: income }"
       :page-query="incomesPageQuery"
@@ -30,10 +22,8 @@
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
   import IncomesOverviewPanel from '@/pages/incomes/IncomesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
 
@@ -90,7 +80,4 @@
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateIncomeView = () => navigateByViewName('create-new-income');
 </script>

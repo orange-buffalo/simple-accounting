@@ -3,18 +3,10 @@
     v-model="freeSearchText"
     :header="$t.expensesOverview.header()"
     :filter-placeholder="$t.expensesOverview.filters.input.placeholder()"
+    :create-action-label="$t.expensesOverview.create()"
+    create-action-view-name="create-new-expense"
+    :create-action-disabled="!currentWorkspace.editable"
   >
-    <template #actions>
-      <ElButton
-        round
-        :disabled="!currentWorkspace.editable"
-        @click="navigateToCreateExpenseView"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ $t.expensesOverview.create() }}
-      </ElButton>
-    </template>
-
     <SaPageableItems
       #default="{ item: expense }"
       :page-query="expensesPageQuery"
@@ -29,11 +21,9 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
-  import SaIcon from '@/components/SaIcon.vue';
   import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n/i18n-services';
   import { graphql } from '@/services/api/gql';
 
@@ -87,7 +77,4 @@
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
   const freeSearchText = ref<string | undefined>();
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');
 </script>
