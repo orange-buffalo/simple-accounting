@@ -6,6 +6,7 @@ import { useLazyQuery } from '@/services/api/use-gql-api.ts';
 
 interface DocumentStorageStatusState {
   readonly loading: boolean,
+  readonly loaded: boolean,
   readonly active: boolean,
 }
 
@@ -20,7 +21,7 @@ interface DocumentsStorageStatusProvider {
   readonly downloadStoragesStatus: ComputedRef<DownloadDocumentStoragesState>,
   ensureUploadStorageStatusLoaded: () => Promise<void>,
   ensureDownloadStoragesLoaded: () => Promise<void>,
-  reset: () => void,
+  resetOnNextUse: () => void,
 }
 
 const DocumentsStorageStatusProviderKey = Symbol('DocumentsStorageStatusProvider') as
@@ -54,6 +55,7 @@ function createDocumentsStorageStatusProvider(): DocumentsStorageStatusProvider 
   `), 'getDownloadDocumentStorages');
 
   const generation = ref(0);
+  let resetPending = false;
 
   const uploadStorageLoading = ref(false);
   const uploadStorageLoaded = ref(false);
@@ -67,6 +69,7 @@ function createDocumentsStorageStatusProvider(): DocumentsStorageStatusProvider 
 
   const uploadStorageStatus = computed<DocumentStorageStatusState>(() => ({
     loading: uploadStorageLoading.value,
+    loaded: uploadStorageLoaded.value,
     active: uploadStorageActive.value,
   }));
 
@@ -76,7 +79,30 @@ function createDocumentsStorageStatusProvider(): DocumentsStorageStatusProvider 
     ids: downloadStorageIds.value,
   }));
 
+  const reset = () => {
+    generation.value += 1;
+
+    uploadStorageLoading.value = false;
+    uploadStorageLoaded.value = false;
+    uploadStorageActive.value = false;
+    uploadStorageLoadingPromise = undefined;
+
+    downloadStoragesLoading.value = false;
+    downloadStoragesLoaded.value = false;
+    downloadStorageIds.value = new Set();
+    downloadStoragesLoadingPromise = undefined;
+  };
+
+  const resetIfPending = () => {
+    if (resetPending) {
+      resetPending = false;
+      reset();
+    }
+  };
+
   const ensureUploadStorageStatusLoaded = async () => {
+    resetIfPending();
+
     if (uploadStorageLoaded.value) {
       return;
     }
@@ -110,6 +136,8 @@ function createDocumentsStorageStatusProvider(): DocumentsStorageStatusProvider 
   };
 
   const ensureDownloadStoragesLoaded = async () => {
+    resetIfPending();
+
     if (downloadStoragesLoaded.value) {
       return;
     }
@@ -142,26 +170,14 @@ function createDocumentsStorageStatusProvider(): DocumentsStorageStatusProvider 
     await downloadStoragesLoadingPromise;
   };
 
-  const reset = () => {
-    generation.value += 1;
-
-    uploadStorageLoading.value = false;
-    uploadStorageLoaded.value = false;
-    uploadStorageActive.value = false;
-    uploadStorageLoadingPromise = undefined;
-
-    downloadStoragesLoading.value = false;
-    downloadStoragesLoaded.value = false;
-    downloadStorageIds.value = new Set();
-    downloadStoragesLoadingPromise = undefined;
-  };
-
   return {
     uploadStorageStatus,
     downloadStoragesStatus,
     ensureUploadStorageStatusLoaded,
     ensureDownloadStoragesLoaded,
-    reset,
+    resetOnNextUse: () => {
+      resetPending = true;
+    },
   };
 }
 
@@ -178,7 +194,7 @@ export function provideDocumentsStorageStatus() {
 }
 
 export function resetDocumentsStorageStatus() {
-  activeProvider?.reset();
+  activeProvider?.resetOnNextUse();
 }
 
 export function useDocumentsUploadStorageStatus() {
