@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemGeneralTaxInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemMarkdownByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemMoneyInputByLabel
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemEntitySelectByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
@@ -20,7 +20,7 @@ abstract class EditInvoicePageBase(page: Page) : SaPageBase(page) {
     val additionalNotesHeader = components.sectionHeader("Additional notes")
     val attachmentsHeader = components.sectionHeader("Attachments")
 
-    val customer = components.formItemSelectByLabel("Customer")
+    val customer = components.formItemEntitySelectByLabel("Customer")
     val title = components.formItemTextInputByLabel("Description / Title")
     val currency = components.formItemCurrencyInputByLabel("Currency")
     val amount = components.formItemMoneyInputByLabel("Amount")

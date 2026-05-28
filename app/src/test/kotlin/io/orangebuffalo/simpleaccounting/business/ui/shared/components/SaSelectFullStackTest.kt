@@ -173,16 +173,23 @@ class SaSelectFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(preconditions.fry)
 
+        page.openCreateExpensePage()
+
         // Block the categories API and verify loading state
         page.withBlockedGqlApiResponse(
-            "getCategoriesForInput",
+            "getCategoriesForSelect",
             initiator = {
-                page.navigate("/expenses/create")
+                page.shouldBeCreateExpensePage {
+                    category {
+                        input.search("Delivery")
+                        input.shouldBeVisible()
+                    }
+                }
             },
             blockedRequestSpec = {
                 page.shouldBeCreateExpensePage {
                     category {
-                        shouldBeLoading()
+                        input.shouldBeLoading()
                     }
                     reportRendering("select.loading")
                 }
@@ -229,6 +236,7 @@ class SaSelectFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             category {
+                input.search("Category")
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should have 10 categories") {
                         shouldContainExactly(

@@ -3,10 +3,13 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.should
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
 /**
  * Component wrapper for SaEntitySelect.vue - a remote select component that
@@ -60,6 +63,36 @@ class EntitySelect private constructor(
     fun shouldHaveSelectedValue(value: String) {
         input.locator(".el-select__selected-item span:not([aria-hidden])")
             .shouldHaveText(value)
+    }
+
+    fun shouldHaveOptions(vararg options: String) {
+        shouldHaveOptions { actualOptions ->
+            actualOptions.shouldWithClue("Expected options: $options") {
+                shouldContainExactly(*options)
+            }
+        }
+    }
+
+    fun shouldHaveOptions(spec: (actualOptions: List<String>) -> Unit) {
+        withDropdownOpen {
+            shouldSatisfy {
+                locator(".el-select-dropdown__item:not(.is-disabled)")
+                    .allInnerTexts()
+                    .map { it.trim() }
+                    .should(spec)
+            }
+        }
+    }
+
+    fun shouldHavePlaceholder(placeholder: String) {
+        input.locator(".el-select__placeholder").shouldHaveText(placeholder)
+    }
+
+    fun shouldBeLoading() {
+        withDropdownOpen {
+            locator(".el-select-dropdown__loading, .el-select-dropdown__empty")
+                .shouldHaveText("Loading...")
+        }
     }
 
     /**

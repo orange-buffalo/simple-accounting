@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.incomes
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -564,11 +565,17 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
             category {
-                input.shouldHaveOptions("Category A", "Category B", "Category C")
+                input.search("Category")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("Category A", "Category B", "Category C")
+                }
             }
 
             generalTax {
-                input.shouldHaveOptions("GST", "VAT")
+                input.search("T")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("GST", "VAT")
+                }
             }
         }
     }

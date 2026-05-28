@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.expenses
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -552,12 +553,18 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.openCreateExpensePage {
             // Verify category dropdown has all categories sorted alphabetically
             category {
-                input.shouldHaveOptions("Category A", "Category B", "Category C")
+                input.search("Category")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("Category A", "Category B", "Category C")
+                }
             }
 
             // Verify general tax dropdown has all taxes
             generalTax {
-                input.shouldHaveOptions("GST", "VAT")
+                input.search("T")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("GST", "VAT")
+                }
             }
         }
     }

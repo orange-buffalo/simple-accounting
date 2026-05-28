@@ -50,7 +50,7 @@ class FormItem<I : UiComponent<*>> private constructor(
             formItemByLabel(label) { MoneyInput.byContainer(it) }
 
         fun ComponentsAccessors.formItemCategoryInputByLabel(label: String) =
-            formItemByLabel(label) { Select.byContainer(it) }
+            formItemByLabel(label) { EntitySelect.byContainer(it) }
 
         fun ComponentsAccessors.formItemCurrencyInputByLabel(label: String) =
             formItemByLabel(label) { CurrencyInput.byContainer(it) }
@@ -62,7 +62,7 @@ class FormItem<I : UiComponent<*>> private constructor(
             formItemByLabel(label) { InputNumber.byContainer(it) }
 
         fun ComponentsAccessors.formItemGeneralTaxInputByLabel(label: String) =
-            formItemByLabel(label) { Select.byContainer(it) }
+            formItemByLabel(label) { EntitySelect.byContainer(it) }
 
         fun ComponentsAccessors.formItemMarkdownByLabel(label: String) =
             formItemByLabel(label) { Markdown.byContainer(it) }

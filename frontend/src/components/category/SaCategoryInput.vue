@@ -1,26 +1,21 @@
 <template>
-  <SaInputLoader :loading="loading">
-    <ElSelect
-      :model-value="modelValue"
-      @update:modelValue="emit('update:modelValue', $event || undefined)"
-      :placeholder="placeholder"
-      :clearable="clearable"
-    >
-      <ElOption
-        v-for="category in categories"
-        :key="category.id"
-        :label="category.name"
-        :value="category.id"
-      />
-    </ElSelect>
-  </SaInputLoader>
+  <SaEntitySelect
+    :model-value="modelValue"
+    :placeholder="placeholder"
+    :clearable="clearable"
+    :options-provider="optionsProvider"
+    :option-provider="optionProvider"
+    :label-provider="categoryLabelProvider"
+    @update:model-value="emit('update:modelValue', $event)"
+  />
 </template>
 
 <script lang="ts" setup>
-  import SaInputLoader from '@/components/SaInputLoader.vue';
-  import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
+  import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
   import { graphql } from '@/services/api/gql';
+  import type { ApiConnectionRequest, HasOptionalId } from '@/services/api';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   defineProps<{
     modelValue?: string,
@@ -28,28 +23,80 @@
     clearable?: boolean,
   }>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
+  const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
+
+  type CategoryItem = HasOptionalId & {
+    name: string,
+  };
+
+  const category = (entity: HasOptionalId) => entity as CategoryItem;
+  const categoryLabelProvider = (entity: HasOptionalId) => category(entity).name;
+
+  const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoriesQuery = useLazyQuery(graphql(`
-    query getCategoriesForInput($workspaceId: String!) {
+    query getCategoriesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {
       workspace(id: $workspaceId) {
-        categories(first: 500) {
+        categories(first: $first, freeSearchText: $freeSearchText) {
           edges {
             node {
               id
               name
             }
           }
+          totalCount
         }
       }
     }
   `), 'workspace');
 
-  const {
-    value: categories,
-    loading,
-  } = useValueLoadedByCurrentWorkspace(async (workspaceId) => {
-    const workspace = await getCategoriesQuery({ workspaceId });
-    return workspace?.categories.edges.map((edge) => edge.node).sort((a, b) => a.name.localeCompare(b.name)) ?? [];
-  });
+  const getCategoryQuery = useLazyQuery(graphql(`
+    query getCategoryForSelect($workspaceId: String!, $categoryId: String!) {
+      workspace(id: $workspaceId) {
+        category(id: $categoryId) {
+          id
+          name
+        }
+      }
+    }
+  `), 'workspace');
+
+  const optionsProvider = async (
+    connectionRequest: ApiConnectionRequest,
+    query: string | undefined,
+    requestInit: RequestInit,
+  ) => {
+    const workspace = await getCategoriesQuery({
+      workspaceId: currentWorkspaceId,
+      first: connectionRequest.first ?? 10,
+      freeSearchText: query ?? null,
+    }, {
+      requestConfig: requestInit,
+    });
+    const edges = workspace?.categories.edges ?? [];
+    return {
+      edges: edges.map(({ node }) => ({
+        node: { ...node } as CategoryItem,
+      })),
+      totalCount: workspace?.categories.totalCount ?? 0,
+    };
+  };
+
+  const optionProvider = async (
+    id: string,
+    requestInit: RequestInit,
+  ) => {
+    const workspace = await getCategoryQuery({
+      workspaceId: currentWorkspaceId,
+      categoryId: id,
+    }, {
+      requestConfig: requestInit,
+    });
+    const foundCategory = workspace?.category;
+    if (!foundCategory) throw new Error(`Category ${id} not found`);
+    return {
+      id: foundCategory.id,
+      name: foundCategory.name,
+    } as CategoryItem;
+  };
 </script>

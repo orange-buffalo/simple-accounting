@@ -85,7 +85,11 @@ data class WorkspaceGqlDto(
                     )
                 }
             }
-            .page(first, after) { record ->
+            .page(
+                first = first,
+                after = after,
+                sortFields = if (freeSearchText != null) listOf(categoryTable.name.asc(), categoryTable.id.asc()) else null,
+            ) { record ->
                 CategoryGqlDto(
                     id = record[categoryTable.id]!!,
                     name = record[categoryTable.name]!!,
@@ -232,7 +236,11 @@ data class WorkspaceGqlDto(
                     it.addPredicate(customer.name.containsIgnoreCase(freeSearchText))
                 }
             }
-            .page(first, after) { record ->
+            .page(
+                first = first,
+                after = after,
+                sortFields = if (freeSearchText != null) listOf(customer.name.asc(), customer.id.asc()) else null,
+            ) { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!,
                     name = record[customer.name]!!,
@@ -341,7 +349,11 @@ data class WorkspaceGqlDto(
                     it.addPredicate(generalTax.title.containsIgnoreCase(freeSearchText))
                 }
             }
-            .page(first, after) { record ->
+            .page(
+                first = first,
+                after = after,
+                sortFields = if (freeSearchText != null) listOf(generalTax.title.asc(), generalTax.id.asc()) else null,
+            ) { record ->
                 GeneralTaxGqlDto(
                     id = record[generalTax.id]!!,
                     title = record[generalTax.title]!!,
