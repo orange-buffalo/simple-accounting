@@ -32,7 +32,7 @@
     "marked": "18.0.4",
     "qs": "6.15.2",
     "vue": "3.5.35",
-    "vue-router": "5.0.7"
+    "vue-router": "5.1.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
