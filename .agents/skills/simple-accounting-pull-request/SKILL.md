@@ -15,7 +15,7 @@ This workflow is intentionally local and stateful. It may create commits, rebase
 
 ## Context Requirement
 
-Before deciding commit metadata, PR metadata, validation statements, or remediation actions, account for the full available conversation and session context. Do not rely only on the user's last turn.
+Before deciding commit metadata, PR metadata, or remediation actions, account for the full available conversation and session context. Do not rely only on the user's last turn.
 
 The full context includes:
 
@@ -107,7 +107,7 @@ PR description rules:
 
 - Summarize the user-visible or maintainer-visible change.
 - Do not include validation, testing, linting, compilation, CI, or build statements in the PR description.
-- If the template has a validation or testing section, keep it empty or mark it as `N/A` without adding details.
+- If the template has a validation or testing section, leave it empty. Do not write `N/A`, commands, prior results, skipped validation, CI status, or any other validation-related text in the PR description.
 - Keep the description factual and concise.
 
 ### 3. Commit Pending Changes
@@ -296,7 +296,6 @@ Report the result with these fields:
 - Auto-merge: enabled with squash, already merged, or not enabled with the reason.
 - CI: passed, still pending, or failed with the unresolved reason.
 - Base: `origin/master` commit used for the rebase.
-- Validation: state that pre-PR validation was not run by this workflow, mention prior validation only if known from full session context, and mention any local validation run while fixing CI failures.
 
 Keep the report short and factual.
 
