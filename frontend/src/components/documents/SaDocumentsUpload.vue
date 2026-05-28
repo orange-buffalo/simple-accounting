@@ -246,7 +246,9 @@
       storageActive: true,
     };
 
-    if (documentsStorageStatus.value.loading || checkingDownloadStorages.value) {
+    if (!documentsStorageStatus.value.loaded
+      || documentsStorageStatus.value.loading
+      || checkingDownloadStorages.value) {
       state.initialLoading = true;
     } else if (!uploadStorageActive.value) {
       state.storageActive = false;
