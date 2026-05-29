@@ -1,35 +1,46 @@
 <template>
-  <SaPage :header="header">
-    <template #header-options>
-      <div>
-        <span>{{ $t.overviewPage.filters.announcement() }}</span>
-      </div>
+  <SaPage>
+    <template #header>
+      <div class="sa-overview-page__header-row">
+        <h1>{{ header }}</h1>
 
-      <div v-if="filterPlaceholder">
-        <ElInput
-          class="sa-overview-page__filter-input"
-          :model-value="modelValue"
-          :placeholder="filterPlaceholder"
-          clearable
-          @update:model-value="emit('update:modelValue', $event)"
+        <ElButton
+          v-if="createActionVisible"
+          class="sa-overview-page__create-action"
+          link
+          :disabled="createActionDisabled"
+          @click="navigateToCreateAction"
         >
-          <template #prefix>
-            <Search class="sa-overview-page__filter-input__icon" />
-          </template>
-        </ElInput>
+          <SaIcon icon="plus-thin" />
+          {{ createActionLabel }}
+        </ElButton>
       </div>
+    </template>
 
-      <ElButton
-        v-if="createActionVisible"
-        round
-        :disabled="createActionDisabled"
-        @click="navigateToCreateAction"
-      >
-        <SaIcon icon="plus-thin" />
-        {{ createActionLabel }}
-      </ElButton>
+    <template #header-options>
+      <div class="sa-overview-page__header-options">
+        <div>
+          <span>{{ $t.overviewPage.filters.announcement() }}</span>
+        </div>
 
-      <slot name="actions" />
+        <div v-if="filterPlaceholder">
+          <ElInput
+            class="sa-overview-page__filter-input"
+            :model-value="modelValue"
+            :placeholder="filterPlaceholder"
+            clearable
+            @update:model-value="emit('update:modelValue', $event)"
+          >
+            <template #prefix>
+              <Search class="sa-overview-page__filter-input__icon" />
+            </template>
+          </ElInput>
+        </div>
+
+        <div class="sa-overview-page__actions">
+          <slot name="actions" />
+        </div>
+      </div>
     </template>
 
     <slot />
@@ -72,6 +83,36 @@
   @use "@/styles/vars.scss" as *;
 
   .sa-overview-page {
+    &__header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+
+      h1 {
+        margin: 0;
+        font-size: 160%;
+      }
+    }
+
+    &__create-action {
+      :deep(span) {
+        gap: 4px;
+      }
+    }
+
+    &__header-options {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: 100%;
+    }
+
+    &__actions {
+      justify-self: end;
+    }
+
     &__filter-input {
       :deep(.el-input__wrapper) {
         background-color: transparent;
