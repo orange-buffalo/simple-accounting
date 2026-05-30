@@ -422,10 +422,10 @@ val preconditions = preconditions {
 Full stack tests verify the complete integration between frontend and backend components using Playwright for browser
 automation. These tests should follow the Page Object pattern for maintainable and reusable test code.
 
-#### Playwright Clock and Time
+#### Playwright Time
 
-Full stack tests install Playwright's mock clock and set the browser time to `1999-03-28T23:01:02.042Z` (`MOCK_TIME`).
-The clock is not paused; timers continue to run from that fixed starting point.
+Full stack tests set the browser time to `1999-03-28T23:01:02.042Z` (`MOCK_TIME`) as the starting point.
+Timers continue to run normally from that fixed starting point. Do not advance time manually in tests.
 
 #### Full Stack Test Debugging
 
