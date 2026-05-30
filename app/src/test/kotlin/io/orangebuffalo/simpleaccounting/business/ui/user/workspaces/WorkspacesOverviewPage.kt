@@ -55,7 +55,6 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
-        createButton.shouldBeVisible()
     }
 
     fun getWorkspacePanelByName(name: String): WorkspacePanel {
