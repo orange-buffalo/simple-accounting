@@ -37,6 +37,7 @@ class SaOverviewFilters private constructor(
     fun addFilter(label: String, value: String): SaOverviewFilters {
         openPopover()
         Select.byContainer(filterControl(label)).selectOption(value, validate = false)
+        closePopover()
         return this
     }
 
@@ -62,6 +63,7 @@ class SaOverviewFilters private constructor(
     fun reportPopoverRendering(name: String): SaOverviewFilters {
         openPopover()
         popover.reportRendering(name)
+        closePopover()
         return this
     }
 
@@ -70,7 +72,7 @@ class SaOverviewFilters private constructor(
         return this
     }
 
-    fun closePopover(): SaOverviewFilters {
+    private fun closePopover(): SaOverviewFilters {
         if (popover.isVisible) {
             filterButton.click()
         }

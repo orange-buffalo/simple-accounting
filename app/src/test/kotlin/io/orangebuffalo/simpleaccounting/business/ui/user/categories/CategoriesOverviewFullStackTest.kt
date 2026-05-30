@@ -68,67 +68,6 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should filter categories by income type`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry().also {
-                    val workspace = workspace(owner = it)
-                    category(workspace = workspace, name = "Slurm supplies", income = true, expense = false)
-                    category(workspace = workspace, name = "Robot maintenance", income = false, expense = true)
-                    category(workspace = workspace, name = "Delivery", income = true, expense = true)
-                }
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.openCategoriesOverviewPage {
-            filters.addFilter("Type", "Income")
-            pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
-        }
-    }
-
-    @Test
-    fun `should filter categories by expense type`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry().also {
-                    val workspace = workspace(owner = it)
-                    category(workspace = workspace, name = "Slurm supplies", income = true, expense = false)
-                    category(workspace = workspace, name = "Robot maintenance", income = false, expense = true)
-                    category(workspace = workspace, name = "Delivery", income = true, expense = true)
-                }
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.openCategoriesOverviewPage {
-            filters.addFilter("Type", "Expense")
-            pageItems.shouldHaveTitles("Robot maintenance", "Delivery")
-        }
-    }
-
-    @Test
-    fun `should filter categories by both types`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry().also {
-                    val workspace = workspace(owner = it)
-                    category(workspace = workspace, name = "Slurm supplies", income = true, expense = false)
-                    category(workspace = workspace, name = "Robot maintenance", income = false, expense = true)
-                    category(workspace = workspace, name = "Delivery", income = true, expense = true)
-                }
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.openCategoriesOverviewPage {
-            filters.addFilter("Type", "Income")
-            filters.addFilter("Type", "Expense")
-            pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
-        }
-    }
-
-    @Test
     fun `should filter categories by type and free search`(page: Page) {
         val testData = preconditions {
             object {
@@ -144,7 +83,19 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openCategoriesOverviewPage {
             filters.addFilter("Type", "Income")
-            filters.closePopover()
+            pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
+
+            filters.clearAll()
+            filters.addFilter("Type", "Expense")
+            pageItems.shouldHaveTitles("Robot maintenance", "Delivery")
+
+            filters.clearAll()
+            filters.addFilter("Type", "Income")
+            filters.addFilter("Type", "Expense")
+            pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
+
+            filters.clearAll()
+            filters.addFilter("Type", "Income")
             filters.setFreeSearchText("Delivery")
             pageItems.shouldHaveTitles("Delivery")
         }

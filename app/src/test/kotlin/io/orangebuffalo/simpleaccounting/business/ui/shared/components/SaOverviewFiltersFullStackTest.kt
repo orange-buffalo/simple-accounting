@@ -29,13 +29,11 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
             filters.addFilter("Type", "Income")
             filters.shouldHaveActiveValues("Type: Income")
             pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
-            filters.closePopover()
             reportRendering("overview-filters.active-value")
 
             filters.addFilter("Type", "Expense")
             filters.shouldHaveActiveValues("Type: Income", "Type: Expense")
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
-            filters.closePopover()
 
             filters.removeActiveValue("Type: Income")
             filters.shouldHaveActiveValues("Type: Expense")
