@@ -1,15 +1,15 @@
 <template>
   <SaOverviewPage
-    v-model="freeSearchText"
+    v-model="overviewFilters"
     :header="$t.usersOverview.header()"
-    :filter-placeholder="$t.usersOverview.filters.input.placeholder()"
+    :filters="userFilters"
     :create-action-label="$t.usersOverview.create()"
     create-action-view-name="create-new-user"
   >
     <SaPageableItems
       :page-query="usersPageQuery"
       path="users"
-      :page-query-arguments="{ freeSearchText: freeSearchText || null }"
+      :page-query-arguments="{ freeSearchText: overviewFilters.freeSearchText }"
       #default="{ item }"
     >
       <UsersOverviewPanel :user="item" />
@@ -23,7 +23,15 @@
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+  } from '@/components/overview-page/overview-page-filters';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+
+  type UsersOverviewFilters = {
+    freeSearchText: string | null,
+  };
 
   const usersPageQuery = graphql(`
     query usersPage($first: Int!, $after: String, $freeSearchText: String) {
@@ -45,6 +53,14 @@
     }
   `);
 
-  const freeSearchText = ref<string | undefined>();
+  const overviewFilters = ref(createOverviewFilters<UsersOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const userFilters: SaOverviewFilterConfigs<UsersOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.usersOverview.filters.freeSearchText.label(),
+    },
+  };
 
 </script>

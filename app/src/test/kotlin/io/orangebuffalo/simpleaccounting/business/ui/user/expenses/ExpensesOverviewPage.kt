@@ -3,14 +3,14 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.expenses
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewFilters.Companion.overviewFilters
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 
 class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Expenses")
     val pageItems = components.overviewItems()
-    val filterInput = components.textInputByPlaceholder("Search expenses")
+    val filters = components.overviewFilters()
     val createButton = components.buttonByText("Add new")
 
     private fun shouldBeOpen() {

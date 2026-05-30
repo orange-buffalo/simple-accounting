@@ -26,7 +26,11 @@ export default {
 
   overviewPage: {
     filters: {
-      announcement: () => 'Filters coming soon',
+      button: () => 'Add filters',
+      header: (activeFiltersCount: number) => format('Filters ({0})', [activeFiltersCount]),
+      clearAll: () => 'Clear All',
+      apply: () => 'Apply',
+      selectPlaceholder: () => 'Select',
     },
   },
 
@@ -295,8 +299,8 @@ export default {
   expensesOverview: {
     header: () => 'Expenses',
     filters: {
-      input: {
-        placeholder: () => 'Search expenses',
+      freeSearchText: {
+        label: () => 'Title, category, notes',
       },
     },
     create: () => 'Add new',
@@ -645,8 +649,8 @@ export default {
   incomesOverview: {
     header: () => 'Incomes',
     filters: {
-      input: {
-        placeholder: () => 'Search incomes',
+      freeSearchText: {
+        label: () => 'Title, category, invoice, notes',
       },
     },
     create: () => 'Add new',
@@ -736,8 +740,8 @@ export default {
   invoicesOverview: {
     header: () => 'Invoices',
     filters: {
-      input: {
-        placeholder: () => 'Search invoices',
+      freeSearchText: {
+        label: () => 'Title, customer, notes',
       },
     },
     create: () => 'Add new',
@@ -961,8 +965,8 @@ export default {
   usersOverview: {
     header: () => 'Users',
     filters: {
-      input: {
-        placeholder: () => 'Search users',
+      freeSearchText: {
+        label: () => 'Username',
       },
     },
     create: () => 'Create user',
@@ -1141,6 +1145,14 @@ export default {
 
   categoriesOverview: {
     header: () => 'Categories',
+    filters: {
+      freeSearchText: {
+        label: () => 'Name',
+      },
+      type: {
+        label: () => 'Type',
+      },
+    },
     create: () => 'Add new',
     edit: () => 'Edit',
     type: {
@@ -1186,8 +1198,8 @@ export default {
   generalTaxesOverview: {
     header: () => 'General Taxes',
     filters: {
-      input: {
-        placeholder: () => 'Search general taxes',
+      freeSearchText: {
+        label: () => 'Title, description',
       },
     },
     create: () => 'Add new',
@@ -1218,8 +1230,8 @@ export default {
   customersOverview: {
     header: () => 'Customers',
     filters: {
-      input: {
-        placeholder: () => 'Search customers',
+      freeSearchText: {
+        label: () => 'Name',
       },
     },
     create: () => 'Add new',

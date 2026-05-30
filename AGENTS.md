@@ -676,6 +676,10 @@ page.withBlockedApiResponse(
 )
 ```
 
+##### Rendering Report Validation
+
+When changing shared layout, visual structure, spacing, or component styles for UI covered by full stack tests, always run the related full stack test that calls `reportRendering()` before considering the change complete. After the test finishes, inspect the generated PNG files under `app/build/rendering-report/` and confirm the affected UI renders as expected without regressions. If a regression is found, fix it and re-run the same full stack test, then inspect the regenerated rendering report again.
+
 ##### Database Validation
 
 **CRITICAL**: Always verify UI completion before asserting database state to avoid flaky tests.

@@ -52,7 +52,7 @@ class SaPageableItemsFullStackTest : SaFullStackTestBase() {
             }
             pageRequests = 0
 
-            filterInput { typeText(searchQuery) }
+            filters.addTextFilter("Title, category, notes", searchQuery)
             pageItems {
                 shouldHaveTitles(searchQuery)
             }

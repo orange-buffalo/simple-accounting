@@ -78,6 +78,7 @@
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
   @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .overview-item {
     &__panel {
@@ -94,7 +95,7 @@
 
       &_with-details {
         transform: scale(1.01);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04)
+        @include overlay-shadow;
       }
     }
 
