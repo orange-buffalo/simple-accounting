@@ -31,9 +31,10 @@
   import { graphql } from '@/services/api/gql';
   import { $t } from '@/services/i18n';
   import { CategoryType } from '@/services/api/gql/schema-types';
-  import type {
-    SaOverviewFilterConfigs,
-    SaOverviewFilters,
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
   } from '@/components/overview-page/overview-page-filters';
 
   type CategoriesOverviewFilters = SaOverviewFilters & {
@@ -70,10 +71,9 @@
   `);
 
   const { currentWorkspaceId } = useCurrentWorkspace();
-  const overviewFilters = ref<CategoriesOverviewFilters>({
-    freeSearchText: null,
+  const overviewFilters = ref(createOverviewFilters<CategoriesOverviewFilters>({
     typeIn: null,
-  });
+  }));
   const categoryFilters: SaOverviewFilterConfigs<CategoriesOverviewFilters> = {
     typeIn: {
       type: 'multi-select',

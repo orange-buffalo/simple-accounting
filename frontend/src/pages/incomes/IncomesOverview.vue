@@ -26,6 +26,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
+  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
 
   const incomesPageQuery = graphql(`
     query incomesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -79,5 +80,5 @@
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const overviewFilters = ref({ freeSearchText: null as string | null });
+  const overviewFilters = ref(createOverviewFilters());
 </script>

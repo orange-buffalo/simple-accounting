@@ -25,6 +25,7 @@
   import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
   import { $t } from '@/services/i18n';
+  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
 
   const generalTaxesPageQuery = graphql(`
     query generalTaxesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -50,5 +51,5 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const overviewFilters = ref({ freeSearchText: null as string | null });
+  const overviewFilters = ref(createOverviewFilters());
 </script>

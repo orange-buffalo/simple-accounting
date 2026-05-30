@@ -24,3 +24,12 @@ export type SaOverviewFilterConfig<TValue> = SaOverviewMultiSelectFilterConfig<T
 export type SaOverviewFilterConfigs<TFilters extends SaOverviewFilters> = {
   [TKey in Exclude<keyof TFilters, 'freeSearchText'>]-?: SaOverviewFilterConfig<TFilters[TKey]>
 };
+
+export function createOverviewFilters<TFilters extends SaOverviewFilters>(
+  filters?: Omit<TFilters, 'freeSearchText'>,
+): TFilters {
+  return {
+    freeSearchText: null,
+    ...filters,
+  } as TFilters;
+}

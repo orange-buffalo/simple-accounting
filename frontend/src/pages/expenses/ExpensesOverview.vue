@@ -26,6 +26,7 @@
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import { $t } from '@/services/i18n/i18n-services';
   import { graphql } from '@/services/api/gql';
+  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
 
   const expensesPageQuery = graphql(`
     query expensesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -76,5 +77,5 @@
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const overviewFilters = ref({ freeSearchText: null as string | null });
+  const overviewFilters = ref(createOverviewFilters());
 </script>

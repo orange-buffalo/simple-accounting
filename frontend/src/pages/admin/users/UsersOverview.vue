@@ -23,6 +23,7 @@
   import { $t } from '@/services/i18n';
   import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
+  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
   const usersPageQuery = graphql(`
@@ -45,6 +46,6 @@
     }
   `);
 
-  const overviewFilters = ref({ freeSearchText: null as string | null });
+  const overviewFilters = ref(createOverviewFilters());
 
 </script>

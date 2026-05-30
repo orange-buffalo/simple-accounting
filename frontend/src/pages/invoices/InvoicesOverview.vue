@@ -27,6 +27,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
+  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
 
   const invoicesPageQuery = graphql(`
     query invoicesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -69,7 +70,7 @@
     }
   `);
 
-  const overviewFilters = ref({ freeSearchText: null as string | null });
+  const overviewFilters = ref(createOverviewFilters());
   const pageableItemsRef = ref<{ reload: () => void } | null>(null);
   const {
     currentWorkspaceId,
