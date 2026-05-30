@@ -33,10 +33,9 @@
   import {
     createOverviewFilters,
     type SaOverviewFilterConfigs,
-    type SaOverviewFilters,
   } from '@/components/overview-page/overview-page-filters';
 
-  type CategoriesOverviewFilters = SaOverviewFilters & {
+  type CategoriesOverviewFilters = {
     freeSearchText: string | null,
     typeIn: CategoryType[] | null,
   };

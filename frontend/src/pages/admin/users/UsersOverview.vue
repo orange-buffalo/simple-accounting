@@ -26,11 +26,10 @@
   import {
     createOverviewFilters,
     type SaOverviewFilterConfigs,
-    type SaOverviewFilters,
   } from '@/components/overview-page/overview-page-filters';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 
-  type UsersOverviewFilters = SaOverviewFilters & {
+  type UsersOverviewFilters = {
     freeSearchText: string | null,
   };
 

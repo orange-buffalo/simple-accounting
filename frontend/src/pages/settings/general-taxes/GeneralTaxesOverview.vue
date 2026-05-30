@@ -28,10 +28,9 @@
   import {
     createOverviewFilters,
     type SaOverviewFilterConfigs,
-    type SaOverviewFilters,
   } from '@/components/overview-page/overview-page-filters';
 
-  type GeneralTaxesOverviewFilters = SaOverviewFilters & {
+  type GeneralTaxesOverviewFilters = {
     freeSearchText: string | null,
   };
 

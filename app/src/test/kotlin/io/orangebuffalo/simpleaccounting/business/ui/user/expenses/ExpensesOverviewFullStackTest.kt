@@ -409,7 +409,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by title
-            filterInput { fill("office") }
+            filters.addTextFilter("Title, category, notes", "office")
             pageItems {
                 shouldHaveTitles("Office")
                 // ensure paginator updated
@@ -420,13 +420,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by category name
-            filterInput { fill("travel") }
+            filters.addTextFilter("Title, category, notes", "travel")
             pageItems {
                 shouldHaveTitles("Travel")
             }
 
             // Filter by notes
-            filterInput { fill("Zoidberg") }
+            filters.addTextFilter("Title, category, notes", "Zoidberg")
             pageItems {
                 shouldHaveTitles("Meals")
             }

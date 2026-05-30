@@ -82,21 +82,21 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openCategoriesOverviewPage {
-            filters.addFilter("Type", "Income")
+            filters.addSelectFilter("Type", "Income")
             pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
 
             filters.clearAll()
-            filters.addFilter("Type", "Expense")
+            filters.addSelectFilter("Type", "Expense")
             pageItems.shouldHaveTitles("Robot maintenance", "Delivery")
 
             filters.clearAll()
-            filters.addFilter("Type", "Income")
-            filters.addFilter("Type", "Expense")
+            filters.addSelectFilter("Type", "Income")
+            filters.addSelectFilter("Type", "Expense")
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
 
             filters.clearAll()
-            filters.addFilter("Type", "Income")
-            filters.setFreeSearchText("Delivery")
+            filters.addSelectFilter("Type", "Income")
+            filters.addTextFilter("Name", "Delivery")
             pageItems.shouldHaveTitles("Delivery")
         }
     }

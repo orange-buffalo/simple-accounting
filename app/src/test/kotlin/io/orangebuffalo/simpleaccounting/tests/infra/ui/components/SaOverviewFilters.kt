@@ -16,7 +16,6 @@ class SaOverviewFilters private constructor(
     private val filterButton = page.locator("button.sa-overview-page__filters-button")
     private val popover = page.locator(".sa-overview-page__filters-popover")
     private val activeValues = page.locator(".sa-overview-page__active-filters .el-tag")
-    private val searchInput = TextInput.byContainer(popover.locator(".sa-overview-page__filter-control").first())
 
     fun shouldHaveActiveValues(vararg values: String): SaOverviewFilters {
         filterButton.shouldHaveText("Add filters")
@@ -34,14 +33,14 @@ class SaOverviewFilters private constructor(
         return this
     }
 
-    fun addFilter(label: String, value: String): SaOverviewFilters {
+    fun addSelectFilter(label: String, value: String): SaOverviewFilters {
         openPopover()
         selectFilterOption(label, value)
         apply()
         return this
     }
 
-    fun addFilterAndCancel(label: String, value: String): SaOverviewFilters {
+    fun addSelectFilterAndCancel(label: String, value: String): SaOverviewFilters {
         openPopover()
         selectFilterOption(label, value)
         cancel()
@@ -62,9 +61,9 @@ class SaOverviewFilters private constructor(
         return this
     }
 
-    fun setFreeSearchText(value: String): SaOverviewFilters {
+    fun addTextFilter(label: String, value: String): SaOverviewFilters {
         openPopover()
-        searchInput.fill(value)
+        TextInput.byContainer(filterControl(label)).fill(value)
         apply()
         return this
     }

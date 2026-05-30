@@ -401,7 +401,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by title
-            filterInput { fill("consulting") }
+            filters.addTextFilter("Title, category, invoice, notes", "consulting")
             pageItems {
                 shouldHaveTitles("Consulting")
                 // ensure paginator updated
@@ -412,13 +412,13 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by category name
-            filterInput { fill("training") }
+            filters.addTextFilter("Title, category, invoice, notes", "training")
             pageItems {
                 shouldHaveTitles("Training")
             }
 
             // Filter by notes
-            filterInput { fill("Farnsworth") }
+            filters.addTextFilter("Title, category, invoice, notes", "Farnsworth")
             pageItems {
                 shouldHaveTitles("Commission")
             }
