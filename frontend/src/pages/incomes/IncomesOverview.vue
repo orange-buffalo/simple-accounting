@@ -2,7 +2,7 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.incomesOverview.header()"
-    :filter-placeholder="$t.incomesOverview.filters.input.placeholder()"
+    :filters="incomeFilters"
     :create-action-label="$t.incomesOverview.create()"
     create-action-view-name="create-new-income"
     :create-action-disabled="!currentWorkspace.editable"
@@ -26,7 +26,15 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
-  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
+  } from '@/components/overview-page/overview-page-filters';
+
+  type IncomesOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
+  };
 
   const incomesPageQuery = graphql(`
     query incomesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -80,5 +88,13 @@
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const overviewFilters = ref(createOverviewFilters());
+  const overviewFilters = ref(createOverviewFilters<IncomesOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const incomeFilters: SaOverviewFilterConfigs<IncomesOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.incomesOverview.filters.freeSearchText.label(),
+    },
+  };
 </script>

@@ -1,6 +1,4 @@
-export type SaOverviewFilters = {
-  freeSearchText?: string | null,
-};
+export type SaOverviewFilters = object;
 
 type FilterValue = string | number | boolean;
 type ArrayFilterValue = FilterValue[] | readonly FilterValue[] | null | undefined;
@@ -19,17 +17,22 @@ export type SaOverviewMultiSelectFilterConfig<TValue> = TValue extends ArrayFilt
   }
   : never;
 
-export type SaOverviewFilterConfig<TValue> = SaOverviewMultiSelectFilterConfig<TValue>;
+export type SaOverviewTextFilterConfig<TValue> = TValue extends string | null | undefined
+  ? {
+    type: 'text',
+    label: string,
+  }
+  : never;
+
+export type SaOverviewFilterConfig<TValue> = SaOverviewMultiSelectFilterConfig<TValue>
+  | SaOverviewTextFilterConfig<TValue>;
 
 export type SaOverviewFilterConfigs<TFilters extends SaOverviewFilters> = {
-  [TKey in Exclude<keyof TFilters, 'freeSearchText'>]-?: SaOverviewFilterConfig<TFilters[TKey]>
+  [TKey in keyof TFilters]-?: SaOverviewFilterConfig<TFilters[TKey]>
 };
 
 export function createOverviewFilters<TFilters extends SaOverviewFilters>(
-  filters?: Omit<TFilters, 'freeSearchText'>,
+  filters?: TFilters,
 ): TFilters {
-  return {
-    freeSearchText: null,
-    ...filters,
-  } as TFilters;
+  return { ...filters } as TFilters;
 }

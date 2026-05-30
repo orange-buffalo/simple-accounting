@@ -2,7 +2,7 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.generalTaxesOverview.header()"
-    :filter-placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
+    :filters="generalTaxFilters"
     :create-action-label="$t.generalTaxesOverview.create()"
     create-action-view-name="create-new-general-tax"
   >
@@ -25,7 +25,15 @@
   import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
   import { graphql } from '@/services/api/gql';
   import { $t } from '@/services/i18n';
-  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
+  } from '@/components/overview-page/overview-page-filters';
+
+  type GeneralTaxesOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
+  };
 
   const generalTaxesPageQuery = graphql(`
     query generalTaxesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -51,5 +59,13 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const overviewFilters = ref(createOverviewFilters());
+  const overviewFilters = ref(createOverviewFilters<GeneralTaxesOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const generalTaxFilters: SaOverviewFilterConfigs<GeneralTaxesOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.generalTaxesOverview.filters.freeSearchText.label(),
+    },
+  };
 </script>

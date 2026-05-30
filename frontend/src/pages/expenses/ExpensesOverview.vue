@@ -2,7 +2,7 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.expensesOverview.header()"
-    :filter-placeholder="$t.expensesOverview.filters.input.placeholder()"
+    :filters="expenseFilters"
     :create-action-label="$t.expensesOverview.create()"
     create-action-view-name="create-new-expense"
     :create-action-disabled="!currentWorkspace.editable"
@@ -26,7 +26,15 @@
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import { $t } from '@/services/i18n/i18n-services';
   import { graphql } from '@/services/api/gql';
-  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
+  } from '@/components/overview-page/overview-page-filters';
+
+  type ExpensesOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
+  };
 
   const expensesPageQuery = graphql(`
     query expensesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -77,5 +85,13 @@
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const overviewFilters = ref(createOverviewFilters());
+  const overviewFilters = ref(createOverviewFilters<ExpensesOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const expenseFilters: SaOverviewFilterConfigs<ExpensesOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.expensesOverview.filters.freeSearchText.label(),
+    },
+  };
 </script>

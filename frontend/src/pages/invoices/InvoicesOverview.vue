@@ -2,7 +2,7 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.invoicesOverview.header()"
-    :filter-placeholder="$t.invoicesOverview.filters.input.placeholder()"
+    :filters="invoiceFilters"
     :create-action-label="$t.invoicesOverview.create()"
     create-action-view-name="create-new-invoice"
     :create-action-disabled="!currentWorkspace.editable"
@@ -27,7 +27,15 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
-  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
+  } from '@/components/overview-page/overview-page-filters';
+
+  type InvoicesOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
+  };
 
   const invoicesPageQuery = graphql(`
     query invoicesPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -70,7 +78,15 @@
     }
   `);
 
-  const overviewFilters = ref(createOverviewFilters());
+  const overviewFilters = ref(createOverviewFilters<InvoicesOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const invoiceFilters: SaOverviewFilterConfigs<InvoicesOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.invoicesOverview.filters.freeSearchText.label(),
+    },
+  };
   const pageableItemsRef = ref<{ reload: () => void } | null>(null);
   const {
     currentWorkspaceId,

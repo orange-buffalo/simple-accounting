@@ -17,13 +17,27 @@
       </div>
     </template>
 
-    <div class="sa-overview-page__content-options">
+    <div v-if="configuredFilters.length > 0" class="sa-overview-page__content-options">
       <div class="sa-overview-page__filters">
+        <div
+          v-if="activeFilterTags.length > 0"
+          class="sa-overview-page__active-filters"
+        >
+          <ElTag
+            v-for="tag in activeFilterTags"
+            :key="tag.key"
+            closable
+            @close="removeActiveFilter(tag)"
+          >
+            {{ tag.label }}: {{ tag.valueLabel }}
+          </ElTag>
+        </div>
+
         <ElPopover
           v-model:visible="filterPopoverVisible"
           placement="bottom-start"
           trigger="click"
-          :width="420"
+          :width="462"
           popper-class="sa-overview-page__filters-popover"
         >
           <template #reference>
@@ -47,29 +61,17 @@
             </div>
 
             <div
-              v-if="filterPlaceholder"
-              class="sa-overview-page__filter-control"
-            >
-              <label>{{ $t.overviewPage.filters.freeSearchText.label() }}</label>
-              <ElInput
-                class="sa-overview-page__filter-input"
-                :model-value="pendingFilters.freeSearchText ?? ''"
-                :placeholder="filterPlaceholder"
-                clearable
-                @update:model-value="setPendingFreeSearchText"
-              >
-                <template #prefix>
-                  <Search class="sa-overview-page__filter-input-icon" />
-                </template>
-              </ElInput>
-            </div>
-
-            <div
               v-for="filter in configuredFilters"
               :key="filter.key"
               class="sa-overview-page__filter-control"
             >
               <label>{{ filter.config.label }}</label>
+              <ElInput
+                v-if="filter.config.type === 'text'"
+                :model-value="getPendingTextFilterValue(filter.key)"
+                clearable
+                @update:model-value="setPendingTextFilterValue(filter.key, $event)"
+              />
               <ElSelect
                 v-if="filter.config.type === 'multi-select'"
                 :model-value="getPendingFilterValue(filter.key)"
@@ -91,29 +93,15 @@
             </div>
 
             <div class="sa-overview-page__filters-panel-actions">
-              <ElButton @click="cancelFilters">
-                {{ $t.common.cancel() }}
-              </ElButton>
               <ElButton type="primary" @click="applyFilters">
                 {{ $t.overviewPage.filters.apply() }}
+              </ElButton>
+              <ElButton link @click="cancelFilters">
+                {{ $t.common.cancel() }}
               </ElButton>
             </div>
           </div>
         </ElPopover>
-
-        <div
-          v-if="activeFilterTags.length > 0"
-          class="sa-overview-page__active-filters"
-        >
-          <ElTag
-            v-for="tag in activeFilterTags"
-            :key="tag.key"
-            closable
-            @close="removeActiveFilter(tag)"
-          >
-            {{ tag.label }}: {{ tag.valueLabel }}
-          </ElTag>
-        </div>
       </div>
 
       <div class="sa-overview-page__actions">
@@ -132,7 +120,7 @@
 >
   import { computed, ref, watch } from 'vue';
   import { ElPopover, ElTag } from 'element-plus';
-  import { Filter, Search } from '@element-plus/icons-vue';
+  import { Filter } from '@element-plus/icons-vue';
   import SaPage from '@/components/SaPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
@@ -142,10 +130,13 @@
     SaOverviewFilters,
   } from '@/components/overview-page/overview-page-filters';
 
-  type FilterKey = Exclude<keyof TFilters, 'freeSearchText'> & string;
+  type FilterKey = keyof TFilters & string;
   type ConfiguredFilter = {
     key: FilterKey,
     config: NonNullable<SaOverviewFilterConfigs<TFilters>[FilterKey]>,
+  };
+  type MultiSelectFilter = ConfiguredFilter & {
+    config: Extract<ConfiguredFilter['config'], { type: 'multi-select' }>,
   };
   type ActiveFilterTag = {
     key: string,
@@ -156,7 +147,6 @@
 
   const props = withDefaults(defineProps<{
     header: string,
-    filterPlaceholder?: string,
     modelValue?: TFilters,
     filters?: SaOverviewFilterConfigs<TFilters>,
     createActionAvailable?: boolean,
@@ -201,19 +191,24 @@
     }
   });
 
-  const setPendingFreeSearchText = (value: string | undefined) => {
-    pendingFilters.value = {
-      ...pendingFilters.value,
-      freeSearchText: value || null,
-    };
-  };
-
   const getFilterValue = (filters: TFilters | undefined, key: string): unknown[] => {
     const value = filters?.[key as keyof TFilters];
     return Array.isArray(value) ? value : [];
   };
 
   const getPendingFilterValue = (key: string) => getFilterValue(pendingFilters.value, key);
+  const getTextFilterValue = (filters: TFilters | undefined, key: string) => {
+    const value = filters?.[key as keyof TFilters];
+    return typeof value === 'string' ? value : '';
+  };
+  const getPendingTextFilterValue = (key: string) => getTextFilterValue(pendingFilters.value, key);
+
+  const setPendingTextFilterValue = (key: string, value: string | undefined) => {
+    pendingFilters.value = {
+      ...pendingFilters.value,
+      [key]: value || null,
+    };
+  };
 
   const setPendingFilterValue = (key: string, value: unknown) => {
     const nextValue = Array.isArray(value) && value.length > 0 ? value : null;
@@ -223,27 +218,32 @@
     };
   };
 
-  const optionLabelByValue = (filter: ConfiguredFilter, value: unknown) => filter.config.options
+  const optionLabelByValue = (filter: MultiSelectFilter, value: unknown) => filter.config.options
     .find((option) => option.value === value)?.label ?? String(value);
 
   const activeFilterTags = computed<ActiveFilterTag[]>(() => {
     const tags: ActiveFilterTag[] = [];
 
-    if (props.modelValue?.freeSearchText) {
-      tags.push({
-        key: 'freeSearchText',
-        label: $t.value.overviewPage.filters.freeSearchText.label(),
-        valueLabel: props.modelValue.freeSearchText,
-      });
-    }
-
     configuredFilters.value.forEach((filter) => {
+      if (filter.config.type === 'text') {
+        const value = getTextFilterValue(props.modelValue, filter.key);
+        if (value) {
+          tags.push({
+            key: filter.key,
+            label: filter.config.label,
+            valueLabel: value,
+          });
+        }
+        return;
+      }
+
+      const multiSelectFilter = filter as MultiSelectFilter;
       getFilterValue(props.modelValue, filter.key).forEach((value) => {
         tags.push({
           key: filter.key,
           value,
           label: filter.config.label,
-          valueLabel: optionLabelByValue(filter, value),
+          valueLabel: optionLabelByValue(multiSelectFilter, value),
         });
       });
     });
@@ -252,16 +252,19 @@
   });
 
   const pendingFiltersCount = computed(() => {
-    let count = pendingFilters.value.freeSearchText ? 1 : 0;
+    let count = 0;
     configuredFilters.value.forEach((filter) => {
-      count += getPendingFilterValue(filter.key).length;
+      count += filter.config.type === 'text'
+        ? (getPendingTextFilterValue(filter.key) ? 1 : 0)
+        : getPendingFilterValue(filter.key).length;
     });
     return count;
   });
 
   const removeActiveFilter = (tag: ActiveFilterTag) => {
-    if (tag.key === 'freeSearchText') {
-      emitFiltersUpdate({ freeSearchText: null } as Partial<TFilters>);
+    const filter = configuredFilters.value.find((candidate) => candidate.key === tag.key);
+    if (filter?.config.type === 'text') {
+      emitFiltersUpdate({ [tag.key]: null } as Partial<TFilters>);
       return;
     }
 
@@ -270,7 +273,7 @@
   };
 
   const clearPendingFilters = () => {
-    const clearedFilters: Record<string, null> = { freeSearchText: null };
+    const clearedFilters: Record<string, null> = {};
     configuredFilters.value.forEach((filter) => {
       clearedFilters[filter.key] = null;
     });
@@ -316,9 +319,8 @@
     }
 
     &__content-options {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
+      display: flex;
+      justify-content: flex-end;
       width: 100%;
       margin-bottom: 24px;
     }
@@ -327,6 +329,7 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 8px;
       color: $secondary-text-color;
     }
@@ -368,9 +371,14 @@
 
     &__filter-control {
       display: grid;
-      grid-template-columns: 110px 1fr;
+      grid-template-columns: 130px 1fr;
       align-items: center;
       gap: 12px;
+
+      :deep(.el-input),
+      :deep(.el-select) {
+        width: 100%;
+      }
 
       & + & {
         margin-top: 16px;
@@ -401,7 +409,7 @@
     &__filters-panel-actions {
       display: flex;
       justify-content: flex-start;
-      gap: 8px;
+      gap: 20px;
       margin-top: 24px;
     }
 
@@ -411,15 +419,6 @@
 
     &__filters-panel {
       padding: 8px;
-    }
-
-    &__filter-input {
-      width: 100%;
-
-      &-icon {
-        width: 16px;
-        height: 16px;
-      }
     }
   }
 

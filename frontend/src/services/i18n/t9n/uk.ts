@@ -31,9 +31,6 @@ export default {
       clearAll: () => 'Очистити все',
       apply: () => 'Застосувати',
       selectPlaceholder: () => 'Обрати',
-      freeSearchText: {
-        label: () => 'Пошук',
-      },
     },
   },
 
@@ -302,8 +299,8 @@ export default {
   expensesOverview: {
     header: () => 'Витрати',
     filters: {
-      input: {
-        placeholder: () => 'Витрати на пошук ',
+      freeSearchText: {
+        label: () => 'Назва, категорія, примітки',
       },
     },
     create: () => 'Додати новий',
@@ -651,8 +648,8 @@ export default {
   incomesOverview: {
     header: () => 'Доходи',
     filters: {
-      input: {
-        placeholder: () => 'Пошук доходи ',
+      freeSearchText: {
+        label: () => 'Назва, категорія, рахунок, примітки',
       },
     },
     create: () => 'Додати новий',
@@ -742,8 +739,8 @@ export default {
   invoicesOverview: {
     header: () => 'Рахунки-фактури',
     filters: {
-      input: {
-        placeholder: () => 'Пошук рахунків-фактур',
+      freeSearchText: {
+        label: () => 'Назва, клієнт, примітки',
       },
     },
     create: () => 'Додати новий',
@@ -967,8 +964,8 @@ export default {
   usersOverview: {
     header: () => 'Користувачі',
     filters: {
-      input: {
-        placeholder: () => 'Пошук користувачів',
+      freeSearchText: {
+        label: () => 'Ім\'я користувача',
       },
     },
     create: () => 'Створити користувача',
@@ -1148,8 +1145,8 @@ export default {
   categoriesOverview: {
     header: () => 'Категорії',
     filters: {
-      input: {
-        placeholder: () => 'Шукати категорії',
+      freeSearchText: {
+        label: () => 'Назва',
       },
       type: {
         label: () => 'Тип',
@@ -1200,8 +1197,8 @@ export default {
   generalTaxesOverview: {
     header: () => 'Загальні податки',
     filters: {
-      input: {
-        placeholder: () => 'Шукати загальні податки',
+      freeSearchText: {
+        label: () => 'Назва, опис',
       },
     },
     create: () => 'Додати новий',
@@ -1232,8 +1229,8 @@ export default {
   customersOverview: {
     header: () => 'Клієнти',
     filters: {
-      input: {
-        placeholder: () => 'Шукати клієнтів',
+      freeSearchText: {
+        label: () => 'Назва',
       },
     },
     create: () => 'Додати новий',

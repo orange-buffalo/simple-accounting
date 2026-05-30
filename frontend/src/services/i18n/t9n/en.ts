@@ -31,9 +31,6 @@ export default {
       clearAll: () => 'Clear All',
       apply: () => 'Apply',
       selectPlaceholder: () => 'Select',
-      freeSearchText: {
-        label: () => 'Search',
-      },
     },
   },
 
@@ -302,8 +299,8 @@ export default {
   expensesOverview: {
     header: () => 'Expenses',
     filters: {
-      input: {
-        placeholder: () => 'Search expenses',
+      freeSearchText: {
+        label: () => 'Title, category, notes',
       },
     },
     create: () => 'Add new',
@@ -652,8 +649,8 @@ export default {
   incomesOverview: {
     header: () => 'Incomes',
     filters: {
-      input: {
-        placeholder: () => 'Search incomes',
+      freeSearchText: {
+        label: () => 'Title, category, invoice, notes',
       },
     },
     create: () => 'Add new',
@@ -743,8 +740,8 @@ export default {
   invoicesOverview: {
     header: () => 'Invoices',
     filters: {
-      input: {
-        placeholder: () => 'Search invoices',
+      freeSearchText: {
+        label: () => 'Title, customer, notes',
       },
     },
     create: () => 'Add new',
@@ -968,8 +965,8 @@ export default {
   usersOverview: {
     header: () => 'Users',
     filters: {
-      input: {
-        placeholder: () => 'Search users',
+      freeSearchText: {
+        label: () => 'Username',
       },
     },
     create: () => 'Create user',
@@ -1149,8 +1146,8 @@ export default {
   categoriesOverview: {
     header: () => 'Categories',
     filters: {
-      input: {
-        placeholder: () => 'Search categories',
+      freeSearchText: {
+        label: () => 'Name',
       },
       type: {
         label: () => 'Type',
@@ -1201,8 +1198,8 @@ export default {
   generalTaxesOverview: {
     header: () => 'General Taxes',
     filters: {
-      input: {
-        placeholder: () => 'Search general taxes',
+      freeSearchText: {
+        label: () => 'Title, description',
       },
     },
     create: () => 'Add new',
@@ -1233,8 +1230,8 @@ export default {
   customersOverview: {
     header: () => 'Customers',
     filters: {
-      input: {
-        placeholder: () => 'Search customers',
+      freeSearchText: {
+        label: () => 'Name',
       },
     },
     create: () => 'Add new',

@@ -16,7 +16,7 @@ class SaOverviewFilters private constructor(
     private val filterButton = page.locator("button.sa-overview-page__filters-button")
     private val popover = page.locator(".sa-overview-page__filters-popover")
     private val activeValues = page.locator(".sa-overview-page__active-filters .el-tag")
-    private val searchInput = TextInput.byContainer(popover.locator(".sa-overview-page__filter-input"))
+    private val searchInput = TextInput.byContainer(popover.locator(".sa-overview-page__filter-control").first())
 
     fun shouldHaveActiveValues(vararg values: String): SaOverviewFilters {
         filterButton.shouldHaveText("Add filters")

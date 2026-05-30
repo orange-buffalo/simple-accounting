@@ -2,7 +2,7 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.customersOverview.header()"
-    :filter-placeholder="$t.customersOverview.filters.input.placeholder()"
+    :filters="customerFilters"
     :create-action-label="$t.customersOverview.create()"
     create-action-view-name="create-new-customer"
   >
@@ -25,7 +25,15 @@
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import { createOverviewFilters } from '@/components/overview-page/overview-page-filters';
+  import {
+    createOverviewFilters,
+    type SaOverviewFilterConfigs,
+    type SaOverviewFilters,
+  } from '@/components/overview-page/overview-page-filters';
+
+  type CustomersOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
+  };
 
   const customersPageQuery = graphql(`
     query customersPage($workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String) {
@@ -49,5 +57,13 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const overviewFilters = ref(createOverviewFilters());
+  const overviewFilters = ref(createOverviewFilters<CustomersOverviewFilters>({
+    freeSearchText: null,
+  }));
+  const customerFilters: SaOverviewFilterConfigs<CustomersOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.customersOverview.filters.freeSearchText.label(),
+    },
+  };
 </script>

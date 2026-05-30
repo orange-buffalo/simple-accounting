@@ -2,7 +2,6 @@
   <SaOverviewPage
     v-model="overviewFilters"
     :header="$t.categoriesOverview.header()"
-    :filter-placeholder="$t.categoriesOverview.filters.input.placeholder()"
     :filters="categoryFilters"
     :create-action-label="$t.categoriesOverview.create()"
     create-action-view-name="create-new-category"
@@ -38,6 +37,7 @@
   } from '@/components/overview-page/overview-page-filters';
 
   type CategoriesOverviewFilters = SaOverviewFilters & {
+    freeSearchText: string | null,
     typeIn: CategoryType[] | null,
   };
 
@@ -72,9 +72,14 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
   const overviewFilters = ref(createOverviewFilters<CategoriesOverviewFilters>({
+    freeSearchText: null,
     typeIn: null,
   }));
   const categoryFilters: SaOverviewFilterConfigs<CategoriesOverviewFilters> = {
+    freeSearchText: {
+      type: 'text',
+      label: $t.value.categoriesOverview.filters.freeSearchText.label(),
+    },
     typeIn: {
       type: 'multi-select',
       label: $t.value.categoriesOverview.filters.type.label(),
