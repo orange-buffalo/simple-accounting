@@ -10,8 +10,10 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePa
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -291,6 +293,37 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
         // Verify uploaded content matches original (binary equality)
         val uploadedContent = testDocumentsStorage.getUploadedContent(savedDocument.storageLocation!!)
         uploadedContent.shouldBe(fileContent)
+    }
+
+    @Test
+    fun `should not show technical error when leaving page with selected file not submitted`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val expense = expense(workspace = workspace(owner = fry))
+            }
+        }
+        val testFile = createTestFile("slurm-receipt.pdf", "Selected but not submitted".toByteArray())
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocuments(DocumentsUpload.EmptyDocument)
+                selectFileForUpload(testFile)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument(testFile.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.EmptyDocument
+                )
+            }
+        }
+
+        page.shouldHaveSideMenu().clickDashboard()
+
+        page.shouldHaveNotifications {
+            shouldHaveNoNotifications()
+        }
     }
 
     @Test
