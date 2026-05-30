@@ -75,7 +75,7 @@
   import {
     computed, onBeforeUnmount, ref, shallowRef, watch,
   } from 'vue';
-  import { debounce, throttle } from 'lodash';
+  import { throttle } from 'lodash';
   import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
   import SaIcon from '@/components/SaIcon.vue';
   import { $t } from '@/services/i18n';
@@ -140,7 +140,6 @@
   const totalElements = ref(0);
   const pageSize = ref(10);
   const data = shallowRef<TNode[]>([]);
-  const searchDebounceMs = 500;
 
   const {
     loading,
@@ -220,10 +219,7 @@
     void loadData();
   };
 
-  const scheduleReloadData = debounce(reloadData, searchDebounceMs);
-
   const onPageNumberChange = (newPageNumber: number) => {
-    scheduleReloadData.cancel();
     pageNumber.value = newPageNumber;
     reloadData();
   };
@@ -233,7 +229,7 @@
     requestConfigData?.cancelRequest();
     endCursors = [];
     pageNumber.value = 1;
-    scheduleReloadData();
+    reloadData();
   }, {
     deep: true,
   });
@@ -241,7 +237,6 @@
   reloadData();
 
   onBeforeUnmount(() => {
-    scheduleReloadData.cancel();
     requestConfigData?.cancelRequest();
   });
 

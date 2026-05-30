@@ -26,9 +26,10 @@ export default {
 
   overviewPage: {
     filters: {
-      button: (activeFiltersCount: number) => (activeFiltersCount > 0 ? format('Фільтри ({0})', [activeFiltersCount]) : 'Фільтри'),
+      button: (activeFiltersCount: number) => (activeFiltersCount > 0 ? format('Фільтри ({0})', [activeFiltersCount]) : 'Додати фільтри'),
       header: (activeFiltersCount: number) => format('Фільтри ({0})', [activeFiltersCount]),
       clearAll: () => 'Очистити все',
+      apply: () => 'Застосувати',
       selectPlaceholder: () => 'Обрати',
       freeSearchText: {
         label: () => 'Пошук',

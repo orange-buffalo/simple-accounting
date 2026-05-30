@@ -1,5 +1,5 @@
 <template>
-  <SaPage>
+  <SaPage no-bottom-line>
     <template #header>
       <div class="sa-overview-page__header-row">
         <h1>{{ header }}</h1>
@@ -19,72 +19,102 @@
 
     <template #header-options>
       <div class="sa-overview-page__header-options">
-        <ElPopover
-          v-model:visible="filterPopoverVisible"
-          placement="bottom-start"
-          trigger="click"
-          :width="360"
-          popper-class="sa-overview-page__filters-popover"
-        >
-          <template #reference>
-            <ElButton link class="sa-overview-page__filters-button">
-              <Filter class="sa-overview-page__filters-button-icon" />
-              {{ $t.overviewPage.filters.button(activeFiltersCount) }}
-            </ElButton>
-          </template>
-
-          <div class="sa-overview-page__filters-panel">
-            <div class="sa-overview-page__filters-panel-header">
-              <h2>{{ $t.overviewPage.filters.header(activeFiltersCount) }}</h2>
-              <ElButton
-                v-if="activeFiltersCount > 0"
-                link
-                type="danger"
-                @click="clearAllFilters"
-              >
-                {{ $t.overviewPage.filters.clearAll() }}
-              </ElButton>
-            </div>
-
-            <div
-              v-for="filter in configuredFilters"
-              :key="filter.key"
-              class="sa-overview-page__filter-control"
-            >
-              <label>{{ filter.config.label }}</label>
-              <ElSelect
-                v-if="filter.config.type === 'multi-select'"
-                :model-value="getFilterValue(filter.key)"
-                multiple
-                clearable
-                collapse-tags
-                collapse-tags-tooltip
-                :placeholder="$t.overviewPage.filters.selectPlaceholder()"
-                @update:model-value="setFilterValue(filter.key, $event)"
-              >
-                <ElOption
-                  v-for="option in filter.config.options"
-                  :key="String(option.value)"
-                  :label="option.label"
-                  :value="option.value"
-                />
-              </ElSelect>
-            </div>
-          </div>
-        </ElPopover>
-
-        <div v-if="filterPlaceholder">
-          <ElInput
-            class="sa-overview-page__filter-input"
-            :model-value="modelValue?.freeSearchText ?? ''"
-            :placeholder="filterPlaceholder"
-            clearable
-            @update:model-value="updateFreeSearchText"
+        <div class="sa-overview-page__filters">
+          <ElPopover
+            v-model:visible="filterPopoverVisible"
+            placement="bottom-start"
+            trigger="click"
+            :width="420"
+            popper-class="sa-overview-page__filters-popover"
           >
-            <template #prefix>
-              <Search class="sa-overview-page__filter-input__icon" />
+            <template #reference>
+              <ElButton link class="sa-overview-page__filters-button">
+                <Filter class="sa-overview-page__filters-button-icon" />
+                {{ $t.overviewPage.filters.button(activeFiltersCount) }}
+              </ElButton>
             </template>
-          </ElInput>
+
+            <div class="sa-overview-page__filters-panel">
+              <div class="sa-overview-page__filters-panel-header">
+                <h2>{{ $t.overviewPage.filters.header(pendingFiltersCount) }}</h2>
+                <ElButton
+                  v-if="pendingFiltersCount > 0"
+                  link
+                  type="danger"
+                  @click="clearPendingFilters"
+                >
+                  {{ $t.overviewPage.filters.clearAll() }}
+                </ElButton>
+              </div>
+
+              <div
+                v-if="filterPlaceholder"
+                class="sa-overview-page__filter-control"
+              >
+                <label>{{ $t.overviewPage.filters.freeSearchText.label() }}</label>
+                <ElInput
+                  class="sa-overview-page__filter-input"
+                  :model-value="pendingFilters.freeSearchText ?? ''"
+                  :placeholder="filterPlaceholder"
+                  clearable
+                  @update:model-value="setPendingFreeSearchText"
+                >
+                  <template #prefix>
+                    <Search class="sa-overview-page__filter-input__icon" />
+                  </template>
+                </ElInput>
+              </div>
+
+              <div
+                v-for="filter in configuredFilters"
+                :key="filter.key"
+                class="sa-overview-page__filter-control"
+              >
+                <label>{{ filter.config.label }}</label>
+                <ElSelect
+                  v-if="filter.config.type === 'multi-select'"
+                  :model-value="getPendingFilterValue(filter.key)"
+                  multiple
+                  clearable
+                  collapse-tags
+                  collapse-tags-tooltip
+                  :teleported="false"
+                  :placeholder="$t.overviewPage.filters.selectPlaceholder()"
+                  @update:model-value="setPendingFilterValue(filter.key, $event)"
+                >
+                  <ElOption
+                    v-for="option in filter.config.options"
+                    :key="String(option.value)"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </ElSelect>
+              </div>
+
+              <div class="sa-overview-page__filters-panel-actions">
+                <ElButton @click="cancelFilters">
+                  {{ $t.common.cancel() }}
+                </ElButton>
+                <ElButton type="primary" @click="applyFilters">
+                  {{ $t.overviewPage.filters.apply() }}
+                </ElButton>
+              </div>
+            </div>
+          </ElPopover>
+
+          <div
+            v-if="activeFilterTags.length > 0"
+            class="sa-overview-page__active-filters"
+          >
+            <ElTag
+              v-for="tag in activeFilterTags"
+              :key="tag.key"
+              closable
+              @close="removeActiveFilter(tag)"
+            >
+              {{ tag.label }}: {{ tag.valueLabel }}
+            </ElTag>
+          </div>
         </div>
 
         <div class="sa-overview-page__actions">
@@ -92,20 +122,6 @@
         </div>
       </div>
     </template>
-
-    <div
-      v-if="activeFilterTags.length > 0"
-      class="sa-overview-page__active-filters"
-    >
-      <ElTag
-        v-for="tag in activeFilterTags"
-        :key="tag.key"
-        closable
-        @close="removeActiveFilter(tag)"
-      >
-        {{ tag.label }}: {{ tag.valueLabel }}
-      </ElTag>
-    </div>
 
     <slot />
   </SaPage>
@@ -116,7 +132,7 @@
   setup
   generic="TFilters extends SaOverviewFilters"
 >
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { ElPopover, ElTag } from 'element-plus';
   import { Filter, Search } from '@element-plus/icons-vue';
   import SaPage from '@/components/SaPage.vue';
@@ -160,6 +176,7 @@
 
   const { navigateByViewName } = useNavigation();
   const filterPopoverVisible = ref(false);
+  const pendingFilters = ref<TFilters>({ ...props.modelValue } as TFilters);
   const createActionVisible = computed(() => props.createActionAvailable
     && props.createActionLabel != null
     && props.createActionViewName != null);
@@ -171,6 +188,8 @@
       config: config as ConfiguredFilter['config'],
     })));
 
+  const createFiltersSnapshot = () => ({ ...props.modelValue } as TFilters);
+
   const emitFiltersUpdate = (partialFilters: Partial<TFilters>) => {
     emit('update:modelValue', {
       ...props.modelValue,
@@ -178,20 +197,32 @@
     } as TFilters);
   };
 
-  const updateFreeSearchText = (value: string | undefined) => {
-    emitFiltersUpdate({
+  watch(filterPopoverVisible, (visible) => {
+    if (visible) {
+      pendingFilters.value = createFiltersSnapshot();
+    }
+  });
+
+  const setPendingFreeSearchText = (value: string | undefined) => {
+    pendingFilters.value = {
+      ...pendingFilters.value,
       freeSearchText: value || null,
-    } as Partial<TFilters>);
+    };
   };
 
-  const getFilterValue = (key: string): unknown[] => {
-    const value = props.modelValue?.[key as keyof TFilters];
+  const getFilterValue = (filters: TFilters | undefined, key: string): unknown[] => {
+    const value = filters?.[key as keyof TFilters];
     return Array.isArray(value) ? value : [];
   };
 
-  const setFilterValue = (key: string, value: unknown) => {
+  const getPendingFilterValue = (key: string) => getFilterValue(pendingFilters.value, key);
+
+  const setPendingFilterValue = (key: string, value: unknown) => {
     const nextValue = Array.isArray(value) && value.length > 0 ? value : null;
-    emitFiltersUpdate({ [key]: nextValue } as Partial<TFilters>);
+    pendingFilters.value = {
+      ...pendingFilters.value,
+      [key]: nextValue,
+    };
   };
 
   const optionLabelByValue = (filter: ConfiguredFilter, value: unknown) => filter.config.options
@@ -209,7 +240,7 @@
     }
 
     configuredFilters.value.forEach((filter) => {
-      getFilterValue(filter.key).forEach((value) => {
+      getFilterValue(props.modelValue, filter.key).forEach((value) => {
         tags.push({
           key: filter.key,
           value,
@@ -224,22 +255,42 @@
 
   const activeFiltersCount = computed(() => activeFilterTags.value.length);
 
+  const pendingFiltersCount = computed(() => {
+    let count = pendingFilters.value.freeSearchText ? 1 : 0;
+    configuredFilters.value.forEach((filter) => {
+      count += getPendingFilterValue(filter.key).length;
+    });
+    return count;
+  });
+
   const removeActiveFilter = (tag: ActiveFilterTag) => {
     if (tag.key === 'freeSearchText') {
-      updateFreeSearchText(undefined);
+      emitFiltersUpdate({ freeSearchText: null } as Partial<TFilters>);
       return;
     }
 
-    const updatedValues = getFilterValue(tag.key).filter((value) => value !== tag.value);
-    setFilterValue(tag.key, updatedValues);
+    const updatedValues = getFilterValue(props.modelValue, tag.key).filter((value) => value !== tag.value);
+    emitFiltersUpdate({ [tag.key]: updatedValues.length > 0 ? updatedValues : null } as Partial<TFilters>);
   };
 
-  const clearAllFilters = () => {
+  const clearPendingFilters = () => {
     const clearedFilters: Record<string, null> = { freeSearchText: null };
     configuredFilters.value.forEach((filter) => {
       clearedFilters[filter.key] = null;
     });
-    emitFiltersUpdate(clearedFilters as Partial<TFilters>);
+    pendingFilters.value = {
+      ...pendingFilters.value,
+      ...clearedFilters,
+    };
+  };
+
+  const applyFilters = () => {
+    emit('update:modelValue', pendingFilters.value);
+    filterPopoverVisible.value = false;
+  };
+
+  const cancelFilters = () => {
+    pendingFilters.value = createFiltersSnapshot();
     filterPopoverVisible.value = false;
   };
 </script>
@@ -269,13 +320,22 @@
 
     &__header-options {
       display: grid;
-      grid-template-columns: 1fr minmax(260px, min(75%, 800px)) 1fr;
+      grid-template-columns: 1fr auto;
       align-items: center;
       width: 100%;
     }
 
+    &__filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: $secondary-text-color;
+    }
+
     &__filters-button {
       justify-self: start;
+      color: $secondary-text-color;
     }
 
     &__filters-button-icon {
@@ -301,6 +361,10 @@
       align-items: center;
       gap: 12px;
 
+      & + & {
+        margin-top: 16px;
+      }
+
       label {
         color: $secondary-text-color;
       }
@@ -309,9 +373,20 @@
     &__active-filters {
       display: flex;
       flex-wrap: wrap;
+      gap: 6px;
+
+      :deep(.el-tag) {
+        --el-tag-bg-color: #{rgba($secondary-text-color, 0.08)};
+        --el-tag-border-color: #{rgba($secondary-text-color, 0.18)};
+        --el-tag-text-color: #{$secondary-text-color};
+      }
+    }
+
+    &__filters-panel-actions {
+      display: flex;
+      justify-content: flex-end;
       gap: 8px;
-      margin-top: -20px;
-      margin-bottom: 20px;
+      margin-top: 24px;
     }
 
     &__actions {

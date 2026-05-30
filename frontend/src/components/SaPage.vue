@@ -3,6 +3,7 @@
     <div
       v-if="header || $slots.header || $slots['header-options']"
       class="sa-page__header"
+      :class="{ 'sa-page__header_no-bottom-line': noBottomLine }"
     >
       <slot name="header">
         <h1 v-if="header">{{ header }}</h1>
@@ -23,6 +24,7 @@
 <script lang="ts" setup>
   defineProps<{
     header?: string,
+    noBottomLine?: boolean,
   }>();
 </script>
 
@@ -45,6 +47,10 @@
         margin-top: 10px;
         margin-bottom: 30px;
         background: $secondary-grey;
+      }
+
+      &_no-bottom-line:after {
+        display: none;
       }
     }
 

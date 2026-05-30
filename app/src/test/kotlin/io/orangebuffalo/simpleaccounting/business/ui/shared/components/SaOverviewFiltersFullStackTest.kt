@@ -31,6 +31,10 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
             pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
             reportRendering("overview-filters.active-value")
 
+            filters.addFilterAndCancel("Type", "Expense")
+            filters.shouldHaveActiveValues("Type: Income")
+            pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
+
             filters.addFilter("Type", "Expense")
             filters.shouldHaveActiveValues("Type: Income", "Type: Expense")
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")

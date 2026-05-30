@@ -16,7 +16,7 @@ class SaOverviewFilters private constructor(
     private val filterButton = page.locator("button.sa-overview-page__filters-button")
     private val popover = page.locator(".sa-overview-page__filters-popover")
     private val activeValues = page.locator(".sa-overview-page__active-filters .el-tag")
-    private val searchInput = TextInput.byContainer(page.locator(".sa-overview-page__filter-input"))
+    private val searchInput = TextInput.byContainer(popover.locator(".sa-overview-page__filter-input"))
 
     fun shouldHaveActiveValues(vararg values: String): SaOverviewFilters {
         filterButton.shouldHaveText("Filters (${values.size})")
@@ -27,7 +27,7 @@ class SaOverviewFilters private constructor(
     }
 
     fun shouldHaveNoActiveValues(): SaOverviewFilters {
-        filterButton.shouldHaveText("Filters")
+        filterButton.shouldHaveText("Add filters")
         activeValues.shouldSatisfy {
             allInnerTexts().shouldContainExactly()
         }
@@ -36,15 +36,22 @@ class SaOverviewFilters private constructor(
 
     fun addFilter(label: String, value: String): SaOverviewFilters {
         openPopover()
-        Select.byContainer(filterControl(label)).selectOption(value, validate = false)
-        closePopover()
+        selectFilterOption(label, value)
+        apply()
+        return this
+    }
+
+    fun addFilterAndCancel(label: String, value: String): SaOverviewFilters {
+        openPopover()
+        selectFilterOption(label, value)
+        cancel()
         return this
     }
 
     fun clearAll(): SaOverviewFilters {
         openPopover()
         popover.locator("button", Locator.LocatorOptions().setHasText("Clear All")).click()
-        shouldHavePopupClosed()
+        apply()
         return this
     }
 
@@ -56,14 +63,16 @@ class SaOverviewFilters private constructor(
     }
 
     fun setFreeSearchText(value: String): SaOverviewFilters {
+        openPopover()
         searchInput.fill(value)
+        apply()
         return this
     }
 
     fun reportPopoverRendering(name: String): SaOverviewFilters {
         openPopover()
         popover.reportRendering(name)
-        closePopover()
+        cancel()
         return this
     }
 
@@ -80,6 +89,16 @@ class SaOverviewFilters private constructor(
         return this
     }
 
+    private fun apply() {
+        popover.locator("button", Locator.LocatorOptions().setHasText("Apply")).click()
+        shouldHavePopupClosed()
+    }
+
+    private fun cancel() {
+        popover.locator("button", Locator.LocatorOptions().setHasText("Cancel")).click()
+        shouldHavePopupClosed()
+    }
+
     private fun openPopover() {
         if (popover.isVisible) {
             return
@@ -89,6 +108,12 @@ class SaOverviewFilters private constructor(
     }
 
     private fun filterControl(label: String) = popover.locator(".sa-overview-page__filter-control:has-text('$label')")
+
+    private fun selectFilterOption(label: String, value: String) {
+        val control = filterControl(label)
+        control.locator(".el-select__wrapper").click()
+        control.locator(".el-select-dropdown__item", Locator.LocatorOptions().setHasText(value)).click()
+    }
 
     companion object {
         fun ComponentsAccessors.overviewFilters() = SaOverviewFilters(page)
