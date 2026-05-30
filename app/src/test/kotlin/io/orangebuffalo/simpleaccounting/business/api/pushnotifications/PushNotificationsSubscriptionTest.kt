@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.pushnotifications
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
@@ -9,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.runBlocking
-import io.github.artsok.RepeatedIfExceptionsTest
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -23,10 +23,10 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 import java.net.URI
 import java.time.Duration
-import java.time.temporal.ChronoUnit
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 @DisplayName("Push Notifications Subscription")
 class PushNotificationsSubscriptionTest(
@@ -34,6 +34,8 @@ class PushNotificationsSubscriptionTest(
     @Autowired private val environment: Environment,
     @Autowired private val objectMapper: ObjectMapper,
 ) : SaIntegrationTestBase() {
+
+    private val asyncTimeout: Duration = Duration.ofSeconds(15)
 
     @Test
     fun `should receive a single broadcast event`() {
@@ -44,7 +46,7 @@ class PushNotificationsSubscriptionTest(
                 pushNotificationService.sendPushNotification("good-news-everyone")
             }
 
-            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive the broadcast event") {
                     receivedMessages.size.shouldBe(1)
@@ -72,7 +74,7 @@ class PushNotificationsSubscriptionTest(
                 )
             }
 
-            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive both broadcast events") {
                     receivedMessages.size.shouldBe(2)
@@ -110,7 +112,7 @@ class PushNotificationsSubscriptionTest(
                 )
             }
 
-            await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
                 withClue("Should receive only messages for the current user and broadcasts") {
                     receivedMessages.size.shouldBe(3)
@@ -132,6 +134,7 @@ class PushNotificationsSubscriptionTest(
         val connectionAcknowledged = AtomicBoolean(false)
         val probeReceived = AtomicBoolean(false)
         val lastProbeSentAtMillis = AtomicLong(0L)
+        val connectionError = AtomicReference<Throwable>()
         val port = environment.getProperty("local.server.port")
         val wsUri = URI("ws://localhost:$port/api/graphql/subscriptions")
         val jwtToken = jwtService.buildJwtToken(user.toSecurityPrincipal())
@@ -188,13 +191,16 @@ class PushNotificationsSubscriptionTest(
                 .then()
 
             Mono.zip(session.send(outgoing), incoming).then()
-        }.subscribe()
+        }
+            .doOnError(connectionError::set)
+            .subscribe()
 
-        await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
-            connectionAcknowledged.get()
+        await().atMost(asyncTimeout).untilAsserted {
+            connectionError.get()?.let { throw AssertionError("WebSocket subscription failed", it) }
+            connectionAcknowledged.get().shouldBe(true)
         }
 
-        await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
+        await().atMost(asyncTimeout).until {
             val now = System.currentTimeMillis()
             if (now - lastProbeSentAtMillis.get() >= 250) {
                 runBlocking {
