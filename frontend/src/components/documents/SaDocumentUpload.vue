@@ -135,6 +135,7 @@
   const maxFileSize = 50 * 1024 * 1024;
   const dropPanel = ref<HTMLElement | undefined>(undefined);
   let dropzone: Dropzone | undefined;
+  let unmounting = false;
   const dropzoneRequired = () => {
     if (!dropzone) throw new Error('Not initialized yet');
     return dropzone;
@@ -169,6 +170,9 @@
       });
 
       dropzone.on('error', (file, error) => {
+        if (unmounting) {
+          return;
+        }
         // todo #72: special processing for storage service config error
         uploading.value = false;
         uploadingFailed.value = true;
@@ -186,6 +190,7 @@
 
   onBeforeUnmount(() => {
     if (dropzone) {
+      unmounting = true;
       dropzone.destroy();
       dropzone = undefined;
     }

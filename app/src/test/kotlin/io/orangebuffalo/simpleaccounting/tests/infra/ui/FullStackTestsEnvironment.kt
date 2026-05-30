@@ -61,11 +61,11 @@ fun createConfiguredBrowserContext(
 }
 
 /**
- * Creates a new page in the given browser context with mock clock installed.
+ * Creates a new page in the given browser context with the standard test start time.
  * Tests creating custom pages can use this to set up pages consistently.
  * 
  * @param context The browser context to create the page in
- * @return A new page with mock clock installed
+ * @return A new page with the standard test start time
  */
 fun createNewPage(context: BrowserContext): Page {
     val page = context.newPage()
@@ -229,7 +229,7 @@ private class IsolatedPageContextStrategy(
     override fun getPageForTheTest(): Page {
         if (page == null) {
             page = browserContext!!.newPage()
-            // Install mock clock at fixed time but keep it running
+            // Set the browser time to the standard test starting point.
             page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
             page!!.clock().setSystemTime(MOCK_TIME.toEpochMilli())
         }
@@ -298,7 +298,7 @@ private class PersistentPageContextStrategy(
             )
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
-            // Install mock clock at fixed time but keep it running
+            // Set the browser time to the standard test starting point.
             page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
             page!!.clock().setSystemTime(MOCK_TIME.toEpochMilli())
         }
