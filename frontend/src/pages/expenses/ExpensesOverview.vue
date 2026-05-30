@@ -1,6 +1,6 @@
 <template>
   <SaOverviewPage
-    v-model="freeSearchText"
+    v-model="overviewFilters"
     :header="$t.expensesOverview.header()"
     :filter-placeholder="$t.expensesOverview.filters.input.placeholder()"
     :create-action-label="$t.expensesOverview.create()"
@@ -11,7 +11,7 @@
       #default="{ item: expense }"
       :page-query="expensesPageQuery"
       path="workspace.expenses"
-      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: overviewFilters.freeSearchText }"
     >
       <ExpensesOverviewPanel :expense="expense" />
     </SaPageableItems>
@@ -76,5 +76,5 @@
 
   const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const freeSearchText = ref<string | undefined>();
+  const overviewFilters = ref({ freeSearchText: null as string | null });
 </script>

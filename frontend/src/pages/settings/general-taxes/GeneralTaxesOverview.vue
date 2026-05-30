@@ -1,6 +1,6 @@
 <template>
   <SaOverviewPage
-    v-model="freeSearchText"
+    v-model="overviewFilters"
     :header="$t.generalTaxesOverview.header()"
     :filter-placeholder="$t.generalTaxesOverview.filters.input.placeholder()"
     :create-action-label="$t.generalTaxesOverview.create()"
@@ -9,7 +9,7 @@
     <SaPageableItems
       :page-query="generalTaxesPageQuery"
       path="workspace.generalTaxes"
-      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: overviewFilters.freeSearchText }"
       #default="{ item }"
     >
       <GeneralTaxOverviewPanel :tax="item" />
@@ -50,5 +50,5 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const freeSearchText = ref<string | undefined>();
+  const overviewFilters = ref({ freeSearchText: null as string | null });
 </script>

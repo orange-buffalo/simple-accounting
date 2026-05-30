@@ -26,7 +26,13 @@ export default {
 
   overviewPage: {
     filters: {
-      announcement: () => 'Фільтри будуть незабаром',
+      button: (activeFiltersCount: number) => (activeFiltersCount > 0 ? format('Фільтри ({0})', [activeFiltersCount]) : 'Фільтри'),
+      header: (activeFiltersCount: number) => format('Фільтри ({0})', [activeFiltersCount]),
+      clearAll: () => 'Очистити все',
+      selectPlaceholder: () => 'Обрати',
+      freeSearchText: {
+        label: () => 'Пошук',
+      },
     },
   },
 
@@ -1140,6 +1146,14 @@ export default {
 
   categoriesOverview: {
     header: () => 'Категорії',
+    filters: {
+      input: {
+        placeholder: () => 'Шукати категорії',
+      },
+      type: {
+        label: () => 'Тип',
+      },
+    },
     create: () => 'Додати новий',
     edit: () => 'Редагувати',
     type: {

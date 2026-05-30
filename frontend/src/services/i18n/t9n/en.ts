@@ -26,7 +26,13 @@ export default {
 
   overviewPage: {
     filters: {
-      announcement: () => 'Filters coming soon',
+      button: (activeFiltersCount: number) => (activeFiltersCount > 0 ? format('Filters ({0})', [activeFiltersCount]) : 'Filters'),
+      header: (activeFiltersCount: number) => format('Filters ({0})', [activeFiltersCount]),
+      clearAll: () => 'Clear All',
+      selectPlaceholder: () => 'Select',
+      freeSearchText: {
+        label: () => 'Search',
+      },
     },
   },
 
@@ -1141,6 +1147,14 @@ export default {
 
   categoriesOverview: {
     header: () => 'Categories',
+    filters: {
+      input: {
+        placeholder: () => 'Search categories',
+      },
+      type: {
+        label: () => 'Type',
+      },
+    },
     create: () => 'Add new',
     edit: () => 'Edit',
     type: {

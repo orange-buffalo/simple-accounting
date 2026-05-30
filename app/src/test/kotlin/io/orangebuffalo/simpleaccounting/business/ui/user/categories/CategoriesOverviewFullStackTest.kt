@@ -66,6 +66,14 @@ class CategoriesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             reportRendering("categories-overview.loaded")
+
+            openFilters()
+            reportFiltersPopoverRendering("categories-overview.filters-popover")
+            selectTypeFilter("Income")
+
+            pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
+            shouldHaveActiveFilter("Type: Income")
+            reportRendering("categories-overview.filtered")
         }
     }
 

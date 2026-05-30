@@ -1,6 +1,6 @@
 <template>
   <SaOverviewPage
-    v-model="invoicesFilter"
+    v-model="overviewFilters"
     :header="$t.invoicesOverview.header()"
     :filter-placeholder="$t.invoicesOverview.filters.input.placeholder()"
     :create-action-label="$t.invoicesOverview.create()"
@@ -12,7 +12,7 @@
       #default="{ item: invoice }"
       :page-query="invoicesPageQuery"
       path="workspace.invoices"
-      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: invoicesFilter || null }"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: overviewFilters.freeSearchText }"
     >
       <InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />
     </SaPageableItems>
@@ -69,7 +69,7 @@
     }
   `);
 
-  const invoicesFilter = ref<string | undefined>(undefined);
+  const overviewFilters = ref({ freeSearchText: null as string | null });
   const pageableItemsRef = ref<{ reload: () => void } | null>(null);
   const {
     currentWorkspaceId,

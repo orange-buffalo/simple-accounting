@@ -1,6 +1,6 @@
 <template>
   <SaOverviewPage
-    v-model="freeSearchText"
+    v-model="overviewFilters"
     :header="$t.customersOverview.header()"
     :filter-placeholder="$t.customersOverview.filters.input.placeholder()"
     :create-action-label="$t.customersOverview.create()"
@@ -9,7 +9,7 @@
     <SaPageableItems
       :page-query="customersPageQuery"
       path="workspace.customers"
-      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: freeSearchText || null }"
+      :page-query-arguments="{ workspaceId: currentWorkspaceId, freeSearchText: overviewFilters.freeSearchText }"
       #default="{ item }"
     >
       <CustomersOverviewPanel :customer="item" />
@@ -48,5 +48,5 @@
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const freeSearchText = ref<string | undefined>();
+  const overviewFilters = ref({ freeSearchText: null as string | null });
 </script>

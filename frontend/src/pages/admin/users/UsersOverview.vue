@@ -1,6 +1,6 @@
 <template>
   <SaOverviewPage
-    v-model="freeSearchText"
+    v-model="overviewFilters"
     :header="$t.usersOverview.header()"
     :filter-placeholder="$t.usersOverview.filters.input.placeholder()"
     :create-action-label="$t.usersOverview.create()"
@@ -9,7 +9,7 @@
     <SaPageableItems
       :page-query="usersPageQuery"
       path="users"
-      :page-query-arguments="{ freeSearchText: freeSearchText || null }"
+      :page-query-arguments="{ freeSearchText: overviewFilters.freeSearchText }"
       #default="{ item }"
     >
       <UsersOverviewPanel :user="item" />
@@ -45,6 +45,6 @@
     }
   `);
 
-  const freeSearchText = ref<string | undefined>();
+  const overviewFilters = ref({ freeSearchText: null as string | null });
 
 </script>
