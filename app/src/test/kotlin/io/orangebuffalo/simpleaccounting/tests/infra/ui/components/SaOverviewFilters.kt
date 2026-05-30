@@ -19,7 +19,7 @@ class SaOverviewFilters private constructor(
     private val searchInput = TextInput.byContainer(popover.locator(".sa-overview-page__filter-input"))
 
     fun shouldHaveActiveValues(vararg values: String): SaOverviewFilters {
-        filterButton.shouldHaveText("Filters (${values.size})")
+        filterButton.shouldHaveText("Add filters")
         activeValues.shouldSatisfy {
             allInnerTexts().shouldContainExactly(*values)
         }
@@ -113,6 +113,7 @@ class SaOverviewFilters private constructor(
         val control = filterControl(label)
         control.locator(".el-select__wrapper").click()
         control.locator(".el-select-dropdown__item", Locator.LocatorOptions().setHasText(value)).click()
+        control.locator(".el-select__wrapper").click()
     }
 
     companion object {

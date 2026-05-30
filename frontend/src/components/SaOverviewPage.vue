@@ -1,5 +1,5 @@
 <template>
-  <SaPage no-bottom-line>
+  <SaPage>
     <template #header>
       <div class="sa-overview-page__header-row">
         <h1>{{ header }}</h1>
@@ -17,111 +17,109 @@
       </div>
     </template>
 
-    <template #header-options>
-      <div class="sa-overview-page__header-options">
-        <div class="sa-overview-page__filters">
-          <ElPopover
-            v-model:visible="filterPopoverVisible"
-            placement="bottom-start"
-            trigger="click"
-            :width="420"
-            popper-class="sa-overview-page__filters-popover"
-          >
-            <template #reference>
-              <ElButton link class="sa-overview-page__filters-button">
-                <Filter class="sa-overview-page__filters-button-icon" />
-                {{ $t.overviewPage.filters.button(activeFiltersCount) }}
+    <div class="sa-overview-page__content-options">
+      <div class="sa-overview-page__filters">
+        <ElPopover
+          v-model:visible="filterPopoverVisible"
+          placement="bottom-start"
+          trigger="click"
+          :width="420"
+          popper-class="sa-overview-page__filters-popover"
+        >
+          <template #reference>
+            <ElButton link class="sa-overview-page__filters-button">
+              <Filter class="sa-overview-page__filters-button-icon" />
+              {{ $t.overviewPage.filters.button() }}
+            </ElButton>
+          </template>
+
+          <div class="sa-overview-page__filters-panel">
+            <div class="sa-overview-page__filters-panel-header">
+              <h2>{{ $t.overviewPage.filters.header(pendingFiltersCount) }}</h2>
+              <ElButton
+                v-if="pendingFiltersCount > 0"
+                link
+                type="danger"
+                @click="clearPendingFilters"
+              >
+                {{ $t.overviewPage.filters.clearAll() }}
               </ElButton>
-            </template>
-
-            <div class="sa-overview-page__filters-panel">
-              <div class="sa-overview-page__filters-panel-header">
-                <h2>{{ $t.overviewPage.filters.header(pendingFiltersCount) }}</h2>
-                <ElButton
-                  v-if="pendingFiltersCount > 0"
-                  link
-                  type="danger"
-                  @click="clearPendingFilters"
-                >
-                  {{ $t.overviewPage.filters.clearAll() }}
-                </ElButton>
-              </div>
-
-              <div
-                v-if="filterPlaceholder"
-                class="sa-overview-page__filter-control"
-              >
-                <label>{{ $t.overviewPage.filters.freeSearchText.label() }}</label>
-                <ElInput
-                  class="sa-overview-page__filter-input"
-                  :model-value="pendingFilters.freeSearchText ?? ''"
-                  :placeholder="filterPlaceholder"
-                  clearable
-                  @update:model-value="setPendingFreeSearchText"
-                >
-                  <template #prefix>
-                    <Search class="sa-overview-page__filter-input__icon" />
-                  </template>
-                </ElInput>
-              </div>
-
-              <div
-                v-for="filter in configuredFilters"
-                :key="filter.key"
-                class="sa-overview-page__filter-control"
-              >
-                <label>{{ filter.config.label }}</label>
-                <ElSelect
-                  v-if="filter.config.type === 'multi-select'"
-                  :model-value="getPendingFilterValue(filter.key)"
-                  multiple
-                  clearable
-                  collapse-tags
-                  collapse-tags-tooltip
-                  :teleported="false"
-                  :placeholder="$t.overviewPage.filters.selectPlaceholder()"
-                  @update:model-value="setPendingFilterValue(filter.key, $event)"
-                >
-                  <ElOption
-                    v-for="option in filter.config.options"
-                    :key="String(option.value)"
-                    :label="option.label"
-                    :value="option.value"
-                  />
-                </ElSelect>
-              </div>
-
-              <div class="sa-overview-page__filters-panel-actions">
-                <ElButton @click="cancelFilters">
-                  {{ $t.common.cancel() }}
-                </ElButton>
-                <ElButton type="primary" @click="applyFilters">
-                  {{ $t.overviewPage.filters.apply() }}
-                </ElButton>
-              </div>
             </div>
-          </ElPopover>
 
-          <div
-            v-if="activeFilterTags.length > 0"
-            class="sa-overview-page__active-filters"
-          >
-            <ElTag
-              v-for="tag in activeFilterTags"
-              :key="tag.key"
-              closable
-              @close="removeActiveFilter(tag)"
+            <div
+              v-if="filterPlaceholder"
+              class="sa-overview-page__filter-control"
             >
-              {{ tag.label }}: {{ tag.valueLabel }}
-            </ElTag>
-          </div>
-        </div>
+              <label>{{ $t.overviewPage.filters.freeSearchText.label() }}</label>
+              <ElInput
+                class="sa-overview-page__filter-input"
+                :model-value="pendingFilters.freeSearchText ?? ''"
+                :placeholder="filterPlaceholder"
+                clearable
+                @update:model-value="setPendingFreeSearchText"
+              >
+                <template #prefix>
+                  <Search class="sa-overview-page__filter-input-icon" />
+                </template>
+              </ElInput>
+            </div>
 
-        <div class="sa-overview-page__actions">
-          <slot name="actions" />
+            <div
+              v-for="filter in configuredFilters"
+              :key="filter.key"
+              class="sa-overview-page__filter-control"
+            >
+              <label>{{ filter.config.label }}</label>
+              <ElSelect
+                v-if="filter.config.type === 'multi-select'"
+                :model-value="getPendingFilterValue(filter.key)"
+                multiple
+                clearable
+                collapse-tags
+                collapse-tags-tooltip
+                :teleported="false"
+                :placeholder="$t.overviewPage.filters.selectPlaceholder()"
+                @update:model-value="setPendingFilterValue(filter.key, $event)"
+              >
+                <ElOption
+                  v-for="option in filter.config.options"
+                  :key="String(option.value)"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </ElSelect>
+            </div>
+
+            <div class="sa-overview-page__filters-panel-actions">
+              <ElButton @click="cancelFilters">
+                {{ $t.common.cancel() }}
+              </ElButton>
+              <ElButton type="primary" @click="applyFilters">
+                {{ $t.overviewPage.filters.apply() }}
+              </ElButton>
+            </div>
+          </div>
+        </ElPopover>
+
+        <div
+          v-if="activeFilterTags.length > 0"
+          class="sa-overview-page__active-filters"
+        >
+          <ElTag
+            v-for="tag in activeFilterTags"
+            :key="tag.key"
+            closable
+            @close="removeActiveFilter(tag)"
+          >
+            {{ tag.label }}: {{ tag.valueLabel }}
+          </ElTag>
         </div>
       </div>
-    </template>
+
+      <div class="sa-overview-page__actions">
+        <slot name="actions" />
+      </div>
+    </div>
 
     <slot />
   </SaPage>
@@ -253,8 +251,6 @@
     return tags;
   });
 
-  const activeFiltersCount = computed(() => activeFilterTags.value.length);
-
   const pendingFiltersCount = computed(() => {
     let count = pendingFilters.value.freeSearchText ? 1 : 0;
     configuredFilters.value.forEach((filter) => {
@@ -297,6 +293,7 @@
 
 <style lang="scss" scoped>
   @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .sa-overview-page {
     &__header-row {
@@ -318,11 +315,12 @@
       }
     }
 
-    &__header-options {
+    &__content-options {
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
       width: 100%;
+      margin-bottom: 24px;
     }
 
     &__filters {
@@ -335,7 +333,20 @@
 
     &__filters-button {
       justify-self: start;
-      color: $secondary-text-color;
+      color: $secondary-text-color !important;
+
+      &.el-button,
+      &.el-button:hover,
+      &.el-button:focus {
+        --el-button-text-color: #{$secondary-text-color};
+        --el-button-hover-text-color: #{$secondary-text-color};
+        --el-button-active-text-color: #{$secondary-text-color};
+      }
+
+      :deep(span),
+      :deep(svg) {
+        color: $secondary-text-color;
+      }
     }
 
     &__filters-button-icon {
@@ -379,12 +390,17 @@
         --el-tag-bg-color: #{rgba($secondary-text-color, 0.08)};
         --el-tag-border-color: #{rgba($secondary-text-color, 0.18)};
         --el-tag-text-color: #{$secondary-text-color};
+
+        .el-tag__close:hover {
+          color: $secondary-text-color;
+          background-color: rgba($secondary-text-color, 0.14);
+        }
       }
     }
 
     &__filters-panel-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 8px;
       margin-top: 24px;
     }
@@ -400,17 +416,14 @@
     &__filter-input {
       width: 100%;
 
-      :deep(.el-input__wrapper) {
-        background-color: transparent;
-        border: none;
-        box-shadow: none;
-        color: $secondary-text-color;
-      }
-
-      &__icon {
+      &-icon {
         width: 16px;
         height: 16px;
       }
     }
+  }
+
+  :global(.sa-overview-page__filters-popover.el-popper) {
+    @include overlay-shadow;
   }
 </style>

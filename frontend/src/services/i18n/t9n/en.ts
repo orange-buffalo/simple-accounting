@@ -26,7 +26,7 @@ export default {
 
   overviewPage: {
     filters: {
-      button: (activeFiltersCount: number) => (activeFiltersCount > 0 ? format('Filters ({0})', [activeFiltersCount]) : 'Add filters'),
+      button: () => 'Add filters',
       header: (activeFiltersCount: number) => format('Filters ({0})', [activeFiltersCount]),
       clearAll: () => 'Clear All',
       apply: () => 'Apply',
