@@ -26,7 +26,9 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        page.shouldBeWorkspacesOverviewPage()
+        page.shouldBeWorkspacesOverviewPage {
+            shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company")
+        }
 
         val newWorkspace = aggregateTemplate.findAll<Workspace>()
             .single { it.name == "Mom's Friendly Robot Company" }
