@@ -26,7 +26,7 @@
   import { getCurrencyInfo, getNumbersInfo } from '@/services/i18n';
 
   const props = defineProps<{
-    modelValue?: number,
+    modelValue?: number | null,
     currency: string
   }>();
   const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
@@ -41,7 +41,7 @@
 
   const setMaskValue = () => {
     if (mask) {
-      if (props.modelValue === undefined) {
+      if (props.modelValue == null) {
         mask.value = '';
       } else {
         mask.typedValue = props.modelValue / digitsMultiplier;

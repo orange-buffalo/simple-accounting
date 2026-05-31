@@ -17,5 +17,5 @@
     currency: string,
   }>();
 
-  const inputValue = ref<number | undefined>(undefined);
+  const inputValue = ref<number | null | undefined>(undefined);
 </script>
