@@ -235,6 +235,31 @@ class SaMoneyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should render null amount as empty input`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Delivery to Mars",
+                    originalAmount = 567890,
+                    currency = "EUR",
+                    convertedAmounts = emptyAmountsInDefaultCurrency()
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        page.shouldBeEditExpensePage {
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("")
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveCurrency("USD")
+        }
+    }
+
+    @Test
     fun `should handle large numbers with thousands separators`(page: Page) {
         val preconditions = preconditions {
             object {
