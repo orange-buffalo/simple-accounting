@@ -792,7 +792,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
-            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("0.00")
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("")
 
             useDifferentExchangeRateForIncomeTaxPurposes().shouldNotBeChecked()
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
