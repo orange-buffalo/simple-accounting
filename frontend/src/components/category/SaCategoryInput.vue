@@ -14,13 +14,15 @@
   import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
   import { graphql } from '@/services/api/gql';
   import type { ApiConnectionRequest, HasOptionalId } from '@/services/api';
+  import type { CategoryType } from '@/services/api/gql/graphql';
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
-  defineProps<{
+  const props = defineProps<{
     modelValue?: string,
     placeholder?: string,
     clearable?: boolean,
+    categoryType?: CategoryType,
   }>();
 
   const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
@@ -35,9 +37,14 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoriesQuery = useLazyQuery(graphql(`
-    query getCategoriesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {
+    query getCategoriesForSelect(
+      $workspaceId: String!,
+      $first: Int!,
+      $freeSearchText: String,
+      $typeIn: [CategoryType!]
+    ) {
       workspace(id: $workspaceId) {
-        categories(first: $first, freeSearchText: $freeSearchText) {
+        categories(first: $first, freeSearchText: $freeSearchText, typeIn: $typeIn) {
           edges {
             node {
               id
@@ -70,6 +77,7 @@
       workspaceId: currentWorkspaceId,
       first: connectionRequest.first ?? 10,
       freeSearchText: query ?? null,
+      typeIn: props.categoryType ? [props.categoryType] : null,
     }, {
       requestConfig: requestInit,
     });

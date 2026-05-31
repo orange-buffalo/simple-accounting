@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.openCreateIncomePage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import org.junit.jupiter.api.Test
 
@@ -71,6 +72,41 @@ class SaCategorySelectFullStackTest : SaFullStackTestBase() {
             .should {
                 it.categoryId.shouldBe(testData.newCategory.id)
             }
+    }
+
+    @Test
+    fun `should pre-filter category options by type on income and expense pages`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val expense = expense(
+                    workspace = workspace(owner = fry).also {
+                        category(workspace = it, name = "Delivery income", income = true, expense = false)
+                        category(workspace = it, name = "Delivery expense", income = false, expense = true)
+                        category(workspace = it, name = "Delivery operations", income = true, expense = true)
+                    }
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openCreateIncomePage {
+            category {
+                input.search("Delivery")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("Delivery income", "Delivery operations")
+                }
+            }
+        }
+
+        page.openExpenseForCategorySelection(testData.expense.id!!) {
+            category {
+                input.search("Delivery")
+                input.shouldHaveOptions { options ->
+                    options.shouldContainExactly("Delivery expense", "Delivery operations")
+                }
+            }
+        }
     }
 
     private fun Page.openExpenseForCategorySelection(

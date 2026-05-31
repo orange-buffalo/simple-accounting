@@ -15,6 +15,7 @@
             prop="categoryId"
             :label="$t.editExpense.generalInformation.category.label()"
             :placeholder="$t.editExpense.generalInformation.category.placeholder()"
+            category-type="EXPENSE"
           />
 
           <SaFormInput
