@@ -4,10 +4,13 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import org.jooq.Condition
+import org.jooq.Table
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.exists
-import org.jooq.impl.DSL.selectOne
+import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.field
+import org.jooq.impl.DSL.inline
+import org.jooq.impl.DSL.name
+import org.jooq.impl.DSL.select
 import org.springframework.stereotype.Component
 
 @Component
@@ -34,108 +37,144 @@ class DocumentsGqlApi(
         freeSearchText: String?,
         storageIdsIn: List<String>?,
         usageTypeIn: List<DocumentUsageFilterType>?,
-    ): ConnectionGqlDto<DocumentGqlDto> = paginationService.forTable(document)
-        .addPredicate(document.workspaceId.eq(workspaceId))
-        .also {
-            if (freeSearchText != null) {
-                it.addPredicate(
-                    DSL.or(
-                        document.name.containsIgnoreCase(freeSearchText),
-                        usageExists(DocumentUsageType.EXPENSE, expense.title.containsIgnoreCase(freeSearchText)),
-                        usageExists(DocumentUsageType.INCOME, income.title.containsIgnoreCase(freeSearchText)),
-                        usageExists(DocumentUsageType.INVOICE, invoice.title.containsIgnoreCase(freeSearchText)),
-                        usageExists(
-                            DocumentUsageType.INCOME_TAX_PAYMENT,
-                            incomeTaxPayment.title.containsIgnoreCase(freeSearchText),
-                        ),
-                        usageExists(
-                            DocumentUsageType.STANDALONE_DOCUMENT,
-                            standaloneDocument.title.containsIgnoreCase(freeSearchText),
-                        ),
+    ): ConnectionGqlDto<DocumentGqlDto> {
+        val usageSummary = DocumentUsageSummary(freeSearchText)
+
+        return paginationService.forTable(document)
+            .onQuery { query ->
+                query.leftJoin(usageSummary.table).on(usageSummary.documentId.eq(document.id))
+            }
+            .addPredicate(document.workspaceId.eq(workspaceId))
+            .also {
+                if (freeSearchText != null) {
+                    it.addPredicate(
+                        DSL.or(
+                            document.name.containsIgnoreCase(freeSearchText),
+                            usageSummary.matchingTitleUsages.greaterThan(0),
+                        )
                     )
-                )
+                }
+                if (!storageIdsIn.isNullOrEmpty()) {
+                    it.addPredicate(document.storageId.`in`(storageIdsIn))
+                }
+                if (!usageTypeIn.isNullOrEmpty()) {
+                    it.addPredicate(DSL.or(usageTypeIn.map { usageSummary.matches(it) }))
+                }
             }
-            if (!storageIdsIn.isNullOrEmpty()) {
-                it.addPredicate(document.storageId.`in`(storageIdsIn))
-            }
-            if (!usageTypeIn.isNullOrEmpty()) {
-                it.addPredicate(DSL.or(usageTypeIn.map { usageFilterMatches(it) }))
-            }
+            .page(
+                first = first,
+                after = after,
+                mapQueryRecord = { record ->
+                    DocumentGqlDto(
+                        id = record[document.id]!!,
+                        version = record[document.version]!!,
+                        name = record[document.name]!!,
+                        timeUploaded = record[document.timeUploaded]!!,
+                        sizeInBytes = record[document.sizeInBytes],
+                        storageId = record[document.storageId]!!,
+                        mimeType = record[document.mimeType]!!,
+                        usedBy = emptyList(),
+                    )
+                },
+                postProcess = { records ->
+                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id })
+                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id] ?: emptyList()) }
+                },
+            )
+    }
+
+    private inner class DocumentUsageSummary(freeSearchText: String?) {
+        private val tableName = name("document_usage_summary")
+        private val documentUsagesTableName = name("document_usages")
+
+        val documentId = field(tableName.append("document_id"), String::class.java)
+        private val expenseUsages = field(tableName.append("expense_usages"), Int::class.java)
+        private val incomeUsages = field(tableName.append("income_usages"), Int::class.java)
+        private val invoiceUsages = field(tableName.append("invoice_usages"), Int::class.java)
+        private val incomeTaxPaymentUsages = field(tableName.append("income_tax_payment_usages"), Int::class.java)
+        private val standaloneDocumentUsages = field(tableName.append("standalone_document_usages"), Int::class.java)
+        val matchingTitleUsages = field(tableName.append("matching_title_usages"), Int::class.java)
+
+        private val usageDocumentId = field(documentUsagesTableName.append("document_id"), String::class.java)
+        private val usageType = field(documentUsagesTableName.append("usage_type"), String::class.java)
+        private val usageTitle = field(documentUsagesTableName.append("usage_title"), String::class.java)
+
+        val table: Table<*> = buildTable(freeSearchText)
+
+        fun matches(type: DocumentUsageFilterType) = when (type) {
+            DocumentUsageFilterType.EXPENSE -> expenseUsages.greaterThan(0)
+            DocumentUsageFilterType.INCOME -> incomeUsages.greaterThan(0)
+            DocumentUsageFilterType.INVOICE -> invoiceUsages.greaterThan(0)
+            DocumentUsageFilterType.INCOME_TAX_PAYMENT -> incomeTaxPaymentUsages.greaterThan(0)
+            DocumentUsageFilterType.STANDALONE_DOCUMENT -> standaloneDocumentUsages.greaterThan(0)
+            DocumentUsageFilterType.UNUSED -> documentId.isNull
         }
-        .page(
-            first = first,
-            after = after,
-            mapQueryRecord = { record ->
-                DocumentGqlDto(
-                    id = record[document.id]!!,
-                    version = record[document.version]!!,
-                    name = record[document.name]!!,
-                    timeUploaded = record[document.timeUploaded]!!,
-                    sizeInBytes = record[document.sizeInBytes],
-                    storageId = record[document.storageId]!!,
-                    mimeType = record[document.mimeType]!!,
-                    usedBy = emptyList(),
-                )
-            },
-            postProcess = { records ->
-                val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id })
-                records.map { item -> item.copy(usedBy = usagesByDocId[item.id] ?: emptyList()) }
-            },
+
+        private fun buildTable(freeSearchText: String?): Table<*> {
+            val documentUsages = buildDocumentUsagesTable()
+            val matchingTitleUsagesField = if (freeSearchText == null) {
+                inline(0).`as`(matchingTitleUsages)
+            } else {
+                count().filterWhere(usageTitle.containsIgnoreCase(freeSearchText)).`as`(matchingTitleUsages)
+            }
+
+            return select(
+                usageDocumentId.`as`(documentId),
+                count().filterWhere(usageType.eq(DocumentUsageType.EXPENSE.name)).`as`(expenseUsages),
+                count().filterWhere(usageType.eq(DocumentUsageType.INCOME.name)).`as`(incomeUsages),
+                count().filterWhere(usageType.eq(DocumentUsageType.INVOICE.name)).`as`(invoiceUsages),
+                count().filterWhere(usageType.eq(DocumentUsageType.INCOME_TAX_PAYMENT.name)).`as`(incomeTaxPaymentUsages),
+                count().filterWhere(usageType.eq(DocumentUsageType.STANDALONE_DOCUMENT.name))
+                    .`as`(standaloneDocumentUsages),
+                matchingTitleUsagesField,
+            )
+                .from(documentUsages)
+                .groupBy(usageDocumentId)
+                .asTable(tableName.last())
+        }
+
+        private fun buildDocumentUsagesTable(): Table<*> = select(
+            expenseAttachments.documentId.`as`(usageDocumentId),
+            inline(DocumentUsageType.EXPENSE.name).`as`(usageType),
+            expense.title.`as`(usageTitle),
         )
-
-    private fun usageFilterMatches(type: DocumentUsageFilterType): Condition =
-        type.toDocumentUsageType()?.let { usageExists(it) } ?: noUsagesExist()
-
-    private fun noUsagesExist(): Condition = DSL.not(DSL.or(DocumentUsageType.entries.map { usageExists(it) }))
-
-    private fun usageExists(type: DocumentUsageType, usageTitleCondition: Condition? = null): Condition = when (type) {
-        DocumentUsageType.EXPENSE -> exists(
-            selectOne()
-                .from(expenseAttachments)
-                .join(expense).on(expense.id.eq(expenseAttachments.expenseId))
-                .where(
-                    expenseAttachments.documentId.eq(document.id),
-                    usageTitleCondition ?: DSL.trueCondition(),
+            .from(expenseAttachments)
+            .join(expense).on(expense.id.eq(expenseAttachments.expenseId))
+            .unionAll(
+                select(
+                    incomeAttachments.documentId.`as`(usageDocumentId),
+                    inline(DocumentUsageType.INCOME.name).`as`(usageType),
+                    income.title.`as`(usageTitle),
                 )
-        )
-
-        DocumentUsageType.INCOME -> exists(
-            selectOne()
-                .from(incomeAttachments)
-                .join(income).on(income.id.eq(incomeAttachments.incomeId))
-                .where(
-                    incomeAttachments.documentId.eq(document.id),
-                    usageTitleCondition ?: DSL.trueCondition(),
+                    .from(incomeAttachments)
+                    .join(income).on(income.id.eq(incomeAttachments.incomeId))
+            )
+            .unionAll(
+                select(
+                    invoiceAttachments.documentId.`as`(usageDocumentId),
+                    inline(DocumentUsageType.INVOICE.name).`as`(usageType),
+                    invoice.title.`as`(usageTitle),
                 )
-        )
-
-        DocumentUsageType.INVOICE -> exists(
-            selectOne()
-                .from(invoiceAttachments)
-                .join(invoice).on(invoice.id.eq(invoiceAttachments.invoiceId))
-                .where(
-                    invoiceAttachments.documentId.eq(document.id),
-                    usageTitleCondition ?: DSL.trueCondition(),
+                    .from(invoiceAttachments)
+                    .join(invoice).on(invoice.id.eq(invoiceAttachments.invoiceId))
+            )
+            .unionAll(
+                select(
+                    incomeTaxPaymentAttachments.documentId.`as`(usageDocumentId),
+                    inline(DocumentUsageType.INCOME_TAX_PAYMENT.name).`as`(usageType),
+                    incomeTaxPayment.title.`as`(usageTitle),
                 )
-        )
-
-        DocumentUsageType.INCOME_TAX_PAYMENT -> exists(
-            selectOne()
-                .from(incomeTaxPaymentAttachments)
-                .join(incomeTaxPayment).on(incomeTaxPayment.id.eq(incomeTaxPaymentAttachments.incomeTaxPaymentId))
-                .where(
-                    incomeTaxPaymentAttachments.documentId.eq(document.id),
-                    usageTitleCondition ?: DSL.trueCondition(),
+                    .from(incomeTaxPaymentAttachments)
+                    .join(incomeTaxPayment).on(incomeTaxPayment.id.eq(incomeTaxPaymentAttachments.incomeTaxPaymentId))
+            )
+            .unionAll(
+                select(
+                    standaloneDocument.documentId.`as`(usageDocumentId),
+                    inline(DocumentUsageType.STANDALONE_DOCUMENT.name).`as`(usageType),
+                    standaloneDocument.title.`as`(usageTitle),
                 )
-        )
-
-        DocumentUsageType.STANDALONE_DOCUMENT -> exists(
-            selectOne()
-                .from(standaloneDocument)
-                .where(
-                    standaloneDocument.documentId.eq(document.id),
-                    usageTitleCondition ?: DSL.trueCondition(),
-                )
-        )
+                    .from(standaloneDocument)
+            )
+            .asTable(documentUsagesTableName.last())
     }
 }
