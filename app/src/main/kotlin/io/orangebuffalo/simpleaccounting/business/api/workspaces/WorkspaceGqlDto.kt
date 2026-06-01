@@ -10,6 +10,8 @@ import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByW
 import io.orangebuffalo.simpleaccounting.business.api.customers.CustomerGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.customers.loadCustomerByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentUsageFilterType
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentsGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpenseGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.expenses.ExpensesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.expenses.loadExpenseByWorkspaceAndId
@@ -25,7 +27,6 @@ import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGql
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.loadIncomeTaxPaymentByWorkspaceAndId
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
@@ -187,32 +188,22 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription("Optional free text search to filter documents by file name or usage title.")
+        freeSearchText: String? = null,
+        @GraphQLDescription("Optional filter to include only documents stored in any of the specified storages.")
+        storageIdsIn: List<String>? = null,
+        @GraphQLDescription("Optional filter to include only documents matching any of the specified usage states.")
+        usageTypeIn: List<DocumentUsageFilterType>? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<DocumentGqlDto> {
-        val document = Tables.DOCUMENT
-        val paginationService = env.graphQlContext.getBean<GraphqlPaginationService>()
-        val documentsRepository = env.graphQlContext.getBean<DocumentsRepository>()
-        return paginationService.forTable(document)
-            .addPredicate(document.workspaceId.eq(id))
-            .page(
+        return env.graphQlContext.getBean<DocumentsGqlApi>()
+            .loadDocuments(
+                workspaceId = id,
                 first = first,
                 after = after,
-                mapQueryRecord = { record ->
-                    DocumentGqlDto(
-                        id = record[document.id]!!,
-                        version = record[document.version]!!,
-                        name = record[document.name]!!,
-                        timeUploaded = record[document.timeUploaded]!!,
-                        sizeInBytes = record[document.sizeInBytes],
-                        storageId = record[document.storageId]!!,
-                        mimeType = record[document.mimeType]!!,
-                        usedBy = emptyList(),
-                    )
-                },
-                postProcess = { records ->
-                    val usagesByDocId = documentsRepository.findUsagesByDocumentIds(records.map { it.id })
-                    records.map { item -> item.copy(usedBy = usagesByDocId[item.id] ?: emptyList()) }
-                },
+                freeSearchText = freeSearchText,
+                storageIdsIn = storageIdsIn,
+                usageTypeIn = usageTypeIn,
             )
     }
 
