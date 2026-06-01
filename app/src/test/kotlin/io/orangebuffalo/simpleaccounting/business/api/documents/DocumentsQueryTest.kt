@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlRawQuery
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.JsonElement
@@ -307,6 +308,243 @@ class DocumentsQueryTest(
     }
 
     @Nested
+    @DisplayName("Filtering")
+    inner class Filtering {
+
+        private fun EntitiesFactory.documentsForFiltering() = object {
+            val fry = fry()
+            val workspace = workspace(owner = fry, name = "Planet Express")
+        }.also {
+            document(
+                workspace = it.workspace,
+                name = "Slurm manifest.pdf",
+                storageId = "test-storage",
+                createdAt = MOCK_TIME.plusSeconds(100),
+            )
+            val robotOilReceipt = document(
+                workspace = it.workspace,
+                name = "Expense attachment.pdf",
+                storageId = "noop",
+                createdAt = MOCK_TIME.plusSeconds(200),
+            )
+            val moonCargoReceipt = document(
+                workspace = it.workspace,
+                name = "Income attachment.pdf",
+                storageId = "google-drive",
+                createdAt = MOCK_TIME.plusSeconds(300),
+            )
+            val marsInvoiceReceipt = document(
+                workspace = it.workspace,
+                name = "Invoice attachment.pdf",
+                storageId = "local-fs",
+                createdAt = MOCK_TIME.plusSeconds(400),
+            )
+            val bureaucracyTaxReceipt = document(
+                workspace = it.workspace,
+                name = "Tax attachment.pdf",
+                storageId = "noop",
+                createdAt = MOCK_TIME.plusSeconds(500),
+            )
+            val goodNewsArchive = document(
+                workspace = it.workspace,
+                name = "Standalone attachment.pdf",
+                storageId = "local-fs",
+                createdAt = MOCK_TIME.plusSeconds(600),
+            )
+            document(
+                workspace = it.workspace,
+                name = "Unused neutral file.pdf",
+                storageId = "archive",
+                createdAt = MOCK_TIME.plusSeconds(700),
+            )
+
+            expense(workspace = it.workspace, title = "Robot oil delivery", attachments = setOf(robotOilReceipt))
+            income(workspace = it.workspace, title = "Moon cargo payment", attachments = setOf(moonCargoReceipt))
+            invoice(title = "Mars invoice", attachments = setOf(marsInvoiceReceipt))
+            incomeTaxPayment(workspace = it.workspace, title = "Central Bureaucracy tax", attachments = setOf(bureaucracyTaxReceipt))
+            standaloneDocument(title = "Good news archive", document = goodNewsArchive)
+
+            val otherWorkspace = workspace(owner = zoidberg(), name = "Zoidberg's Clinic")
+            document(workspace = otherWorkspace, name = "Slurm manifest from another universe")
+        }
+
+        @Test
+        fun `should filter documents by free search text in file name`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "freeSearchText: \"slurm\"")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse("Slurm manifest.pdf", totalCount = 1))
+        }
+
+        @Test
+        fun `should filter documents by free search text in usage title for all usage types`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            mapOf(
+                "robot" to "Expense attachment.pdf",
+                "cargo" to "Income attachment.pdf",
+                "mars" to "Invoice attachment.pdf",
+                "bureaucracy" to "Tax attachment.pdf",
+                "good news" to "Standalone attachment.pdf",
+            ).forEach { (searchText, expectedDocumentName) ->
+                client.documentsRawQuery(testData.workspace.id!!, "freeSearchText: \"$searchText\"")
+                    .from(testData.fry)
+                    .executeAndVerifyResponse(documentsResponse(expectedDocumentName, totalCount = 1))
+            }
+        }
+
+        @Test
+        fun `should filter documents by free search text case insensitively`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "freeSearchText: \"bUrEaUcRaCy\"")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse("Tax attachment.pdf", totalCount = 1))
+        }
+
+        @Test
+        fun `should filter documents by storage ids`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "storageIdsIn: [\"noop\", \"local-fs\"]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Standalone attachment.pdf",
+                    "Tax attachment.pdf",
+                    "Invoice attachment.pdf",
+                    "Expense attachment.pdf",
+                    totalCount = 4,
+                ))
+        }
+
+        @Test
+        fun `should not apply storage ids filter when empty list is provided`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "storageIdsIn: []")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Unused neutral file.pdf",
+                    "Standalone attachment.pdf",
+                    "Tax attachment.pdf",
+                    "Invoice attachment.pdf",
+                    "Income attachment.pdf",
+                    "Expense attachment.pdf",
+                    "Slurm manifest.pdf",
+                    totalCount = 7,
+                ))
+        }
+
+        @Test
+        fun `should filter documents by each usage type`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            mapOf(
+                "EXPENSE" to "Expense attachment.pdf",
+                "INCOME" to "Income attachment.pdf",
+                "INVOICE" to "Invoice attachment.pdf",
+                "INCOME_TAX_PAYMENT" to "Tax attachment.pdf",
+                "STANDALONE_DOCUMENT" to "Standalone attachment.pdf",
+            ).forEach { (usageType, expectedDocumentName) ->
+                client.documentsRawQuery(testData.workspace.id!!, "usageTypeIn: [$usageType]")
+                    .from(testData.fry)
+                    .executeAndVerifyResponse(documentsResponse(expectedDocumentName, totalCount = 1))
+            }
+        }
+
+        @Test
+        fun `should filter documents by unused usage type`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "usageTypeIn: [UNUSED]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Unused neutral file.pdf",
+                    "Slurm manifest.pdf",
+                    totalCount = 2,
+                ))
+        }
+
+        @Test
+        fun `should apply OR logic between usage types`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(
+                testData.workspace.id!!,
+                "usageTypeIn: [EXPENSE, INCOME, INVOICE, INCOME_TAX_PAYMENT, STANDALONE_DOCUMENT, UNUSED]",
+            )
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Unused neutral file.pdf",
+                    "Standalone attachment.pdf",
+                    "Tax attachment.pdf",
+                    "Invoice attachment.pdf",
+                    "Income attachment.pdf",
+                    "Expense attachment.pdf",
+                    "Slurm manifest.pdf",
+                    totalCount = 7,
+                ))
+        }
+
+        @Test
+        fun `should combine unused usage type with used usage types using OR logic`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "usageTypeIn: [UNUSED, EXPENSE]")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Unused neutral file.pdf",
+                    "Expense attachment.pdf",
+                    "Slurm manifest.pdf",
+                    totalCount = 3,
+                ))
+        }
+
+        @Test
+        fun `should not apply usage type filter when empty list is provided`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(testData.workspace.id!!, "usageTypeIn: []")
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(
+                    "Unused neutral file.pdf",
+                    "Standalone attachment.pdf",
+                    "Tax attachment.pdf",
+                    "Invoice attachment.pdf",
+                    "Income attachment.pdf",
+                    "Expense attachment.pdf",
+                    "Slurm manifest.pdf",
+                    totalCount = 7,
+                ))
+        }
+
+        @Test
+        fun `should combine filters with AND logic`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(
+                testData.workspace.id!!,
+                "freeSearchText: \"mars\", storageIdsIn: [\"local-fs\"], usageTypeIn: [INVOICE]",
+            )
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse("Invoice attachment.pdf", totalCount = 1))
+        }
+
+        @Test
+        fun `should return empty connection when combined filters do not match`() {
+            val testData = preconditions { documentsForFiltering() }
+
+            client.documentsRawQuery(
+                testData.workspace.id!!,
+                "freeSearchText: \"mars\", storageIdsIn: [\"noop\"], usageTypeIn: [INVOICE]",
+            )
+                .from(testData.fry)
+                .executeAndVerifyResponse(documentsResponse(totalCount = 0))
+        }
+    }
+
+    @Nested
     @DisplayName("Document Fields")
     inner class DocumentFields {
         @Test
@@ -595,6 +833,31 @@ private fun emptyDocumentsConnection(
     })
     put("totalCount", totalCount)
 }
+
+private fun ApiTestClient.documentsRawQuery(workspaceId: String, args: String) = graphqlRawQuery(
+    """
+        query {
+          workspace(id: "$workspaceId") {
+            documents(first: 10, $args) {
+              edges {
+                node { name }
+              }
+              totalCount
+            }
+          }
+        }
+    """.trimIndent()
+)
+
+private fun documentsResponse(vararg documentNames: String, totalCount: Int): Pair<String, JsonElement> =
+    "workspace" to buildJsonObject {
+        put("documents", buildJsonObject {
+            putJsonArray("edges") {
+                documentNames.forEach { documentEdge(name = it) }
+            }
+            put("totalCount", totalCount)
+        })
+    }
 
 private fun kotlinx.serialization.json.JsonArrayBuilder.documentEdge(name: String) {
     add(buildJsonObject {

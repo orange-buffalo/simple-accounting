@@ -249,6 +249,22 @@ export type DocumentUsage = {
   type: DocumentUsageType;
 };
 
+/** Usage type filter for documents. */
+export enum DocumentUsageFilterType {
+  /** Document is used by an expense. */
+  Expense = 'EXPENSE',
+  /** Document is used by an income. */
+  Income = 'INCOME',
+  /** Document is used by an income tax payment. */
+  IncomeTaxPayment = 'INCOME_TAX_PAYMENT',
+  /** Document is used by an invoice. */
+  Invoice = 'INVOICE',
+  /** Document is used by a standalone document. */
+  StandaloneDocument = 'STANDALONE_DOCUMENT',
+  /** Document is not used by any entity. */
+  Unused = 'UNUSED'
+}
+
 /** Type of entity that uses a document. */
 export enum DocumentUsageType {
   /** Document is used by an expense. */
@@ -1473,6 +1489,9 @@ export type WorkspaceCustomersArgs = {
 export type WorkspaceDocumentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  storageIdsIn?: InputMaybe<Array<Scalars['String']['input']>>;
+  usageTypeIn?: InputMaybe<Array<DocumentUsageFilterType>>;
 };
 
 

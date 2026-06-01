@@ -1315,7 +1315,13 @@ type Workspace {
     "Cursor after which to return items."
     after: String,
     "The maximum number of items to return."
-    first: Int!
+    first: Int!,
+    "Optional free text search to filter documents by file name or usage title."
+    freeSearchText: String,
+    "Optional filter to include only documents stored in any of the specified storages."
+    storageIdsIn: [String!],
+    "Optional filter to include only documents matching any of the specified usage states."
+    usageTypeIn: [DocumentUsageFilterType!]
   ): DocumentsConnection!
   "Returns an expense by its ID if it belongs to this workspace, or null if not found."
   expense(
@@ -1562,6 +1568,22 @@ enum CreateUserErrorCodes {
 enum DeleteDocumentErrorCodes {
   "The document is attached to another entity and cannot be deleted."
   DOCUMENT_IS_USED
+}
+
+"Usage type filter for documents."
+enum DocumentUsageFilterType {
+  "Document is used by an expense."
+  EXPENSE
+  "Document is used by an income."
+  INCOME
+  "Document is used by an income tax payment."
+  INCOME_TAX_PAYMENT
+  "Document is used by an invoice."
+  INVOICE
+  "Document is used by a standalone document."
+  STANDALONE_DOCUMENT
+  "Document is not used by any entity."
+  UNUSED
 }
 
 "Type of entity that uses a document."
