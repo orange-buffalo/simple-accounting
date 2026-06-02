@@ -52,7 +52,9 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        page.shouldBeWorkspacesOverviewPage()
+        page.shouldBeWorkspacesOverviewPage {
+            shouldHaveWorkspaces("Mom's Friendly Robot Company")
+        }
 
         aggregateTemplate.findSingle<Workspace>(testData.workspace.id!!)
             .shouldBeEntityWithFields(

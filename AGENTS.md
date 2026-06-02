@@ -170,6 +170,16 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 - **Frontend tests**: Vitest for limited cases of complex logic 
 - **Full stack tests**: Playwright
 
+### Test Parallelization Model
+- Backend and full stack test parallelism is implemented with separate JVM forks, not concurrent JUnit execution inside the
+  same Spring `ApplicationContext` or H2 database.
+- Do not assume two tests are mutating the same database or sharing the same Spring context concurrently when diagnosing CI
+  failures. Each fork has its own process-local Spring context and in-memory database.
+- Avoid changing generic test authentication, context, database, or mocking infrastructure to fix a suspected same-context
+  test race unless there is concrete evidence that the failure occurs within one JVM fork.
+- If a full `:app:test` run reports many unrelated failures after a test infrastructure change, treat the infrastructure
+  change itself as the likely cause and revert or narrow it before investigating individual failed tests.
+
 ## General Coding Guidelines
 
 1. Be concise and clear in your responses. Avoid extra details unless specifically requested.
