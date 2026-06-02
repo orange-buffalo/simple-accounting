@@ -476,8 +476,8 @@ class GraphqlClientRequestExecutor(
             )
             is GraphqlMutationRejectedInputTestCase -> executeAndVerifyValidationError(
                 violationPath = testCase.fieldName,
-                error = "MustNotBeNull",
-                message = "must not be null",
+                error = testCase.error,
+                message = testCase.message,
                 path = path,
             )
             is GraphqlMutationValidBoundaryTestCase -> {

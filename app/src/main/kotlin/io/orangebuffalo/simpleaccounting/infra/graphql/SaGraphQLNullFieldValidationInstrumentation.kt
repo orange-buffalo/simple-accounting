@@ -60,15 +60,23 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
         state: InstrumentationState?,
     ): CompletableFuture<ExecutionResult> {
         val nullFieldErrors = collectNullFieldErrors(executionResult)
+        val preCoercionValidationErrors = collectPreCoercionValidationErrors(executionResult)
 
-        if (nullFieldErrors.isEmpty()) {
+        if (nullFieldErrors.isEmpty() && preCoercionValidationErrors.isEmpty()) {
             return CompletableFuture.completedFuture(executionResult)
         }
 
-        val handledErrors = nullFieldErrors.map { it.originalError }.toSet()
+        val preCoercionValidationPaths = preCoercionValidationErrors
+            .flatMap { error -> error.validationDetails.map { it.path } }
+            .toSet()
+        val nullFieldErrorsToTransform = nullFieldErrors
+            .filterNot { it.fieldName in preCoercionValidationPaths }
+
+        val handledErrors = (nullFieldErrors.map { it.originalError } + preCoercionValidationErrors.map { it.originalError })
+            .toSet()
         val otherErrors = executionResult.errors.filter { it !in handledErrors }
 
-        val transformedErrors = nullFieldErrors
+        val transformedNullFieldErrors = nullFieldErrorsToTransform
             .groupBy { it.queryPath }
             .map { (queryPath, errors) ->
                 val validationDetails = errors
@@ -87,9 +95,17 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
                 )
             }
 
+        val transformedPreCoercionValidationErrors = preCoercionValidationErrors.map { error ->
+            NullFieldValidationFailureGraphQLError(
+                queryPath = error.queryPath,
+                validationDetails = error.validationDetails,
+                sourceLocation = error.originalError.locations?.firstOrNull(),
+            )
+        }
+
         return CompletableFuture.completedFuture(
             executionResult.transform { builder ->
-                builder.errors(otherErrors + transformedErrors)
+                builder.errors(otherErrors + transformedNullFieldErrors + transformedPreCoercionValidationErrors)
             }
         )
     }
@@ -112,10 +128,27 @@ class SaGraphQLNullFieldValidationInstrumentation : Instrumentation {
                 )
             }
 
+    private fun collectPreCoercionValidationErrors(executionResult: ExecutionResult): List<PreCoercionValidationError> =
+        executionResult.errors
+            .mapNotNull { error ->
+                val validationDetails = error.getSaValidationErrors()
+                if (validationDetails.isEmpty()) {
+                    null
+                } else {
+                    PreCoercionValidationError(error, validationDetails)
+                }
+            }
+
     private data class NullFieldError(
         val originalError: GraphQLError,
         val fieldName: String,
         val queryPath: List<String>,
+    )
+
+    private data class PreCoercionValidationError(
+        val originalError: GraphQLError,
+        val validationDetails: List<ValidationErrorDetails>,
+        val queryPath: List<String> = originalError.getSaValidationQueryPath(),
     )
 }
 
