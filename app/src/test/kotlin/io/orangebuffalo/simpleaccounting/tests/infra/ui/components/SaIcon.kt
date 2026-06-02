@@ -59,4 +59,6 @@ enum class SaIconType(val uiValue: String) {
     DELETE("delete"),
     MENU("menu"),
     GOOGLE_DRIVE("google-drive"),
+    FOLDER("folder"),
+    DATA_LINE("data-line"),
 }

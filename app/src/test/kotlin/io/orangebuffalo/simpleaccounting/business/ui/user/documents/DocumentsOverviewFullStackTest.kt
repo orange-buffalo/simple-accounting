@@ -167,7 +167,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttributes = primaryAttributes(
                             primaryAttribute(SaIconType.ATTACHMENT, text = "Planet Express License"),
                         ),
-                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
@@ -184,7 +184,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.EXPENSE, text = "Robot oil"),
                             primaryAttribute(SaIconType.INCOME, text = "Delivery commission"),
                         ),
-                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
@@ -193,14 +193,14 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttributes = primaryAttributes(
                             primaryAttribute(SaIconType.EXPENSE, text = "Slurm supplies"),
                         ),
-                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Unused Receipt.pdf",
                         primaryAttributes = primaryAttributes(),
-                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
@@ -858,30 +858,20 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
             filters.addSelectFilter("Usage", "Expense")
             pageItems.shouldHaveTitles("Expense usage.pdf")
-        }
 
-        page.openDocumentsOverviewPage {
-            filters.addSelectFilter("Usage", "Income")
+            filters.clearAll().addSelectFilter("Usage", "Income")
             pageItems.shouldHaveTitles("Income usage.pdf")
-        }
 
-        page.openDocumentsOverviewPage {
-            filters.addSelectFilter("Usage", "Invoice")
+            filters.clearAll().addSelectFilter("Usage", "Invoice")
             pageItems.shouldHaveTitles("Invoice usage.pdf")
-        }
 
-        page.openDocumentsOverviewPage {
-            filters.addSelectFilter("Usage", "Income Tax Payment")
+            filters.clearAll().addSelectFilter("Usage", "Income Tax Payment")
             pageItems.shouldHaveTitles("Tax usage.pdf")
-        }
 
-        page.openDocumentsOverviewPage {
-            filters.addSelectFilter("Usage", "Standalone Document")
+            filters.clearAll().addSelectFilter("Usage", "Standalone Document")
             pageItems.shouldHaveTitles("Standalone usage.pdf")
-        }
 
-        page.openDocumentsOverviewPage {
-            filters.addSelectFilter("Usage", "Unused")
+            filters.clearAll().addSelectFilter("Usage", "Unused")
             pageItems.shouldHaveTitles("Unused document.pdf")
         }
     }

@@ -27,11 +27,13 @@
         />
         <Folder
           v-else-if="document.storageId === 'local-fs'"
-          class="documents-overview-panel__element-plus-preview-icon"
+          data-icon="folder"
+          class="sa-icon overview-item-attribute-preview-icon documents-overview-panel__element-plus-preview-icon"
         />
         <DataLine
           v-else
-          class="documents-overview-panel__element-plus-preview-icon"
+          data-icon="data-line"
+          class="sa-icon overview-item-attribute-preview-icon documents-overview-panel__element-plus-preview-icon"
         />
       </ElTooltip>
     </template>
