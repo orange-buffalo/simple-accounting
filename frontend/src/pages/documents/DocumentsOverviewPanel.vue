@@ -2,33 +2,38 @@
   <SaOverviewItem :title="document.name">
     <template #primary-attributes>
       <SaOverviewItemPrimaryAttribute
-        :tooltip="$t.documentsOverviewPanel.timeUploaded.label()"
-        icon="calendar"
-      >
-        {{ $t.common.dateTime.medium(document.timeUploaded) }}
-      </SaOverviewItemPrimaryAttribute>
-
-      <SaOverviewItemPrimaryAttribute
-        :tooltip="$t.documentsOverviewPanel.storage.label()"
-        icon="upload"
-      >
-        {{ storageLabel }}
-      </SaOverviewItemPrimaryAttribute>
-
-      <SaOverviewItemPrimaryAttribute
         v-for="usage in document.usedBy"
         :key="`${usage.type}-${usage.relatedEntityId}`"
-        :tooltip="usageTooltip(usage)"
+        :tooltip="usageLabel(usage.type)"
         :icon="usageIcon(usage.type)"
       >
-        <ElButton
-          link
-          class="documents-overview-panel__usage-link"
-          @click="navigateToUsage(usage)"
-        >
-          {{ usage.displayName }}
-        </ElButton>
+        {{ usage.displayName }}
       </SaOverviewItemPrimaryAttribute>
+    </template>
+
+    <template #attributes-preview>
+      <SaOverviewItemAttributePreviewIcon
+        icon="calendar"
+        :tooltip="$t.documentsOverviewPanel.timeUploaded.tooltip($t.common.dateTime.medium(document.timeUploaded))"
+      />
+      <ElTooltip
+        :content="storageLabel"
+        placement="bottom"
+      >
+        <SaIcon
+          v-if="document.storageId === 'google-drive'"
+          icon="google-drive"
+          class="overview-item-attribute-preview-icon"
+        />
+        <Folder
+          v-else-if="document.storageId === 'local-fs'"
+          class="documents-overview-panel__element-plus-preview-icon"
+        />
+        <DataLine
+          v-else
+          class="documents-overview-panel__element-plus-preview-icon"
+        />
+      </ElTooltip>
     </template>
 
     <template #last-column>
@@ -57,16 +62,17 @@
               class="documents-overview-panel__action"
             />
             <ElButton
-              v-if="standaloneDocumentUsage && currentWorkspace.editable"
+              v-for="usage in document.usedBy"
+              :key="`${usage.type}-${usage.relatedEntityId}`"
               link
               class="documents-overview-panel__action"
-              @click="navigateToEditStandaloneDocument"
+              @click="navigateToUsage(usage)"
             >
               <SaIcon
-                icon="pencil-solid"
+                :icon="usageIcon(usage.type)"
                 class="documents-overview-panel__action-icon"
               />
-              {{ $t.documentsOverviewPanel.edit.label() }}
+              {{ $t.documentsOverviewPanel.navigate.label(usage.displayName) }}
             </ElButton>
             <ElTooltip
               v-if="canDelete"
@@ -96,10 +102,11 @@
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
-  import { ElPopover } from 'element-plus';
-  import { Delete, Menu } from '@element-plus/icons-vue';
+  import { ElPopover, ElTooltip } from 'element-plus';
+  import { DataLine, Delete, Folder, Menu } from '@element-plus/icons-vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
@@ -154,7 +161,7 @@
   }>();
 
   const { navigateToView } = useNavigation();
-  const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
+  const { currentWorkspaceId } = useCurrentWorkspace();
   const { downloadStoragesStatus } = useDownloadDocumentStoragesStatus();
   const deleting = ref(false);
 
@@ -244,7 +251,7 @@
     INCOME: 'edit-income',
     INVOICE: 'edit-invoice',
     INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
-    STANDALONE_DOCUMENT: 'documents-overview',
+    STANDALONE_DOCUMENT: 'edit-standalone-document',
   };
 
   const usageTypeToIconMap: Record<DocumentUsageType, string> = {
@@ -272,10 +279,6 @@
     }
   };
 
-  const usageTooltip = (usage: DocumentUsage) => (
-    $t.value.documentsOverviewPanel.usage.navigateTooltip(usageLabel(usage.type))
-  );
-
   const navigateToUsage = (usage: DocumentUsage) => {
     const routeName = usageTypeToRouteMap[usage.type];
     navigateToView({
@@ -284,23 +287,10 @@
     });
   };
 
-  const navigateToEditStandaloneDocument = () => {
-    if (!standaloneDocumentUsage.value) return;
-
-    navigateToView({
-      name: 'edit-standalone-document',
-      params: { id: standaloneDocumentUsage.value.relatedEntityId },
-    });
-  };
 </script>
 
 <style lang="scss">
   .documents-overview-panel {
-    &__usage-link {
-      padding: 0;
-      height: auto;
-    }
-
     &__actions {
       display: flex;
       justify-content: flex-end;
@@ -313,11 +303,19 @@
     &__action-icon {
       margin-right: 4px;
     }
+
+    &__element-plus-preview-icon {
+      color: var(--el-text-color-regular);
+      margin-right: 5px;
+      width: 18px;
+      height: 18px;
+    }
   }
 
   .documents-overview-panel__actions-popover {
     width: max-content !important;
-    min-width: 0 !important;
+    min-width: 220px !important;
+    max-width: calc(100vw - 32px) !important;
   }
 
   .documents-overview-panel__actions-menu {
@@ -325,7 +323,9 @@
     flex-direction: column;
     align-items: stretch;
     gap: 5px;
-    min-width: max-content;
+    min-width: 220px;
+    width: max-content;
+    max-width: calc(100vw - 64px);
 
     .documents-overview-panel__action,
     .sa-document-download-link,
@@ -336,6 +336,7 @@
     .el-button {
       justify-content: flex-start;
       margin-left: 0;
+      white-space: nowrap;
     }
   }
 </style>

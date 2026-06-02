@@ -68,6 +68,18 @@ class SaOverviewFilters private constructor(
         return this
     }
 
+    fun shouldHaveSelectOptions(label: String, vararg values: String): SaOverviewFilters {
+        openPopover()
+        val control = filterControl(label)
+        control.locator(".el-select__wrapper").click()
+        control.locator(".el-select-dropdown__item").shouldSatisfy {
+            allInnerTexts().shouldContainExactly(*values)
+        }
+        control.locator(".el-select__wrapper").click()
+        closePopover()
+        return this
+    }
+
     fun reportPopoverRendering(name: String): SaOverviewFilters {
         openPopover()
         popover.reportRendering(name)
@@ -111,8 +123,12 @@ class SaOverviewFilters private constructor(
     private fun selectFilterOption(label: String, value: String) {
         val control = filterControl(label)
         control.locator(".el-select__wrapper").click()
-        control.locator(".el-select-dropdown__item", Locator.LocatorOptions().setHasText(value)).click()
-        control.locator(".el-select__wrapper").click()
+        control.locator(
+            "xpath=.//*[contains(concat(' ', normalize-space(@class), ' '), ' el-select-dropdown__item ') " +
+                    "and normalize-space(.)='$value']"
+        )
+            .click()
+        page.keyboard().press("Escape")
     }
 
     companion object {

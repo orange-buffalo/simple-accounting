@@ -371,6 +371,23 @@ export default {
   documentsOverview: {
     header: () => 'Documents',
     create: () => 'Upload',
+    filters: {
+      freeSearchText: {
+        label: () => 'File name or usage title',
+      },
+      usage: {
+        label: () => 'Usage',
+        expense: () => 'Expense',
+        income: () => 'Income',
+        invoice: () => 'Invoice',
+        incomeTaxPayment: () => 'Income Tax Payment',
+        standaloneDocument: () => 'Standalone Document',
+        unused: () => 'Unused',
+      },
+      storage: {
+        label: () => 'Storage',
+      },
+    },
   },
 
   createStandaloneDocument: {
@@ -397,6 +414,7 @@ export default {
   documentsOverviewPanel: {
     timeUploaded: {
       label: () => 'Uploaded',
+      tooltip: (timeUploaded: string) => `Uploaded ${timeUploaded}`,
     },
     storage: {
       label: () => 'Storage',
@@ -405,15 +423,18 @@ export default {
       unknown: () => 'Unknown',
     },
     usage: {
-      expense: () => 'expense',
-      income: () => 'income',
-      invoice: () => 'invoice',
-      incomeTaxPayment: () => 'income tax payment',
-      standaloneDocument: () => 'standalone document',
+      expense: () => 'Expense',
+      income: () => 'Income',
+      invoice: () => 'Invoice',
+      incomeTaxPayment: () => 'Income Tax Payment',
+      standaloneDocument: () => 'Standalone Document',
       navigateTooltip: (usageType: string) => `Click to navigate to the ${usageType}`,
     },
     actions: {
       label: () => 'More actions',
+    },
+    navigate: {
+      label: (title: string) => `Navigate to ${title}`,
     },
     download: {
       waitingForStorage: () => 'Waiting for the storage to become available',
