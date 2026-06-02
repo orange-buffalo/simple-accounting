@@ -370,6 +370,23 @@ export default {
   documentsOverview: {
     header: () => 'Документи',
     create: () => 'Завантажити',
+    filters: {
+      freeSearchText: {
+        label: () => 'Назва файлу або використання',
+      },
+      usage: {
+        label: () => 'Використання',
+        expense: () => 'Витрати',
+        income: () => 'Доходи',
+        invoice: () => 'Рахунок',
+        incomeTaxPayment: () => 'Платіж податку на дохід',
+        standaloneDocument: () => 'Окремий документ',
+        unused: () => 'Не використовується',
+      },
+      storage: {
+        label: () => 'Сховище',
+      },
+    },
   },
 
   createStandaloneDocument: {
@@ -396,6 +413,7 @@ export default {
   documentsOverviewPanel: {
     timeUploaded: {
       label: () => 'Завантажено',
+      tooltip: (timeUploaded: string) => `Завантажено ${timeUploaded}`,
     },
     storage: {
       label: () => 'Сховище',
@@ -413,6 +431,9 @@ export default {
     },
     actions: {
       label: () => 'Більше дій',
+    },
+    navigate: {
+      label: (title: string) => `Перейти до ${title}`,
     },
     download: {
       waitingForStorage: () => 'Очікуємо, поки сховище стане доступним',

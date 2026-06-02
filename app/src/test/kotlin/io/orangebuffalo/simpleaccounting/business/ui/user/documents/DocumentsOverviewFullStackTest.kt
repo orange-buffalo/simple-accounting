@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMo
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
@@ -164,49 +165,42 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     SaOverviewItemData(
                         title = "Standalone License.pdf",
                         primaryAttributes = primaryAttributes(
-                            "12 Jan 3025, 7:00 am",
-                            "Unknown",
                             primaryAttribute(SaIconType.ATTACHMENT, text = "Planet Express License"),
                         ),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Google Drive Doc.pdf",
-                        primaryAttributes = primaryAttributes(
-                            "13 Jan 3025, 8:00 am",
-                            "Google Drive"
-                        ),
+                        primaryAttributes = primaryAttributes(),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.GOOGLE_DRIVE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Multi Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "14 Jan 3025, 9:00 am",
-                            "Unknown",
                             primaryAttribute(SaIconType.EXPENSE, text = "Robot oil"),
                             primaryAttribute(SaIconType.INCOME, text = "Delivery commission"),
                         ),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Single Usage Doc.pdf",
                         primaryAttributes = primaryAttributes(
-                            "15 Jan 3025, 9:30 pm",
-                            "Unknown",
                             primaryAttribute(SaIconType.EXPENSE, text = "Slurm supplies"),
                         ),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Unused Receipt.pdf",
-                        primaryAttributes = primaryAttributes(
-                            "28 Mar 1999, 11:01 pm",
-                            "Unknown"
-                        ),
+                        primaryAttributes = primaryAttributes(),
+                        attributePreviewIcons = previewIcons(SaIconType.CALENDAR, SaIconType.DATA_LINE),
                         lastColumnContent = lastColumnActions(),
                         hasDetails = false,
                     ),
@@ -225,14 +219,15 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 unusedDocument.shouldHaveLastColumnActionEnabled("Download")
                 unusedDocument.shouldHaveLastColumnActionEnabled("Delete")
 
-                shouldHaveItemSatisfying { it.title == "Single Usage Doc.pdf" }
-                    .shouldHaveLastColumnActionEnabled("Download")
+                shouldHaveItemSatisfying { it.title == "Single Usage Doc.pdf" }.also {
+                    it.shouldHaveActionMenuItems("Download", "Navigate to Slurm supplies")
+                    it.shouldHaveLastColumnActionEnabled("Download")
+                }
                 shouldHaveItemSatisfying { it.title == "Standalone License.pdf" }.also {
-                    it.shouldHaveActionMenuItems("Download", "Edit", "Delete")
-                    it.shouldHaveLastColumnActionEnabled("Edit")
+                    it.shouldHaveActionMenuItems("Download", "Navigate to Planet Express License", "Delete")
                     it.shouldHaveLastColumnActionEnabled("Delete")
                     documentsOverviewPage.reportRenderingWithPopovers("documents-overview.actions-menu")
-                    it.clickActionMenuItem("Edit")
+                    it.clickActionMenuItem("Navigate to Planet Express License")
                 }
             }
         }
@@ -242,9 +237,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         }
     }
 
-    private fun primaryAttributes(dateTime: String, storage: String, vararg usages: String) = listOf(
-        primaryAttribute(SaIconType.CALENDAR, text = dateTime),
-        primaryAttribute(SaIconType.UPLOAD, text = storage),
+    private fun primaryAttributes(vararg usages: String) = listOf(
         *usages,
     )
 
@@ -363,7 +356,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 val unusedItem = shouldHaveItemSatisfying { it.title == "Unused Slurm Receipt.pdf" }
                 shouldHaveItemSatisfying { it.title == "Used Robot Oil Receipt.pdf" }
-                    .shouldHaveActionMenuItems("Download")
+                    .shouldHaveActionMenuItems("Download", "Navigate to Robot oil")
                 unusedItem.clickActionMenuItem("Delete")
             }
             confirmDocumentDeletion()
@@ -405,7 +398,11 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 val standaloneItem = shouldHaveItemSatisfying { it.title == "Standalone delivery permit.pdf" }
-                standaloneItem.shouldHaveActionMenuItems("Download", "Edit", "Delete")
+                standaloneItem.shouldHaveActionMenuItems(
+                    "Download",
+                    "Navigate to Planet Express delivery permit",
+                    "Delete",
+                )
                 standaloneItem.shouldHaveLastColumnActionEnabled("Download")
                 standaloneItem.shouldHaveLastColumnActionEnabled("Delete")
                 standaloneItem.clickActionMenuItem("Delete")
@@ -653,7 +650,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Expense Receipt.pdf")
-                staticItems[0].clickPrimaryAttributeLink("Slurm supplies")
+                staticItems[0].clickActionMenuItem("Navigate to Slurm supplies")
             }
         }
 
@@ -687,7 +684,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Income Receipt.pdf")
-                staticItems[0].clickPrimaryAttributeLink("Delivery commission")
+                staticItems[0].clickActionMenuItem("Navigate to Delivery commission")
             }
         }
 
@@ -722,7 +719,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Invoice Attachment.pdf")
-                staticItems[0].clickPrimaryAttributeLink("Delivery to Omicron Persei 8")
+                staticItems[0].clickActionMenuItem("Navigate to Delivery to Omicron Persei 8")
             }
         }
 
@@ -756,7 +753,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             pageItems {
                 shouldHaveTitles("Tax Payment Receipt.pdf")
-                staticItems[0].clickPrimaryAttributeLink("Q1 Corporate Tax")
+                staticItems[0].clickActionMenuItem("Navigate to Q1 Corporate Tax")
             }
         }
 
@@ -764,6 +761,158 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             title {
                 input.shouldHaveValue("Q1 Corporate Tax")
             }
+        }
+    }
+
+    @Test
+    fun `should filter documents by free search text`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    document(
+                        workspace = workspace,
+                        name = "Slurm delivery manifest.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(1),
+                    )
+                    val usageTitleDocument = document(
+                        workspace = workspace,
+                        name = "Delivery attachment.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(2),
+                    )
+                    expense(
+                        workspace = workspace,
+                        title = "Robot oil invoice",
+                        attachments = setOf(usageTitleDocument),
+                    )
+                    document(
+                        workspace = workspace,
+                        name = "Planet Express permit.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(3),
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            pageItems.shouldHaveTitles(
+                "Planet Express permit.pdf",
+                "Delivery attachment.pdf",
+                "Slurm delivery manifest.pdf",
+            )
+
+            filters.addTextFilter("File name or usage title", "slurm")
+            pageItems.shouldHaveTitles("Slurm delivery manifest.pdf")
+
+            filters.addTextFilter("File name or usage title", "robot")
+            pageItems.shouldHaveTitles("Delivery attachment.pdf")
+        }
+    }
+
+    @Test
+    fun `should filter documents by usage with all dropdown options`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val expenseDocument = document(workspace = workspace, name = "Expense usage.pdf")
+                    expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(expenseDocument))
+
+                    val incomeDocument = document(workspace = workspace, name = "Income usage.pdf")
+                    income(workspace = workspace, title = "Delivery commission", attachments = setOf(incomeDocument))
+
+                    val invoiceDocument = document(workspace = workspace, name = "Invoice usage.pdf")
+                    invoice(
+                        customer = customer(workspace = workspace),
+                        title = "Delivery to Mars",
+                        attachments = setOf(invoiceDocument),
+                    )
+
+                    val taxDocument = document(workspace = workspace, name = "Tax usage.pdf")
+                    incomeTaxPayment(workspace = workspace, title = "Q1 Corporate Tax", attachments = setOf(taxDocument))
+
+                    val standaloneDocumentFile = document(workspace = workspace, name = "Standalone usage.pdf")
+                    standaloneDocument(
+                        workspace = workspace,
+                        document = standaloneDocumentFile,
+                        title = "Planet Express license",
+                    )
+
+                    document(workspace = workspace, name = "Unused document.pdf")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            filters.shouldHaveSelectOptions(
+                "Usage",
+                "Expense",
+                "Income",
+                "Invoice",
+                "Income Tax Payment",
+                "Standalone Document",
+                "Unused",
+            )
+
+            filters.addSelectFilter("Usage", "Expense")
+            pageItems.shouldHaveTitles("Expense usage.pdf")
+
+            filters.clearAll().addSelectFilter("Usage", "Income")
+            pageItems.shouldHaveTitles("Income usage.pdf")
+
+            filters.clearAll().addSelectFilter("Usage", "Invoice")
+            pageItems.shouldHaveTitles("Invoice usage.pdf")
+
+            filters.clearAll().addSelectFilter("Usage", "Income Tax Payment")
+            pageItems.shouldHaveTitles("Tax usage.pdf")
+
+            filters.clearAll().addSelectFilter("Usage", "Standalone Document")
+            pageItems.shouldHaveTitles("Standalone usage.pdf")
+
+            filters.clearAll().addSelectFilter("Usage", "Unused")
+            pageItems.shouldHaveTitles("Unused document.pdf")
+        }
+    }
+
+    @Test
+    fun `should filter documents by storage with all dropdown options`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    document(
+                        workspace = workspace,
+                        name = "Google Drive storage.pdf",
+                        storageId = "google-drive",
+                    )
+                    document(
+                        workspace = workspace,
+                        name = "Internal System storage.pdf",
+                        storageId = "local-fs",
+                    )
+                    document(
+                        workspace = workspace,
+                        name = "Unknown storage.pdf",
+                        storageId = "noop",
+                    )
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openDocumentsOverviewPage {
+            filters.shouldHaveSelectOptions("Storage", "Google Drive", "Internal System", "Unknown")
+
+            filters.addSelectFilter("Storage", "Google Drive")
+            pageItems.shouldHaveTitles("Google Drive storage.pdf")
+
+            filters.clearAll().addSelectFilter("Storage", "Internal System")
+            pageItems.shouldHaveTitles("Internal System storage.pdf")
+
+            filters.clearAll().addSelectFilter("Storage", "Unknown")
+            pageItems.shouldHaveTitles("Unknown storage.pdf")
         }
     }
 

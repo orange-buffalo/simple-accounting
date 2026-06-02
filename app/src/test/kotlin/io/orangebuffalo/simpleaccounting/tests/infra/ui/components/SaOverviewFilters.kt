@@ -68,6 +68,14 @@ class SaOverviewFilters private constructor(
         return this
     }
 
+    fun shouldHaveSelectOptions(label: String, vararg values: String): SaOverviewFilters {
+        openPopover()
+        Select.byContainer(filterControl(label)).shouldHaveOptions(*values)
+        page.keyboard().press("Escape")
+        closePopover()
+        return this
+    }
+
     fun reportPopoverRendering(name: String): SaOverviewFilters {
         openPopover()
         popover.reportRendering(name)
@@ -109,10 +117,8 @@ class SaOverviewFilters private constructor(
     private fun filterControl(label: String) = popover.locator(".sa-overview-page__filter-control:has-text('$label')")
 
     private fun selectFilterOption(label: String, value: String) {
-        val control = filterControl(label)
-        control.locator(".el-select__wrapper").click()
-        control.locator(".el-select-dropdown__item", Locator.LocatorOptions().setHasText(value)).click()
-        control.locator(".el-select__wrapper").click()
+        Select.multiSelect(filterControl(label)).selectOption(value, validate = false)
+        page.keyboard().press("Escape")
     }
 
     companion object {

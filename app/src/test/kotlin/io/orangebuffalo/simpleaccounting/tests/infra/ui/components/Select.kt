@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
 class Select private constructor(
     rootLocator: Locator,
+    private val multiSelect: Boolean,
 ) : UiComponent<Select>() {
     private val input = rootLocator.locator(".el-select__wrapper")
 
@@ -37,7 +38,9 @@ class Select private constructor(
         popper.rootLocator
             .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='$option']")
             .click()
-        popper.shouldBeClosed()
+        if (!multiSelect) {
+            popper.shouldBeClosed()
+        }
         if (validate) {
             shouldHaveSelectedValue(option)
         }
@@ -134,7 +137,9 @@ class Select private constructor(
     }
 
     companion object {
-        fun byContainer(container: Locator) = Select(container)
+        fun byContainer(container: Locator) = Select(container, multiSelect = false)
+
+        fun multiSelect(container: Locator) = Select(container, multiSelect = true)
     }
 }
 
