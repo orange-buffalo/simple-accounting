@@ -46,8 +46,8 @@ data class GraphqlMutationValidationErrorTestCase(
  * bypassing DGS type-safe builder's null checks.
  *
  * The assertion verifies that the response contains a `FIELD_VALIDATION_FAILURE` error
- * with a `MustNotBeNull` error code for the given [fieldName]. This mirrors the same
- * validation error structure used for JSR-303 constraint violations.
+ * for the given [fieldName]. This mirrors the same validation error structure used for
+ * JSR-303 constraint violations.
  *
  * @property rawQueryBuilder lazily builds the raw GraphQL query with null for the target field.
  *   Lazy to avoid accessing test preconditions during test discovery (JUnit `@MethodSource`).
@@ -57,6 +57,8 @@ data class GraphqlMutationRejectedInputTestCase(
     override val description: String,
     val rawQueryBuilder: () -> String,
     val fieldName: String,
+    val error: String = "MustNotBeNull",
+    val message: String = "must not be null",
 ) : GraphqlMutationInputTestCase {
     override fun toString() = description
 }
@@ -100,8 +102,8 @@ data class GraphqlMutationOptionalFieldAbsentTestCase(
 
 /**
  * Generates test cases for `@NotBlank` string field validation. Produces:
- * - **null** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
- * - **absent** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeNull` error code
+ * - **null** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank` error code
+ * - **absent** input → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank` error code
  * - **blank** input (`"  "`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **empty** input (`""`) → `FIELD_VALIDATION_FAILURE` with `MustNotBeBlank`
  * - **min valid length** boundary → fully successful execution
@@ -124,6 +126,8 @@ fun mustNotBeBlankTestCases(
         GraphqlMutationRejectedInputTestCase(
             description = "$fieldName is null",
             fieldName = fieldName,
+            error = "MustNotBeBlank",
+            message = "must not be blank",
             rawQueryBuilder = {
                 buildRawMutationQueryWithNullField(fieldName) { mutationWithFieldValue("validPlaceholder") }
             },
@@ -131,6 +135,8 @@ fun mustNotBeBlankTestCases(
         GraphqlMutationRejectedInputTestCase(
             description = "$fieldName is absent",
             fieldName = fieldName,
+            error = "MustNotBeBlank",
+            message = "must not be blank",
             rawQueryBuilder = {
                 buildRawMutationQueryWithAbsentField(fieldName) { mutationWithFieldValue("validPlaceholder") }
             },

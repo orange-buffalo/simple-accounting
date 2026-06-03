@@ -88,7 +88,6 @@ class EditStandaloneDocumentMutationTest(
             sizeConstraintTestCases("title", maxLength = 255) { value -> editStandaloneDocumentMutation(title = value) },
             requiredFieldRejectedTestCases("documentId") { editStandaloneDocumentMutation() },
             requiredFieldRejectedTestCases("id") { editStandaloneDocumentMutation() },
-            requiredFieldRejectedTestCases("title") { editStandaloneDocumentMutation() },
             requiredFieldRejectedTestCases("workspaceId") { editStandaloneDocumentMutation() },
         ).flatten()
 

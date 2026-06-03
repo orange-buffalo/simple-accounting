@@ -232,8 +232,16 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Server-side validation reports one missing required variable at a time.
             customer {
+                shouldHaveValidationError("This value is required")
+            }
+            title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            dueDate {
+                shouldHaveValidationError("This value is required")
+            }
+            amount {
                 shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
@@ -249,7 +257,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             title {
-                shouldHaveValidationError("This value is required")
+                shouldHaveValidationError("This value is required and should not be blank")
             }
             shouldHaveNotifications { validationFailed() }
 

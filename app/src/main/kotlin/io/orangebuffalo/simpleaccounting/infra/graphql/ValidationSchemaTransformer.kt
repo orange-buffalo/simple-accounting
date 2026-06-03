@@ -7,6 +7,7 @@ import graphql.introspection.Introspection
 import graphql.language.IntValue
 import graphql.schema.*
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.constraints.Max
@@ -22,14 +23,15 @@ import kotlin.reflect.full.memberFunctions
  * Registry entry that defines how a Jakarta validation annotation maps to a GraphQL directive
  * and how constraint violations are transformed into error responses.
  */
-data class ValidationDirectiveMapping(
+open class ValidationDirectiveMapping(
     val annotationClass: KClass<out Annotation>,
     val directiveName: String,
     val directiveDescription: String,
     val directiveArgumentsBuilder: (GraphQLDirective.Builder) -> Unit = {},
     val appliedDirectiveArgumentsBuilder: (GraphQLAppliedDirective.Builder, Annotation) -> Unit = { _, _ -> },
     val errorCode: ValidationErrorCode,
-    val paramsExtractor: ((ConstraintViolation<*>) -> List<ValidationErrorParam>)? = null
+    val paramsExtractor: ((ConstraintViolation<*>) -> List<ValidationErrorParam>)? = null,
+    val runtimeValidator: (path: String, value: Any?, directive: GraphQLAppliedDirective) -> ValidationErrorDetails? = { _, _, _ -> null },
 ) {
     fun buildAppliedDirective(annotation: Annotation): GraphQLAppliedDirective =
         GraphQLAppliedDirective.newDirective()
@@ -38,18 +40,28 @@ data class ValidationDirectiveMapping(
             .build()
 }
 
-/**
- * Single registry of all supported validation annotations with their directive mappings.
- * This provides cohesive definitions that are easy to track and understand.
- */
-val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
-    ValidationDirectiveMapping(
+@Component
+class NotBlankValidationDirective : ValidationDirectiveMapping(
         annotationClass = NotBlank::class,
         directiveName = "notBlank",
         directiveDescription = "Validates that the string is not null, empty, or blank",
-        errorCode = ValidationErrorCode.MustNotBeBlank
-    ),
-    ValidationDirectiveMapping(
+        errorCode = ValidationErrorCode.MustNotBeBlank,
+        runtimeValidator = { path, value, _ ->
+            val stringValue = value as? String
+            if (stringValue == null || stringValue.isBlank()) {
+                ValidationErrorDetails(
+                    path = path,
+                    error = ValidationErrorCode.MustNotBeBlank,
+                    message = "must not be blank",
+                )
+            } else {
+                null
+            }
+        }
+)
+
+@Component
+class SizeValidationDirective : ValidationDirectiveMapping(
         annotationClass = Size::class,
         directiveName = "size",
         directiveDescription = "Validates the size of a string",
@@ -91,9 +103,29 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
                 ValidationErrorParam("min", attributes["min"]?.toString() ?: "0"),
                 ValidationErrorParam("max", attributes["max"]?.toString() ?: "2147483647")
             )
+        },
+        runtimeValidator = { path, value, directive ->
+            val stringValue = value as? String
+            val min = directive.intArgument("min") ?: 0
+            val max = directive.intArgument("max") ?: Int.MAX_VALUE
+            if (stringValue != null && (stringValue.length < min || stringValue.length > max)) {
+                ValidationErrorDetails(
+                    path = path,
+                    error = ValidationErrorCode.SizeConstraintViolated,
+                    message = "size must be between $min and $max",
+                    params = listOf(
+                        ValidationErrorParam("min", min.toString()),
+                        ValidationErrorParam("max", max.toString()),
+                    )
+                )
+            } else {
+                null
+            }
         }
-    ),
-    ValidationDirectiveMapping(
+)
+
+@Component
+class MaxValidationDirective : ValidationDirectiveMapping(
         annotationClass = Max::class,
         directiveName = "max",
         directiveDescription = "Validates that the value is at most the specified maximum",
@@ -122,9 +154,25 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
             listOf(
                 ValidationErrorParam("value", attributes["value"]?.toString() ?: "")
             )
+        },
+        runtimeValidator = { path, value, directive ->
+            val numberValue = (value as? Number)?.toLong()
+            val max = directive.intArgument("value")
+            if (numberValue != null && max != null && numberValue > max) {
+                ValidationErrorDetails(
+                    path = path,
+                    error = ValidationErrorCode.MaxConstraintViolated,
+                    message = "must be less than or equal to $max",
+                    params = listOf(ValidationErrorParam("value", max.toString())),
+                )
+            } else {
+                null
+            }
         }
-    ),
-    ValidationDirectiveMapping(
+)
+
+@Component
+class MinValidationDirective : ValidationDirectiveMapping(
         annotationClass = Min::class,
         directiveName = "min",
         directiveDescription = "Validates that the value is at least the specified minimum",
@@ -153,19 +201,37 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
             listOf(
                 ValidationErrorParam("value", attributes["value"]?.toString() ?: "")
             )
+        },
+        runtimeValidator = { path, value, directive ->
+            val numberValue = (value as? Number)?.toLong()
+            val min = directive.intArgument("value")
+            if (numberValue != null && min != null && numberValue < min) {
+                ValidationErrorDetails(
+                    path = path,
+                    error = ValidationErrorCode.MinConstraintViolated,
+                    message = "must be greater than or equal to $min",
+                    params = listOf(ValidationErrorParam("value", min.toString())),
+                )
+            } else {
+                null
+            }
         }
-    )
 )
 
-private val mappingsByAnnotationClass: Map<KClass<out Annotation>, ValidationDirectiveMapping> =
-    validationDirectiveMappings.associateBy { it.annotationClass }
+internal fun GraphQLAppliedDirective.intArgument(name: String): Int? = getArgument(name)?.getValue<Int>()
 
 /**
  * Transforms the GraphQL schema by adding validation directives based on Jakarta validation annotations.
  * This makes validation constraints visible in the schema for API documentation purposes.
  */
 @Component
-class ValidationSchemaTransformer {
+class ValidationSchemaTransformer(
+    validationDirectiveMappings: List<ValidationDirectiveMapping>,
+) {
+
+    private val validationDirectiveMappings = validationDirectiveMappings.sortedBy { it.directiveName }
+    private val mappingsByAnnotationClass: Map<KClass<out Annotation>, ValidationDirectiveMapping> =
+        validationDirectiveMappings.associateBy { it.annotationClass }
 
     fun transform(schema: GraphQLSchema, mutations: List<Mutation>, queries: List<Query>): GraphQLSchema {
         val appliedDirectivesMap = buildAppliedDirectivesMap(mutations, queries)

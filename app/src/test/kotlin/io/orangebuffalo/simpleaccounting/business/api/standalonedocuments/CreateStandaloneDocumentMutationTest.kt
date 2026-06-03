@@ -77,7 +77,6 @@ class CreateStandaloneDocumentMutationTest(
             mustNotBeBlankTestCases("title") { value -> createStandaloneDocumentMutation(title = value) },
             sizeConstraintTestCases("title", maxLength = 255) { value -> createStandaloneDocumentMutation(title = value) },
             requiredFieldRejectedTestCases("documentId") { createStandaloneDocumentMutation() },
-            requiredFieldRejectedTestCases("title") { createStandaloneDocumentMutation() },
             requiredFieldRejectedTestCases("workspaceId") { createStandaloneDocumentMutation() },
         ).flatten()
 

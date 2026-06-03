@@ -177,6 +177,9 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            amount {
                 shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }

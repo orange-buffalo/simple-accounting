@@ -326,9 +326,10 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
-            // Server-side validation reports one missing required variable at a time;
-            // title is the first non-null variable in the mutation that is absent here
             title {
+                shouldHaveValidationError("This value is required and should not be blank")
+            }
+            originalAmount {
                 shouldHaveValidationError("This value is required")
             }
             shouldHaveNotifications { validationFailed() }
@@ -340,7 +341,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                 shouldNotHaveValidationErrors()
             }
 
-            // Fill title and verify that originalAmount validation error is returned on next save
             title { input.fill("Slurm supplies") }
             saveButton.click()
 

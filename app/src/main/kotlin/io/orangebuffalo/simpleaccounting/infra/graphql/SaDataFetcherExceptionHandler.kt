@@ -19,17 +19,15 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
-import kotlin.reflect.KClass
-
 private val log = KotlinLogging.logger { }
-
-private val mappingsByAnnotationClass: Map<KClass<out Annotation>, ValidationDirectiveMapping> =
-    validationDirectiveMappings.associateBy { it.annotationClass }
 
 @Component
 class SaDataFetcherExceptionHandler(
     private val businessErrorRegistry: BusinessErrorRegistry,
+    validationDirectiveMappings: List<ValidationDirectiveMapping>,
 ) : DataFetcherExceptionHandler {
+    private val mappingsByAnnotationClass = validationDirectiveMappings.associateBy { it.annotationClass }
+
     override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters): CompletableFuture<DataFetcherExceptionHandlerResult> {
         return CompletableFuture.completedFuture(mapToResult(handlerParameters))
     }
@@ -40,7 +38,7 @@ class SaDataFetcherExceptionHandler(
         // Handle Bean Validation exceptions
         if (exception is ConstraintViolationException) {
             return DataFetcherExceptionHandlerResult.newResult()
-                .error(ValidationErrorGraphQLError(exception, handlerParameters))
+                .error(ValidationErrorGraphQLError(exception, handlerParameters, mappingsByAnnotationClass))
                 .build()
         }
 
@@ -153,6 +151,7 @@ private class BusinessErrorGraphQLError(
 private class ValidationErrorGraphQLError(
     private val exception: ConstraintViolationException,
     private val handlerParameters: DataFetcherExceptionHandlerParameters,
+    private val mappingsByAnnotationClass: Map<kotlin.reflect.KClass<out Annotation>, ValidationDirectiveMapping>,
 ) : GraphQLError {
     override fun getMessage(): String = "Validation failed"
 
