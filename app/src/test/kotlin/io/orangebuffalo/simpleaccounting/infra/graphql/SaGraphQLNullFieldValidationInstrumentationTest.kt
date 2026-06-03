@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * 3. Typed GraphQL variable declared as non-null but supplied as `null` in the variables map
  *    (e.g. `$rateInBps: Int!` with `{"rateInBps": null}`).
  *
-     * Cases 1 and 2 produce a [graphql.validation.ValidationError]. Case 3 is handled by
+ * Cases 1 and 2 produce a [graphql.validation.ValidationError]. Case 3 is handled by
      * pre-coercion validation so it can report all variable violations before graphql-java's
      * fail-fast coercion path runs.
  */
