@@ -31,6 +31,7 @@
       >
         <ElTableColumn
           :label="$t.workspaceAccessTokens.link()"
+          min-width="360"
           #default="{ row }"
         >
           <ElTooltip
@@ -51,12 +52,13 @@
         </ElTableColumn>
         <ElTableColumn
           :label="$t.workspaceAccessTokens.validTill()"
-          width="220"
+          width="190"
+          class-name="workspace-access-tokens__valid-till-column"
           #default="{ row }"
         >
           {{ $t.common.dateTime.medium(row.validTill) }}
         </ElTableColumn>
-        <ElTableColumn align="right" #default="{ row }">
+        <ElTableColumn align="right" width="120" #default="{ row }">
           <div class="workspace-access-tokens__actions">
             <ElButton
               link
@@ -194,14 +196,11 @@
 
 <style lang="scss">
   @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .workspace-access-tokens {
     &__section {
-      padding: 20px;
-      border: 1px solid $secondary-grey;
-      background-color: $white;
-      border-radius: 2px;
-      overflow: hidden;
+      @include white-panel;
       margin-bottom: 30px;
 
       h2 {
@@ -218,6 +217,10 @@
     &__table {
       position: relative;
       z-index: 0;
+    }
+
+    &__valid-till-column {
+      white-space: nowrap;
     }
 
     &__revoke-action.el-button.is-link {

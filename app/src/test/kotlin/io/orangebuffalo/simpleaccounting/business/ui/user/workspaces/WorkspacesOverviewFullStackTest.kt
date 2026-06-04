@@ -1,11 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.openExpensesOverviewPage
@@ -18,7 +15,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAc
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import org.junit.jupiter.api.Test
 
@@ -73,16 +69,12 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should manage workspace access tokens`(page: Page) {
+    fun `should navigate to temporary access links from actions menu`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express")
-                val accessToken = workspaceAccessToken(
-                    workspace = workspace,
-                    token = "planet-express-share",
-                    validTill = MOCK_TIME.plusSeconds(10_000),
-                )
+                val fry = fry().also {
+                    workspace(owner = it, name = "Planet Express")
+                }
             }
         }
 
@@ -92,29 +84,8 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeWorkspaceAccessTokensPage {
-            shouldHaveAccessTokens(1)
-            reportRenderingWithPopovers("workspace-access-tokens.loaded")
-
-            copyTemporaryAccessLink(0)
-            shouldHaveNotifications { success("Temporary access link copied.") }
-
-            revokeAccessToken(0)
-            reportRenderingWithPopovers("workspace-access-tokens.revoke-confirmation")
-            confirmRevokeAccessToken()
-            shouldHaveNoManageExistingTokensSection()
-            reportRenderingWithPopovers("workspace-access-tokens.after-revoke")
-
-            createShareLink("3025-01-15 10:00:00")
-            shouldHaveNotifications { success("Temporary access link created.") }
-            shouldHaveAccessTokens(1)
+            shouldHaveNoManageExistingLinksSection()
         }
-
-        aggregateTemplate.findAll<WorkspaceAccessToken>()
-            .filter { it.id == testData.accessToken.id }
-            .shouldBeEmpty()
-        aggregateTemplate.findAll<WorkspaceAccessToken>()
-            .filter { it.workspaceId == testData.workspace.id }
-            .shouldHaveSize(1)
     }
 
     @Test

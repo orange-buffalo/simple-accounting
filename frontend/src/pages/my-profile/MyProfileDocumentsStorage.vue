@@ -152,11 +152,7 @@
   @use "@/styles/mixins.scss" as *;
 
   .sa-documents-storage-section {
-    padding: 20px;
-    border: 1px solid $secondary-grey;
-    background-color: $white;
-    border-radius: 2px;
-    overflow: hidden;
+    @include white-panel;
     margin-bottom: 30px;
 
     &__description {

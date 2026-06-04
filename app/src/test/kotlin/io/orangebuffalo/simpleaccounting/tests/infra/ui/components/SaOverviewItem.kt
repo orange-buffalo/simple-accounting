@@ -220,14 +220,14 @@ class SaOverviewItem private constructor(
     private fun actionMenuItemTrigger(actionText: String) = actionMenuItemButton(actionText)
         .locator("xpath=ancestor::*[${XPath.hasClass("el-tooltip__trigger")}][1]")
 
-    private fun actionMenuButton() = panel.locator(".overview-item__last-column .documents-overview-panel__actions-trigger")
+    private fun actionMenuButton() = panel.locator(".overview-item__last-column .sa-action-menu__trigger")
 
     private fun actionMenuTrigger() = panel.locator(
-        ".overview-item__last-column .documents-overview-panel__actions-trigger"
+        ".overview-item__last-column .sa-action-menu__trigger"
     )
 
     private fun actionPopover() = panel.page()
-        .locator(".documents-overview-panel__actions-popover:visible")
+        .locator(".sa-action-menu__popover:visible")
         .last()
 
     companion object {

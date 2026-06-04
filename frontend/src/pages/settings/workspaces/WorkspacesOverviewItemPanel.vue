@@ -12,41 +12,24 @@
             {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
           </ElButton>
         </div>
-        <div class="workspace-panel__actions">
-          <ElPopover
-            trigger="click"
-            placement="bottom-end"
-            popper-class="workspace-panel__actions-popover"
+        <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
+          <ElButton
+            link
+            class="workspace-panel__action"
+            @click="navigateToWorkspaceEdit"
           >
-            <template #reference>
-              <ElButton
-                link
-                :icon="Menu"
-                :aria-label="$t.workspacesOverviewItemPanel.actions()"
-                class="workspace-panel__actions-trigger"
-              />
-            </template>
-
-            <div class="workspace-panel__actions-menu">
-              <ElButton
-                link
-                class="workspace-panel__action"
-                @click="navigateToWorkspaceEdit"
-              >
-                <SaIcon icon="pencil-solid" />
-                {{ $t.workspacesOverviewItemPanel.edit() }}
-              </ElButton>
-              <ElButton
-                link
-                class="workspace-panel__action"
-                @click="navigateToWorkspaceAccessTokens"
-              >
-                <SaIcon icon="share" />
-                {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
-              </ElButton>
-            </div>
-          </ElPopover>
-        </div>
+            <SaIcon icon="pencil-solid" />
+            {{ $t.workspacesOverviewItemPanel.edit() }}
+          </ElButton>
+          <ElButton
+            link
+            class="workspace-panel__action"
+            @click="navigateToWorkspaceAccessTokens"
+          >
+            <SaIcon icon="share" />
+            {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
+          </ElButton>
+        </SaActionMenu>
       </div>
 
       <div class="sa-item-attributes">
@@ -60,10 +43,9 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import { ElPopover } from 'element-plus';
-  import { Menu } from '@element-plus/icons-vue';
   import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
   import SaIcon from '@/components/SaIcon.vue';
+  import SaActionMenu from '@/components/SaActionMenu.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
@@ -132,50 +114,9 @@
       }
     }
 
-    &__actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-
     &__action {
       .sa-icon {
         margin-right: 4px;
-      }
-    }
-  }
-
-  .workspace-panel__actions-popover {
-    width: max-content !important;
-    min-width: 220px !important;
-    max-width: calc(100vw - 32px) !important;
-  }
-
-  .workspace-panel__actions-menu {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 5px;
-    min-width: 220px;
-    width: max-content;
-    max-width: calc(100vw - 64px);
-
-    .el-button {
-      display: flex;
-      justify-content: flex-start;
-      margin-left: 0;
-      white-space: nowrap;
-      width: 100%;
-
-      > span {
-        display: inline-flex;
-        align-items: center;
-        justify-content: flex-start;
-        width: 100%;
-      }
-
-      .sa-icon {
-        margin-right: 4px;
-        color: $components-color;
       }
     }
   }
