@@ -1,18 +1,24 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.CreateWorkspacePage.Companion.shouldBeCreateWorkspacePage
+import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.EditWorkspacePage.Companion.shouldBeEditWorkspacePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.openWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAccessTokensPage.Companion.shouldBeWorkspaceAccessTokensPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import org.junit.jupiter.api.Test
 
@@ -38,8 +44,77 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 ),
             )
 
+            getWorkspacePanelByName("Planet Express")
+                .shouldHaveActionMenuItems("Edit", "Manage temporary access links")
+
             reportRendering("workspaces-overview.single-workspace")
+            reportRenderingWithPopovers("workspaces-overview.actions-menu")
         }
+    }
+
+    @Test
+    fun `should navigate to workspace edit from actions menu`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    workspace(owner = it, name = "Planet Express")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openWorkspacesOverviewPage {
+            getWorkspacePanelByName("Planet Express").clickActionMenuItem("Edit")
+        }
+
+        page.shouldBeEditWorkspacePage {
+            name { input.shouldHaveValue("Planet Express") }
+        }
+    }
+
+    @Test
+    fun `should manage workspace access tokens`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, name = "Planet Express")
+                val accessToken = workspaceAccessToken(
+                    workspace = workspace,
+                    token = "planet-express-share",
+                    validTill = MOCK_TIME.plusSeconds(10_000),
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openWorkspacesOverviewPage {
+            getWorkspacePanelByName("Planet Express").clickActionMenuItem("Manage temporary access links")
+        }
+
+        page.shouldBeWorkspaceAccessTokensPage {
+            shouldHaveAccessTokens(1)
+            reportRenderingWithPopovers("workspace-access-tokens.loaded")
+
+            copyTemporaryAccessLink(0)
+            shouldHaveNotifications { success("Temporary access link copied.") }
+
+            revokeAccessToken(0)
+            reportRenderingWithPopovers("workspace-access-tokens.revoke-confirmation")
+            confirmRevokeAccessToken()
+            shouldHaveNoManageExistingTokensSection()
+            reportRenderingWithPopovers("workspace-access-tokens.after-revoke")
+
+            createShareLink("3025-01-15 10:00:00")
+            shouldHaveNotifications { success("Temporary access link created.") }
+            shouldHaveAccessTokens(1)
+        }
+
+        aggregateTemplate.findAll<WorkspaceAccessToken>()
+            .filter { it.id == testData.accessToken.id }
+            .shouldBeEmpty()
+        aggregateTemplate.findAll<WorkspaceAccessToken>()
+            .filter { it.workspaceId == testData.workspace.id }
+            .shouldHaveSize(1)
     }
 
     @Test

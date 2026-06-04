@@ -9,6 +9,8 @@ interface SavedWorkspaceAccessTokensRepository
         workspaceAccessTokenId: String,
         ownerId: String
     ): SavedWorkspaceAccessToken?
+
+    fun deleteByWorkspaceAccessTokenId(workspaceAccessTokenId: String)
 }
 
 interface SavedWorkspaceAccessTokensRepositoryExt {

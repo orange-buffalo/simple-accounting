@@ -830,6 +830,8 @@ export type Mutation = {
   refreshAccessToken: RefreshAccessTokenResponse;
   /** Removes a standalone document from the specified workspace. */
   removeStandaloneDocument: Scalars['Boolean']['output'];
+  /** Revokes and removes a workspace access token. */
+  revokeWorkspaceAccessToken: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
   /** Starts migration of documents that are not stored in the current upload storage. */
@@ -1122,6 +1124,11 @@ export type MutationRemoveStandaloneDocumentArgs = {
   removeDocumentIfUnused?: InputMaybe<Scalars['Boolean']['input']>;
   standaloneDocumentId: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
+};
+
+
+export type MutationRevokeWorkspaceAccessTokenArgs = {
+  accessTokenId: Scalars['String']['input'];
 };
 
 
