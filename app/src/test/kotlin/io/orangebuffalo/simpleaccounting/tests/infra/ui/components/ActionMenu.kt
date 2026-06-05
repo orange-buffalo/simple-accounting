@@ -18,14 +18,21 @@ class ActionMenu private constructor(
     fun open() {
         page.keyboard().press("Escape")
         trigger.click()
+        trigger.shouldSatisfy {
+            getAttribute("aria-describedby").shouldNotBeBlank()
+        }
         popover().shouldBeVisible()
     }
 
     fun shouldHaveItems(vararg labels: String) {
         open()
-        itemButtons().allInnerTexts()
-            .map { it.trim() }
-            .shouldContainExactly(*labels)
+        try {
+            itemButtons().allInnerTexts()
+                .map { it.trim() }
+                .shouldContainExactly(*labels)
+        } finally {
+            close()
+        }
     }
 
     fun clickItem(label: String) {
@@ -35,22 +42,34 @@ class ActionMenu private constructor(
 
     fun shouldHaveItemDisabled(label: String) {
         open()
-        itemButton(label).shouldBeDisabled()
+        try {
+            itemButton(label).shouldBeDisabled()
+        } finally {
+            close()
+        }
     }
 
     fun shouldHaveItemEnabled(label: String) {
         open()
-        itemButton(label).shouldBeEnabled()
+        try {
+            itemButton(label).shouldBeEnabled()
+        } finally {
+            close()
+        }
     }
 
     fun shouldHaveItemTooltip(label: String, tooltip: String) {
         open()
-        val itemTrigger = itemButton(label)
-            .locator("xpath=ancestor::*[contains(concat(' ', normalize-space(@class), ' '), ' el-tooltip__trigger ')][1]")
-        itemTrigger.hover()
-        itemTrigger.shouldSatisfy {
-            val popperId = getAttribute("aria-describedby").shouldNotBeBlank()
-            page.locator("#$popperId").shouldHaveText(tooltip)
+        try {
+            val itemTrigger = itemButton(label)
+                .locator("xpath=ancestor::*[contains(concat(' ', normalize-space(@class), ' '), ' el-tooltip__trigger ')][1]")
+            itemTrigger.hover()
+            itemTrigger.shouldSatisfy {
+                val popperId = getAttribute("aria-describedby").shouldNotBeBlank()
+                page.locator("#$popperId").shouldHaveText(tooltip)
+            }
+        } finally {
+            close()
         }
     }
 
@@ -67,12 +86,19 @@ class ActionMenu private constructor(
             .shouldBeVisible()
     }
 
-    private fun popover() = page.locator(".sa-action-menu__popover:visible").last()
+    private fun popover(): Locator {
+        val popperId = trigger.getAttribute("aria-describedby").shouldNotBeBlank()
+        return page.locator("#$popperId")
+    }
 
     private fun itemButtons() = popover().locator(".sa-action-menu__items .el-button")
 
     private fun itemButton(label: String) = itemButtons()
         .filter(Locator.FilterOptions().setHasText(label))
+
+    private fun close() {
+        trigger.click()
+    }
 
     companion object {
         fun byContainer(container: Locator) = ActionMenu(
