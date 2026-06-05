@@ -22,7 +22,7 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
             blockedRequestSpec = {
                 page.shouldBeLoginByLinkPage {
                     statusMessage {
-                        shouldBeRegular("We are verifying your access token...")
+                        shouldBeRegular("We are verifying your temporary access link...")
                     }
                     reportRendering("login-by-link.loading")
                 }
@@ -43,7 +43,7 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
     fun `should display error state for invalid token`(page: Page) {
         page.openLoginByLinkPage("invalid-token-value") {
             statusMessage {
-                shouldBeError("The access token is not valid. Please request a new link.")
+                shouldBeError("The temporary access link is not valid. Please request a new one.")
             }
             reportRendering("login-by-link.error")
         }
@@ -53,7 +53,7 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
     fun `should display error state for expired token`(page: Page) {
         page.openLoginByLinkPage(preconditions.expiredToken) {
             statusMessage {
-                shouldBeError("The access token is not valid. Please request a new link.")
+                shouldBeError("The temporary access link is not valid. Please request a new one.")
             }
         }
     }
@@ -62,7 +62,7 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
     fun `should display error state for revoked token`(page: Page) {
         page.openLoginByLinkPage(preconditions.revokedToken) {
             statusMessage {
-                shouldBeError("The access token is not valid. Please request a new link.")
+                shouldBeError("The temporary access link is not valid. Please request a new one.")
             }
         }
     }

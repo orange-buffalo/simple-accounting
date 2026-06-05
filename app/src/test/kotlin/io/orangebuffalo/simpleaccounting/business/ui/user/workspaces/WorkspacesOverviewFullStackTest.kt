@@ -8,8 +8,10 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpense
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.CreateWorkspacePage.Companion.shouldBeCreateWorkspacePage
+import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.EditWorkspacePage.Companion.shouldBeEditWorkspacePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.openWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAccessTokensPage.Companion.shouldBeWorkspaceAccessTokensPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -38,7 +40,51 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 ),
             )
 
+            getWorkspacePanelByName("Planet Express")
+                .shouldHaveActionMenuItems("Edit", "Manage temporary access links")
+
             reportRendering("workspaces-overview.single-workspace")
+            reportRenderingWithPopovers("workspaces-overview.actions-menu")
+        }
+    }
+
+    @Test
+    fun `should navigate to workspace edit from actions menu`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    workspace(owner = it, name = "Planet Express")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openWorkspacesOverviewPage {
+            getWorkspacePanelByName("Planet Express").clickActionMenuItem("Edit")
+        }
+
+        page.shouldBeEditWorkspacePage {
+            name { input.shouldHaveValue("Planet Express") }
+        }
+    }
+
+    @Test
+    fun `should navigate to temporary access links from actions menu`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    workspace(owner = it, name = "Planet Express")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openWorkspacesOverviewPage {
+            getWorkspacePanelByName("Planet Express").clickActionMenuItem("Manage temporary access links")
+        }
+
+        page.shouldBeWorkspaceAccessTokensPage {
+            shouldHaveNoManageExistingLinksSection()
         }
     }
 

@@ -1153,15 +1153,29 @@ export default {
 
   workspacesOverviewItemPanel: {
     switchToThisWorkspace: () => 'Switch to this workspace',
+    actions: () => 'Workspace actions',
     edit: () => 'Edit',
+    manageAccessTokens: () => 'Manage temporary access links',
     defaultCurrency: () => 'Default Currency',
-    workspaceShares: () => 'Workspace Shares',
+  },
+
+  workspaceAccessTokens: {
+    header: (workspaceName: string) => workspaceName ? `Temporary Access Links for ${workspaceName}` : 'Temporary Access Links',
+    createNewLink: () => 'Create New Temporary Access Link',
+    manageExistingLinks: () => 'Manage Existing Temporary Access Links',
+    link: () => 'Link',
+    clickToCopy: () => 'Click to copy',
     validTill: () => 'Valid Till',
-    copyLink: () => 'Copy link',
-    addAnotherShareValidTill: () => 'Add another share valid till',
-    startSharingWorkspaceNewLinkValidTill: () => 'Start sharing workspace, new link valid till',
-    linkValidTillPlaceholder: () => 'Link valid till',
-    createShareLink: () => 'Create share link',
+    revoke: () => 'Revoke',
+    validTillPlaceholder: () => 'Valid till',
+    linkCreated: () => 'Temporary access link created.',
+    linkCopied: () => 'Temporary access link copied.',
+    revokeConfirm: {
+      title: () => 'Revoke temporary access link?',
+      message: () => 'This temporary access link will be removed completely. Anyone using it will lose access.',
+      yes: () => 'Revoke',
+      no: () => 'Cancel',
+    },
   },
 
   categoriesOverview: {
@@ -1282,8 +1296,8 @@ export default {
   },
 
   loginByLinkPage: {
-    loading: () => 'We are verifying your access token...',
-    error: () => 'The access token is not valid. Please request a new link.',
+    loading: () => 'We are verifying your temporary access link...',
+    error: () => 'The temporary access link is not valid. Please request a new one.',
     success: () => 'Access granted. Redirecting to your workspace...',
   },
 

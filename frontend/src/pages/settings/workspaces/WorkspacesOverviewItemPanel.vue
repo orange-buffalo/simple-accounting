@@ -12,59 +12,29 @@
             {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
           </ElButton>
         </div>
-        <span class="sa-item-edit-link">
-          <SaIcon icon="pencil-solid" />
+        <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
           <ElButton
             link
+            class="workspace-panel__action"
             @click="navigateToWorkspaceEdit"
-          >{{ $t.workspacesOverviewItemPanel.edit() }}</ElButton>
-        </span>
+          >
+            <SaIcon icon="pencil-solid" />
+            {{ $t.workspacesOverviewItemPanel.edit() }}
+          </ElButton>
+          <ElButton
+            link
+            class="workspace-panel__action"
+            @click="navigateToWorkspaceAccessTokens"
+          >
+            <SaIcon icon="share" />
+            {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
+          </ElButton>
+        </SaActionMenu>
       </div>
 
       <div class="sa-item-attributes">
         <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.defaultCurrency()">
           {{ workspace.defaultCurrency }}
-        </WorkspacesAttributeValue>
-        <br>
-        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.workspaceShares()">
-          <ElTable
-            v-if="hasAccessTokens"
-            :data="accessTokens"
-          >
-            <ElTableColumn
-              :label="$t.workspacesOverviewItemPanel.validTill()"
-              #default="{ row }"
-            >
-              {{ $t.common.dateTime.medium(row.validTill) }}
-            </ElTableColumn>
-            <ElTableColumn align="right" #default="{ row }">
-              <div class="workspace-panel__share-link-panel">
-                <SaIcon icon="copy" />
-                <ElButton
-                  link
-                  @click="copyShareLink(row.token)"
-                >
-                  {{ $t.workspacesOverviewItemPanel.copyLink() }}
-                </ElButton>
-              </div>
-            </ElTableColumn>
-          </ElTable>
-
-          <div class="workspace-panel__create-share-panel">
-            {{ hasAccessTokens ? $t.workspacesOverviewItemPanel.addAnotherShareValidTill() : $t.workspacesOverviewItemPanel.startSharingWorkspaceNewLinkValidTill() }}:
-            <ElDatePicker
-              v-model="newShareValidTill"
-              type="datetime"
-              :placeholder="$t.workspacesOverviewItemPanel.linkValidTillPlaceholder()"
-            />
-            <SaIcon icon="share" />
-            <ElButton
-              link
-              @click="shareWorkspace"
-            >
-              {{ $t.workspacesOverviewItemPanel.createShareLink() }}
-            </ElButton>
-          </div>
         </WorkspacesAttributeValue>
       </div>
     </div>
@@ -72,14 +42,12 @@
 </template>
 
 <script lang="ts" setup>
-  import copy from 'copy-to-clipboard';
-  import { computed, ref } from 'vue';
+  import { computed } from 'vue';
   import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
   import SaIcon from '@/components/SaIcon.vue';
+  import SaActionMenu from '@/components/SaActionMenu.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import { graphql } from '@/services/api/gql';
-  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
   import { $t } from '@/services/i18n';
   import type { WorkspacesPageQuery } from '@/services/api/gql/graphql';
 
@@ -89,52 +57,8 @@
     workspace: WorkspaceNode,
   }>();
 
-  const workspaceAccessTokensQuery = graphql(`
-    query workspaceAccessTokensPanel($workspaceId: String!, $first: Int!) {
-      workspace(id: $workspaceId) {
-        workspaceAccessTokens(first: $first) {
-          edges {
-            node {
-              validTill
-              token
-            }
-          }
-        }
-      }
-    }
-  `);
-
-  const createWorkspaceAccessTokenMutation = graphql(`
-    mutation createWorkspaceAccessTokenPanel($workspaceId: String!, $validTill: DateTime!) {
-      createWorkspaceAccessToken(workspaceId: $workspaceId, validTill: $validTill) {
-        token
-      }
-    }
-  `);
-
-  const loadAccessTokens = useLazyQuery(workspaceAccessTokensQuery, 'workspace');
-  const executeCreateToken = useMutation(createWorkspaceAccessTokenMutation, 'createWorkspaceAccessToken');
-
-  type AccessTokenRow = { validTill: string; token: string };
-  const accessTokens = ref<AccessTokenRow[]>([]);
-  const newShareValidTill = ref(new Date());
-
-  const hasAccessTokens = computed(() => accessTokens.value.length);
-
   const { currentWorkspaceId } = useCurrentWorkspace();
   const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
-
-  const reloadAccessTokens = async () => {
-    const result = await loadAccessTokens({
-      workspaceId: props.workspace.id,
-      first: 100,
-    });
-    accessTokens.value = result.workspaceAccessTokens.edges.map((edge) => ({
-      validTill: edge.node.validTill,
-      token: edge.node.token,
-    }));
-  };
-  reloadAccessTokens();
 
   const {
     navigateToView,
@@ -142,6 +66,11 @@
   } = useNavigation();
   const navigateToWorkspaceEdit = () => navigateToView({
     name: 'edit-workspace',
+    params: { id: props.workspace.id },
+  });
+
+  const navigateToWorkspaceAccessTokens = () => navigateToView({
+    name: 'workspace-access-tokens',
     params: { id: props.workspace.id },
   });
 
@@ -156,18 +85,6 @@
     navigateByPath('/');
   };
 
-  const shareWorkspace = async () => {
-    await executeCreateToken({
-      workspaceId: props.workspace.id,
-      validTill: newShareValidTill.value.toISOString(),
-    });
-    await reloadAccessTokens();
-  };
-
-  const copyShareLink = (token: string) => {
-    const shareLink = `${window.location.origin}/login-by-link/${token}`;
-    copy(shareLink);
-  };
 </script>
 
 <style lang="scss">
@@ -197,35 +114,9 @@
       }
     }
 
-    .el-table {
-      margin-bottom: 10px;
-    }
-
-    &__create-share-panel {
-      display: flex;
-      align-items: center;
-
-      .el-date-editor {
-        margin: 0 10px;
-      }
-
+    &__action {
       .sa-icon {
-        margin-right: 3px;
-        color: $components-color;
-      }
-    }
-
-    &__share-link-panel {
-      display: inline-flex;
-      align-items: center;
-
-      .sa-icon {
-        margin-right: 3px;
-        color: $components-color;
-      }
-
-      .el-button {
-        padding: 0;
+        margin-right: 4px;
       }
     }
   }

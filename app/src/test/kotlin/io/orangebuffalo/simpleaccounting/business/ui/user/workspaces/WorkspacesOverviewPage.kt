@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 
@@ -38,12 +39,21 @@ data class WorkspacePanelData(
 
 @UiComponentMarker
 class WorkspacePanel(
-    private val container: Locator
+    private val container: Locator,
 ) {
     private val switchButtonLocator = container.locator(".workspace-panel__info-panel__name button")
+    private val actionMenu = ActionMenu.byContainer(container)
 
     fun clickSwitchButton() {
         switchButtonLocator.click()
+    }
+
+    fun shouldHaveActionMenuItems(vararg labels: String) {
+        actionMenu.shouldHaveItems(*labels)
+    }
+
+    fun clickActionMenuItem(label: String) {
+        actionMenu.clickItem(label)
     }
 }
 
@@ -70,6 +80,10 @@ class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) 
             items.map { it.title }.shouldContainExactly(*names)
         }
         return this
+    }
+
+    fun reportRenderingWithPopovers(name: String) {
+        page.locator("body").reportRendering(name)
     }
 
     companion object {

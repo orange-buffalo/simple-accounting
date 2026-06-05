@@ -54,12 +54,16 @@ $breakpoints: (
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
 }
 
-@mixin item-info-panel() {
+@mixin white-panel() {
   padding: 20px;
   border: 1px solid $secondary-grey;
   background-color: $white;
   border-radius: 2px;
   overflow: hidden;
+}
+
+@mixin item-info-panel() {
+  @include white-panel;
 
   .sa-item-title-panel {
     display: flex;

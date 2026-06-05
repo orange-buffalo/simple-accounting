@@ -25,6 +25,7 @@ import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOve
 import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
 import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
 import WorkspaceEditor from '@/pages/settings/workspaces/WorkspaceEditor.vue';
+import WorkspaceAccessTokens from '@/pages/settings/workspaces/WorkspaceAccessTokens.vue';
 import LoginByLink from '@/pages/LoginByLink.vue';
 import { useAuth } from '@/services/api';
 import { useLastView } from '@/services/use-last-view';
@@ -262,6 +263,12 @@ export default function setupRouter() {
             path: 'settings/workspaces/:id/edit',
             name: 'edit-workspace',
             component: WorkspaceEditor,
+            props: ID_ROUTER_PARAM_PROCESSOR,
+          },
+          {
+            path: 'settings/workspaces/:id/access-tokens',
+            name: 'workspace-access-tokens',
+            component: WorkspaceAccessTokens,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
           {

@@ -1057,6 +1057,11 @@ type Mutation {
     "ID of the workspace the standalone document belongs to."
     workspaceId: String!
   ): Boolean! @auth(type : REGULAR_USER)
+  "Revokes and removes a workspace access token."
+  revokeWorkspaceAccessToken(
+    "ID of the workspace access token to revoke."
+    accessTokenId: String!
+  ): Boolean! @auth(type : REGULAR_USER)
   "Saves a shared workspace to the current user's list using an access token."
   saveSharedWorkspace(
     "The workspace access token."

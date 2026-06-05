@@ -39,73 +39,57 @@
     </template>
 
     <template #last-column>
-      <div class="documents-overview-panel__actions">
-        <ElPopover
-          trigger="click"
-          placement="bottom-end"
-          popper-class="documents-overview-panel__actions-popover"
+      <SaActionMenu :label="$t.documentsOverviewPanel.actions.label()">
+        <SaDocumentDownloadLink
+          :document-id="document.id"
+          :document-name="document.name"
+          :disabled="storageActionDisabled"
+          :disabled-tooltip="storageActionDisabledTooltip"
+          show-icon
+          class="documents-overview-panel__action"
+        />
+        <ElButton
+          v-for="usage in document.usedBy"
+          :key="`${usage.type}-${usage.relatedEntityId}`"
+          link
+          class="documents-overview-panel__action"
+          @click="navigateToUsage(usage)"
         >
-          <template #reference>
+          <SaIcon
+            :icon="usageIcon(usage.type)"
+            class="documents-overview-panel__action-icon"
+          />
+          {{ $t.documentsOverviewPanel.navigate.label(usage.displayName) }}
+        </ElButton>
+        <ElTooltip
+          v-if="canDelete"
+          :content="deleteDisabledTooltip"
+          :disabled="!deleteDisabledTooltip"
+          placement="bottom"
+        >
+          <span>
             <ElButton
               link
-              :icon="Menu"
-              :aria-label="$t.documentsOverviewPanel.actions.label()"
-              class="documents-overview-panel__actions-trigger"
-            />
-          </template>
-
-          <div class="documents-overview-panel__actions-menu">
-            <SaDocumentDownloadLink
-              :document-id="document.id"
-              :document-name="document.name"
-              :disabled="storageActionDisabled"
-              :disabled-tooltip="storageActionDisabledTooltip"
-              show-icon
-              class="documents-overview-panel__action"
-            />
-            <ElButton
-              v-for="usage in document.usedBy"
-              :key="`${usage.type}-${usage.relatedEntityId}`"
-              link
-              class="documents-overview-panel__action"
-              @click="navigateToUsage(usage)"
+              type="danger"
+              :icon="Delete"
+              :disabled="deleteDisabled"
+              class="documents-overview-panel__action documents-overview-panel__danger-action"
+              @click="deleteDocument"
             >
-              <SaIcon
-                :icon="usageIcon(usage.type)"
-                class="documents-overview-panel__action-icon"
-              />
-              {{ $t.documentsOverviewPanel.navigate.label(usage.displayName) }}
+              {{ $t.documentsOverviewPanel.delete.label() }}
             </ElButton>
-            <ElTooltip
-              v-if="canDelete"
-              :content="deleteDisabledTooltip"
-              :disabled="!deleteDisabledTooltip"
-              placement="bottom"
-            >
-              <span>
-                <ElButton
-                  link
-                  type="danger"
-                  :icon="Delete"
-                  :disabled="deleteDisabled"
-                  class="documents-overview-panel__action documents-overview-panel__danger-action"
-                  @click="deleteDocument"
-                >
-                  {{ $t.documentsOverviewPanel.delete.label() }}
-                </ElButton>
-              </span>
-            </ElTooltip>
-          </div>
-        </ElPopover>
-      </div>
+          </span>
+        </ElTooltip>
+      </SaActionMenu>
     </template>
   </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
-  import { ElPopover, ElTooltip } from 'element-plus';
-  import { DataLine, Delete, Folder, Menu } from '@element-plus/icons-vue';
+  import { ElTooltip } from 'element-plus';
+  import { DataLine, Delete, Folder } from '@element-plus/icons-vue';
+  import SaActionMenu from '@/components/SaActionMenu.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
@@ -293,11 +277,6 @@
 
 <style lang="scss">
   .documents-overview-panel {
-    &__actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-
     &__danger-action {
       color: var(--el-color-danger);
     }
@@ -311,34 +290,6 @@
       margin-right: 5px;
       width: 18px;
       height: 18px;
-    }
-  }
-
-  .documents-overview-panel__actions-popover {
-    width: max-content !important;
-    min-width: 220px !important;
-    max-width: calc(100vw - 32px) !important;
-  }
-
-  .documents-overview-panel__actions-menu {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 5px;
-    min-width: 220px;
-    width: max-content;
-    max-width: calc(100vw - 64px);
-
-    .documents-overview-panel__action,
-    .sa-document-download-link,
-    .el-button {
-      width: 100%;
-    }
-
-    .el-button {
-      justify-content: flex-start;
-      margin-left: 0;
-      white-space: nowrap;
     }
   }
 </style>
