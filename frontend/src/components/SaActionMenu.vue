@@ -61,6 +61,10 @@
         width: 100%;
       }
 
+      .el-button + .el-button {
+        margin-left: 0;
+      }
+
       .el-button > span,
       .sa-document-download-link > span {
         display: inline-flex;

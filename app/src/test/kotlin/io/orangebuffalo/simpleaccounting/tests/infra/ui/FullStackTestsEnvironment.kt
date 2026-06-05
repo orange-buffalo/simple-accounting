@@ -321,6 +321,7 @@ private class PersistentPageContextStrategy(
 
 private fun configureNewBrowserContext(browserContext: BrowserContext) {
     browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+    browserContext.grantPermissions(listOf("clipboard-read", "clipboard-write"))
     browserContext.addInitScript(
         """
             window.saRunningInTest = true;

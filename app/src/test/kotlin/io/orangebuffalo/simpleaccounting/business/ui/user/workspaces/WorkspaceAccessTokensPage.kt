@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
@@ -58,8 +59,7 @@ class WorkspaceAccessTokensPage private constructor(page: Page) : SaPageBase(pag
 
     fun shouldHaveClipboardContentForTemporaryAccessLink(token: String): WorkspaceAccessTokensPage {
         page.locator("body").shouldSatisfy("Clipboard should contain copied temporary access link") {
-            page.evaluate("() => navigator.clipboard.readText()")
-                .shouldBe(accessLinkUrl(token))
+            page.evaluate("() => navigator.clipboard.readText()").shouldBe(accessLinkUrl(token))
         }
         return this
     }
@@ -80,7 +80,7 @@ class WorkspaceAccessTokensPage private constructor(page: Page) : SaPageBase(pag
         page.locator("body").reportRendering(name)
     }
 
-    private fun accessLinkUrl(token: String): String = "${page.evaluate("() => window.location.origin")}/login-by-link/$token"
+    private fun accessLinkUrl(token: String): String = "${getBrowserUrl()}/login-by-link/$token"
 
     companion object {
         fun Page.shouldBeWorkspaceAccessTokensPage(spec: WorkspaceAccessTokensPage.() -> Unit = {}) {

@@ -53,7 +53,6 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
             }
         }
 
-        page.context().grantPermissions(listOf("clipboard-read", "clipboard-write"))
         page.authenticateViaCookie(testData.fry)
         page.openWorkspaceAccessTokensPage(testData.workspace.id!!) {
             copyTemporaryAccessLink(0)
