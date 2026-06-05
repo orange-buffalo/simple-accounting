@@ -2,13 +2,14 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAccessTokensPage.Companion.openWorkspaceAccessTokensPage
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
 
@@ -17,19 +18,23 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express").also { workspace ->
-                    workspaceAccessToken(
-                        workspace = workspace,
-                        token = "planet-express-share",
-                        validTill = MOCK_TIME.plusSeconds(10_000),
-                    )
-                }
+                val workspace = workspace(owner = fry, name = "Planet Express")
+                val accessToken = workspaceAccessToken(
+                    workspace = workspace,
+                    token = "planet-express-share",
+                    validTill = MOCK_TIME.plusSeconds(10_000),
+                )
             }
         }
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspaceAccessTokensPage(testData.workspace.id!!) {
-            shouldHaveAccessLinks(1)
+            shouldHaveAccessLinks(
+                accessLinkRow(
+                    token = testData.accessToken.token,
+                    validTill = "29 Mar 1999, 1:47 am",
+                )
+            )
             reportRenderingWithPopovers("workspace-access-tokens.loaded")
         }
     }
@@ -39,20 +44,21 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express").also { workspace ->
-                    workspaceAccessToken(
-                        workspace = workspace,
-                        token = "planet-express-share",
-                        validTill = MOCK_TIME.plusSeconds(10_000),
-                    )
-                }
+                val workspace = workspace(owner = fry, name = "Planet Express")
+                val accessToken = workspaceAccessToken(
+                    workspace = workspace,
+                    token = "planet-express-share",
+                    validTill = MOCK_TIME.plusSeconds(10_000),
+                )
             }
         }
 
+        page.context().grantPermissions(listOf("clipboard-read", "clipboard-write"))
         page.authenticateViaCookie(testData.fry)
         page.openWorkspaceAccessTokensPage(testData.workspace.id!!) {
             copyTemporaryAccessLink(0)
             shouldHaveNotifications { success("Temporary access link copied.") }
+            shouldHaveClipboardContentForTemporaryAccessLink(testData.accessToken.token)
         }
     }
 
@@ -98,11 +104,26 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
             shouldHaveNoManageExistingLinksSection()
             createTemporaryAccessLink("3025-01-15 10:00:00")
             shouldHaveNotifications { success("Temporary access link created.") }
-            shouldHaveAccessLinks(1)
-        }
 
-        aggregateTemplate.findAll<WorkspaceAccessToken>()
-            .filter { it.workspaceId == testData.workspace.id }
-            .shouldHaveSize(1)
+            val createdToken = aggregateTemplate.findAll<WorkspaceAccessToken>()
+                .single { it.workspaceId == testData.workspace.id }
+
+            shouldHaveAccessLinks(
+                accessLinkRow(
+                    token = createdToken.token,
+                    validTill = "15 Jan 3025, 10:00 am",
+                )
+            )
+
+            createdToken.shouldBeEntityWithFields(
+                WorkspaceAccessToken(
+                    workspaceId = testData.workspace.id,
+                    timeCreated = MOCK_TIME,
+                    validTill = Instant.parse("3025-01-15T10:00:00Z"),
+                    revoked = false,
+                    token = createdToken.token,
+                )
+            )
+        }
     }
 }

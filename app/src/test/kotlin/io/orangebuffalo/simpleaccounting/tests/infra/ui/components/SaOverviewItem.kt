@@ -3,10 +3,6 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.string.shouldNotBeBlank
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -85,6 +81,7 @@ class SaOverviewItem private constructor(
         get() = panel.locator(".overview-item__title").innerTextOrNull()
 
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
+    private val actionMenu = ActionMenu.byContainer(panel.locator(".overview-item__last-column"))
 
     fun shouldHaveDetails(actions: List<String> = emptyList(), vararg sections: DetailsSectionSpec) {
         expandDetails()
@@ -153,82 +150,44 @@ class SaOverviewItem private constructor(
     }
 
     fun clickLastColumnAction(actionText: String) {
-        openActionMenu()
-        actionMenuItemButton(actionText).click()
+        actionMenu.clickItem(actionText)
     }
 
     fun shouldHaveLastColumnActionDisabled(actionText: String) {
-        openActionMenu()
-        actionMenuItemButton(actionText).shouldBeDisabled()
+        actionMenu.shouldHaveItemDisabled(actionText)
     }
 
     fun shouldHaveLastColumnActionEnabled(actionText: String) {
-        openActionMenu()
-        actionMenuItemButton(actionText).shouldBeEnabled()
+        actionMenu.shouldHaveItemEnabled(actionText)
     }
 
     fun shouldHaveLastColumnActionTooltip(actionText: String, tooltip: String) {
-        openActionMenu()
-        val trigger = actionMenuItemTrigger(actionText)
-        trigger.hover()
-        trigger.shouldSatisfy {
-            val popperId = getAttribute("aria-describedby").shouldNotBeBlank()
-            panel.page().locator("#$popperId").shouldHaveText(tooltip)
-        }
+        actionMenu.shouldHaveItemTooltip(actionText, tooltip)
     }
 
     fun shouldHaveActionMenuDisabled() {
-        actionMenuButton().shouldBeDisabled()
+        actionMenu.shouldBeDisabled()
     }
 
     fun shouldHaveActionMenuTooltip(tooltip: String) {
-        actionMenuTrigger().hover()
-        panel.page()
-            .locator(".el-popper")
-            .filter(Locator.FilterOptions().setHasText(tooltip))
-            // Previous action tooltips with identical text may still be mounted; Element Plus appends the active one last.
-            .last()
-            .shouldBeVisible()
+        actionMenu.shouldHaveTooltip(tooltip)
     }
 
     fun openActionMenu() {
-        panel.page().keyboard().press("Escape")
-        actionMenuButton().click()
-        actionPopover().shouldBeVisible()
+        actionMenu.open()
     }
 
     fun shouldHaveActionMenuItems(vararg actionTexts: String) {
-        openActionMenu()
-        actionPopover().locator(".documents-overview-panel__action").shouldSatisfy {
-            allInnerTexts().shouldContainExactly(actionTexts.toList())
-        }
+        actionMenu.shouldHaveItems(*actionTexts)
     }
 
     fun clickActionMenuItem(actionText: String) {
-        openActionMenu()
-        actionMenuItemButton(actionText).click()
+        actionMenu.clickItem(actionText)
     }
 
     fun shouldHaveLastColumnContent(content: String) {
         panel.locator(".overview-item__last-column").shouldHaveText(content)
     }
-
-    private fun actionMenuItemButton(actionText: String) = actionPopover()
-        .locator("button.documents-overview-panel__action, .documents-overview-panel__action button")
-        .filter(Locator.FilterOptions().setHasText(actionText))
-
-    private fun actionMenuItemTrigger(actionText: String) = actionMenuItemButton(actionText)
-        .locator("xpath=ancestor::*[${XPath.hasClass("el-tooltip__trigger")}][1]")
-
-    private fun actionMenuButton() = panel.locator(".overview-item__last-column .sa-action-menu__trigger")
-
-    private fun actionMenuTrigger() = panel.locator(
-        ".overview-item__last-column .sa-action-menu__trigger"
-    )
-
-    private fun actionPopover() = panel.page()
-        .locator(".sa-action-menu__popover:visible")
-        .last()
 
     companion object {
         fun ComponentsAccessors.overviewItems() =
