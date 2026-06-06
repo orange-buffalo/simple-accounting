@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.api.pushnotifications
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.artsok.RepeatedIfExceptionsTest
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -27,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
 
 @DisplayName("Push Notifications Subscription")
 class PushNotificationsSubscriptionTest(

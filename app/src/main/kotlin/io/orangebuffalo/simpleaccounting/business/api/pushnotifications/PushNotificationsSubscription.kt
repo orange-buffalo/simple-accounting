@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.api.pushnotifications
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Subscription
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class PushNotificationsSubscription(

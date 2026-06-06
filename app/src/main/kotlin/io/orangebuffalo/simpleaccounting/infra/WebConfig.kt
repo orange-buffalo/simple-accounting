@@ -1,18 +1,11 @@
 package io.orangebuffalo.simpleaccounting.infra
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint
 import org.springframework.boot.security.autoconfigure.actuate.web.reactive.EndpointRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
-import org.springframework.http.codec.ServerCodecConfigurer
-import org.springframework.http.codec.json.Jackson2JsonDecoder
-import org.springframework.http.codec.json.Jackson2JsonEncoder
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
@@ -24,22 +17,6 @@ import java.util.concurrent.TimeUnit
 @Configuration
 @EnableWebFluxSecurity
 class WebConfig : WebFluxConfigurer {
-
-    override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
-        val objectMapper = objectMapper()
-
-        configurer.defaultCodecs()
-            .jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper))
-
-        configurer.defaultCodecs()
-            .jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper))
-    }
-
-    @Bean
-    fun objectMapper(): ObjectMapper = Jackson2ObjectMapperBuilder()
-        .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        .featuresToEnable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-        .build()
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/assets/**")

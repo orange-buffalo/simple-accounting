@@ -19,6 +19,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.context.annotation.Import
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -38,6 +39,7 @@ import kotlin.reflect.KProperty
     DatabaseCleanupExtension::class,
 )
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 @TestPropertySource(properties = ["spring.profiles.active=test"])
 @Import(
     ApiTestClientConfig::class,

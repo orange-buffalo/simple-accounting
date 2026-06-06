@@ -5,7 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPr
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
@@ -18,11 +17,6 @@ import java.time.Instant
  */
 @Configuration
 class ApiTestClientConfig {
-
-    @Bean
-    fun webTestClient(applicationContext: ApplicationContext): WebTestClient =
-        WebTestClient.bindToApplicationContext(applicationContext)
-            .build()
 
     @Bean
     fun apiTestClient(

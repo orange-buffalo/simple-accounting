@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.errors
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.fasterxml.jackson.annotation.JsonInclude
 
 @GraphQLDescription("Details of a field validation error that occurred during input validation.")
 data class ValidationErrorDetails(
@@ -15,7 +14,6 @@ data class ValidationErrorDetails(
     val message: String,
 
     @GraphQLDescription("Additional constraint parameters if applicable (e.g., min/max values for size constraints).")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     val params: List<ValidationErrorParam>? = null
 )
 
