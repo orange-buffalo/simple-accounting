@@ -10,7 +10,7 @@ import org.dataloader.DataLoaderFactory
  * Reduces boilerplate in [KotlinDataLoader] implementations by handling
  * [CompletableFuture] wrapping internally.
  */
-fun <K : Any, V> newAsyncMappedDataLoader(
+fun <K : Any, V : Any> newAsyncMappedDataLoader(
     batchLoader: (Set<K>) -> Map<K, V>,
 ): DataLoader<K, V> = DataLoaderFactory.newMappedDataLoader { keys ->
     supplyAsyncWithDbContext { batchLoader(keys) }

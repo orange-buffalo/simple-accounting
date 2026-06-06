@@ -21,7 +21,7 @@ class DbReactiveOAuth2AuthorizedClientService(
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository
 ) : ReactiveOAuth2AuthorizedClientService {
 
-    override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
+    override fun <T : OAuth2AuthorizedClient> loadAuthorizedClient(
         clientRegistrationId: String,
         principalName: String
     ): Mono<T> = mono {
@@ -30,9 +30,8 @@ class DbReactiveOAuth2AuthorizedClientService(
         withDbContext {
             val persistentClient = authorizedClientRepository
                 .findByClientRegistrationIdAndUserName(clientRegistrationId, principalName)
-            @Suppress("UNCHECKED_CAST")
             persistentClient?.let {
-                OAuth2AuthorizedClient(
+                val authorizedClient = OAuth2AuthorizedClient(
                     clientRegistration,
                     principalName,
                     OAuth2AccessToken(
@@ -48,7 +47,9 @@ class DbReactiveOAuth2AuthorizedClientService(
                             persistentClient.refreshTokenIssuedAt
                         )
                     })
-            } as T
+                @Suppress("UNCHECKED_CAST")
+                authorizedClient as T
+            }
         }
     }
 

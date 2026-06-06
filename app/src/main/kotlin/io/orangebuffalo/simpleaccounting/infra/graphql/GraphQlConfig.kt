@@ -97,8 +97,10 @@ private val GraphQLLongScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
             graphQLContext: graphql.GraphQLContext,
             locale: Locale
         ): Long = when (input) {
-            is IntValue -> input.value.toLong()
-            is StringValue -> input.value.toLong()
+            is IntValue -> input.value?.toLong()
+                ?: throw CoercingParseLiteralException("Expected IntValue or StringValue but got: $input")
+            is StringValue -> input.value?.toLong()
+                ?: throw CoercingParseLiteralException("Expected IntValue or StringValue but got: $input")
             else -> throw CoercingParseLiteralException("Expected IntValue or StringValue but got: $input")
         }
     })

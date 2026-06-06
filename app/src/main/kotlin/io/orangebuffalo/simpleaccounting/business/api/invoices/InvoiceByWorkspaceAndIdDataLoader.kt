@@ -17,7 +17,7 @@ private const val NAME = "invoiceByWorkspaceAndId"
 @Component
 class InvoiceByWorkspaceAndIdDataLoader(
     private val dslContext: DSLContext,
-) : KotlinDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto?> {
+) : KotlinDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto> {
 
     private val invoice = Tables.INVOICE
     private val customer = Tables.CUSTOMER
@@ -25,7 +25,7 @@ class InvoiceByWorkspaceAndIdDataLoader(
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceInvoiceKey, InvoiceGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceInvoiceKey, InvoiceGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val invoiceIds = keys.map { it.invoiceId }.toSet()
             val workspaceIds = keys.map { it.workspaceId }.toSet()
@@ -72,7 +72,7 @@ class InvoiceByWorkspaceAndIdDataLoader(
                 )
             }
 
-            keys.associateWith { key -> dtosByKey[key] }
+            dtosByKey
         }
 }
 
@@ -80,4 +80,4 @@ fun DataFetchingEnvironment.loadInvoiceByWorkspaceAndId(
     workspaceId: String,
     invoiceId: String,
 ): CompletableFuture<InvoiceGqlDto?> =
-    getDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto?>(NAME)!!.load(WorkspaceInvoiceKey(workspaceId, invoiceId))
+    getDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto>(NAME)!!.load(WorkspaceInvoiceKey(workspaceId, invoiceId)).thenApply { it }

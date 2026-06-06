@@ -16,16 +16,15 @@ private const val NAME = "expenseByWorkspaceAndId"
 @Component
 class ExpenseByWorkspaceAndIdDataLoader(
     private val expensesRepository: ExpensesRepository,
-) : KotlinDataLoader<WorkspaceExpenseKey, ExpenseGqlDto?> {
+) : KotlinDataLoader<WorkspaceExpenseKey, ExpenseGqlDto> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceExpenseKey, ExpenseGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceExpenseKey, ExpenseGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val expenseIds = keys.map { it.expenseId }.toSet()
             val expenses = expensesRepository.findAllById(expenseIds)
-            val expenseMap = expenses.associateBy { WorkspaceExpenseKey(it.workspaceId, it.id!!) }
-            keys.associateWith { key -> expenseMap[key]?.toExpenseGqlDto() }
+            expenses.associate { expense -> WorkspaceExpenseKey(expense.workspaceId, expense.id!!) to expense.toExpenseGqlDto() }
         }
 }
 
@@ -33,4 +32,4 @@ fun DataFetchingEnvironment.loadExpenseByWorkspaceAndId(
     workspaceId: String,
     expenseId: String,
 ): CompletableFuture<ExpenseGqlDto?> =
-    getDataLoader<WorkspaceExpenseKey, ExpenseGqlDto?>(NAME)!!.load(WorkspaceExpenseKey(workspaceId, expenseId))
+    getDataLoader<WorkspaceExpenseKey, ExpenseGqlDto>(NAME)!!.load(WorkspaceExpenseKey(workspaceId, expenseId)).thenApply { it }

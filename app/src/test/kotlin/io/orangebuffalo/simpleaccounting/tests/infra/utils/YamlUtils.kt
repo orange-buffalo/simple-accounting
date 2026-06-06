@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.utils
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
-import com.fasterxml.jackson.module.kotlin.kotlinModule
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.dataformat.yaml.YAMLMapper
+import tools.jackson.module.kotlin.kotlinModule
 
 fun yamlObjectMapper() : YAMLMapper = YAMLMapper.builder()
     .addModule(kotlinModule())

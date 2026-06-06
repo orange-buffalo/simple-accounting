@@ -16,11 +16,11 @@ private const val NAME = "documentsByIds"
 @Component
 class DocumentsByIdsDataLoader(
     private val documentsRepository: DocumentsRepository,
-) : KotlinDataLoader<String, DocumentGqlDto?> {
+) : KotlinDataLoader<String, DocumentGqlDto> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, DocumentGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, DocumentGqlDto> =
         newAsyncMappedDataLoader { documentIds ->
             val documents = documentsRepository.findAllById(documentIds)
             val usagesByDocId = documentsRepository.findUsagesByDocumentIds(documentIds)
@@ -41,7 +41,7 @@ class DocumentsByIdsDataLoader(
 
 suspend fun DataFetchingEnvironment.loadDocumentsByIds(
     documentIds: List<String>,
-): List<DocumentGqlDto> = getDataLoader<String, DocumentGqlDto?>(NAME)!!
+): List<DocumentGqlDto> = getDataLoader<String, DocumentGqlDto>(NAME)!!
     .loadMany(documentIds)
     .dispatchIfNeeded(this)
     .await()
@@ -51,7 +51,7 @@ suspend fun DataFetchingEnvironment.loadDocumentsByIds(
 fun DataFetchingEnvironment.loadDocumentsByIdsAsync(
     documentIds: List<String>
 ): CompletableFuture<List<DocumentGqlDto>> {
-    val dataLoader = getDataLoader<String, DocumentGqlDto?>(NAME)!!
+    val dataLoader = getDataLoader<String, DocumentGqlDto>(NAME)!!
     val documentsFuture = dataLoader.loadMany(documentIds)
     dataLoader.dispatch()
     return documentsFuture.thenApply { documents ->

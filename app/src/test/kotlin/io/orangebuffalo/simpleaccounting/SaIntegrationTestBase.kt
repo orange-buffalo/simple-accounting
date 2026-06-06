@@ -18,8 +18,8 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.context.annotation.Import
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -82,7 +82,7 @@ abstract class SaIntegrationTestBase {
     private val lazyPreconditions = mutableListOf<LazyRepeatablePreconditionsDelegate<*>>()
 
     @BeforeEach
-    private fun setupSaIntegrationTestBase() {
+    fun setupSaIntegrationTestBase() {
         entitiesFactoryInfra = EntitiesFactoryInfra(
             platformTransactionManager = platformTransactionManager,
             jdbcAggregateTemplate = aggregateTemplate,

@@ -18,14 +18,14 @@ private const val NAME = "standaloneDocumentByWorkspaceAndId"
 @Component
 class StandaloneDocumentByWorkspaceAndIdDataLoader(
     private val dslContext: DSLContext,
-) : KotlinDataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto?> {
+) : KotlinDataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto> {
 
     private val standaloneDocument = Tables.STANDALONE_DOCUMENT
     private val document = Tables.DOCUMENT
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val requestedPairsPredicate = DSL.or(keys.map { key ->
                 standaloneDocument.id.eq(key.standaloneDocumentId)
@@ -48,7 +48,7 @@ class StandaloneDocumentByWorkspaceAndIdDataLoader(
                     )
                 }
 
-            keys.associateWith { key -> dtosByKey[key] }
+            dtosByKey
         }
 }
 
@@ -56,5 +56,5 @@ fun DataFetchingEnvironment.loadStandaloneDocumentByWorkspaceAndId(
     workspaceId: String,
     standaloneDocumentId: String,
 ): CompletableFuture<StandaloneDocumentGqlDto?> =
-    getDataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto?>(NAME)!!
-        .load(WorkspaceStandaloneDocumentKey(workspaceId, standaloneDocumentId))
+    getDataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto>(NAME)!!
+        .load(WorkspaceStandaloneDocumentKey(workspaceId, standaloneDocumentId)).thenApply { it }

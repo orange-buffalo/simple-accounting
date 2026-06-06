@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.environment
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.logger
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.yamlObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.io.File
 
 data class TestConfig(

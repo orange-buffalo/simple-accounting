@@ -49,7 +49,7 @@ class SaGraphQLInputValidationInstrumentation(
     ): InstrumentationContext<List<ValidationError>> = object : InstrumentationContext<List<ValidationError>> {
         override fun onDispatched() = Unit
 
-        override fun onCompleted(result: List<ValidationError>, t: Throwable?) {
+        override fun onCompleted(result: List<ValidationError>?, t: Throwable?) {
             if (t != null) return
 
             val operation = findOperation(parameters) ?: return
@@ -64,7 +64,7 @@ class SaGraphQLInputValidationInstrumentation(
                 selectionSet = operation.selectionSet,
                 parentType = rootType,
                 variables = parameters.variables,
-                variableLocations = operation.variableDefinitions.associate { it.name to it.sourceLocation },
+                variableLocations = operation.variableDefinitions.associate { it.name to (it.sourceLocation ?: SourceLocation.EMPTY) },
             )
             if (validationErrors.isEmpty()) return
 
@@ -107,7 +107,7 @@ class SaGraphQLInputValidationInstrumentation(
             val sourceLocation = when (value) {
                 is VariableReference -> variableLocations[value.name] ?: value.sourceLocation
                 else -> field.sourceLocation
-            }
+            } ?: SourceLocation.EMPTY
             val queryPath = listOf(field.name)
 
             val resolvedValue = resolveValue(value, variables)
@@ -138,7 +138,7 @@ class SaGraphQLInputValidationInstrumentation(
         is VariableReference -> variables[value.name]
         is StringValue -> value.value
         is BooleanValue -> value.isValue
-        is IntValue -> value.value.toLong()
+        is IntValue -> value.value?.toLong()
         is FloatValue -> value.value
         else -> null
     }

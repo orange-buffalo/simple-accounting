@@ -61,18 +61,20 @@ fun PlatformUser.toSecurityPrincipal(): SpringSecurityPrincipal = createRegularU
 
 private class SecurityPrincipalImpl(
     override val userName: String,
-    password: String?,
-    authorities: Collection<GrantedAuthority>?,
+    password: String,
+    authorities: Collection<GrantedAuthority>,
     override val isTransient: Boolean
 
 ) : User(userName, password, authorities), SpringSecurityPrincipal {
 
     override val roles: Collection<String> = authorities
-        ?.asSequence()
-        ?.filter { it.authority.startsWith("ROLE_") }
-        ?.map { it.authority.removePrefix("ROLE_") }
-        ?.toList()
-        ?: emptyList()
+        .asSequence()
+        .mapNotNull { authority ->
+            authority.authority
+                ?.takeIf { it.startsWith("ROLE_") }
+                ?.removePrefix("ROLE_")
+        }
+        .toList()
 }
 
 class InsufficientUserType : RuntimeException()

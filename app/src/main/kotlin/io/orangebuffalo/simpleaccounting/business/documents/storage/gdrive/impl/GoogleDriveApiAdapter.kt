@@ -11,6 +11,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
@@ -19,6 +20,9 @@ import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitExchange
+import org.springframework.web.reactive.function.client.awaitExchangeOrNull
+import org.springframework.web.reactive.function.client.exchangeToFlow
 import reactor.core.publisher.Flux
 
 private val log = mu.KotlinLogging.logger {}
@@ -60,12 +64,16 @@ class GoogleDriveApiAdapter(
                 )
             )
             .accept(MediaType.APPLICATION_JSON)
-            .executeDriveRequest { errorJson ->
-                "Error while uploading $fileMetadata: $errorJson"
-            }
-            .bodyToMono(GDriveFile::class.java)
-            .map { driveFile -> driveFile.toUploadFileResponse() }
-            .awaitSingle()
+            .executeDriveRequest(
+                errorDescriptor = { errorJson ->
+                    "Error while uploading $fileMetadata: $errorJson"
+                },
+                responseHandler = { clientResponse ->
+                    clientResponse.bodyToMono(GDriveFile::class.java)
+                        .map { driveFile -> driveFile.toUploadFileResponse() }
+                        .awaitSingle()
+                }
+            )
     }
 
     suspend fun downloadFile(fileId: String): Flow<DataBuffer> {
@@ -77,11 +85,11 @@ class GoogleDriveApiAdapter(
                     .build()
             }
             .accept(MediaType.APPLICATION_OCTET_STREAM)
-            .executeDriveRequest { errorJson ->
-                "Error while downloading $fileId: $errorJson"
-            }
-            .body(BodyExtractors.toDataBuffers())
-            .asFlow()
+            .exchangeToDriveFlow(
+                errorDescriptor = { errorJson ->
+                    "Error while downloading $fileId: $errorJson"
+                }
+            )
     }
 
     suspend fun deleteFile(fileId: String) {
@@ -91,9 +99,13 @@ class GoogleDriveApiAdapter(
                 builder.path("/drive/v3/files/$fileId")
                     .build()
             }
-            .executeDriveRequest(setOf(HttpStatus.OK, HttpStatus.NO_CONTENT)) { errorJson ->
-                "Error while deleting $fileId: $errorJson"
-            }
+            .executeDriveRequest(
+                successStatuses = setOf(HttpStatus.OK, HttpStatus.NO_CONTENT),
+                errorDescriptor = { errorJson ->
+                    "Error while deleting $fileId: $errorJson"
+                },
+                responseHandler = {}
+            )
     }
 
     suspend fun findFolderByNameAndParent(
@@ -111,11 +123,14 @@ class GoogleDriveApiAdapter(
                     .build()
             }
             .accept(MediaType.APPLICATION_JSON)
-            .executeDriveRequest { errorJson ->
-                "Error while retrieving folder $folderName for $parentFolderId: $errorJson"
-            }
-            .bodyToMono(GDriveFiles::class.java)
-            .awaitSingle()
+            .executeDriveRequest(
+                errorDescriptor = { errorJson ->
+                    "Error while retrieving folder $folderName for $parentFolderId: $errorJson"
+                },
+                responseHandler = { clientResponse ->
+                    clientResponse.bodyToMono(GDriveFiles::class.java).awaitSingle()
+                }
+            )
 
         return if (matchingFolders.files.isEmpty()) null else matchingFolders.files[0].id
     }
@@ -140,13 +155,17 @@ class GoogleDriveApiAdapter(
                 )
             )
             .accept(MediaType.APPLICATION_JSON)
-            .executeDriveRequest { errorJson ->
-                log.debug { "Error while creating folder $folderName: $errorJson" }
-                "Error while creating folder $folderName: $errorJson"
-            }
-            .bodyToMono(GDriveFile::class.java)
-            .map { driveFile -> driveFile.toFolderResponse() }
-            .awaitSingle()
+            .executeDriveRequest(
+                errorDescriptor = { errorJson ->
+                    log.debug { "Error while creating folder $folderName: $errorJson" }
+                    "Error while creating folder $folderName: $errorJson"
+                },
+                responseHandler = { clientResponse ->
+                    clientResponse.bodyToMono(GDriveFile::class.java)
+                        .map { driveFile -> driveFile.toFolderResponse() }
+                        .awaitSingle()
+                }
+            )
             .also {
                 log.debug { "Folder $folderName created: $it" }
             }
@@ -162,14 +181,18 @@ class GoogleDriveApiAdapter(
                     .build()
             }
             .accept(MediaType.APPLICATION_JSON)
-            .executeDriveRequest { errorJson ->
-                log.debug { "Error while retrieving folder $folderId: $errorJson" }
-                "Error while retrieving folder $folderId: $errorJson"
-            }
-            .bodyToMono(GDriveFile::class.java)
-            .filter { driveFile -> !driveFile.trashed!! }
-            .map { driveFile -> driveFile.toFolderResponse() }
-            .awaitFirstOrNull()
+            .executeNullableDriveRequest(
+                errorDescriptor = { errorJson ->
+                    log.debug { "Error while retrieving folder $folderId: $errorJson" }
+                    "Error while retrieving folder $folderId: $errorJson"
+                },
+                responseHandler = { clientResponse ->
+                    clientResponse.bodyToMono(GDriveFile::class.java)
+                        .filter { driveFile -> !driveFile.trashed!! }
+                        .map { driveFile -> driveFile.toFolderResponse() }
+                        .awaitFirstOrNull()
+                }
+            )
             .also {
                 log.debug { "Folder $folderId retrieved: $it" }
             }
@@ -180,36 +203,119 @@ class GoogleDriveApiAdapter(
         .baseUrl(googleDriveDocumentsStorageProperties.baseApiUrl)
         .build()
 
-    private suspend inline fun WebClient.RequestHeadersSpec<*>.executeDriveRequest(
+    private suspend fun <T : Any> WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.executeDriveRequest(
         successStatuses: Set<HttpStatus> = setOf(HttpStatus.OK),
-        errorDescriptor: (errorJson: String?) -> String
-    ): ClientResponse {
+        errorDescriptor: (errorJson: String?) -> String,
+        responseHandler: suspend (ClientResponse) -> T,
+    ): T {
         log.debug { "Executing request: $this" }
-        val clientResponse = try {
-            @Suppress("DEPRECATION")
-            // Spring 5.3 does not provide coroutine-compatible API to achieve the sameSecurityUtils
-            this.exchange().awaitSingle()
+        return try {
+            this.awaitExchange<T> { clientResponse ->
+                clientResponse.verifyDriveResponse(successStatuses, errorDescriptor)
+                responseHandler(clientResponse)
+            }
         } catch (e: OAuth2AuthorizationException) {
             log.debug { "Authorization error: ${e.message}" }
             throw StorageAuthorizationRequiredException(cause = e)
         }
+    }
 
-        val statusCode = clientResponse.statusCode()
-        if (statusCode == HttpStatus.UNAUTHORIZED || statusCode == HttpStatus.FORBIDDEN) {
-            log.debug { "Authorization required: $statusCode" }
-            throw StorageAuthorizationRequiredException(message = "Not authorized: $statusCode")
-        } else if (statusCode !in successStatuses) {
-            val errorJson = clientResponse.bodyToMono(String::class.java).awaitFirstOrNull()
-            log.debug { "Error response with code $statusCode: $errorJson" }
-            if (statusCode == HttpStatus.NOT_FOUND) {
-                throw DriveFileNotFoundException(errorJson)
-            } else {
-                throw DocumentStorageException(errorDescriptor(errorJson))
+    private suspend fun <T : Any> WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.executeNullableDriveRequest(
+        successStatuses: Set<HttpStatus> = setOf(HttpStatus.OK),
+        errorDescriptor: (errorJson: String?) -> String,
+        responseHandler: suspend (ClientResponse) -> T?,
+    ): T? {
+        log.debug { "Executing request: $this" }
+        return try {
+            this.awaitExchangeOrNull<T> { clientResponse ->
+                clientResponse.verifyDriveResponse(successStatuses, errorDescriptor)
+                responseHandler(clientResponse)
+            }
+        } catch (e: OAuth2AuthorizationException) {
+            log.debug { "Authorization error: ${e.message}" }
+            throw StorageAuthorizationRequiredException(cause = e)
+        }
+    }
+
+    private fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.exchangeToDriveFlow(
+        successStatuses: Set<HttpStatus> = setOf(HttpStatus.OK),
+        errorDescriptor: (errorJson: String?) -> String,
+    ): Flow<DataBuffer> = try {
+        log.debug { "Executing request: $this" }
+        exchangeToFlow { clientResponse ->
+            clientResponse.extractDriveDataBuffers(successStatuses, errorDescriptor).asFlow()
+        }
+    } catch (e: OAuth2AuthorizationException) {
+        log.debug { "Authorization error: ${e.message}" }
+        throw StorageAuthorizationRequiredException(cause = e)
+    }
+
+    private suspend fun ClientResponse.verifyDriveResponse(
+        successStatuses: Set<HttpStatus>,
+        errorDescriptor: (errorJson: String?) -> String,
+    ) {
+        when (val error = driveResponseError(successStatuses)) {
+            null -> log.debug { "Request executed successfully: ${statusCode()}" }
+            is DriveResponseError.AuthorizationRequired -> {
+                log.debug { "Authorization required: ${error.statusCode}" }
+                throw error.toException()
+            }
+            is DriveResponseError.ApiError -> {
+                val errorJson = bodyToMono(String::class.java).awaitFirstOrNull()
+                log.debug { "Error response with code ${error.statusCode}: $errorJson" }
+                throw error.toException(errorJson, errorDescriptor)
             }
         }
-        log.debug { "Request executed successfully: $statusCode" }
+    }
 
-        return clientResponse
+    private fun ClientResponse.extractDriveDataBuffers(
+        successStatuses: Set<HttpStatus>,
+        errorDescriptor: (errorJson: String?) -> String,
+    ): Flux<DataBuffer> = when (val error = driveResponseError(successStatuses)) {
+        null -> {
+            log.debug { "Request executed successfully: ${statusCode()}" }
+            body(BodyExtractors.toDataBuffers())
+        }
+        is DriveResponseError.AuthorizationRequired -> {
+            log.debug { "Authorization required: ${error.statusCode}" }
+            Flux.error(error.toException())
+        }
+        is DriveResponseError.ApiError -> {
+            log.debug { "Error response with code ${error.statusCode}" }
+            bodyToMono(String::class.java)
+                .flatMapMany<DataBuffer> { errorJson -> Flux.error(error.toException(errorJson, errorDescriptor)) }
+                .switchIfEmpty(Flux.error(error.toException(null, errorDescriptor)))
+        }
+    }
+
+    private fun ClientResponse.driveResponseError(successStatuses: Set<HttpStatus>): DriveResponseError? {
+        val statusCode = statusCode()
+        return when {
+            statusCode == HttpStatus.UNAUTHORIZED || statusCode == HttpStatus.FORBIDDEN -> {
+                DriveResponseError.AuthorizationRequired(statusCode)
+            }
+            statusCode !in successStatuses -> DriveResponseError.ApiError(statusCode)
+            else -> null
+        }
+    }
+}
+
+private sealed interface DriveResponseError {
+    val statusCode: HttpStatusCode
+
+    class AuthorizationRequired(override val statusCode: HttpStatusCode) : DriveResponseError {
+        fun toException() = StorageAuthorizationRequiredException(message = "Not authorized: $statusCode")
+    }
+
+    class ApiError(override val statusCode: HttpStatusCode) : DriveResponseError {
+        fun toException(
+            errorJson: String?,
+            errorDescriptor: (errorJson: String?) -> String,
+        ) = if (statusCode == HttpStatus.NOT_FOUND) {
+            DriveFileNotFoundException(errorJson)
+        } else {
+            DocumentStorageException(errorDescriptor(errorJson))
+        }
     }
 }
 

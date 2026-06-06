@@ -16,27 +16,24 @@ private const val NAME = "incomeTaxPaymentByWorkspaceAndId"
 @Component
 class IncomeTaxPaymentByWorkspaceAndIdDataLoader(
     private val incomeTaxPaymentsRepository: IncomeTaxPaymentsRepository,
-) : KotlinDataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto?> {
+) : KotlinDataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val paymentIds = keys.map { it.paymentId }.toSet()
             val payments = incomeTaxPaymentsRepository.findAllById(paymentIds)
-            val paymentMap = payments.associateBy { WorkspaceIncomeTaxPaymentKey(it.workspaceId, it.id!!) }
-            keys.associateWith { key ->
-                paymentMap[key]?.let { payment ->
-                    IncomeTaxPaymentGqlDto(
-                        id = payment.id!!,
-                        title = payment.title,
-                        datePaid = payment.datePaid,
-                        reportingDate = payment.reportingDate,
-                        amount = payment.amount,
-                        notes = payment.notes,
-                        attachmentIds = payment.attachments.map { it.documentId },
-                    )
-                }
+            payments.associate { payment ->
+                WorkspaceIncomeTaxPaymentKey(payment.workspaceId, payment.id!!) to IncomeTaxPaymentGqlDto(
+                    id = payment.id!!,
+                    title = payment.title,
+                    datePaid = payment.datePaid,
+                    reportingDate = payment.reportingDate,
+                    amount = payment.amount,
+                    notes = payment.notes,
+                    attachmentIds = payment.attachments.map { it.documentId },
+                )
             }
         }
 }
@@ -45,5 +42,5 @@ fun DataFetchingEnvironment.loadIncomeTaxPaymentByWorkspaceAndId(
     workspaceId: String,
     paymentId: String,
 ): CompletableFuture<IncomeTaxPaymentGqlDto?> =
-    getDataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto?>(NAME)!!
-        .load(WorkspaceIncomeTaxPaymentKey(workspaceId, paymentId))
+    getDataLoader<WorkspaceIncomeTaxPaymentKey, IncomeTaxPaymentGqlDto>(NAME)!!
+        .load(WorkspaceIncomeTaxPaymentKey(workspaceId, paymentId)).thenApply { it }

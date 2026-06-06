@@ -109,7 +109,7 @@ class AuthenticationService(
     }
 
     fun setUserPassword(user: PlatformUser, password: String): PlatformUser =
-        user.copy(passwordHash = passwordEncoder.encode(password))
+        user.copy(passwordHash = checkNotNull(passwordEncoder.encode(password)))
 }
 
 sealed class PasswordChangeException(message: String) : RuntimeException(message) {
