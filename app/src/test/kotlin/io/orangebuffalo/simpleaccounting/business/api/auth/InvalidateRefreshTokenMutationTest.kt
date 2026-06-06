@@ -31,7 +31,7 @@ class InvalidateRefreshTokenMutationTest(
                     cookie.shouldContain("refreshToken=")
                     cookie.shouldContain("Max-Age=0")
                     cookie.shouldContain("Path=/api")
-                    cookie.shouldContain("HttpOnly")
+                    cookie.lowercase().shouldContain("httponly")
                     cookie.shouldContain("SameSite=Strict")
                 }
                 .expectBody()

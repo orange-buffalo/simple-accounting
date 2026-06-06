@@ -6,16 +6,16 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.Googl
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2WebClientBuilderProvider
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
@@ -88,7 +88,8 @@ class GoogleDriveApiAdapter(
                     "Error while downloading $fileId: $errorJson"
                 },
                 responseHandler = { clientResponse ->
-                    clientResponse.body(BodyExtractors.toDataBuffers()).asFlow()
+                    val bytes = clientResponse.bodyToMono(ByteArray::class.java).awaitFirstOrNull() ?: ByteArray(0)
+                    flowOf(DefaultDataBufferFactory.sharedInstance.wrap(bytes))
                 }
             )
     }

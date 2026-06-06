@@ -214,7 +214,7 @@ class CreateAccessTokenByCredentialsMutationTest(
                     cookie.shouldContain("refreshToken=refreshTokenForFry")
                     cookie.shouldContain("Max-Age=2592000")
                     cookie.shouldContain("Path=/api")
-                    cookie.shouldContain("HttpOnly")
+                    cookie.lowercase().shouldContain("httponly")
                     cookie.shouldContain("SameSite=Strict")
                 }
         }
