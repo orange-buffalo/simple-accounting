@@ -16,24 +16,21 @@ private const val NAME = "generalTaxByWorkspaceAndId"
 @Component
 class GeneralTaxByWorkspaceAndIdDataLoader(
     private val generalTaxesRepository: GeneralTaxesRepository,
-) : KotlinDataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto?> {
+) : KotlinDataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val taxIds = keys.map { it.taxId }.toSet()
             val taxes = generalTaxesRepository.findAllById(taxIds)
-            val taxMap = taxes.associateBy { WorkspaceGeneralTaxKey(it.workspaceId, it.id!!) }
-            keys.associateWith { key ->
-                taxMap[key]?.let { tax ->
-                    GeneralTaxGqlDto(
-                        id = tax.id!!,
-                        title = tax.title,
-                        description = tax.description,
-                        rateInBps = tax.rateInBps,
-                    )
-                }
+            taxes.associate { tax ->
+                WorkspaceGeneralTaxKey(tax.workspaceId, tax.id!!) to GeneralTaxGqlDto(
+                    id = tax.id!!,
+                    title = tax.title,
+                    description = tax.description,
+                    rateInBps = tax.rateInBps,
+                )
             }
         }
 }
@@ -42,4 +39,4 @@ fun DataFetchingEnvironment.loadGeneralTaxByWorkspaceAndId(
     workspaceId: String,
     taxId: String,
 ): CompletableFuture<GeneralTaxGqlDto?> =
-    getDataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto?>(NAME)!!.load(WorkspaceGeneralTaxKey(workspaceId, taxId))
+    getDataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto>(NAME)!!.load(WorkspaceGeneralTaxKey(workspaceId, taxId)).thenApply { it }

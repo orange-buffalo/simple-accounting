@@ -21,7 +21,7 @@ class DbReactiveOAuth2AuthorizedClientService(
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository
 ) : ReactiveOAuth2AuthorizedClientService {
 
-    override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
+    override fun <T : OAuth2AuthorizedClient> loadAuthorizedClient(
         clientRegistrationId: String,
         principalName: String
     ): Mono<T> = mono {

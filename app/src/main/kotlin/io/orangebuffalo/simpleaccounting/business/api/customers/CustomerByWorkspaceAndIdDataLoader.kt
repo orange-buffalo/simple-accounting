@@ -16,22 +16,19 @@ private const val NAME = "customerByWorkspaceAndId"
 @Component
 class CustomerByWorkspaceAndIdDataLoader(
     private val customersRepository: CustomersRepository,
-) : KotlinDataLoader<WorkspaceCustomerKey, CustomerGqlDto?> {
+) : KotlinDataLoader<WorkspaceCustomerKey, CustomerGqlDto> {
 
     override val dataLoaderName: String = NAME
 
-    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceCustomerKey, CustomerGqlDto?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceCustomerKey, CustomerGqlDto> =
         newAsyncMappedDataLoader { keys ->
             val customerIds = keys.map { it.customerId }.toSet()
             val customers = customersRepository.findAllById(customerIds)
-            val customerMap = customers.associateBy { WorkspaceCustomerKey(it.workspaceId, it.id!!) }
-            keys.associateWith { key ->
-                customerMap[key]?.let { customer ->
-                    CustomerGqlDto(
-                        id = customer.id!!,
-                        name = customer.name,
-                    )
-                }
+            customers.associate { customer ->
+                WorkspaceCustomerKey(customer.workspaceId, customer.id!!) to CustomerGqlDto(
+                    id = customer.id!!,
+                    name = customer.name,
+                )
             }
         }
 }
@@ -40,4 +37,4 @@ fun DataFetchingEnvironment.loadCustomerByWorkspaceAndId(
     workspaceId: String,
     customerId: String,
 ): CompletableFuture<CustomerGqlDto?> =
-    getDataLoader<WorkspaceCustomerKey, CustomerGqlDto?>(NAME)!!.load(WorkspaceCustomerKey(workspaceId, customerId))
+    getDataLoader<WorkspaceCustomerKey, CustomerGqlDto>(NAME)!!.load(WorkspaceCustomerKey(workspaceId, customerId)).thenApply { it }

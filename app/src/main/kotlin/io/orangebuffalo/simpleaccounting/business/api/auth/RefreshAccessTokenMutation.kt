@@ -15,6 +15,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 
 @Component
 class RefreshAccessTokenMutation(
@@ -32,7 +33,7 @@ class RefreshAccessTokenMutation(
         env: DataFetchingEnvironment
     ): RefreshAccessTokenResponse {
         val currentAuth = ReactiveSecurityContextHolder.getContext()
-            .map { it.authentication }
+            .flatMap { Mono.justOrEmpty(it.authentication) }
             .awaitFirstOrNull()
 
         val refreshToken = extractRefreshTokenFromRequest(env)

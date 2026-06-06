@@ -31,8 +31,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-jackson2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -55,7 +56,7 @@ dependencies {
     implementation(libs.ktor.kotlinxJson)
     implementation(libs.ktor.auth)
 
-    runtimeOnly("org.flywaydb:flyway-core")
+    runtimeOnly("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("com.h2database:h2")
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.jackson)
@@ -63,17 +64,16 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.springframework.security:spring-security-test")
     testImplementation(libs.jsonUnit.kotest)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.mockito.junitJupiter)
     // workaround for https://github.com/JetBrains/JetBrainsRuntime/issues/259
     testImplementation(libs.mockito.subclass)
-    testImplementation("org.flywaydb:flyway-core")
     testImplementation(libs.guava)
     testImplementation(libs.wiremock.standalone)
     testImplementation(libs.awaitility)
@@ -83,7 +83,7 @@ dependencies {
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.nginx)
     testImplementation(libs.playwright)
-    testImplementation("org.springframework.retry:spring-retry")
+    testImplementation(libs.springRetry)
     testImplementation(libs.kotest.assertionsCore)
     testImplementation(libs.mockOauth2Server)
     testImplementation(libs.kotest.assertionsPlaywright)
