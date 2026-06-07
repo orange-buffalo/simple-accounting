@@ -17,15 +17,7 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val category = category(workspace = workspace, name = "Delivery")
-                val income = income(
-                    workspace = workspace,
-                    category = category,
-                    title = "Delivery to Mars payment",
-                    originalAmount = 10000L,
-                    dateReceived = LocalDate.of(3025, 1, 15),
-                    useDifferentExchangeRateForIncomeTaxPurposes = false
-                )
+                val income = income(workspace = workspace)
             }
         }
 

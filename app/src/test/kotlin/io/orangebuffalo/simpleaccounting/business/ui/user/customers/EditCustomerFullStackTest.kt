@@ -70,7 +70,7 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val customer = customer(workspace = workspace, name = "Slurm Corp")
+                val customer = customer(workspace = workspace)
             }
         }
 

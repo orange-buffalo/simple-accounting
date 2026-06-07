@@ -136,14 +136,9 @@ class EditStandaloneDocumentFullStackTest : SaFullStackTestBase() {
     fun `should show warning when saving outdated standalone document state`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                val fry = fry()
                 val workspace = workspace(owner = fry)
-                val document = document(workspace = workspace, name = "delivery-permit.pdf")
-                val standaloneDocument = standaloneDocument(
-                    workspace = workspace,
-                    document = document,
-                    title = "Old delivery permit",
-                )
+                val standaloneDocument = standaloneDocument(workspace = workspace)
             }
         }
 

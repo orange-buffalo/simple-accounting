@@ -180,13 +180,7 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val payment = incomeTaxPayment(
-                    workspace = workspace,
-                    title = "Q1 Tax",
-                    amount = 100000,
-                    datePaid = LocalDate.of(3025, 1, 15),
-                    reportingDate = LocalDate.of(3025, 1, 15)
-                )
+                val payment = incomeTaxPayment(workspace = workspace)
             }
         }
 

@@ -92,7 +92,7 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val category = category(workspace = workspace, name = "Slurm supplies")
+                val category = category(workspace = workspace)
             }
         }
 

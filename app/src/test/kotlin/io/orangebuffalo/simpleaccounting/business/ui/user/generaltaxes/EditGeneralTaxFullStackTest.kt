@@ -96,7 +96,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val tax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+                val tax = generalTax(workspace = workspace)
             }
         }
 

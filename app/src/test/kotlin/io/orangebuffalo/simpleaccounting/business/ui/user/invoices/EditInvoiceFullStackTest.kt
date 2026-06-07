@@ -363,16 +363,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val customer = customer(workspace = workspace, name = "Planet Express")
-                val invoice = invoice(
-                    customer = customer,
-                    title = "Delivery services",
-                    currency = "USD",
-                    amount = 10000,
-                    dateIssued = LocalDate.of(3025, 1, 1),
-                    dueDate = LocalDate.of(3025, 2, 1),
-                    status = InvoiceStatus.DRAFT
-                )
+                val invoice = invoice(customer = customer(workspace = workspace))
             }
         }
 

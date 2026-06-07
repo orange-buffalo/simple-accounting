@@ -18,7 +18,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express", defaultCurrency = "USD")
+                val workspace = workspace(owner = fry)
             }
         }
 
