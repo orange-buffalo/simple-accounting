@@ -65,6 +65,35 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated customer state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val customer = customer(workspace = workspace, name = "Slurm Corp")
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/settings/customers/${testData.customer.id}/edit")
+        page.shouldBeEditCustomerPage {
+            name { input.fill("Mom's Friendly Robot Company") }
+            aggregateTemplate.save(testData.customer.copy(name = "Slurm Corp changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditCustomerPage {
+            name { input.shouldHaveValue("Mom's Friendly Robot Company") }
+        }
+
+        aggregateTemplate.findSingle<Customer>(testData.customer.id!!).name.shouldBe("Slurm Corp changed elsewhere")
+    }
+
+    @Test
     fun `should show validation errors for invalid name`(page: Page) {
         val testData = preconditions {
             object {

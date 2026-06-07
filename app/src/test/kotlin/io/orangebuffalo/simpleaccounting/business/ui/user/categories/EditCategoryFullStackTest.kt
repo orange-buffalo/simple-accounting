@@ -87,6 +87,35 @@ class EditCategoryFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated category state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val category = category(workspace = workspace, name = "Slurm supplies")
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/settings/categories/${testData.category.id}/edit")
+        page.shouldBeEditCategoryPage {
+            name { input.fill("Robot maintenance") }
+            aggregateTemplate.save(testData.category.copy(name = "Delivery changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditCategoryPage {
+            name { input.shouldHaveValue("Robot maintenance") }
+        }
+
+        aggregateTemplate.findSingle<Category>(testData.category.id!!).name.shouldBe("Delivery changed elsewhere")
+    }
+
+    @Test
     fun `should show validation errors for invalid inputs`(page: Page) {
         val testData = preconditions {
             object {

@@ -91,6 +91,35 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated general tax state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val tax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
+        page.shouldBeEditGeneralTaxPage {
+            title { input.fill("Sales Tax") }
+            aggregateTemplate.save(testData.tax.copy(title = "VAT changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditGeneralTaxPage {
+            title { input.shouldHaveValue("Sales Tax") }
+        }
+
+        aggregateTemplate.findSingle<GeneralTax>(testData.tax.id!!).title.shouldBe("VAT changed elsewhere")
+    }
+
+    @Test
     fun `should validate all fields`(page: Page) {
         val testData = preconditions {
             object {

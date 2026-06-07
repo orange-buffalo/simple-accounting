@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement.EditUserPage.Companion.shouldBeEditUserPage
@@ -46,6 +47,35 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             .shouldWithClue("Should update Fry user") {
                 shouldContainExactlyInAnyOrder("fryX", preconditions.farnsworth.userName)
             }
+    }
+
+    @Test
+    fun `should show warning when saving outdated user state`(page: Page) {
+        val data = preconditions {
+            object {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+
+        page.navigateToEditPage(data.farnsworth, data.fry) {
+            userName {
+                input.shouldHaveValue(data.fry.userName)
+                input.fill("fryX")
+            }
+            aggregateTemplate.save(data.fry.copy(userName = "FryChangedElsewhere"))
+
+            saveButton { click() }
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditUserPage {
+            userName { input.shouldHaveValue("fryX") }
+        }
+
+        aggregateTemplate.findSingle<PlatformUser>(data.fry.id!!).userName.shouldBe("FryChangedElsewhere")
     }
 
     @Test
