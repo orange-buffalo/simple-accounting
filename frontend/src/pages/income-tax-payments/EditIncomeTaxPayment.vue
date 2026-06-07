@@ -95,6 +95,7 @@
       workspace(id: $workspaceId) {
         incomeTaxPayment(id: $id) {
           id
+          version
           title
           datePaid
           reportingDate
@@ -136,6 +137,7 @@
     mutation editIncomeTaxPayment(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $title: String!,
       $datePaid: LocalDate!,
       $reportingDate: LocalDate,
@@ -146,6 +148,7 @@
       editIncomeTaxPayment(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         title: $title,
         datePaid: $datePaid,
         reportingDate: $reportingDate,

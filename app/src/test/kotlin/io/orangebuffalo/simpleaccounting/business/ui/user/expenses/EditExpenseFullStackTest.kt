@@ -535,6 +535,47 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated expense state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val expense = expense(
+                    workspace = workspace,
+                    title = "Robot oil",
+                    currency = "USD",
+                    originalAmount = 5000,
+                    convertedAmounts = AmountsInDefaultCurrency(5000),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(5000),
+                    datePaid = LocalDate.of(3025, 1, 10),
+                    percentOnBusiness = 100,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    status = ExpenseStatus.FINALIZED
+                )
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/expenses/${testData.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            title { input.fill("Updated robot oil") }
+            aggregateTemplate.save(testData.expense.copy(title = "Robot oil changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditExpensePage {
+            title { input.shouldHaveValue("Updated robot oil") }
+        }
+
+        aggregateTemplate.findSingle<Expense>(testData.expense.id!!).title.shouldBe("Robot oil changed elsewhere")
+    }
+
+    @Test
     fun `should switch from default to foreign currency and save`(page: Page) {
         val testData = preconditions {
             object {

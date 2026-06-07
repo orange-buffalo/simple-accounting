@@ -24,6 +24,7 @@ class CategoryByIdDataLoader(
             categories.associate {
                 it.id!! to CategoryGqlDto(
                     id = it.id!!,
+                    version = it.version!!,
                     name = it.name,
                     description = it.description,
                     income = it.income,

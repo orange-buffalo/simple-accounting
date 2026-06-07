@@ -33,6 +33,7 @@ class WorkspacesQuery(
             .page(first, after) { record ->
                 WorkspaceGqlDto(
                     id = record[workspace.id]!!,
+                    version = record[workspace.version]!!,
                     name = record[workspace.name]!!,
                     defaultCurrency = record[workspace.defaultCurrency]!!,
                 )

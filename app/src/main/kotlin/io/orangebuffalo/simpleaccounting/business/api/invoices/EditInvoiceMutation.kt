@@ -26,6 +26,8 @@ class EditInvoiceMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the invoice to update.")
         id: String,
+        @GraphQLDescription("Version of the invoice state used for editing.")
+        version: Int,
         @GraphQLDescription("ID of the customer for this invoice.")
         customerId: String,
         @GraphQLDescription("New title of the invoice.")
@@ -55,6 +57,7 @@ class EditInvoiceMutation(
     ): InvoiceGqlDto {
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Invoice $id is not found")
+        invoice.validateVersion(version)
 
         return invoicesService.saveInvoice(
             invoice.copy(

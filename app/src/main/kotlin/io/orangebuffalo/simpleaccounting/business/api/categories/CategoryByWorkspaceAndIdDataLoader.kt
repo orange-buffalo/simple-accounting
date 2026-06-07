@@ -27,6 +27,7 @@ class CategoryByWorkspaceAndIdDataLoader(
             categories.associate { category ->
                 WorkspaceCategoryKey(category.workspaceId, category.id!!) to CategoryGqlDto(
                     id = category.id!!,
+                    version = category.version!!,
                     name = category.name,
                     description = category.description,
                     income = category.income,

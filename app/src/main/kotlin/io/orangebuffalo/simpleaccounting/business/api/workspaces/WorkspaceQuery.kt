@@ -20,6 +20,7 @@ class WorkspaceQuery(
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.READ_ONLY)
         return WorkspaceGqlDto(
             id = workspace.id!!,
+            version = workspace.version!!,
             name = workspace.name,
             defaultCurrency = workspace.defaultCurrency,
         )

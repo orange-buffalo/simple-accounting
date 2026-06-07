@@ -40,6 +40,7 @@
       workspace(id: $workspaceId) {
         customer(id: $customerId) {
           id
+          version
           name
         }
       }
@@ -64,11 +65,13 @@
     mutation editCustomer(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $name: String!
     ) {
       editCustomer(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         name: $name
       ) {
         id

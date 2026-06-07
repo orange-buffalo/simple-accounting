@@ -175,6 +175,35 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated income tax payment state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val payment = incomeTaxPayment(workspace = workspace)
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/income-tax-payments/${testData.payment.id}/edit")
+        page.shouldBeEditIncomeTaxPaymentPage {
+            title { input.fill("Q1 Corporate Tax") }
+            aggregateTemplate.save(testData.payment.copy(title = "Q1 Tax changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditIncomeTaxPaymentPage {
+            title { input.shouldHaveValue("Q1 Corporate Tax") }
+        }
+
+        aggregateTemplate.findSingle<IncomeTaxPayment>(testData.payment.id!!).title.shouldBe("Q1 Tax changed elsewhere")
+    }
+
+    @Test
     fun `should update income tax payment with notes and attachments`(page: Page) {
         val testFile = createTestFile("updated-receipt.pdf", byteArrayOf(5, 6, 7, 8))
 

@@ -158,6 +158,7 @@
       workspace(id: $workspaceId) {
         income(id: $incomeId) {
           id
+          version
           category {
             id
           }
@@ -227,6 +228,7 @@
     mutation editIncomeMutation(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $title: String!,
       $dateReceived: LocalDate!,
       $currency: String!,
@@ -243,6 +245,7 @@
       editIncome(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         title: $title,
         dateReceived: $dateReceived,
         currency: $currency,

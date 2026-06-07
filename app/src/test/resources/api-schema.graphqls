@@ -103,6 +103,8 @@ type Category {
   income: Boolean!
   "Name of the category."
   name: String!
+  "Version of the category state."
+  version: Int!
 }
 
 "An edge in a categories connection."
@@ -160,6 +162,8 @@ type Customer {
   id: String!
   "Name of the customer."
   name: String!
+  "Version of the customer state."
+  version: Int!
 }
 
 "An edge in a customers connection."
@@ -398,6 +402,8 @@ type GeneralTax {
   rateInBps: Int!
   "Title of the general tax."
   title: String!
+  "Version of the general tax state."
+  version: Int!
 }
 
 "An edge in a general taxes connection."
@@ -522,6 +528,8 @@ type IncomeTaxPayment {
   reportingDate: LocalDate!
   "Title of the income tax payment."
   title: String!
+  "Version of the income tax payment state."
+  version: Int!
 }
 
 "An edge in a income tax payments connection."
@@ -884,6 +892,8 @@ type Mutation {
     income: Boolean!,
     "New name of the category."
     name: String! @notBlank @size(max : 255, min : 0),
+    "Version of the category state used for editing."
+    version: Int!,
     "ID of the workspace the category belongs to."
     workspaceId: String!
   ): Category! @auth(type : REGULAR_USER)
@@ -893,6 +903,8 @@ type Mutation {
     id: String!,
     "New name of the customer."
     name: String! @notBlank @size(max : 255, min : 0),
+    "Version of the customer state used for editing."
+    version: Int!,
     "ID of the workspace the customer belongs to."
     workspaceId: String!
   ): Customer! @auth(type : REGULAR_USER)
@@ -924,6 +936,8 @@ type Mutation {
     title: String! @notBlank @size(max : 255, min : 0),
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "Version of the expense state used for editing."
+    version: Int!,
     "ID of the workspace the expense belongs to."
     workspaceId: String!
   ): Expense! @auth(type : REGULAR_USER)
@@ -937,6 +951,8 @@ type Mutation {
     rateInBps: Int! @max(value : 10000) @min(value : 0),
     "New title of the general tax."
     title: String! @notBlank @size(max : 255, min : 0),
+    "Version of the general tax state used for editing."
+    version: Int!,
     "ID of the workspace the general tax belongs to."
     workspaceId: String!
   ): GeneralTax! @auth(type : REGULAR_USER)
@@ -968,6 +984,8 @@ type Mutation {
     title: String! @notBlank @size(max : 255, min : 0),
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "Version of the income state used for editing."
+    version: Int!,
     "ID of the workspace the income belongs to."
     workspaceId: String!
   ): Income! @auth(type : REGULAR_USER)
@@ -987,6 +1005,8 @@ type Mutation {
     reportingDate: LocalDate,
     "New title of the income tax payment."
     title: String! @notBlank @size(max : 255, min : 0),
+    "Version of the income tax payment state used for editing."
+    version: Int!,
     "ID of the workspace the income tax payment belongs to."
     workspaceId: String!
   ): IncomeTaxPayment! @auth(type : REGULAR_USER)
@@ -1016,6 +1036,8 @@ type Mutation {
     notes: String @size(max : 1024, min : 0),
     "New title of the invoice."
     title: String! @notBlank @size(max : 255, min : 0),
+    "Version of the invoice state used for editing."
+    version: Int!,
     "ID of the workspace the invoice belongs to."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
@@ -1027,6 +1049,8 @@ type Mutation {
     id: String!,
     "New title of the standalone document."
     title: String! @notBlank @size(max : 255, min : 0),
+    "Version of the standalone document state used for editing."
+    version: Int!,
     "ID of the workspace the standalone document belongs to."
     workspaceId: String!
   ): StandaloneDocument! @auth(type : REGULAR_USER)
@@ -1035,14 +1059,18 @@ type Mutation {
     "ID of the user to update."
     id: String!,
     "New username / login for the user."
-    userName: String! @notBlank @size(max : 255, min : 0)
+    userName: String! @notBlank @size(max : 255, min : 0),
+    "Version of the user state used for editing."
+    version: Int!
   ): PlatformUser! @auth(type : ADMIN_USER) @businessError(errorCode : "USER_ALREADY_EXISTS", errorCodeDescription : "A user with the given username already exists.")
   "Updates an existing workspace."
   editWorkspace(
     "ID of the workspace to update."
     id: String!,
     "New name of the workspace."
-    name: String! @notBlank @size(max : 255, min : 0)
+    name: String! @notBlank @size(max : 255, min : 0),
+    "Version of the workspace state used for editing."
+    version: Int!
   ): Workspace! @auth(type : REGULAR_USER)
   "Invalidates the refresh token cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
@@ -1110,6 +1138,8 @@ type PlatformUser {
   id: String!
   "The username / login of the user."
   userName: String!
+  "Version of the user state."
+  version: Int!
 }
 
 "An edge in a platform users connection."
@@ -1210,6 +1240,8 @@ type StandaloneDocument {
   id: String!
   "Title of the standalone document."
   title: String!
+  "Version of the standalone document state."
+  version: Int!
 }
 
 "An edge in a standalone documents connection."
@@ -1414,6 +1446,8 @@ type Workspace {
     "The maximum number of items to return."
     first: Int!
   ): StandaloneDocumentsConnection!
+  "Version of the workspace state."
+  version: Int!
   "Workspace access tokens in this workspace with cursor-based pagination."
   workspaceAccessTokens(
     "Cursor after which to return items."
@@ -1641,6 +1675,8 @@ enum SaGrapQlErrorType {
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
   NOT_AUTHORIZED
+  "The submitted resource state is outdated. Re-read the resource and resubmit the change with the updated version."
+  SUBMITTED_OUTDATED_STATE
 }
 
 "Possible business error codes for the saveSharedWorkspace operation."

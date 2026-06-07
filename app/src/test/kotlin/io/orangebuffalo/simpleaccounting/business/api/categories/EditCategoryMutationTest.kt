@@ -243,6 +243,7 @@ class EditCategoryMutationTest(
     private fun MutationProjection.editCategoryMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryCategory.version!!,
         name: String = "Delivery",
         description: String? = null,
         income: Boolean = true,
@@ -250,6 +251,7 @@ class EditCategoryMutationTest(
     ): MutationProjection = editCategory(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         name = name,
         description = description,
         income = income,

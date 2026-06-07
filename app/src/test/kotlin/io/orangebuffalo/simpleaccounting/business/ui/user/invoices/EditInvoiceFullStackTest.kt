@@ -358,6 +358,35 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should show warning when saving outdated invoice state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val invoice = invoice(customer = customer(workspace = workspace))
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.navigate("/invoices/${testData.invoice.id}/edit")
+        page.shouldBeEditInvoicePage {
+            title { input.fill("Updated delivery services") }
+            aggregateTemplate.save(testData.invoice.copy(title = "Invoice changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditInvoicePage {
+            title { input.shouldHaveValue("Updated delivery services") }
+        }
+
+        aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!).title.shouldBe("Invoice changed elsewhere")
+    }
+
+    @Test
     fun `should add general tax and save`(page: Page) {
         val testData = preconditions {
             object {

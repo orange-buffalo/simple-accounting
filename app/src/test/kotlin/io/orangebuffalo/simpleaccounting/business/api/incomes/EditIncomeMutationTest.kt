@@ -180,6 +180,9 @@ class EditIncomeMutationTest(
             requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
                 editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
             },
+            requiredFieldRejectedTestCases("version") {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            },
             requiredFieldRejectedTestCases("workspaceId") {
                 editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
             },
@@ -215,6 +218,7 @@ class EditIncomeMutationTest(
                     editIncomeMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = income.id!!,
+                        version = income.version!!,
                         title = "Updated Planet Express delivery",
                         dateReceived = LocalDate.of(3025, 3, 10),
                         currency = "EUR",
@@ -280,6 +284,7 @@ class EditIncomeMutationTest(
                     editIncomeMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = income.id!!,
+                        version = income.version!!,
                     )
                 }
                 .from(preconditions.fry)
@@ -327,6 +332,7 @@ class EditIncomeMutationTest(
                     editIncomeMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = income.id!!,
+                        version = income.version!!,
                         linkedInvoiceId = linkedInvoice.id!!,
                     )
                 }
@@ -391,11 +397,30 @@ class EditIncomeMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditIncome)
         }
+
+        @Test
+        fun `should return submitted outdated state error when version does not match`() {
+            val income = preconditions {
+                income(workspace = preconditions.fryWorkspace)
+            }
+
+            client
+                .graphqlMutation {
+                    editIncomeMutation(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = income.id!!,
+                        version = income.version!! + 1,
+                    )
+                }
+                .from(preconditions.fry)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditIncome)
+        }
     }
 
     private fun MutationProjection.editIncomeMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryIncome.version!!,
         title: String = "Interplanetary cargo income",
         dateReceived: LocalDate = MOCK_DATE,
         currency: String = preconditions.fryWorkspace.defaultCurrency,
@@ -411,6 +436,7 @@ class EditIncomeMutationTest(
     ): MutationProjection = editIncome(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         title = title,
         dateReceived = dateReceived,
         currency = currency,

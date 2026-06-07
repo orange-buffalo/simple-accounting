@@ -42,6 +42,7 @@
     query getWorkspaceForEdit($id: String!) {
       workspace(id: $id) {
         id
+        version
         name
         defaultCurrency
       }
@@ -57,8 +58,8 @@
   `), 'createWorkspace');
 
   const editWorkspaceMutation = useMutation(graphql(`
-    mutation editWorkspace($id: String!, $name: String!) {
-      editWorkspace(id: $id, name: $name) {
+    mutation editWorkspace($id: String!, $version: Int!, $name: String!) {
+      editWorkspace(id: $id, version: $version, name: $name) {
         id
       }
     }

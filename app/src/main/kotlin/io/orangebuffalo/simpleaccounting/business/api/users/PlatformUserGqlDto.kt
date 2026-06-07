@@ -9,6 +9,8 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 data class PlatformUserGqlDto(
     @GraphQLDescription("The unique ID of the user.")
     val id: String,
+    @GraphQLDescription("Version of the user state.")
+    val version: Int,
     @GraphQLDescription("The username / login of the user.")
     val userName: String,
     @GraphQLDescription("Whether the user has admin privileges.")
@@ -19,6 +21,7 @@ data class PlatformUserGqlDto(
 
 fun PlatformUser.toPlatformUserGqlDto() = PlatformUserGqlDto(
     id = id!!,
+    version = version!!,
     userName = userName,
     admin = isAdmin,
     activated = activated,

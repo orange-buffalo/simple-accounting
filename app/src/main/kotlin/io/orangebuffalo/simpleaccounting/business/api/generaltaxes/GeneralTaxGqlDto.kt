@@ -10,6 +10,9 @@ data class GeneralTaxGqlDto(
     @GraphQLDescription("ID of the general tax.")
     val id: String,
 
+    @GraphQLDescription("Version of the general tax state.")
+    val version: Int,
+
     @GraphQLDescription("Title of the general tax.")
     val title: String,
 
@@ -22,6 +25,7 @@ data class GeneralTaxGqlDto(
 
 fun GeneralTax.toGeneralTaxGqlDto() = GeneralTaxGqlDto(
     id = id!!,
+    version = version!!,
     title = title,
     description = description,
     rateInBps = rateInBps,

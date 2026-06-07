@@ -10,11 +10,15 @@ data class CustomerGqlDto(
     @GraphQLDescription("ID of the customer.")
     val id: String,
 
+    @GraphQLDescription("Version of the customer state.")
+    val version: Int,
+
     @GraphQLDescription("Name of the customer.")
     val name: String,
 )
 
 fun Customer.toCustomerGqlDto() = CustomerGqlDto(
     id = id!!,
+    version = version!!,
     name = name,
 )

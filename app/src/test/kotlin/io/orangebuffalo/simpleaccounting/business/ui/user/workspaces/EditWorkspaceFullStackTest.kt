@@ -18,7 +18,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express", defaultCurrency = "USD")
+                val workspace = workspace(owner = fry)
             }
         }
 
@@ -64,6 +64,33 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
                     ownerId = testData.fry.id!!,
                 )
             )
+    }
+
+    @Test
+    fun `should show warning when saving outdated workspace state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, name = "Planet Express", defaultCurrency = "USD")
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openEditWorkspacePage(testData.workspace.id!!) {
+            name { input.fill("Mom's Friendly Robot Company") }
+            aggregateTemplate.save(testData.workspace.copy(name = "Planet Express changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditWorkspacePage {
+            name { input.shouldHaveValue("Mom's Friendly Robot Company") }
+        }
+
+        aggregateTemplate.findSingle<Workspace>(testData.workspace.id!!).name.shouldBe("Planet Express changed elsewhere")
     }
 
     @Test

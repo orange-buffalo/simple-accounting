@@ -252,6 +252,7 @@
     mutation editInvoiceForMarkAsSent(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $customerId: String!,
       $title: String!,
       $dateIssued: LocalDate!,
@@ -267,6 +268,7 @@
       editInvoice(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         customerId: $customerId,
         title: $title,
         dateIssued: $dateIssued,
@@ -288,6 +290,7 @@
     await editInvoiceMutation({
       workspaceId: currentWorkspaceId,
       id: props.invoice.id,
+      version: props.invoice.version,
       customerId: props.invoice.customer!.id,
       title: props.invoice.title,
       dateIssued: props.invoice.dateIssued,

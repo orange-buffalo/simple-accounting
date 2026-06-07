@@ -152,9 +152,11 @@ class EditWorkspaceMutationTest(
 
     private fun MutationProjection.editWorkspaceMutation(
         id: String,
+        version: Int = preconditions.fryWorkspace.version!!,
         name: String = "Planet Express",
     ): MutationProjection = editWorkspace(
         id = id,
+        version = version,
         name = name,
     ) {
         this.id

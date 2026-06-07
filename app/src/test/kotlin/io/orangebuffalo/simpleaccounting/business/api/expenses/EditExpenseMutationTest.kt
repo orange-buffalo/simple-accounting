@@ -187,6 +187,9 @@ class EditExpenseMutationTest(
             requiredFieldRejectedTestCases("useDifferentExchangeRateForIncomeTaxPurposes") {
                 editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
             },
+            requiredFieldRejectedTestCases("version") {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            },
             requiredFieldRejectedTestCases("workspaceId") {
                 editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
             },
@@ -221,6 +224,7 @@ class EditExpenseMutationTest(
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = expense.id!!,
+                        version = expense.version!!,
                         title = "Updated Slurm supplies",
                         datePaid = LocalDate.of(3025, 3, 10),
                         currency = "EUR",
@@ -286,6 +290,7 @@ class EditExpenseMutationTest(
                     editExpenseMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = expense.id!!,
+                        version = expense.version!!,
                     )
                 }
                 .from(preconditions.fry)
@@ -351,11 +356,30 @@ class EditExpenseMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditExpense)
         }
+
+        @Test
+        fun `should return submitted outdated state error when version does not match`() {
+            val expense = preconditions {
+                expense(workspace = preconditions.fryWorkspace)
+            }
+
+            client
+                .graphqlMutation {
+                    editExpenseMutation(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = expense.id!!,
+                        version = expense.version!! + 1,
+                    )
+                }
+                .from(preconditions.fry)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditExpense)
+        }
     }
 
     private fun MutationProjection.editExpenseMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryExpense.version!!,
         title: String = "Spaceship parts",
         datePaid: LocalDate = MOCK_DATE,
         currency: String = preconditions.fryWorkspace.defaultCurrency,
@@ -371,6 +395,7 @@ class EditExpenseMutationTest(
     ): MutationProjection = editExpense(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         title = title,
         datePaid = datePaid,
         currency = currency,

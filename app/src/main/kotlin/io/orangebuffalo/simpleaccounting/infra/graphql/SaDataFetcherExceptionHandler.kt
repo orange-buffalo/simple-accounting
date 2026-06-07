@@ -13,6 +13,7 @@ import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.SubmittedOutdatedStateException
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
@@ -51,6 +52,12 @@ class SaDataFetcherExceptionHandler(
         if (exception is EntityNotFoundException) {
             return DataFetcherExceptionHandlerResult.newResult()
                 .error(EntityNotFoundGraphQLError(exception, handlerParameters))
+                .build()
+        }
+
+        if (exception is SubmittedOutdatedStateException) {
+            return DataFetcherExceptionHandlerResult.newResult()
+                .error(SubmittedOutdatedStateGraphQLError(handlerParameters))
                 .build()
         }
 
@@ -205,6 +212,24 @@ private class EntityNotFoundGraphQLError(
     override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
 
     override fun getExtensions(): Map<String, Any> = mapOf("errorType" to SaGrapQlErrorType.ENTITY_NOT_FOUND)
+
+    override fun getPath(): List<Any> = handlerParameters.path.toList()
+}
+
+/**
+ * GraphQL error for [SubmittedOutdatedStateException].
+ */
+private class SubmittedOutdatedStateGraphQLError(
+    private val handlerParameters: DataFetcherExceptionHandlerParameters,
+) : GraphQLError {
+    override fun getMessage(): String =
+        "The submitted resource state is outdated. Re-read the resource and resubmit the change with the updated version."
+
+    override fun getLocations(): List<SourceLocation> = listOf(handlerParameters.sourceLocation)
+
+    override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
+
+    override fun getExtensions(): Map<String, Any> = mapOf("errorType" to SaGrapQlErrorType.SUBMITTED_OUTDATED_STATE)
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

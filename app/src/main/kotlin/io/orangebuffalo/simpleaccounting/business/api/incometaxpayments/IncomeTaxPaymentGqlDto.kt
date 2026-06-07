@@ -15,6 +15,9 @@ data class IncomeTaxPaymentGqlDto(
     @GraphQLDescription("ID of the income tax payment.")
     val id: String,
 
+    @GraphQLDescription("Version of the income tax payment state.")
+    val version: Int,
+
     @GraphQLDescription("Title of the income tax payment.")
     val title: String,
 
@@ -41,6 +44,7 @@ data class IncomeTaxPaymentGqlDto(
 
 fun IncomeTaxPayment.toIncomeTaxPaymentGqlDto() = IncomeTaxPaymentGqlDto(
     id = id!!,
+    version = version!!,
     title = title,
     datePaid = datePaid,
     reportingDate = reportingDate,

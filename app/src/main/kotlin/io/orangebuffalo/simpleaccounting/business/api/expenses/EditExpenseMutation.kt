@@ -29,6 +29,8 @@ class EditExpenseMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the expense to update.")
         id: String,
+        @GraphQLDescription("Version of the expense state used for editing.")
+        version: Int,
         @GraphQLDescription("New title of the expense.")
         @NotBlank
         @Size(max = 255)
@@ -62,6 +64,7 @@ class EditExpenseMutation(
     ): ExpenseGqlDto {
         val expense = expenseService.getExpenseByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Expense $id is not found")
+        expense.validateVersion(version)
 
         return expenseService.saveExpense(
             expense.copy(

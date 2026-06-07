@@ -26,6 +26,8 @@ class EditGeneralTaxMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the general tax to update.")
         id: String,
+        @GraphQLDescription("Version of the general tax state used for editing.")
+        version: Int,
         @GraphQLDescription("New title of the general tax.")
         @NotBlank
         @Size(max = 255)
@@ -40,6 +42,7 @@ class EditGeneralTaxMutation(
     ): GeneralTaxGqlDto {
         val tax = generalTaxesService.getTaxByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("GeneralTax $id is not found")
+        tax.validateVersion(version)
 
         return generalTaxesService.saveTax(
             tax.copy(

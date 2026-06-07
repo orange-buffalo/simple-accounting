@@ -1069,6 +1069,7 @@ export default {
 
   saForm: {
     inputValidationFailed: () => 'Some of the fields have not been filled correctly. Please check the form and try again.',
+    submittedOutdatedState: () => 'This record has changed since you opened it. Reload the page and apply your changes again.',
   },
 
   accountSetup: {

@@ -188,6 +188,7 @@
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
           id
+          version
           title
           dateIssued
           dateSent
@@ -268,6 +269,7 @@
     mutation editInvoiceMutation(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $customerId: String!,
       $title: String!,
       $dateIssued: LocalDate!,
@@ -283,6 +285,7 @@
       editInvoice(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         customerId: $customerId,
         title: $title,
         dateIssued: $dateIssued,

@@ -184,10 +184,12 @@ class EditCustomerMutationTest(
     private fun MutationProjection.editCustomerMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryCustomer.version!!,
         name: String = "Planet Express",
     ): MutationProjection = editCustomer(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         name = name,
     ) {
         this.id

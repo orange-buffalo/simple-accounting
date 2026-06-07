@@ -52,6 +52,7 @@
       workspace(id: $workspaceId) {
         generalTax(id: $taxId) {
           id
+          version
           title
           description
           rateInBps
@@ -82,6 +83,7 @@
     mutation editGeneralTax(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $title: String!,
       $description: String,
       $rateInBps: Int!
@@ -89,6 +91,7 @@
       editGeneralTax(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         title: $title,
         description: $description,
         rateInBps: $rateInBps

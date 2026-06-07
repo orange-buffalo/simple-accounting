@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.standalonedocuments.Standalone
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.EditStandaloneDocumentPage.Companion.openCreateStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.EditStandaloneDocumentPage.Companion.openEditStandaloneDocumentPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.documents.EditStandaloneDocumentPage.Companion.shouldBeEditStandaloneDocumentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.documents.DocumentsOverviewPage.Companion.shouldBeDocumentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload.DocumentState.PENDING
@@ -129,6 +130,35 @@ class EditStandaloneDocumentFullStackTest : SaFullStackTestBase() {
                     documentId = testData.document.id!!,
                 )
             )
+    }
+
+    @Test
+    fun `should show warning when saving outdated standalone document state`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val standaloneDocument = standaloneDocument(workspace = workspace)
+            }
+        }
+
+        page.authenticateViaCookie(testData.fry)
+        page.openEditStandaloneDocumentPage(testData.standaloneDocument.id!!) {
+            title { input.fill("Updated delivery permit") }
+            aggregateTemplate.save(testData.standaloneDocument.copy(title = "Delivery permit changed elsewhere"))
+
+            saveButton.click()
+
+            shouldHaveNotifications {
+                warning("This record has changed since you opened it. Reload the page and apply your changes again.")
+            }
+        }
+        page.shouldBeEditStandaloneDocumentPage {
+            title { input.shouldHaveValue("Updated delivery permit") }
+        }
+
+        aggregateTemplate.findSingle<StandaloneDocument>(testData.standaloneDocument.id!!)
+            .title.shouldBe("Delivery permit changed elsewhere")
     }
 
     @Test
