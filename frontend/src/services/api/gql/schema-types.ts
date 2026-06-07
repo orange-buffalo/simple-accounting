@@ -1294,7 +1294,7 @@ export enum SaGrapQlErrorType {
   FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
   NotAuthorized = 'NOT_AUTHORIZED',
-  /** Indicates that the submitted entity version is older than the current persisted state. */
+  /** The saved data has changed. Reload the page and try again. */
   SubmittedOutdatedState = 'SUBMITTED_OUTDATED_STATE'
 }
 

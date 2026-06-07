@@ -16,6 +16,6 @@ enum class SaGrapQlErrorType {
     BUSINESS_ERROR,
     @GraphQLDescription("Indicates that the requested entity was not found or is not accessible by the current user.")
     ENTITY_NOT_FOUND,
-    @GraphQLDescription("Indicates that the submitted entity version is older than the current persisted state.")
+    @GraphQLDescription("The saved data has changed. Reload the page and try again.")
     SUBMITTED_OUTDATED_STATE,
 }

@@ -6,7 +6,7 @@ import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import {
   ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ApiRequestCancelledError, ClientApiError,
-  FieldError,
+  FieldError, ApiSubmittedOutdatedStateError,
 } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/schema-types.ts';
 
@@ -152,6 +152,9 @@ async function executeGqlRequestAndHandleErrors<Data>(
       });
       businessError.extensions = graphQLError.extensions;
       throw businessError;
+    }
+    if (graphQLError.extensions?.errorType === SaGrapQlErrorType.SubmittedOutdatedState) {
+      throw new ApiSubmittedOutdatedStateError();
     }
 
     throw new ApiError(

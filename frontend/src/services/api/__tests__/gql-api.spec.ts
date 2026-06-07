@@ -3,6 +3,7 @@ import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
 import {
   ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError, ApiRequestCancelledError,
+  ApiSubmittedOutdatedStateError,
 } from '@/services/api/api-errors.ts';
 import { OperationContext } from '@urql/core';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/schema-types.ts';
@@ -250,6 +251,18 @@ describe('GraphQL API Client', () => {
     expect(error.error.error).toBe('SOME_ERROR_CODE');
     expect(error.error.message).toBe('Error message');
     expect(error.message).toBe('Business error: SOME_ERROR_CODE');
+  });
+
+  test('throws ApiSubmittedOutdatedStateError on submitted outdated state response', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), submittedOutdatedStateResponse());
+
+    const error = await expectToFailWith<ApiSubmittedOutdatedStateError>(async () => {
+      await executeApiMutation();
+    }, 'ApiSubmittedOutdatedStateError');
+
+    expect(error.message).toBe('The saved data has changed. Reload the page and try again.');
   });
 
   test('passes request signal to fetch', async () => {
@@ -549,6 +562,17 @@ function businessErrorResponse(errorCode: string, message: string): any {
       extensions: {
         errorType: SaGrapQlErrorType.BusinessError,
         errorCode,
+      },
+    }],
+  };
+}
+
+function submittedOutdatedStateResponse(): any {
+  return {
+    errors: [{
+      message: 'The saved data has changed. Reload the page and try again.',
+      extensions: {
+        errorType: SaGrapQlErrorType.SubmittedOutdatedState,
       },
     }],
   };

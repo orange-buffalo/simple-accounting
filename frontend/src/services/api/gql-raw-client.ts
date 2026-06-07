@@ -1,4 +1,4 @@
-import { ApiBusinessError, ApiError } from '@/services/api/api-errors';
+import { ApiBusinessError, ApiError, ApiSubmittedOutdatedStateError } from '@/services/api/api-errors';
 import { SaGrapQlErrorType } from '@/services/api/gql/schema-types';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import type { OperationDefinitionNode } from 'graphql';
@@ -44,6 +44,10 @@ export async function executeRawGqlMutation<
       });
       businessError.extensions = graphQLError.extensions;
       throw businessError;
+    }
+    if (graphQLError.extensions?.errorType
+      === SaGrapQlErrorType.SubmittedOutdatedState) {
+      throw new ApiSubmittedOutdatedStateError();
     }
     throw new ApiError(graphQLError.message || 'GraphQL request failed');
   }

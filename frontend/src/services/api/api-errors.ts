@@ -106,3 +106,13 @@ export class ApiAuthError extends ServerApiError {
     this.name = 'ApiAuthError';
   }
 }
+
+/**
+ * Indicates that data changed after it was loaded for editing and the user needs to reload it.
+ */
+export class ApiSubmittedOutdatedStateError extends ServerApiError {
+  constructor() {
+    super('The saved data has changed. Reload the page and try again.');
+    this.name = 'ApiSubmittedOutdatedStateError';
+  }
+}

@@ -426,40 +426,29 @@ class GraphqlClientRequestExecutor(
         path: String,
         locationColumn: Int = 3,
         locationLine: Int = 2,
-    ) {
-        requestSpec
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
-                val json = Json.parseToJsonElement(this).jsonObject
-                val errors = json["errors"]?.jsonArray.shouldNotBeNull()
-                errors.shouldNotBeEmpty()
-                val error = errors[0].jsonObject
-                val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
-                withClue("Expected errorType to be ENTITY_NOT_FOUND") {
-                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("ENTITY_NOT_FOUND")
-                }
-                val locations = error["locations"]?.jsonArray.shouldNotBeNull()
-                locations.shouldNotBeEmpty()
-                val location = locations[0].jsonObject
-                withClue("Expected location column") {
-                    location["column"]?.jsonPrimitive?.int.shouldBe(locationColumn)
-                }
-                withClue("Expected location line") {
-                    location["line"]?.jsonPrimitive?.int.shouldBe(locationLine)
-                }
-                val pathArray = error["path"]?.jsonArray.shouldNotBeNull()
-                pathArray.shouldNotBeEmpty()
-                withClue("Expected path") {
-                    pathArray[0].jsonPrimitive.content.shouldBe(path)
-                }
-            }
-    }
+    ) = executeAndVerifyGenericError(
+        errorType = "ENTITY_NOT_FOUND",
+        path = path,
+        locationColumn = locationColumn,
+        locationLine = locationLine,
+    )
 
     fun executeAndVerifySubmittedOutdatedStateError(
         path: String,
         locationColumn: Int = 3,
         locationLine: Int = 2,
+    ) = executeAndVerifyGenericError(
+        errorType = "SUBMITTED_OUTDATED_STATE",
+        path = path,
+        locationColumn = locationColumn,
+        locationLine = locationLine,
+    )
+
+    private fun executeAndVerifyGenericError(
+        errorType: String,
+        path: String,
+        locationColumn: Int,
+        locationLine: Int,
     ) {
         requestSpec
             .exchange()
@@ -470,8 +459,8 @@ class GraphqlClientRequestExecutor(
                 errors.shouldNotBeEmpty()
                 val error = errors[0].jsonObject
                 val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
-                withClue("Expected errorType to be SUBMITTED_OUTDATED_STATE") {
-                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("SUBMITTED_OUTDATED_STATE")
+                withClue("Expected errorType to be $errorType") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe(errorType)
                 }
                 val locations = error["locations"]?.jsonArray.shouldNotBeNull()
                 locations.shouldNotBeEmpty()
