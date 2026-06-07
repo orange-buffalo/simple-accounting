@@ -40,6 +40,7 @@
       workspace(id: $workspaceId) {
         category(id: $categoryId) {
           id
+          version
           name
           description
           income
@@ -73,6 +74,7 @@
     mutation editCategory(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $name: String!,
       $description: String,
       $income: Boolean!,
@@ -81,6 +83,7 @@
       editCategory(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         name: $name,
         description: $description,
         income: $income,

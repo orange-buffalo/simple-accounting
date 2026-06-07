@@ -281,6 +281,7 @@ class EditIncomeTaxPaymentMutationTest(
     private fun MutationProjection.editIncomeTaxPaymentMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryPayment.version!!,
         title: String = "Q1 Tax",
         datePaid: LocalDate = MOCK_DATE,
         reportingDate: LocalDate? = null,
@@ -290,6 +291,7 @@ class EditIncomeTaxPaymentMutationTest(
     ): MutationProjection = editIncomeTaxPayment(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         title = title,
         datePaid = datePaid,
         reportingDate = reportingDate,

@@ -24,6 +24,8 @@ class EditCustomerMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the customer to update.")
         id: String,
+        @GraphQLDescription("Version of the customer state used for editing.")
+        version: Int,
         @GraphQLDescription("New name of the customer.")
         @NotBlank
         @Size(max = 255)
@@ -31,6 +33,7 @@ class EditCustomerMutation(
     ): CustomerGqlDto {
         val customer = customersService.getCustomerByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Customer $id is not found")
+        customer.validateVersion(version)
 
         return customersService.saveCustomer(customer.copy(name = name)).toCustomerGqlDto()
     }

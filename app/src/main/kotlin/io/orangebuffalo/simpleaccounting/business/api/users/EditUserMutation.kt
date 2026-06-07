@@ -28,12 +28,15 @@ class EditUserMutation(
     suspend fun editUser(
         @GraphQLDescription("ID of the user to update.")
         id: String,
+        @GraphQLDescription("Version of the user state used for editing.")
+        version: Int,
         @GraphQLDescription("New username / login for the user.")
         @NotBlank
         @Size(max = 255)
         userName: String,
     ): PlatformUserGqlDto {
         val user = platformUsersService.getUserByUserId(id)
+        user.validateVersion(version)
         return platformUsersService.updateUser(user.copy(userName = userName)).toPlatformUserGqlDto()
     }
 }

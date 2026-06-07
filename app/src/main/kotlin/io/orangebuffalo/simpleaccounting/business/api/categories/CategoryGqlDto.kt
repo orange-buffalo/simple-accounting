@@ -10,6 +10,9 @@ data class CategoryGqlDto(
     @GraphQLDescription("ID of the category.")
     val id: String,
 
+    @GraphQLDescription("Version of the category state.")
+    val version: Int,
+
     @GraphQLDescription("Name of the category.")
     val name: String,
 
@@ -32,6 +35,7 @@ enum class CategoryTypeGqlDto {
 
 fun Category.toCategoryGqlDto() = CategoryGqlDto(
     id = id!!,
+    version = version!!,
     name = name,
     description = description,
     income = income,

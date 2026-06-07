@@ -10,6 +10,9 @@ data class StandaloneDocumentGqlDto(
     @GraphQLDescription("ID of the standalone document.")
     val id: String,
 
+    @GraphQLDescription("Version of the standalone document state.")
+    val version: Int,
+
     @GraphQLDescription("Title of the standalone document.")
     val title: String,
 
@@ -19,6 +22,7 @@ data class StandaloneDocumentGqlDto(
 
 fun StandaloneDocument.toStandaloneDocumentGqlDto() = StandaloneDocumentGqlDto(
     id = id!!,
+    version = version!!,
     title = title,
     documentId = documentId,
 )

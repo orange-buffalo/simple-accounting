@@ -27,6 +27,7 @@ class IncomeTaxPaymentByWorkspaceAndIdDataLoader(
             payments.associate { payment ->
                 WorkspaceIncomeTaxPaymentKey(payment.workspaceId, payment.id!!) to IncomeTaxPaymentGqlDto(
                     id = payment.id!!,
+                    version = payment.version!!,
                     title = payment.title,
                     datePaid = payment.datePaid,
                     reportingDate = payment.reportingDate,

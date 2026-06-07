@@ -112,7 +112,10 @@ export class ApiAuthError extends ServerApiError {
  */
 export class ApiSubmittedOutdatedStateError extends ServerApiError {
   constructor() {
-    super('The saved data has changed. Reload the page and try again.');
+    super(
+      'The submitted resource state is outdated. '
+      + 'Re-read the resource and resubmit the change with the updated version.',
+    );
     this.name = 'ApiSubmittedOutdatedStateError';
   }
 }

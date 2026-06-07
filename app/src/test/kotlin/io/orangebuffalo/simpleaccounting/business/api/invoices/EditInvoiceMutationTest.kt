@@ -169,6 +169,9 @@ class EditInvoiceMutationTest(
             requiredFieldRejectedTestCases("amount") {
                 editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
             },
+            requiredFieldRejectedTestCases("version") {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            },
             requiredFieldRejectedTestCases("workspaceId") {
                 editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
             },
@@ -203,6 +206,7 @@ class EditInvoiceMutationTest(
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = invoice.id!!,
+                        version = invoice.version!!,
                         customerId = newCustomer.id!!,
                         title = "Updated Slurm delivery",
                         dateIssued = LocalDate.of(3025, 3, 10),
@@ -262,6 +266,7 @@ class EditInvoiceMutationTest(
                     editInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = invoice.id!!,
+                        version = invoice.version!!,
                     )
                 }
                 .from(preconditions.fry)
@@ -328,11 +333,30 @@ class EditInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditInvoice)
         }
+
+        @Test
+        fun `should return submitted outdated state error when version does not match`() {
+            val invoice = preconditions {
+                invoice(customer = preconditions.fryCustomer)
+            }
+
+            client
+                .graphqlMutation {
+                    editInvoiceMutation(
+                        workspaceId = preconditions.fryWorkspace.id!!,
+                        id = invoice.id!!,
+                        version = invoice.version!! + 1,
+                    )
+                }
+                .from(preconditions.fry)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditInvoice)
+        }
     }
 
     private fun MutationProjection.editInvoiceMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryInvoice.version!!,
         customerId: String = preconditions.fryCustomer.id!!,
         title: String = "Spaceship parts",
         dateIssued: LocalDate = MOCK_DATE,
@@ -347,6 +371,7 @@ class EditInvoiceMutationTest(
     ): MutationProjection = editInvoice(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         customerId = customerId,
         title = title,
         dateIssued = dateIssued,

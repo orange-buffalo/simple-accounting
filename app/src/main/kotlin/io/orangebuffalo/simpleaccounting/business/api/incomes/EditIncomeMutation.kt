@@ -27,6 +27,8 @@ class EditIncomeMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the income to update.")
         id: String,
+        @GraphQLDescription("Version of the income state used for editing.")
+        version: Int,
         @GraphQLDescription("New title of the income.")
         @NotBlank
         @Size(max = 255)
@@ -58,6 +60,7 @@ class EditIncomeMutation(
     ): IncomeGqlDto {
         val income = incomesService.getIncomeByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Income $id is not found")
+        income.validateVersion(version)
 
         return incomesService.saveIncome(
             income.copy(

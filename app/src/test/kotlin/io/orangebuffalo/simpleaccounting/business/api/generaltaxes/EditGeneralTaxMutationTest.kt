@@ -243,12 +243,14 @@ class EditGeneralTaxMutationTest(
     private fun MutationProjection.editGeneralTaxMutation(
         workspaceId: String,
         id: String,
+        version: Int = preconditions.fryTax.version!!,
         title: String = "VAT",
         description: String? = null,
         rateInBps: Int = 10_00,
     ): MutationProjection = editGeneralTax(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         title = title,
         description = description,
         rateInBps = rateInBps,

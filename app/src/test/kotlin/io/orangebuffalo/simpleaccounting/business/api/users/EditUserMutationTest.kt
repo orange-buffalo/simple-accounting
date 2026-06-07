@@ -140,8 +140,9 @@ class EditUserMutationTest(
 
     private fun MutationProjection.editUserMutation(
         id: String,
+        version: Int = preconditions.fry.version!!,
         userName: String = "Hermes",
-    ) = editUser(id = id, userName = userName) {
+    ) = editUser(id = id, version = version, userName = userName) {
         this.id
         this.userName
         this.admin

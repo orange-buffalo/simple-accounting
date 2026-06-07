@@ -262,7 +262,10 @@ describe('GraphQL API Client', () => {
       await executeApiMutation();
     }, 'ApiSubmittedOutdatedStateError');
 
-    expect(error.message).toBe('The saved data has changed. Reload the page and try again.');
+    expect(error.message).toBe(
+      'The submitted resource state is outdated. '
+      + 'Re-read the resource and resubmit the change with the updated version.',
+    );
   });
 
   test('passes request signal to fetch', async () => {
@@ -570,7 +573,8 @@ function businessErrorResponse(errorCode: string, message: string): any {
 function submittedOutdatedStateResponse(): any {
   return {
     errors: [{
-      message: 'The saved data has changed. Reload the page and try again.',
+      message: 'The submitted resource state is outdated. '
+        + 'Re-read the resource and resubmit the change with the updated version.',
       extensions: {
         errorType: SaGrapQlErrorType.SubmittedOutdatedState,
       },

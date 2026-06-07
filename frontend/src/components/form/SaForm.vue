@@ -31,7 +31,7 @@
   import { computed, nextTick, onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
-  import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+  import { ApiFieldLevelValidationError, ApiSubmittedOutdatedStateError } from '@/services/api/api-errors.ts';
   import {
     setFieldErrorsFromClientSideValidation,
     setFieldsErrorsFromApiResponse,
@@ -138,6 +138,8 @@
       } else if (e instanceof ClientSideValidationError) {
         setFieldErrorsFromClientSideValidation(e.fieldErrors, formItems);
         showWarningNotification($t.value.saForm.inputValidationFailed());
+      } else if (e instanceof ApiSubmittedOutdatedStateError) {
+        showWarningNotification($t.value.saForm.submittedOutdatedState());
       } else {
         throw e;
       }

@@ -45,6 +45,9 @@ data class WorkspaceGqlDto(
     @GraphQLDescription("ID of the workspace.")
     val id: String,
 
+    @GraphQLDescription("Version of the workspace state.")
+    val version: Int,
+
     @GraphQLDescription("Name of the workspace.")
     val name: String,
 
@@ -93,6 +96,7 @@ data class WorkspaceGqlDto(
             ) { record ->
                 CategoryGqlDto(
                     id = record[categoryTable.id]!!,
+                    version = record[categoryTable.version]!!,
                     name = record[categoryTable.name]!!,
                     description = record[categoryTable.description],
                     income = record[categoryTable.income]!!,
@@ -234,6 +238,7 @@ data class WorkspaceGqlDto(
             ) { record ->
                 CustomerGqlDto(
                     id = record[customer.id]!!,
+                    version = record[customer.version]!!,
                     name = record[customer.name]!!,
                 )
             }
@@ -267,6 +272,7 @@ data class WorkspaceGqlDto(
                 mapQueryRecord = { record ->
                     IncomeTaxPaymentGqlDto(
                         id = record[incomeTaxPayment.id]!!,
+                        version = record[incomeTaxPayment.version]!!,
                         title = record[incomeTaxPayment.title]!!,
                         datePaid = record[incomeTaxPayment.datePaid]!!,
                         reportingDate = record[incomeTaxPayment.reportingDate]!!,
@@ -347,6 +353,7 @@ data class WorkspaceGqlDto(
             ) { record ->
                 GeneralTaxGqlDto(
                     id = record[generalTax.id]!!,
+                    version = record[generalTax.version]!!,
                     title = record[generalTax.title]!!,
                     description = record[generalTax.description],
                     rateInBps = record[generalTax.rateInBps]!!,
@@ -389,6 +396,7 @@ data class WorkspaceGqlDto(
 
 internal fun io.orangebuffalo.simpleaccounting.business.workspaces.Workspace.toWorkspaceGqlDto() = WorkspaceGqlDto(
     id = id!!,
+    version = version!!,
     name = name,
     defaultCurrency = defaultCurrency,
 )

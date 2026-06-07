@@ -23,6 +23,7 @@ class StandaloneDocumentsGqlApi(
         .page(first, after) { record ->
             StandaloneDocumentGqlDto(
                 id = record[standaloneDocument.id]!!,
+                version = record[standaloneDocument.version]!!,
                 title = record[standaloneDocument.title]!!,
                 documentId = record[standaloneDocument.documentId]!!,
             )

@@ -22,12 +22,15 @@ class EditWorkspaceMutation(
     suspend fun editWorkspace(
         @GraphQLDescription("ID of the workspace to update.")
         id: String,
+        @GraphQLDescription("Version of the workspace state used for editing.")
+        version: Int,
         @GraphQLDescription("New name of the workspace.")
         @NotBlank
         @Size(max = 255)
         name: String,
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.ADMIN)
+        workspace.validateVersion(version)
         return workspacesService.save(workspace.copy(name = name)).toWorkspaceGqlDto()
     }
 }

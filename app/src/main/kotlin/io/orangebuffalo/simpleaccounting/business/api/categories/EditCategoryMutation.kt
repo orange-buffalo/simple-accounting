@@ -24,6 +24,8 @@ class EditCategoryMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the category to update.")
         id: String,
+        @GraphQLDescription("Version of the category state used for editing.")
+        version: Int,
         @GraphQLDescription("New name of the category.")
         @NotBlank
         @Size(max = 255)
@@ -38,6 +40,7 @@ class EditCategoryMutation(
     ): CategoryGqlDto {
         val category = categoriesService.getCategoryByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Category $id is not found")
+        category.validateVersion(version)
 
         return categoriesService.saveCategory(
             category.copy(

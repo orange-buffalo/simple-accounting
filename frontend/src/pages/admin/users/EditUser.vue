@@ -75,6 +75,7 @@
     query getUserForEdit($userId: String!) {
       user(id: $userId) {
         id
+        version
         userName
         activated
         admin
@@ -92,8 +93,8 @@
   `), 'createUser');
 
   const editUserMutation = useMutation(graphql(/* GraphQL */ `
-    mutation editUser($id: String!, $userName: String!) {
-      editUser(id: $id, userName: $userName) {
+    mutation editUser($id: String!, $version: Int!, $userName: String!) {
+      editUser(id: $id, version: $version, userName: $userName) {
         id
         userName
       }

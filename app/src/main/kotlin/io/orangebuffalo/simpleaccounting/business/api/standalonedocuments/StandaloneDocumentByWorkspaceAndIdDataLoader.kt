@@ -43,6 +43,7 @@ class StandaloneDocumentByWorkspaceAndIdDataLoader(
                     val workspaceId = record[document.workspaceId]!!
                     WorkspaceStandaloneDocumentKey(workspaceId, standaloneDocumentId) to StandaloneDocumentGqlDto(
                         id = standaloneDocumentId,
+                        version = record[standaloneDocument.version]!!,
                         title = record[standaloneDocument.title]!!,
                         documentId = record[standaloneDocument.documentId]!!,
                     )

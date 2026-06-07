@@ -22,8 +22,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 private val log = KotlinLogging.logger { }
 
-private const val SUBMITTED_OUTDATED_STATE_MESSAGE = "The saved data has changed. Reload the page and try again."
-
 @Component
 class SaDataFetcherExceptionHandler(
     private val businessErrorRegistry: BusinessErrorRegistry,
@@ -224,7 +222,8 @@ private class EntityNotFoundGraphQLError(
 private class SubmittedOutdatedStateGraphQLError(
     private val handlerParameters: DataFetcherExceptionHandlerParameters,
 ) : GraphQLError {
-    override fun getMessage(): String = SUBMITTED_OUTDATED_STATE_MESSAGE
+    override fun getMessage(): String =
+        "The submitted resource state is outdated. Re-read the resource and resubmit the change with the updated version."
 
     override fun getLocations(): List<SourceLocation> = listOf(handlerParameters.sourceLocation)
 

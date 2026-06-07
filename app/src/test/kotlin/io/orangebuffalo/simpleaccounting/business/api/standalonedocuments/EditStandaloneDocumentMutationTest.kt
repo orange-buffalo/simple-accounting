@@ -166,11 +166,13 @@ class EditStandaloneDocumentMutationTest(
     private fun MutationProjection.editStandaloneDocumentMutation(
         workspaceId: String = preconditions.fryWorkspace.id!!,
         id: String = preconditions.standaloneDocument.id!!,
+        version: Int = preconditions.standaloneDocument.version!!,
         title: String = "Delivery receipt",
         documentId: String = preconditions.fryDocument.id!!,
     ): MutationProjection = editStandaloneDocument(
         workspaceId = workspaceId,
         id = id,
+        version = version,
         title = title,
         documentId = documentId,
     ) {

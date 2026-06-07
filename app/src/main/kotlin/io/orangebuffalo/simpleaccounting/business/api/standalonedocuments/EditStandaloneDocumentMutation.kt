@@ -24,6 +24,8 @@ class EditStandaloneDocumentMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the standalone document to update.")
         id: String,
+        @GraphQLDescription("Version of the standalone document state used for editing.")
+        version: Int,
         @GraphQLDescription("New title of the standalone document.")
         @NotBlank
         @Size(max = 255)
@@ -33,6 +35,7 @@ class EditStandaloneDocumentMutation(
     ): StandaloneDocumentGqlDto {
         val standaloneDocument = standaloneDocumentsService.getStandaloneDocumentByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Standalone document $id is not found")
+        standaloneDocument.validateVersion(version)
 
         return standaloneDocumentsService.saveStandaloneDocument(
             workspaceId = workspaceId,

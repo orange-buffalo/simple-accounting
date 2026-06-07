@@ -27,6 +27,8 @@ class EditIncomeTaxPaymentMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the income tax payment to update.")
         id: String,
+        @GraphQLDescription("Version of the income tax payment state used for editing.")
+        version: Int,
         @GraphQLDescription("New title of the income tax payment.")
         @NotBlank
         @Size(max = 255)
@@ -46,6 +48,7 @@ class EditIncomeTaxPaymentMutation(
     ): IncomeTaxPaymentGqlDto {
         val payment = incomeTaxPaymentService.getTaxPaymentByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
+        payment.validateVersion(version)
 
         return incomeTaxPaymentService.saveTaxPayment(
             payment.copy(

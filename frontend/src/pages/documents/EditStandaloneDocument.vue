@@ -79,6 +79,7 @@
       workspace(id: $workspaceId) {
         standaloneDocument(id: $standaloneDocumentId) {
           id
+          version
           title
           documentId
         }
@@ -106,12 +107,14 @@
     mutation editStandaloneDocument(
       $workspaceId: String!,
       $id: String!,
+      $version: Int!,
       $title: String!,
       $documentId: String!
     ) {
       editStandaloneDocument(
         workspaceId: $workspaceId,
         id: $id,
+        version: $version,
         title: $title,
         documentId: $documentId
       ) {

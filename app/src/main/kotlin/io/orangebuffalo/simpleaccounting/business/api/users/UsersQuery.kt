@@ -39,6 +39,7 @@ class UsersQuery(
             .page(first, after) { record ->
                 PlatformUserGqlDto(
                     id = record[user.id]!!,
+                    version = record[user.version]!!,
                     userName = record[user.userName]!!,
                     admin = record[user.isAdmin]!!,
                     activated = record[user.activated]!!,

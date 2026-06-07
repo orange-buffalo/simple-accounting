@@ -73,6 +73,8 @@ export type Category = {
   income: Scalars['Boolean']['output'];
   /** Name of the category. */
   name: Scalars['String']['output'];
+  /** Version of the category state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a categories connection. */
@@ -180,6 +182,8 @@ export type Customer = {
   id: Scalars['String']['output'];
   /** Name of the customer. */
   name: Scalars['String']['output'];
+  /** Version of the customer state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a customers connection. */
@@ -486,6 +490,8 @@ export type GeneralTax = {
   rateInBps: Scalars['Int']['output'];
   /** Title of the general tax. */
   title: Scalars['String']['output'];
+  /** Version of the general tax state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a general taxes connection. */
@@ -625,6 +631,8 @@ export type IncomeTaxPayment = {
   reportingDate: Scalars['LocalDate']['output'];
   /** Title of the income tax payment. */
   title: Scalars['String']['output'];
+  /** Version of the income tax payment state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a income tax payments connection. */
@@ -1015,6 +1023,7 @@ export type MutationEditCategoryArgs = {
   id: Scalars['String']['input'];
   income: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1022,6 +1031,7 @@ export type MutationEditCategoryArgs = {
 export type MutationEditCustomerArgs = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1050,6 +1060,7 @@ export type MutationEditGeneralTaxArgs = {
   id: Scalars['String']['input'];
   rateInBps: Scalars['Int']['input'];
   title: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1068,6 +1079,7 @@ export type MutationEditIncomeArgs = {
   originalAmount: Scalars['Long']['input'];
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1080,6 +1092,7 @@ export type MutationEditIncomeTaxPaymentArgs = {
   notes?: InputMaybe<Scalars['String']['input']>;
   reportingDate?: InputMaybe<Scalars['LocalDate']['input']>;
   title: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1097,6 +1110,7 @@ export type MutationEditInvoiceArgs = {
   id: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1105,6 +1119,7 @@ export type MutationEditStandaloneDocumentArgs = {
   documentId: Scalars['String']['input'];
   id: Scalars['String']['input'];
   title: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1112,12 +1127,14 @@ export type MutationEditStandaloneDocumentArgs = {
 export type MutationEditUserArgs = {
   id: Scalars['String']['input'];
   userName: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
 };
 
 
 export type MutationEditWorkspaceArgs = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
 };
 
 
@@ -1177,6 +1194,8 @@ export type PlatformUser = {
   id: Scalars['String']['output'];
   /** The username / login of the user. */
   userName: Scalars['String']['output'];
+  /** Version of the user state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a platform users connection. */
@@ -1294,7 +1313,7 @@ export enum SaGrapQlErrorType {
   FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
   NotAuthorized = 'NOT_AUTHORIZED',
-  /** The saved data has changed. Reload the page and try again. */
+  /** The submitted resource state is outdated. Re-read the resource and resubmit the change with the updated version. */
   SubmittedOutdatedState = 'SUBMITTED_OUTDATED_STATE'
 }
 
@@ -1313,6 +1332,8 @@ export type StandaloneDocument = {
   id: Scalars['String']['output'];
   /** Title of the standalone document. */
   title: Scalars['String']['output'];
+  /** Version of the standalone document state. */
+  version: Scalars['Int']['output'];
 };
 
 /** An edge in a standalone documents connection. */
@@ -1461,6 +1482,8 @@ export type Workspace = {
   standaloneDocument?: Maybe<StandaloneDocument>;
   /** Standalone documents in this workspace with cursor-based pagination. */
   standaloneDocuments: StandaloneDocumentsConnection;
+  /** Version of the workspace state. */
+  version: Scalars['Int']['output'];
   /** Workspace access tokens in this workspace with cursor-based pagination. */
   workspaceAccessTokens: WorkspaceAccessTokensConnection;
 };
