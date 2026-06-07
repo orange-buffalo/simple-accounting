@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.SubmittedOutdatedStateException
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import java.time.Instant
@@ -13,6 +14,14 @@ abstract class AbstractEntity {
     abstract val version: Int?
 
     abstract val createdAt: Instant?
+
+    fun validateVersion(submittedVersion: Int) {
+        if (version != submittedVersion) {
+            throw SubmittedOutdatedStateException(
+                "Submitted version $submittedVersion does not match current version $version of ${javaClass.simpleName} $id"
+            )
+        }
+    }
 
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true

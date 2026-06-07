@@ -924,6 +924,8 @@ type Mutation {
     title: String! @notBlank @size(max : 255, min : 0),
     "Whether different exchange rate is used for income tax purposes."
     useDifferentExchangeRateForIncomeTaxPurposes: Boolean!,
+    "Version of the expense state used for editing."
+    version: Int!,
     "ID of the workspace the expense belongs to."
     workspaceId: String!
   ): Expense! @auth(type : REGULAR_USER)
@@ -1641,6 +1643,8 @@ enum SaGrapQlErrorType {
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
   NOT_AUTHORIZED
+  "Indicates that the submitted entity version is older than the current persisted state."
+  SUBMITTED_OUTDATED_STATE
 }
 
 "Possible business error codes for the saveSharedWorkspace operation."

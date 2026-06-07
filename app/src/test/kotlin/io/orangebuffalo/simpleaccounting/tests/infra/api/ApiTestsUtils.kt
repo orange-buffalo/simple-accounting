@@ -456,6 +456,40 @@ class GraphqlClientRequestExecutor(
             }
     }
 
+    fun executeAndVerifySubmittedOutdatedStateError(
+        path: String,
+        locationColumn: Int = 3,
+        locationLine: Int = 2,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                val json = Json.parseToJsonElement(this).jsonObject
+                val errors = json["errors"]?.jsonArray.shouldNotBeNull()
+                errors.shouldNotBeEmpty()
+                val error = errors[0].jsonObject
+                val extensions = error["extensions"]?.jsonObject.shouldNotBeNull()
+                withClue("Expected errorType to be SUBMITTED_OUTDATED_STATE") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("SUBMITTED_OUTDATED_STATE")
+                }
+                val locations = error["locations"]?.jsonArray.shouldNotBeNull()
+                locations.shouldNotBeEmpty()
+                val location = locations[0].jsonObject
+                withClue("Expected location column") {
+                    location["column"]?.jsonPrimitive?.int.shouldBe(locationColumn)
+                }
+                withClue("Expected location line") {
+                    location["line"]?.jsonPrimitive?.int.shouldBe(locationLine)
+                }
+                val pathArray = error["path"]?.jsonArray.shouldNotBeNull()
+                pathArray.shouldNotBeEmpty()
+                withClue("Expected path") {
+                    pathArray[0].jsonPrimitive.content.shouldBe(path)
+                }
+            }
+    }
+
     /**
      * Executes the request and verifies the response based on the [GraphqlMutationInputTestCase] type:
      * - [GraphqlMutationValidationErrorTestCase] — verifies exact `FIELD_VALIDATION_FAILURE` error structure

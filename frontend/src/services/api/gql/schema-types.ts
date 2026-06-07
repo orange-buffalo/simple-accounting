@@ -1040,6 +1040,7 @@ export type MutationEditExpenseArgs = {
   percentOnBusiness?: InputMaybe<Scalars['Int']['input']>;
   title: Scalars['String']['input'];
   useDifferentExchangeRateForIncomeTaxPurposes: Scalars['Boolean']['input'];
+  version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1292,7 +1293,9 @@ export enum SaGrapQlErrorType {
   /** Indicates that one or more input fields failed validation constraints. */
   FieldValidationFailure = 'FIELD_VALIDATION_FAILURE',
   /** Indicates that the request requires authentication or the user is not authorized to perform the operation. */
-  NotAuthorized = 'NOT_AUTHORIZED'
+  NotAuthorized = 'NOT_AUTHORIZED',
+  /** Indicates that the submitted entity version is older than the current persisted state. */
+  SubmittedOutdatedState = 'SUBMITTED_OUTDATED_STATE'
 }
 
 /** Possible business error codes for the saveSharedWorkspace operation. */
