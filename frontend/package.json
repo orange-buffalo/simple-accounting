@@ -49,7 +49,7 @@
     "@types/jsdom": "28.0.3",
     "@types/lodash": "4.17.24",
     "@types/marked": "6.0.0",
-    "@types/node": "25.9.1",
+    "@types/node": "25.9.2",
     "@types/qs": "6.15.1",
     "@types/sinonjs__fake-timers": "15.0.1",
     "@typescript-eslint/eslint-plugin": "8.60.1",
