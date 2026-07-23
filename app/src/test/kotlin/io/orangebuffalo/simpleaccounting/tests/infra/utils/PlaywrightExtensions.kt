@@ -4,6 +4,7 @@ import com.microsoft.playwright.Download
 import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.Route
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -125,7 +126,7 @@ fun Page.withBlockedApiResponse(
         try {
             blockedRequestSpec()
             log.run { "Blocked request spec executed" }
-            route.resume()
+            route.fulfill(Route.FulfillOptions().setResponse(route.fetch()))
             if (resetOnCompletion) {
                 context().unroute("/api/$path")
             }
@@ -191,7 +192,7 @@ fun Page.withBlockedGqlApiResponse(
             try {
                 blockedRequestSpec()
                 log.trace { "Blocked request spec executed for $queryOrMutationName" }
-                route.resume()
+                route.fulfill(Route.FulfillOptions().setResponse(route.fetch()))
                 if (resetOnCompletion) {
                     context().unroute("/api/graphql")
                 }
