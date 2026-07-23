@@ -21,7 +21,7 @@
     "@urql/core": "^6.0.1",
     "@urql/exchange-auth": "^3.0.0",
     "copy-to-clipboard": "4.0.2",
-    "dompurify": "3.4.9",
+    "dompurify": "3.4.12",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.14.3",
     "globalize": "1.7.1",
