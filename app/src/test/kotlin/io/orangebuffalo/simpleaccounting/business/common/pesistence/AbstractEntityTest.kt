@@ -1,7 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
+import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.equals.shouldNotBeEqual
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -9,7 +10,7 @@ internal class AbstractEntityTest {
 
     @Test
     fun `new objects without IDs should not be equal`() {
-        TestEntity().shouldNotBe(TestEntity())
+        TestEntity().shouldNotBeEqual(TestEntity())
     }
 
     @Test
@@ -18,7 +19,7 @@ internal class AbstractEntityTest {
 
         val persistedEntity = testEntity.copy(id = "42")
 
-        persistedEntity.shouldBe(TestEntity(id = "42"))
+        persistedEntity.shouldBeEqual(TestEntity(id = "42"))
     }
 
     @Test
@@ -26,7 +27,7 @@ internal class AbstractEntityTest {
         val firstEntity = TestEntity(id = "42")
         val secondEntity = TestEntity(id = "42")
 
-        firstEntity.shouldBe(secondEntity)
+        firstEntity.shouldBeEqual(secondEntity)
     }
 
     @Test
