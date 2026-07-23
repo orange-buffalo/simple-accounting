@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.OAuth2Error
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse
@@ -107,9 +108,17 @@ class OAuth2ClientAuthorizationProvider(
 
         return builder
             .clientId(clientRegistration.clientId)
-            .authorizationUri(clientRegistration.providerDetails.authorizationUri)
+            .authorizationUri(
+                requireNotNull(clientRegistration.providerDetails.authorizationUri) {
+                    "Authorization URI is required for ${clientRegistration.registrationId}"
+                }
+            )
             .additionalParameters(additionalParameters)
-            .redirectUri(clientRegistration.redirectUri)
+            .redirectUri(
+                requireNotNull(clientRegistration.redirectUri) {
+                    "Redirect URI is required for ${clientRegistration.registrationId}"
+                }
+            )
             .scopes(clientRegistration.scopes)
             .state(state)
             .build()
@@ -126,8 +135,9 @@ class OAuth2ClientAuthorizationProvider(
 
         if (callbackRequest.error != null || callbackRequest.code == null) {
             publishFailedAuthEvent(savedRequest)
+            val error = callbackRequest.error ?: OAuth2ErrorCodes.INVALID_REQUEST
             throw OAuth2AuthorizationException(
-                OAuth2Error(callbackRequest.error), "Authorization failed with error ${callbackRequest.error}"
+                OAuth2Error(error), "Authorization failed with error $error"
             )
         } else {
             handleSuccessfulAuthorization(savedRequest, callbackRequest.code)
@@ -158,7 +168,11 @@ class OAuth2ClientAuthorizationProvider(
             OAuth2AuthorizationExchange(
                 authorizationRequest,
                 OAuth2AuthorizationResponse.success(code)
-                    .redirectUri(authorizationRequest.redirectUri)
+                    .redirectUri(
+                        requireNotNull(authorizationRequest.redirectUri) {
+                            "Redirect URI is required for ${clientRegistration.registrationId}"
+                        }
+                    )
                     .build()
             )
         )
