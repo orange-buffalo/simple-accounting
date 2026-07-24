@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.shared.pages
 
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.PlaywrightException
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
@@ -39,16 +40,20 @@ class OAuthAuthorizationPopup private constructor(private val popupPage: Page) :
     companion object {
         fun Page.shouldHaveAuthorizationPopupOpenBy(action: () -> Unit): OAuthAuthorizationPopup {
             var authorizationPopup: OAuthAuthorizationPopup? = null
-            withBlockedGqlApiResponse(
-                "completeOAuth2Flow",
-                initiator = {
-                    val popup = waitForPopup(action)
-                    authorizationPopup = OAuthAuthorizationPopup(popup)
-                },
-                blockedRequestSpec = {
-                    authorizationPopup!!.shouldHaveLoadingState()
-                }
-            )
+            try {
+                withBlockedGqlApiResponse(
+                    "completeOAuth2Flow",
+                    initiator = {
+                        val popup = waitForPopup(action)
+                        authorizationPopup = OAuthAuthorizationPopup(popup)
+                    },
+                    blockedRequestSpec = {
+                        authorizationPopup!!.shouldHaveLoadingState()
+                    }
+                )
+            } catch (e: PlaywrightException) {
+                if (authorizationPopup?.popupPage?.isClosed != true) throw e
+            }
             return authorizationPopup.shouldNotBeNull()
         }
 
