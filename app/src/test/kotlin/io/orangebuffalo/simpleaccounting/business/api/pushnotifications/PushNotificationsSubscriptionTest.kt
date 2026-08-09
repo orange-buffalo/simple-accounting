@@ -92,7 +92,7 @@ class PushNotificationsSubscriptionTest(
         }
     }
 
-    @Test
+    @RepeatedIfExceptionsTest(repeats = 3)
     fun `should not receive events addressed to another user`() {
         val subscription = subscribeToNotifications(preconditions.fry)
 

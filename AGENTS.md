@@ -29,7 +29,7 @@ task, run them in a single Gradle invocation, e.g. `./gradlew :frontend:lint :fr
 ## Environment Setup
 
 Required dependencies (pre-installed in CI environment):
-- **Java 21** (Temurin distribution)
+- **Java 25** (Temurin distribution)
 - **Latest Bun** (package manager for frontend)  
 - **Docker** - required for integration tests and demo mode
 

@@ -113,7 +113,7 @@ tasks.bootRun {
 
 jib {
     from {
-        image = "eclipse-temurin:21-jre-jammy"
+        image = "eclipse-temurin:25-jre-jammy"
     }
     to {
         image = "orangebuffalo/simple-accounting:${project.version}"

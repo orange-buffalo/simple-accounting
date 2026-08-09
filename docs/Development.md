@@ -15,7 +15,7 @@ You can then build it with `./gradlew assemble` and then run `SimpleAccountingAp
  
 ## Requirements
 
-* Temurin JDK 21
+* Temurin JDK 25
 * Latest [Bun](https://bun.sh/docs/installation), which should be available on `PATH`.
 * Docker
 
