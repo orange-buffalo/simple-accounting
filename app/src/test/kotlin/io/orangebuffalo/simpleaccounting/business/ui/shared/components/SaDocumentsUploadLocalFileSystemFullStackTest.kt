@@ -215,7 +215,12 @@ class SaDocumentsUploadLocalFileSystemFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
+                shouldHaveDocuments(DocumentsUpload.EmptyDocument)
                 selectFileForUpload(testFile)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument(testFile.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.EmptyDocument
+                )
             }
             saveButton.click()
         }

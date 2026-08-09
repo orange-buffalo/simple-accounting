@@ -2,17 +2,13 @@ package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
 import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
 import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
-import io.orangebuffalo.simpleaccounting.business.security.ProgrammaticAuthentication
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.asFlux
 import mu.KotlinLogging
 import org.springframework.context.annotation.Lazy
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}
@@ -55,12 +51,6 @@ class DownloadsService(
         return runAs(principal) {
             @Suppress("UNCHECKED_CAST")
             (contentProvider as DownloadableContentProvider<Any>).getContent(downloadRequest.metadata)
-        }.let { response ->
-            response.copy(
-                content = response.content.asFlux()
-                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(ProgrammaticAuthentication(principal)))
-                    .asFlow()
-            )
         }
     }
 }

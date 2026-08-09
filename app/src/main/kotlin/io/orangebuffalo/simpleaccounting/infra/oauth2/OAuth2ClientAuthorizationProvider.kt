@@ -6,14 +6,12 @@ import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
-import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ClientRegistration
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.OAuth2Error
@@ -37,9 +35,9 @@ private const val STATE_TOKEN_LENGTH = 20L
 @Service
 class OAuth2ClientAuthorizationProvider(
     private val savedRequestRepository: SavedAuthorizationRequestRepository,
-    private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
+    private val clientRegistrationRepository: ClientRegistrationRepository,
     private val userService: PlatformUsersService,
-    private val accessTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
+    private val accessTokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val persistentAuthorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
     private val eventPublisher: ApplicationEventPublisher
 ) {
@@ -86,9 +84,8 @@ class OAuth2ClientAuthorizationProvider(
         return String(Base64.getEncoder().encode(rawToken.toByteArray(StandardCharsets.UTF_8)))
     }
 
-    private suspend fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
+    private fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
         return clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-            .awaitFirstOrNull()
             ?: throw IllegalArgumentException("$clientRegistrationId is not known")
     }
 
@@ -178,7 +175,9 @@ class OAuth2ClientAuthorizationProvider(
         )
 
         val tokenResponse = try {
-            accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitSingle()
+            withContext(Dispatchers.IO) {
+                accessTokenResponseClient.getTokenResponse(codeGrantRequest)
+            }
         } catch (e: OAuth2AuthorizationException) {
             publishFailedAuthEvent(savedRequest)
             throw e

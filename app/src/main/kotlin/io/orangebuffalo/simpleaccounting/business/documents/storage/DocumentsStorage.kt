@@ -1,9 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.documents.storage
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import kotlinx.coroutines.flow.Flow
-import org.springframework.core.io.buffer.DataBuffer
-import reactor.core.publisher.Flux
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 
 interface DocumentsStorage {
 
@@ -11,7 +9,7 @@ interface DocumentsStorage {
 
     fun getId(): String
 
-    suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer>
+    suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider
 
     suspend fun deleteDocument(workspace: Workspace, storageLocation: String)
 
@@ -24,7 +22,7 @@ data class SaveDocumentResponse(val storageLocation: String, val sizeInBytes: Lo
 
 data class SaveDocumentRequest(
     val fileName: String,
-    val content: Flux<DataBuffer>,
+    val content: InputStreamProvider,
     val workspace: Workspace,
     val contentType: String? = null
 )

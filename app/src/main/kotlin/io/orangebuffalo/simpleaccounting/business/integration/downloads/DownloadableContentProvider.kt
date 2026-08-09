@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
-import kotlinx.coroutines.flow.Flow
-import org.springframework.core.io.buffer.DataBuffer
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 
 /**
  * Service capable to provide the downloadable content.
@@ -35,10 +34,9 @@ data class DownloadContentResponse(
     val sizeInBytes: Long?,
 
     /**
-     * Cold publisher of content data. Caller is responsible for releasing the buffers.
+     * Scoped provider of the content stream.
      */
-    val content: Flow<DataBuffer>,
+    val content: InputStreamProvider,
 
     val contentType: String
 )
-

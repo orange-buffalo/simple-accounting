@@ -3,16 +3,12 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
+import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import mu.KotlinLogging
-import org.springframework.core.io.buffer.DataBufferUtils
-import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
@@ -39,14 +35,8 @@ class DocumentsContentApi(
             .contentType(MediaType.parseMediaType(contentResponse.contentType))
         contentResponse.sizeInBytes?.let(response::contentLength)
         return response.body(StreamingResponseBody { outputStream ->
-            runBlocking {
-                contentResponse.content.collect { buffer ->
-                    try {
-                        buffer.asInputStream().transferTo(outputStream)
-                    } finally {
-                        DataBufferUtils.release(buffer)
-                    }
-                }
+            contentResponse.content.useInputStream { inputStream ->
+                inputStream.transferTo(outputStream)
             }
         })
     }
@@ -59,11 +49,7 @@ class DocumentsContentApi(
         val document = documentsService.saveDocumentByUploadToken(
             token = token,
             fileName = file.originalFilename ?: "",
-            content = DataBufferUtils.readInputStream(
-                file::getInputStream,
-                DefaultDataBufferFactory(),
-                StreamUtils.BUFFER_SIZE,
-            ),
+            content = inputStreamProvider(file::getInputStream),
             contentType = file.contentType,
         )
         return document.toGqlDto()

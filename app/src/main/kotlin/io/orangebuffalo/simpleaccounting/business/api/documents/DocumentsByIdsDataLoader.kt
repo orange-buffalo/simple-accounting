@@ -5,6 +5,7 @@ import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import io.orangebuffalo.simpleaccounting.infra.graphql.loadManyAndDispatch
 import kotlinx.coroutines.future.await
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
@@ -41,10 +42,7 @@ class DocumentsByIdsDataLoader(
 suspend fun DataFetchingEnvironment.loadDocumentsByIds(
     documentIds: List<String>,
 ): List<DocumentGqlDto> {
-    val dataLoader = getDataLoader<String, DocumentGqlDto>(NAME)!!
-    val documentsFuture = dataLoader.loadMany(documentIds)
-    dataLoader.dispatch()
-    return documentsFuture.await()
+    return loadManyAndDispatch<String, DocumentGqlDto>(NAME, documentIds).await()
         .filterNotNull()
         .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
 }
@@ -52,10 +50,7 @@ suspend fun DataFetchingEnvironment.loadDocumentsByIds(
 fun DataFetchingEnvironment.loadDocumentsByIdsAsync(
     documentIds: List<String>
 ): CompletableFuture<List<DocumentGqlDto>> {
-    val dataLoader = getDataLoader<String, DocumentGqlDto>(NAME)!!
-    val documentsFuture = dataLoader.loadMany(documentIds)
-    dataLoader.dispatch()
-    return documentsFuture.thenApply { documents ->
+    return loadManyAndDispatch<String, DocumentGqlDto>(NAME, documentIds).thenApply { documents ->
         documents.filterNotNull()
             .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
     }

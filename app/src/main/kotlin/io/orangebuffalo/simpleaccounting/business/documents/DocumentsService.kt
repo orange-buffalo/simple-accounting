@@ -12,14 +12,13 @@ import io.orangebuffalo.simpleaccounting.business.integration.downloads.Download
 import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
 import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
-import kotlinx.coroutines.flow.Flow
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -66,7 +65,7 @@ class DocumentsService(
         documentRepository.findByIdAndWorkspaceId(documentId, workspaceId)
     }
 
-    suspend fun getDocumentContent(document: Document): Flow<DataBuffer> {
+    suspend fun getDocumentContent(document: Document): InputStreamProvider {
         val workspace = workspacesService.getWorkspace(document.workspaceId)
         return getDocumentStorageById(document.storageId).getDocumentContent(
             workspace,
@@ -154,7 +153,7 @@ class DocumentsService(
     suspend fun saveDocumentByUploadToken(
         token: String,
         fileName: String,
-        content: reactor.core.publisher.Flux<DataBuffer>,
+        content: InputStreamProvider,
         contentType: String?,
     ): Document {
         val uploadRequest = tokensRepository.getRequestByToken<PersistentUploadRequest>(token)

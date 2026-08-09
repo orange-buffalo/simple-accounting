@@ -20,7 +20,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactor.asFlux
 import mu.KotlinLogging
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -109,7 +108,7 @@ class DocumentsMigrationProcessor(
         val saveResponse = uploadStorage.saveDocument(
             SaveDocumentRequest(
                 fileName = document.name,
-                content = sourceStorage.getDocumentContent(workspace, sourceStorageLocation).asFlux(),
+                content = sourceStorage.getDocumentContent(workspace, sourceStorageLocation),
                 workspace = workspace,
                 contentType = document.mimeType,
             )

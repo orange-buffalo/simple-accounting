@@ -6,18 +6,12 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
+import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.withContext
-import org.springframework.core.io.FileSystemResource
-import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.core.io.buffer.DataBufferUtils
-import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
-import org.springframework.util.StreamUtils
 import java.io.File
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -35,15 +29,8 @@ class LocalFileSystemDocumentsStorage(
     private val timeService: TimeService
 ) : DocumentsStorage {
 
-    private val bufferFactory = DefaultDataBufferFactory()
-
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> {
-        return DataBufferUtils.read(
-            FileSystemResource(File(config.baseDirectory.toFile(), storageLocation)),
-            bufferFactory,
-            StreamUtils.BUFFER_SIZE
-        ).asFlow()
-    }
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider =
+        inputStreamProvider { File(config.baseDirectory.toFile(), storageLocation).inputStream() }
 
     override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
         withContext(localFsStorageContext) {
@@ -61,10 +48,10 @@ class LocalFileSystemDocumentsStorage(
             val documentDir = File(config.baseDirectory.toFile(), "${request.workspace.id}/$yearMonth").apply { mkdirs() }
             val documentName = "${UUID.randomUUID()}.${File(request.fileName).extension}"
             val documentFile = File(documentDir, documentName)
-            documentFile.outputStream().use {
-                DataBufferUtils.write(request.content, it)
-                    .map { DataBufferUtils.release(it) }
-                    .awaitLast()
+            documentFile.outputStream().use { outputStream ->
+                request.content.useInputStream { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
             }
             val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
             SaveDocumentResponse(

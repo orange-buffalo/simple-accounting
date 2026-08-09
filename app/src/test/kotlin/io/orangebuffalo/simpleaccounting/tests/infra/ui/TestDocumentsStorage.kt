@@ -5,14 +5,9 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.reactive.awaitLast
-import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.core.io.buffer.DataBufferUtils
-import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
+import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import org.springframework.stereotype.Component
-import java.io.ByteArrayOutputStream
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -32,11 +27,8 @@ class TestDocumentsStorage : DocumentsStorage {
     override suspend fun isDownloadAvailableForUser(userId: String) = true
 
     override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
-        val os = ByteArrayOutputStream()
-        DataBufferUtils.write(request.content, os)
-            .map { DataBufferUtils.release(it) }
-            .awaitLast()
-        val content = os.toByteArray()
+        lateinit var content: ByteArray
+        request.content.useInputStream { content = it.readBytes() }
         val storageLocation = UUID.randomUUID().toString()
         uploadedDocuments[storageLocation] = content
         return SaveDocumentResponse(
@@ -45,10 +37,10 @@ class TestDocumentsStorage : DocumentsStorage {
         )
     }
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> {
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
         val content = uploadedDocuments[storageLocation]
             ?: throw IllegalStateException("No content found for location: $storageLocation")
-        return flowOf(DefaultDataBufferFactory.sharedInstance.wrap(content))
+        return inputStreamProvider(content::inputStream)
     }
 
     override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {

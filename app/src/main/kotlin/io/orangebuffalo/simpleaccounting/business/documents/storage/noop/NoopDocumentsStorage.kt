@@ -5,22 +5,16 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.reactive.asFlow
-import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.core.io.buffer.DataBufferUtils
-import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
+import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import org.springframework.security.util.InMemoryResource
 import org.springframework.stereotype.Service
+import java.io.FilterInputStream
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 
 @Service
 class NoopDocumentsStorage : DocumentsStorage {
-    private val bufferFactory = DefaultDataBufferFactory()
-
     override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
         val filename = request.fileName
         if (filename.contains("fail")) {
@@ -39,22 +33,23 @@ class NoopDocumentsStorage : DocumentsStorage {
 
     override fun getId(): String = "noop"
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> {
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
         val resource = getFakeContent(storageLocation)
         val contentLength = resource.contentLength()
         val bufferSize = max(1, contentLength / 30)
-        return DataBufferUtils
-            .read(
-                resource,
-                bufferFactory,
-                bufferSize.toInt()
-            )
-            .asFlow()
-            // simulate some storage delay
-            .map { dataBuffer ->
-                delay(100)
-                dataBuffer
+        return inputStreamProvider {
+            object : FilterInputStream(resource.inputStream) {
+                override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
+                    super.read(buffer, offset, minOf(length, bufferSize.toInt()))
+                        .also { bytesRead ->
+                            if (bytesRead > 0) Thread.sleep(100)
+                        }
+
+                override fun read(): Int = super.read().also { value ->
+                    if (value >= 0) Thread.sleep(100)
+                }
             }
+        }
     }
 
     override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
