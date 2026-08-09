@@ -1,35 +1,28 @@
 package io.orangebuffalo.simpleaccounting.infra.ui
 
-import org.springframework.boot.security.autoconfigure.actuate.web.reactive.EndpointRequest
-import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
-import org.springframework.web.server.ServerWebExchange
-import org.springframework.web.server.WebFilter
-import org.springframework.web.server.WebFilterChain
-import reactor.core.publisher.Mono
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest
+import org.springframework.web.filter.OncePerRequestFilter
 
-open class SpaWebFilter : WebFilter {
+open class SpaWebFilter : OncePerRequestFilter() {
 
-    private val requestMatcher = AndServerWebExchangeMatcher(
-        ServerWebExchangeMatchers.pathMatchers("/**"),
-        NegatedServerWebExchangeMatcher(EndpointRequest.toAnyEndpoint()),
-        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/favicon.ico")),
-        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/api/**")),
-        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/assets/**"))
-    )
+    private val actuatorEndpointRequestMatcher = EndpointRequest.toAnyEndpoint()
 
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        return requestMatcher.matches(exchange)
-            .map { it.isMatch }
-            .flatMap { matches ->
-                if (matches) {
-                    chain.filter(exchange.mutate().request(
-                        exchange.request.mutate().path("/index.html").build()
-                    ).build())
-                } else {
-                    chain.filter(exchange)
-                }
-            }
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val path = request.requestURI.removePrefix(request.contextPath)
+        return actuatorEndpointRequestMatcher.matches(request) ||
+            path == "/favicon.ico" ||
+            path == "/api" || path.startsWith("/api/") ||
+            path == "/assets" || path.startsWith("/assets/")
+    }
+
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
+        request.getRequestDispatcher("/index.html").forward(request, response)
     }
 }

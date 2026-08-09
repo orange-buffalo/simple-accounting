@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.pushnotifications
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Subscription
+import io.orangebuffalo.simpleaccounting.infra.graphql.Subscription
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService

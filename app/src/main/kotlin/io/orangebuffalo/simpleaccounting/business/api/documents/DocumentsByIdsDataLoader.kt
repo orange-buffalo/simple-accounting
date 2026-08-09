@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.dispatchIfNeeded
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
@@ -41,12 +40,14 @@ class DocumentsByIdsDataLoader(
 
 suspend fun DataFetchingEnvironment.loadDocumentsByIds(
     documentIds: List<String>,
-): List<DocumentGqlDto> = getDataLoader<String, DocumentGqlDto>(NAME)!!
-    .loadMany(documentIds)
-    .dispatchIfNeeded(this)
-    .await()
-    .filterNotNull()
-    .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
+): List<DocumentGqlDto> {
+    val dataLoader = getDataLoader<String, DocumentGqlDto>(NAME)!!
+    val documentsFuture = dataLoader.loadMany(documentIds)
+    dataLoader.dispatch()
+    return documentsFuture.await()
+        .filterNotNull()
+        .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
+}
 
 fun DataFetchingEnvironment.loadDocumentsByIdsAsync(
     documentIds: List<String>

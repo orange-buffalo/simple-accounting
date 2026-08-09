@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import org.springframework.stereotype.Component

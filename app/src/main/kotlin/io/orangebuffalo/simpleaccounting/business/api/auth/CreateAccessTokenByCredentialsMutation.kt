@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
@@ -12,7 +12,8 @@ import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNo
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFETIME_IN_DAYS
-import io.orangebuffalo.simpleaccounting.infra.getServerWebExchange
+import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.constraints.NotBlank
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.ResponseCookie
@@ -70,6 +71,7 @@ class CreateAccessTokenByCredentialsMutation(
                     "Defaults to false if not provided."
         )
         issueRefreshTokenCookie: Boolean? = null,
+        env: DataFetchingEnvironment,
     ): CreateAccessTokenByCredentialsResponse {
         val authenticationToken = UsernamePasswordAuthenticationToken(userName, password)
         val authentication = authenticationManager.authenticate(authenticationToken).awaitSingle()
@@ -77,9 +79,8 @@ class CreateAccessTokenByCredentialsMutation(
         val jwtToken = jwtService.buildJwtToken(principal)
 
         if (issueRefreshTokenCookie == true) {
-            val exchange = getServerWebExchange()
             val refreshToken = refreshTokensService.generateRefreshToken(principal.userName)
-            exchange.response.addCookie(
+            env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).addResponseCookie(
                 ResponseCookie
                     .from("refreshToken", refreshToken)
                     .httpOnly(true)

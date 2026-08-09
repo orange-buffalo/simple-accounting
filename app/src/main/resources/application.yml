@@ -1,7 +1,15 @@
 spring:
   main:
     banner-mode: "off"
-    web-application-type: reactive
+    web-application-type: servlet
+  threads:
+    virtual:
+      enabled: true
+  graphql:
+    http:
+      path: "/api/graphql"
+    websocket:
+      path: "/api/graphql/subscriptions"
 
   datasource:
     url: jdbc:h2:/data/db/simple-accounting
@@ -65,19 +73,6 @@ sa:
       refresh-token: ""
       client-id: ""
       client-secret: ""
-graphql:
-  packages:
-    - "io.orangebuffalo.simpleaccounting"
-  endpoint: "/api/graphql"
-  graphiql:
-    enabled: false
-  sdl:
-    endpoint: "/api/graphql/schema"
-  subscriptions:
-    endpoint: "/api/graphql/subscriptions"
-  batching:
-    enabled: true
-    strategy: SYNC_EXHAUSTION
 ---
 
 spring:

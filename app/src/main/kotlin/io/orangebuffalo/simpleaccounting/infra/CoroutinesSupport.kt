@@ -1,11 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.reactor.ReactorContext
-import org.springframework.web.server.ServerWebExchange
-import reactor.util.context.Context
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.coroutineContext
 
 @OptIn(DelicateCoroutinesApi::class)
 private val dbContext = newFixedThreadPoolContext(20, "db-context")
@@ -19,17 +15,6 @@ suspend fun <T> withDbContextAsync(block: suspend CoroutineScope.() -> T): Defer
 
 fun <T> supplyAsyncWithDbContext(block: () -> T): CompletableFuture<T> =
     CompletableFuture.supplyAsync(block, dbContextExecutor)
-
-@Suppress("EXPERIMENTAL_API_USAGE")
-suspend fun getReactorContext(): Context {
-    val reactorContext: ReactorContext = coroutineContext[ReactorContext]
-        ?: throw IllegalArgumentException("Cannot find reactor context")
-    return reactorContext.context
-}
-
-suspend fun getServerWebExchange(): ServerWebExchange =
-    getReactorContext().getOrEmpty<ServerWebExchange>(ServerWebExchange::class.java)
-        .orElseThrow { IllegalStateException("ServerWebExchange is not found") }
 
 /**
  * Executes all the steps in parallel and waits for the completion. Always waits for all

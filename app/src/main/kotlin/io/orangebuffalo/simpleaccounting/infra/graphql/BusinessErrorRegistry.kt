@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass

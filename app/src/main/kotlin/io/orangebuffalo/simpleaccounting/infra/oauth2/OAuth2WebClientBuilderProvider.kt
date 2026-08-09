@@ -1,10 +1,15 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
+import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 
 /**
  * Provides a [WebClient.Builder] pre-configured to enrich a request with a token obtained for
@@ -15,13 +20,24 @@ import org.springframework.web.reactive.function.client.WebClient
 @Service
 class OAuth2WebClientBuilderProvider(
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    private val authorizedClientRepository: ServerOAuth2AuthorizedClientRepository
+    private val authorizedClientService: ReactiveOAuth2AuthorizedClientService,
 ) {
 
     fun forClient(clientRegistrationId: String): WebClient.Builder {
-        val oauth2FilterFunction = ServerOAuth2AuthorizedClientExchangeFilterFunction(
-            clientRegistrationRepository, authorizedClientRepository
+        val authorizedClientServiceManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+            clientRegistrationRepository,
+            authorizedClientService,
         )
+        authorizedClientServiceManager.setAuthorizedClientProvider(
+            ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+                .refreshToken()
+                .build()
+        )
+        val authorizedClientManager = ReactiveOAuth2AuthorizedClientManager { request ->
+            authorizedClientServiceManager.authorize(request)
+                .switchIfEmpty(Mono.error(ClientAuthorizationRequiredException(clientRegistrationId)))
+        }
+        val oauth2FilterFunction = ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
         oauth2FilterFunction.setDefaultClientRegistrationId(clientRegistrationId)
         return WebClient.builder().filter(oauth2FilterFunction)
     }

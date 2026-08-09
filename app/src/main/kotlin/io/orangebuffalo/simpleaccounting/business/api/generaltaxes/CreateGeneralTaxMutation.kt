@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.generaltaxes
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService

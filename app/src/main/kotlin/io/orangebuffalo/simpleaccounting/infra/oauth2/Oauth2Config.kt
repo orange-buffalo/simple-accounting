@@ -7,7 +7,11 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
+import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository
+import reactor.core.publisher.Mono
 
 /**
  * Configures integration with OAuth2 providers, like Google for Google Drive storage implementation.
@@ -18,14 +22,27 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 class Oauth2Config {
 
     @Bean
-    fun authorizedClientService(
+    fun reactiveClientRegistrationRepository(
+        clientRegistrationRepository: ClientRegistrationRepository,
+    ): ReactiveClientRegistrationRepository = ReactiveClientRegistrationRepository { registrationId ->
+        Mono.justOrEmpty(clientRegistrationRepository.findByRegistrationId(registrationId))
+    }
+
+    @Bean
+    fun reactiveAuthorizedClientService(
         repository: PersistentOAuth2AuthorizedClientRepository,
         clientRegistrationRepository: ReactiveClientRegistrationRepository
     ): ReactiveOAuth2AuthorizedClientService =
         DbReactiveOAuth2AuthorizedClientService(repository, clientRegistrationRepository)
 
     @Bean
-    fun accessTokenResponseClient(): ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
+    fun reactiveAuthorizedClientRepository(
+        authorizedClientService: ReactiveOAuth2AuthorizedClientService,
+    ): ServerOAuth2AuthorizedClientRepository =
+        AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService)
+
+    @Bean
+    fun reactiveAccessTokenResponseClient(): ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
         WebClientReactiveAuthorizationCodeTokenResponseClient()
 
 }

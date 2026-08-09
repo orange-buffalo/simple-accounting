@@ -1,16 +1,16 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshAuthenticationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
+import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
-import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -36,7 +36,7 @@ class RefreshAccessTokenMutation(
             .flatMap { Mono.justOrEmpty(it.authentication) }
             .awaitFirstOrNull()
 
-        val refreshToken = extractRefreshTokenFromRequest(env)
+        val refreshToken = env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).refreshToken
 
         val authenticatedAuth = when {
             currentAuth != null && currentAuth.isAuthenticated -> currentAuth
@@ -68,11 +68,6 @@ class RefreshAccessTokenMutation(
             jwtService.buildJwtToken(principal)
         }
         return RefreshAccessTokenResponse(accessToken = jwtToken)
-    }
-
-    private fun extractRefreshTokenFromRequest(env: DataFetchingEnvironment): String? {
-        val request = env.graphQlContext.get<ServerHttpRequest>("serverHttpRequest")
-        return request?.cookies?.getFirst("refreshToken")?.value
     }
 
     @GraphQLDescription("Response for refreshing access token.")

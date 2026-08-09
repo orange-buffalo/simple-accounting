@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.language.IntValue

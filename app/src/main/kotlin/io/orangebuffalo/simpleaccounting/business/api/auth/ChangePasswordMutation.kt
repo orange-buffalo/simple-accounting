@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService

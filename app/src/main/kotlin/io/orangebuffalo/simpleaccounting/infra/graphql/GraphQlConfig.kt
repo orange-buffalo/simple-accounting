@@ -8,10 +8,6 @@ import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactor
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.federation.directives.ContactDirective
 import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
-import com.expediagroup.graphql.server.Schema
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
 import graphql.language.IntValue
 import graphql.language.StringValue
 import graphql.language.Value
@@ -168,9 +164,15 @@ private val GraphQLLocalDateScalar: GraphQLScalarType = GraphQLScalarType.newSca
 @Configuration
 class SaGraphQlSchemaConfig {
 
+    @Bean
+    fun schemaGeneratorConfig(schemaGeneratorHooks: SaSchemaGeneratorHooks): SchemaGeneratorConfig =
+        SchemaGeneratorConfig(
+            supportedPackages = listOf("io.orangebuffalo.simpleaccounting"),
+            hooks = schemaGeneratorHooks,
+        )
+
     /**
-     * Full copy of [com.expediagroup.graphql.server.spring.NonFederatedSchemaAutoConfiguration.schema] but with
-     * additional types added and validation directives transformation.
+     * Generates the executable schema with application-specific additional types and transformations.
      */
     @Bean
     fun schema(
