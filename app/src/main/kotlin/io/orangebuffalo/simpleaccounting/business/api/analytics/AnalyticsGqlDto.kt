@@ -13,8 +13,10 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
+import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
@@ -83,7 +85,9 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     ): GeneralTaxesSummaryGqlDto {
         val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
         val taxReportingService = env.graphQlContext.getBean<GeneralTaxesReportingService>()
-        val workspace = workspacesService.getWorkspace(workspaceId)
+        val workspace = env.withRequestAuthentication {
+            workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        }
         val report = taxReportingService.getGeneralTaxReport(fromDate, toDate, workspace)
         return GeneralTaxesSummaryGqlDto(
             workspaceId = workspaceId,
@@ -126,7 +130,9 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     fun currenciesShortlist(env: DataFetchingEnvironment): List<String> {
         val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
         val analyticsService = env.graphQlContext.getBean<WorkspaceAnalyticsService>()
-        val workspace = workspacesService.getWorkspace(workspaceId)
+        val workspace = env.withRequestAuthentication {
+            workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        }
         return analyticsService.getCurrenciesShortlist(workspace)
     }
 }

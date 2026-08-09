@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api.invoices
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
-import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import io.orangebuffalo.simpleaccounting.infra.graphql.newMappedDataLoader
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.dataloader.DataLoader
 import org.jooq.DSLContext
@@ -26,7 +26,7 @@ class InvoiceByWorkspaceAndIdDataLoader(
     override val dataLoaderName: String = NAME
 
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceInvoiceKey, InvoiceGqlDto> =
-        newAsyncMappedDataLoader { keys ->
+        newMappedDataLoader { keys ->
             val invoiceIds = keys.map { it.invoiceId }.toSet()
             val workspaceIds = keys.map { it.workspaceId }.toSet()
 

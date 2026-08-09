@@ -4,7 +4,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesRepository
-import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import io.orangebuffalo.simpleaccounting.infra.graphql.newMappedDataLoader
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -21,7 +21,7 @@ class GeneralTaxByWorkspaceAndIdDataLoader(
     override val dataLoaderName: String = NAME
 
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceGeneralTaxKey, GeneralTaxGqlDto> =
-        newAsyncMappedDataLoader { keys ->
+        newMappedDataLoader { keys ->
             val taxIds = keys.map { it.taxId }.toSet()
             val taxes = generalTaxesRepository.findAllById(taxIds)
             taxes.associate { tax ->
