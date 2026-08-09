@@ -85,8 +85,8 @@ data class IncomeGqlDto(
     }
 
     @GraphQLDescription("Documents attached to this income.")
-    suspend fun attachments(env: DataFetchingEnvironment): List<DocumentGqlDto> {
-        if (attachmentIds.isEmpty()) return emptyList()
+    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
+        if (attachmentIds.isEmpty()) return CompletableFuture.completedFuture(emptyList())
         return env.loadDocumentsByIds(attachmentIds)
     }
 

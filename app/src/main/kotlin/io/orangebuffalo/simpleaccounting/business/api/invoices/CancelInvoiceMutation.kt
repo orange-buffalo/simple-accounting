@@ -16,7 +16,7 @@ class CancelInvoiceMutation(
     @Suppress("unused")
     @GraphQLDescription("Cancels an existing invoice in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun cancelInvoice(
+    fun cancelInvoice(
         @GraphQLDescription("ID of the workspace the invoice belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the invoice to cancel.")

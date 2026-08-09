@@ -23,7 +23,7 @@ class DeleteDocumentMutation(
         errorCode = "DOCUMENT_IS_USED",
         errorCodeDescription = "The document is attached to another entity and cannot be deleted.",
     )
-    suspend fun deleteDocument(
+    fun deleteDocument(
         @GraphQLDescription("ID of the workspace the document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the document to delete.")

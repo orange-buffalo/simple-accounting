@@ -16,7 +16,7 @@ class ExpensesGqlApi(
     private val category = Tables.CATEGORY
     private val expenseAttachments = Tables.EXPENSE_ATTACHMENTS
 
-    suspend fun loadExpenses(
+    fun loadExpenses(
         workspaceId: String,
         first: Int,
         after: String?,

@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
@@ -138,14 +137,12 @@ class DocumentsUploadApiTest(
 
     private fun createUploadToken(): String {
         val token = "test-upload-token-${++tokenCounter}"
-        runBlocking {
-            tokensRepository.storeToken(
-                token, PersistentUploadRequest(
-                    workspaceId = preconditions.fryWorkspace.id!!,
-                    userName = preconditions.fry.userName,
-                )
+        tokensRepository.storeToken(
+            token, PersistentUploadRequest(
+                workspaceId = preconditions.fryWorkspace.id!!,
+                userName = preconditions.fry.userName,
             )
-        }
+        )
         return token
     }
 

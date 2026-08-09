@@ -17,7 +17,7 @@ class TokenByUserQuery(
                 "Only accessible by admin users."
     )
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
-    suspend fun tokenByUser(
+    fun tokenByUser(
         @GraphQLDescription("The ID of the user to retrieve the activation token for.")
         userId: String,
     ): UserActivationTokenGqlDto? {

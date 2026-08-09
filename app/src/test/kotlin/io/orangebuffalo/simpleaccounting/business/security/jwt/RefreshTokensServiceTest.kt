@@ -4,7 +4,6 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensRepository
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.coroutines.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
@@ -30,9 +29,7 @@ class RefreshTokensServiceTest(
 
         doReturn(currentTime).whenever(timeService).currentTime()
 
-        val token = runBlocking {
-            refreshTokensService.generateRefreshToken(preconditions.fry.userName)
-        }
+        val token = refreshTokensService.generateRefreshToken(preconditions.fry.userName)
 
         token.shouldNotBeNull().shouldStartWith("${preconditions.fry.id}:")
 
@@ -47,9 +44,7 @@ class RefreshTokensServiceTest(
     fun `should build user details if token is valid`() {
         doReturn(MOCK_TIME).whenever(timeService).currentTime()
 
-        val userDetails = runBlocking {
-            refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token)
-        }
+        val userDetails = refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token)
 
         userDetails.shouldNotBeNull().also {
             it.username.shouldBe("Fry")
@@ -62,13 +57,13 @@ class RefreshTokensServiceTest(
         doReturn(MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)).whenever(timeService).currentTime()
 
         shouldThrow<BadCredentialsException> {
-            runBlocking { refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token) }
+            refreshTokensService.validateTokenAndBuildUserDetails(preconditions.refreshToken.token)
         }.message.shouldBe("Token expired")
     }
 
     @Test
     fun `should fail on validation if token is not found`() {
-        shouldThrow<BadCredentialsException> { runBlocking { refreshTokensService.validateTokenAndBuildUserDetails("??") } }
+        shouldThrow<BadCredentialsException> { refreshTokensService.validateTokenAndBuildUserDetails("??") }
             .message.shouldBe("Bad token")
     }
 
@@ -76,9 +71,7 @@ class RefreshTokensServiceTest(
     fun `should prolong the token`() {
         doReturn(MOCK_TIME.minus(100, ChronoUnit.DAYS)).whenever(timeService).currentTime()
 
-        val updatedTokenString = runBlocking {
-            refreshTokensService.prolongToken(preconditions.refreshToken.token)
-        }
+        val updatedTokenString = refreshTokensService.prolongToken(preconditions.refreshToken.token)
 
         updatedTokenString.shouldBe(preconditions.refreshToken.token)
 

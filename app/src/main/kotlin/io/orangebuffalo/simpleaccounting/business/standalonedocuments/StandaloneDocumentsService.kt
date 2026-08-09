@@ -4,7 +4,6 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentIsUsedExcept
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,23 +13,22 @@ class StandaloneDocumentsService(
     private val workspacesService: WorkspacesService,
 ) {
 
-    suspend fun createStandaloneDocument(workspaceId: String, standaloneDocument: StandaloneDocument): StandaloneDocument {
+    fun createStandaloneDocument(workspaceId: String, standaloneDocument: StandaloneDocument): StandaloneDocument {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         documentsService.validateDocuments(workspaceId, listOf(standaloneDocument.documentId))
-        return withDbContext { standaloneDocumentsRepository.save(standaloneDocument) }
+        return standaloneDocumentsRepository.save(standaloneDocument)
     }
 
-    suspend fun saveStandaloneDocument(workspaceId: String, standaloneDocument: StandaloneDocument): StandaloneDocument {
+    fun saveStandaloneDocument(workspaceId: String, standaloneDocument: StandaloneDocument): StandaloneDocument {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         documentsService.validateDocuments(workspaceId, listOf(standaloneDocument.documentId))
-        return withDbContext { standaloneDocumentsRepository.save(standaloneDocument) }
+        return standaloneDocumentsRepository.save(standaloneDocument)
     }
 
-    suspend fun getStandaloneDocumentByIdAndWorkspaceId(id: String, workspaceId: String): StandaloneDocument? = withDbContext {
+    fun getStandaloneDocumentByIdAndWorkspaceId(id: String, workspaceId: String): StandaloneDocument? =
         standaloneDocumentsRepository.findByIdAndWorkspaceId(id, workspaceId)
-    }
 
-    suspend fun removeStandaloneDocument(
+    fun removeStandaloneDocument(
         workspaceId: String,
         standaloneDocumentId: String,
         removeDocumentIfUnused: Boolean,
@@ -39,7 +37,7 @@ class StandaloneDocumentsService(
         val standaloneDocument = getStandaloneDocumentByIdAndWorkspaceId(standaloneDocumentId, workspaceId)
             ?: return null
 
-        withDbContext { standaloneDocumentsRepository.delete(standaloneDocument) }
+        standaloneDocumentsRepository.delete(standaloneDocument)
 
         if (removeDocumentIfUnused) {
             try {

@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -78,13 +77,11 @@ class DocumentsContentApiTest(
     private fun createDownloadToken(): String {
         testDocumentsStorage.mockDocumentContent("planet-express-receipt-location", documentContent)
 
-        return runBlocking {
-            runAs(preconditions.fry.toSecurityPrincipal()) {
-                downloadsService.createDownloadToken(
-                    documentsService,
-                    DocumentDownloadMetadata(preconditions.document.id!!)
-                )
-            }
+        return runAs(preconditions.fry.toSecurityPrincipal()) {
+            downloadsService.createDownloadToken(
+                documentsService,
+                DocumentDownloadMetadata(preconditions.document.id!!)
+            )
         }
     }
 

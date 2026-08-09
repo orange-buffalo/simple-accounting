@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -125,9 +124,7 @@ class CreateDocumentUploadUrlMutationTest(
                     }
                 )
 
-            val storedRequest = runBlocking {
-                tokensRepository.getRequestByToken<PersistentUploadRequest>("generated-upload-token")
-            }
+            val storedRequest = tokensRepository.getRequestByToken<PersistentUploadRequest>("generated-upload-token")
             storedRequest.workspaceId.shouldBe(preconditions.fryWorkspace.id)
             storedRequest.userName.shouldBe("Fry")
         }

@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.infra.graphql.connections
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
@@ -96,7 +95,7 @@ class PaginationQueryBuilder<R : Record>(
         return this
     }
 
-    suspend fun applyCurrentUserFiltering(
+    fun applyCurrentUserFiltering(
         predicateProvider: (PlatformUser) -> Condition,
     ): PaginationQueryBuilder<R> {
         val user = platformUsersService.getCurrentUser()
@@ -104,20 +103,20 @@ class PaginationQueryBuilder<R : Record>(
         return this
     }
 
-    suspend fun <N : Any> page(
+    fun <N : Any> page(
         first: Int,
         after: String?,
         sortFields: List<SortField<*>>? = null,
         mapRecord: (Record) -> N,
     ): ConnectionGqlDto<N> = page(first, after, sortFields, mapQueryRecord = mapRecord, postProcess = { it })
 
-    suspend fun <Q : Any, N : Any> page(
+    fun <Q : Any, N : Any> page(
         first: Int,
         after: String?,
         sortFields: List<SortField<*>>? = null,
         mapQueryRecord: (Record) -> Q,
         postProcess: (List<Q>) -> List<N>,
-    ): ConnectionGqlDto<N> = withDbContext {
+    ): ConnectionGqlDto<N> {
         val effectiveSortFields = sortFields ?: listOf(createdAtField.desc())
         val dataRecords = executeDataQuery(first, after, effectiveSortFields)
         val totalCount = executeCountQuery()
@@ -143,7 +142,7 @@ class PaginationQueryBuilder<R : Record>(
         val endCursor = pageRecords.lastOrNull()
             ?.let { encodeCursorParts(effectiveSortFields.map { sf -> extractCursorPart(sf.`$field`(), it) }) }
 
-        ConnectionGqlDto(
+        return ConnectionGqlDto(
             edges = edges,
             pageInfo = PageInfoGqlDto(
                 startCursor = startCursor,

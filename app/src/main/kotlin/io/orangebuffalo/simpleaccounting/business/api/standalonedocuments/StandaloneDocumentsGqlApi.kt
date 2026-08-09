@@ -12,7 +12,7 @@ class StandaloneDocumentsGqlApi(
     private val standaloneDocument = Tables.STANDALONE_DOCUMENT
     private val document = Tables.DOCUMENT
 
-    suspend fun loadStandaloneDocuments(
+    fun loadStandaloneDocuments(
         workspaceId: String,
         first: Int,
         after: String?,

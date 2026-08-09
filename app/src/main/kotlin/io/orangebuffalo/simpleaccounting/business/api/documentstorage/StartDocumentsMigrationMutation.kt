@@ -39,7 +39,7 @@ class StartDocumentsMigrationMutation(
         errorCode = "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS",
         errorCodeDescription = "The current user already has an incomplete documents migration.",
     )
-    suspend fun startDocumentsMigration(): DocumentsMigrationGqlDto {
+    fun startDocumentsMigration(): DocumentsMigrationGqlDto {
         return documentsMigrationService.startDocumentsMigration().toGqlDto()
     }
 }

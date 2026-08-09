@@ -25,7 +25,7 @@ class CreateUserMutation(
         errorCode = "USER_ALREADY_EXISTS",
         errorCodeDescription = "A user with the given username already exists.",
     )
-    suspend fun createUser(
+    fun createUser(
         @GraphQLDescription("Username / login for the new user.")
         @NotBlank
         @Size(max = 255)

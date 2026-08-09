@@ -4,7 +4,6 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import io.kotest.matchers.string.shouldContain
@@ -194,10 +193,8 @@ class CreateAccessTokenByCredentialsMutationTest(
         fun `should set refresh token cookie when issueRefreshTokenCookie is true`() {
             whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
-            runBlocking {
-                doReturn("refreshTokenForFry")
-                    .whenever(refreshTokensService).generateRefreshToken(preconditions.fry.userName)
-            }
+            doReturn("refreshTokenForFry")
+                .whenever(refreshTokensService).generateRefreshToken(preconditions.fry.userName)
 
             client
                 .graphqlMutation {

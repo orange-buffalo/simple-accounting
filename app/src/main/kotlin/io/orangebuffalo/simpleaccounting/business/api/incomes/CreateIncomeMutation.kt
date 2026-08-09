@@ -23,7 +23,7 @@ class CreateIncomeMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new income in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createIncome(
+    fun createIncome(
         @GraphQLDescription("ID of the workspace to create the income in.")
         workspaceId: String,
         @GraphQLDescription("Title of the income.")

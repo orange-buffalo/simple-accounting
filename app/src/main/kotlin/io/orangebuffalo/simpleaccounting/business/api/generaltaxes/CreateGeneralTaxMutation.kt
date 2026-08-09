@@ -21,7 +21,7 @@ class CreateGeneralTaxMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new general tax in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createGeneralTax(
+    fun createGeneralTax(
         @GraphQLDescription("ID of the workspace to create the general tax in.")
         workspaceId: String,
         @GraphQLDescription("Title of the general tax.")

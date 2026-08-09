@@ -19,7 +19,7 @@ class CreateCategoryMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new category in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createCategory(
+    fun createCategory(
         @GraphQLDescription("ID of the workspace to create the category in.")
         workspaceId: String,
         @GraphQLDescription("Name of the category.")

@@ -25,7 +25,7 @@ class CreateExpenseMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new expense in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createExpense(
+    fun createExpense(
         @GraphQLDescription("ID of the workspace to create the expense in.")
         workspaceId: String,
         @GraphQLDescription("Title of the expense.")

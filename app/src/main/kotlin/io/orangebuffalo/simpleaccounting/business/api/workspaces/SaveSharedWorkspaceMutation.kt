@@ -24,7 +24,7 @@ class SaveSharedWorkspaceMutation(
         errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
         errorCodeDescription = "The provided workspace access token is not valid (unknown, expired, or revoked).",
     )
-    suspend fun saveSharedWorkspace(
+    fun saveSharedWorkspace(
         @GraphQLDescription("The workspace access token.")
         @NotBlank
         token: String,

@@ -14,7 +14,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -150,9 +149,7 @@ class CreateDocumentDownloadUrlMutationTest(
                     }
                 )
 
-            val storedRequest = runBlocking {
-                tokensRepository.getRequestByToken<PersistentDownloadRequest>("generated-download-token")
-            }
+            val storedRequest = tokensRepository.getRequestByToken<PersistentDownloadRequest>("generated-download-token")
             storedRequest.providerId.shouldBe(DocumentsService::class.simpleName!!)
             storedRequest.metadata.shouldBe(DocumentDownloadMetadata(preconditions.coffeeReceipt.id!!))
             storedRequest.userName.shouldBe("Fry")

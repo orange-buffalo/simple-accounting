@@ -10,8 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesServi
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.infra.executeInParallel
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -28,7 +26,7 @@ class ExpenseService(
     /**
      * Re-calculates the expense state (denormalized presentation).
      */
-    suspend fun saveExpense(expense: Expense): Expense {
+    fun saveExpense(expense: Expense): Expense {
         val workspace = workspacesService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateCategoryAndAttachments(expense, workspace.id!!)
 
@@ -59,8 +57,7 @@ class ExpenseService(
             else -> ExpenseStatus.FINALIZED
         }
 
-        return withDbContext {
-            expensesRepository.save(
+        return expensesRepository.save(
                 expense.copy(
                     convertedAmounts = adjustedConvertedAmounts,
                     incomeTaxableAmounts = adjustedIncomeTaxableAmounts,
@@ -70,31 +67,30 @@ class ExpenseService(
                     status = status,
                 )
             )
-        }
     }
 
-    private suspend fun getGeneralTax(expense: Expense): GeneralTax? =
+    private fun getGeneralTax(expense: Expense): GeneralTax? =
         if (expense.generalTaxId == null) null else generalTaxesService.getValidGeneralTax(
             expense.generalTaxId!!,
             expense.workspaceId
         )
 
-    private suspend fun validateCategoryAndAttachments(
+    private fun validateCategoryAndAttachments(
         expense: Expense,
         workspaceId: String
-    ) = executeInParallel {
-        step { validateCategory(expense, workspaceId) }
-        step { validateAttachments(expense, workspaceId) }
+    ) {
+        validateCategory(expense, workspaceId)
+        validateAttachments(expense, workspaceId)
     }
 
-    private suspend fun validateAttachments(expense: Expense, workspaceId: String) {
+    private fun validateAttachments(expense: Expense, workspaceId: String) {
         if (expense.attachments.isNotEmpty()) {
             val attachmentsIds = expense.attachments.map { it.documentId }
             documentsService.validateDocuments(workspaceId, attachmentsIds)
         }
     }
 
-    private suspend fun validateCategory(
+    private fun validateCategory(
         expense: Expense,
         workspaceId: String
     ) {
@@ -125,21 +121,17 @@ class ExpenseService(
         )
     }
 
-    suspend fun getExpenseByIdAndWorkspace(id: String, workspaceId: String): Expense? = withDbContext {
+    fun getExpenseByIdAndWorkspace(id: String, workspaceId: String): Expense? =
         expensesRepository.findByIdAndWorkspaceId(id, workspaceId)
-    }
 
-    suspend fun getExpensesStatistics(
+    fun getExpensesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspaceId: String
-    ): List<ExpensesStatistics> = withDbContext {
-        expensesRepository.getStatistics(fromDate, toDate, workspaceId)
-    }
+    ): List<ExpensesStatistics> = expensesRepository.getStatistics(fromDate, toDate, workspaceId)
 
-    suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
+    fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> =
         expensesRepository.getCurrenciesUsageStatistics(workspace)
-    }
 
     private data class AdjustedAmounts(
         val generalTaxAmount: Long?,

@@ -21,7 +21,7 @@ class EditInvoiceMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing invoice in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editInvoice(
+    fun editInvoice(
         @GraphQLDescription("ID of the workspace the invoice belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the invoice to update.")

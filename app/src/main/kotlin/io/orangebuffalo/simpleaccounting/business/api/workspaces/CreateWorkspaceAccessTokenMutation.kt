@@ -18,7 +18,7 @@ class CreateWorkspaceAccessTokenMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new access token for sharing workspace access.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createWorkspaceAccessToken(
+    fun createWorkspaceAccessToken(
         @GraphQLDescription("ID of the workspace to create the token for.")
         workspaceId: String,
         @GraphQLDescription("The expiration time of the token.")

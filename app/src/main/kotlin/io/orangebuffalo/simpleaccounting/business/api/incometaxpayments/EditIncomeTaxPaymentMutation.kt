@@ -22,7 +22,7 @@ class EditIncomeTaxPaymentMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing income tax payment in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editIncomeTaxPayment(
+    fun editIncomeTaxPayment(
         @GraphQLDescription("ID of the workspace the income tax payment belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the income tax payment to update.")

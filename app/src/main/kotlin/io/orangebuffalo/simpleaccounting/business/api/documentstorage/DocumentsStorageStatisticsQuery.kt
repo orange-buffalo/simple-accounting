@@ -16,7 +16,7 @@ class DocumentsStorageStatisticsQuery(
                 "Only storages that have at least one document are included."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun documentsStorageStatistics(): List<DocumentsStorageStatisticsItem> {
+    fun documentsStorageStatistics(): List<DocumentsStorageStatisticsItem> {
         return documentsService.getDocumentsStorageStatistics()
             .map { DocumentsStorageStatisticsItem(storageId = it.storageId, documentsCount = it.documentsCount) }
     }

@@ -21,7 +21,7 @@ class CreateInvoiceMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new invoice in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createInvoice(
+    fun createInvoice(
         @GraphQLDescription("ID of the workspace to create the invoice in.")
         workspaceId: String,
         @GraphQLDescription("ID of the customer for this invoice.")

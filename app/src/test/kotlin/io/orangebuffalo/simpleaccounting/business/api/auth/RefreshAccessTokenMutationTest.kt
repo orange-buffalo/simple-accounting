@@ -64,7 +64,7 @@ class RefreshAccessTokenMutationTest(
         }
 
         @Test
-        suspend fun `should return JWT token when token endpoint is hit and cookie is valid`() {
+        fun `should return JWT token when token endpoint is hit and cookie is valid`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 
             doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(principal)
@@ -83,7 +83,7 @@ class RefreshAccessTokenMutationTest(
         }
 
         @Test
-        suspend fun `should return JWT token when token endpoint is hit and cookie is valid for admin user`() {
+        fun `should return JWT token when token endpoint is hit and cookie is valid for admin user`() {
             val principal = preconditions.farnsworth.toSecurityPrincipal()
 
             doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(principal)
@@ -102,7 +102,7 @@ class RefreshAccessTokenMutationTest(
         }
 
         @Test
-        suspend fun `should return JWT token when user is authenticated with regular user`() {
+        fun `should return JWT token when user is authenticated with regular user`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 
             doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(principal)
@@ -118,7 +118,7 @@ class RefreshAccessTokenMutationTest(
         }
 
         @Test
-        suspend fun `should return JWT token when user is authenticated with admin user`() {
+        fun `should return JWT token when user is authenticated with admin user`() {
             val principal = preconditions.farnsworth.toSecurityPrincipal()
 
             doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(principal)

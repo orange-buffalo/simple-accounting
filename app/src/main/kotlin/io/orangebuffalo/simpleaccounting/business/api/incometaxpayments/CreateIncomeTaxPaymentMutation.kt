@@ -22,7 +22,7 @@ class CreateIncomeTaxPaymentMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new income tax payment in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createIncomeTaxPayment(
+    fun createIncomeTaxPayment(
         @GraphQLDescription("ID of the workspace to create the income tax payment in.")
         workspaceId: String,
         @GraphQLDescription("Title of the income tax payment.")

@@ -20,7 +20,7 @@ class WorkspacesQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns all workspaces accessible by the current user with cursor-based pagination.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun workspaces(
+    fun workspaces(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

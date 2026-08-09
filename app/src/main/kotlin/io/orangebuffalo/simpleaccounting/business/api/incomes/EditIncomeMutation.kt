@@ -22,7 +22,7 @@ class EditIncomeMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing income in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editIncome(
+    fun editIncome(
         @GraphQLDescription("ID of the workspace the income belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the income to update.")

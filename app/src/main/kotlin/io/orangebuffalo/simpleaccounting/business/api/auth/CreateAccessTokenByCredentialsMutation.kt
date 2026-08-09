@@ -15,10 +15,9 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFET
 import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.constraints.NotBlank
-import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.ResponseCookie
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -27,7 +26,7 @@ import java.time.Duration
 @Component
 @Validated
 class CreateAccessTokenByCredentialsMutation(
-    private val authenticationManager: ReactiveAuthenticationManager,
+    private val authenticationManager: AuthenticationManager,
     private val jwtService: JwtService,
     private val refreshTokensService: RefreshTokensService,
 ) : Mutation {
@@ -59,7 +58,7 @@ class CreateAccessTokenByCredentialsMutation(
         errorCode = "LOGIN_NOT_AVAILABLE",
         errorCodeDescription = "Login is temporarily unavailable due to too many concurrent authentication requests for this user.",
     )
-    suspend fun createAccessTokenByCredentials(
+    fun createAccessTokenByCredentials(
         @GraphQLDescription("The username of the user.")
         @NotBlank
         userName: String,
@@ -74,7 +73,7 @@ class CreateAccessTokenByCredentialsMutation(
         env: DataFetchingEnvironment,
     ): CreateAccessTokenByCredentialsResponse {
         val authenticationToken = UsernamePasswordAuthenticationToken(userName, password)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitSingle()
+        val authentication = authenticationManager.authenticate(authenticationToken)
         val principal = authentication.principal as SecurityPrincipal
         val jwtToken = jwtService.buildJwtToken(principal)
 

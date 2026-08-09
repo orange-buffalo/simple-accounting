@@ -7,7 +7,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.federation.directives.ContactDirective
-import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import graphql.language.IntValue
 import graphql.language.StringValue
 import graphql.language.Value
@@ -24,6 +24,7 @@ import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionSchemaGenerationSupport
+import org.reactivestreams.Publisher
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
@@ -32,8 +33,11 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
+import kotlin.reflect.jvm.jvmErasure
 
 @ContactDirective(
     name = "Simple Accounting",
@@ -45,7 +49,7 @@ import kotlin.reflect.full.createType
 class SaGraphQlSchema : Schema
 
 @Component
-class SaSchemaGeneratorHooks : FlowSubscriptionSchemaGeneratorHooks() {
+class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
     private val directiveWiringFactory = KotlinDirectiveWiringFactory(
         manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>(
             REQUIRED_AUTH_DIRECTIVE_NAME to RequiredAuthDirectiveWiring(),
@@ -62,6 +66,16 @@ class SaSchemaGeneratorHooks : FlowSubscriptionSchemaGeneratorHooks() {
         if (type.classifier == Instant::class) return GraphQLDateTimeScalar
         return connectionSchemaGenerationSupport.willGenerateGraphQLType(type)
     }
+
+    override fun willResolveMonad(type: KType): KType =
+        if (Publisher::class.java.isAssignableFrom(type.jvmErasure.java)) {
+            requireNotNull(type.arguments.firstOrNull()?.type) { "Publisher return type must specify its element type" }
+        } else {
+            type
+        }
+
+    override fun isValidSubscriptionReturnType(kClass: KClass<*>, function: KFunction<*>): Boolean =
+        Publisher::class.java.isAssignableFrom(function.returnType.jvmErasure.java)
 
     override fun didBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder =
         connectionSchemaGenerationSupport.addEdgeTypesToSchema(builder)

@@ -40,9 +40,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation(libs.kotlinLogging)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.reactive)
-    implementation(libs.kotlinx.coroutines.reactor)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.dateTime)
 
@@ -53,11 +50,6 @@ dependencies {
     implementation(libs.graphqlKotlin.dataloader)
     implementation(libs.graphqlKotlin.federation)
 
-    implementation(libs.ktor.clientCore)
-    implementation(libs.ktor.clientCio)
-    implementation(libs.ktor.contentNegotiation)
-    implementation(libs.ktor.kotlinxJson)
-    implementation(libs.ktor.auth)
 
     runtimeOnly("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("com.h2database:h2")

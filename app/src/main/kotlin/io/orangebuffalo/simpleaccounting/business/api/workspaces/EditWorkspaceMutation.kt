@@ -19,7 +19,7 @@ class EditWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editWorkspace(
+    fun editWorkspace(
         @GraphQLDescription("ID of the workspace to update.")
         id: String,
         @GraphQLDescription("Version of the workspace state used for editing.")

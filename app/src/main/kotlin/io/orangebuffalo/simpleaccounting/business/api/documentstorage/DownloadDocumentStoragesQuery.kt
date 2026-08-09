@@ -19,7 +19,7 @@ class DownloadDocumentStoragesQuery(
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     @SlowOperation
-    suspend fun getDownloadDocumentStorages(): List<DownloadDocumentStorageResponse> {
+    fun getDownloadDocumentStorages(): List<DownloadDocumentStorageResponse> {
         return documentsService.getDownloadAvailableStorages()
             .map { DownloadDocumentStorageResponse(id = it) }
     }

@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import kotlinx.coroutines.runBlocking
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -42,9 +41,7 @@ class PushNotificationsSubscriptionTest(
         val subscription = subscribeToNotifications(preconditions.fry)
 
         try {
-            runBlocking {
-                pushNotificationService.sendPushNotification("good-news-everyone")
-            }
+            pushNotificationService.sendPushNotification("good-news-everyone")
 
             await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
@@ -65,14 +62,12 @@ class PushNotificationsSubscriptionTest(
         val subscription = subscribeToNotifications(preconditions.fry)
 
         try {
-            runBlocking {
-                pushNotificationService.sendPushNotification(
-                    eventName = "good-news-everyone", data = "deadly delivery"
-                )
-                pushNotificationService.sendPushNotification(
-                    eventName = "good-news-everyone", data = "all fired"
-                )
-            }
+            pushNotificationService.sendPushNotification(
+                eventName = "good-news-everyone", data = "deadly delivery"
+            )
+            pushNotificationService.sendPushNotification(
+                eventName = "good-news-everyone", data = "all fired"
+            )
 
             await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
@@ -97,20 +92,18 @@ class PushNotificationsSubscriptionTest(
         val subscription = subscribeToNotifications(preconditions.fry)
 
         try {
-            runBlocking {
-                pushNotificationService.sendPushNotification(
-                    eventName = "good-news-everyone", data = "deadly delivery"
-                )
-                pushNotificationService.sendPushNotification(
-                    userId = preconditions.fry.id!!, eventName = "watch-tv"
-                )
-                pushNotificationService.sendPushNotification(
-                    userId = preconditions.bender.id!!, eventName = "kill-all-humans"
-                )
-                pushNotificationService.sendPushNotification(
-                    eventName = "end-of-season"
-                )
-            }
+            pushNotificationService.sendPushNotification(
+                eventName = "good-news-everyone", data = "deadly delivery"
+            )
+            pushNotificationService.sendPushNotification(
+                userId = preconditions.fry.id!!, eventName = "watch-tv"
+            )
+            pushNotificationService.sendPushNotification(
+                userId = preconditions.bender.id!!, eventName = "kill-all-humans"
+            )
+            pushNotificationService.sendPushNotification(
+                eventName = "end-of-season"
+            )
 
             await().atMost(asyncTimeout).untilAsserted {
                 val receivedMessages = subscription.getReceivedMessages()
@@ -203,12 +196,10 @@ class PushNotificationsSubscriptionTest(
         await().atMost(asyncTimeout).until {
             val now = System.currentTimeMillis()
             if (now - lastProbeSentAtMillis.get() >= 250) {
-                runBlocking {
-                    pushNotificationService.sendPushNotification(
-                        userId = user.id!!,
-                        eventName = probeEventName,
-                    )
-                }
+                pushNotificationService.sendPushNotification(
+                    userId = user.id!!,
+                    eventName = probeEventName,
+                )
                 lastProbeSentAtMillis.set(now)
             }
             probeReceived.get()

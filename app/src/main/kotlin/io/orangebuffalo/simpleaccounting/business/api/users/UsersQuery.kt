@@ -21,7 +21,7 @@ class UsersQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns all users with cursor-based pagination. Only accessible by admin users.")
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
-    suspend fun users(
+    fun users(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

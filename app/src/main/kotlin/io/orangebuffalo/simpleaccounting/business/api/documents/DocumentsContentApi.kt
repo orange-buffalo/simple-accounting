@@ -23,7 +23,7 @@ class DocumentsContentApi(
 ) {
 
     @GetMapping("/download/{token}")
-    suspend fun getContent(@PathVariable token: String): ResponseEntity<StreamingResponseBody> {
+    fun getContent(@PathVariable token: String): ResponseEntity<StreamingResponseBody> {
         logger.debug { "Processing document download request" }
         val contentResponse = downloadsService.getContentByToken(token)
         logger.debug {
@@ -42,7 +42,7 @@ class DocumentsContentApi(
     }
 
     @PostMapping("/upload/{token}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    suspend fun uploadDocument(
+    fun uploadDocument(
         @PathVariable token: String,
         @RequestPart("file") file: MultipartFile,
     ): DocumentGqlDto {

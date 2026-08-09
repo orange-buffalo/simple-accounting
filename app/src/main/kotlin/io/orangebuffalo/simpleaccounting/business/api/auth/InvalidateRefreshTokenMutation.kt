@@ -14,7 +14,7 @@ class InvalidateRefreshTokenMutation : Mutation {
     @Suppress("unused")
     @GraphQLDescription("Invalidates the refresh token cookie, effectively logging out the current user.")
     @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
-    suspend fun invalidateRefreshToken(env: DataFetchingEnvironment): Boolean {
+    fun invalidateRefreshToken(env: DataFetchingEnvironment): Boolean {
         env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).addResponseCookie(
             ResponseCookie
                 .from("refreshToken", "")

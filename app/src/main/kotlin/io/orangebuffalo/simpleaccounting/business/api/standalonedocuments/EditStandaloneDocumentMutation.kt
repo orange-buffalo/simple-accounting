@@ -19,7 +19,7 @@ class EditStandaloneDocumentMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing standalone document in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editStandaloneDocument(
+    fun editStandaloneDocument(
         @GraphQLDescription("ID of the workspace the standalone document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the standalone document to update.")

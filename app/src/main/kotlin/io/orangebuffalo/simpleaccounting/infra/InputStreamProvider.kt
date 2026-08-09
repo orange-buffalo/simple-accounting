@@ -6,9 +6,11 @@ import java.io.InputStream
  * Provides scoped access to an input stream. The provider owns and closes the stream;
  * the consumer must fully read it during the callback and must not retain it.
  */
-fun interface InputStreamProvider {
-    fun useInputStream(consumer: (InputStream) -> Unit)
+interface InputStreamProvider {
+    fun <T> useInputStream(consumer: (InputStream) -> T): T
 }
 
 fun inputStreamProvider(streamSupplier: () -> InputStream): InputStreamProvider =
-    InputStreamProvider { consumer -> streamSupplier().use(consumer) }
+    object : InputStreamProvider {
+        override fun <T> useInputStream(consumer: (InputStream) -> T): T = streamSupplier().use(consumer)
+    }

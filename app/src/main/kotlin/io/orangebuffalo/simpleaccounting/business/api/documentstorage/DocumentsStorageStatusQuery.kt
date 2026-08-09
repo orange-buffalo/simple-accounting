@@ -15,7 +15,7 @@ class DocumentsStorageStatusQuery(
     @GraphQLDescription("Returns the current user's documents storage status.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     @SlowOperation
-    suspend fun documentsStorageStatus(): DocumentsStorageStatusResponse {
+    fun documentsStorageStatus(): DocumentsStorageStatusResponse {
         val status = documentsService.getCurrentUserStorageStatus()
         return DocumentsStorageStatusResponse(active = status.active)
     }

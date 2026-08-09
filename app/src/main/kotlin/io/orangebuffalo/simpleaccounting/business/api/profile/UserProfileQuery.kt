@@ -17,7 +17,7 @@ class UserProfileQuery(
                 "Current is defined as the user that is authenticated in the current request."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun userProfile(): UserProfile {
+    fun userProfile(): UserProfile {
         return platformUsersService
             .getCurrentUser()
             .mapToProfileDto()

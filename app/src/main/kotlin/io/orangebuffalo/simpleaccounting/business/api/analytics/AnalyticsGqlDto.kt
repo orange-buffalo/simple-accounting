@@ -13,7 +13,6 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import java.time.LocalDate
@@ -24,7 +23,7 @@ import java.util.concurrent.CompletableFuture
 class AnalyticsGqlDto(private val workspaceId: String) {
 
     @GraphQLDescription("Summary of expenses in the given date range.")
-    suspend fun expensesSummary(
+    fun expensesSummary(
         @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
         @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
         env: DataFetchingEnvironment,
@@ -45,7 +44,7 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     }
 
     @GraphQLDescription("Summary of incomes in the given date range.")
-    suspend fun incomesSummary(
+    fun incomesSummary(
         @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
         @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
         env: DataFetchingEnvironment,
@@ -66,7 +65,7 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     }
 
     @GraphQLDescription("Summary of income tax payments in the given date range.")
-    suspend fun incomeTaxPaymentsSummary(
+    fun incomeTaxPaymentsSummary(
         @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
         @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
         env: DataFetchingEnvironment,
@@ -77,14 +76,14 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     }
 
     @GraphQLDescription("Summary of general taxes in the given date range.")
-    suspend fun generalTaxesSummary(
+    fun generalTaxesSummary(
         @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
         @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
         env: DataFetchingEnvironment,
     ): GeneralTaxesSummaryGqlDto {
         val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
         val taxReportingService = env.graphQlContext.getBean<GeneralTaxesReportingService>()
-        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspacesService.getWorkspace(workspaceId)
         val report = taxReportingService.getGeneralTaxReport(fromDate, toDate, workspace)
         return GeneralTaxesSummaryGqlDto(
             workspaceId = workspaceId,
@@ -124,10 +123,10 @@ class AnalyticsGqlDto(private val workspaceId: String) {
     }
 
     @GraphQLDescription("Shortlist of recently used currency codes, sorted by usage frequency.")
-    suspend fun currenciesShortlist(env: DataFetchingEnvironment): List<String> {
+    fun currenciesShortlist(env: DataFetchingEnvironment): List<String> {
         val workspacesService = env.graphQlContext.getBean<WorkspacesService>()
         val analyticsService = env.graphQlContext.getBean<WorkspaceAnalyticsService>()
-        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspacesService.getWorkspace(workspaceId)
         return analyticsService.getCurrenciesShortlist(workspace)
     }
 }

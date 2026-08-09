@@ -15,7 +15,7 @@ import kotlin.math.max
 
 @Service
 class NoopDocumentsStorage : DocumentsStorage {
-    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
+    override fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
         val filename = request.fileName
         if (filename.contains("fail")) {
             throw RuntimeException("Upload failed")
@@ -33,7 +33,7 @@ class NoopDocumentsStorage : DocumentsStorage {
 
     override fun getId(): String = "noop"
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
+    override fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
         val resource = getFakeContent(storageLocation)
         val contentLength = resource.contentLength()
         val bufferSize = max(1, contentLength / 30)
@@ -52,10 +52,10 @@ class NoopDocumentsStorage : DocumentsStorage {
         }
     }
 
-    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+    override fun deleteDocument(workspace: Workspace, storageLocation: String) {
     }
 
-    override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
+    override fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
-    override suspend fun isDownloadAvailableForUser(userId: String) = true
+    override fun isDownloadAvailableForUser(userId: String) = true
 }

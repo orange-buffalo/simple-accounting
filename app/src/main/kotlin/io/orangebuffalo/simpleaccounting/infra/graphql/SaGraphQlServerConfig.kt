@@ -12,8 +12,6 @@ import graphql.language.SourceLocation
 import io.orangebuffalo.simpleaccounting.business.security.ProgrammaticAuthentication
 import io.orangebuffalo.simpleaccounting.business.security.SpringSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.reactor.ReactorContext
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -31,11 +29,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import kotlin.coroutines.CoroutineContext
 
 private val logger = KotlinLogging.logger {}
 
@@ -97,10 +93,6 @@ private class SaWebGraphQlInterceptor(
                 contextBuilder.put(GraphQlHttpRequestContext::class, httpRequestContext)
                 authentication?.let {
                     contextBuilder.put(SUBSCRIPTION_AUTHENTICATION_KEY, it)
-                    val reactorContext = ReactiveSecurityContextHolder.withAuthentication(it)
-                    val coroutineContext = ReactorContext(reactorContext)
-                    contextBuilder.put(CoroutineContext::class, coroutineContext)
-                    contextBuilder.put(CoroutineScope::class, CoroutineScope(coroutineContext))
                 }
             }.build()
         }

@@ -26,7 +26,7 @@ class DocumentsMigrationsQuery(
             "Results are sorted by creation time descending by default, newest first."
     )
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun documentsMigrations(
+    fun documentsMigrations(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

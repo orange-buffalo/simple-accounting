@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.infra.backups
 
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.Scheduled
@@ -27,10 +25,10 @@ class SystemDataBackupService(
 ) {
 
     @Scheduled(fixedDelayString = "#{@backupProperties.schedulingDelayInHours}", timeUnit = TimeUnit.HOURS)
-    fun executeBackup() = runBlocking {
+    fun executeBackup() {
         if (!backupProperties.enabled) {
             logger.info { "Backup is disabled" }
-            return@runBlocking
+            return
         }
 
         logger.info { "Starting system data backup" }
@@ -38,9 +36,7 @@ class SystemDataBackupService(
         val backupFile = getBackupFile()
 
         try {
-            withDbContext {
-                jdbcTemplate.execute("script drop to '${backupFile.toAbsolutePath()}' compression zip")
-            }
+            jdbcTemplate.execute("script drop to '${backupFile.toAbsolutePath()}' compression zip")
             logger.debug { "Database saved to $backupFile" }
 
             backupProvider.acceptBackup(backupFile)

@@ -6,13 +6,10 @@ import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
 import io.orangebuffalo.simpleaccounting.business.security.SpringSecurityPrincipal
-import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.infra.graphql.SUBSCRIPTION_AUTHENTICATION_KEY
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import tools.jackson.databind.ObjectMapper
 
 @Component
@@ -31,21 +28,11 @@ class PushNotificationsSubscription(
                 "Once `connection_ack` is received, subscribe with a standard `subscribe` message."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    fun pushNotifications(env: DataFetchingEnvironment): Flow<PushNotificationMessage> {
+    fun pushNotifications(env: DataFetchingEnvironment): Flux<PushNotificationMessage> {
         val authentication = env.graphQlContext.get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
         val principal = authentication?.principal as? SpringSecurityPrincipal
-        val flow = if (principal != null) {
-            runBlocking {
-                runAs(principal) {
-                    pushNotificationService.subscribeToEventsForCurrentUser()
-                }
-            }
-        } else {
-            runBlocking {
-                pushNotificationService.subscribeToEventsForCurrentUser()
-            }
-        }
-        return flow.map { notification ->
+            ?: throw IllegalStateException("Subscription authentication is not set")
+        return pushNotificationService.subscribeToEventsForUser(principal.userName).map { notification ->
             PushNotificationMessage(
                 eventName = notification.eventName,
                 data = notification.data?.let { objectMapper.writeValueAsString(it) }

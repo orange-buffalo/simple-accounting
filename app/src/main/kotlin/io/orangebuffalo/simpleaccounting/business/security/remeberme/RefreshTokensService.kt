@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.security.remeberme
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -17,13 +17,13 @@ private const val TOKEN_LENGTH = 1024
 @Service
 class RefreshTokensService(
     private val refreshTokensRepository: RefreshTokensRepository,
-    private val userService: PlatformUsersService,
+    private val platformUsersRepository: PlatformUsersRepository,
     private val timeService: TimeService
 ) {
     private val random = SecureRandom()
 
-    suspend fun generateRefreshToken(userName: String): String {
-        val user = userService.getUserByUserName(userName)
+    fun generateRefreshToken(userName: String): String {
+        val user = platformUsersRepository.findByUserName(userName)
             ?: throw IllegalArgumentException("$userName is not found")
 
         val tokenBytes = ByteArray(TOKEN_LENGTH)
@@ -36,37 +36,33 @@ class RefreshTokensService(
             timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
         )
 
-        withDbContext {
-            refreshTokensRepository.save(token)
-        }
+        refreshTokensRepository.save(token)
 
         return tokenString
     }
 
-    suspend fun validateTokenAndBuildUserDetails(refreshTokenString: String): UserDetails {
-        val token = withDbContext {
-            refreshTokensRepository.findByToken(refreshTokenString)
-                ?: throw BadCredentialsException("Bad token")
-        }
+    fun validateTokenAndBuildUserDetails(refreshTokenString: String): UserDetails {
+        val token = refreshTokensRepository.findByToken(refreshTokenString)
+            ?: throw BadCredentialsException("Bad token")
 
         if (timeService.currentTime().isAfter(token.expirationTime)) {
             throw BadCredentialsException("Token expired")
         }
 
-        val tokenOwner = userService.getUserByUserId(token.userId)
+        val tokenOwner = platformUsersRepository.findById(token.userId)
+            .orElseThrow { EntityNotFoundException("User ${token.userId} is not found") }
 
         return tokenOwner.toSecurityPrincipal()
     }
 
-    suspend fun prolongToken(refreshTokenString: String): String =
-        withDbContext {
-            val refreshToken = refreshTokensRepository.findByToken(refreshTokenString)
-                ?: throw IllegalArgumentException("Bad token $refreshTokenString")
-            refreshTokensRepository.save(
-                refreshToken.copy(
-                    expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
-                )
+    fun prolongToken(refreshTokenString: String): String {
+        val refreshToken = refreshTokensRepository.findByToken(refreshTokenString)
+            ?: throw IllegalArgumentException("Bad token $refreshTokenString")
+        refreshTokensRepository.save(
+            refreshToken.copy(
+                expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
             )
-            refreshToken.token
-        }
+        )
+        return refreshToken.token
+    }
 }

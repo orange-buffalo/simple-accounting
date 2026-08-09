@@ -3,8 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.infra.executeInParallel
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -15,32 +13,27 @@ class IncomeTaxPaymentService(
     private val documentsService: DocumentsService
 ) {
 
-    suspend fun saveTaxPayment(taxPayment: IncomeTaxPayment): IncomeTaxPayment {
+    fun saveTaxPayment(taxPayment: IncomeTaxPayment): IncomeTaxPayment {
         validateTaxPayment(taxPayment)
-        return withDbContext { taxPaymentRepository.save(taxPayment) }
+        return taxPaymentRepository.save(taxPayment)
     }
 
-    private suspend fun validateTaxPayment(taxPayment: IncomeTaxPayment) {
-        executeInParallel {
-            step { workspacesService.validateWorkspaceAccess(taxPayment.workspaceId, WorkspaceAccessMode.READ_WRITE) }
-            step { validateAttachments(taxPayment) }
-        }
+    private fun validateTaxPayment(taxPayment: IncomeTaxPayment) {
+        workspacesService.validateWorkspaceAccess(taxPayment.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        validateAttachments(taxPayment)
     }
 
-    private suspend fun validateAttachments(taxPayment: IncomeTaxPayment) {
+    private fun validateAttachments(taxPayment: IncomeTaxPayment) {
         val attachmentsIds = taxPayment.attachments.map { it.documentId }
         documentsService.validateDocuments(taxPayment.workspaceId, attachmentsIds)
     }
 
-    suspend fun getTaxPaymentByIdAndWorkspace(id: String, workspaceId: String): IncomeTaxPayment? = withDbContext {
+    fun getTaxPaymentByIdAndWorkspace(id: String, workspaceId: String): IncomeTaxPayment? =
         taxPaymentRepository.findByIdAndWorkspaceId(id, workspaceId)
-    }
 
-    suspend fun getTaxPaymentStatistics(
+    fun getTaxPaymentStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspaceId: String
-    ): IncomeTaxPaymentsStatistics = withDbContext {
-        taxPaymentRepository.getTaxPaymentsStatistics(fromDate, toDate, workspaceId)
-    }
+    ): IncomeTaxPaymentsStatistics = taxPaymentRepository.getTaxPaymentsStatistics(fromDate, toDate, workspaceId)
 }

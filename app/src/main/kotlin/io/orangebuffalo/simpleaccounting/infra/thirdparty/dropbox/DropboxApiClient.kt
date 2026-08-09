@@ -1,22 +1,11 @@
 package io.orangebuffalo.simpleaccounting.infra.thirdparty.dropbox
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -25,6 +14,11 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonClassDiscriminator
 import mu.KotlinLogging
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestClient
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 import kotlin.time.Instant
@@ -38,80 +32,59 @@ private val logger = KotlinLogging.logger {}
 
 class DropboxApiClient(
     accessToken: String,
-    refreshToken: String,
-    clientId: String,
-    clientSecret: String,
-    apiBaseUrl : String = "https://api.dropboxapi.com",
+    private val refreshToken: String,
+    private val clientId: String,
+    private val clientSecret: String,
+    apiBaseUrl: String = "https://api.dropboxapi.com",
     private val contentBaseUrl: String = "https://content.dropboxapi.com",
 ) : AutoCloseable {
 
-    private val client = HttpClient(CIO) {
-        dropboxClientConfig(apiBaseUrl)
-        install(Auth) {
-            bearer {
-                loadTokens {
-                    BearerTokens(accessToken = accessToken, refreshToken = refreshToken)
-                }
-                refreshTokens {
-                    // dedicated client to disable Auth plugin
-                    HttpClient(CIO) {
-                        dropboxClientConfig(apiBaseUrl)
-                    }.use { refreshTokenClient ->
-                        val tokenResponse = refreshTokenClient.submitForm(
-                            url = "/oauth2/token",
-                            formParameters = parameters {
-                                append("grant_type", "refresh_token")
-                                append("client_id", clientId)
-                                append("client_secret", clientSecret)
-                                append("refresh_token", oldTokens?.refreshToken ?: "")
-                            },
-                        ).body<TokenResponse>()
+    private val apiClient = RestClient.builder().baseUrl(apiBaseUrl).build()
+    private val contentClient = RestClient.create()
+    private val refreshLock = Any()
 
-                        BearerTokens(accessToken = tokenResponse.accessToken, refreshToken = oldTokens?.refreshToken!!)
-                    }
-                }
-            }
+    @Volatile
+    private var currentAccessToken = accessToken
+
+    override fun close() = Unit
+
+    fun uploadFile(fileToUpload: Path, filePath: String) {
+        logger.debug { "Uploading file $filePath to Dropbox" }
+
+        val response = authorizedRequest { token ->
+            contentClient.post()
+                .uri("$contentBaseUrl/2/files/upload")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                .header("Dropbox-API-Arg", UploadArg(path = filePath).toJson())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(fileToUpload.readBytes())
+                .retrieve()
+                .body(String::class.java)
+        }
+
+        logger.debug {
+            "File $filePath uploaded to Dropbox. Response: ${json.decodeFromString<UploadResponse>(response!!)}"
         }
     }
 
-    override fun close() {
-        client.close()
-    }
-
-    suspend fun uploadFile(fileToUpload: Path, filePath: String) = withContext(Dispatchers.IO) {
-        logger.debug { "Uploading file $filePath to Dropbox" }
-
-        val response = client.post {
-            url("$contentBaseUrl/2/files/upload")
-            header(
-                "Dropbox-API-Arg", UploadArg(path = filePath).toJson()
-            )
-            contentType(ContentType.Application.OctetStream)
-            // readChannel() does not work, the content size is 0
-            setBody(fileToUpload.readBytes())
-        }.body<UploadResponse>()
-
-        logger.debug { "File $filePath uploaded to Dropbox. Response: $response" }
-    }
-
-    suspend fun listFolder(folder: String, recursive: Boolean = true): List<ListFolderEntry> {
+    fun listFolder(folder: String, recursive: Boolean = true): List<ListFolderEntry> {
         logger.debug { "Listing folder $folder" }
 
         val allFiles = mutableListOf<ListFolderEntry>()
-        var response = client.post {
-            url("/2/files/list_folder")
-            setBody(ListFolderRequest(path = folder, recursive = recursive))
-        }.body<ListFolderArg>()
+        var response = postJson<ListFolderRequest, ListFolderArg>(
+            "/2/files/list_folder",
+            ListFolderRequest(path = folder, recursive = recursive),
+        )
         allFiles.addAll(response.entries)
 
         while (response.hasMore) {
             logger.debug { "Listing folder $folder, cursor: ${response.cursor}" }
 
             val cursor = response.cursor
-            response = client.post {
-                url("/2/files/list_folder/continue")
-                setBody(ListFolderContinueArg(cursor))
-            }.body<ListFolderArg>()
+            response = postJson<ListFolderContinueArg, ListFolderArg>(
+                "/2/files/list_folder/continue",
+                ListFolderContinueArg(cursor),
+            )
             allFiles.addAll(response.entries)
         }
 
@@ -120,15 +93,63 @@ class DropboxApiClient(
         return allFiles
     }
 
-    suspend fun deleteFiles(paths: Collection<String>) {
+    fun deleteFiles(paths: Collection<String>) {
         logger.debug { "Deleting files $paths" }
 
-        val deletionResult = client.post {
-            url("/2/files/delete_batch")
-            setBody(DeleteBatchArg(paths.map { DeleteBatchEntry(it) }))
-        }.body<String>()
+        val deletionResult = postJson<DeleteBatchArg, String>(
+            "/2/files/delete_batch",
+            DeleteBatchArg(paths.map { DeleteBatchEntry(it) }),
+        )
 
         logger.debug { "Files $paths deleted. Result: $deletionResult" }
+    }
+
+    private inline fun <reified T, reified R> postJson(path: String, request: T): R {
+        val response = authorizedRequest { token ->
+            apiClient.post()
+                .uri(path)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(json.encodeToString(request))
+                .retrieve()
+                .body(String::class.java)
+        }
+        return if (R::class == String::class) {
+            @Suppress("UNCHECKED_CAST")
+            response as R
+        } else {
+            json.decodeFromString(response!!)
+        }
+    }
+
+    private fun <T> authorizedRequest(request: (String) -> T): T {
+        val token = currentAccessToken
+        return try {
+            request(token)
+        } catch (error: HttpClientErrorException.Unauthorized) {
+            refreshAccessToken(token)
+            request(currentAccessToken)
+        }
+    }
+
+    private fun refreshAccessToken(rejectedToken: String) {
+        synchronized(refreshLock) {
+            if (currentAccessToken != rejectedToken) return
+
+            val form = LinkedMultiValueMap<String, String>().apply {
+                add("grant_type", "refresh_token")
+                add("client_id", clientId)
+                add("client_secret", clientSecret)
+                add("refresh_token", refreshToken)
+            }
+            val response = apiClient.post()
+                .uri("/oauth2/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(form)
+                .retrieve()
+                .body(String::class.java)
+            currentAccessToken = json.decodeFromString<TokenResponse>(response!!).accessToken
+        }
     }
 }
 
@@ -272,18 +293,3 @@ private data class TokenResponse(
     @SerialName("expires_in")
     val expiresIn: Long
 )
-
-/**
- * Dropbox requires /oauth2/token requests to be sent without Authorization, while Auth plugin cannot be disabled
- * on per-request basis. Thus, we need to use a different client when requesting short-lived access tokens.
- */
-private fun HttpClientConfig<CIOEngineConfig>.dropboxClientConfig(apiBaseUrl: String) {
-    expectSuccess = true
-    install(ContentNegotiation) {
-        json(json)
-    }
-    defaultRequest {
-        url(apiBaseUrl)
-        contentType(ContentType.Application.Json)
-    }
-}

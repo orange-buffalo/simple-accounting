@@ -56,7 +56,12 @@ class ConnectionSchemaGenerationSupport {
     private fun collectFromType(type: KType, nodeTypes: MutableSet<KType>, processed: MutableSet<KClass<*>>) {
         val classifier = type.classifier as? KClass<*> ?: return
         if (classifier == ConnectionGqlDto::class) {
-            type.arguments.firstOrNull()?.type?.let { nodeTypes.add(it) }
+            type.arguments.firstOrNull()?.type
+                ?.takeIf {
+                    (it.classifier as? KClass<*>)?.qualifiedName
+                        ?.startsWith("io.orangebuffalo.simpleaccounting") == true
+                }
+                ?.let { nodeTypes.add(it) }
             return
         }
         if (classifier.qualifiedName?.startsWith("io.orangebuffalo.simpleaccounting") == true) {

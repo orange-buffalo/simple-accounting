@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.kotest.assertions.fail
@@ -13,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
-import kotlinx.coroutines.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.BeforeEach
@@ -25,6 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
+import java.util.concurrent.Executors
 
 private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
@@ -256,22 +254,17 @@ class BruteForceDefenseTest(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should handle parallel login requests and throttle them`() {
         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        val requests = generateSequence(1) { if (it < 10) it + 1 else null }
-            .map {
-                GlobalScope.async(newFixedThreadPoolContext(10, "parallelLogins")) {
+        val responses = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            List(10) {
+                executor.submit<WebTestClient.ResponseSpec> {
                     rawClient.executeGraphqlLoginForFry()
                 }
-            }
-            .toList()
-
-        val responses = runBlocking {
-            requests.awaitAll()
+            }.map { it.get() }
         }
 
         var badCredentialsCount = 0

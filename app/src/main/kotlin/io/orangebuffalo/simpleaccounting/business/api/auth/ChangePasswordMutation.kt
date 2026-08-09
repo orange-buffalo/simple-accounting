@@ -24,7 +24,7 @@ class ChangePasswordMutation(
         errorCode = "CURRENT_PASSWORD_MISMATCH",
         errorCodeDescription = "The provided current password does not match the user's actual password.",
     )
-    suspend fun changePassword(
+    fun changePassword(
         @GraphQLDescription("The current password of the user.")
         @NotBlank
         @Size(max = 100)

@@ -21,7 +21,7 @@ class CreateWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new workspace for the current user.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createWorkspace(
+    fun createWorkspace(
         @GraphQLDescription("Name of the workspace.")
         @NotBlank
         @Size(max = 255)

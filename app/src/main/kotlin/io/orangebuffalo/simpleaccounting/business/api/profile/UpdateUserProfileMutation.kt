@@ -17,7 +17,7 @@ class UpdateUserProfileMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates the current user profile information.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun updateProfile(
+    fun updateProfile(
         @GraphQLDescription("The identifier of the documents storage used by the user.")
         @Size(max = 255)
         documentsStorage: String? = null,

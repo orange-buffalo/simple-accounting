@@ -24,7 +24,7 @@ class EditExpenseMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing expense in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editExpense(
+    fun editExpense(
         @GraphQLDescription("ID of the workspace the expense belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the expense to update.")

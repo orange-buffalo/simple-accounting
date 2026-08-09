@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import io.orangebuffalo.simpleaccounting.infra.supplyAsyncWithDbContext
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 import graphql.schema.DataFetchingEnvironment
@@ -15,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 fun <K : Any, V : Any> newAsyncMappedDataLoader(
     batchLoader: (Set<K>) -> Map<K, V>,
 ): DataLoader<K, V> = DataLoaderFactory.newMappedDataLoader { keys ->
-    supplyAsyncWithDbContext { batchLoader(keys) }
+    CompletableFuture.supplyAsync { batchLoader(keys) }
 }
 
 fun <K : Any, V : Any> DataFetchingEnvironment.loadManyAndDispatch(

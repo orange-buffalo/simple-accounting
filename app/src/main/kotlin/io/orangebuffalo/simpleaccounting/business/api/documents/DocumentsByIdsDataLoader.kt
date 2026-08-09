@@ -6,7 +6,6 @@ import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
 import io.orangebuffalo.simpleaccounting.infra.graphql.loadManyAndDispatch
-import kotlinx.coroutines.future.await
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -39,15 +38,7 @@ class DocumentsByIdsDataLoader(
         }
 }
 
-suspend fun DataFetchingEnvironment.loadDocumentsByIds(
-    documentIds: List<String>,
-): List<DocumentGqlDto> {
-    return loadManyAndDispatch<String, DocumentGqlDto>(NAME, documentIds).await()
-        .filterNotNull()
-        .sortedWith(compareBy(DocumentGqlDto::name, DocumentGqlDto::id))
-}
-
-fun DataFetchingEnvironment.loadDocumentsByIdsAsync(
+fun DataFetchingEnvironment.loadDocumentsByIds(
     documentIds: List<String>
 ): CompletableFuture<List<DocumentGqlDto>> {
     return loadManyAndDispatch<String, DocumentGqlDto>(NAME, documentIds).thenApply { documents ->

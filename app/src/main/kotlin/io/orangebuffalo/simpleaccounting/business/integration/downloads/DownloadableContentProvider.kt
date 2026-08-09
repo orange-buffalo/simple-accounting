@@ -18,7 +18,7 @@ interface DownloadableContentProvider<T : Any> {
     /**
      * Provides the content by metadata.
      */
-    suspend fun getContent(metadata: T): DownloadContentResponse
+    fun getContent(metadata: T): DownloadContentResponse
 }
 
 data class DownloadContentResponse(

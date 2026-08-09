@@ -22,7 +22,7 @@ class CreateDocumentDownloadUrlMutation(
                 "The URL does not require authentication."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
-    suspend fun createDocumentDownloadUrl(
+    fun createDocumentDownloadUrl(
         @GraphQLDescription("ID of the workspace the document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the document to create a download URL for.")

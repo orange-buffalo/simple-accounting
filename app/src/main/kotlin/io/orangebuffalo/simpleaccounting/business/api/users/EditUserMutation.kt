@@ -25,7 +25,7 @@ class EditUserMutation(
         errorCode = "USER_ALREADY_EXISTS",
         errorCodeDescription = "A user with the given username already exists.",
     )
-    suspend fun editUser(
+    fun editUser(
         @GraphQLDescription("ID of the user to update.")
         id: String,
         @GraphQLDescription("Version of the user state used for editing.")

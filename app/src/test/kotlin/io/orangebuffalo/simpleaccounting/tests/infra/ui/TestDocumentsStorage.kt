@@ -22,13 +22,12 @@ class TestDocumentsStorage : DocumentsStorage {
         const val STORAGE_ID = "test-storage"
     }
 
-    override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus = storageStatus
+    override fun getCurrentUserStorageStatus(): DocumentsStorageStatus = storageStatus
 
-    override suspend fun isDownloadAvailableForUser(userId: String) = true
+    override fun isDownloadAvailableForUser(userId: String) = true
 
-    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
-        lateinit var content: ByteArray
-        request.content.useInputStream { content = it.readBytes() }
+    override fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
+        val content = request.content.useInputStream { it.readBytes() }
         val storageLocation = UUID.randomUUID().toString()
         uploadedDocuments[storageLocation] = content
         return SaveDocumentResponse(
@@ -37,13 +36,13 @@ class TestDocumentsStorage : DocumentsStorage {
         )
     }
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
+    override fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider {
         val content = uploadedDocuments[storageLocation]
             ?: throw IllegalStateException("No content found for location: $storageLocation")
         return inputStreamProvider(content::inputStream)
     }
 
-    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+    override fun deleteDocument(workspace: Workspace, storageLocation: String) {
         uploadedDocuments.remove(storageLocation)
     }
 

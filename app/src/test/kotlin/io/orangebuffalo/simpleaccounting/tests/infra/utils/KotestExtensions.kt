@@ -1,11 +1,10 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.utils
 
-import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.should
-import kotlinx.coroutines.runBlocking
-import kotlin.time.Duration.Companion.seconds
+import org.awaitility.Awaitility.await
+import java.time.Duration
 
 /**
  * Verifies that the iterable contains exactly one element and returns it
@@ -37,10 +36,14 @@ fun <T : Any?, R> T.withHint(
 /**
  * Repeats the assertions until satisfied or timeout is reached.
  */
-fun <T> shouldEventually(message: String? = null, spec: () -> T): T = runBlocking {
-    withClue(message ?: "Spec is not satisfied on ($this)") {
-        eventually(10.seconds) {
-            spec()
+fun <T> shouldEventually(message: String? = null, spec: () -> T): T {
+    var result: Result<T>? = null
+    withClue(message ?: "Spec is not satisfied") {
+        await().atMost(Duration.ofSeconds(10)).untilAsserted {
+            val attempt = runCatching(spec)
+            result = attempt
+            attempt.getOrThrow()
         }
     }
+    return result!!.getOrThrow()
 }

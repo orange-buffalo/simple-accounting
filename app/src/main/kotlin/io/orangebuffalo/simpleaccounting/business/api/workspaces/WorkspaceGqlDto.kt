@@ -58,7 +58,7 @@ data class WorkspaceGqlDto(
     fun analytics() = AnalyticsGqlDto(workspaceId = id)
 
     @GraphQLDescription("Categories in this workspace with cursor-based pagination.")
-    suspend fun categories(
+    fun categories(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -113,7 +113,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("Expenses in this workspace with cursor-based pagination.")
-    suspend fun expenses(
+    fun expenses(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -135,7 +135,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("Incomes in this workspace with cursor-based pagination.")
-    suspend fun incomes(
+    fun incomes(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -150,7 +150,7 @@ data class WorkspaceGqlDto(
     }
 
     @GraphQLDescription("Returns an income by its ID if it belongs to this workspace, or null if not found.")
-    suspend fun income(
+    fun income(
         @GraphQLDescription("ID of the income.") id: String,
         env: DataFetchingEnvironment,
     ): IncomeGqlDto? {
@@ -160,7 +160,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("Invoices in this workspace with cursor-based pagination.")
-    suspend fun invoices(
+    fun invoices(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -177,7 +177,7 @@ data class WorkspaceGqlDto(
     }
 
     @GraphQLDescription("Returns an invoice by its ID if it belongs to this workspace, or null if not found.")
-    suspend fun invoice(
+    fun invoice(
         @GraphQLDescription("ID of the invoice.") id: String,
         env: DataFetchingEnvironment,
     ): InvoiceGqlDto? {
@@ -186,7 +186,7 @@ data class WorkspaceGqlDto(
     }
 
     @GraphQLDescription("Documents in this workspace with cursor-based pagination.")
-    suspend fun documents(
+    fun documents(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -212,7 +212,7 @@ data class WorkspaceGqlDto(
     }
 
     @GraphQLDescription("Customers in this workspace with cursor-based pagination.")
-    suspend fun customers(
+    fun customers(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -252,7 +252,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("Income tax payments in this workspace with cursor-based pagination.")
-    suspend fun incomeTaxPayments(
+    fun incomeTaxPayments(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -306,7 +306,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("Standalone documents in this workspace with cursor-based pagination.")
-    suspend fun standaloneDocuments(
+    fun standaloneDocuments(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -327,7 +327,7 @@ data class WorkspaceGqlDto(
 
     @Suppress("unused")
     @GraphQLDescription("General taxes in this workspace with cursor-based pagination.")
-    suspend fun generalTaxes(
+    fun generalTaxes(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
@@ -370,7 +370,7 @@ data class WorkspaceGqlDto(
     @Suppress("unused")
     @GraphQLDescription("Workspace access tokens in this workspace with cursor-based pagination.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun workspaceAccessTokens(
+    fun workspaceAccessTokens(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

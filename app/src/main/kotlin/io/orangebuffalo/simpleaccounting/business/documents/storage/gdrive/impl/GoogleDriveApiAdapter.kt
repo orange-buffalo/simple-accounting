@@ -6,8 +6,6 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.Googl
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2RestClientBuilderProvider
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -27,7 +25,7 @@ class GoogleDriveApiAdapter(
     private val googleDriveDocumentsStorageProperties: GoogleDriveDocumentsStorageProperties,
 ) {
 
-    suspend fun uploadFile(
+    fun uploadFile(
         content: InputStreamProvider,
         fileName: String,
         parentFolderId: String,
@@ -39,9 +37,7 @@ class GoogleDriveApiAdapter(
         )
         val restClient = createRestClient()
 
-        return withContext(Dispatchers.IO) {
-            lateinit var uploadResponse: UploadFileResponse
-            content.useInputStream { contentStream ->
+        return content.useInputStream { contentStream ->
                 val contentResource = object : InputStreamResource(contentStream) {
                     override fun getFilename() = fileName
                     override fun contentLength() = -1L
@@ -63,7 +59,7 @@ class GoogleDriveApiAdapter(
                     )
                 }
 
-                uploadResponse = restClient.post()
+                restClient.post()
                     .uri { builder ->
                         builder.path("upload/drive/v3/files")
                             .queryParam("fields", "id, size")
@@ -80,49 +76,45 @@ class GoogleDriveApiAdapter(
                         },
                     )
                     .toUploadFileResponse()
-            }
-            uploadResponse
         }
     }
 
-    suspend fun downloadFile(fileId: String): InputStreamProvider {
+    fun downloadFile(fileId: String): InputStreamProvider {
         val restClient = createRestClient()
-        return InputStreamProvider { consumer ->
-            restClient.get()
-                .uri { builder ->
-                    builder.path("/drive/v3/files/$fileId")
-                        .queryParam("alt", "media")
-                        .build()
-                }
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .exchange { _, response ->
-                    response.verifyDriveResponse(
-                        successStatuses = setOf(HttpStatus.OK),
-                        errorDescriptor = { errorJson ->
-                            "Error while downloading $fileId: $errorJson"
-                        },
-                    )
-                    response.body.use(consumer)
-                }
+        return object : InputStreamProvider {
+            override fun <T> useInputStream(consumer: (java.io.InputStream) -> T): T =
+                restClient.get()
+                    .uri { builder ->
+                        builder.path("/drive/v3/files/$fileId")
+                            .queryParam("alt", "media")
+                            .build()
+                    }
+                    .accept(MediaType.APPLICATION_OCTET_STREAM)
+                    .exchange { _, response ->
+                        response.verifyDriveResponse(
+                            successStatuses = setOf(HttpStatus.OK),
+                            errorDescriptor = { errorJson ->
+                                "Error while downloading $fileId: $errorJson"
+                            },
+                        )
+                        response.body.use(consumer)
+                    }!!
         }
     }
 
-    suspend fun deleteFile(fileId: String) {
+    fun deleteFile(fileId: String) {
         val restClient = createRestClient()
-        withContext(Dispatchers.IO) {
-            restClient.delete()
+        restClient.delete()
                 .uri { builder -> builder.path("/drive/v3/files/$fileId").build() }
                 .executeDriveRequest(
                     successStatuses = setOf(HttpStatus.OK, HttpStatus.NO_CONTENT),
                     errorDescriptor = { errorJson -> "Error while deleting $fileId: $errorJson" },
                 )
-        }
     }
 
-    suspend fun findFolderByNameAndParent(folderName: String, parentFolderId: String): String? {
+    fun findFolderByNameAndParent(folderName: String, parentFolderId: String): String? {
         val restClient = createRestClient()
-        val matchingFolders = withContext(Dispatchers.IO) {
-            restClient.get()
+        val matchingFolders = restClient.get()
                 .uri { builder ->
                     builder.path("/drive/v3/files")
                         .queryParam(
@@ -138,15 +130,13 @@ class GoogleDriveApiAdapter(
                         "Error while retrieving folder $folderName for $parentFolderId: $errorJson"
                     },
                 )
-        }
         return matchingFolders.files.firstOrNull()?.id
     }
 
-    suspend fun createFolder(folderName: String, parentFolderId: String?): FolderResponse {
+    fun createFolder(folderName: String, parentFolderId: String?): FolderResponse {
         log.debug { "Creating folder $folderName under $parentFolderId" }
         val restClient = createRestClient()
-        return withContext(Dispatchers.IO) {
-            restClient.post()
+        return restClient.post()
                 .uri { builder ->
                     builder.path("/drive/v3/files")
                         .queryParam("fields", "id, name")
@@ -168,14 +158,13 @@ class GoogleDriveApiAdapter(
                     },
                 )
                 .toFolderResponse()
-        }.also { log.debug { "Folder $folderName created: $it" } }
+            .also { log.debug { "Folder $folderName created: $it" } }
     }
 
-    suspend fun getFolderById(folderId: String): FolderResponse? {
+    fun getFolderById(folderId: String): FolderResponse? {
         log.debug { "Retrieving folder by id $folderId" }
         val restClient = createRestClient()
-        return withContext(Dispatchers.IO) {
-            restClient.get()
+        return restClient.get()
                 .uri { builder ->
                     builder.path("/drive/v3/files/$folderId")
                         .queryParam("fields", "name, trashed, id")
@@ -191,10 +180,10 @@ class GoogleDriveApiAdapter(
                 )
                 .takeUnless { it.trashed == true }
                 ?.toFolderResponse()
-        }.also { log.debug { "Folder $folderId retrieved: $it" } }
+            .also { log.debug { "Folder $folderId retrieved: $it" } }
     }
 
-    private suspend fun createRestClient(): RestClient = try {
+    private fun createRestClient(): RestClient = try {
         restClientBuilderProvider.forClient(OAUTH2_CLIENT_REGISTRATION_ID)
             .baseUrl(googleDriveDocumentsStorageProperties.baseApiUrl)
             .build()

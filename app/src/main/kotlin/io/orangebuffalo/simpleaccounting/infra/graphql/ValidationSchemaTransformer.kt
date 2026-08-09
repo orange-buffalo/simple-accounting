@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import org.springframework.aop.support.AopUtils
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -270,7 +271,7 @@ class ValidationSchemaTransformer(
     ): Map<String, Map<String, List<GraphQLAppliedDirective>>> {
         val result = mutableMapOf<String, Map<String, List<GraphQLAppliedDirective>>>()
 
-        for (kClass in (mutations + queries).map { it::class }) {
+        for (kClass in (mutations + queries).map { AopUtils.getTargetClass(it).kotlin }) {
             for (function in kClass.memberFunctions) {
                 val argumentDirectives = mutableMapOf<String, List<GraphQLAppliedDirective>>()
 

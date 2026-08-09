@@ -24,7 +24,7 @@ class CreateUserActivationTokenMutation(
         errorCode = "USER_ALREADY_ACTIVATED",
         errorCodeDescription = "The user is already activated and cannot receive an activation token.",
     )
-    suspend fun createUserActivationToken(
+    fun createUserActivationToken(
         @GraphQLDescription("The ID of the user to create the activation token for.")
         userId: String,
     ): UserActivationTokenGqlDto {

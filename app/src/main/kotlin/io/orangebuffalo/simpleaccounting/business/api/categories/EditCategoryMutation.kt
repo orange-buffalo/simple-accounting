@@ -19,7 +19,7 @@ class EditCategoryMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing category in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editCategory(
+    fun editCategory(
         @GraphQLDescription("ID of the workspace the category belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the category to update.")

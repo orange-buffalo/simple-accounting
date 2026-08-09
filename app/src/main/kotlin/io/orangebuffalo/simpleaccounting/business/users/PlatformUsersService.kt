@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.users
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import org.apache.commons.lang3.RandomStringUtils
@@ -24,24 +23,19 @@ class PlatformUsersService(
     private val authenticationService: ObjectProvider<AuthenticationService>,
 ) {
 
-    suspend fun getCurrentUser(): PlatformUser = withDbContext {
+    fun getCurrentUser(): PlatformUser =
         userRepository.findByUserName(ensureRegularUserPrincipal().userName)
             ?: throw IllegalStateException("Current principal is not resolved to a user")
-    }
 
-    suspend fun getUserByUserName(userName: String): PlatformUser? = withDbContext {
-        userRepository.findByUserName(userName)
-    }
+    fun getUserByUserName(userName: String): PlatformUser? = userRepository.findByUserName(userName)
 
-    suspend fun save(user: PlatformUser): PlatformUser = withDbContext {
-        userRepository.save(user)
-    }
+    fun save(user: PlatformUser): PlatformUser = userRepository.save(user)
 
     /**
      * Validates and saves updated user data.
      * @throws UserUpdateException.UserAlreadyExistsException in case another user with the same name already exists
      */
-    suspend fun updateUser(updatedUserData: PlatformUser): PlatformUser = withDbContext {
+    fun updateUser(updatedUserData: PlatformUser): PlatformUser {
         check(updatedUserData.id != null) {
             "User id must be provided for update"
         }
@@ -49,22 +43,20 @@ class PlatformUsersService(
         if (existingUser != null && existingUser.id != updatedUserData.id) {
             throw UserUpdateException.UserAlreadyExistsException(updatedUserData.userName)
         }
-        userRepository.save(updatedUserData)
+        return userRepository.save(updatedUserData)
     }
 
     /**
      * Creates a new user.
      * @throws UserCreationException.UserAlreadyExistsException in case another user with the same name already exists
      */
-    suspend fun createUser(
+    fun createUser(
         userName: String,
         isAdmin: Boolean,
     ): PlatformUser {
-        withDbContext {
-            val existingUser = userRepository.findByUserName(userName)
-            if (existingUser != null) {
-                throw UserCreationException.UserAlreadyExistsException(userName)
-            }
+        val existingUser = userRepository.findByUserName(userName)
+        if (existingUser != null) {
+            throw UserCreationException.UserAlreadyExistsException(userName)
         }
 
         val user = save(
@@ -80,29 +72,24 @@ class PlatformUsersService(
         return user
     }
 
-    suspend fun getUserByUserId(userId: String): PlatformUser = withDbContext {
+    fun getUserByUserId(userId: String): PlatformUser =
         userRepository.findById(userId)
             .orElseThrow { EntityNotFoundException("User $userId is not found") }
-    }
 
     /**
      * Retrieves user activation token by user id. There is always at most one token per user.
      * In case the token is not found, or is expired, null is returned.
      * In case the token is expired, it is removed.
      */
-    suspend fun getUserActivationTokenForUser(userId: String): UserActivationToken? {
-        val token = withDbContext {
-            userActivationTokensRepository.findByUserId(userId)
-        }
+    fun getUserActivationTokenForUser(userId: String): UserActivationToken? {
+        val token = userActivationTokensRepository.findByUserId(userId)
         return ensureTokenIsNotExpired(token)
     }
 
-    private suspend fun ensureTokenIsNotExpired(token: UserActivationToken?): UserActivationToken? {
+    private fun ensureTokenIsNotExpired(token: UserActivationToken?): UserActivationToken? {
         if (token == null) return null
         if (token.expired) {
-            withDbContext {
-                userActivationTokensRepository.delete(token)
-            }
+            userActivationTokensRepository.delete(token)
             return null
         }
         return token
@@ -113,10 +100,8 @@ class PlatformUsersService(
      * In case the token is not found, or is expired, null is returned.
      * In case the token is expired, it is removed.
      */
-    suspend fun getUserActivationToken(tokenValue: String): UserActivationToken? {
-        val token = withDbContext {
-            userActivationTokensRepository.findByToken(tokenValue)
-        }
+    fun getUserActivationToken(tokenValue: String): UserActivationToken? {
+        val token = userActivationTokensRepository.findByToken(tokenValue)
         return ensureTokenIsNotExpired(token)
     }
 
@@ -124,28 +109,22 @@ class PlatformUsersService(
      * Creates a new user activation token for the user with the specified id.
      * In case there is an existing token for the user, it is replaced with a new one.
      */
-    suspend fun createUserActivationToken(userId: String): UserActivationToken {
-        val user = withDbContext {
-            userRepository.findByIdOrNull(userId)
-        }
+    fun createUserActivationToken(userId: String): UserActivationToken {
+        val user = userRepository.findByIdOrNull(userId)
         if (user == null) {
             throw EntityNotFoundException("User $userId is not found")
         }
         if (user.activated) {
             throw UserActivationTokenCreationException.UserAlreadyActivatedException(userId)
         }
-        val token = withDbContext {
-            userActivationTokensRepository.findByUserId(userId)
-        }
+        val token = userActivationTokensRepository.findByUserId(userId)
         if (token != null) {
-            withDbContext {
-                userActivationTokensRepository.delete(token)
-            }
+            userActivationTokensRepository.delete(token)
         }
         return setupUserActivationToken(userId)
     }
 
-    private suspend fun setupUserActivationToken(userId: String) = withDbContext {
+    private fun setupUserActivationToken(userId: String) =
         userActivationTokensRepository.save(
             UserActivationToken(
                 userId = userId,
@@ -156,35 +135,26 @@ class PlatformUsersService(
                 )
             )
         )
-    }
 
-    suspend fun activateUser(token: String, password: String) {
-        val userActivationToken = withDbContext {
-            userActivationTokensRepository.findByToken(token)
-                ?: throw EntityNotFoundException("User activation token not found $token")
-        }
+    fun activateUser(token: String, password: String) {
+        val userActivationToken = userActivationTokensRepository.findByToken(token)
+            ?: throw EntityNotFoundException("User activation token not found $token")
 
         if (userActivationToken.expired) {
-            withDbContext {
-                userActivationTokensRepository.delete(userActivationToken)
-            }
+            userActivationTokensRepository.delete(userActivationToken)
             throw UserActivationException.TokenExpiredException()
         }
 
-        val user = withDbContext {
-            userRepository.findById(userActivationToken.userId)
-                // should never happen due to DB constraints
-                .orElseThrow { IllegalStateException("User ${userActivationToken.userId} is not found") }
-        }
+        val user = userRepository.findById(userActivationToken.userId)
+            // should never happen due to DB constraints
+            .orElseThrow { IllegalStateException("User ${userActivationToken.userId} is not found") }
 
         val activatedUser = authenticationService.getObject()
             .setUserPassword(user, password)
             .copy(activated = true)
 
-        withDbContext {
-            userRepository.save(activatedUser)
-            userActivationTokensRepository.delete(userActivationToken)
-        }
+        userRepository.save(activatedUser)
+        userActivationTokensRepository.delete(userActivationToken)
     }
 
     private val UserActivationToken.expired: Boolean

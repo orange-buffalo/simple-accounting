@@ -15,7 +15,7 @@ class GoogleDriveStorageIntegrationStatusQuery(
     @GraphQLDescription("Returns the current user's Google Drive storage integration status.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     @SlowOperation
-    suspend fun googleDriveStorageIntegrationStatus(): GoogleDriveStorageIntegrationStatusResponse {
+    fun googleDriveStorageIntegrationStatus(): GoogleDriveStorageIntegrationStatusResponse {
         val status = googleDriveDocumentsStorage.getCurrentUserIntegrationStatus()
         return GoogleDriveStorageIntegrationStatusResponse(
             folderId = status.folderId,

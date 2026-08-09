@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.integration.downloads.Download
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
 import io.orangebuffalo.simpleaccounting.business.integration.getRequestByToken
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
@@ -34,12 +33,11 @@ class DocumentsService(
     private val tokenGenerator: TokenGenerator,
 ) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
-    suspend fun saveDocument(request: SaveDocumentRequest): Document {
+    fun saveDocument(request: SaveDocumentRequest): Document {
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
             ?: throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")
         val response = documentStorage.saveDocument(request)
-        return withDbContext {
-            documentRepository.save(
+        return documentRepository.save(
                 Document(
                     name = request.fileName,
                     timeUploaded = timeService.currentTime(),
@@ -50,22 +48,19 @@ class DocumentsService(
                     mimeType = request.contentType ?: "application/octet-stream"
                 )
             )
-        }
     }
 
-    private suspend fun getDocumentStorageByUser(userId: String): DocumentsStorage? {
+    private fun getDocumentStorageByUser(userId: String): DocumentsStorage? {
         val user = platformUsersService.getUserByUserId(userId)
         return documentsStorages.firstOrNull { it.getId() == user.documentsStorage }
     }
 
-    suspend fun getDocumentByIdAndWorkspaceId(
+    fun getDocumentByIdAndWorkspaceId(
         documentId: String,
         workspaceId: String
-    ): Document? = withDbContext {
-        documentRepository.findByIdAndWorkspaceId(documentId, workspaceId)
-    }
+    ): Document? = documentRepository.findByIdAndWorkspaceId(documentId, workspaceId)
 
-    suspend fun getDocumentContent(document: Document): InputStreamProvider {
+    fun getDocumentContent(document: Document): InputStreamProvider {
         val workspace = workspacesService.getWorkspace(document.workspaceId)
         return getDocumentStorageById(document.storageId).getDocumentContent(
             workspace,
@@ -76,29 +71,25 @@ class DocumentsService(
     private fun getDocumentStorageById(storageId: String) = documentsStorages
         .first { it.getId() == storageId }
 
-    suspend fun validateDocuments(workspaceId: String, documentsIds: Collection<String>) {
-        val validDocumentsIds = withDbContext {
-            documentRepository.findValidIds(documentsIds, workspaceId)
-        }
+    fun validateDocuments(workspaceId: String, documentsIds: Collection<String>) {
+        val validDocumentsIds = documentRepository.findValidIds(documentsIds, workspaceId)
         val notValidDocumentsIds = documentsIds.minus(validDocumentsIds)
         if (notValidDocumentsIds.isNotEmpty()) {
             throw EntityNotFoundException("Documents $notValidDocumentsIds are not found")
         }
     }
 
-    suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
+    fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
         val userStorage = getDocumentStorageByUser(platformUsersService.getCurrentUser().id!!)
         return userStorage?.getCurrentUserStorageStatus() ?: DocumentsStorageStatus(false)
     }
 
-    suspend fun getDocumentsStorageStatistics(): List<DocumentStorageStatisticsRecord> {
+    fun getDocumentsStorageStatistics(): List<DocumentStorageStatisticsRecord> {
         val currentUser = platformUsersService.getCurrentUser()
-        return withDbContext {
-            documentRepository.getStorageStatsByOwner(currentUser.id!!)
-        }
+        return documentRepository.getStorageStatsByOwner(currentUser.id!!)
     }
 
-    suspend fun getDownloadAvailableStorages(): List<String> = runAsWorkspaceOwnerIfTransient {
+    fun getDownloadAvailableStorages(): List<String> = runAsWorkspaceOwnerIfTransient {
         val ownerId = platformUsersService.getCurrentUser().id!!
         documentsStorages
             .filter { it.isDownloadAvailableForUser(ownerId) }
@@ -106,7 +97,7 @@ class DocumentsService(
             .sorted()
     }
 
-    suspend fun getDownloadToken(workspaceId: String, documentId: String): String {
+    fun getDownloadToken(workspaceId: String, documentId: String): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
@@ -115,14 +106,12 @@ class DocumentsService(
         }
     }
 
-    suspend fun deleteDocument(workspaceId: String, documentId: String) {
+    fun deleteDocument(workspaceId: String, documentId: String) {
         val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val document = getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
 
-        val documentUsages = withDbContext {
-            documentRepository.findUsagesByDocumentIds(listOf(documentId))[documentId].orEmpty()
-        }
+        val documentUsages = documentRepository.findUsagesByDocumentIds(listOf(documentId))[documentId].orEmpty()
         if (documentUsages.isNotEmpty()) {
             throw DocumentIsUsedException(documentId)
         }
@@ -131,12 +120,10 @@ class DocumentsService(
             workspace,
             document.storageLocation ?: throw IllegalStateException("$document has not location assigned")
         )
-        withDbContext {
-            documentRepository.delete(document)
-        }
+        documentRepository.delete(document)
     }
 
-    suspend fun getUploadToken(workspaceId: String): String {
+    fun getUploadToken(workspaceId: String): String {
         workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val userName = getCurrentPrincipal().userName
         return tokenGenerator.generateToken(tokenLength = 30)
@@ -150,7 +137,7 @@ class DocumentsService(
             }
     }
 
-    suspend fun saveDocumentByUploadToken(
+    fun saveDocumentByUploadToken(
         token: String,
         fileName: String,
         content: InputStreamProvider,
@@ -172,7 +159,7 @@ class DocumentsService(
         }
     }
 
-    private suspend fun <T> runAsWorkspaceOwnerIfTransient(block: suspend () -> T): T {
+    private fun <T> runAsWorkspaceOwnerIfTransient(block: () -> T): T {
         val principal = getCurrentPrincipal()
         return if (principal.isTransient) {
             val workspace = workspacesService.getWorkspaceByValidAccessToken(principal.userName)
@@ -185,10 +172,9 @@ class DocumentsService(
 
     override fun getId(): String = DocumentsService::class.simpleName!!
 
-    override suspend fun getContent(metadata: DocumentDownloadMetadata): DownloadContentResponse {
-        val document = withDbContext {
-            documentRepository.findByIdOrNull(metadata.documentId)
-        } ?: throw EntityNotFoundException("Document ${metadata.documentId} is not found")
+    override fun getContent(metadata: DocumentDownloadMetadata): DownloadContentResponse {
+        val document = documentRepository.findByIdOrNull(metadata.documentId)
+            ?: throw EntityNotFoundException("Document ${metadata.documentId} is not found")
 
         return DownloadContentResponse(
             content = getDocumentContent(document),

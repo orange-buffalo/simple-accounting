@@ -8,13 +8,10 @@ import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
-import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
+import io.orangebuffalo.simpleaccounting.business.security.runWithAuthentication
 import io.orangebuffalo.simpleaccounting.infra.graphql.SUBSCRIPTION_AUTHENTICATION_KEY
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.security.core.Authentication
-import kotlin.coroutines.EmptyCoroutineContext
 
 private val log = KotlinLogging.logger { }
 
@@ -29,18 +26,18 @@ class RequiredAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
         if (authType == RequiredAuth.AuthType.ANONYMOUS) {
             environment.setDataFetcher { env ->
                 log.trace { "This operation supports anonymous access, not checking the authorization" }
-                originalDataFetcher.get(env)
+                val authentication = env.graphQlContext
+                    .get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
+                runWithAuthentication(authentication) {
+                    originalDataFetcher.get(env)
+                }
             }
         } else {
             environment.setDataFetcher { env ->
                 log.trace { "This operation requires authenticated context, verifying" }
-                // coroutine context is required to get the security context
-                val coroutineScope = env.graphQlContext.get<CoroutineScope>()
-                    ?: CoroutineScope(EmptyCoroutineContext)
-                val principal = runBlocking(coroutineScope.coroutineContext) {
-                    getCurrentPrincipalOrNull()
-                } ?: env.graphQlContext.get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
-                    ?.let { it.principal as? SecurityPrincipal }
+                val authentication = env.graphQlContext
+                    .get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
+                val principal = authentication?.principal as? SecurityPrincipal
                 var authCheckSucceeded = true
                 if (principal == null) {
                     authCheckSucceeded = false
@@ -70,7 +67,9 @@ class RequiredAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
                     }
                 }
                 if (authCheckSucceeded) {
-                    return@setDataFetcher originalDataFetcher.get(env)
+                    return@setDataFetcher runWithAuthentication(authentication) {
+                        originalDataFetcher.get(env)
+                    }
                 }
                 throw SaGrapQlException(
                     message = "User is not authenticated",

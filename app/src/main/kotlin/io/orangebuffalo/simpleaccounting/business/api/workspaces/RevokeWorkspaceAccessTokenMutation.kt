@@ -17,7 +17,7 @@ class RevokeWorkspaceAccessTokenMutation(
     @Suppress("unused")
     @GraphQLDescription("Revokes and removes a workspace access token.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun revokeWorkspaceAccessToken(
+    fun revokeWorkspaceAccessToken(
         @GraphQLDescription("ID of the workspace access token to revoke.")
         accessTokenId: String,
     ): Boolean {

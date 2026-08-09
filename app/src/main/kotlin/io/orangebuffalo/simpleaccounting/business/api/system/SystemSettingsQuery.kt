@@ -13,7 +13,7 @@ class SystemSettingsQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns the system settings.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun systemSettings(): SystemSettings {
+    fun systemSettings(): SystemSettings {
         return SystemSettings(
             localFileSystemDocumentsStorageEnabled = localFileSystemDocumentsStorageProperties.enabled,
         )

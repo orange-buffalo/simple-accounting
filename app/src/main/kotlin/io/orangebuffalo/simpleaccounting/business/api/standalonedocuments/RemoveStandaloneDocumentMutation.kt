@@ -17,7 +17,7 @@ class RemoveStandaloneDocumentMutation(
     @Suppress("unused")
     @GraphQLDescription("Removes a standalone document from the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun removeStandaloneDocument(
+    fun removeStandaloneDocument(
         @GraphQLDescription("ID of the workspace the standalone document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the standalone document to remove.")

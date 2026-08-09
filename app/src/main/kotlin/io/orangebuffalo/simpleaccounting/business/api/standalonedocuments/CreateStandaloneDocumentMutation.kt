@@ -19,7 +19,7 @@ class CreateStandaloneDocumentMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new standalone document in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createStandaloneDocument(
+    fun createStandaloneDocument(
         @GraphQLDescription("ID of the workspace to create the standalone document in.")
         workspaceId: String,
         @GraphQLDescription("Title of the standalone document.")
