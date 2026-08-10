@@ -22,11 +22,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.servlet.client.RestTestClient
 
 @DisplayName("Documents Upload API")
 class DocumentsUploadApiTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: RestTestClient,
     @Autowired private val tokensRepository: TokensRepository,
 ) : SaIntegrationTestBase() {
 
@@ -40,7 +40,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .exchange()
                 .expectStatus().isOk
         }
@@ -49,7 +50,8 @@ class DocumentsUploadApiTest(
         fun `should return 404 when token is not found`() {
             client.post()
                 .uri("/api/documents/upload/invalid-token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .verifyNotFound("Token invalid-token is not found")
         }
 
@@ -59,7 +61,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .verifyOkAndJsonBodyEqualTo {
                     put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
@@ -94,7 +97,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(body.build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
                 .verifyOkAndJsonBodyEqualTo {
                     put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
@@ -124,7 +128,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(body.build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
                 .exchange()
                 .expectStatus().isOk
         }
@@ -135,7 +140,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .exchange()
                 .expectStatus().isOk
 

@@ -58,10 +58,9 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test") {
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    testImplementation("org.springframework:spring-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation(libs.jsonUnit.kotest)

@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ContentDisposition
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.servlet.client.RestTestClient
 import java.nio.charset.StandardCharsets
 
 @DisplayName("Documents Content API")
 class DocumentsContentApiTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: RestTestClient,
     @Autowired private val downloadsService: DownloadsService,
     @Autowired private val documentsService: DocumentsService,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,

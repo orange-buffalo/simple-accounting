@@ -12,14 +12,11 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
-import org.springframework.web.reactive.socket.WebSocketMessage
-import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import reactor.core.Disposable
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.core.publisher.Sinks
 import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.WebSocket
 import java.time.Duration
+import java.util.concurrent.CompletionStage
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -132,45 +129,42 @@ class PushNotificationsSubscriptionTest(
         val wsUri = URI("ws://localhost:$port/api/graphql/subscriptions")
         val jwtToken = jwtService.buildJwtToken(user.toSecurityPrincipal())
         val probeEventName = "probe-${System.nanoTime()}"
-
-        val client = ReactorNettyWebSocketClient(
-            reactor.netty.http.client.HttpClient.create()
-        ) {
-            reactor.netty.http.client.WebsocketClientSpec.builder()
-                .protocols("graphql-transport-ws")
-        }
-
-        val outgoingSink = Sinks.many().unicast().onBackpressureBuffer<String>()
-
-        val webSocketSession = client.execute(wsUri) { session ->
-            val connectionInit = objectMapper.writeValueAsString(
-                mapOf(
-                    "type" to "connection_init",
-                    "payload" to mapOf("token" to jwtToken)
+        val connectionInit = objectMapper.writeValueAsString(
+            mapOf(
+                "type" to "connection_init",
+                "payload" to mapOf("token" to jwtToken)
+            )
+        )
+        val subscribe = objectMapper.writeValueAsString(
+            mapOf(
+                "id" to "1",
+                "type" to "subscribe",
+                "payload" to mapOf(
+                    "query" to "subscription { pushNotifications { eventName data } }"
                 )
             )
+        )
+        val messageBuffer = StringBuilder()
+        val listener = object : WebSocket.Listener {
+            override fun onOpen(webSocket: WebSocket) {
+                webSocket.request(1)
+                webSocket.sendText(connectionInit, true)
+            }
 
-            val subscribe = objectMapper.writeValueAsString(
-                mapOf(
-                    "id" to "1",
-                    "type" to "subscribe",
-                    "payload" to mapOf(
-                        "query" to "subscription { pushNotifications { eventName data } }"
-                    )
-                )
-            )
-
-            val outgoing = Flux.concat(Mono.just(connectionInit), outgoingSink.asFlux())
-                .map { session.textMessage(it) }
-
-            val incoming = session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .doOnNext { text ->
+            override fun onText(
+                webSocket: WebSocket,
+                data: CharSequence,
+                last: Boolean,
+            ): CompletionStage<*>? {
+                messageBuffer.append(data)
+                if (last) {
+                    val text = messageBuffer.toString()
+                    messageBuffer.setLength(0)
                     val json = objectMapper.readTree(text)
                     when (json.get("type")?.asText()) {
                         "connection_ack" -> {
                             connectionAcknowledged.set(true)
-                            outgoingSink.tryEmitNext(subscribe)
+                            webSocket.sendText(subscribe, true)
                         }
                         "next" -> {
                             if (json.payloadEventName() == probeEventName) {
@@ -181,12 +175,19 @@ class PushNotificationsSubscriptionTest(
                         }
                     }
                 }
-                .then()
+                webSocket.request(1)
+                return null
+            }
 
-            Mono.zip(session.send(outgoing), incoming).then()
+            override fun onError(webSocket: WebSocket, error: Throwable) {
+                connectionError.set(error)
+            }
         }
-            .doOnError(connectionError::set)
-            .subscribe()
+        val webSocketSession = HttpClient.newHttpClient()
+            .newWebSocketBuilder()
+            .subprotocols("graphql-transport-ws")
+            .buildAsync(wsUri, listener)
+            .join()
 
         await().atMost(asyncTimeout).untilAsserted {
             connectionError.get()?.let { throw AssertionError("WebSocket subscription failed", it) }
@@ -228,12 +229,12 @@ class PushNotificationsSubscriptionTest(
 
     private data class NotificationsSubscription(
         private val receivedMessages: CopyOnWriteArrayList<String>,
-        private val webSocketSession: Disposable,
+        private val webSocketSession: WebSocket,
     ) {
         fun getReceivedMessages(): List<String> = receivedMessages.toList()
 
         fun dispose() {
-            webSocketSession.dispose()
+            webSocketSession.abort()
         }
     }
 }

@@ -29,15 +29,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ContentDisposition
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
 import java.nio.charset.StandardCharsets
 
 @DisplayName("createDocumentDownloadUrl mutation")
 class CreateDocumentDownloadUrlMutationTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val tokensRepository: TokensRepository,
-    @Autowired private val webTestClient: WebTestClient,
+    @Autowired private val restTestClient: RestTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
     @Value($$"${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
@@ -241,7 +241,7 @@ class CreateDocumentDownloadUrlMutationTest(
                 .shouldNotBeNull()
             val downloadPath = downloadUrl.removePrefix("http://localhost:$serverPort")
 
-            webTestClient.get()
+            restTestClient.get()
                 .uri(downloadPath)
                 .exchange()
                 .expectStatus().isOk

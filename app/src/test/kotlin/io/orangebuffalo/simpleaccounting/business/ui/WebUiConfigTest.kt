@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.CacheControl
 import org.springframework.http.MediaType.TEXT_HTML
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
 import java.time.Duration
 
 internal class WebUiConfigTest(
-    @Autowired val client: WebTestClient
+    @Autowired val client: RestTestClient
 ) : SaIntegrationTestBase() {
 
     @Test

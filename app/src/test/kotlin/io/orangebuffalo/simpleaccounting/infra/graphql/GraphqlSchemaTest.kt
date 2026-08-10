@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestConfig
 import mu.KotlinLogging
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.servlet.client.expectBody
 import java.nio.file.Files
 import java.nio.file.Path
 
