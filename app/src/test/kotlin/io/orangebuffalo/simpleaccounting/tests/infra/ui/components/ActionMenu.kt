@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
@@ -97,7 +98,9 @@ class ActionMenu private constructor(
         .filter(Locator.FilterOptions().setHasText(label))
 
     private fun close() {
+        val activePopover = popover()
         trigger.click()
+        activePopover.shouldBeHidden()
     }
 
     companion object {
