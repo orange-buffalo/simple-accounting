@@ -6,18 +6,16 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2FailedEvent
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2SucceededEvent
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.documents.storage.*
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.impl.DriveFileNotFoundException
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.impl.FolderResponse
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.impl.GoogleDriveApiAdapter
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import org.springframework.context.event.EventListener
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 const val AUTH_EVENT_NAME = "storage.google-drive.auth"
@@ -34,10 +32,10 @@ class GoogleDriveDocumentsStorage(
     private val timeService: TimeService
 ) : DocumentsStorage {
 
-    private val workspaceFolderMutex = Mutex()
+    private val workspaceFolderLock = ReentrantLock()
 
-    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
-        val integration = withDbContext { repository.findByUserId(request.workspace.ownerId) }
+    override fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
+        val integration = repository.findByUserId(request.workspace.ownerId)
             ?: throw StorageAuthorizationRequiredException()
 
         val workspaceFolder = getOrCreateWorkspaceFolder(request, integration)
@@ -64,7 +62,7 @@ class GoogleDriveDocumentsStorage(
         }
     }
 
-    private suspend fun getOrCreateWorkspaceFolder(
+    private fun getOrCreateWorkspaceFolder(
         request: SaveDocumentRequest,
         integration: GoogleDriveStorageIntegration
     ): String {
@@ -78,29 +76,29 @@ class GoogleDriveDocumentsStorage(
 
         // we consider a global lock acceptable here as creation of new workspace folder is a rare operation
         // the lock prevents multiple folders to be created for the same workspace in case of parallel upload requests
-        return workspaceFolderMutex.withLock {
+        return workspaceFolderLock.withLock {
             googleDriveApi.createFolder(workspaceFolderName, integration.folderId).id
         }
     }
 
     override fun getId(): String = "google-drive"
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> =
+    override fun getDocumentContent(workspace: Workspace, storageLocation: String): InputStreamProvider =
         googleDriveApi.downloadFile(storageLocation)
 
-    override suspend fun deleteDocument(workspace: Workspace, storageLocation: String) {
+    override fun deleteDocument(workspace: Workspace, storageLocation: String) {
         googleDriveApi.deleteFile(storageLocation)
     }
 
-    override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
+    override fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
         val integrationStatus = getCurrentUserIntegrationStatus()
         return DocumentsStorageStatus(
             active = !integrationStatus.authorizationRequired
         )
     }
 
-    override suspend fun isDownloadAvailableForUser(userId: String): Boolean {
-        val integration = withDbContext { repository.findByUserId(userId) } ?: return false
+    override fun isDownloadAvailableForUser(userId: String): Boolean {
+        val integration = repository.findByUserId(userId) ?: return false
         if (integration.folderId == null) return false
         return try {
             ensureRootFolder(integration)
@@ -111,7 +109,7 @@ class GoogleDriveDocumentsStorage(
         }
     }
 
-    private suspend fun buildAuthorizationUrl(): String = clientAuthorizationProvider
+    private fun buildAuthorizationUrl(): String = clientAuthorizationProvider
         .buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))
 
     @EventListener
@@ -119,10 +117,8 @@ class GoogleDriveDocumentsStorage(
         .executeInSourceContext(OAUTH2_CLIENT_REGISTRATION_ID) {
 
             val user = authSucceededEvent.user
-            val integration = withDbContext {
-                repository.findByUserId(user.id!!)
-                    ?: GoogleDriveStorageIntegration(userId = user.id!!)
-            }
+            val integration = repository.findByUserId(user.id!!)
+                ?: GoogleDriveStorageIntegration(userId = user.id!!)
 
             val (rootFolder, savedIntegration) = ensureRootFolder(integration)
 
@@ -150,7 +146,7 @@ class GoogleDriveDocumentsStorage(
             )
         }
 
-    private suspend fun ensureRootFolder(
+    private fun ensureRootFolder(
         integration: GoogleDriveStorageIntegration
     ): Pair<FolderResponse, GoogleDriveStorageIntegration> {
         log.debug { "Ensuring root folder for Google Drive integration $integration" }
@@ -170,14 +166,12 @@ class GoogleDriveDocumentsStorage(
             }
     }
 
-    suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
+    fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
         val currentUser = userService.getCurrentUser()
         log.debug { "Getting Google Drive integration status for user ${currentUser.id}" }
 
-        val integration = withDbContext {
-            repository.findByUserId(currentUser.id!!)
-                ?: repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
-        }
+        val integration = repository.findByUserId(currentUser.id!!)
+            ?: repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
 
         val integrationStatus = GoogleDriveStorageIntegrationStatus(
             folderId = integration.folderId,

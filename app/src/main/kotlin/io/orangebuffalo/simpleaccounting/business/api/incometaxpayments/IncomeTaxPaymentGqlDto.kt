@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import java.time.LocalDate
+import java.util.concurrent.CompletableFuture
 
 @GraphQLName("IncomeTaxPayment")
 @GraphQLDescription("An income tax payment in a workspace.")
@@ -36,8 +37,8 @@ data class IncomeTaxPaymentGqlDto(
     @GraphQLIgnore val attachmentIds: List<String>,
 ) {
     @GraphQLDescription("Documents attached to this income tax payment.")
-    suspend fun attachments(env: DataFetchingEnvironment): List<DocumentGqlDto> {
-        if (attachmentIds.isEmpty()) return emptyList()
+    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
+        if (attachmentIds.isEmpty()) return CompletableFuture.completedFuture(emptyList())
         return env.loadDocumentsByIds(attachmentIds)
     }
 }

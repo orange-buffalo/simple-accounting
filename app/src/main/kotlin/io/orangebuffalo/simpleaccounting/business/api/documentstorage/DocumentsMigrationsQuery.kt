@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
@@ -26,7 +26,7 @@ class DocumentsMigrationsQuery(
             "Results are sorted by creation time descending by default, newest first."
     )
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun documentsMigrations(
+    fun documentsMigrations(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

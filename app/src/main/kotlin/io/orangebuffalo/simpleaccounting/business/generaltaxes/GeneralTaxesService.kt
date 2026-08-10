@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.generaltaxes
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import org.springframework.stereotype.Service
 
@@ -12,21 +11,19 @@ class GeneralTaxesService(
     private val workspacesService: WorkspacesService
 ) {
 
-    suspend fun saveTax(tax: GeneralTax): GeneralTax {
+    fun saveTax(tax: GeneralTax): GeneralTax {
         workspacesService.getAccessibleWorkspace(tax.workspaceId, WorkspaceAccessMode.READ_WRITE)
-        return withDbContext { repository.save(tax) }
+        return repository.save(tax)
     }
 
-    suspend fun getTaxByIdAndWorkspace(id: String, workspaceId: String): GeneralTax? = withDbContext {
+    fun getTaxByIdAndWorkspace(id: String, workspaceId: String): GeneralTax? =
         repository.findByIdAndWorkspaceId(id, workspaceId)
-    }
 
-    suspend fun getValidGeneralTax(taxId: String, workspaceId: String): GeneralTax? = withDbContext {
+    fun getValidGeneralTax(taxId: String, workspaceId: String): GeneralTax? =
         repository.findByIdAndWorkspaceId(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
-    }
 
-    suspend fun validateGeneralTax(taxId: String, workspaceId: String) = withDbContext {
+    fun validateGeneralTax(taxId: String, workspaceId: String) {
         if (!repository.existsByIdAndWorkspaceId(taxId, workspaceId)) {
             throw EntityNotFoundException("Tax $taxId is not found")
         }

@@ -19,7 +19,7 @@ class InvoicesGqlApi(
     private val customer = Tables.CUSTOMER
     private val invoiceAttachments = Tables.INVOICE_ATTACHMENTS
 
-    suspend fun loadInvoices(
+    fun loadInvoices(
         workspaceId: String,
         first: Int,
         after: String?,
@@ -85,7 +85,7 @@ class InvoicesGqlApi(
             )
     }
 
-    suspend fun loadInvoice(workspaceId: String, invoiceId: String): InvoiceGqlDto? {
+    fun loadInvoice(workspaceId: String, invoiceId: String): InvoiceGqlDto? {
         return invoicesService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
             ?.toInvoiceGqlDto(workspaceId)
     }

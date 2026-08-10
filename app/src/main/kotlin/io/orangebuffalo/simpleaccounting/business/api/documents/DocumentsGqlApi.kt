@@ -30,7 +30,7 @@ class DocumentsGqlApi(
     private val invoice = Tables.INVOICE
     private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
 
-    suspend fun loadDocuments(
+    fun loadDocuments(
         workspaceId: String,
         first: Int,
         after: String?,

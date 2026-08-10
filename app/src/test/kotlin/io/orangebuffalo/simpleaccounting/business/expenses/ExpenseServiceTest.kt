@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import kotlinx.coroutines.runBlocking
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -580,10 +579,8 @@ internal class ExpenseServiceTest(
         expectedStatus: ExpenseStatus,
         expectedUseDifferentExchangeRates: Boolean
     ) {
-        val actualExpense = runBlocking {
-            runAs(preconditions.fry.toSecurityPrincipal()) {
-                expenseService.saveExpense(expense)
-            }
+        val actualExpense = runAs(preconditions.fry.toSecurityPrincipal()) {
+            expenseService.saveExpense(expense)
         }
 
         actualExpense.originalAmount.shouldBe(expectedOriginalAmount)

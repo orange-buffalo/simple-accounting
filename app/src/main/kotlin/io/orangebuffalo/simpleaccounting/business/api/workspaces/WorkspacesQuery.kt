@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
@@ -20,7 +20,7 @@ class WorkspacesQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns all workspaces accessible by the current user with cursor-based pagination.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun workspaces(
+    fun workspaces(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
@@ -22,7 +22,7 @@ class CreateDocumentDownloadUrlMutation(
                 "The URL does not require authentication."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
-    suspend fun createDocumentDownloadUrl(
+    fun createDocumentDownloadUrl(
         @GraphQLDescription("ID of the workspace the document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the document to create a download URL for.")

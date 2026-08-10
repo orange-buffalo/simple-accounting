@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.workspaces
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -15,7 +14,7 @@ class WorkspaceAccessTokensService(
     private val tokenGenerator: TokenGenerator
 ) {
 
-    suspend fun createAccessToken(workspace: Workspace, validTill: Instant): WorkspaceAccessToken = withDbContext {
+    fun createAccessToken(workspace: Workspace, validTill: Instant): WorkspaceAccessToken {
         val token = WorkspaceAccessToken(
             workspaceId = workspace.id!!,
             validTill = validTill,
@@ -23,19 +22,16 @@ class WorkspaceAccessTokensService(
             timeCreated = timeService.currentTime(),
             token = tokenGenerator.generateToken()
         )
-        repository.save(token)
+        return repository.save(token)
     }
 
-    suspend fun getValidToken(token: String): WorkspaceAccessToken? = withDbContext {
-        repository.findValidByToken(token)
-    }
+    fun getValidToken(token: String): WorkspaceAccessToken? = repository.findValidByToken(token)
 
-    suspend fun getToken(accessTokenId: String): WorkspaceAccessToken = withDbContext {
+    fun getToken(accessTokenId: String): WorkspaceAccessToken =
         repository.findById(accessTokenId)
             .orElseThrow { EntityNotFoundException("Workspace access token $accessTokenId is not found") }
-    }
 
-    suspend fun deleteAccessToken(accessToken: WorkspaceAccessToken) = withDbContext {
+    fun deleteAccessToken(accessToken: WorkspaceAccessToken) {
         savedWorkspaceAccessTokensRepository.deleteByWorkspaceAccessTokenId(accessToken.id!!)
         repository.delete(accessToken)
     }

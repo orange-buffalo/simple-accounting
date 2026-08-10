@@ -1,19 +1,15 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.withContext
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
-import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ClientRegistration
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.OAuth2Error
@@ -26,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.coroutines.coroutineContext
 import kotlin.streams.asSequence
 
 private const val STATE_TOKEN_LENGTH = 20L
@@ -37,9 +32,9 @@ private const val STATE_TOKEN_LENGTH = 20L
 @Service
 class OAuth2ClientAuthorizationProvider(
     private val savedRequestRepository: SavedAuthorizationRequestRepository,
-    private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    private val userService: PlatformUsersService,
-    private val accessTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
+    private val clientRegistrationRepository: ClientRegistrationRepository,
+    private val platformUsersRepository: PlatformUsersRepository,
+    private val accessTokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val persistentAuthorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
     private val eventPublisher: ApplicationEventPublisher
 ) {
@@ -53,12 +48,14 @@ class OAuth2ClientAuthorizationProvider(
      * After authorization, user will be redirected to the callback URL handled by
      * [io.orangebuffalo.simpleaccounting.business.api.CompleteOAuth2FlowMutation].
      */
-    suspend fun buildAuthorizationUrl(
+    fun buildAuthorizationUrl(
         clientRegistrationId: String,
         additionalParameters: Map<String, String> = emptyMap()
     ): String {
         val clientRegistration = getClientRegistration(clientRegistrationId)
-        val currentUser = userService.getCurrentUser()
+        val userName = getCurrentPrincipal().userName
+        val currentUser = platformUsersRepository.findByUserName(userName)
+            ?: throw IllegalStateException("User $userName is not found")
         val state = createStateToken(currentUser)
         val authorizationRequest = buildAuthorizationRequest(clientRegistration, state, additionalParameters)
         savedRequestRepository.save(
@@ -86,9 +83,8 @@ class OAuth2ClientAuthorizationProvider(
         return String(Base64.getEncoder().encode(rawToken.toByteArray(StandardCharsets.UTF_8)))
     }
 
-    private suspend fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
+    private fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
         return clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-            .awaitFirstOrNull()
             ?: throw IllegalArgumentException("$clientRegistrationId is not known")
     }
 
@@ -130,7 +126,7 @@ class OAuth2ClientAuthorizationProvider(
      * If authorization is successful, [OAuth2SucceededEvent] is emitted. If authorization is not granted,
      * [OAuth2FailedEvent] is emitted.
      */
-    suspend fun handleAuthorizationResponse(callbackRequest: OAuth2AuthorizationCallbackRequest) {
+    fun handleAuthorizationResponse(callbackRequest: OAuth2AuthorizationCallbackRequest) {
         val savedRequest = savedRequestRepository.findByStateAndRemove(callbackRequest.state)
 
         if (callbackRequest.error != null || callbackRequest.code == null) {
@@ -144,19 +140,18 @@ class OAuth2ClientAuthorizationProvider(
         }
     }
 
-    private suspend fun publishFailedAuthEvent(savedRequest: SavedAuthorizationRequest) = publishAuthEvent(
+    private fun publishFailedAuthEvent(savedRequest: SavedAuthorizationRequest) = publishAuthEvent(
         event = OAuth2FailedEvent(
             user = savedRequest.owner,
             clientRegistrationId = savedRequest.clientRegistrationId,
-            context = coroutineContext,
         )
     )
 
-    private suspend fun publishAuthEvent(event: Any) = withContext(Dispatchers.Default) {
+    private fun publishAuthEvent(event: Any) {
         eventPublisher.publishEvent(event)
     }
 
-    private suspend fun handleSuccessfulAuthorization(
+    private fun handleSuccessfulAuthorization(
         savedRequest: SavedAuthorizationRequest,
         code: String
     ) {
@@ -178,36 +173,33 @@ class OAuth2ClientAuthorizationProvider(
         )
 
         val tokenResponse = try {
-            accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitSingle()
+            accessTokenResponseClient.getTokenResponse(codeGrantRequest)
         } catch (e: OAuth2AuthorizationException) {
             publishFailedAuthEvent(savedRequest)
             throw e
         }
 
-        withDbContext {
-            persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
-                clientRegistration.registrationId, savedRequest.owner.userName
-            )
+        persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
+            clientRegistration.registrationId, savedRequest.owner.userName
+        )
 
-            persistentAuthorizedClientRepository.save(
-                PersistentOAuth2AuthorizedClient(
-                    clientRegistrationId = clientRegistration.registrationId,
-                    accessTokenScopes = authorizationRequest.scopes.map { ClientTokenScope(it) }.toSet(),
-                    userName = savedRequest.owner.userName,
-                    accessToken = tokenResponse.accessToken.tokenValue,
-                    accessTokenIssuedAt = tokenResponse.accessToken.issuedAt,
-                    accessTokenExpiresAt = tokenResponse.accessToken.expiresAt,
-                    refreshToken = tokenResponse.refreshToken?.tokenValue,
-                    refreshTokenIssuedAt = tokenResponse.refreshToken?.issuedAt
-                )
+        persistentAuthorizedClientRepository.save(
+            PersistentOAuth2AuthorizedClient(
+                clientRegistrationId = clientRegistration.registrationId,
+                accessTokenScopes = authorizationRequest.scopes.map { ClientTokenScope(it) }.toSet(),
+                userName = savedRequest.owner.userName,
+                accessToken = tokenResponse.accessToken.tokenValue,
+                accessTokenIssuedAt = tokenResponse.accessToken.issuedAt,
+                accessTokenExpiresAt = tokenResponse.accessToken.expiresAt,
+                refreshToken = tokenResponse.refreshToken?.tokenValue,
+                refreshTokenIssuedAt = tokenResponse.refreshToken?.issuedAt
             )
-        }
+        )
 
         publishAuthEvent(
             event = OAuth2SucceededEvent(
                 user = savedRequest.owner,
                 clientRegistrationId = savedRequest.clientRegistrationId,
-                context = coroutineContext,
             )
         )
     }

@@ -4,7 +4,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersRepository
-import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import io.orangebuffalo.simpleaccounting.infra.graphql.newMappedDataLoader
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -21,7 +21,7 @@ class CustomerByWorkspaceAndIdDataLoader(
     override val dataLoaderName: String = NAME
 
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceCustomerKey, CustomerGqlDto> =
-        newAsyncMappedDataLoader { keys ->
+        newMappedDataLoader { keys ->
             val customerIds = keys.map { it.customerId }.toSet()
             val customers = customersRepository.findAllById(customerIds)
             customers.associate { customer ->

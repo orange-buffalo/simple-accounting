@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.invoices
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
@@ -21,7 +21,7 @@ class CreateInvoiceMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new invoice in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createInvoice(
+    fun createInvoice(
         @GraphQLDescription("ID of the workspace to create the invoice in.")
         workspaceId: String,
         @GraphQLDescription("ID of the customer for this invoice.")

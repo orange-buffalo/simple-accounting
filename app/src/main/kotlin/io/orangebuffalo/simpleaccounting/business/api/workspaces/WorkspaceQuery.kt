@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -14,7 +14,7 @@ class WorkspaceQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns a workspace by its ID, if accessible by the current user.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
-    suspend fun workspace(
+    fun workspace(
         @GraphQLDescription("ID of the workspace.") id: String,
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.READ_ONLY)

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.profile
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
@@ -17,7 +17,7 @@ class UserProfileQuery(
                 "Current is defined as the user that is authenticated in the current request."
     )
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun userProfile(): UserProfile {
+    fun userProfile(): UserProfile {
         return platformUsersService
             .getCurrentUser()
             .mapToProfileDto()

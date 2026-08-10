@@ -10,19 +10,18 @@ import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ContentDisposition
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.servlet.client.RestTestClient
 import java.nio.charset.StandardCharsets
 
 @DisplayName("Documents Content API")
 class DocumentsContentApiTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: RestTestClient,
     @Autowired private val downloadsService: DownloadsService,
     @Autowired private val documentsService: DocumentsService,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
@@ -78,13 +77,11 @@ class DocumentsContentApiTest(
     private fun createDownloadToken(): String {
         testDocumentsStorage.mockDocumentContent("planet-express-receipt-location", documentContent)
 
-        return runBlocking {
-            runAs(preconditions.fry.toSecurityPrincipal()) {
-                downloadsService.createDownloadToken(
-                    documentsService,
-                    DocumentDownloadMetadata(preconditions.document.id!!)
-                )
-            }
+        return runAs(preconditions.fry.toSecurityPrincipal()) {
+            downloadsService.createDownloadToken(
+                documentsService,
+                DocumentDownloadMetadata(preconditions.document.id!!)
+            )
         }
     }
 

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
@@ -18,7 +18,7 @@ class CreateWorkspaceAccessTokenMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new access token for sharing workspace access.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createWorkspaceAccessToken(
+    fun createWorkspaceAccessToken(
         @GraphQLDescription("ID of the workspace to create the token for.")
         workspaceId: String,
         @GraphQLDescription("The expiration time of the token.")

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.standalonedocuments
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocumentsService
@@ -19,7 +19,7 @@ class CreateStandaloneDocumentMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new standalone document in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createStandaloneDocument(
+    fun createStandaloneDocument(
         @GraphQLDescription("ID of the workspace to create the standalone document in.")
         workspaceId: String,
         @GraphQLDescription("Title of the standalone document.")

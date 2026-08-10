@@ -28,7 +28,9 @@ apply<SaDgsCodegenPlugin>()
 val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-graphql")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
@@ -37,22 +39,16 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation(libs.kotlinLogging)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.reactive)
-    implementation(libs.kotlinx.coroutines.reactor)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.dateTime)
 
     implementation(libs.jooq)
     implementation(libs.jjwt.api)
     implementation(libs.commonsLang3)
-    implementation(libs.graphqlKotlin.springServer)
+    implementation(libs.graphqlKotlin.schemaGenerator)
+    implementation(libs.graphqlKotlin.dataloader)
+    implementation(libs.graphqlKotlin.federation)
 
-    implementation(libs.ktor.clientCore)
-    implementation(libs.ktor.clientCio)
-    implementation(libs.ktor.contentNegotiation)
-    implementation(libs.ktor.kotlinxJson)
-    implementation(libs.ktor.auth)
 
     runtimeOnly("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("com.h2database:h2")
@@ -62,7 +58,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test") {
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
@@ -78,6 +74,7 @@ dependencies {
     testImplementation(libs.rerunnerJupiter)
     testImplementation(libs.zjsonpatch)
     testImplementation(libs.jackson.dataformat.yaml)
+    testImplementation("tools.jackson.module:jackson-module-kotlin")
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.nginx)
     testImplementation(libs.playwright)

@@ -7,9 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesServi
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.infra.executeInParallel
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
@@ -44,26 +41,22 @@ class InvoicesService(
     @Scheduled(cron = "0 1 0 * * *")
     fun moveInvoicesToOverdue() {
         logger.info { "Started moving invoices to overdue" }
-        runBlocking {
-            val overdueInvoices = withDbContext { invoicesRepository.findAllOverdue() }
-            withDbContext { invoicesRepository.saveAll(overdueInvoices.map { it.copy(status = InvoiceStatus.OVERDUE) }) }
-        }
+        val overdueInvoices = invoicesRepository.findAllOverdue()
+        invoicesRepository.saveAll(overdueInvoices.map { it.copy(status = InvoiceStatus.OVERDUE) })
         logger.info { "All eligible invoices moved to overdue state" }
     }
 
     /**
      * If tax is provided, it is always calculated on top of reported amount
      */
-    suspend fun saveInvoice(invoice: Invoice, workspaceId: String): Invoice {
+    fun saveInvoice(invoice: Invoice, workspaceId: String): Invoice {
         validateInvoice(invoice, workspaceId)
-        return withDbContext { invoicesRepository.save(updateInvoiceStatus(invoice)) }
+        return invoicesRepository.save(updateInvoiceStatus(invoice))
     }
 
-    suspend fun cancelInvoice(invoiceId: String, workspaceId: String): Invoice {
-        val invoice = withDbContext {
-            invoicesRepository.findById(invoiceId)
-                .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
-        }
+    fun cancelInvoice(invoiceId: String, workspaceId: String): Invoice {
+        val invoice = invoicesRepository.findById(invoiceId)
+            .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
         val customer = customersService.findById(invoice.customerId)
             ?: throw EntityNotFoundException("Customer ${invoice.customerId} is not found")
         workspacesService.validateWorkspaceAccess(
@@ -75,14 +68,12 @@ class InvoicesService(
             throw EntityNotFoundException("Invoice $invoiceId is not found")
         }
 
-        return withDbContext {
-            invoicesRepository.save(
+        return invoicesRepository.save(
                 invoice.copy(
                     status = InvoiceStatus.CANCELLED,
                     timeCancelled = timeService.currentTime(),
                 )
             )
-        }
     }
 
     private fun updateInvoiceStatus(invoice: Invoice): Invoice = if (invoice.status == InvoiceStatus.CANCELLED) {
@@ -99,22 +90,17 @@ class InvoicesService(
 
     private fun isOverdue(invoice: Invoice) = invoice.dueDate.isBefore(timeService.currentDate())
 
-    private suspend fun validateInvoice(
+    private fun validateInvoice(
         invoice: Invoice,
         workspaceId: String
-    ) = executeInParallel {
-        step {
-            workspacesService.validateWorkspaceAccess(
-                workspaceId,
-                WorkspaceAccessMode.READ_WRITE
-            )
-        }
-        step { validateGeneralTax(invoice, workspaceId) }
-        step { customersService.validateCustomer(invoice.customerId, workspaceId) }
-        step { validateAttachments(invoice, workspaceId) }
+    ) {
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        validateGeneralTax(invoice, workspaceId)
+        customersService.validateCustomer(invoice.customerId, workspaceId)
+        validateAttachments(invoice, workspaceId)
     }
 
-    private suspend fun validateGeneralTax(
+    private fun validateGeneralTax(
         invoice: Invoice,
         workspaceId: String
     ) {
@@ -123,14 +109,13 @@ class InvoicesService(
         }
     }
 
-    private suspend fun validateAttachments(invoice: Invoice, workspaceId: String) {
+    private fun validateAttachments(invoice: Invoice, workspaceId: String) {
         if (invoice.attachments.isNotEmpty()) {
             val attachmentsIds = invoice.attachments.map { it.documentId }
             documentsService.validateDocuments(workspaceId, attachmentsIds)
         }
     }
 
-    suspend fun getInvoiceByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? = withDbContext {
+    fun getInvoiceByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? =
         invoicesRepository.findByIdAndWorkspaceId(id, workspaceId)
-    }
 }

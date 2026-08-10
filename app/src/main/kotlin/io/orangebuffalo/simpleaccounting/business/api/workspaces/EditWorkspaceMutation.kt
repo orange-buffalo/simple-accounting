@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -19,7 +19,7 @@ class EditWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editWorkspace(
+    fun editWorkspace(
         @GraphQLDescription("ID of the workspace to update.")
         id: String,
         @GraphQLDescription("Version of the workspace state used for editing.")

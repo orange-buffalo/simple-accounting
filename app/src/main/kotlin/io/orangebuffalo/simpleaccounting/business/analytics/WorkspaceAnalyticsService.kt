@@ -11,7 +11,7 @@ class WorkspaceAnalyticsService(
     private val expenseService: ExpenseService,
     private val incomesService: IncomesService,
 ) {
-    suspend fun getCurrenciesShortlist(workspace: Workspace): List<String> {
+    fun getCurrenciesShortlist(workspace: Workspace): List<String> {
         val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
         val incomesCurrencies = incomesService.getCurrenciesUsageStatistics(workspace)
         return (expensesCurrencies + incomesCurrencies).asSequence()

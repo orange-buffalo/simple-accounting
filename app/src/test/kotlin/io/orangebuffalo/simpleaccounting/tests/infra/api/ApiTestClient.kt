@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.servlet.client.RestTestClient
 import java.time.Duration
 import java.time.Instant
 
@@ -20,48 +20,48 @@ class ApiTestClientConfig {
 
     @Bean
     fun apiTestClient(
-        webTestClient: WebTestClient,
+        restTestClient: RestTestClient,
         jwtService: JwtService
-    ) = ApiTestClient(webTestClient, jwtService)
+    ) = ApiTestClient(restTestClient, jwtService)
 }
 
 /**
  * A client for testing API endpoints.
- * Is a wrapper around [WebTestClient] that adds JWT authentication capabilities.
+ * Is a wrapper around [RestTestClient] that adds JWT authentication capabilities.
  */
 class ApiTestClient(
-    private val webTestClient: WebTestClient,
+    private val restTestClient: RestTestClient,
     private val jwtService: JwtService,
 ) {
 
-    fun get(): WebTestClient.RequestHeadersUriSpec<*> = webTestClient.get().also {
+    fun get(): RestTestClient.RequestHeadersUriSpec<*> = restTestClient.get().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 
-    fun post(): WebTestClient.RequestBodyUriSpec = webTestClient.post().also {
+    fun post(): RestTestClient.RequestBodyUriSpec = restTestClient.post().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 
-    fun put(): WebTestClient.RequestBodyUriSpec = webTestClient.put().also {
+    fun put(): RestTestClient.RequestBodyUriSpec = restTestClient.put().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 }
 
 /**
- * A helper method to enrich a [WebTestClient.RequestHeadersSpec] with JWT authentication.
+ * A helper method to enrich a [RestTestClient.RequestHeadersSpec] with JWT authentication.
  * Important: this method should only be used for specs created from [ApiTestClient].
  */
-fun <T : WebTestClient.RequestHeadersSpec<*>> T.from(platformUser: PlatformUser): T =
+fun <T : RestTestClient.RequestHeadersSpec<*>> T.from(platformUser: PlatformUser): T =
     this.usingPrincipal(platformUser.toSecurityPrincipal())
 
 /**
- * A helper method to enrich a [WebTestClient.RequestHeadersSpec] with JWT authentication.
+ * A helper method to enrich a [RestTestClient.RequestHeadersSpec] with JWT authentication.
  * Important: this method should only be used for specs created from [ApiTestClient].
  */
-fun <T : WebTestClient.RequestHeadersSpec<*>> T.usingSharedWorkspaceToken(workspaceToken: String): T =
+fun <T : RestTestClient.RequestHeadersSpec<*>> T.usingSharedWorkspaceToken(workspaceToken: String): T =
     this.usingPrincipal(createTransientUserPrincipal(workspaceToken))
 
-private fun <T : WebTestClient.RequestHeadersSpec<*>> T.usingPrincipal(principal: SecurityPrincipal): T {
+private fun <T : RestTestClient.RequestHeadersSpec<*>> T.usingPrincipal(principal: SecurityPrincipal): T {
    attributes {
         val jwtService = it[JWT_SERVICE_ATTRIBUTE_NAME] as JwtService?
             ?: error("This method is only allowed for specs created from ApiTestClient")
@@ -77,8 +77,8 @@ private fun <T : WebTestClient.RequestHeadersSpec<*>> T.usingPrincipal(principal
 /**
  * A helper method to add semantics to the request spec to indicate that the request is anonymous.
  */
-fun WebTestClient.RequestHeadersSpec<*>.fromAnonymous(): WebTestClient.RequestHeadersSpec<*> = headers {
-    it.remove(HttpHeaders.AUTHORIZATION)
+fun <T : RestTestClient.RequestHeadersSpec<*>> T.fromAnonymous(): T = apply {
+    headers { it.remove(HttpHeaders.AUTHORIZATION) }
 }
 
 private const val JWT_SERVICE_ATTRIBUTE_NAME = "sa-tests.jwt-service"

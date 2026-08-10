@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
@@ -23,11 +22,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.servlet.client.RestTestClient
 
 @DisplayName("Documents Upload API")
 class DocumentsUploadApiTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: RestTestClient,
     @Autowired private val tokensRepository: TokensRepository,
 ) : SaIntegrationTestBase() {
 
@@ -41,7 +40,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .exchange()
                 .expectStatus().isOk
         }
@@ -50,7 +50,8 @@ class DocumentsUploadApiTest(
         fun `should return 404 when token is not found`() {
             client.post()
                 .uri("/api/documents/upload/invalid-token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .verifyNotFound("Token invalid-token is not found")
         }
 
@@ -60,7 +61,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .verifyOkAndJsonBodyEqualTo {
                     put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
@@ -95,7 +97,8 @@ class DocumentsUploadApiTest(
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(body.build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
                 .verifyOkAndJsonBodyEqualTo {
                     put("id", "${JsonValues.ANY_STRING}")
                     put("version", 0)
@@ -109,12 +112,36 @@ class DocumentsUploadApiTest(
         }
 
         @Test
+        fun `should upload a document larger than one megabyte`() {
+            val token = createUploadToken()
+            val content = ByteArray(2 * 1024 * 1024) { 42 }
+            val body = MultipartBodyBuilder().apply {
+                part("file", InMemoryResource(content), MediaType.APPLICATION_OCTET_STREAM)
+                    .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.builder("form-data")
+                            .name("file")
+                            .filename("planet-express-manifest.bin")
+                            .build().toString(),
+                    )
+            }
+
+            client.post()
+                .uri("/api/documents/upload/$token")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
+                .exchange()
+                .expectStatus().isOk
+        }
+
+        @Test
         fun `should store document in correct workspace`() {
             val token = createUploadToken()
 
             client.post()
                 .uri("/api/documents/upload/$token")
-                .bodyValue(createDefaultFileToUpload().build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(createDefaultFileToUpload().build())
                 .exchange()
                 .expectStatus().isOk
 
@@ -138,14 +165,12 @@ class DocumentsUploadApiTest(
 
     private fun createUploadToken(): String {
         val token = "test-upload-token-${++tokenCounter}"
-        runBlocking {
-            tokensRepository.storeToken(
-                token, PersistentUploadRequest(
-                    workspaceId = preconditions.fryWorkspace.id!!,
-                    userName = preconditions.fry.userName,
-                )
+        tokensRepository.storeToken(
+            token, PersistentUploadRequest(
+                workspaceId = preconditions.fryWorkspace.id!!,
+                userName = preconditions.fry.userName,
             )
-        }
+        )
         return token
     }
 

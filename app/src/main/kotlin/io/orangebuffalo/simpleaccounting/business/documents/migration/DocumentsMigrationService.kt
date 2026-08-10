@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.documents.migration
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,7 +13,7 @@ class DocumentsMigrationService(
     private val documentsMigrationProcessor: DocumentsMigrationProcessor,
     private val platformUsersService: PlatformUsersService,
 ) {
-    suspend fun startDocumentsMigration(): DocumentsMigration {
+    fun startDocumentsMigration(): DocumentsMigration {
         val currentUser = platformUsersService.getCurrentUser()
         val userId = currentUser.id!!
         val uploadStorageId = currentUser.documentsStorage ?: throw DocumentsStorageNotConfiguredException()
@@ -25,37 +24,33 @@ class DocumentsMigrationService(
             throw DocumentsUploadStorageNotActiveException()
         }
 
-        if (withDbContext { documentsMigrationRepository.existsByUserIdAndCompletedAtIsNull(userId) }) {
+        if (documentsMigrationRepository.existsByUserIdAndCompletedAtIsNull(userId)) {
             throw DocumentsMigrationAlreadyInProgressException()
         }
 
-        val storageIdsToMigrateFrom = withDbContext {
-            documentsRepository.getStorageStatsByOwner(userId)
-                .map { it.storageId }
-                .filter { it != uploadStorageId }
-        }
+        val storageIdsToMigrateFrom = documentsRepository.getStorageStatsByOwner(userId)
+            .map { it.storageId }
+            .filter { it != uploadStorageId }
         validateDownloadStorages(userId, storageIdsToMigrateFrom)
 
-        val migration = withDbContext {
-            val documentsToMigrate = documentsRepository.findIdsByOwnerAndStorageIdNot(
-                ownerId = userId,
-                storageId = uploadStorageId,
+        val documentsToMigrate = documentsRepository.findIdsByOwnerAndStorageIdNot(
+            ownerId = userId,
+            storageId = uploadStorageId,
+        )
+        val migration = documentsMigrationRepository.save(
+            DocumentsMigration(
+                userId = userId,
+                documentsToMigrate = documentsToMigrate
+                    .map { DocumentsMigrationDocument(documentId = it) }
+                    .toSet(),
             )
-            documentsMigrationRepository.save(
-                DocumentsMigration(
-                    userId = userId,
-                    documentsToMigrate = documentsToMigrate
-                        .map { DocumentsMigrationDocument(documentId = it) }
-                        .toSet(),
-                )
-            )
-        }
+        )
 
         documentsMigrationProcessor.startMigration(migration.id!!)
         return migration
     }
 
-    private suspend fun validateDownloadStorages(userId: String, storageIds: List<String>) {
+    private fun validateDownloadStorages(userId: String, storageIds: List<String>) {
         val storagesById = documentsStorages.associateBy { it.getId() }
         val inactiveStorageIds = storageIds
             .filter { storageId -> storagesById[storageId]?.isDownloadAvailableForUser(userId) != true }

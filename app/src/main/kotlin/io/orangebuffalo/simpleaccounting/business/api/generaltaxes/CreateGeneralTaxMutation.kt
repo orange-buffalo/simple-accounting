@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.generaltaxes
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
@@ -21,7 +21,7 @@ class CreateGeneralTaxMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new general tax in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createGeneralTax(
+    fun createGeneralTax(
         @GraphQLDescription("ID of the workspace to create the general tax in.")
         workspaceId: String,
         @GraphQLDescription("Title of the general tax.")

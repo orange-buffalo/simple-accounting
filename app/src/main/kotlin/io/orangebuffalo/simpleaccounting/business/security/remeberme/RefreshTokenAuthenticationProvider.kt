@@ -1,22 +1,23 @@
 package io.orangebuffalo.simpleaccounting.business.security.remeberme
 
-import io.orangebuffalo.simpleaccounting.business.security.mono
-import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 class RefreshTokenAuthenticationProvider(
     private val refreshTokensService: RefreshTokensService
-) : ReactiveAuthenticationManager {
+) : AuthenticationProvider {
 
-    override fun authenticate(authentication: Authentication): Mono<Authentication> = authentication
-        .mono<RefreshAuthenticationToken> { refreshAuthenticationToken ->
-            val token = refreshAuthenticationToken.credentials as String
-            RefreshAuthenticationToken(
-                token,
-                refreshTokensService.validateTokenAndBuildUserDetails(token)
-            )
-        }
+    override fun authenticate(authentication: Authentication): Authentication? {
+        if (authentication !is RefreshAuthenticationToken) return null
+        val token = authentication.credentials as String
+        return RefreshAuthenticationToken(
+            token,
+            refreshTokensService.validateTokenAndBuildUserDetails(token)
+        )
+    }
+
+    override fun supports(authentication: Class<*>): Boolean =
+        RefreshAuthenticationToken::class.java.isAssignableFrom(authentication)
 }

@@ -2,8 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
-import io.orangebuffalo.simpleaccounting.infra.withDbContextAsync
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
@@ -18,19 +16,13 @@ class WorkspacesService(
     private val platformUsersService: PlatformUsersService
 ) {
 
-    suspend fun getUserWorkspaces(userName: String): List<Workspace> = withDbContext {
-        workspacesRepository.findAllByOwnerUserName(userName)
-    }
+    fun getUserWorkspaces(userName: String): List<Workspace> = workspacesRepository.findAllByOwnerUserName(userName)
 
-    suspend fun createWorkspace(workspace: Workspace): Workspace = withDbContext {
-        workspacesRepository.save(workspace)
-    }
+    fun createWorkspace(workspace: Workspace): Workspace = workspacesRepository.save(workspace)
 
-    suspend fun save(workspace: Workspace) = withDbContext {
-        workspacesRepository.save(workspace)
-    }
+    fun save(workspace: Workspace) = workspacesRepository.save(workspace)
 
-    suspend fun saveSharedWorkspace(token: String): Workspace = withDbContext {
+    fun saveSharedWorkspace(token: String): Workspace {
         val accessToken = getValidWorkspaceAccessToken(token)
         val currentUser = platformUsersService.getCurrentUser()
         val savedWorkspaceAccessToken = savedWorkspaceAccessTokensRepository.findByWorkspaceAccessTokenIdAndOwnerId(
@@ -46,35 +38,30 @@ class WorkspacesService(
             )
         }
 
-        workspacesRepository.findByIdOrNull(accessToken.workspaceId)
+        return workspacesRepository.findByIdOrNull(accessToken.workspaceId)
             ?: throw EntityNotFoundException("Workspace is not found for $token")
     }
 
-    suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken = withDbContext {
-        workspaceAccessTokensRepository.findValidByToken(token)
-            ?: throw InvalidWorkspaceAccessTokenException(token)
-    }
+    fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken =
+        workspaceAccessTokensRepository.findValidByToken(token) ?: throw InvalidWorkspaceAccessTokenException(token)
 
-    suspend fun getWorkspaceByValidAccessToken(token: String): Workspace = withDbContext {
-        workspaceAccessTokensRepository.findWorkspaceByValidToken(token)
-            ?: throw InvalidWorkspaceAccessTokenException(token)
-    }
+    fun getWorkspaceByValidAccessToken(token: String): Workspace =
+        workspaceAccessTokensRepository.findWorkspaceByValidToken(token) ?: throw InvalidWorkspaceAccessTokenException(token)
 
-    suspend fun getSharedWorkspaces(): List<Workspace> = withDbContext {
+    fun getSharedWorkspaces(): List<Workspace> =
         savedWorkspaceAccessTokensRepository
             .findWorkspacesByValidTokenOwner(
                 ensureRegularUserPrincipal().userName
             )
-    }
 
-    suspend fun validateWorkspaceAccess(
+    fun validateWorkspaceAccess(
         workspaceId: String,
         accessMode: WorkspaceAccessMode
     ) {
         getAccessibleWorkspace(workspaceId, accessMode)
     }
 
-    suspend fun getAccessibleWorkspace(
+    fun getAccessibleWorkspace(
         workspaceId: String,
         accessMode: WorkspaceAccessMode
     ): Workspace {
@@ -88,29 +75,25 @@ class WorkspacesService(
         }
     }
 
-    private suspend fun getAccessibleWorkspaceForRegularUser(
+    private fun getAccessibleWorkspaceForRegularUser(
         workspaceId: String,
         currentPrincipal: SecurityPrincipal,
         accessMode: WorkspaceAccessMode
     ): Workspace {
-        val ownWorkspaceAsync = withDbContextAsync {
-            workspacesRepository.findByIdAndOwnerUserName(workspaceId, currentPrincipal.userName)
-        }
+        val ownWorkspace = workspacesRepository.findByIdAndOwnerUserName(workspaceId, currentPrincipal.userName)
 
         val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
-            withDbContext {
-                savedWorkspaceAccessTokensRepository.findWorkspaceByValidTokenOwnerAndId(
-                    currentPrincipal.userName, workspaceId
-                )
-            }
+            savedWorkspaceAccessTokensRepository.findWorkspaceByValidTokenOwnerAndId(
+                currentPrincipal.userName, workspaceId
+            )
         } else null
 
-        return ownWorkspaceAsync.await()
+        return ownWorkspace
             ?: sharedWorkspace
             ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
     }
 
-    private suspend fun getAccessibleWorkspaceForTransientUser(
+    private fun getAccessibleWorkspaceForTransientUser(
         accessMode: WorkspaceAccessMode,
         workspaceId: String,
         currentPrincipal: SecurityPrincipal
@@ -119,19 +102,15 @@ class WorkspacesService(
             throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
 
-        return withDbContext {
-            workspaceAccessTokensRepository
+        return workspaceAccessTokensRepository
                 .findWorkspaceByValidToken(
                     currentPrincipal.userName, workspaceId
                 )
                 ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
-        }
     }
 
-    suspend fun getWorkspace(workspaceId: String): Workspace = withDbContext {
-        workspacesRepository.findById(workspaceId)
-            .orElseThrow { EntityNotFoundException("Workspace $workspaceId is not found") }
-    }
+    fun getWorkspace(workspaceId: String): Workspace = workspacesRepository.findById(workspaceId)
+        .orElseThrow { EntityNotFoundException("Workspace $workspaceId is not found") }
 }
 
 enum class WorkspaceAccessMode {

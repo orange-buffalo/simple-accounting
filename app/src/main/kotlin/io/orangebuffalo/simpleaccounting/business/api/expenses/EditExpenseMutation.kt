@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.expenses
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
@@ -24,7 +24,7 @@ class EditExpenseMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing expense in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editExpense(
+    fun editExpense(
         @GraphQLDescription("ID of the workspace the expense belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the expense to update.")

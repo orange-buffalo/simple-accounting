@@ -6,14 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.coroutineContext
 
 class OAuth2SucceededEventTest {
 
@@ -21,7 +14,6 @@ class OAuth2SucceededEventTest {
     fun `should execute the client registration request within user context`() {
         val event = OAuth2SucceededEvent(
             user = fry(),
-            context = EmptyCoroutineContext,
             clientRegistrationId = "test-client"
         )
 
@@ -35,25 +27,20 @@ class OAuth2SucceededEventTest {
     }
 
     @Test
-    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    fun `should not dispatch back to source context dispatcher`() = runBlocking {
-        val sourceContext = newSingleThreadContext("oauth-source-context")
+    fun `should execute on the calling thread`() {
+        val callingThread = Thread.currentThread()
+        val event = OAuth2SucceededEvent(
+            user = fry(),
+            clientRegistrationId = "test-client"
+        )
+        var executionThread: Thread? = null
 
-        try {
-            withContext(sourceContext) {
-                val event = OAuth2SucceededEvent(
-                    user = fry(),
-                    context = coroutineContext,
-                    clientRegistrationId = "test-client"
-                )
-
-                event.executeInSourceContext("test-client") {
-                    getCurrentPrincipal().userName.shouldBe("Fry")
-                }
-            }
-        } finally {
-            sourceContext.close()
+        event.executeInSourceContext("test-client") {
+            executionThread = Thread.currentThread()
+            getCurrentPrincipal().userName.shouldBe("Fry")
         }
+
+        executionThread.shouldBe(callingThread)
     }
 
     private fun fry() = PlatformUser(

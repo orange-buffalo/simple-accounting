@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.invoices
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ class CancelInvoiceMutation(
     @Suppress("unused")
     @GraphQLDescription("Cancels an existing invoice in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun cancelInvoice(
+    fun cancelInvoice(
         @GraphQLDescription("ID of the workspace the invoice belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the invoice to cancel.")

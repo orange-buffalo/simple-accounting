@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
@@ -21,7 +21,7 @@ class UsersQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns all users with cursor-based pagination. Only accessible by admin users.")
     @RequiredAuth(RequiredAuth.AuthType.ADMIN_USER)
-    suspend fun users(
+    fun users(
         @GraphQLDescription("The maximum number of items to return.")
         @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)

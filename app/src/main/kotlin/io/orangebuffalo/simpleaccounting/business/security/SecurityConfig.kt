@@ -2,14 +2,15 @@ package io.orangebuffalo.simpleaccounting.business.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager
-import org.springframework.security.authentication.ReactiveAuthenticationManager
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
-@EnableReactiveMethodSecurity
+@EnableMethodSecurity
 class SecurityConfig {
 
     @Bean
@@ -18,6 +19,6 @@ class SecurityConfig {
     }
 
     @Bean
-    fun authenticationManager(delegates: List<ReactiveAuthenticationManager>): ReactiveAuthenticationManager =
-        DelegatingReactiveAuthenticationManager(delegates)
+    fun authenticationManager(providers: List<AuthenticationProvider>): AuthenticationManager =
+        ProviderManager(providers)
 }

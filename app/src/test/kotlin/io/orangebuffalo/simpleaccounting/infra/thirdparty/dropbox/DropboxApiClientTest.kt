@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnResponse
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -37,7 +36,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should upload file`(): Unit = runBlocking {
+    fun `should upload file`() {
         // Create a temp file and write some content to it
         val tempFile = Files.createFile(tempDir.resolve("tempFile.txt"))
         Files.writeString(tempFile, "This is a temp file")
@@ -78,7 +77,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should refresh token on upload file`(): Unit = runBlocking {
+    fun `should refresh token on upload file`() {
         // Create a temp file and write some content to it
         val tempFile = Files.createFile(tempDir.resolve("tempFile.txt"))
         Files.writeString(tempFile, "This is a temp file")
@@ -122,7 +121,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should list folder`(): Unit = runBlocking {
+    fun `should list folder`() {
         stubPostRequestTo("/2/files/list_folder") {
             withHeader("Authorization", equalTo("Bearer TestAccessToken"))
             withHeader("Content-Type", equalTo("application/json"))
@@ -193,7 +192,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should refresh token on list folder`(): Unit = runBlocking {
+    fun `should refresh token on list folder`() {
         stubExpiredTokenForRequestTo("/2/files/list_folder")
         stubNewTokenRequest()
         stubPostRequestTo("/2/files/list_folder") {
@@ -278,7 +277,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should list folder with pagination`(): Unit = runBlocking {
+    fun `should list folder with pagination`() {
         // First page
         stubPostRequestTo("/2/files/list_folder") {
             withHeader("Authorization", equalTo("Bearer TestAccessToken"))
@@ -389,7 +388,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should delete files`(): Unit = runBlocking {
+    fun `should delete files`() {
         stubPostRequestTo("/2/files/delete_batch") {
             withHeader("Authorization", equalTo("Bearer TestAccessToken"))
             withHeader("Content-Type", equalTo("application/json"))
@@ -402,7 +401,7 @@ internal class DropboxApiClientTest {
     }
 
     @Test
-    fun `should refresh token on delete files`(): Unit = runBlocking {
+    fun `should refresh token on delete files`() {
         stubExpiredTokenForRequestTo("/2/files/delete_batch")
         stubNewTokenRequest()
         stubPostRequestTo("/2/files/delete_batch") {

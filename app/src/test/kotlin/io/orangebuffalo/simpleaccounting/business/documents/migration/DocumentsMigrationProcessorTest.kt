@@ -14,9 +14,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.reactor.mono
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -24,13 +21,9 @@ import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest
-import org.springframework.mock.web.server.MockServerWebExchange
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
-import org.springframework.web.server.ServerWebExchange
-import reactor.util.context.Context
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -52,12 +45,7 @@ class DocumentsMigrationProcessorTest(
         whenever(localFsStorageProperties.baseDirectory) doReturn localFsDir
     }
 
-    private suspend fun processMigration(migrationId: String) {
-        val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/documents/migration").build())
-        mono { documentsMigrationProcessor.processMigration(migrationId) }
-            .contextWrite(Context.of(ServerWebExchange::class.java, exchange))
-            .awaitSingle()
-    }
+    private fun processMigration(migrationId: String) = documentsMigrationProcessor.processMigration(migrationId)
 
     @Test
     fun `should copy document to upload storage update document remove old content and complete migration`() {
@@ -85,7 +73,7 @@ class DocumentsMigrationProcessorTest(
         Files.createDirectories(sourceFile.parent)
         Files.write(sourceFile, sourceContent)
 
-        runBlocking { processMigration(testData.migration.id!!) }
+        processMigration(testData.migration.id!!)
 
         val migratedDocument = aggregateTemplate.findSingle<Document>(testData.document.id!!)
         migratedDocument.storageLocation.shouldNotBe(testData.sourceLocation)
@@ -137,7 +125,7 @@ class DocumentsMigrationProcessorTest(
         Files.createDirectories(sourceFile.parent)
         Files.write(sourceFile, sourceContent)
 
-        runBlocking { processMigration(testData.migration.id!!) }
+        processMigration(testData.migration.id!!)
 
         aggregateTemplate.findSingle<Document>(testData.missingDocument.id!!)
             .shouldBeEntityWithFields(testData.missingDocument)
@@ -184,7 +172,7 @@ class DocumentsMigrationProcessorTest(
         Files.createDirectories(sourceFile.parent)
         Files.write(sourceFile, sourceContent)
 
-        runBlocking { processMigration(testData.migration.id!!) }
+        processMigration(testData.migration.id!!)
 
         aggregateTemplate.findSingle<Document>(testData.document.id!!)
             .shouldBeEntityWithFields(testData.document)
@@ -228,7 +216,7 @@ class DocumentsMigrationProcessorTest(
         Files.createDirectories(sourceFile.parent)
         Files.write(sourceFile, sourceContent)
 
-        runBlocking { processMigration(testData.migration.id!!) }
+        processMigration(testData.migration.id!!)
 
         aggregateTemplate.findSingle<Document>(testData.uploadedDocument.id!!)
             .shouldBeEntityWithFields(testData.uploadedDocument)
@@ -286,7 +274,7 @@ class DocumentsMigrationProcessorTest(
                 expectedAuthToken = accessToken,
             )
 
-            runBlocking { processMigration(testData.migration.id!!) }
+            processMigration(testData.migration.id!!)
 
             val migratedDocument = aggregateTemplate.findSingle<Document>(testData.sourceDocument.id!!)
             migratedDocument.shouldBeEntityWithFields(
@@ -343,7 +331,7 @@ class DocumentsMigrationProcessorTest(
                 expectedAuthToken = accessToken,
             )
 
-            runBlocking { processMigration(testData.migration.id!!) }
+            processMigration(testData.migration.id!!)
 
             aggregateTemplate.findSingle<Document>(testData.sourceDocument.id!!)
                 .shouldBeEntityWithFields(

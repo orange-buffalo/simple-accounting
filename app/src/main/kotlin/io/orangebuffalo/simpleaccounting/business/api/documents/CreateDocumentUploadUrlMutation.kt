@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
@@ -25,7 +25,7 @@ class CreateDocumentUploadUrlMutation(
                 "The response of the upload request is a JSON object matching the `Document` type in this schema."
     )
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createDocumentUploadUrl(
+    fun createDocumentUploadUrl(
         @GraphQLDescription("ID of the workspace to upload the document to.")
         workspaceId: String,
     ): CreateDocumentUploadUrlResponse {

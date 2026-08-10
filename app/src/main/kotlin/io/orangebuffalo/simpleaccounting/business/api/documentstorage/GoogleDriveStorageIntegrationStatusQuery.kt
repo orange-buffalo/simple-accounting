@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.directives.SlowOperation
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveDocumentsStorage
@@ -15,7 +15,7 @@ class GoogleDriveStorageIntegrationStatusQuery(
     @GraphQLDescription("Returns the current user's Google Drive storage integration status.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     @SlowOperation
-    suspend fun googleDriveStorageIntegrationStatus(): GoogleDriveStorageIntegrationStatusResponse {
+    fun googleDriveStorageIntegrationStatus(): GoogleDriveStorageIntegrationStatusResponse {
         val status = googleDriveDocumentsStorage.getCurrentUserIntegrationStatus()
         return GoogleDriveStorageIntegrationStatusResponse(
             folderId = status.folderId,

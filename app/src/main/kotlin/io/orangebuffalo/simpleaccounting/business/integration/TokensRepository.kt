@@ -1,43 +1,28 @@
 package io.orangebuffalo.simpleaccounting.business.integration
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Component
-import jakarta.annotation.PreDestroy
+import java.util.concurrent.ConcurrentHashMap
 
 private const val tokenLifetimeInMs = 120_000L
 
 @Component
 class TokensRepository {
 
-    private val scope = CoroutineScope(Dispatchers.Default)
-    private val mutex = Mutex()
-    private val requestsStorage = mutableMapOf<String, Any>()
+    private val requestsStorage = ConcurrentHashMap<String, StoredRequest>()
 
-    @PreDestroy
-    fun cancelAsyncJobs() {
-        scope.cancel()
+    fun storeToken(token: String, request: Any) {
+        removeExpiredRequests()
+        requestsStorage[token] = StoredRequest(request, System.currentTimeMillis() + tokenLifetimeInMs)
     }
 
-    suspend fun storeToken(token: String, request: Any) {
-        mutex.withLock {
-            requestsStorage[token] = request
+    fun <T : Any> getRequestByToken(token: String, type: kotlin.reflect.KClass<T>): T {
+        val storedRequest = requestsStorage[token]
+        if (storedRequest == null || storedRequest.expiresAt <= System.currentTimeMillis()) {
+            storedRequest?.let { requestsStorage.remove(token, it) }
+            throw EntityNotFoundException("Token $token is not found")
         }
-
-        scope.launch {
-            delay(tokenLifetimeInMs)
-            mutex.withLock {
-                requestsStorage.remove(token)
-            }
-        }
-    }
-
-    suspend fun <T : Any> getRequestByToken(token: String, type: kotlin.reflect.KClass<T>): T {
-        val request = mutex.withLock {
-            requestsStorage[token] ?: throw EntityNotFoundException("Token $token is not found")
-        }
+        val request = storedRequest.request
         if (!type.isInstance(request)) {
             throw IllegalStateException(
                 "Token $token has unexpected type ${request::class.simpleName}, expected ${type.simpleName}"
@@ -46,7 +31,14 @@ class TokensRepository {
         @Suppress("UNCHECKED_CAST")
         return request as T
     }
+
+    private fun removeExpiredRequests() {
+        val now = System.currentTimeMillis()
+        requestsStorage.entries.removeIf { it.value.expiresAt <= now }
+    }
+
+    private data class StoredRequest(val request: Any, val expiresAt: Long)
 }
 
-suspend inline fun <reified T : Any> TokensRepository.getRequestByToken(token: String): T =
+inline fun <reified T : Any> TokensRepository.getRequestByToken(token: String): T =
     getRequestByToken(token, T::class)

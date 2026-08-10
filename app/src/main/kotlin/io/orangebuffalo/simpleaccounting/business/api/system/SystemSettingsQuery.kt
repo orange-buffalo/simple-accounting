@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.system
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.storage.local.LocalFileSystemDocumentsStorageProperties
 import org.springframework.stereotype.Component
@@ -13,7 +13,7 @@ class SystemSettingsQuery(
     @Suppress("unused")
     @GraphQLDescription("Returns the system settings.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun systemSettings(): SystemSettings {
+    fun systemSettings(): SystemSettings {
         return SystemSettings(
             localFileSystemDocumentsStorageEnabled = localFileSystemDocumentsStorageProperties.enabled,
         )

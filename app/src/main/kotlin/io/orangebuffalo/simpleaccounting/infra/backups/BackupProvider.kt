@@ -10,5 +10,5 @@ interface BackupProvider {
     /**
      * Accepts the backup file and processes it.
      */
-    suspend fun acceptBackup(backupFile: Path)
+    fun acceptBackup(backupFile: Path)
 }

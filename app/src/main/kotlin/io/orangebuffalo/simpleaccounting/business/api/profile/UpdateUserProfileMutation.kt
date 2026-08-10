@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.profile
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import jakarta.validation.constraints.NotBlank
@@ -17,7 +17,7 @@ class UpdateUserProfileMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates the current user profile information.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun updateProfile(
+    fun updateProfile(
         @GraphQLDescription("The identifier of the documents storage used by the user.")
         @Size(max = 255)
         documentsStorage: String? = null,

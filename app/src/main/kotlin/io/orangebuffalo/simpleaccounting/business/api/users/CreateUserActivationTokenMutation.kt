@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
@@ -24,7 +24,7 @@ class CreateUserActivationTokenMutation(
         errorCode = "USER_ALREADY_ACTIVATED",
         errorCodeDescription = "The user is already activated and cannot receive an activation token.",
     )
-    suspend fun createUserActivationToken(
+    fun createUserActivationToken(
         @GraphQLDescription("The ID of the user to create the activation token for.")
         userId: String,
     ): UserActivationTokenGqlDto {

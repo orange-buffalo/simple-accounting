@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.categories
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.categories.Category
@@ -19,7 +19,7 @@ class CreateCategoryMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new category in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createCategory(
+    fun createCategory(
         @GraphQLDescription("ID of the workspace to create the category in.")
         workspaceId: String,
         @GraphQLDescription("Name of the category.")

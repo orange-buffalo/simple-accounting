@@ -7,7 +7,7 @@ import java.nio.file.Path
 private val logger = KotlinLogging.logger {}
 
 class NoOpBackupProvider : BackupProvider {
-    override suspend fun acceptBackup(backupFile: Path) {
+    override fun acceptBackup(backupFile: Path) {
         logger.info { "Backup file $backupFile is ignored by noop provider" }
     }
 }

@@ -1,27 +1,25 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshAuthenticationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.security.authentication.ReactiveAuthenticationManager
+import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.SUBSCRIPTION_AUTHENTICATION_KEY
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.AuthenticationException
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 class RefreshAccessTokenMutation(
     private val jwtService: JwtService,
     private val workspaceAccessTokensService: WorkspaceAccessTokensService,
-    private val authenticationManager: ReactiveAuthenticationManager
+    private val authenticationManager: AuthenticationManager
 ) : Mutation {
     @Suppress("unused")
     @GraphQLDescription(
@@ -29,21 +27,21 @@ class RefreshAccessTokenMutation(
                 "Returns a response with either a valid access token or null if authentication fails."
     )
     @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
-    suspend fun refreshAccessToken(
+    fun refreshAccessToken(
         env: DataFetchingEnvironment
     ): RefreshAccessTokenResponse {
-        val currentAuth = ReactiveSecurityContextHolder.getContext()
-            .flatMap { Mono.justOrEmpty(it.authentication) }
-            .awaitFirstOrNull()
+        val currentAuth = env.graphQlContext.get<Authentication?>(SUBSCRIPTION_AUTHENTICATION_KEY)
 
-        val refreshToken = extractRefreshTokenFromRequest(env)
+        val refreshToken = env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).refreshToken
 
-        val authenticatedAuth = when {
-            currentAuth != null && currentAuth.isAuthenticated -> currentAuth
+        val principal = when {
+            currentAuth?.isAuthenticated == true && currentAuth.principal is SecurityPrincipal ->
+                currentAuth.principal as SecurityPrincipal
+
             refreshToken != null -> {
                 try {
                     val authenticationToken = RefreshAuthenticationToken(refreshToken)
-                    authenticationManager.authenticate(authenticationToken).awaitSingle()
+                    authenticationManager.authenticate(authenticationToken).principal as? SecurityPrincipal
                 } catch (e: AuthenticationException) {
                     null
                 }
@@ -52,11 +50,10 @@ class RefreshAccessTokenMutation(
             else -> null
         }
 
-        if (authenticatedAuth == null) {
+        if (principal == null) {
             return RefreshAccessTokenResponse(accessToken = null)
         }
 
-        val principal = authenticatedAuth.principal as SecurityPrincipal
         val jwtToken = if (principal.isTransient) {
             val workspaceAccessToken = workspaceAccessTokensService.getValidToken(principal.userName)
             if (workspaceAccessToken != null) {
@@ -68,11 +65,6 @@ class RefreshAccessTokenMutation(
             jwtService.buildJwtToken(principal)
         }
         return RefreshAccessTokenResponse(accessToken = jwtToken)
-    }
-
-    private fun extractRefreshTokenFromRequest(env: DataFetchingEnvironment): String? {
-        val request = env.graphQlContext.get<ServerHttpRequest>("serverHttpRequest")
-        return request?.cookies?.getFirst("refreshToken")?.value
     }
 
     @GraphQLDescription("Response for refreshing access token.")

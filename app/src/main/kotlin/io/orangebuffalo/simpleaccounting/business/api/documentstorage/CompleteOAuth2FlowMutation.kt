@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2AuthorizationCallbackRequest
@@ -20,7 +20,7 @@ class CompleteOAuth2FlowMutation(
     @Suppress("unused")
     @GraphQLDescription("Completes the OAuth2 authorization flow by processing the authorization server callback.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
-    suspend fun completeOAuth2Flow(
+    fun completeOAuth2Flow(
         @GraphQLDescription("The authorization code returned by the authorization server.")
         code: String?,
         @GraphQLDescription("The error code returned by the authorization server if authorization failed.")

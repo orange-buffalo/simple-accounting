@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.categories
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
@@ -19,7 +19,7 @@ class EditCategoryMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing category in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editCategory(
+    fun editCategory(
         @GraphQLDescription("ID of the workspace the category belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the category to update.")

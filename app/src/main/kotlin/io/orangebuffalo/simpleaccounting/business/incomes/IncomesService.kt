@@ -11,8 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.bpsBasePart
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.executeInParallel
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -26,7 +24,7 @@ class IncomesService(
     private val documentsService: DocumentsService,
     private val invoicesService: InvoicesService
 ) {
-    suspend fun saveIncome(income: Income): Income {
+    fun saveIncome(income: Income): Income {
         val workspace = workspacesService.getAccessibleWorkspace(income.workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateCategoryAndAttachments(income)
         updateInvoiceIfLinked(income)
@@ -58,8 +56,7 @@ class IncomesService(
             else -> IncomeStatus.FINALIZED
         }
 
-        return withDbContext {
-            incomeRepository.save(
+        return incomeRepository.save(
                 income.copy(
                     convertedAmounts = adjustedConvertedAmounts,
                     incomeTaxableAmounts = adjustedIncomeTaxableAmounts,
@@ -69,10 +66,9 @@ class IncomesService(
                     status = status,
                 )
             )
-        }
     }
 
-    private suspend fun updateInvoiceIfLinked(income: Income) {
+    private fun updateInvoiceIfLinked(income: Income) {
         val invoiceId = income.linkedInvoiceId ?: return
 
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = income.workspaceId)
@@ -81,25 +77,25 @@ class IncomesService(
         invoicesService.saveInvoice(invoice.copy(datePaid = income.dateReceived), income.workspaceId)
     }
 
-    private suspend fun getGeneralTax(income: Income): GeneralTax? =
+    private fun getGeneralTax(income: Income): GeneralTax? =
         if (income.generalTaxId == null) null else generalTaxesService.getValidGeneralTax(
             income.generalTaxId!!,
             income.workspaceId
         )
 
-    private suspend fun validateCategoryAndAttachments(income: Income) = executeInParallel {
-        step { validateIncomeCategory(income) }
-        step { validateIncomeAttachments(income) }
+    private fun validateCategoryAndAttachments(income: Income) {
+        validateIncomeCategory(income)
+        validateIncomeAttachments(income)
     }
 
-    private suspend fun validateIncomeAttachments(income: Income) {
+    private fun validateIncomeAttachments(income: Income) {
         if (income.attachments.isNotEmpty()) {
             val attachmentsIds = income.attachments.map { it.documentId }
             documentsService.validateDocuments(income.workspaceId, attachmentsIds)
         }
     }
 
-    private suspend fun validateIncomeCategory(income: Income) {
+    private fun validateIncomeCategory(income: Income) {
         if (income.categoryId != null) categoriesService.validateCategory(income.categoryId!!, income.workspaceId)
     }
 
@@ -124,25 +120,20 @@ class IncomesService(
         )
     }
 
-    suspend fun getIncomeByIdAndWorkspace(incomeId: String, workspace: Workspace): Income? =
+    fun getIncomeByIdAndWorkspace(incomeId: String, workspace: Workspace): Income? =
         getIncomeByIdAndWorkspaceId(incomeId, workspace.id!!)
 
-    suspend fun getIncomeByIdAndWorkspaceId(incomeId: String, workspaceId: String): Income? =
-        withDbContext {
-            incomeRepository.findByIdAndWorkspaceId(incomeId, workspaceId)
-        }
+    fun getIncomeByIdAndWorkspaceId(incomeId: String, workspaceId: String): Income? =
+        incomeRepository.findByIdAndWorkspaceId(incomeId, workspaceId)
 
-    suspend fun getIncomesStatistics(
+    fun getIncomesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspaceId: String
-    ): List<IncomesStatistics> = withDbContext {
-        incomeRepository.getStatistics(fromDate, toDate, workspaceId)
-    }
+    ): List<IncomesStatistics> = incomeRepository.getStatistics(fromDate, toDate, workspaceId)
 
-    suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
+    fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> =
         incomeRepository.getCurrenciesUsageStatistics(workspace)
-    }
 
     private data class AdjustedAmounts(
         val generalTaxAmount: Long?,

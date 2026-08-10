@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.kotest.assertions.fail
@@ -13,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
-import kotlinx.coroutines.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.BeforeEach
@@ -21,18 +18,22 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.transaction.support.TransactionTemplate
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Instant
+import java.util.concurrent.Executors
 
 private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
 class BruteForceDefenseTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val rawClient: WebTestClient,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @Autowired private val platformUsersRepository: PlatformUsersRepository,
+    @Value($$"${local.server.port}") private val serverPort: Int,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach
@@ -256,39 +257,32 @@ class BruteForceDefenseTest(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should handle parallel login requests and throttle them`() {
         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        val requests = generateSequence(1) { if (it < 10) it + 1 else null }
-            .map {
-                GlobalScope.async(newFixedThreadPoolContext(10, "parallelLogins")) {
-                    rawClient.executeGraphqlLoginForFry()
+        val httpClient = HttpClient.newHttpClient()
+        val responses = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            List(10) {
+                executor.submit<HttpResponse<String>> {
+                    httpClient.executeGraphqlLoginForFry()
                 }
-            }
-            .toList()
-
-        val responses = runBlocking {
-            requests.awaitAll()
+            }.map { it.get() }
         }
 
         var badCredentialsCount = 0
         var loginNotAvailableCount = 0
         var accountLockedCount = 0
         responses.forEach { response ->
-            response
-                .expectStatus().isOk
-                .expectBody<String>().consumeWith { body ->
-                    val json = body.responseBody ?: ""
-                    when {
-                        json.contains("BAD_CREDENTIALS") -> badCredentialsCount++
-                        json.contains("LOGIN_NOT_AVAILABLE") -> loginNotAvailableCount++
-                        json.contains("ACCOUNT_LOCKED") -> accountLockedCount++
-                        else -> fail("[$json] is not an expected error")
-                    }
-                }
+            response.statusCode().shouldBe(200)
+            val json = response.body()
+            when {
+                json.contains("BAD_CREDENTIALS") -> badCredentialsCount++
+                json.contains("LOGIN_NOT_AVAILABLE") -> loginNotAvailableCount++
+                json.contains("ACCOUNT_LOCKED") -> accountLockedCount++
+                else -> fail("[$json] is not an expected error")
+            }
         }
 
         // we can't know how exactly each request is processed, but overall all issued requests must be responded
@@ -343,14 +337,22 @@ class BruteForceDefenseTest(
         createAccessTokenByCredentials(password = "qwerty", userName = "Fry") { accessToken }
 
     /**
-     * We use raw WebTestClient here to issue truly parallel requests bypassing ApiTestClient's
+     * We use the JDK client here to issue truly parallel requests bypassing ApiTestClient's
      * JWT-based authentication and single-threaded request processing.
      */
-    private fun WebTestClient.executeGraphqlLoginForFry(): WebTestClient.ResponseSpec = post()
-        .uri("/api/graphql")
-        .header("Content-Type", "application/json")
-        .bodyValue("""{"query": "mutation { createAccessTokenByCredentials(userName: \"Fry\", password: \"qwerty\") { accessToken } }"}""")
-        .exchange()
+    private fun HttpClient.executeGraphqlLoginForFry(): HttpResponse<String> {
+        val request = HttpRequest.newBuilder()
+            .uri(URI("http://localhost:$serverPort/api/graphql"))
+            .header("Content-Type", "application/json")
+            .POST(
+                HttpRequest.BodyPublishers.ofString(
+                    "{\"query\":\"mutation { createAccessTokenByCredentials(userName: \\\"Fry\\\", " +
+                        "password: \\\"qwerty\\\") { accessToken } }\"}"
+                )
+            )
+            .build()
+        return send(request, HttpResponse.BodyHandlers.ofString())
+    }
 
     private fun setupPreconditions() = preconditions {
         fry()

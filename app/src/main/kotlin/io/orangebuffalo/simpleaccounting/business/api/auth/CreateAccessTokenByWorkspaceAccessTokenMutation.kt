@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.api.workspaces.WorkspaceGqlDto
@@ -33,7 +33,7 @@ class CreateAccessTokenByWorkspaceAccessTokenMutation(
         errorCode = "INVALID_WORKSPACE_ACCESS_TOKEN",
         errorCodeDescription = "The provided workspace access token is not valid (unknown, expired, or revoked).",
     )
-    suspend fun createAccessTokenByWorkspaceAccessToken(
+    fun createAccessTokenByWorkspaceAccessToken(
         @GraphQLDescription("The shared workspace access token.")
         @NotBlank
         workspaceAccessToken: String,

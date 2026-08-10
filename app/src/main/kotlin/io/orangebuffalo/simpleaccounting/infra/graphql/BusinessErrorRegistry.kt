@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
+import org.springframework.aop.support.AopUtils
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotations
@@ -31,7 +30,7 @@ class BusinessErrorRegistry(
         val mappings = mutableMapOf<String, OperationBusinessErrors>()
         
         for (operation in operations) {
-            for (function in operation::class.memberFunctions) {
+            for (function in AopUtils.getTargetClass(operation).kotlin.memberFunctions) {
                 val businessErrors = function.findAnnotations<BusinessError>()
                 if (businessErrors.isNotEmpty()) {
                     val errorMappings = businessErrors.map { annotation ->

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigrationAlreadyInProgressException
@@ -39,7 +39,7 @@ class StartDocumentsMigrationMutation(
         errorCode = "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS",
         errorCodeDescription = "The current user already has an incomplete documents migration.",
     )
-    suspend fun startDocumentsMigration(): DocumentsMigrationGqlDto {
+    fun startDocumentsMigration(): DocumentsMigrationGqlDto {
         return documentsMigrationService.startDocumentsMigration().toGqlDto()
     }
 }

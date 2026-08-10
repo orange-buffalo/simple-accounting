@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
@@ -21,7 +21,7 @@ class CreateWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new workspace for the current user.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createWorkspace(
+    fun createWorkspace(
         @GraphQLDescription("Name of the workspace.")
         @NotBlank
         @Size(max = 255)

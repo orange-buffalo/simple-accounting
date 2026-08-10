@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.business.users.UserActivationException
 import io.orangebuffalo.simpleaccounting.business.users.UserManagementProperties
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import kotlinx.coroutines.delay
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
@@ -31,7 +30,7 @@ class ActivateUserMutation(
         errorCode = "TOKEN_EXPIRED",
         errorCodeDescription = "The provided activation token has expired.",
     )
-    suspend fun activateUser(
+    fun activateUser(
         @GraphQLDescription("The activation token value.")
         token: String,
         @GraphQLDescription("The password to set for the user.")
@@ -39,7 +38,7 @@ class ActivateUserMutation(
         @Size(max = 100)
         password: String,
     ): ActivateUserResponse {
-        delay(userManagementProperties.activation.tokenVerificationBruteForceDelayInMs)
+        Thread.sleep(userManagementProperties.activation.tokenVerificationBruteForceDelayInMs)
         userService.activateUser(token = token, password = password)
         return ActivateUserResponse()
     }

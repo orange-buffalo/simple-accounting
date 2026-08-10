@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.users
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
@@ -25,7 +25,7 @@ class CreateUserMutation(
         errorCode = "USER_ALREADY_EXISTS",
         errorCodeDescription = "A user with the given username already exists.",
     )
-    suspend fun createUser(
+    fun createUser(
         @GraphQLDescription("Username / login for the new user.")
         @NotBlank
         @Size(max = 255)

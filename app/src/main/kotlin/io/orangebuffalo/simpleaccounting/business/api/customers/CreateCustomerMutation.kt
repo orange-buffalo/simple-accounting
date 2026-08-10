@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.customers
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
@@ -19,7 +19,7 @@ class CreateCustomerMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new customer in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun createCustomer(
+    fun createCustomer(
         @GraphQLDescription("ID of the workspace to create the customer in.")
         workspaceId: String,
         @GraphQLDescription("Name of the customer.")

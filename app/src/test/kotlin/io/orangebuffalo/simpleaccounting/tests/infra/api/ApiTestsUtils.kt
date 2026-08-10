@@ -15,10 +15,10 @@ import kotlinx.serialization.json.*
 import net.javacrumbs.jsonunit.core.Configuration
 import net.javacrumbs.jsonunit.kotest.equalJson
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
 
-fun WebTestClient.ResponseSpec.expectThatJsonBody(
+fun RestTestClient.ResponseSpec.expectThatJsonBody(
     spec: String.() -> Unit
 ) = expectHeader().contentType(MediaType.APPLICATION_JSON)
     .expectBody<String>().consumeWith { body ->
@@ -26,21 +26,21 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
         spec(responseJson)
     }
 
-fun WebTestClient.ResponseSpec.expectThatJsonBodyEqualTo(
+fun RestTestClient.ResponseSpec.expectThatJsonBodyEqualTo(
     configuration: Configuration = Configuration.empty(),
     spec: JsonObjectBuilder.() -> Unit
 ) = expectThatJsonBody {
     shouldBeEqualToJson(configuration, spec)
 }
 
-fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
+fun RestTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): RestTestClient.ResponseSpec =
     exchange().expectStatus().isUnauthorized
 
-fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String) = exchange()
+fun RestTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String) = exchange()
     .expectStatus().isNotFound
     .expectBody<String>().isEqualTo(errorMessage)
 
-fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
+fun RestTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
     spec: JsonObjectBuilder.() -> Unit
 ) {
     exchange()
@@ -50,10 +50,10 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
         }
 }
 
-fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
-    contentType(MediaType.APPLICATION_JSON).bodyValue(json)
+fun RestTestClient.RequestBodySpec.sendJson(json: String): RestTestClient.RequestHeadersSpec<*> =
+    contentType(MediaType.APPLICATION_JSON).body(json)
 
-fun WebTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): WebTestClient.RequestHeadersSpec<*> {
+fun RestTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): RestTestClient.RequestHeadersSpec<*> {
     val jsonElement = buildJsonObject {
         spec(this)
     }
@@ -138,7 +138,7 @@ private fun ApiTestClient.buildGraphqlRequest(queryBuilder: () -> String): Graph
  * Handles GraphQL requests execution and assertions.
  */
 class GraphqlClientRequestExecutor(
-    private var requestSpec: WebTestClient.RequestHeadersSpec<*>,
+    private var requestSpec: RestTestClient.RequestHeadersSpec<*>,
 ) {
     fun from(platformUser: PlatformUser): GraphqlClientRequestExecutor {
         requestSpec = requestSpec.from(platformUser)
@@ -532,5 +532,5 @@ class GraphqlClientRequestExecutor(
         }
     }
 
-    fun execute(): WebTestClient.ResponseSpec = requestSpec.exchange()
+    fun execute(): RestTestClient.ResponseSpec = requestSpec.exchange()
 }

@@ -1,47 +1,55 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import reactor.core.publisher.BufferOverflowStrategy
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Sinks
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
+private const val NOTIFICATIONS_BUFFER_SIZE = 500
 
 @Service
 class PushNotificationService(
-    private val platformUsersService: PlatformUsersService
+    private val platformUsersRepository: PlatformUsersRepository,
 ) {
-    private val notificationsFlow = MutableSharedFlow<PushNotificationMessage>(
-        extraBufferCapacity = 500,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    private val notificationsSink = Sinks.many().multicast().directBestEffort<PushNotificationMessage>()
+    private val emissionLock = Any()
 
-    suspend fun subscribeToEventsForCurrentUser(): Flow<PushNotificationMessage> {
-        val currentUserId = platformUsersService.getCurrentUser().id
+    fun subscribeToEventsForUser(userName: String): Flux<PushNotificationMessage> {
+        val currentUserId = platformUsersRepository.findByUserName(userName)?.id
+            ?: throw IllegalStateException("User $userName is not found")
         val subscriberId = UUID.randomUUID().toString()
         logger.trace { "Subscribing $subscriberId (user: $currentUserId)" }
-        return notificationsFlow
+        return notificationsSink.asFlux()
             .filter { message ->
                 message.userId == null || message.userId == currentUserId
             }
-            .onEach { message ->
+            .onBackpressureBuffer(
+                NOTIFICATIONS_BUFFER_SIZE,
+                BufferOverflowStrategy.DROP_OLDEST,
+            )
+            .doOnNext { message ->
                 logger.trace { "Received $message in $subscriberId" }
             }
     }
 
-    suspend fun sendPushNotification(
+    fun sendPushNotification(
         eventName: String,
         userId: String? = null,
         data: Any? = null
     ) {
-        notificationsFlow.emit(PushNotificationMessage(eventName, userId, data))
+        val result = synchronized(emissionLock) {
+            notificationsSink.tryEmitNext(PushNotificationMessage(eventName, userId, data))
+        }
+        if (result.isFailure && result != Sinks.EmitResult.FAIL_ZERO_SUBSCRIBER) {
+            logger.warn { "Push notification was dropped: $result" }
+        }
     }
 
-    suspend fun getActiveSubscribersCount() = notificationsFlow.subscriptionCount.first()
+    fun getActiveSubscribersCount() = notificationsSink.currentSubscriberCount()
 }
 
 data class PushNotificationMessage(

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.standalonedocuments
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocumentsService
@@ -19,7 +19,7 @@ class EditStandaloneDocumentMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing standalone document in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editStandaloneDocument(
+    fun editStandaloneDocument(
         @GraphQLDescription("ID of the workspace the standalone document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the standalone document to update.")

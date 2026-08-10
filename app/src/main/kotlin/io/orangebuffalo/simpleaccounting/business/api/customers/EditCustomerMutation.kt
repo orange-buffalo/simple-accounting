@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.customers
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
@@ -19,7 +19,7 @@ class EditCustomerMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing customer in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editCustomer(
+    fun editCustomer(
         @GraphQLDescription("ID of the workspace the customer belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the customer to update.")

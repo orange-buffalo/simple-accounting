@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
@@ -12,12 +12,12 @@ import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNo
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFETIME_IN_DAYS
-import io.orangebuffalo.simpleaccounting.infra.getServerWebExchange
+import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.constraints.NotBlank
-import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.ResponseCookie
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -26,7 +26,7 @@ import java.time.Duration
 @Component
 @Validated
 class CreateAccessTokenByCredentialsMutation(
-    private val authenticationManager: ReactiveAuthenticationManager,
+    private val authenticationManager: AuthenticationManager,
     private val jwtService: JwtService,
     private val refreshTokensService: RefreshTokensService,
 ) : Mutation {
@@ -58,7 +58,7 @@ class CreateAccessTokenByCredentialsMutation(
         errorCode = "LOGIN_NOT_AVAILABLE",
         errorCodeDescription = "Login is temporarily unavailable due to too many concurrent authentication requests for this user.",
     )
-    suspend fun createAccessTokenByCredentials(
+    fun createAccessTokenByCredentials(
         @GraphQLDescription("The username of the user.")
         @NotBlank
         userName: String,
@@ -70,16 +70,16 @@ class CreateAccessTokenByCredentialsMutation(
                     "Defaults to false if not provided."
         )
         issueRefreshTokenCookie: Boolean? = null,
+        env: DataFetchingEnvironment,
     ): CreateAccessTokenByCredentialsResponse {
         val authenticationToken = UsernamePasswordAuthenticationToken(userName, password)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitSingle()
+        val authentication = authenticationManager.authenticate(authenticationToken)
         val principal = authentication.principal as SecurityPrincipal
         val jwtToken = jwtService.buildJwtToken(principal)
 
         if (issueRefreshTokenCookie == true) {
-            val exchange = getServerWebExchange()
             val refreshToken = refreshTokensService.generateRefreshToken(principal.userName)
-            exchange.response.addCookie(
+            env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).addResponseCookie(
                 ResponseCookie
                     .from("refreshToken", refreshToken)
                     .httpOnly(true)

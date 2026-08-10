@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.categories
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,21 +11,20 @@ class CategoriesService(
     private val workspacesService: WorkspacesService
 ) {
 
-    suspend fun createCategory(category: Category): Category {
+    fun createCategory(category: Category): Category {
         workspacesService.validateWorkspaceAccess(category.workspaceId, WorkspaceAccessMode.READ_WRITE)
-        return withDbContext { categoriesRepository.save(category) }
+        return categoriesRepository.save(category)
     }
 
-    suspend fun saveCategory(category: Category): Category {
+    fun saveCategory(category: Category): Category {
         workspacesService.validateWorkspaceAccess(category.workspaceId, WorkspaceAccessMode.READ_WRITE)
-        return withDbContext { categoriesRepository.save(category) }
+        return categoriesRepository.save(category)
     }
 
-    suspend fun getCategoryByIdAndWorkspace(categoryId: String, workspaceId: String): Category? = withDbContext {
+    fun getCategoryByIdAndWorkspace(categoryId: String, workspaceId: String): Category? =
         categoriesRepository.findByIdAndWorkspaceId(categoryId, workspaceId)
-    }
 
-    suspend fun validateCategory(categoryId: String, workspaceId: String) = withDbContext {
+    fun validateCategory(categoryId: String, workspaceId: String) {
         if (!categoriesRepository.existsByIdAndWorkspaceId(categoryId, workspaceId)) {
             throw EntityNotFoundException("Category $categoryId is not found")
         }

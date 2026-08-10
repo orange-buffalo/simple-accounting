@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api.standalonedocuments
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
-import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
+import io.orangebuffalo.simpleaccounting.infra.graphql.newMappedDataLoader
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.dataloader.DataLoader
 import org.jooq.DSLContext
@@ -26,7 +26,7 @@ class StandaloneDocumentByWorkspaceAndIdDataLoader(
     override val dataLoaderName: String = NAME
 
     override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<WorkspaceStandaloneDocumentKey, StandaloneDocumentGqlDto> =
-        newAsyncMappedDataLoader { keys ->
+        newMappedDataLoader { keys ->
             val requestedPairsPredicate = DSL.or(keys.map { key ->
                 standaloneDocument.id.eq(key.standaloneDocumentId)
                     .and(document.workspaceId.eq(key.workspaceId))

@@ -12,7 +12,7 @@ private const val BACKUP_FOLDER = "/backups"
 class DropboxBackupProvider(
     private val backupProperties: BackupProperties
 ) : BackupProvider {
-    override suspend fun acceptBackup(backupFile: Path) = withClient { client ->
+    override fun acceptBackup(backupFile: Path) = withClient { client ->
         client.uploadFile(backupFile, "$BACKUP_FOLDER/${backupFile.name}")
         val existingBackups = client.listFolder(BACKUP_FOLDER)
             .filterIsInstance<FileListFolderEntry>()
@@ -25,7 +25,7 @@ class DropboxBackupProvider(
         }
     }
 
-    private suspend fun withClient(block: suspend (client: DropboxApiClient) -> Unit) {
+    private fun withClient(block: (client: DropboxApiClient) -> Unit) {
         val accessToken = backupProperties.dropbox.accessToken
         val refreshToken = backupProperties.dropbox.refreshToken
         val clientId = backupProperties.dropbox.clientId

@@ -5,7 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIdsAsync
+import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
 import io.orangebuffalo.simpleaccounting.business.documents.migration.DocumentsMigration
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
@@ -25,7 +25,7 @@ data class DocumentsMigrationGqlDto(
 ) {
     @GraphQLDescription("Documents that should be migrated.")
     fun documentsToMigrate(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
-        return env.loadDocumentsByIdsAsync(documentIdsToMigrate)
+        return env.loadDocumentsByIds(documentIdsToMigrate)
     }
 }
 

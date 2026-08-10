@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentIsUsedException
@@ -23,7 +23,7 @@ class DeleteDocumentMutation(
         errorCode = "DOCUMENT_IS_USED",
         errorCodeDescription = "The document is attached to another entity and cannot be deleted.",
     )
-    suspend fun deleteDocument(
+    fun deleteDocument(
         @GraphQLDescription("ID of the workspace the document belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the document to delete.")

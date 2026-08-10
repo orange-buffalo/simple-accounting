@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.incometaxpayments
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.server.operations.Mutation
+import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
@@ -22,7 +22,7 @@ class EditIncomeTaxPaymentMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing income tax payment in the specified workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    suspend fun editIncomeTaxPayment(
+    fun editIncomeTaxPayment(
         @GraphQLDescription("ID of the workspace the income tax payment belongs to.")
         workspaceId: String,
         @GraphQLDescription("ID of the income tax payment to update.")

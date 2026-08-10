@@ -5,7 +5,6 @@ import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.Route
-import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
@@ -14,10 +13,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaDocumentsLi
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaMarkdownOutput
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.awaitility.Awaitility.await
 import java.nio.file.Files
-import kotlin.time.Duration.Companion.milliseconds
+import java.time.Duration
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
 private val log = KotlinLogging.logger { }
@@ -81,13 +80,11 @@ fun Page.downloadBytes(downloadTrigger: () -> Unit): ByteArray {
  * Spec is satisfied when it does not throw an assertion error.
  *
  * Playwright does not have a built-in mechanism to wait for a condition to be satisfied,
- * hence using Kotest.
+ * hence using Awaitility.
  */
-fun shouldSatisfy(message: String? = null, spec: () -> Unit) = runBlocking {
+fun shouldSatisfy(message: String? = null, spec: () -> Unit) {
     withClue(message ?: "Spec is not satisfied") {
-        eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
-            spec()
-        }
+        await().atMost(Duration.ofMillis(UI_ASSERTIONS_TIMEOUT_MS.toLong())).untilAsserted(spec)
     }
 }
 
@@ -229,11 +226,9 @@ fun Page.withBlockedGqlApiResponse(
  * Asserts that the locator satisfies the provided spec,
  * retrying the assertion until it succeeds or the timeout is reached.
  */
-fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = runBlocking {
+fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) {
     withClue(message ?: "Spec is not satisfied on ($this)") {
-        eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
-            spec()
-        }
+        await().atMost(Duration.ofMillis(UI_ASSERTIONS_TIMEOUT_MS.toLong())).untilAsserted { spec() }
     }
 }
 
