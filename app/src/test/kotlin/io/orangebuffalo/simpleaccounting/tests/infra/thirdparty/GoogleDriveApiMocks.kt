@@ -7,6 +7,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
 private val wireMockServer = ThirdPartyApisMocks.server
@@ -82,6 +83,19 @@ object GoogleDriveApiMocks {
                             }
                         }
                 )
+        )
+    }
+
+    fun mockFindFileAuthorizationFailure(
+        fileId: String,
+        expectedAuthToken: OAuthMocksToken,
+        status: HttpStatus,
+    ) {
+        wireMockServer.stubFor(
+            get(urlPathMatching("$GDRIVE_MOCKS_ROOT_PATH/drive/v3/files/$fileId"))
+                .withQueryParam("fields", equalTo("name, trashed, id"))
+                .withHeader(HttpHeaders.AUTHORIZATION, expectedAuthToken.authorizationHeaderMatcher())
+                .willReturn(aResponse().withStatus(status.value()))
         )
     }
 

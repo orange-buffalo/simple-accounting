@@ -108,6 +108,28 @@ class DocumentsUploadApiTest(
         }
 
         @Test
+        fun `should upload a document larger than one megabyte`() {
+            val token = createUploadToken()
+            val content = ByteArray(2 * 1024 * 1024) { 42 }
+            val body = MultipartBodyBuilder().apply {
+                part("file", InMemoryResource(content), MediaType.APPLICATION_OCTET_STREAM)
+                    .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.builder("form-data")
+                            .name("file")
+                            .filename("planet-express-manifest.bin")
+                            .build().toString(),
+                    )
+            }
+
+            client.post()
+                .uri("/api/documents/upload/$token")
+                .bodyValue(body.build())
+                .exchange()
+                .expectStatus().isOk
+        }
+
+        @Test
         fun `should store document in correct workspace`() {
             val token = createUploadToken()
 

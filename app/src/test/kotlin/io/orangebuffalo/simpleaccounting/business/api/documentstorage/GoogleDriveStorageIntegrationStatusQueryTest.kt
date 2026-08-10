@@ -2,8 +2,10 @@ package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
+import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
+import io.orangebuffalo.simpleaccounting.infra.oauth2.PersistentOAuth2AuthorizedClientRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
@@ -11,13 +13,16 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import io.kotest.matchers.nulls.shouldBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 
@@ -28,6 +33,7 @@ import org.springframework.test.context.TestExecutionListeners
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 class GoogleDriveStorageIntegrationStatusQueryTest(
     @Autowired private val client: ApiTestClient,
+    @Autowired private val authorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
 ) : SaIntegrationTestBase() {
 
     private val preconditions by lazyPreconditions {
@@ -110,6 +116,33 @@ class GoogleDriveStorageIntegrationStatusQueryTest(
                     }
                 )
         }
+
+        @Test
+        fun `should remove persisted OAuth token when Google Drive rejects it`() {
+            val accessToken = GoogleOAuthMocks.token().persist(preconditions.leela)
+            GoogleDriveApiMocks.mockFindFileAuthorizationFailure(
+                fileId = "leela-root-folder-id",
+                expectedAuthToken = accessToken,
+                status = HttpStatus.UNAUTHORIZED,
+            )
+
+            client
+                .graphql { googleDriveStorageIntegrationStatusQuery() }
+                .from(preconditions.leela)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.QUERY.GoogleDriveStorageIntegrationStatus to buildJsonObject {
+                        put("authorizationRequired", true)
+                        put("authorizationUrl", JsonValues.ANY_STRING)
+                        put("folderId", "leela-root-folder-id")
+                        put("folderName", JsonNull)
+                    }
+                )
+
+            authorizedClientRepository.findByClientRegistrationIdAndUserName(
+                OAUTH2_CLIENT_REGISTRATION_ID,
+                preconditions.leela.userName,
+            ).shouldBeNull()
+        }
     }
 
     private fun QueryProjection.googleDriveStorageIntegrationStatusQuery(): QueryProjection =
@@ -127,4 +160,3 @@ class GoogleDriveStorageIntegrationStatusQueryTest(
             folderName
         }
 }
-
