@@ -31,8 +31,8 @@
     "lodash": "4.18.1",
     "marked": "18.0.11",
     "qs": "6.15.3",
-    "vue": "3.5.41",
-    "vue-router": "5.2.0"
+    "vue": "3.5.42",
+    "vue-router": "5.3.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -57,7 +57,7 @@
     "@vitejs/plugin-vue": "6.0.8",
     "@vue/eslint-config-airbnb": "8.0.0",
     "@vue/eslint-config-typescript": "13.0.0",
-    "@vue/test-utils": "2.4.11",
+    "@vue/test-utils": "2.5.0",
     "cldr-data": "36.0.5",
     "cldrjs": "0.5.5",
     "eslint": "10.9.0",
