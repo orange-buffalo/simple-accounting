@@ -18,6 +18,11 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationPurpose
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationRequest
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthProvider
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthProviderScope
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.UserOAuthIdentity
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -124,6 +129,68 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         isAdmin = false,
         activated = true,
     )
+
+    fun oauthProvider(
+        name: String = "Nimbus Auth ${sequenceValue++}",
+        clientId: String = "test-client-id",
+        clientSecret: String = "test-client-secret",
+        authorizationUrl: String = "https://nimbus.example/authorize",
+        tokenUrl: String = "https://nimbus.example/token",
+        userInfoUrl: String = "https://nimbus.example/userinfo",
+        userIdAttribute: String = "sub",
+        scopes: Set<String> = setOf("openid"),
+        createdAt: Instant = MOCK_TIME,
+    ): OAuthProvider = OAuthProvider(
+        name = name,
+        clientId = clientId,
+        clientSecret = clientSecret,
+        authorizationUrl = authorizationUrl,
+        tokenUrl = tokenUrl,
+        userInfoUrl = userInfoUrl,
+        userIdAttribute = userIdAttribute,
+        scopes = scopes.map { OAuthProviderScope(it) }.toSet(),
+        createdAt = createdAt,
+    ).save()
+
+    fun userOAuthIdentity(
+        user: PlatformUser? = null,
+        provider: OAuthProvider? = null,
+        externalId: String = "external-id-${sequenceValue++}",
+        createdAt: Instant = MOCK_TIME,
+    ): UserOAuthIdentity {
+        val userId = if (user == null) platformUser().id else user.id
+        val providerId = if (provider == null) oauthProvider().id else provider.id
+        return UserOAuthIdentity(
+            userId = userId!!,
+            providerId = providerId!!,
+            externalId = externalId,
+            createdAt = createdAt,
+        ).save()
+    }
+
+    fun oauthAuthenticationRequest(
+        user: PlatformUser? = null,
+        provider: OAuthProvider? = null,
+        state: String = "state-${sequenceValue++}",
+        browserBinding: String = "browser-binding-${sequenceValue++}",
+        purpose: OAuthAuthenticationPurpose = OAuthAuthenticationPurpose.LOGIN,
+        issueRefreshTokenCookie: Boolean = false,
+        expiresAt: Instant = MOCK_TIME.plusSeconds(600),
+        createdAt: Instant = MOCK_TIME,
+    ): OAuthAuthenticationRequest {
+        val userId = if (user == null) platformUser().id else user.id
+        val providerId = if (provider == null) oauthProvider().id else provider.id
+        return OAuthAuthenticationRequest(
+            state = state,
+            browserBinding = browserBinding,
+            providerId = providerId!!,
+            userId = userId!!,
+            purpose = purpose,
+            issueRefreshTokenCookie = issueRefreshTokenCookie,
+            expiresAt = expiresAt,
+            createdAt = createdAt,
+        ).save()
+    }
 
     fun workspace(
         name: String = "Planet Express",

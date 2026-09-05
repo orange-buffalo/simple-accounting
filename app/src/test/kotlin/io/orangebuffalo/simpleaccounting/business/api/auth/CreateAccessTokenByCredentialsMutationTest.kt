@@ -29,6 +29,9 @@ class CreateAccessTokenByCredentialsMutationTest(
                 userName = "Scruffy",
                 activated = false,
             )
+            val benderWithLinkedIdentity = bender().also {
+                userOAuthIdentity(user = it, provider = oauthProvider(name = "Nimbus Auth"))
+            }
         }
     }
 
@@ -155,6 +158,22 @@ class CreateAccessTokenByCredentialsMutationTest(
                 .executeAndVerifyBusinessError(
                     message = "User is not activated",
                     errorCode = "USER_NOT_ACTIVATED",
+                    path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
+                )
+        }
+
+        @Test
+        fun `should return PASSWORD_LOGIN_NOT_ALLOWED error when the user has a linked OAuth identity`() {
+            whenever(
+                passwordEncoder.matches("qwerty", preconditions.benderWithLinkedIdentity.passwordHash)
+            ) doReturn true
+
+            client
+                .graphqlMutation { loginMutation(preconditions.benderWithLinkedIdentity.userName, "qwerty") }
+                .fromAnonymous()
+                .executeAndVerifyBusinessError(
+                    message = "Password login is not allowed for users with linked OAuth identities",
+                    errorCode = "PASSWORD_LOGIN_NOT_ALLOWED",
                     path = DgsConstants.MUTATION.CreateAccessTokenByCredentials
                 )
         }

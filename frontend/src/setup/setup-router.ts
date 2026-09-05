@@ -9,6 +9,7 @@ import EditExpense from '@/pages/expenses/EditExpense.vue';
 import ExpensesOverview from '@/pages/expenses/ExpensesOverview.vue';
 import MyProfile from '@/pages/my-profile/MyProfile.vue';
 import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
+import OAuthIdentityCallbackPage from '@/pages/oauth-identity-callback/OAuthIdentityCallbackPage.vue';
 import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
 import EditIncome from '@/pages/incomes/EditIncome.vue';
 import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
@@ -34,6 +35,8 @@ import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
 import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
 import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
 import EditUser from '@/pages/admin/users/EditUser.vue';
+import OAuthProvidersOverview from '@/pages/admin/oauth-providers/OAuthProvidersOverview.vue';
+import EditOAuthProvider from '@/pages/admin/oauth-providers/EditOAuthProvider.vue';
 import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
 import { resetDocumentsStorageStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
 
@@ -75,9 +78,19 @@ const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
 ];
 
 const ANONYMOUS_PAGES_NAMES = ANONYMOUS_PAGES.map((page) => page.name);
-export const ANONYMOUS_PAGES_PATH_PREFIXES = ANONYMOUS_PAGES
-  .map((page) => page.meta?.pathPrefix)
-  .filter((prefix) => prefix) as string[];
+
+/**
+ * Full screen pages that are rendered outside of the standard layouts, but still must be
+ * reachable without an active session.
+ */
+const STANDALONE_ANONYMOUS_PATH_PREFIXES = ['/oauth-identity-callback'];
+
+export const ANONYMOUS_PAGES_PATH_PREFIXES = [
+  ...ANONYMOUS_PAGES
+    .map((page) => page.meta?.pathPrefix)
+    .filter((prefix) => prefix) as string[],
+  ...STANDALONE_ANONYMOUS_PATH_PREFIXES,
+];
 
 function setupAuthenticationHooks(router: Router) {
   const {
@@ -90,6 +103,7 @@ function setupAuthenticationHooks(router: Router) {
     const { setLastView } = useLastView();
     if (to.name !== 'login'
       && to.name !== 'oauth-callback'
+      && to.name !== 'oauth-identity-callback'
       && !ANONYMOUS_PAGES_NAMES.includes(to.name)
       && !isLoggedIn()) {
       if (await tryAutoLogin()) {
@@ -125,6 +139,11 @@ export default function setupRouter() {
         path: '/oauth-callback',
         name: 'oauth-callback',
         component: OAuthCallbackPage,
+      },
+      {
+        path: '/oauth-identity-callback',
+        name: 'oauth-identity-callback',
+        component: OAuthIdentityCallbackPage,
       },
       {
         path: '/',
@@ -316,6 +335,22 @@ export default function setupRouter() {
             path: 'admin/users/:id/edit',
             name: 'edit-user',
             component: EditUser,
+            props: ID_ROUTER_PARAM_PROCESSOR,
+          },
+          {
+            path: 'admin/oauth-providers',
+            name: 'oauth-providers-overview',
+            component: OAuthProvidersOverview,
+          },
+          {
+            path: 'admin/oauth-providers/create',
+            name: 'create-new-oauth-provider',
+            component: EditOAuthProvider,
+          },
+          {
+            path: 'admin/oauth-providers/:id/edit',
+            name: 'edit-oauth-provider',
+            component: EditOAuthProvider,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
         ],

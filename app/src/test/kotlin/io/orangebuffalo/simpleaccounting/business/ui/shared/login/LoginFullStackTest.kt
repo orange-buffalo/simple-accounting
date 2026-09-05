@@ -35,13 +35,23 @@ class LoginFullStackTest : SaFullStackTestBase() {
     fun `should login as regular user and verify remember me cookie`(page: Page) {
         page.openLoginPage {
             reportRendering("login.initial-state")
+            continueButton {
+                shouldBeDisabled()
+                shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Continue") }
+            }
+            passwordInput { shouldBeHidden() }
+            loginInput { fill(preconditions.fry.userName) }
+            continueButton {
+                shouldBeEnabled()
+                click()
+            }
+
             loginButton {
                 shouldBeDisabled()
                 shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Login") }
             }
             rememberMeCheckbox { shouldBeChecked() }
-            loginInput { fill(preconditions.fry.userName) }
-            loginButton { shouldBeDisabled() }
+            loginInput { shouldBeDisabled() }
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { shouldBeEnabled() }
             reportRendering("login.filled-state")
@@ -52,7 +62,6 @@ class LoginFullStackTest : SaFullStackTestBase() {
                     loginButton { click() }
                 },
                 blockedRequestSpec = {
-                    loginInput.shouldBeDisabled()
                     passwordInput.shouldBeDisabled()
                     rememberMeCheckbox.shouldBeDisabled()
                     loginButton.shouldBeDisabled()
@@ -90,15 +99,27 @@ class LoginFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should login as admin user`(page: Page) {
         page.openLoginPage {
-            loginButton { shouldBeDisabled() }
-            rememberMeCheckbox { shouldBeChecked() }
-            loginInput { fill(preconditions.farnsworth.userName) }
-            loginButton { shouldBeDisabled() }
-            passwordInput { fill(preconditions.farnsworth.passwordHash) }
-            loginButton {
+            loginAs(preconditions.farnsworth)
+        }
+        page.shouldBeUsersOverviewPage()
+    }
+
+    @Test
+    fun `should allow switching to another account after the username is submitted`(page: Page) {
+        page.openLoginPage {
+            submitUserName(preconditions.fry.userName)
+            passwordInput { shouldBeVisible() }
+
+            changeUserButton { click() }
+
+            passwordInput { shouldBeHidden() }
+            loginInput {
                 shouldBeEnabled()
-                click()
+                fill(preconditions.farnsworth.userName)
             }
+            continueButton { click() }
+            passwordInput { fill(preconditions.farnsworth.passwordHash) }
+            loginButton { click() }
         }
         page.shouldBeUsersOverviewPage()
     }
@@ -108,12 +129,11 @@ class LoginFullStackTest : SaFullStackTestBase() {
         mockWrongPassword()
 
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
+            submitUserName(preconditions.fry.userName)
             passwordInput { fill("wrongpassword") }
             loginButton { click() }
             shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
             reportRendering("login.error-state")
-            loginInput { shouldBeEnabled() }
             passwordInput { shouldBeEnabled() }
             loginButton { shouldBeEnabled() }
             rememberMeCheckbox { shouldBeEnabled() }
@@ -136,7 +156,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         mockWrongPassword()
 
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
+            submitUserName(preconditions.fry.userName)
             passwordInput { fill("wrongpassword") }
             loginButton { click() }
             shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in 0:\\d\\d")
@@ -157,9 +177,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         }
 
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
-            passwordInput { fill(preconditions.fry.passwordHash) }
-            loginButton { click() }
+            loginAs(preconditions.fry)
         }
 
         page.shouldBeDashboardPage()
@@ -178,7 +196,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         }
 
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
+            submitUserName(preconditions.fry.userName)
             // correct password
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { click() }
@@ -200,7 +218,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         mockWrongPassword()
 
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
+            submitUserName(preconditions.fry.userName)
             passwordInput { fill("wrongpassword") }
             loginButton { click() }
             shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
@@ -215,7 +233,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should forbid login for not activated users`(page: Page) {
         page.openLoginPage {
-            loginInput { fill(preconditions.scruffy.userName) }
+            submitUserName(preconditions.scruffy.userName)
             passwordInput { fill(preconditions.scruffy.passwordHash) }
             loginButton { click() }
             shouldHaveErrorMessage(
@@ -229,8 +247,8 @@ class LoginFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should logout and show login page with cookie removed`(page: Page) {
         page.openLoginPage {
+            submitUserName(preconditions.fry.userName)
             rememberMeCheckbox { shouldBeChecked() }
-            loginInput { fill(preconditions.fry.userName) }
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { click() }
         }

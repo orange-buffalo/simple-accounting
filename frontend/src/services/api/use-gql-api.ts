@@ -16,12 +16,14 @@ let authErrorHandling: Promise<void> | null = null;
 function useGqlErrorHandler(): ErrorHandler {
   const { navigateByPath } = useNavigation();
   const { showWarningNotification } = useNotifications();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, clearSession } = useAuth();
   return async (e: unknown): Promise<never> => {
     if (e instanceof ApiAuthError) {
       if (!authErrorHandling) {
         authErrorHandling = (async () => {
           if (isLoggedIn()) {
+            // drop the session first, so that requests failing later do not report it again
+            clearSession();
             showWarningNotification($t.value.infra.sessionExpired(), {
               duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
             });

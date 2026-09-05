@@ -11,6 +11,7 @@ import graphql.schema.GraphQLSchema
 import graphql.language.SourceLocation
 import io.orangebuffalo.simpleaccounting.business.security.ProgrammaticAuthentication
 import io.orangebuffalo.simpleaccounting.business.security.SpringSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.api.auth.OAUTH_FLOW_BINDING_COOKIE
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
@@ -85,6 +86,7 @@ private class SaWebGraphQlInterceptor(
             ?: extractAuthentication(request.headers.getFirst(HttpHeaders.AUTHORIZATION)?.removeBearerPrefix())
         val httpRequestContext = GraphQlHttpRequestContext(
             refreshToken = request.cookies.getFirst("refreshToken")?.value,
+            oauthFlowBinding = request.cookies.getFirst(OAUTH_FLOW_BINDING_COOKIE)?.value,
         )
 
         request.configureExecutionInput { executionInput, builder ->

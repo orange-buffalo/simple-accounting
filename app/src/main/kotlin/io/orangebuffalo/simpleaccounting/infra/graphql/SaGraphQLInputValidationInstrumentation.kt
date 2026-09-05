@@ -5,11 +5,14 @@ import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters
+import graphql.language.ArrayValue
 import graphql.language.BooleanValue
+import graphql.language.EnumValue
 import graphql.language.Field
 import graphql.language.FloatValue
 import graphql.language.IntValue
 import graphql.language.NullValue
+import graphql.language.ObjectValue
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
 import graphql.language.SourceLocation
@@ -140,6 +143,9 @@ class SaGraphQLInputValidationInstrumentation(
         is BooleanValue -> value.isValue
         is IntValue -> value.value?.toLong()
         is FloatValue -> value.value
+        is EnumValue -> value.name
+        is ArrayValue -> value.values.map { resolveValue(it, variables) }
+        is ObjectValue -> value.objectFields.associate { it.name to resolveValue(it.value, variables) }
         else -> null
     }
 

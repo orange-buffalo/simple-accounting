@@ -24,6 +24,12 @@ class ChangePasswordMutation(
         errorCode = "CURRENT_PASSWORD_MISMATCH",
         errorCodeDescription = "The provided current password does not match the user's actual password.",
     )
+    @BusinessError(
+        exceptionClass = PasswordChangeException.PasswordLoginNotAllowedException::class,
+        errorCode = "PASSWORD_LOGIN_NOT_ALLOWED",
+        errorCodeDescription = "The user has linked OAuth identities, so the password cannot be used and " +
+                "is not managed.",
+    )
     fun changePassword(
         @GraphQLDescription("The current password of the user.")
         @NotBlank

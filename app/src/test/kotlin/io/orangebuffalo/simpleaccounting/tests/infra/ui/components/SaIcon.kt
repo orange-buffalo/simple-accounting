@@ -61,4 +61,7 @@ enum class SaIconType(val uiValue: String) {
     GOOGLE_DRIVE("google-drive"),
     FOLDER("folder"),
     DATA_LINE("data-line"),
+    LOGIN("login"),
+    PROFILE("profile"),
+    GEAR("gear"),
 }

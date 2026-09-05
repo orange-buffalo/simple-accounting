@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
+import io.orangebuffalo.simpleaccounting.business.oauthproviders.UserOAuthIdentitiesRepository
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -22,12 +23,14 @@ class AuthenticationService(
     private val platformUsersRepository: PlatformUsersRepository,
     private val passwordEncoder: PasswordEncoder,
     private val timeService: TimeService,
+    private val userOAuthIdentitiesRepository: UserOAuthIdentitiesRepository,
 ) {
 
     fun authenticate(userName: String, credentials: String): PlatformUser {
         val user = platformUsersRepository.findByUserName(userName)
             ?: throw BadCredentialsException("Invalid Credentials")
         validateActivated(user)
+        validatePasswordLoginAllowed(user)
         validateTemporaryLock(user)
         validatePassword(user, credentials)
         resetLoginStatistics(user)
@@ -37,6 +40,12 @@ class AuthenticationService(
     private fun validateActivated(user: PlatformUser) {
         if (!user.activated) {
             throw UserNotActivatedException()
+        }
+    }
+
+    private fun validatePasswordLoginAllowed(user: PlatformUser) {
+        if (userOAuthIdentitiesRepository.findByUserId(user.id!!).isNotEmpty()) {
+            throw PasswordLoginNotAllowedException()
         }
     }
 
@@ -102,6 +111,10 @@ class AuthenticationService(
         }
         val user = platformUsersRepository.findByUserName(currentPrincipal.userName)
             ?: throw IllegalStateException("Current principal is not resolved to a user")
+        // the password is not usable for this account, so managing it would only be misleading
+        if (userOAuthIdentitiesRepository.findByUserId(user.id!!).isNotEmpty()) {
+            throw PasswordChangeException.PasswordLoginNotAllowedException()
+        }
         if (!checkCredentials(user, currentPassword)) {
             throw PasswordChangeException.InvalidCurrentPasswordException()
         }
@@ -114,8 +127,15 @@ class AuthenticationService(
 
 sealed class PasswordChangeException(message: String) : RuntimeException(message) {
     class TransientUserException : PasswordChangeException("Cannot change password for transient user")
+    class PasswordLoginNotAllowedException : PasswordChangeException(
+        "Cannot change password for users with linked OAuth identities"
+    )
     class InvalidCurrentPasswordException : PasswordChangeException("Invalid current password")
     class UserNotAuthenticatedException : PasswordChangeException("User is not authenticated")
 }
 
 class UserNotActivatedException : AuthenticationException("User is not activated")
+
+class PasswordLoginNotAllowedException : AuthenticationException(
+    "Password login is not allowed for users with linked OAuth identities"
+)

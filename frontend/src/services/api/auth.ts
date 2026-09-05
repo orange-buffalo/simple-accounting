@@ -124,6 +124,21 @@ async function login(loginRequest: LoginRequest) {
   scheduleTokenRefresh();
 }
 
+/**
+ * Drops the current session without notifying the API. Used when the API rejects the
+ * current token, so that concurrent requests do not report the expiration more than once.
+ */
+function clearSession() {
+  cancelTokenRefresh();
+  updateApiToken(null);
+}
+
+function loginWithAccessToken(accessToken: string) {
+  cancelTokenRefresh();
+  updateApiToken(accessToken);
+  scheduleTokenRefresh();
+}
+
 async function logout() {
   cancelTokenRefresh();
   try {
@@ -198,6 +213,10 @@ interface Auth {
 
   login: (request: LoginRequest) => Promise<void>;
 
+  loginWithAccessToken: (accessToken: string) => void;
+
+  clearSession: () => void;
+
   isCurrentUserRegular(): boolean;
 
   loginBySharedToken: (sharedToken: string) => Promise<{ id: string; name: string; defaultCurrency: string; } | null>;
@@ -210,6 +229,8 @@ export function useAuth(): Auth {
     },
     tryAutoLogin,
     login,
+    loginWithAccessToken,
+    clearSession,
     logout,
     loginBySharedToken,
     isLoggedIn() {

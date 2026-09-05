@@ -344,6 +344,35 @@ class GraphqlClientRequestExecutor(
             }
     }
 
+    /**
+     * Verifies a business error without pinning its message, for cases where the message
+     * carries details that are not the subject of the test.
+     */
+    fun executeAndVerifyBusinessErrorCode(
+        errorCode: String,
+        path: String,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                val json = Json.parseToJsonElement(this).jsonObject
+                val errors = json["errors"]?.jsonArray.shouldNotBeNull()
+                errors.shouldNotBeEmpty()
+                val extensions = errors[0].jsonObject["extensions"]?.jsonObject.shouldNotBeNull()
+                withClue("Expected errorType to be BUSINESS_ERROR") {
+                    extensions["errorType"]?.jsonPrimitive?.content.shouldBe("BUSINESS_ERROR")
+                }
+                withClue("Expected errorCode to be $errorCode") {
+                    extensions["errorCode"]?.jsonPrimitive?.content.shouldBe(errorCode)
+                }
+                val pathArray = errors[0].jsonObject["path"]?.jsonArray.shouldNotBeNull()
+                withClue("Expected path") {
+                    pathArray[0].jsonPrimitive.content.shouldBe(path)
+                }
+            }
+    }
+
     fun executeAndVerifyNotAuthorized(
         path: String,
         locationColumn: Int = 3,

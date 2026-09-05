@@ -46,11 +46,15 @@ export default {
       label: () => 'Remember me for 30 days',
     },
     login: () => 'Login',
+    continueAction: () => 'Continue',
+    changeUser: () => 'Use another account',
+    continueWithProvider: (providerName: string) => format('Continue with {0}', [providerName]),
     loginError: {
       underAttack: () => 'Looks like your account is under attack!',
       generalFailure: () => 'Login attempt failed. Please make sure login and password is correct',
       accountLocked: (lockDurationInSec: number) => format('Account is temporary locked. It will be unlocked in {0, duration}', [lockDurationInSec]),
       userNotActivated: () => 'Your account is not yet activated. Please use the token shared with you by the administrators. Contact them if you need to reset the token',
+      passwordLoginNotAllowed: () => 'This account is linked to an authentication provider. Please login with the provider instead',
     },
   },
 
@@ -76,6 +80,7 @@ export default {
     },
     admin: {
       users: () => 'Users',
+      oauthProviders: () => 'Authentication Providers',
     },
   },
 
@@ -479,6 +484,24 @@ export default {
       },
       feedback: {
         success: () => 'Language preferences have been saved',
+      },
+    },
+    oauthProviders: {
+      header: () => 'Authentication Providers',
+      description: () => 'Link your account to an external authentication provider. Once at least one provider is linked, password login is no longer available for this account.',
+      linked: (externalId: string) => format('Linked as {0}', [externalId]),
+      notLinked: () => 'Not linked',
+      link: () => 'Link account',
+      unlink: () => 'Unlink account',
+      unlinkConfirm: {
+        title: () => 'Unlink account',
+        message: () => 'This provider will no longer be usable to login. Continue?',
+        lastProviderMessage: () => 'Password login will become available again for this account. Continue?',
+        yes: () => 'Unlink',
+        no: () => 'Cancel',
+      },
+      feedback: {
+        unlinked: () => 'The provider has been unlinked from your account',
       },
     },
     changePassword: {
@@ -993,6 +1016,89 @@ export default {
     create: () => 'Create user',
   },
 
+  oauthProvidersOverview: {
+    header: () => 'Authentication Providers',
+    filters: {
+      freeSearchText: {
+        label: () => 'Provider name',
+      },
+    },
+    create: () => 'Register provider',
+  },
+
+  oauthProvidersOverviewPanel: {
+    edit: () => 'Edit',
+  },
+
+  editOAuthProvider: {
+    pageHeader: {
+      edit: () => 'Edit Authentication Provider',
+      create: () => 'Register Authentication Provider',
+    },
+    form: {
+      name: {
+        label: () => 'Provider name',
+        placeholder: () => 'The name the users will see on the login page',
+        errors: {
+          providerAlreadyExists: (name: string) => format('Provider with name "{0}" already exists', [name]),
+        },
+      },
+      clientId: {
+        label: () => 'Client ID',
+        placeholder: () => 'Client ID issued by the provider',
+      },
+      clientSecret: {
+        label: () => 'Client secret',
+        placeholder: () => 'Client secret issued by the provider',
+        keepPlaceholder: () => 'Leave empty to keep the current secret',
+      },
+      authorizationUrl: {
+        label: () => 'Authorization endpoint',
+        placeholder: () => 'Where the users are redirected to grant access',
+      },
+      tokenUrl: {
+        label: () => 'Token endpoint',
+        placeholder: () => 'Where the authorization code is exchanged for a token',
+      },
+      userInfoUrl: {
+        label: () => 'User info endpoint',
+        placeholder: () => 'Where the details of the identity are retrieved from',
+      },
+      userIdAttribute: {
+        label: () => 'User ID attribute',
+        placeholder: () => 'Attribute of the user info response identifying the user, e.g. sub',
+        errors: {
+          locked: () => 'Cannot be changed while users have accounts linked at this provider',
+        },
+      },
+      scopes: {
+        label: () => 'Scopes',
+        placeholder: () => 'Space separated list of scopes to request',
+        errors: {
+          invalidScope: () => 'Scopes must be non-empty, unique, and must not contain spaces',
+        },
+      },
+      callbackUrl: {
+        label: () => 'Redirect URL to whitelist at the provider',
+        copied: () => 'Redirect URL is copied to clipboard',
+      },
+    },
+    successNotification: (name: string) => format('Provider {0} has been successfully saved', [name]),
+  },
+
+  oauthIdentityCallbackPage: {
+    loading: () => 'We are completing the authentication.. Please hold on.',
+    linked: () => 'Your account has been linked to the authentication provider',
+    backToLogin: () => 'Back to login',
+    backToProfile: () => 'Back to my profile',
+    errors: {
+      identityMismatch: () => 'The account at the provider is not the one linked to this user.',
+      identityAlreadyInUse: () => 'The account at the provider is already linked to another user.',
+      unknownRequest: () => 'This authentication request is not known or has expired. Please try again.',
+      generalFailure: () => 'Authentication failed. Please try again or contact your administrator.',
+    },
+  },
+
   adminOverviewPanel: {
     userTypeAdmin: () => 'Admin user',
     userTypeRegular: () => 'User',
@@ -1009,6 +1115,7 @@ export default {
     sizeMax: (max: number) => format('The length of this value should be no longer than {max, number} characters', {
       max,
     }),
+    mustBeValidEndpointUrl: () => 'Please provide an https address, or an http address of a local host',
     notBlank: () => 'This value is required and should not be blank',
     notNull: () => 'This value is required',
     minConstraintViolated: (min: number) => format('The value must be no less than {min, number}', { min }),

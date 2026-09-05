@@ -177,6 +177,9 @@ class AccountActivationFullStackTest : SaFullStackTestBase() {
                 loginInput {
                     fill(preconditions.user.userName)
                 }
+                continueButton {
+                    click()
+                }
                 passwordInput {
                     fill("qwerty")
                 }

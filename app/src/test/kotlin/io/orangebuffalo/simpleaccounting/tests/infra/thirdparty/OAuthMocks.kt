@@ -44,7 +44,7 @@ object OAuthMocks {
         mockOAuthServer.authorizationEndpointUrl(issuerId).toString()
 
     // workaround - MockOAuth2Server does not provide API to clear the queue
-    private fun resetCurrentTokensQueue() {
+    fun resetCurrentTokensQueue() {
         val handlerField = MockOAuth2Server::class.java.getDeclaredField("defaultRequestHandler")
         handlerField.isAccessible = true
         val handler = handlerField.get(mockOAuthServer)
@@ -94,6 +94,8 @@ object OAuthMocks {
                         }
                         OAuthRecordedRequest.Authorize
                     }
+
+                    path.startsWith("/$issuerId/userinfo") -> OAuthRecordedRequest.UserInfo
 
                     path.startsWith("/$issuerId/token") -> {
                         withHint("Should invoke token endpoint with proper credentials") {
@@ -266,5 +268,6 @@ interface OAuthMocksToken {
 sealed interface OAuthRecordedRequest {
     data object Authorize : OAuthRecordedRequest
     data object TokenByCode : OAuthRecordedRequest
+    data object UserInfo : OAuthRecordedRequest
     data class TokenByRefreshToken(val refreshToken: String) : OAuthRecordedRequest
 }

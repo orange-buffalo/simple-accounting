@@ -18,9 +18,7 @@ class UiInfrastructureFullStackTest : SaFullStackTestBase() {
 
         // ensure any business page is loaded
         page.openLoginPage {
-            loginInput { fill(preconditions.fry.userName) }
-            passwordInput { fill(preconditions.fry.passwordHash) }
-            loginButton { click() }
+            loginAs(preconditions.fry)
         }
         page.shouldBeDashboardPage { shouldBeLoaded() }
 
@@ -36,9 +34,7 @@ class UiInfrastructureFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications {
                 warning("Your session has expired. Please login again.")
             }
-            loginInput { fill(preconditions.fry.userName) }
-            passwordInput { fill(preconditions.fry.passwordHash) }
-            loginButton { click() }
+            loginAs(preconditions.fry)
         }
 
         // TODO #2066: should be my profile page

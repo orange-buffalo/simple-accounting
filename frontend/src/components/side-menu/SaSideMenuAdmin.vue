@@ -4,6 +4,11 @@
     :title="$t.navigationMenu.admin.users()"
     icon="dashboard"
   />
+  <SaSideMenuLink
+    to="/admin/oauth-providers"
+    :title="$t.navigationMenu.admin.oauthProviders()"
+    icon="gear"
+  />
 </template>
 
 <script lang="ts" setup>
