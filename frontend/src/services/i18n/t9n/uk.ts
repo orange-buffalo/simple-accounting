@@ -1034,6 +1034,18 @@ export default {
       edit: () => 'Редагувати провайдера автентифікації',
       create: () => 'Зареєструвати провайдера автентифікації',
     },
+    oidcDiscovery: {
+      title: () => 'Виявлення OpenID Connect',
+      description: () => 'Автоматично завантажте стандартні endpoints провайдера, а потім перевірте та відредагуйте їх перед збереженням.',
+      load: () => 'Завантажити налаштування провайдера',
+      baseUrl: {
+        label: () => 'Базовий URL провайдера',
+        placeholder: () => 'Наприклад, https://identity.example.com',
+        errors: {
+          discoveryFailed: () => 'Не вдалося завантажити сумісну конфігурацію OpenID Connect з цієї URL-адреси',
+        },
+      },
+    },
     form: {
       name: {
         label: () => 'Назва провайдера',
@@ -1114,7 +1126,7 @@ export default {
     sizeMax: (max: number) => format('Довжина цього значення не повинна перевищувати {max, number} символів', {
       max,
     }),
-    mustBeValidEndpointUrl: () => 'Будь ласка, вкажіть https адресу або http адресу локального хоста',
+    mustBeValidEndpointUrl: () => 'Будь ласка, вкажіть коректну http або https адресу',
     notBlank: () => 'Це поле є обов\'язковим і не повинно бути порожнім',
     notNull: () => 'Це поле є обов\'язковим',
     minConstraintViolated: (min: number) => format('Значення повинно бути не менше {min, number}', { min }),

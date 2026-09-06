@@ -257,6 +257,12 @@ export enum DeleteDocumentErrorCodes {
   DocumentIsUsed = 'DOCUMENT_IS_USED'
 }
 
+/** Possible business error codes for the discoverOidcProviderConfiguration operation. */
+export enum DiscoverOidcProviderConfigurationErrorCodes {
+  /** A compatible OpenID Connect configuration could not be loaded from the base URL. */
+  DiscoveryFailed = 'DISCOVERY_FAILED'
+}
+
 /** A document in a workspace. */
 export type Document = {
   __typename?: 'Document';
@@ -1340,6 +1346,15 @@ export type OAuthProvidersConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type OidcProviderConfiguration = {
+  __typename?: 'OidcProviderConfiguration';
+  authorizationUrl: Scalars['String']['output'];
+  scopes: Array<Scalars['String']['output']>;
+  tokenUrl: Scalars['String']['output'];
+  userIdAttribute: Scalars['String']['output'];
+  userInfoUrl: Scalars['String']['output'];
+};
+
 /** Pagination information following the GraphQL Cursor Connections Specification. */
 export type PageInfo = {
   __typename?: 'PageInfo';
@@ -1408,6 +1423,8 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Loads OAuth2 endpoints from an OpenID Connect discovery document. */
+  discoverOidcProviderConfiguration: OidcProviderConfiguration;
   /** Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first. */
   documentsMigrations: DocumentsMigrationsConnection;
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -1420,8 +1437,6 @@ export type Query = {
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
   /** Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name. */
   myOAuthProviderLinks: Array<OAuthProviderLinkGqlDto>;
-  /** Returns the redirect URL that must be whitelisted at the OAuth2 providers in order for the authentication flows to work. */
-  oauthCallbackUrl: Scalars['String']['output'];
   /** Returns the OAuth2 provider with the given ID. */
   oauthProvider: OAuthProvider;
   /** Returns the registered OAuth2 providers with cursor-based pagination. Only accessible by admin users. */
@@ -1444,6 +1459,11 @@ export type Query = {
   workspace: Workspace;
   /** Returns all workspaces accessible by the current user with cursor-based pagination. */
   workspaces: WorkspacesConnection;
+};
+
+
+export type QueryDiscoverOidcProviderConfigurationArgs = {
+  baseUrl: Scalars['String']['input'];
 };
 
 
@@ -1613,6 +1633,8 @@ export type SystemSettings = {
   __typename?: 'SystemSettings';
   /** Whether local file system documents storage is enabled. */
   localFileSystemDocumentsStorageEnabled: Scalars['Boolean']['output'];
+  /** Redirect URL that must be registered at OAuth2 providers for authentication flows. */
+  oauthCallbackUrl: Scalars['String']['output'];
 };
 
 /** Response for the unlinkOAuthIdentity mutation. */

@@ -1035,6 +1035,18 @@ export default {
       edit: () => 'Edit Authentication Provider',
       create: () => 'Register Authentication Provider',
     },
+    oidcDiscovery: {
+      title: () => 'OpenID Connect discovery',
+      description: () => 'Load standard provider endpoints automatically, then review and edit them before saving.',
+      load: () => 'Load provider settings',
+      baseUrl: {
+        label: () => 'Provider base URL',
+        placeholder: () => 'For example, https://identity.example.com',
+        errors: {
+          discoveryFailed: () => 'A compatible OpenID Connect configuration could not be loaded from this URL',
+        },
+      },
+    },
     form: {
       name: {
         label: () => 'Provider name',
@@ -1115,7 +1127,7 @@ export default {
     sizeMax: (max: number) => format('The length of this value should be no longer than {max, number} characters', {
       max,
     }),
-    mustBeValidEndpointUrl: () => 'Please provide an https address, or an http address of a local host',
+    mustBeValidEndpointUrl: () => 'Please provide a valid http or https address',
     notBlank: () => 'This value is required and should not be blank',
     notNull: () => 'This value is required',
     minConstraintViolated: (min: number) => format('The value must be no less than {min, number}', { min }),

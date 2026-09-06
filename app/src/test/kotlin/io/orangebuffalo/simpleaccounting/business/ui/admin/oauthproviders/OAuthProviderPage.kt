@@ -13,6 +13,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 
 abstract class OAuthProviderPageBase(page: Page) : SaPageBase(page) {
+    val providerBaseUrl = components.formItemTextInputByLabel("Provider base URL")
+    val loadProviderSettingsButton = components.buttonByText("Load provider settings")
     val name = components.formItemTextInputByLabel("Provider name")
     val clientId = components.formItemTextInputByLabel("Client ID")
     val clientSecret = components.formItemTextInputByLabel("Client secret")

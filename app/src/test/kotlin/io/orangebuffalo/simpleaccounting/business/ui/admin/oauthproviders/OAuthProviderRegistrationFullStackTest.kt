@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.admin.oauthproviders.OAuthP
 import io.orangebuffalo.simpleaccounting.business.ui.admin.oauthproviders.OAuthProvidersOverviewPage.Companion.shouldBeOAuthProvidersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.admin.oauthproviders.RegisterOAuthProviderPage.Companion.shouldBeRegisterOAuthProviderPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
@@ -69,6 +70,50 @@ class OAuthProviderRegistrationFullStackTest : SaFullStackTestBase() {
         page.openOAuthProvidersOverviewPage {
             pageItems { shouldHaveTitles("Nimbus Auth") }
         }
+    }
+
+    @Test
+    fun `should discover OIDC settings before registering a provider`(page: Page) {
+        val testData = preconditions {
+            object {
+                val farnsworth = farnsworth()
+            }
+        }
+        page.authenticateViaCookie(testData.farnsworth)
+
+        page.openOAuthProvidersOverviewPage {
+            registerProviderButton.click()
+        }
+
+        val issuerUrl = OAuthMocks.issuerUrl("nimbus-discovery").toString()
+        page.shouldBeRegisterOAuthProviderPage {
+            providerBaseUrl { input.fill(issuerUrl) }
+            loadProviderSettingsButton.click()
+
+            authorizationUrl { input.shouldHaveValue("$issuerUrl/authorize") }
+            tokenUrl { input.shouldHaveValue("$issuerUrl/token") }
+            userInfoUrl { input.shouldHaveValue("$issuerUrl/userinfo") }
+            userIdAttribute { input.shouldHaveValue("sub") }
+            scopes { input.shouldHaveValue("openid") }
+
+            name { input.fill("Discovered Auth") }
+            clientId { input.fill("discovered-client-id") }
+            clientSecret { input.fill("discovered-client-secret") }
+            saveButton.click()
+        }
+
+        page.shouldBeEditOAuthProviderPage {
+            shouldHaveNotifications {
+                success("Provider Discovered Auth has been successfully saved")
+            }
+        }
+
+        val provider = aggregateTemplate.findAll<OAuthProvider>().shouldBeSingle()
+        provider.authorizationUrl.shouldBe("$issuerUrl/authorize")
+        provider.tokenUrl.shouldBe("$issuerUrl/token")
+        provider.userInfoUrl.shouldBe("$issuerUrl/userinfo")
+        provider.userIdAttribute.shouldBe("sub")
+        provider.scopes.map { it.scope }.shouldContainExactlyInAnyOrder("openid")
     }
 
     @Test

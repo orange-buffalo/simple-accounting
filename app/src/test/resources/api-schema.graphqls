@@ -20,7 +20,7 @@ directive @deprecated(
     reason: String! = "No longer supported"
   ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
-"Validates that the value is an https URL, or an http URL of a loopback host"
+"Validates that the value is a well-formed http or https URL"
 directive @endpointUrl on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 "This directive disables error propagation when a non nullable field returns null for the given operation."
@@ -1239,6 +1239,14 @@ type OAuthProvidersConnection {
   totalCount: Int!
 }
 
+type OidcProviderConfiguration {
+  authorizationUrl: String!
+  scopes: [String!]!
+  tokenUrl: String!
+  userIdAttribute: String!
+  userInfoUrl: String!
+}
+
 "Pagination information following the GraphQL Cursor Connections Specification."
 type PageInfo {
   "Cursor of the last edge in the page."
@@ -1300,6 +1308,11 @@ type PushNotificationMessage {
 }
 
 type Query {
+  "Loads OAuth2 endpoints from an OpenID Connect discovery document."
+  discoverOidcProviderConfiguration(
+    "Base URL of the OpenID Connect provider."
+    baseUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0)
+  ): OidcProviderConfiguration! @auth(type : ADMIN_USER) @businessError(errorCode : "DISCOVERY_FAILED", errorCodeDescription : "A compatible OpenID Connect configuration could not be loaded from the base URL.")
   "Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first."
   documentsMigrations(
     "Cursor after which to return items."
@@ -1317,8 +1330,6 @@ type Query {
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
   "Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name."
   myOAuthProviderLinks: [OAuthProviderLinkGqlDto!]! @auth(type : AUTHENTICATED_USER)
-  "Returns the redirect URL that must be whitelisted at the OAuth2 providers in order for the authentication flows to work."
-  oauthCallbackUrl: String! @auth(type : ADMIN_USER)
   "Returns the OAuth2 provider with the given ID."
   oauthProvider(
     "ID of the provider."
@@ -1437,6 +1448,8 @@ type Subscription {
 type SystemSettings {
   "Whether local file system documents storage is enabled."
   localFileSystemDocumentsStorageEnabled: Boolean!
+  "Redirect URL that must be registered at OAuth2 providers for authentication flows."
+  oauthCallbackUrl: String!
 }
 
 "Response for the unlinkOAuthIdentity mutation."
@@ -1825,6 +1838,12 @@ enum CreateUserErrorCodes {
 enum DeleteDocumentErrorCodes {
   "The document is attached to another entity and cannot be deleted."
   DOCUMENT_IS_USED
+}
+
+"Possible business error codes for the discoverOidcProviderConfiguration operation."
+enum DiscoverOidcProviderConfigurationErrorCodes {
+  "A compatible OpenID Connect configuration could not be loaded from the base URL."
+  DISCOVERY_FAILED
 }
 
 "Usage type filter for documents."

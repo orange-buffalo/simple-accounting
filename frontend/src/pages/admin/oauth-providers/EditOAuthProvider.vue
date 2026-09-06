@@ -1,5 +1,22 @@
 <template>
   <SaPage :header="pageHeader">
+    <section v-if="!editMode">
+      <h3>{{ $t.editOAuthProvider.oidcDiscovery.title() }}</h3>
+      <p>{{ $t.editOAuthProvider.oidcDiscovery.description() }}</p>
+      <SaForm
+        v-model="oidcDiscoveryFormValues"
+        :on-submit="discoverOidcProvider"
+        :submit-button-label="$t.editOAuthProvider.oidcDiscovery.load()"
+      >
+        <SaFormInput
+          prop="baseUrl"
+          :label="$t.editOAuthProvider.oidcDiscovery.baseUrl.label()"
+          :placeholder="$t.editOAuthProvider.oidcDiscovery.baseUrl.placeholder()"
+        />
+      </SaForm>
+      <ElDivider />
+    </section>
+
     <SaForm
       v-model="formValues"
       :on-submit="saveProvider"
@@ -78,7 +95,11 @@
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation, useQuery } from '@/services/api/use-gql-api.ts';
-  import { CreateOAuthProviderErrorCodes, EditOAuthProviderErrorCodes } from '@/services/api/gql/schema-types.ts';
+  import {
+    CreateOAuthProviderErrorCodes,
+    DiscoverOidcProviderConfigurationErrorCodes,
+    EditOAuthProviderErrorCodes,
+  } from '@/services/api/gql/schema-types.ts';
 
   const props = defineProps<{
     id?: string
@@ -173,13 +194,27 @@
     }
   `), 'editOAuthProvider');
 
+  const discoverOidcProviderQuery = useLazyQuery(graphql(/* GraphQL */ `
+    query discoverOidcProviderConfiguration($baseUrl: String!) {
+      discoverOidcProviderConfiguration(baseUrl: $baseUrl) {
+        authorizationUrl
+        tokenUrl
+        userInfoUrl
+        userIdAttribute
+        scopes
+      }
+    }
+  `), 'discoverOidcProviderConfiguration');
+
   const [callbackUrlLoading, callbackUrlData] = useQuery(graphql(/* GraphQL */ `
     query oauthCallbackUrl {
-      oauthCallbackUrl
+      systemSettings {
+        oauthCallbackUrl
+      }
     }
-  `), 'oauthCallbackUrl');
+  `), 'systemSettings');
 
-  const callbackUrl = computed(() => callbackUrlData.value ?? '');
+  const callbackUrl = computed(() => callbackUrlData.value?.oauthCallbackUrl ?? '');
 
   type OAuthProviderFormValues = {
     id?: string,
@@ -205,6 +240,33 @@
     userIdAttribute: 'sub',
     scopes: 'openid',
   });
+
+  const oidcDiscoveryFormValues = ref({ baseUrl: '' });
+
+  const discoverOidcProvider = async () => {
+    try {
+      const configuration = await discoverOidcProviderQuery({
+        baseUrl: oidcDiscoveryFormValues.value.baseUrl,
+      });
+      formValues.value = {
+        ...formValues.value,
+        authorizationUrl: configuration.authorizationUrl,
+        tokenUrl: configuration.tokenUrl,
+        userInfoUrl: configuration.userInfoUrl,
+        userIdAttribute: configuration.userIdAttribute,
+        scopes: configuration.scopes.join(' '),
+      };
+    } catch (e: unknown) {
+      const errorCode = handleGqlApiBusinessError<DiscoverOidcProviderConfigurationErrorCodes>(e);
+      if (errorCode === DiscoverOidcProviderConfigurationErrorCodes.DiscoveryFailed) {
+        throw new ClientSideValidationError([{
+          field: 'baseUrl',
+          message: $t.value.editOAuthProvider.oidcDiscovery.baseUrl.errors.discoveryFailed(),
+        }]);
+      }
+      throw e;
+    }
+  };
 
   const loadProvider = editMode.value ? async () => {
     const provider = await getProviderQuery({ providerId: props.id! });

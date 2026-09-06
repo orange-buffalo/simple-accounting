@@ -296,9 +296,7 @@ fun numberRangeConstraintTestCases(
  * Generates test cases for `@EndpointUrl` string field validation. Produces:
  * - **not a URL** → `FIELD_VALIDATION_FAILURE` with `MustBeValidEndpointUrl`
  * - **unsupported scheme** → `FIELD_VALIDATION_FAILURE` with `MustBeValidEndpointUrl`
- * - **plain http of a public host** → `FIELD_VALIDATION_FAILURE` with `MustBeValidEndpointUrl`
- * - **https URL** → fully successful execution
- * - **plain http of a loopback host** → fully successful execution
+ * - **http and https URLs** → fully successful execution
  *
  * @param fieldName the GraphQL field name being validated
  * @param boundarySetup optional setup executed before the boundary tests
@@ -316,14 +314,13 @@ fun endpointUrlTestCases(
     return listOf(
         "not-a-url" to "is not a URL",
         "ftp://provider.example/authorize" to "uses an unsupported scheme",
-        "http://provider.example/authorize" to "is not encrypted",
     ).map { (value, description) ->
         GraphqlMutationValidationErrorTestCase(
             description = "$fieldName $description",
             mutation = { mutationWithFieldValue(value) },
             violationPath = fieldName,
             error = "MustBeValidEndpointUrl",
-            message = "must be an https URL, or an http URL of a loopback host",
+            message = "must be a valid http or https URL",
         )
     } + GraphqlMutationValidationErrorTestCase(
         description = "$fieldName exceeds max length ($maxLength)",
@@ -334,7 +331,7 @@ fun endpointUrlTestCases(
         params = mapOf("min" to "0", "max" to "$maxLength"),
     ) + listOf(
         "https://provider.example/authorize" to "an https URL is accepted",
-        "http://localhost:9393/authorize" to "an http URL of a loopback host is accepted",
+        "http://provider.example/authorize" to "an http URL is accepted",
         urlOfLength(maxLength) to "a URL at max length ($maxLength) is accepted",
     ).map { (value, description) ->
         GraphqlMutationValidBoundaryTestCase(

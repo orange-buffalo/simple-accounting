@@ -58,12 +58,18 @@ class SystemSettingsQueryTest(
     inner class BusinessFlow {
         @Test
         fun `should return system settings`() {
+            whenever(simpleAccountingProperties.publicUrl) doReturn "https://accounting.planet-express.example"
+
             client
-                .graphql { systemSettingsQuery() }
+                .graphql { systemSettingsQuery(includeOAuthCallbackUrl = true) }
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.SystemSettings to buildJsonObject {
                         put("localFileSystemDocumentsStorageEnabled", false)
+                        put(
+                            "oauthCallbackUrl",
+                            "https://accounting.planet-express.example/oauth-identity-callback",
+                        )
                     }
                 )
         }
@@ -83,8 +89,9 @@ class SystemSettingsQueryTest(
         }
     }
 
-    private fun QueryProjection.systemSettingsQuery(): QueryProjection =
+    private fun QueryProjection.systemSettingsQuery(includeOAuthCallbackUrl: Boolean = false): QueryProjection =
         systemSettings {
+            if (includeOAuthCallbackUrl) oauthCallbackUrl
             localFileSystemDocumentsStorageEnabled
         }
 }

@@ -8,17 +8,11 @@ import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
 import org.springframework.stereotype.Component
-import java.net.InetAddress
 import java.net.URI
 import kotlin.reflect.KClass
 
-private const val ENDPOINT_URL_MESSAGE = "must be an https URL, or an http URL of a loopback host"
+private const val ENDPOINT_URL_MESSAGE = "must be a valid http or https URL"
 
-/**
- * Requires the value to be an absolute URL this application is willing to talk to, or to send
- * the users to. Plain http is only tolerated for loopback hosts, so that local development and
- * tests can use it while deployments cannot leak client credentials over an unencrypted channel.
- */
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [EndpointUrlValidator::class])
@@ -36,7 +30,7 @@ class EndpointUrlValidator : ConstraintValidator<EndpointUrl, String> {
 class EndpointUrlValidationDirective : ValidationDirectiveMapping(
     annotationClass = EndpointUrl::class,
     directiveName = "endpointUrl",
-    directiveDescription = "Validates that the value is an https URL, or an http URL of a loopback host",
+    directiveDescription = "Validates that the value is a well-formed http or https URL",
     errorCode = ValidationErrorCode.MustBeValidEndpointUrl,
     runtimeValidator = { path, value, _ ->
         val stringValue = value as? String
@@ -66,22 +60,5 @@ private fun isValidEndpointUrl(value: String?): Boolean {
     }
 
     if (!uri.isAbsolute) return false
-    val host = uri.host ?: return false
-
-    return when (uri.scheme?.lowercase()) {
-        "https" -> true
-        "http" -> isLoopbackHost(host)
-        else -> false
-    }
-}
-
-private fun isLoopbackHost(host: String): Boolean {
-    if (host.equals("localhost", ignoreCase = true)) return true
-    val literalAddress = host.removeSurrounding("[", "]")
-    return try {
-        // only IP literals are resolved here, so no DNS lookup is performed
-        InetAddress.ofLiteral(literalAddress).isLoopbackAddress
-    } catch (_: IllegalArgumentException) {
-        false
-    }
+    return uri.host != null && uri.scheme.lowercase() in setOf("http", "https")
 }
