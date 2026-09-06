@@ -1,12 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.api.oauthproviders
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.oauthproviders.OidcProviderConfiguration
-import io.orangebuffalo.simpleaccounting.business.oauthproviders.OidcProviderDiscoveryException
-import io.orangebuffalo.simpleaccounting.business.oauthproviders.OidcProviderDiscoveryService
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthMocks
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -14,18 +12,13 @@ import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 @DisplayName("discoverOidcProviderConfiguration query")
 class DiscoverOidcProviderConfigurationQueryTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
-
-    @MockitoBean
-    lateinit var discoveryService: OidcProviderDiscoveryService
+    private val providerBaseUrl = OAuthMocks.issuerUrl("oidc-discovery").toString()
 
     private val preconditions by lazyPreconditions {
         object {
@@ -65,21 +58,13 @@ class DiscoverOidcProviderConfigurationQueryTest(
     inner class BusinessFlow {
         @Test
         fun `should return discovered configuration`() {
-            whenever(discoveryService.discover("http://provider.example")) doReturn OidcProviderConfiguration(
-                authorizationUrl = "http://provider.example/authorize",
-                tokenUrl = "http://provider.example/token",
-                userInfoUrl = "http://provider.example/userinfo",
-                userIdAttribute = "sub",
-                scopes = listOf("openid"),
-            )
-
             client.graphql { discoveryQuery() }
                 .from(preconditions.farnsworth)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.DiscoverOidcProviderConfiguration to buildJsonObject {
-                        put("authorizationUrl", "http://provider.example/authorize")
-                        put("tokenUrl", "http://provider.example/token")
-                        put("userInfoUrl", "http://provider.example/userinfo")
+                        put("authorizationUrl", "$providerBaseUrl/authorize")
+                        put("tokenUrl", "$providerBaseUrl/token")
+                        put("userInfoUrl", "$providerBaseUrl/userinfo")
                         put("userIdAttribute", "sub")
                         putJsonArray("scopes") { add(JsonPrimitive("openid")) }
                     }
@@ -88,10 +73,9 @@ class DiscoverOidcProviderConfigurationQueryTest(
 
         @Test
         fun `should return DISCOVERY_FAILED when configuration cannot be loaded`() {
-            whenever(discoveryService.discover("http://provider.example"))
-                .thenThrow(OidcProviderDiscoveryException())
-
-            client.graphql { discoveryQuery() }
+            client.graphql {
+                discoveryQuery("$providerBaseUrl?not-a-discovery-document=true")
+            }
                 .from(preconditions.farnsworth)
                 .executeAndVerifyBusinessErrorCode(
                     errorCode = "DISCOVERY_FAILED",
@@ -100,8 +84,8 @@ class DiscoverOidcProviderConfigurationQueryTest(
         }
     }
 
-    private fun QueryProjection.discoveryQuery() =
-        discoverOidcProviderConfiguration(baseUrl = "http://provider.example") {
+    private fun QueryProjection.discoveryQuery(baseUrl: String = providerBaseUrl) =
+        discoverOidcProviderConfiguration(baseUrl = baseUrl) {
             authorizationUrl
             tokenUrl
             userInfoUrl

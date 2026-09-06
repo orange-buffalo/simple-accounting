@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -18,6 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired
 class SystemSettingsQueryTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
+
+    @BeforeEach
+    fun setup() {
+        whenever(simpleAccountingProperties.publicUrl) doReturn "https://accounting.planet-express.example"
+    }
 
     private val preconditions by lazyPreconditions {
         object {
@@ -58,10 +64,8 @@ class SystemSettingsQueryTest(
     inner class BusinessFlow {
         @Test
         fun `should return system settings`() {
-            whenever(simpleAccountingProperties.publicUrl) doReturn "https://accounting.planet-express.example"
-
             client
-                .graphql { systemSettingsQuery(includeOAuthCallbackUrl = true) }
+                .graphql { systemSettingsQuery() }
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.SystemSettings to buildJsonObject {
@@ -84,14 +88,18 @@ class SystemSettingsQueryTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.SystemSettings to buildJsonObject {
                         put("localFileSystemDocumentsStorageEnabled", true)
+                        put(
+                            "oauthCallbackUrl",
+                            "https://accounting.planet-express.example/oauth-identity-callback",
+                        )
                     }
                 )
         }
     }
 
-    private fun QueryProjection.systemSettingsQuery(includeOAuthCallbackUrl: Boolean = false): QueryProjection =
+    private fun QueryProjection.systemSettingsQuery(): QueryProjection =
         systemSettings {
-            if (includeOAuthCallbackUrl) oauthCallbackUrl
+            oauthCallbackUrl
             localFileSystemDocumentsStorageEnabled
         }
 }
