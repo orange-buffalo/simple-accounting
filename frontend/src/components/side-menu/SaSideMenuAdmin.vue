@@ -7,7 +7,7 @@
   <SaSideMenuLink
     to="/admin/oauth-providers"
     :title="$t.navigationMenu.admin.oauthProviders()"
-    icon="gear"
+    icon="authentication-providers"
   />
 </template>
 

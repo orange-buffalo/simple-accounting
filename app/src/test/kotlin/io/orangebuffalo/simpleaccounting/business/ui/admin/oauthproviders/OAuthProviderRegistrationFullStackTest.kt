@@ -35,6 +35,10 @@ class OAuthProviderRegistrationFullStackTest : SaFullStackTestBase() {
         page.shouldBeRegisterOAuthProviderPage {
             callbackUrl {
                 input.shouldHaveUrl("${simpleAccountingProperties.publicUrl}/oauth-identity-callback")
+                input.copyToClipboard()
+            }
+            shouldHaveNotifications {
+                success("Redirect URL is copied to clipboard")
             }
             reportRendering("admin.oauth-providers.registration-form")
 

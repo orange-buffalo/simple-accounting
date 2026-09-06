@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts" setup>
+  import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -351,8 +352,8 @@
     ? $t.value.editOAuthProvider.pageHeader.edit()
     : $t.value.editOAuthProvider.pageHeader.create()));
 
-  const copyCallbackUrl = async () => {
-    await navigator.clipboard.writeText(callbackUrl.value);
+  const copyCallbackUrl = () => {
+    copy(callbackUrl.value);
     showSuccessNotification($t.value.editOAuthProvider.form.callbackUrl.copied());
   };
 </script>
