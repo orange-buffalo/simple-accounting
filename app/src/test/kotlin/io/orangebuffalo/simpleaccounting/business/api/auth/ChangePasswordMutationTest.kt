@@ -29,6 +29,9 @@ class ChangePasswordMutationTest(
             val fry = fry()
             val farnsworth = farnsworth()
             val workspaceAccessToken = workspaceAccessToken()
+            val benderWithLinkedIdentity = bender().also {
+                userOAuthIdentity(user = it, provider = oauthProvider(name = "Nimbus Auth"))
+            }
         }
     }
 
@@ -96,6 +99,22 @@ class ChangePasswordMutationTest(
         @Test
         fun `should change password for admin user`() {
             testSuccessPath(preconditions.farnsworth)
+        }
+
+        @Test
+        fun `should return PASSWORD_LOGIN_NOT_ALLOWED error when the user has a linked OAuth identity`() {
+            whenever(
+                passwordEncoder.matches("qwerty", preconditions.benderWithLinkedIdentity.passwordHash)
+            ) doReturn true
+
+            client
+                .graphqlMutation { changePasswordMutation("qwerty", "new-password") }
+                .from(preconditions.benderWithLinkedIdentity)
+                .executeAndVerifyBusinessError(
+                    message = "Cannot change password for users with linked OAuth identities",
+                    errorCode = "PASSWORD_LOGIN_NOT_ALLOWED",
+                    path = DgsConstants.MUTATION.ChangePassword
+                )
         }
 
         @Test

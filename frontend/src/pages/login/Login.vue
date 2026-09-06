@@ -10,12 +10,15 @@
         class="login-page__login-form"
         :model="form"
         label-width="0px"
-        :disabled="uiState.loginInProgress"
+        :disabled="uiState.requestInProgress"
+        @keyup.enter="onEnterPressed"
+        @submit.prevent
       >
         <ElFormItem>
           <ElInput
             v-model="form.userName"
             :placeholder="$t.loginPage.userName.placeholder()"
+            :disabled="uiState.requestInProgress || !userNameStep"
           >
             <template #prefix>
               <SaIcon icon="login" />
@@ -23,34 +26,69 @@
           </ElInput>
         </ElFormItem>
 
-        <ElFormItem>
-          <ElInput
-            v-model="form.password"
-            type="password"
-            :placeholder="$t.loginPage.password.placeholder()"
-          >
-            <template #prefix>
-              <SaIcon icon="password" />
-            </template>
-          </ElInput>
-        </ElFormItem>
-
-        <!--suppress HtmlDeprecatedAttribute -->
-        <ElFormItem align="center">
-          <ElCheckbox v-model="form.rememberMe">
-            {{ $t.loginPage.rememberMe.label() }}
-          </ElCheckbox>
-        </ElFormItem>
-
         <ElButton
+          v-if="userNameStep"
           type="primary"
-          :disabled="!loginEnabled || uiState.loginInProgress"
-          @click="executeLogin"
-          data-testid="login-button"
+          :disabled="!userNameProvided || uiState.requestInProgress"
+          @click="resolveAuthenticationMethods"
+          data-testid="continue-button"
         >
-          <SaIcon icon="loading" v-if="uiState.loginInProgress" />
-          <span v-else>{{ $t.loginPage.login() }}</span>
+          <SaIcon icon="loading" v-if="uiState.requestInProgress" />
+          <span v-else>{{ $t.loginPage.continueAction() }}</span>
         </ElButton>
+
+        <template v-else>
+          <ElFormItem v-if="passwordLoginAvailable">
+            <ElInput
+              v-model="form.password"
+              type="password"
+              :placeholder="$t.loginPage.password.placeholder()"
+            >
+              <template #prefix>
+                <SaIcon icon="password" />
+              </template>
+            </ElInput>
+          </ElFormItem>
+
+          <!--suppress HtmlDeprecatedAttribute -->
+          <ElFormItem align="center">
+            <ElCheckbox v-model="form.rememberMe">
+              {{ $t.loginPage.rememberMe.label() }}
+            </ElCheckbox>
+          </ElFormItem>
+
+          <ElButton
+            v-if="passwordLoginAvailable"
+            type="primary"
+            :disabled="!loginEnabled || uiState.requestInProgress"
+            @click="executeLogin"
+            data-testid="login-button"
+          >
+            <SaIcon icon="loading" v-if="uiState.requestInProgress" />
+            <span v-else>{{ $t.loginPage.login() }}</span>
+          </ElButton>
+
+          <ElButton
+            v-for="provider in oauthProviders"
+            :key="provider.providerId"
+            type="primary"
+            class="login-page__oauth-action"
+            :disabled="uiState.requestInProgress"
+            @click="executeOAuthLogin(provider.providerId)"
+          >
+            {{ $t.loginPage.continueWithProvider(provider.providerName ?? '') }}
+          </ElButton>
+
+          <ElButton
+            link
+            class="login-page__change-user-action"
+            :disabled="uiState.requestInProgress"
+            @click="backToUserNameStep"
+            data-testid="change-user-button"
+          >
+            {{ $t.loginPage.changeUser() }}
+          </ElButton>
+        </template>
 
         <div class="login-page__login-error">
           {{ uiState.loginError }}
@@ -70,20 +108,20 @@
     watch,
   } from 'vue';
 
-  import { useWorkspaces } from '@/services/workspaces';
-  import { $t, setLocaleFromProfile } from '@/services/i18n';
+  import { $t } from '@/services/i18n';
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
   import { useAuth, handleGqlApiBusinessError } from '@/services/api';
-  import { useLastView } from '@/services/use-last-view';
+  import type { UserAuthenticationMethodsQuery } from '@/services/api/gql/graphql.ts';
   import {
+    AuthenticationMethodType,
     CreateAccessTokenByCredentialsErrorCodes,
     type AccountLockedErrorExtensions,
   } from '@/services/api/gql/schema-types.ts';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
   import { graphql } from '@/services/api/gql';
-  import { useLazyQuery } from '@/services/api/use-gql-api.ts';
+  import { useLazyQuery, useMutation } from '@/services/api/use-gql-api.ts';
+  import { useAfterLoginNavigation } from '@/pages/login/after-login-navigation.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -126,9 +164,11 @@
     }
   }
 
+  type AuthenticationMethod = UserAuthenticationMethodsQuery['userAuthenticationMethods'][0];
+
   interface UiState {
     loginError: string | null;
-    loginInProgress: boolean,
+    requestInProgress: boolean,
   }
 
   const form = reactive({
@@ -139,8 +179,16 @@
 
   const uiState = reactive<UiState>({
     loginError: '',
-    loginInProgress: false,
+    requestInProgress: false,
   });
+
+  const authenticationMethods = ref<AuthenticationMethod[] | null>(null);
+  const userNameStep = computed(() => authenticationMethods.value === null);
+  const userNameProvided = computed(() => form.userName.trim().length > 0);
+  const passwordLoginAvailable = computed(() => (authenticationMethods.value ?? [])
+    .some((method) => method.type === AuthenticationMethodType.Password));
+  const oauthProviders = computed(() => (authenticationMethods.value ?? [])
+    .filter((method) => method.type === AuthenticationMethodType.Oauth));
 
   const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
     if (lockDurationInSec === 0) {
@@ -156,7 +204,7 @@
     }
   }, { immediate: true });
 
-  const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
+  const loginEnabled = computed(() => userNameProvided.value && form.password && !accountLockTimer.isActive());
 
   const onLoginError = async (processingError: unknown) => {
     const errorCode = handleGqlApiBusinessError<
@@ -175,6 +223,10 @@
       uiState.loginError
         = $t.value.loginPage.loginError.userNotActivated();
     } else if (errorCode
+      === CreateAccessTokenByCredentialsErrorCodes.PasswordLoginNotAllowed) {
+      uiState.loginError
+        = $t.value.loginPage.loginError.passwordLoginNotAllowed();
+    } else if (errorCode
       === CreateAccessTokenByCredentialsErrorCodes.BadCredentials) {
       uiState.loginError
         = $t.value.loginPage.loginError.generalFailure();
@@ -185,27 +237,6 @@
     }
   };
 
-  const { navigateByViewName } = useNavigation();
-
-  const onAdminLogin = async () => {
-    await navigateByViewName('users-overview');
-  };
-
-  const onUserLogin = async () => {
-    const hasAnyWorkspaces = await useWorkspaces()
-      .loadWorkspaces();
-    if (hasAnyWorkspaces) {
-      const { lastView } = useLastView();
-      if (lastView) {
-        await navigateByViewName(lastView);
-      } else {
-        await navigateByViewName('dashboard');
-      }
-    } else {
-      await navigateByViewName('account-setup');
-    }
-  };
-
   const emit = defineEmits<{
     (e: 'login'): void;
   }>();
@@ -213,41 +244,99 @@
   const {
     isLoggedIn,
     login,
-    isAdmin,
   } = useAuth();
   if (isLoggedIn()) {
     emit('login');
   }
 
-  const fetchUserProfile = useLazyQuery(graphql(/* GraphQL */ `
-    query userProfileLogin {
-      userProfile {
-        i18n {
-          language
-          locale
-        }
+  const navigateAfterLogin = useAfterLoginNavigation();
+
+  const fetchAuthenticationMethods = useLazyQuery(graphql(/* GraphQL */ `
+    query userAuthenticationMethods($userName: String!) {
+      userAuthenticationMethods(userName: $userName) {
+        type
+        providerId
+        providerName
       }
     }
-  `), 'userProfile');
+  `), 'userAuthenticationMethods');
+
+  const startOAuthLoginMutation = useMutation(graphql(/* GraphQL */ `
+    mutation startOAuthLogin(
+      $userName: String!
+      $providerId: String!
+      $issueRefreshTokenCookie: Boolean
+    ) {
+      startOAuthLogin(
+        userName: $userName
+        providerId: $providerId
+        issueRefreshTokenCookie: $issueRefreshTokenCookie
+      ) {
+        authorizationUrl
+      }
+    }
+  `), 'startOAuthLogin');
+
+  const resolveAuthenticationMethods = async () => {
+    if (!userNameStep.value || !userNameProvided.value || uiState.requestInProgress) return;
+    uiState.loginError = null;
+    uiState.requestInProgress = true;
+    try {
+      form.userName = form.userName.trim();
+      authenticationMethods.value = await fetchAuthenticationMethods({ userName: form.userName });
+    } catch (e: unknown) {
+      console.error('Failed to resolve authentication methods', e);
+      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
+    } finally {
+      uiState.requestInProgress = false;
+    }
+  };
+
+  const backToUserNameStep = () => {
+    accountLockTimer.cancel();
+    authenticationMethods.value = null;
+    form.password = '';
+    uiState.loginError = null;
+  };
 
   const executeLogin = async () => {
+    if (!loginEnabled.value || uiState.requestInProgress) return;
     uiState.loginError = null;
-    uiState.loginInProgress = true;
+    uiState.requestInProgress = true;
     accountLockTimer.cancel();
     try {
       await login({ ...form });
-      const profile = await fetchUserProfile({});
-      await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
-
-      if (isAdmin()) {
-        await onAdminLogin();
-      } else {
-        await onUserLogin();
-      }
+      await navigateAfterLogin();
     } catch (e: unknown) {
       await onLoginError(e);
     } finally {
-      uiState.loginInProgress = false;
+      uiState.requestInProgress = false;
+    }
+  };
+
+  // the form has no submit button, so Enter is wired to the action of the current step
+  const onEnterPressed = async () => {
+    if (userNameStep.value) {
+      await resolveAuthenticationMethods();
+    } else if (passwordLoginAvailable.value) {
+      await executeLogin();
+    }
+  };
+
+  const executeOAuthLogin = async (providerId: string | null | undefined) => {
+    uiState.loginError = null;
+    uiState.requestInProgress = true;
+    try {
+      const { authorizationUrl } = await startOAuthLoginMutation({
+        userName: form.userName,
+        providerId: providerId ?? '',
+        issueRefreshTokenCookie: form.rememberMe,
+      });
+      window.location.assign(authorizationUrl);
+    } catch (e: unknown) {
+      console.error('Failed to start OAuth login', e);
+      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
+      uiState.requestInProgress = false;
     }
   };
 </script>
@@ -353,6 +442,18 @@
           margin-left: 5px;
         }
       }
+    }
+
+    &__oauth-action {
+      margin-left: 0 !important;
+      margin-top: 10px;
+    }
+
+    &__change-user-action {
+      width: 100%;
+      margin-top: 15px;
+      margin-left: 0 !important;
+      color: $primary-color-lighter-ii !important;
     }
 
     &__login-error {

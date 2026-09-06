@@ -293,6 +293,56 @@ fun numberRangeConstraintTestCases(
 )
 
 /**
+ * Generates test cases for `@EndpointUrl` string field validation. Produces:
+ * - **not a URL** → `FIELD_VALIDATION_FAILURE` with `MustBeValidEndpointUrl`
+ * - **unsupported scheme** → `FIELD_VALIDATION_FAILURE` with `MustBeValidEndpointUrl`
+ * - **http and https URLs** → fully successful execution
+ *
+ * @param fieldName the GraphQL field name being validated
+ * @param boundarySetup optional setup executed before the boundary tests
+ * @param mutationWithFieldValue builds the mutation with the test field set to the given value
+ */
+fun endpointUrlTestCases(
+    fieldName: String,
+    maxLength: Int,
+    boundarySetup: () -> Unit = {},
+    mutationWithFieldValue: MutationProjection.(fieldValue: String) -> MutationProjection,
+): List<GraphqlMutationInputTestCase> {
+    val urlPrefix = "https://provider.example/"
+    fun urlOfLength(length: Int) = urlPrefix + "a".repeat(length - urlPrefix.length)
+
+    return listOf(
+        "not-a-url" to "is not a URL",
+        "ftp://provider.example/authorize" to "uses an unsupported scheme",
+    ).map { (value, description) ->
+        GraphqlMutationValidationErrorTestCase(
+            description = "$fieldName $description",
+            mutation = { mutationWithFieldValue(value) },
+            violationPath = fieldName,
+            error = "MustBeValidEndpointUrl",
+            message = "must be a valid http or https URL",
+        )
+    } + GraphqlMutationValidationErrorTestCase(
+        description = "$fieldName exceeds max length ($maxLength)",
+        mutation = { mutationWithFieldValue(urlOfLength(maxLength + 1)) },
+        violationPath = fieldName,
+        error = "SizeConstraintViolated",
+        message = "size must be between 0 and $maxLength",
+        params = mapOf("min" to "0", "max" to "$maxLength"),
+    ) + listOf(
+        "https://provider.example/authorize" to "an https URL is accepted",
+        "http://provider.example/authorize" to "an http URL is accepted",
+        urlOfLength(maxLength) to "a URL at max length ($maxLength) is accepted",
+    ).map { (value, description) ->
+        GraphqlMutationValidBoundaryTestCase(
+            description = "$fieldName: $description",
+            mutation = { mutationWithFieldValue(value) },
+            setup = boundarySetup,
+        )
+    }
+}
+
+/**
  * Generates test cases for optional (nullable) GraphQL fields. Produces:
  * - **absent** field → fully successful execution (the field defaults to null via the Kotlin `= null` default)
  *

@@ -19,6 +19,8 @@ class TextInput private constructor(
         input.pressSequentially(text, Locator.PressSequentiallyOptions().setDelay(50.0))
     }
 
+    fun pressEnter() = input.press("Enter")
+
     fun shouldBeVisible() = input.shouldBeVisible()
 
     fun shouldBeHidden() = input.shouldBeHidden()

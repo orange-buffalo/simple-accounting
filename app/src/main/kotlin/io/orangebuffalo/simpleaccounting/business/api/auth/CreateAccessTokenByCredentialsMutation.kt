@@ -8,20 +8,17 @@ import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountLockedErrorExtensions
 import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException
+import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordLoginNotAllowedException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
-import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFETIME_IN_DAYS
-import io.orangebuffalo.simpleaccounting.infra.graphql.GraphQlHttpRequestContext
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.constraints.NotBlank
-import org.springframework.http.ResponseCookie
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
-import java.time.Duration
 
 @Component
 @Validated
@@ -54,6 +51,11 @@ class CreateAccessTokenByCredentialsMutation(
         extensionsType = AccountLockedErrorExtensions::class,
     )
     @BusinessError(
+        exceptionClass = PasswordLoginNotAllowedException::class,
+        errorCode = "PASSWORD_LOGIN_NOT_ALLOWED",
+        errorCodeDescription = "The user has linked OAuth identities and must authenticate with one of them.",
+    )
+    @BusinessError(
         exceptionClass = LoginUnavailableException::class,
         errorCode = "LOGIN_NOT_AVAILABLE",
         errorCodeDescription = "Login is temporarily unavailable due to too many concurrent authentication requests for this user.",
@@ -78,17 +80,7 @@ class CreateAccessTokenByCredentialsMutation(
         val jwtToken = jwtService.buildJwtToken(principal)
 
         if (issueRefreshTokenCookie == true) {
-            val refreshToken = refreshTokensService.generateRefreshToken(principal.userName)
-            env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).addResponseCookie(
-                ResponseCookie
-                    .from("refreshToken", refreshToken)
-                    .httpOnly(true)
-                    .sameSite("Strict")
-                    .path("/api")
-                    // todo #67: secure based on configuration
-                    .maxAge(Duration.ofDays(TOKEN_LIFETIME_IN_DAYS))
-                    .build()
-            )
+            env.addRefreshTokenCookie(refreshTokensService.generateRefreshToken(principal.userName))
         }
 
         return CreateAccessTokenByCredentialsResponse(accessToken = jwtToken)

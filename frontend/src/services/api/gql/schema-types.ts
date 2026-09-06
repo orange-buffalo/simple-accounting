@@ -49,6 +49,14 @@ export enum AuthType {
   RegularUser = 'REGULAR_USER'
 }
 
+/** Type of the authentication method available for a user. */
+export enum AuthenticationMethodType {
+  /** The user authenticates with an identity linked at an OAuth2 provider. */
+  Oauth = 'OAUTH',
+  /** The user authenticates with their username and password. */
+  Password = 'PASSWORD'
+}
+
 /** A paginated connection of categories following the GraphQL Cursor Connections Specification. */
 export type CategoriesConnection = {
   __typename?: 'CategoriesConnection';
@@ -95,7 +103,9 @@ export enum CategoryType {
 /** Possible business error codes for the changePassword operation. */
 export enum ChangePasswordErrorCodes {
   /** The provided current password does not match the user's actual password. */
-  CurrentPasswordMismatch = 'CURRENT_PASSWORD_MISMATCH'
+  CurrentPasswordMismatch = 'CURRENT_PASSWORD_MISMATCH',
+  /** The user has linked OAuth identities, so the password cannot be used and is not managed. */
+  PasswordLoginNotAllowed = 'PASSWORD_LOGIN_NOT_ALLOWED'
 }
 
 /** Response for the changePassword mutation. Always succeeds if no error is returned by standard GraphQL error response structure. */
@@ -113,6 +123,31 @@ export type CompleteOAuth2FlowResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+/** Possible business error codes for the completeOAuthAuthentication operation. */
+export enum CompleteOAuthAuthenticationErrorCodes {
+  /** The authorization server did not grant the access, the token exchange failed, or the identity could not be resolved from the user info response. */
+  AuthorizationFailed = 'AUTHORIZATION_FAILED',
+  /** The authenticated identity is already linked to another user. */
+  IdentityAlreadyInUse = 'IDENTITY_ALREADY_IN_USE',
+  /** The authenticated identity is not the one linked to the user being logged in. */
+  IdentityMismatch = 'IDENTITY_MISMATCH',
+  /** An identity at this provider is already linked to the user. */
+  ProviderAlreadyLinked = 'PROVIDER_ALREADY_LINKED',
+  /** The state does not match any pending authorization request, the request has expired or has already been used, or the browser did not present the binding cookie. */
+  UnknownAuthorizationRequest = 'UNKNOWN_AUTHORIZATION_REQUEST',
+  /** The user account has not been activated yet. */
+  UserNotActivated = 'USER_NOT_ACTIVATED'
+}
+
+/** Response for the completeOAuthAuthentication mutation. */
+export type CompleteOAuthAuthenticationResponse = {
+  __typename?: 'CompleteOAuthAuthenticationResponse';
+  /** The JWT access token for the authenticated user. Only provided for the LOGIN outcome. */
+  accessToken?: Maybe<Scalars['String']['output']>;
+  /** What the completed flow has achieved. */
+  outcome: OAuthAuthenticationOutcome;
+};
+
 /** Possible business error codes for the createAccessTokenByCredentials operation. */
 export enum CreateAccessTokenByCredentialsErrorCodes {
   /** The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds. */
@@ -121,6 +156,8 @@ export enum CreateAccessTokenByCredentialsErrorCodes {
   BadCredentials = 'BAD_CREDENTIALS',
   /** Login is temporarily unavailable due to too many concurrent authentication requests for this user. */
   LoginNotAvailable = 'LOGIN_NOT_AVAILABLE',
+  /** The user has linked OAuth identities and must authenticate with one of them. */
+  PasswordLoginNotAllowed = 'PASSWORD_LOGIN_NOT_ALLOWED',
   /** The user account has not been activated yet. */
   UserNotActivated = 'USER_NOT_ACTIVATED'
 }
@@ -162,6 +199,14 @@ export type CreateDocumentUploadUrlResponse = {
   /** Absolute URL to upload the document content via multipart/form-data POST. The URL is temporary and will expire. */
   url: Scalars['String']['output'];
 };
+
+/** Possible business error codes for the createOAuthProvider operation. */
+export enum CreateOAuthProviderErrorCodes {
+  /** A scope is blank, too long, contains whitespace, or is duplicated. */
+  InvalidScope = 'INVALID_SCOPE',
+  /** A provider with the given name already exists, ignoring case. */
+  ProviderAlreadyExists = 'PROVIDER_ALREADY_EXISTS'
+}
 
 /** Possible business error codes for the createUserActivationToken operation. */
 export enum CreateUserActivationTokenErrorCodes {
@@ -210,6 +255,12 @@ export type CustomersConnection = {
 export enum DeleteDocumentErrorCodes {
   /** The document is attached to another entity and cannot be deleted. */
   DocumentIsUsed = 'DOCUMENT_IS_USED'
+}
+
+/** Possible business error codes for the discoverOidcProviderConfiguration operation. */
+export enum DiscoverOidcProviderConfigurationErrorCodes {
+  /** A compatible OpenID Connect configuration could not be loaded from the base URL. */
+  DiscoveryFailed = 'DISCOVERY_FAILED'
 }
 
 /** A document in a workspace. */
@@ -351,6 +402,16 @@ export type DownloadDocumentStorageResponse = {
   /** The identifier of the document storage. */
   id: Scalars['String']['output'];
 };
+
+/** Possible business error codes for the editOAuthProvider operation. */
+export enum EditOAuthProviderErrorCodes {
+  /** A scope is blank, too long, contains whitespace, or is duplicated. */
+  InvalidScope = 'INVALID_SCOPE',
+  /** A provider with the given name already exists, ignoring case. */
+  ProviderAlreadyExists = 'PROVIDER_ALREADY_EXISTS',
+  /** The user ID attribute cannot be changed while users have identities linked at this provider, as it defines the meaning of the stored identifiers. */
+  UserIdAttributeLocked = 'USER_ID_ATTRIBUTE_LOCKED'
+}
 
 /** Possible business error codes for the editUser operation. */
 export enum EditUserErrorCodes {
@@ -778,6 +839,8 @@ export type Mutation = {
   changePassword: ChangePasswordResponse;
   /** Completes the OAuth2 authorization flow by processing the authorization server callback. */
   completeOAuth2Flow: CompleteOAuth2FlowResponse;
+  /** Completes the OAuth2 flow started by startOAuthLogin or startOAuthIdentityLinking by processing the authorization server callback. Requires the browser to present the binding cookie issued when the flow was started. An access token is only returned for the LOGIN outcome: linking an identity to an existing profile never grants a new session. */
+  completeOAuthAuthentication: CompleteOAuthAuthenticationResponse;
   /** Authenticates a user by username and password credentials and returns an access token. Optionally issues a refresh token cookie for persistent sessions. */
   createAccessTokenByCredentials: CreateAccessTokenByCredentialsResponse;
   /** Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality. */
@@ -800,6 +863,8 @@ export type Mutation = {
   createIncomeTaxPayment: IncomeTaxPayment;
   /** Creates a new invoice in the specified workspace. */
   createInvoice: Invoice;
+  /** Registers a new OAuth2 provider the users can authenticate with. */
+  createOAuthProvider: OAuthProvider;
   /** Creates a new standalone document in the specified workspace. */
   createStandaloneDocument: StandaloneDocument;
   /** Creates a new user account. */
@@ -826,6 +891,8 @@ export type Mutation = {
   editIncomeTaxPayment: IncomeTaxPayment;
   /** Updates an existing invoice in the specified workspace. */
   editInvoice: Invoice;
+  /** Updates the registration of an existing OAuth2 provider. */
+  editOAuthProvider: OAuthProvider;
   /** Updates an existing standalone document in the specified workspace. */
   editStandaloneDocument: StandaloneDocument;
   /** Updates an existing user's username. */
@@ -844,6 +911,12 @@ export type Mutation = {
   saveSharedWorkspace: Workspace;
   /** Starts migration of documents that are not stored in the current upload storage. */
   startDocumentsMigration: DocumentsMigration;
+  /** Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow. */
+  startOAuthIdentityLinking: StartOAuthIdentityLinkingResponse;
+  /** Starts the OAuth2 login flow for the user with the provided name. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow. */
+  startOAuthLogin: StartOAuthLoginResponse;
+  /** Removes the identity linked at the provided provider from the current user profile. Once the last identity is removed, password login becomes available again. */
+  unlinkOAuthIdentity: UnlinkOAuthIdentityResponse;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
 };
@@ -868,6 +941,13 @@ export type MutationChangePasswordArgs = {
 
 
 export type MutationCompleteOAuth2FlowArgs = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  error?: InputMaybe<Scalars['String']['input']>;
+  state: Scalars['String']['input'];
+};
+
+
+export type MutationCompleteOAuthAuthenticationArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   error?: InputMaybe<Scalars['String']['input']>;
   state: Scalars['String']['input'];
@@ -978,6 +1058,18 @@ export type MutationCreateInvoiceArgs = {
   notes?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
+};
+
+
+export type MutationCreateOAuthProviderArgs = {
+  authorizationUrl: Scalars['String']['input'];
+  clientId: Scalars['String']['input'];
+  clientSecret: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  scopes: Array<Scalars['String']['input']>;
+  tokenUrl: Scalars['String']['input'];
+  userIdAttribute: Scalars['String']['input'];
+  userInfoUrl: Scalars['String']['input'];
 };
 
 
@@ -1115,6 +1207,20 @@ export type MutationEditInvoiceArgs = {
 };
 
 
+export type MutationEditOAuthProviderArgs = {
+  authorizationUrl: Scalars['String']['input'];
+  clientId: Scalars['String']['input'];
+  clientSecret?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  scopes: Array<Scalars['String']['input']>;
+  tokenUrl: Scalars['String']['input'];
+  userIdAttribute: Scalars['String']['input'];
+  userInfoUrl: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
+};
+
+
 export type MutationEditStandaloneDocumentArgs = {
   documentId: Scalars['String']['input'];
   id: Scalars['String']['input'];
@@ -1155,10 +1261,98 @@ export type MutationSaveSharedWorkspaceArgs = {
 };
 
 
+export type MutationStartOAuthIdentityLinkingArgs = {
+  providerId: Scalars['String']['input'];
+};
+
+
+export type MutationStartOAuthLoginArgs = {
+  issueRefreshTokenCookie?: InputMaybe<Scalars['Boolean']['input']>;
+  providerId: Scalars['String']['input'];
+  userName: Scalars['String']['input'];
+};
+
+
+export type MutationUnlinkOAuthIdentityArgs = {
+  providerId: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateProfileArgs = {
   documentsStorage?: InputMaybe<Scalars['String']['input']>;
   language: Scalars['String']['input'];
   locale: Scalars['String']['input'];
+};
+
+/** The outcome of a completed OAuth2 flow. */
+export enum OAuthAuthenticationOutcome {
+  /** A new identity has been linked to the user profile. */
+  Link = 'LINK',
+  /** The user has been logged in. */
+  Login = 'LOGIN'
+}
+
+/** An OAuth2 provider the users can authenticate with. */
+export type OAuthProvider = {
+  __typename?: 'OAuthProvider';
+  /** Endpoint the users are redirected to in order to grant access to their identity. */
+  authorizationUrl: Scalars['String']['output'];
+  /** Client ID issued by the provider for this application. */
+  clientId: Scalars['String']['output'];
+  /** The unique ID of the provider. */
+  id: Scalars['String']['output'];
+  /** Name of the provider, as presented to the users on the login page. */
+  name: Scalars['String']['output'];
+  /** Scopes requested from the provider, sorted alphabetically. */
+  scopes: Array<Scalars['String']['output']>;
+  /** Endpoint used to exchange the authorization code for an access token. */
+  tokenUrl: Scalars['String']['output'];
+  /** Name of the attribute in the user info response that uniquely identifies the user within the provider, e.g. 'sub' or 'email'. */
+  userIdAttribute: Scalars['String']['output'];
+  /** Endpoint used to retrieve the details of the authenticated identity. */
+  userInfoUrl: Scalars['String']['output'];
+  /** Version of the provider state. */
+  version: Scalars['Int']['output'];
+};
+
+/** An edge in a oauth providers connection. */
+export type OAuthProviderEdge = {
+  __typename?: 'OAuthProviderEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The oauth provider at the end of this edge. */
+  node: OAuthProvider;
+};
+
+/** An OAuth2 provider and the identity the current user has linked at it. */
+export type OAuthProviderLinkGqlDto = {
+  __typename?: 'OAuthProviderLinkGqlDto';
+  /** Identifier of the linked identity at this provider. Null when the current user has not linked an identity at this provider. */
+  externalId?: Maybe<Scalars['String']['output']>;
+  /** ID of the provider. */
+  providerId: Scalars['String']['output'];
+  /** Name of the provider. */
+  providerName: Scalars['String']['output'];
+};
+
+/** A paginated connection of oauth providers following the GraphQL Cursor Connections Specification. */
+export type OAuthProvidersConnection = {
+  __typename?: 'OAuthProvidersConnection';
+  /** The list of edges in the current page. */
+  edges: Array<OAuthProviderEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
+export type OidcProviderConfiguration = {
+  __typename?: 'OidcProviderConfiguration';
+  authorizationUrl: Scalars['String']['output'];
+  scopes: Array<Scalars['String']['output']>;
+  tokenUrl: Scalars['String']['output'];
+  userIdAttribute: Scalars['String']['output'];
+  userInfoUrl: Scalars['String']['output'];
 };
 
 /** Pagination information following the GraphQL Cursor Connections Specification. */
@@ -1229,6 +1423,8 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Loads OAuth2 endpoints from an OpenID Connect discovery document. */
+  discoverOidcProviderConfiguration: OidcProviderConfiguration;
   /** Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first. */
   documentsMigrations: DocumentsMigrationsConnection;
   /** Returns statistics about document storage usage across all workspaces of the current user. Only storages that have at least one document are included. */
@@ -1239,6 +1435,12 @@ export type Query = {
   getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
+  /** Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name. */
+  myOAuthProviderLinks: Array<OAuthProviderLinkGqlDto>;
+  /** Returns the OAuth2 provider with the given ID. */
+  oauthProvider: OAuthProvider;
+  /** Returns the registered OAuth2 providers with cursor-based pagination. Only accessible by admin users. */
+  oauthProviders: OAuthProvidersConnection;
   /** Returns the system settings. */
   systemSettings: SystemSettings;
   /** Retrieves the activation token for a user by their ID. Returns null if the token does not exist or has expired. Only accessible by admin users. */
@@ -1247,6 +1449,8 @@ export type Query = {
   tokenByValue?: Maybe<UserActivationTokenGqlDto>;
   /** Returns the user with the given ID. */
   user: PlatformUser;
+  /** Returns the authentication methods available for the user with the provided name. This is the first step of the login process. For users that have linked an identity at an OAuth2 provider, password login is not offered. For unknown users, password login is reported, so that account existence is not disclosed. */
+  userAuthenticationMethods: Array<UserAuthenticationMethodGqlDto>;
   /** Returns the current user profile information. Current is defined as the user that is authenticated in the current request. */
   userProfile: UserProfile;
   /** Returns all users with cursor-based pagination. Only accessible by admin users. */
@@ -1258,9 +1462,26 @@ export type Query = {
 };
 
 
+export type QueryDiscoverOidcProviderConfigurationArgs = {
+  baseUrl: Scalars['String']['input'];
+};
+
+
 export type QueryDocumentsMigrationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+export type QueryOauthProviderArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryOauthProvidersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1276,6 +1497,11 @@ export type QueryTokenByValueArgs = {
 
 export type QueryUserArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryUserAuthenticationMethodsArgs = {
+  userName: Scalars['String']['input'];
 };
 
 
@@ -1368,6 +1594,34 @@ export enum StartDocumentsMigrationErrorCodes {
   DocumentsUploadStorageNotActive = 'DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE'
 }
 
+/** Possible business error codes for the startOAuthIdentityLinking operation. */
+export enum StartOAuthIdentityLinkingErrorCodes {
+  /** An identity at this provider is already linked to the current user. */
+  ProviderAlreadyLinked = 'PROVIDER_ALREADY_LINKED'
+}
+
+/** Response for the startOAuthIdentityLinking mutation. */
+export type StartOAuthIdentityLinkingResponse = {
+  __typename?: 'StartOAuthIdentityLinkingResponse';
+  /** The URL of the authorization server the browser must be redirected to. */
+  authorizationUrl: Scalars['String']['output'];
+};
+
+/** Possible business error codes for the startOAuthLogin operation. */
+export enum StartOAuthLoginErrorCodes {
+  /** The user has no identity linked at the requested provider. */
+  LoginNotAvailable = 'LOGIN_NOT_AVAILABLE',
+  /** The user account has not been activated yet. */
+  UserNotActivated = 'USER_NOT_ACTIVATED'
+}
+
+/** Response for the startOAuthLogin mutation. */
+export type StartOAuthLoginResponse = {
+  __typename?: 'StartOAuthLoginResponse';
+  /** The URL of the authorization server the browser must be redirected to. */
+  authorizationUrl: Scalars['String']['output'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
@@ -1379,6 +1633,15 @@ export type SystemSettings = {
   __typename?: 'SystemSettings';
   /** Whether local file system documents storage is enabled. */
   localFileSystemDocumentsStorageEnabled: Scalars['Boolean']['output'];
+  /** Redirect URL that must be registered at OAuth2 providers for authentication flows. */
+  oauthCallbackUrl: Scalars['String']['output'];
+};
+
+/** Response for the unlinkOAuthIdentity mutation. */
+export type UnlinkOAuthIdentityResponse = {
+  __typename?: 'UnlinkOAuthIdentityResponse';
+  /** Whether the identity has been unlinked. */
+  success: Scalars['Boolean']['output'];
 };
 
 /** A user activation token used to activate a new user account. */
@@ -1388,6 +1651,17 @@ export type UserActivationTokenGqlDto = {
   expiresAt: Scalars['DateTime']['output'];
   /** The token value. */
   token: Scalars['String']['output'];
+};
+
+/** A way for a particular user to authenticate with the application. */
+export type UserAuthenticationMethodGqlDto = {
+  __typename?: 'UserAuthenticationMethodGqlDto';
+  /** ID of the OAuth2 provider. Only provided for the OAUTH method type. */
+  providerId?: Maybe<Scalars['String']['output']>;
+  /** Name of the OAuth2 provider. Only provided for the OAUTH method type. */
+  providerName?: Maybe<Scalars['String']['output']>;
+  /** The type of the authentication method. */
+  type: AuthenticationMethodType;
 };
 
 /** Information about the user profile. */
@@ -1407,6 +1681,8 @@ export enum ValidationErrorCode {
   MaxConstraintViolated = 'MaxConstraintViolated',
   /** The field value must be greater than or equal to the specified minimum. */
   MinConstraintViolated = 'MinConstraintViolated',
+  /** The field must be an https URL, or an http URL of a loopback host. */
+  MustBeValidEndpointUrl = 'MustBeValidEndpointUrl',
   /** The field must not be null, empty, or blank. */
   MustNotBeBlank = 'MustNotBeBlank',
   /** The field must not be null. */

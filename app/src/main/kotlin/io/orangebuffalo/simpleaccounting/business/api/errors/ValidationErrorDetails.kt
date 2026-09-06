@@ -42,4 +42,7 @@ enum class ValidationErrorCode {
 
     @GraphQLDescription("The field value must be greater than or equal to the specified minimum.")
     MinConstraintViolated,
+
+    @GraphQLDescription("The field must be an https URL, or an http URL of a loopback host.")
+    MustBeValidEndpointUrl,
 }

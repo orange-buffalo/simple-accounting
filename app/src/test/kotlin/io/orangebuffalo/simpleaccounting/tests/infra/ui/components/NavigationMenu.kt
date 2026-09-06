@@ -99,6 +99,11 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickOAuthProvidersOverview(): NavigationMenu {
+        container.getByText("Authentication Providers").click()
+        return this
+    }
+
     fun shouldHaveItems(vararg expectedItems: MenuItem) {
         val menuItems = page.locator(".side-menu__link, .side-menu__category")
             .elementHandles()

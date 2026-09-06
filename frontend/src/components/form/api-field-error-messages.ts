@@ -56,6 +56,8 @@ function getApiFieldErrorMessage(fieldError: FieldError) {
     return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value));
   case 'MaxConstraintViolated':
     return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value));
+  case 'MustBeValidEndpointUrl':
+    return $t.value.formValidationMessages.mustBeValidEndpointUrl();
   default:
     return fieldError.message;
   }

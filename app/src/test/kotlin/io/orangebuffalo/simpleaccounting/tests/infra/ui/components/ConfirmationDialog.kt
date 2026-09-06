@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 
 class ConfirmationDialog private constructor(
     private val locator: Locator,
@@ -10,6 +11,11 @@ class ConfirmationDialog private constructor(
 
     fun shouldBeVisible(): ConfirmationDialog {
         locator.shouldBeVisible()
+        return this
+    }
+
+    fun shouldHaveMessage(message: String): ConfirmationDialog {
+        locator.locator(".el-message-box__message").shouldHaveText(message)
         return this
     }
 

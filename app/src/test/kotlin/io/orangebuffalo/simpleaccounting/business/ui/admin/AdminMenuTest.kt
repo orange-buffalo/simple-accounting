@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.ui.admin
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.admin.oauthproviders.OAuthProvidersOverviewPage.Companion.shouldBeOAuthProvidersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.admin.usermanagement.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.loginAs
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
@@ -25,10 +26,14 @@ class AdminMenuTest : SaFullStackTestBase() {
         page.shouldHaveSideMenu()
             .shouldHaveItems(
                 NavigationMenu.MenuItem("Users", false),
+                NavigationMenu.MenuItem("Authentication Providers", false),
                 NavigationMenu.MenuItem("USER", true),
                 NavigationMenu.MenuItem("My Profile", false),
                 NavigationMenu.MenuItem("Logout", false),
             )
+
+        page.shouldHaveSideMenu().clickOAuthProvidersOverview()
+        page.shouldBeOAuthProvidersOverviewPage()
 
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage()

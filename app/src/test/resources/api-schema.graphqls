@@ -20,6 +20,9 @@ directive @deprecated(
     reason: String! = "No longer supported"
   ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
+"Validates that the value is a well-formed http or https URL"
+directive @endpointUrl on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 "This directive disables error propagation when a non nullable field returns null for the given operation."
 directive @experimental_disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 
@@ -126,6 +129,14 @@ type CompleteOAuth2FlowResponse {
   errorId: String
   "Whether the OAuth2 authorization flow was completed successfully."
   success: Boolean!
+}
+
+"Response for the completeOAuthAuthentication mutation."
+type CompleteOAuthAuthenticationResponse {
+  "The JWT access token for the authenticated user. Only provided for the LOGIN outcome."
+  accessToken: String
+  "What the completed flow has achieved."
+  outcome: OAuthAuthenticationOutcome!
 }
 
 "Response for the createAccessTokenByCredentials mutation."
@@ -669,7 +680,7 @@ type Mutation {
     currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
-  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCode : "CURRENT_PASSWORD_MISMATCH", errorCodeDescription : "The provided current password does not match the user's actual password.")
+  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCode : "CURRENT_PASSWORD_MISMATCH", errorCodeDescription : "The provided current password does not match the user's actual password.") @businessError(errorCode : "PASSWORD_LOGIN_NOT_ALLOWED", errorCodeDescription : "The user has linked OAuth identities, so the password cannot be used and is not managed.")
   "Completes the OAuth2 authorization flow by processing the authorization server callback."
   completeOAuth2Flow(
     "The authorization code returned by the authorization server."
@@ -679,6 +690,15 @@ type Mutation {
     "The state token that was included in the authorization request."
     state: String!
   ): CompleteOAuth2FlowResponse! @auth(type : AUTHENTICATED_USER)
+  "Completes the OAuth2 flow started by startOAuthLogin or startOAuthIdentityLinking by processing the authorization server callback. Requires the browser to present the binding cookie issued when the flow was started. An access token is only returned for the LOGIN outcome: linking an identity to an existing profile never grants a new session."
+  completeOAuthAuthentication(
+    "The authorization code returned by the authorization server."
+    code: String,
+    "The error code returned by the authorization server if authorization failed."
+    error: String,
+    "The state token that was included in the authorization request."
+    state: String! @notBlank
+  ): CompleteOAuthAuthenticationResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "UNKNOWN_AUTHORIZATION_REQUEST", errorCodeDescription : "The state does not match any pending authorization request, the request has expired or has already been used, or the browser did not present the binding cookie.") @businessError(errorCode : "AUTHORIZATION_FAILED", errorCodeDescription : "The authorization server did not grant the access, the token exchange failed, or the identity could not be resolved from the user info response.") @businessError(errorCode : "IDENTITY_MISMATCH", errorCodeDescription : "The authenticated identity is not the one linked to the user being logged in.") @businessError(errorCode : "IDENTITY_ALREADY_IN_USE", errorCodeDescription : "The authenticated identity is already linked to another user.") @businessError(errorCode : "PROVIDER_ALREADY_LINKED", errorCodeDescription : "An identity at this provider is already linked to the user.") @businessError(errorCode : "USER_NOT_ACTIVATED", errorCodeDescription : "The user account has not been activated yet.")
   "Authenticates a user by username and password credentials and returns an access token. Optionally issues a refresh token cookie for persistent sessions."
   createAccessTokenByCredentials(
     "Whether to issue a refresh token cookie for persistent sessions. Defaults to false if not provided."
@@ -687,7 +707,7 @@ type Mutation {
     password: String! @notBlank,
     "The username of the user."
     userName: String! @notBlank
-  ): CreateAccessTokenByCredentialsResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "BAD_CREDENTIALS", errorCodeDescription : "The provided credentials are invalid.") @businessError(errorCode : "USER_NOT_ACTIVATED", errorCodeDescription : "The user account has not been activated yet.") @businessError(errorCode : "ACCOUNT_LOCKED", errorCodeDescription : "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.") @businessError(errorCode : "LOGIN_NOT_AVAILABLE", errorCodeDescription : "Login is temporarily unavailable due to too many concurrent authentication requests for this user.")
+  ): CreateAccessTokenByCredentialsResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "BAD_CREDENTIALS", errorCodeDescription : "The provided credentials are invalid.") @businessError(errorCode : "USER_NOT_ACTIVATED", errorCodeDescription : "The user account has not been activated yet.") @businessError(errorCode : "ACCOUNT_LOCKED", errorCodeDescription : "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.") @businessError(errorCode : "PASSWORD_LOGIN_NOT_ALLOWED", errorCodeDescription : "The user has linked OAuth identities and must authenticate with one of them.") @businessError(errorCode : "LOGIN_NOT_AVAILABLE", errorCodeDescription : "Login is temporarily unavailable due to too many concurrent authentication requests for this user.")
   "Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality."
   createAccessTokenByWorkspaceAccessToken(
     "The shared workspace access token."
@@ -838,6 +858,25 @@ type Mutation {
     "ID of the workspace to create the invoice in."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Registers a new OAuth2 provider the users can authenticate with."
+  createOAuthProvider(
+    "Endpoint the users are redirected to in order to grant access to their identity."
+    authorizationUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0),
+    "Client ID issued by the provider for this application."
+    clientId: String! @notBlank @size(max : 255, min : 0),
+    "Client secret issued by the provider for this application."
+    clientSecret: String! @notBlank @size(max : 255, min : 0),
+    "Name of the provider, as presented to the users on the login page."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "Scopes to request from the provider. Blank and duplicate values are rejected."
+    scopes: [String!]!,
+    "Endpoint used to exchange the authorization code for an access token."
+    tokenUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0),
+    "Name of the attribute in the user info response that uniquely identifies the user."
+    userIdAttribute: String! @notBlank @size(max : 255, min : 0),
+    "Endpoint used to retrieve the details of the authenticated identity."
+    userInfoUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0)
+  ): OAuthProvider! @auth(type : ADMIN_USER) @businessError(errorCode : "PROVIDER_ALREADY_EXISTS", errorCodeDescription : "A provider with the given name already exists, ignoring case.") @businessError(errorCode : "INVALID_SCOPE", errorCodeDescription : "A scope is blank, too long, contains whitespace, or is duplicated.")
   "Creates a new standalone document in the specified workspace."
   createStandaloneDocument(
     "ID of the linked document."
@@ -1041,6 +1080,29 @@ type Mutation {
     "ID of the workspace the invoice belongs to."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
+  "Updates the registration of an existing OAuth2 provider."
+  editOAuthProvider(
+    "Endpoint the users are redirected to in order to grant access to their identity."
+    authorizationUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0),
+    "Client ID issued by the provider for this application."
+    clientId: String! @notBlank @size(max : 255, min : 0),
+    "Client secret issued by the provider for this application. When not provided, the currently stored secret is kept."
+    clientSecret: String @size(max : 255, min : 1),
+    "ID of the provider to update."
+    id: String!,
+    "Name of the provider, as presented to the users on the login page."
+    name: String! @notBlank @size(max : 255, min : 0),
+    "Scopes to request from the provider. Blank and duplicate values are rejected."
+    scopes: [String!]!,
+    "Endpoint used to exchange the authorization code for an access token."
+    tokenUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0),
+    "Name of the attribute in the user info response that uniquely identifies the user. Cannot be changed once users have linked identities at this provider."
+    userIdAttribute: String! @notBlank @size(max : 255, min : 0),
+    "Endpoint used to retrieve the details of the authenticated identity."
+    userInfoUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0),
+    "Version of the provider state used for editing."
+    version: Int!
+  ): OAuthProvider! @auth(type : ADMIN_USER) @businessError(errorCode : "PROVIDER_ALREADY_EXISTS", errorCodeDescription : "A provider with the given name already exists, ignoring case.") @businessError(errorCode : "USER_ID_ATTRIBUTE_LOCKED", errorCodeDescription : "The user ID attribute cannot be changed while users have identities linked at this provider, as it defines the meaning of the stored identifiers.") @businessError(errorCode : "INVALID_SCOPE", errorCodeDescription : "A scope is blank, too long, contains whitespace, or is duplicated.")
   "Updates an existing standalone document in the specified workspace."
   editStandaloneDocument(
     "New ID of the linked document."
@@ -1097,6 +1159,25 @@ type Mutation {
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
   "Starts migration of documents that are not stored in the current upload storage."
   startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.") @businessError(errorCode : "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE", errorCodeDescription : "Current upload storage is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE", errorCodeDescription : "At least one source storage required for migration is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS", errorCodeDescription : "The current user already has an incomplete documents migration.")
+  "Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow."
+  startOAuthIdentityLinking(
+    "ID of the OAuth2 provider to link an identity at."
+    providerId: String! @notBlank
+  ): StartOAuthIdentityLinkingResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCode : "PROVIDER_ALREADY_LINKED", errorCodeDescription : "An identity at this provider is already linked to the current user.")
+  "Starts the OAuth2 login flow for the user with the provided name. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow."
+  startOAuthLogin(
+    "Whether to issue a refresh token cookie for persistent sessions once the login completes. Defaults to false if not provided."
+    issueRefreshTokenCookie: Boolean,
+    "ID of the OAuth2 provider to authenticate with."
+    providerId: String! @notBlank,
+    "The username of the user attempting to login."
+    userName: String! @notBlank
+  ): StartOAuthLoginResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "LOGIN_NOT_AVAILABLE", errorCodeDescription : "The user has no identity linked at the requested provider.") @businessError(errorCode : "USER_NOT_ACTIVATED", errorCodeDescription : "The user account has not been activated yet.")
+  "Removes the identity linked at the provided provider from the current user profile. Once the last identity is removed, password login becomes available again."
+  unlinkOAuthIdentity(
+    "ID of the OAuth2 provider to unlink the identity at."
+    providerId: String! @notBlank
+  ): UnlinkOAuthIdentityResponse! @auth(type : AUTHENTICATED_USER)
   "Updates the current user profile information."
   updateProfile(
     "The identifier of the documents storage used by the user."
@@ -1106,6 +1187,64 @@ type Mutation {
     "The locale of the user profile, e.g. 'en-US'."
     locale: String! @notBlank @size(max : 36, min : 0)
   ): UserProfile! @auth(type : AUTHENTICATED_USER)
+}
+
+"An OAuth2 provider the users can authenticate with."
+type OAuthProvider {
+  "Endpoint the users are redirected to in order to grant access to their identity."
+  authorizationUrl: String!
+  "Client ID issued by the provider for this application."
+  clientId: String!
+  "The unique ID of the provider."
+  id: String!
+  "Name of the provider, as presented to the users on the login page."
+  name: String!
+  "Scopes requested from the provider, sorted alphabetically."
+  scopes: [String!]!
+  "Endpoint used to exchange the authorization code for an access token."
+  tokenUrl: String!
+  "Name of the attribute in the user info response that uniquely identifies the user within the provider, e.g. 'sub' or 'email'."
+  userIdAttribute: String!
+  "Endpoint used to retrieve the details of the authenticated identity."
+  userInfoUrl: String!
+  "Version of the provider state."
+  version: Int!
+}
+
+"An edge in a oauth providers connection."
+type OAuthProviderEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The oauth provider at the end of this edge."
+  node: OAuthProvider!
+}
+
+"An OAuth2 provider and the identity the current user has linked at it."
+type OAuthProviderLinkGqlDto {
+  "Identifier of the linked identity at this provider. Null when the current user has not linked an identity at this provider."
+  externalId: String
+  "ID of the provider."
+  providerId: String!
+  "Name of the provider."
+  providerName: String!
+}
+
+"A paginated connection of oauth providers following the GraphQL Cursor Connections Specification."
+type OAuthProvidersConnection {
+  "The list of edges in the current page."
+  edges: [OAuthProviderEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
+type OidcProviderConfiguration {
+  authorizationUrl: String!
+  scopes: [String!]!
+  tokenUrl: String!
+  userIdAttribute: String!
+  userInfoUrl: String!
 }
 
 "Pagination information following the GraphQL Cursor Connections Specification."
@@ -1169,6 +1308,11 @@ type PushNotificationMessage {
 }
 
 type Query {
+  "Loads OAuth2 endpoints from an OpenID Connect discovery document."
+  discoverOidcProviderConfiguration(
+    "Base URL of the OpenID Connect provider."
+    baseUrl: String! @endpointUrl @notBlank @size(max : 2048, min : 0)
+  ): OidcProviderConfiguration! @auth(type : ADMIN_USER) @businessError(errorCode : "DISCOVERY_FAILED", errorCodeDescription : "A compatible OpenID Connect configuration could not be loaded from the base URL.")
   "Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first."
   documentsMigrations(
     "Cursor after which to return items."
@@ -1184,6 +1328,22 @@ type Query {
   getDownloadDocumentStorages: [DownloadDocumentStorageResponse!]! @auth(type : AUTHENTICATED_ACTOR) @slowOperation
   "Returns the current user's Google Drive storage integration status."
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
+  "Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name."
+  myOAuthProviderLinks: [OAuthProviderLinkGqlDto!]! @auth(type : AUTHENTICATED_USER)
+  "Returns the OAuth2 provider with the given ID."
+  oauthProvider(
+    "ID of the provider."
+    id: String!
+  ): OAuthProvider! @auth(type : ADMIN_USER)
+  "Returns the registered OAuth2 providers with cursor-based pagination. Only accessible by admin users."
+  oauthProviders(
+    "Cursor after which to return items."
+    after: String,
+    "The maximum number of items to return."
+    first: Int! @max(value : 500) @min(value : 1),
+    "Optional free-text search filter applied to the provider name."
+    freeSearchText: String
+  ): OAuthProvidersConnection! @auth(type : ADMIN_USER)
   "Returns the system settings."
   systemSettings: SystemSettings! @auth(type : AUTHENTICATED_USER)
   "Retrieves the activation token for a user by their ID. Returns null if the token does not exist or has expired. Only accessible by admin users."
@@ -1201,6 +1361,11 @@ type Query {
     "ID of the user."
     id: String!
   ): PlatformUser! @auth(type : ADMIN_USER)
+  "Returns the authentication methods available for the user with the provided name. This is the first step of the login process. For users that have linked an identity at an OAuth2 provider, password login is not offered. For unknown users, password login is reported, so that account existence is not disclosed."
+  userAuthenticationMethods(
+    "The username of the user attempting to login."
+    userName: String! @notBlank
+  ): [UserAuthenticationMethodGqlDto!]! @auth(type : ANONYMOUS)
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
   "Returns all users with cursor-based pagination. Only accessible by admin users."
@@ -1262,6 +1427,18 @@ type StandaloneDocumentsConnection {
   totalCount: Int!
 }
 
+"Response for the startOAuthIdentityLinking mutation."
+type StartOAuthIdentityLinkingResponse {
+  "The URL of the authorization server the browser must be redirected to."
+  authorizationUrl: String!
+}
+
+"Response for the startOAuthLogin mutation."
+type StartOAuthLoginResponse {
+  "The URL of the authorization server the browser must be redirected to."
+  authorizationUrl: String!
+}
+
 type Subscription {
   "Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ \"type\": \"connection_init\", \"payload\": { \"token\": \"<JWT>\" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message."
   pushNotifications: PushNotificationMessage! @auth(type : AUTHENTICATED_USER)
@@ -1271,6 +1448,14 @@ type Subscription {
 type SystemSettings {
   "Whether local file system documents storage is enabled."
   localFileSystemDocumentsStorageEnabled: Boolean!
+  "Redirect URL that must be registered at OAuth2 providers for authentication flows."
+  oauthCallbackUrl: String!
+}
+
+"Response for the unlinkOAuthIdentity mutation."
+type UnlinkOAuthIdentityResponse {
+  "Whether the identity has been unlinked."
+  success: Boolean!
 }
 
 "A user activation token used to activate a new user account."
@@ -1279,6 +1464,16 @@ type UserActivationTokenGqlDto {
   expiresAt: DateTime!
   "The token value."
   token: String!
+}
+
+"A way for a particular user to authenticate with the application."
+type UserAuthenticationMethodGqlDto {
+  "ID of the OAuth2 provider. Only provided for the OAUTH method type."
+  providerId: String
+  "Name of the OAuth2 provider. Only provided for the OAUTH method type."
+  providerName: String
+  "The type of the authentication method."
+  type: AuthenticationMethodType!
 }
 
 "Information about the user profile."
@@ -1561,6 +1756,14 @@ enum AuthType {
   REGULAR_USER
 }
 
+"Type of the authentication method available for a user."
+enum AuthenticationMethodType {
+  "The user authenticates with an identity linked at an OAuth2 provider."
+  OAUTH
+  "The user authenticates with their username and password."
+  PASSWORD
+}
+
 "Category usage type."
 enum CategoryType {
   EXPENSE
@@ -1571,6 +1774,24 @@ enum CategoryType {
 enum ChangePasswordErrorCodes {
   "The provided current password does not match the user's actual password."
   CURRENT_PASSWORD_MISMATCH
+  "The user has linked OAuth identities, so the password cannot be used and is not managed."
+  PASSWORD_LOGIN_NOT_ALLOWED
+}
+
+"Possible business error codes for the completeOAuthAuthentication operation."
+enum CompleteOAuthAuthenticationErrorCodes {
+  "The authorization server did not grant the access, the token exchange failed, or the identity could not be resolved from the user info response."
+  AUTHORIZATION_FAILED
+  "The authenticated identity is already linked to another user."
+  IDENTITY_ALREADY_IN_USE
+  "The authenticated identity is not the one linked to the user being logged in."
+  IDENTITY_MISMATCH
+  "An identity at this provider is already linked to the user."
+  PROVIDER_ALREADY_LINKED
+  "The state does not match any pending authorization request, the request has expired or has already been used, or the browser did not present the binding cookie."
+  UNKNOWN_AUTHORIZATION_REQUEST
+  "The user account has not been activated yet."
+  USER_NOT_ACTIVATED
 }
 
 "Possible business error codes for the createAccessTokenByCredentials operation."
@@ -1581,6 +1802,8 @@ enum CreateAccessTokenByCredentialsErrorCodes {
   BAD_CREDENTIALS
   "Login is temporarily unavailable due to too many concurrent authentication requests for this user."
   LOGIN_NOT_AVAILABLE
+  "The user has linked OAuth identities and must authenticate with one of them."
+  PASSWORD_LOGIN_NOT_ALLOWED
   "The user account has not been activated yet."
   USER_NOT_ACTIVATED
 }
@@ -1589,6 +1812,14 @@ enum CreateAccessTokenByCredentialsErrorCodes {
 enum CreateAccessTokenByWorkspaceAccessTokenErrorCodes {
   "The provided workspace access token is not valid (unknown, expired, or revoked)."
   INVALID_WORKSPACE_ACCESS_TOKEN
+}
+
+"Possible business error codes for the createOAuthProvider operation."
+enum CreateOAuthProviderErrorCodes {
+  "A scope is blank, too long, contains whitespace, or is duplicated."
+  INVALID_SCOPE
+  "A provider with the given name already exists, ignoring case."
+  PROVIDER_ALREADY_EXISTS
 }
 
 "Possible business error codes for the createUserActivationToken operation."
@@ -1607,6 +1838,12 @@ enum CreateUserErrorCodes {
 enum DeleteDocumentErrorCodes {
   "The document is attached to another entity and cannot be deleted."
   DOCUMENT_IS_USED
+}
+
+"Possible business error codes for the discoverOidcProviderConfiguration operation."
+enum DiscoverOidcProviderConfigurationErrorCodes {
+  "A compatible OpenID Connect configuration could not be loaded from the base URL."
+  DISCOVERY_FAILED
 }
 
 "Usage type filter for documents."
@@ -1639,6 +1876,16 @@ enum DocumentUsageType {
   STANDALONE_DOCUMENT
 }
 
+"Possible business error codes for the editOAuthProvider operation."
+enum EditOAuthProviderErrorCodes {
+  "A scope is blank, too long, contains whitespace, or is duplicated."
+  INVALID_SCOPE
+  "A provider with the given name already exists, ignoring case."
+  PROVIDER_ALREADY_EXISTS
+  "The user ID attribute cannot be changed while users have identities linked at this provider, as it defines the meaning of the stored identifiers."
+  USER_ID_ATTRIBUTE_LOCKED
+}
+
 "Possible business error codes for the editUser operation."
 enum EditUserErrorCodes {
   "A user with the given username already exists."
@@ -1663,6 +1910,14 @@ enum InvoiceStatus {
   OVERDUE
   PAID
   SENT
+}
+
+"The outcome of a completed OAuth2 flow."
+enum OAuthAuthenticationOutcome {
+  "A new identity has been linked to the user profile."
+  LINK
+  "The user has been logged in."
+  LOGIN
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
@@ -1697,12 +1952,28 @@ enum StartDocumentsMigrationErrorCodes {
   DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE
 }
 
+"Possible business error codes for the startOAuthIdentityLinking operation."
+enum StartOAuthIdentityLinkingErrorCodes {
+  "An identity at this provider is already linked to the current user."
+  PROVIDER_ALREADY_LINKED
+}
+
+"Possible business error codes for the startOAuthLogin operation."
+enum StartOAuthLoginErrorCodes {
+  "The user has no identity linked at the requested provider."
+  LOGIN_NOT_AVAILABLE
+  "The user account has not been activated yet."
+  USER_NOT_ACTIVATED
+}
+
 "Error codes for validation failures, matching REST API constraint violation error keys."
 enum ValidationErrorCode {
   "The field value must be less than or equal to the specified maximum."
   MaxConstraintViolated
   "The field value must be greater than or equal to the specified minimum."
   MinConstraintViolated
+  "The field must be an https URL, or an http URL of a loopback host."
+  MustBeValidEndpointUrl
   "The field must not be null, empty, or blank."
   MustNotBeBlank
   "The field must not be null."
