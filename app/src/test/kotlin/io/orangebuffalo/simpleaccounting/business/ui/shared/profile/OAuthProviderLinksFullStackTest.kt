@@ -59,6 +59,7 @@ class OAuthProviderLinksFullStackTest : SaFullStackTestBase() {
                 reportRendering("profile.oauth-providers.linked")
             }
         }
+        page.shouldHaveSideMenu().shouldHaveWorkspaceName("Planet Express")
 
         withHint("Should store the linked identity") {
             val identity = aggregateTemplate.findAll<UserOAuthIdentity>().shouldBeSingle()

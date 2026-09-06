@@ -45,12 +45,14 @@
   import useNavigation from '@/services/use-navigation';
   import useNotifications from '@/components/notifications/use-notifications.ts';
   import { useAfterLoginNavigation } from '@/pages/login/after-login-navigation.ts';
+  import { useWorkspaces } from '@/services/workspaces.ts';
 
   const loading = ref(true);
   const errorMessage = ref('');
   const sessionRecovered = ref(false);
 
-  const { loginWithAccessToken, tryAutoLogin } = useAuth();
+  const { isAdmin, loginWithAccessToken, tryAutoLogin } = useAuth();
+  const { loadWorkspaces } = useWorkspaces();
   const { navigateByViewName } = useNavigation();
   const { showSuccessNotification } = useNotifications();
   const navigateAfterLogin = useAfterLoginNavigation();
@@ -80,7 +82,11 @@
    */
   const recoverSession = async () => {
     try {
-      return await tryAutoLogin();
+      const recovered = await tryAutoLogin();
+      if (recovered && !isAdmin()) {
+        await loadWorkspaces();
+      }
+      return recovered;
     } catch (e: unknown) {
       console.error('Failed to recover the session', e);
       return false;
