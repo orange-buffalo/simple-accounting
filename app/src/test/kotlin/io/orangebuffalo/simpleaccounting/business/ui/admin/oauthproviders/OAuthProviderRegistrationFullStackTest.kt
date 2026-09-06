@@ -53,10 +53,11 @@ class OAuthProviderRegistrationFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        page.shouldBeEditOAuthProviderPage {
+        page.shouldBeOAuthProvidersOverviewPage {
             shouldHaveNotifications {
                 success("Provider Nimbus Auth has been successfully saved")
             }
+            pageItems { shouldHaveTitles("Nimbus Auth") }
         }
 
         withHint("Should store the provider") {
@@ -71,9 +72,6 @@ class OAuthProviderRegistrationFullStackTest : SaFullStackTestBase() {
             provider.scopes.map { it.scope }.shouldContainExactlyInAnyOrder("openid", "email")
         }
 
-        page.openOAuthProvidersOverviewPage {
-            pageItems { shouldHaveTitles("Nimbus Auth") }
-        }
     }
 
     @Test
@@ -106,7 +104,7 @@ class OAuthProviderRegistrationFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
-        page.shouldBeEditOAuthProviderPage {
+        page.shouldBeOAuthProvidersOverviewPage {
             shouldHaveNotifications {
                 success("Provider Discovered Auth has been successfully saved")
             }

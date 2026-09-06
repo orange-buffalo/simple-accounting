@@ -110,15 +110,9 @@
 
   const { showSuccessNotification } = useNotifications();
 
-  const { navigateByViewName, navigateToView } = useNavigation();
+  const { navigateByViewName } = useNavigation();
   const navigateToProvidersOverview = async () => {
     await navigateByViewName('oauth-providers-overview');
-  };
-  const navigateToEditProvider = async (id: string) => {
-    await navigateToView({
-      name: 'edit-oauth-provider',
-      params: { id },
-    });
   };
 
   const getProviderQuery = useLazyQuery(graphql(/* GraphQL */ `
@@ -307,9 +301,8 @@
           userIdAttribute: formValues.value.userIdAttribute,
           scopes: parsedScopes(),
         });
-        await navigateToProvidersOverview();
       } else {
-        const createdProvider = await createProviderMutation({
+        await createProviderMutation({
           name: formValues.value.name,
           clientId: formValues.value.clientId,
           clientSecret: formValues.value.clientSecret,
@@ -319,8 +312,8 @@
           userIdAttribute: formValues.value.userIdAttribute,
           scopes: parsedScopes(),
         });
-        await navigateToEditProvider(createdProvider.id);
       }
+      await navigateToProvidersOverview();
       showSuccessNotification($t.value.editOAuthProvider.successNotification(formValues.value.name));
     } catch (e: unknown) {
       const errorCode = handleGqlApiBusinessError<CreateOAuthProviderErrorCodes | EditOAuthProviderErrorCodes>(e);
