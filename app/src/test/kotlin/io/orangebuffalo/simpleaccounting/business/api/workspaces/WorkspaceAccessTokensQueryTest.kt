@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.encodeCursor
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -63,6 +64,49 @@ class WorkspaceAccessTokensQueryTest(
                 .usingSharedWorkspaceToken(testData.token.token)
                 .executeAndVerifyNotAuthorized(
                     paths = listOf("workspace", "workspaceAccessTokens"),
+                    locationColumn = 5,
+                    locationLine = 3,
+                )
+        }
+
+        @Test
+        fun `should not expose tokens to a regular user with shared workspace access`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val zoidberg = zoidberg()
+                    val sharedToken = workspaceAccessToken(
+                        workspace = workspace,
+                        token = "leela-token",
+                        validTill = MOCK_TIME.plusSeconds(10000),
+                    )
+                }.also {
+                    workspaceAccessToken(
+                        workspace = it.workspace,
+                        token = "another-recipient-token",
+                        validTill = MOCK_TIME.plusSeconds(20000),
+                    )
+                }
+            }
+            client.graphqlMutation {
+                saveSharedWorkspace(token = testData.sharedToken.token) { id }
+            }
+                .from(testData.zoidberg)
+                .executeAndVerifySuccessResponse(
+                    "saveSharedWorkspace" to buildJsonObject { put("id", testData.workspace.id!!) }
+                )
+
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    workspaceAccessTokens(first = 10) {
+                        edges { node { token } }
+                    }
+                }
+            }
+                .from(testData.zoidberg)
+                .executeAndVerifyEntityNotFoundError(
+                    path = "workspace",
                     locationColumn = 5,
                     locationLine = 3,
                 )
