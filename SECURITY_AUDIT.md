@@ -5,7 +5,7 @@
 This source audit identified three high-priority security issues:
 
 1. **Remediated:** Read-only workspace recipients could retrieve other recipients' workspace share tokens.
-2. Anonymous login requests permanently grow an unbounded in-memory map.
+2. **Remediated:** Anonymous login requests could permanently grow an unbounded in-memory map.
 3. Access tokens can renew indefinitely, while logout and password changes do not revoke established sessions.
 
 Additional findings affect document storage, OAuth state handling, password verification, information disclosure, and
@@ -100,9 +100,11 @@ regular user can save and read a shared workspace but cannot resolve its `worksp
 - `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/workspaces/WorkspaceGqlDto.kt`
 - `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/workspaces/WorkspaceAccessTokensQueryTest.kt`
 
-### SA-HTTP-002: Anonymous Login Requests Permanently Grow An Unbounded Map
+### [x] SA-HTTP-002: Anonymous Login Requests Permanently Grow An Unbounded Map
 
 **Severity:** High
+
+**Status:** Remediated
 
 **Category:** HTTP-triggered denial of service
 
@@ -140,6 +142,18 @@ not measured.
 - Replace the per-username map with bounded lock striping or another concurrency-safe bounded mechanism.
 - Apply a username length constraint.
 - Apply global and client-level authentication-request throttling at the application or reverse proxy.
+
+**Resolution:**
+
+The per-username map was replaced with 256 fixed lock stripes, preserving serialized authentication attempts while
+eliminating attacker-controlled lock allocation. Login usernames are now limited to 255 characters, matching the database
+model. Regression coverage verifies the GraphQL input length boundary:
+
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/security/authentication/UserNamePasswordAuthenticationProvider.kt`
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/CreateAccessTokenByCredentialsMutation.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/CreateAccessTokenByCredentialsMutationTest.kt`
+
+Global and client-level request throttling remains a deployment defense-in-depth recommendation.
 
 ### SA-HTTP-003: Access Tokens Can Renew Indefinitely And Sessions Are Not Revoked
 
@@ -689,7 +703,7 @@ documentation describing WebFlux.
 ## Recommended Remediation Order
 
 1. [x] Require workspace `ADMIN` access when listing workspace access tokens.
-2. Replace the unbounded username-to-lock map with a bounded mechanism.
+2. [x] Replace the unbounded username-to-lock map with a bounded mechanism.
 3. Require revocable refresh credentials for renewal and implement session invalidation.
 4. Validate upload metadata before storage writes and compensate for failed persistence.
 5. Remove status-query side effects and bound OAuth pending state.
