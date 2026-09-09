@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.documents.InvalidDocumentMetadataException
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import mu.KotlinLogging
@@ -59,5 +60,11 @@ class DocumentsContentApi(
     fun onEntityNotFoundException(exception: EntityNotFoundException): ResponseEntity<String> {
         logger.trace(exception) {}
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.message)
+    }
+
+    @ExceptionHandler
+    fun onInvalidDocumentMetadataException(exception: InvalidDocumentMetadataException): ResponseEntity<String> {
+        logger.trace(exception) {}
+        return ResponseEntity.badRequest().body(exception.message)
     }
 }

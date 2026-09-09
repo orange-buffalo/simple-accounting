@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.documents.PersistentUploadRequest
@@ -11,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
@@ -28,6 +30,7 @@ import org.springframework.test.web.servlet.client.RestTestClient
 class DocumentsUploadApiTest(
     @Autowired private val client: RestTestClient,
     @Autowired private val tokensRepository: TokensRepository,
+    @Autowired private val testDocumentsStorage: TestDocumentsStorage,
 ) : SaIntegrationTestBase() {
 
     @Nested
@@ -132,6 +135,63 @@ class DocumentsUploadApiTest(
                 .body(body.build())
                 .exchange()
                 .expectStatus().isOk
+        }
+
+        @Test
+        fun `should reject an oversized file name without storing content`() {
+            val token = createUploadToken()
+            val uploadedDocumentsCount = testDocumentsStorage.getUploadedDocumentsCount()
+
+            val body = MultipartBodyBuilder().apply {
+                part("file", InMemoryResource("Professor Farnsworth's tax records"), MediaType.TEXT_PLAIN)
+                    .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.builder("form-data")
+                            .name("file")
+                            .filename("a".repeat(256))
+                            .build().toString(),
+                    )
+            }
+
+            client.post()
+                .uri("/api/documents/upload/$token")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody(String::class.java)
+                .isEqualTo("Document file name cannot exceed 255 characters")
+
+            testDocumentsStorage.getUploadedDocumentsCount().shouldBe(uploadedDocumentsCount)
+        }
+
+        @Test
+        fun `should reject an oversized content type without storing content`() {
+            val token = createUploadToken()
+            val uploadedDocumentsCount = testDocumentsStorage.getUploadedDocumentsCount()
+            val oversizedContentType = MediaType("application", "a".repeat(244))
+
+            val body = MultipartBodyBuilder().apply {
+                part("file", InMemoryResource("Delivery to Omicron Persei 8"), oversizedContentType)
+                    .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.builder("form-data")
+                            .name("file")
+                            .filename("delivery-record.txt")
+                            .build().toString(),
+                    )
+            }
+
+            client.post()
+                .uri("/api/documents/upload/$token")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(body.build())
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody(String::class.java)
+                .isEqualTo("Document content type cannot exceed 255 characters")
+
+            testDocumentsStorage.getUploadedDocumentsCount().shouldBe(uploadedDocumentsCount)
         }
 
         @Test

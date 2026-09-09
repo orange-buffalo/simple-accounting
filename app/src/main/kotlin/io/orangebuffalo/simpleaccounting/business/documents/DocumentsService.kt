@@ -15,9 +15,11 @@ import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentStorageException
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import org.springframework.dao.DataAccessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -34,10 +36,12 @@ class DocumentsService(
 ) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
     fun saveDocument(request: SaveDocumentRequest): Document {
+        validateDocumentMetadata(request)
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
             ?: throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")
         val response = documentStorage.saveDocument(request)
-        return documentRepository.save(
+        try {
+            return documentRepository.save(
                 Document(
                     name = request.fileName,
                     timeUploaded = timeService.currentTime(),
@@ -48,6 +52,27 @@ class DocumentsService(
                     mimeType = request.contentType ?: "application/octet-stream"
                 )
             )
+        } catch (e: DataAccessException) {
+            try {
+                documentStorage.deleteDocument(request.workspace, response.storageLocation)
+            } catch (cleanupException: DocumentStorageException) {
+                e.addSuppressed(cleanupException)
+            }
+            throw e
+        }
+    }
+
+    private fun validateDocumentMetadata(request: SaveDocumentRequest) {
+        if (request.fileName.length > MAX_DOCUMENT_NAME_LENGTH) {
+            throw InvalidDocumentMetadataException(
+                "Document file name cannot exceed $MAX_DOCUMENT_NAME_LENGTH characters"
+            )
+        }
+        if ((request.contentType?.length ?: 0) > MAX_DOCUMENT_MIME_TYPE_LENGTH) {
+            throw InvalidDocumentMetadataException(
+                "Document content type cannot exceed $MAX_DOCUMENT_MIME_TYPE_LENGTH characters"
+            )
+        }
     }
 
     private fun getDocumentStorageByUser(userId: String): DocumentsStorage? {
@@ -183,7 +208,14 @@ class DocumentsService(
             contentType = document.mimeType
         )
     }
+
+    private companion object {
+        const val MAX_DOCUMENT_NAME_LENGTH = 255
+        const val MAX_DOCUMENT_MIME_TYPE_LENGTH = 255
+    }
 }
+
+class InvalidDocumentMetadataException(message: String) : RuntimeException(message)
 
 data class DocumentDownloadMetadata(
     val documentId: String

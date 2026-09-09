@@ -61,6 +61,8 @@ class TestDocumentsStorage : DocumentsStorage {
 
     fun hasUploadedContent(storageLocation: String): Boolean = uploadedDocuments.containsKey(storageLocation)
 
+    fun getUploadedDocumentsCount(): Int = uploadedDocuments.size
+
     fun reset() {
         uploadedDocuments.clear()
         storageStatus = DocumentsStorageStatus(active = true)
