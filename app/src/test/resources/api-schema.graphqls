@@ -1134,9 +1134,9 @@ type Mutation {
     "Version of the workspace state used for editing."
     version: Int!
   ): Workspace! @auth(type : REGULAR_USER)
-  "Invalidates the refresh token cookie, effectively logging out the current user."
+  "Revokes the refresh token and clears its cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
-  "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
+  "Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
   "Removes a standalone document from the specified workspace."
   removeStandaloneDocument(

@@ -6,7 +6,8 @@ This source audit identified three high-priority security issues:
 
 1. **Remediated:** Read-only workspace recipients could retrieve other recipients' workspace share tokens.
 2. **Remediated:** Anonymous login requests could permanently grow an unbounded in-memory map.
-3. Access tokens can renew indefinitely, while logout and password changes do not revoke established sessions.
+3. **Remediated:** Access tokens could renew indefinitely, while logout and password changes did not revoke refresh
+   credentials.
 
 Additional findings affect document storage, OAuth state handling, password verification, information disclosure, and
 deployment hardening.
@@ -155,9 +156,11 @@ model. Regression coverage verifies the GraphQL input length boundary:
 
 Global and client-level request throttling remains a deployment defense-in-depth recommendation.
 
-### SA-HTTP-003: Access Tokens Can Renew Indefinitely And Sessions Are Not Revoked
+### [x] SA-HTTP-003: Access Tokens Can Renew Indefinitely And Sessions Are Not Revoked
 
 **Severity:** High
+
+**Status:** Remediated
 
 **Category:** Session management and stale authorization
 
@@ -219,6 +222,26 @@ Relevant evidence:
 - Invalidate appropriate sessions after password and security changes.
 - Introduce a session or security version that can invalidate existing JWTs.
 - Terminate or reauthenticate WebSocket connections when their authentication expires or is revoked.
+
+**Resolution:**
+
+Regular and administrator access tokens can no longer authorize `refreshAccessToken`; renewal now requires a persisted
+refresh-token cookie and reloads the user's current account state and privileges. Transient workspace-link sessions retain
+renewal support because each renewal revalidates their revocable workspace access token. Logout deletes the presented
+refresh token, and password changes atomically revoke all refresh tokens belonging to that user. Regression coverage
+verifies bearer-only renewal rejection and refresh-token revocation on logout and password changes:
+
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/RefreshAccessTokenMutation.kt`
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/InvalidateRefreshTokenMutation.kt`
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/security/remeberme/RefreshTokensService.kt`
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/security/authentication/AuthenticationService.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/RefreshAccessTokenMutationTest.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/InvalidateRefreshTokenMutationTest.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/auth/ChangePasswordMutationTest.kt`
+
+Already-issued regular access tokens remain valid until their ten-minute expiry. Immediate invalidation would require a
+session or security-version check during JWT authentication. The WebSocket lifetime boundary described above also remains
+open and should be addressed separately.
 
 ## Medium-Severity Findings
 
@@ -704,7 +727,7 @@ documentation describing WebFlux.
 
 1. [x] Require workspace `ADMIN` access when listing workspace access tokens.
 2. [x] Replace the unbounded username-to-lock map with a bounded mechanism.
-3. Require revocable refresh credentials for renewal and implement session invalidation.
+3. [x] Require revocable refresh credentials for renewal and revoke refresh credentials on logout and password change.
 4. Validate upload metadata before storage writes and compensate for failed persistence.
 5. Remove status-query side effects and bound OAuth pending state.
 6. Apply consistent throttling to every password-verification path.

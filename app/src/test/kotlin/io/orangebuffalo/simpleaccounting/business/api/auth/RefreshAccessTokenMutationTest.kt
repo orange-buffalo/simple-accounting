@@ -102,33 +102,25 @@ class RefreshAccessTokenMutationTest(
         }
 
         @Test
-        fun `should return JWT token when user is authenticated with regular user`() {
-            val principal = preconditions.fry.toSecurityPrincipal()
-
-            doReturn("jwtTokenForFry").whenever(jwtService).buildJwtToken(principal)
-
+        fun `should return null token when regular user has no refresh token cookie`() {
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
-                        put("accessToken", "jwtTokenForFry")
+                        put("accessToken", JsonNull)
                     }
                 )
         }
 
         @Test
-        fun `should return JWT token when user is authenticated with admin user`() {
-            val principal = preconditions.farnsworth.toSecurityPrincipal()
-
-            doReturn("jwtTokenForFarnsworth").whenever(jwtService).buildJwtToken(principal)
-
+        fun `should return null token when admin user has no refresh token cookie`() {
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
                 .from(preconditions.farnsworth)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.RefreshAccessToken to buildJsonObject {
-                        put("accessToken", "jwtTokenForFarnsworth")
+                        put("accessToken", JsonNull)
                     }
                 )
         }

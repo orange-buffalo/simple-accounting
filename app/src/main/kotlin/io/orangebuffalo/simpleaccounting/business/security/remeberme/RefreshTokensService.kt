@@ -55,6 +55,14 @@ class RefreshTokensService(
         return tokenOwner.toSecurityPrincipal()
     }
 
+    fun revokeToken(refreshTokenString: String) {
+        refreshTokensRepository.deleteByToken(refreshTokenString)
+    }
+
+    fun revokeTokensForUser(userId: String) {
+        refreshTokensRepository.deleteByUserId(userId)
+    }
+
     fun prolongToken(refreshTokenString: String): String {
         val refreshToken = refreshTokensRepository.findByToken(refreshTokenString)
             ?: throw IllegalArgumentException("Bad token $refreshTokenString")

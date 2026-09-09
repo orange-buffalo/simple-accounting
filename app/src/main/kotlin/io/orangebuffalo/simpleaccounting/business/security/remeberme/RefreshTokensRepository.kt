@@ -4,4 +4,6 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 
 interface RefreshTokensRepository : AbstractEntityRepository<RefreshToken> {
     fun findByToken(token: String): RefreshToken?
+    fun deleteByToken(token: String)
+    fun deleteByUserId(userId: String)
 }
