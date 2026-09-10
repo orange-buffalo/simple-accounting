@@ -301,19 +301,18 @@ Exploitation still requires a writable configured directory.
 **Resolution:**
 
 Filename and content-type lengths are now validated against their database column limits before content is sent to the
-configured storage. Invalid multipart metadata receives HTTP 400. If document metadata persistence nevertheless fails
-after a storage write, the service deletes the stored object and rethrows the original persistence exception. Regression
-coverage verifies both oversized-filename rejection without a storage write and compensating deletion after a repository
-failure:
+configured storage. Invalid multipart metadata receives HTTP 400, and regression coverage verifies that oversized
+metadata does not create stored content:
 
 - `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/documents/DocumentsService.kt`
 - `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/documents/DocumentsContentApi.kt`
 - `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/documents/DocumentsUploadApiTest.kt`
-- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/documents/DocumentsServiceTest.kt`
 
 Upload tokens remain reusable during their two-minute lifetime, and aggregate quotas and orphan reconciliation remain
 defense-in-depth opportunities. The related local-storage enablement issue is not changed by this remediation because
-blocking new writes while retaining access to existing documents requires a separate storage-lifecycle policy.
+blocking new writes while retaining access to existing documents requires a separate storage-lifecycle policy. Unexpected
+persistence failures after a successful storage write are not compensated; this remediation addresses the demonstrated
+attacker-controlled metadata path rather than that exceptional operational failure mode.
 
 ### SA-HTTP-005: Google Drive Status Queries Retain OAuth State For Two Days
 
@@ -747,7 +746,7 @@ documentation describing WebFlux.
 1. [x] Require workspace `ADMIN` access when listing workspace access tokens.
 2. [x] Replace the unbounded username-to-lock map with a bounded mechanism.
 3. [x] Require revocable refresh credentials for renewal and revoke refresh credentials on logout and password change.
-4. [x] Validate upload metadata before storage writes and compensate for failed persistence.
+4. [x] Validate upload metadata before storage writes.
 5. Remove status-query side effects and bound OAuth pending state.
 6. Apply consistent throttling to every password-verification path.
 7. Resolve lower-severity information-disclosure and browser-hardening findings.

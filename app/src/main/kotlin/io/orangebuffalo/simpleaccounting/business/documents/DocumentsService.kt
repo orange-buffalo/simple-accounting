@@ -15,11 +15,9 @@ import io.orangebuffalo.simpleaccounting.infra.InputStreamProvider
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentStorageException
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
-import org.springframework.dao.DataAccessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -40,26 +38,17 @@ class DocumentsService(
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
             ?: throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")
         val response = documentStorage.saveDocument(request)
-        try {
-            return documentRepository.save(
-                Document(
-                    name = request.fileName,
-                    timeUploaded = timeService.currentTime(),
-                    workspaceId = request.workspace.id!!,
-                    storageId = documentStorage.getId(),
-                    storageLocation = response.storageLocation,
-                    sizeInBytes = response.sizeInBytes,
-                    mimeType = request.contentType ?: "application/octet-stream"
-                )
+        return documentRepository.save(
+            Document(
+                name = request.fileName,
+                timeUploaded = timeService.currentTime(),
+                workspaceId = request.workspace.id!!,
+                storageId = documentStorage.getId(),
+                storageLocation = response.storageLocation,
+                sizeInBytes = response.sizeInBytes,
+                mimeType = request.contentType ?: "application/octet-stream"
             )
-        } catch (e: DataAccessException) {
-            try {
-                documentStorage.deleteDocument(request.workspace, response.storageLocation)
-            } catch (cleanupException: DocumentStorageException) {
-                e.addSuppressed(cleanupException)
-            }
-            throw e
-        }
+        )
     }
 
     private fun validateDocumentMetadata(request: SaveDocumentRequest) {
