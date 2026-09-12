@@ -17,6 +17,8 @@
         <ElFormItem>
           <ElInput
             v-model="form.userName"
+            name="username"
+            autocomplete="username"
             :placeholder="$t.loginPage.userName.placeholder()"
             :disabled="uiState.requestInProgress || !userNameStep"
           >
@@ -42,6 +44,8 @@
             <ElInput
               v-model="form.password"
               type="password"
+              name="password"
+              autocomplete="current-password"
               :placeholder="$t.loginPage.password.placeholder()"
             >
               <template #prefix>
