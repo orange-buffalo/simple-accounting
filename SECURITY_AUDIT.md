@@ -411,6 +411,8 @@ Apply shared credential-verification throttling to password changes and other st
 
 **Category:** Privileged SSRF capability
 
+**Status:** Partially remediated
+
 **Evidence:**
 
 - `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/oauthproviders/DiscoverOidcProviderConfigurationQuery.kt:24-34`
@@ -445,6 +447,17 @@ it is a privileged capability rather than a trust-boundary violation.
 - If required by that boundary, allowlist destinations and reject loopback, private, and link-local addresses after DNS
   resolution.
 - Apply outbound network policy, response-size limits, and deadlines.
+
+**Resolution:**
+
+Application-level hardening now rejects discovery base URLs containing query or fragment components before issuing an
+outbound request, constructs the well-known endpoint from the parsed base URI, applies ten-second connect and read
+deadlines, and rejects discovery documents larger than 1 MiB. A regression covers the fragment-based path override.
+
+The administrator-controlled server-origin request capability remains open. Private and internal OIDC providers are valid
+for some deployments, so the application does not block loopback, private, link-local, or internal DNS destinations without
+an explicit deployment trust policy. Deployments that do not trust application administrators with server-network access
+must enforce destination and redirect restrictions through an allowlist and outbound network policy.
 
 ## Low-Severity Findings
 

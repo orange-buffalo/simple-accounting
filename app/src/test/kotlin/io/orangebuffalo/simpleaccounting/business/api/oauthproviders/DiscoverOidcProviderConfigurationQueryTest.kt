@@ -82,6 +82,18 @@ class DiscoverOidcProviderConfigurationQueryTest(
                     path = DgsConstants.QUERY.DiscoverOidcProviderConfiguration,
                 )
         }
+
+        @Test
+        fun `should reject base URL with fragment`() {
+            client.graphql {
+                discoveryQuery("$providerBaseUrl/.well-known/openid-configuration#")
+            }
+                .from(preconditions.farnsworth)
+                .executeAndVerifyBusinessErrorCode(
+                    errorCode = "DISCOVERY_FAILED",
+                    path = DgsConstants.QUERY.DiscoverOidcProviderConfiguration,
+                )
+        }
     }
 
     private fun QueryProjection.discoveryQuery(baseUrl: String = providerBaseUrl) =
