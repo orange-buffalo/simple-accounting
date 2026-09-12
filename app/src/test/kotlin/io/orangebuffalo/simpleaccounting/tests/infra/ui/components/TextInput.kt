@@ -5,6 +5,7 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 
@@ -26,6 +27,7 @@ class TextInput private constructor(
     fun shouldBeHidden() = input.shouldBeHidden()
 
     fun shouldHaveValue(value: String) = input.shouldHaveValue(value)
+    fun shouldHaveAttribute(name: String, value: String) = input.shouldHaveAttribute(name, value)
 
     fun shouldBeEnabled() = input.shouldBeEnabled()
     fun shouldBeDisabled() = input.shouldBeDisabled()

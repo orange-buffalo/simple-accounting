@@ -40,7 +40,11 @@ class LoginFullStackTest : SaFullStackTestBase() {
                 shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Continue") }
             }
             passwordInput { shouldBeHidden() }
-            loginInput { fill(preconditions.fry.userName) }
+            loginInput {
+                shouldHaveAttribute("name", "username")
+                shouldHaveAttribute("autocomplete", "username")
+                fill(preconditions.fry.userName)
+            }
             continueButton {
                 shouldBeEnabled()
                 click()
@@ -52,7 +56,11 @@ class LoginFullStackTest : SaFullStackTestBase() {
             }
             rememberMeCheckbox { shouldBeChecked() }
             loginInput { shouldBeDisabled() }
-            passwordInput { fill(preconditions.fry.passwordHash) }
+            passwordInput {
+                shouldHaveAttribute("name", "password")
+                shouldHaveAttribute("autocomplete", "current-password")
+                fill(preconditions.fry.passwordHash)
+            }
             loginButton { shouldBeEnabled() }
             reportRendering("login.filled-state")
 
