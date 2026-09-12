@@ -56,18 +56,17 @@ class OAuth2ClientAuthorizationProvider(
         val userName = getCurrentPrincipal().userName
         val currentUser = platformUsersRepository.findByUserName(userName)
             ?: throw IllegalStateException("User $userName is not found")
-        val state = createStateToken(currentUser)
-        val authorizationRequest = buildAuthorizationRequest(clientRegistration, state, additionalParameters)
-        savedRequestRepository.save(
+        val savedRequest = savedRequestRepository.getOrCreate(currentUser.id!!, clientRegistrationId) {
+            val state = createStateToken(currentUser)
             SavedAuthorizationRequest(
                 owner = currentUser,
                 clientRegistrationId = clientRegistrationId,
                 state = state,
-                request = authorizationRequest
+                request = buildAuthorizationRequest(clientRegistration, state, additionalParameters),
             )
-        )
+        }
         return UriComponentsBuilder
-            .fromUriString(authorizationRequest.authorizationRequestUri)
+            .fromUriString(savedRequest.request.authorizationRequestUri)
             .build(true)
             .toUriString()
     }

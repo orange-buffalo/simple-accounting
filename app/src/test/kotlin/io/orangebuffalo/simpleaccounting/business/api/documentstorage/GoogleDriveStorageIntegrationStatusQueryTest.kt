@@ -1,8 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.api.documentstorage
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.infra.oauth2.PersistentOAuth2AuthorizedClientRepository
@@ -14,10 +17,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMo
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import io.kotest.matchers.nulls.shouldBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -96,6 +101,14 @@ class GoogleDriveStorageIntegrationStatusQueryTest(
         }
 
         @Test
+        fun `should reuse pending OAuth authorization request across repeated status queries`() {
+            val firstAuthorizationUrl = getAuthorizationUrl(preconditions.fry)
+            val secondAuthorizationUrl = getAuthorizationUrl(preconditions.fry)
+
+            secondAuthorizationUrl.shouldBe(firstAuthorizationUrl)
+        }
+
+        @Test
         fun `should return integration status when OAuth token is persisted and folder exists`() {
             val accessToken = GoogleOAuthMocks.token().persist(preconditions.leela)
             GoogleDriveApiMocks.mockFindFile(
@@ -159,4 +172,19 @@ class GoogleDriveStorageIntegrationStatusQueryTest(
             folderId
             folderName
         }
+
+    private fun getAuthorizationUrl(user: PlatformUser): String {
+        val response = client
+            .graphql { googleDriveStorageIntegrationStatusQuery() }
+            .from(user)
+            .execute()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody!!
+        return Json.parseToJsonElement(response)
+            .jsonObject["data"]!!.jsonObject
+            .getValue(DgsConstants.QUERY.GoogleDriveStorageIntegrationStatus).jsonObject
+            .getValue("authorizationUrl").jsonPrimitive.content
+    }
 }

@@ -9,8 +9,8 @@ This source audit identified three high-priority security issues:
 3. **Remediated:** Access tokens could renew indefinitely, while logout and password changes did not revoke refresh
    credentials.
 
-The document-storage orphan-file issue has also been remediated. Additional findings affect OAuth state handling,
-password verification, information disclosure, and deployment hardening.
+The document-storage orphan-file and Google Drive OAuth-state allocation issues have also been remediated. Additional
+findings affect password verification, information disclosure, and deployment hardening.
 
 The findings are supported by static source analysis. They were not dynamically reproduced against a running deployment.
 
@@ -314,11 +314,13 @@ blocking new writes while retaining access to existing documents requires a sepa
 persistence failures after a successful storage write are not compensated; this remediation addresses the demonstrated
 attacker-controlled metadata path rather than that exceptional operational failure mode.
 
-### SA-HTTP-005: Google Drive Status Queries Retain OAuth State For Two Days
+### [x] SA-HTTP-005: Google Drive Status Queries Retain OAuth State For Two Days
 
 **Severity:** Medium
 
 **Category:** Authenticated heap and scheduler exhaustion
+
+**Status:** Remediated
 
 **Evidence:**
 
@@ -355,6 +357,22 @@ allocation is established by source analysis; the request count required to exha
 - Reuse or replace an existing pending flow for the user.
 - Reduce pending-flow lifetime where practical.
 - Cap pending entries and scheduled work.
+
+**Resolution:**
+
+The pending authorization repository now atomically reuses one unexpired request per user and OAuth client registration.
+Repeated and concurrent status queries from one account therefore return the existing authorization URL without creating
+new state entries or scheduling additional expiry tasks. Polling does not extend the request lifetime. Callback consumption
+and expiry remove the request from both state and owner indexes, and an old expiry task cannot remove a replacement request.
+The behavior is covered at both the GraphQL integration boundary and repository level:
+
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/infra/oauth2/OAuth2ClientAuthorizationProvider.kt`
+- `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/infra/oauth2/impl/InMemorySavedAuthorizationRequestRepository.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/documentstorage/GoogleDriveStorageIntegrationStatusQueryTest.kt`
+- `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/infra/oauth2/impl/InMemorySavedAuthorizationRequestRepositoryTest.kt`
+
+The two-day lifetime remains unchanged, and total pending state can still scale with the number of distinct users and OAuth
+client registrations. The remediated attack path was one authenticated account creating unbounded retained work by polling.
 
 ### SA-HTTP-006: Password Changes Bypass Login Guessing Controls
 
@@ -747,7 +765,7 @@ documentation describing WebFlux.
 2. [x] Replace the unbounded username-to-lock map with a bounded mechanism.
 3. [x] Require revocable refresh credentials for renewal and revoke refresh credentials on logout and password change.
 4. [x] Validate upload metadata before storage writes.
-5. Remove status-query side effects and bound OAuth pending state.
+5. [x] Reuse pending OAuth requests to bound status-query state allocation per user and client registration.
 6. Apply consistent throttling to every password-verification path.
 7. Resolve lower-severity information-disclosure and browser-hardening findings.
 8. Validate and document the reverse proxy's security policy and resource limits.

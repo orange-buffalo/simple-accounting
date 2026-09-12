@@ -12,7 +12,11 @@ interface SavedAuthorizationRequestRepository {
     fun findByStateAndRemove(state: String): SavedAuthorizationRequest
 
     /**
-     * Saves the request to the storage.
+     * Returns the pending request for the user and client registration, or atomically creates one.
      */
-    fun save(authorizationRequest: SavedAuthorizationRequest)
+    fun getOrCreate(
+        ownerId: String,
+        clientRegistrationId: String,
+        requestFactory: () -> SavedAuthorizationRequest,
+    ): SavedAuthorizationRequest
 }

@@ -30,7 +30,7 @@ class InMemorySavedAuthorizationRequestRepositoryTest {
         whenever(expiryScheduler.clock) doReturn Clock.fixed(MOCK_TIME, ZoneOffset.UTC)
         val request = authorizationRequest("planet-express-oauth-state")
 
-        repository.save(request)
+        repository.getOrCreate("fry", "google-drive") { request }
 
         val expiryTask = argumentCaptor<Runnable>()
         val expiryTime = argumentCaptor<Instant>()
@@ -50,8 +50,9 @@ class InMemorySavedAuthorizationRequestRepositoryTest {
         val firstRequest = authorizationRequest("planet-express-oauth-state")
         val replacementRequest = authorizationRequest("planet-express-oauth-state")
 
-        repository.save(firstRequest)
-        repository.save(replacementRequest)
+        repository.getOrCreate("fry", "google-drive") { firstRequest }
+        repository.findByStateAndRemove(firstRequest.state)
+        repository.getOrCreate("fry", "google-drive") { replacementRequest }
 
         val expiryTasks = argumentCaptor<Runnable>()
         verify(expiryScheduler, times(2)).schedule(
@@ -63,9 +64,39 @@ class InMemorySavedAuthorizationRequestRepositoryTest {
         repository.findByStateAndRemove(replacementRequest.state).shouldBe(replacementRequest)
     }
 
-    private fun authorizationRequest(state: String) = SavedAuthorizationRequest(
+    @Test
+    fun `should reuse pending request for the same owner and client registration`() {
+        whenever(expiryScheduler.clock) doReturn Clock.fixed(MOCK_TIME, ZoneOffset.UTC)
+        val firstRequest = authorizationRequest("planet-express-oauth-state")
+        val anotherRequest = authorizationRequest("another-oauth-state")
+
+        repository.getOrCreate("fry", "google-drive") { firstRequest }
+        val result = repository.getOrCreate("fry", "google-drive") { anotherRequest }
+
+        result.shouldBe(firstRequest)
+        verify(expiryScheduler).schedule(any<Runnable>(), any<Instant>())
+    }
+
+    @Test
+    fun `should create separate pending requests for different owners`() {
+        whenever(expiryScheduler.clock) doReturn Clock.fixed(MOCK_TIME, ZoneOffset.UTC)
+        val fryRequest = authorizationRequest("fry-oauth-state")
+        val leelaRequest = authorizationRequest("leela-oauth-state", ownerId = "leela")
+
+        repository.getOrCreate("fry", "google-drive") { fryRequest }
+        val result = repository.getOrCreate("leela", "google-drive") { leelaRequest }
+
+        result.shouldBe(leelaRequest)
+        verify(expiryScheduler, times(2)).schedule(any<Runnable>(), any<Instant>())
+    }
+
+    private fun authorizationRequest(
+        state: String,
+        ownerId: String = "fry",
+    ) = SavedAuthorizationRequest(
         owner = PlatformUser(
-            userName = "Fry",
+            id = ownerId,
+            userName = ownerId.replaceFirstChar(Char::uppercase),
             passwordHash = "good-news-everyone",
             isAdmin = false,
             activated = true,
