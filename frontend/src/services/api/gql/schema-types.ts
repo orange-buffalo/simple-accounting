@@ -899,9 +899,9 @@ export type Mutation = {
   editUser: PlatformUser;
   /** Updates an existing workspace. */
   editWorkspace: Workspace;
-  /** Invalidates the refresh token cookie, effectively logging out the current user. */
+  /** Revokes the refresh token and clears its cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
-  /** Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails. */
+  /** Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails. */
   refreshAccessToken: RefreshAccessTokenResponse;
   /** Removes a standalone document from the specified workspace. */
   removeStandaloneDocument: Scalars['Boolean']['output'];

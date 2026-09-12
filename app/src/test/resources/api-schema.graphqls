@@ -706,7 +706,7 @@ type Mutation {
     "The password of the user."
     password: String! @notBlank,
     "The username of the user."
-    userName: String! @notBlank
+    userName: String! @notBlank @size(max : 255, min : 0)
   ): CreateAccessTokenByCredentialsResponse! @auth(type : ANONYMOUS) @businessError(errorCode : "BAD_CREDENTIALS", errorCodeDescription : "The provided credentials are invalid.") @businessError(errorCode : "USER_NOT_ACTIVATED", errorCodeDescription : "The user account has not been activated yet.") @businessError(errorCode : "ACCOUNT_LOCKED", errorCodeDescription : "The account is temporarily locked due to too many failed login attempts. The error extensions will include 'lockExpiresInSec' with the remaining lock duration in seconds.") @businessError(errorCode : "PASSWORD_LOGIN_NOT_ALLOWED", errorCodeDescription : "The user has linked OAuth identities and must authenticate with one of them.") @businessError(errorCode : "LOGIN_NOT_AVAILABLE", errorCodeDescription : "Login is temporarily unavailable due to too many concurrent authentication requests for this user.")
   "Authenticates a user by a shared workspace access token and returns an access token. This is used for login-by-link functionality."
   createAccessTokenByWorkspaceAccessToken(
@@ -1134,9 +1134,9 @@ type Mutation {
     "Version of the workspace state used for editing."
     version: Int!
   ): Workspace! @auth(type : REGULAR_USER)
-  "Invalidates the refresh token cookie, effectively logging out the current user."
+  "Revokes the refresh token and clears its cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
-  "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
+  "Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
   "Removes a standalone document from the specified workspace."
   removeStandaloneDocument(

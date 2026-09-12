@@ -23,7 +23,7 @@ class RefreshAccessTokenMutation(
 ) : Mutation {
     @Suppress("unused")
     @GraphQLDescription(
-        "Refreshes the access token using the refresh token from cookies or current authentication. " +
+        "Refreshes the access token using the refresh token from cookies or current transient authentication. " +
                 "Returns a response with either a valid access token or null if authentication fails."
     )
     @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
@@ -35,7 +35,9 @@ class RefreshAccessTokenMutation(
         val refreshToken = env.graphQlContext.get<GraphQlHttpRequestContext>(GraphQlHttpRequestContext::class).refreshToken
 
         val principal = when {
-            currentAuth?.isAuthenticated == true && currentAuth.principal is SecurityPrincipal ->
+            currentAuth?.isAuthenticated == true &&
+                    currentAuth.principal is SecurityPrincipal &&
+                    (currentAuth.principal as SecurityPrincipal).isTransient ->
                 currentAuth.principal as SecurityPrincipal
 
             refreshToken != null -> {

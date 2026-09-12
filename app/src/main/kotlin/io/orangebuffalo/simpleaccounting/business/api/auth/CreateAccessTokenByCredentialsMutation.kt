@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -63,6 +64,7 @@ class CreateAccessTokenByCredentialsMutation(
     fun createAccessTokenByCredentials(
         @GraphQLDescription("The username of the user.")
         @NotBlank
+        @Size(max = 255)
         userName: String,
         @GraphQLDescription("The password of the user.")
         @NotBlank

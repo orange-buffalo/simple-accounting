@@ -28,6 +28,8 @@ import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTa
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTaxPaymentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.loadIncomeTaxPaymentByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
@@ -378,6 +380,8 @@ data class WorkspaceGqlDto(
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<WorkspaceAccessTokenGqlDto> {
+        env.graphQlContext.getBean<WorkspacesService>()
+            .validateWorkspaceAccess(id, WorkspaceAccessMode.ADMIN)
         val workspaceAccessTokenTable = Tables.WORKSPACE_ACCESS_TOKEN
         return env.graphQlContext.getBean<GraphqlPaginationService>()
             .forTable(workspaceAccessTokenTable)

@@ -29,7 +29,7 @@
               <a
                 :href="`https://drive.google.com/drive/folders/${integrationStatus.folderId}`"
                 target="_blank"
-                rel="noopener noreferral"
+                rel="noopener noreferrer"
               >
                 {{ integrationStatus.folderName }}
               </a>

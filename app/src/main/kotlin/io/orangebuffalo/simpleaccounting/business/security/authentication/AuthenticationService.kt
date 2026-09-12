@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.UserOAuthIdentitiesRepository
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Duration
 
@@ -24,6 +26,7 @@ class AuthenticationService(
     private val passwordEncoder: PasswordEncoder,
     private val timeService: TimeService,
     private val userOAuthIdentitiesRepository: UserOAuthIdentitiesRepository,
+    private val refreshTokensService: RefreshTokensService,
 ) {
 
     fun authenticate(userName: String, credentials: String): PlatformUser {
@@ -103,6 +106,7 @@ class AuthenticationService(
         )
     }
 
+    @Transactional
     fun changeCurrentUserPassword(currentPassword: String, newPassword: String) {
         val currentPrincipal = getCurrentPrincipalOrNull()
             ?: throw PasswordChangeException.UserNotAuthenticatedException()
@@ -119,6 +123,7 @@ class AuthenticationService(
             throw PasswordChangeException.InvalidCurrentPasswordException()
         }
         platformUsersRepository.save(setUserPassword(user, newPassword))
+        refreshTokensService.revokeTokensForUser(user.id)
     }
 
     fun setUserPassword(user: PlatformUser, password: String): PlatformUser =

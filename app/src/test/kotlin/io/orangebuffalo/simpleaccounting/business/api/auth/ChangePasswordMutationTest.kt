@@ -1,7 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.api.auth
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
@@ -134,6 +136,7 @@ class ChangePasswordMutationTest(
         private fun testSuccessPath(user: PlatformUser) {
             whenever(passwordEncoder.matches("current-password", user.passwordHash)) doReturn true
             whenever(passwordEncoder.encode("new-password")) doReturn "new password hash"
+            refreshTokensService.generateRefreshToken(user.userName)
 
             client
                 .graphqlMutation { changePasswordMutation("current-password", "new-password") }
@@ -148,6 +151,9 @@ class ChangePasswordMutationTest(
                 .filter { it.id == user.id }
                 .shouldBeSingle()
                 .passwordHash.shouldBeEqual("new password hash")
+            aggregateTemplate.findAll<RefreshToken>()
+                .filter { it.userId == user.id }
+                .shouldBeEmpty()
         }
     }
 

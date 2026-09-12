@@ -64,6 +64,9 @@ class CreateAccessTokenByCredentialsMutationTest(
             mustNotBeBlankTestCases("userName", boundarySetup = ::setupBoundaryData) { value ->
                 loginMutation(value, "qwerty")
             },
+            sizeConstraintTestCases("userName", maxLength = 255, boundarySetup = ::setupBoundaryData) { value ->
+                loginMutation(value, "qwerty")
+            },
             mustNotBeBlankTestCases("password", boundarySetup = ::setupBoundaryData) { value ->
                 loginMutation(preconditions.fry.userName, value)
             },
@@ -74,6 +77,7 @@ class CreateAccessTokenByCredentialsMutationTest(
             preconditions
             preconditions {
                 platformUser(userName = "a", activated = true)
+                platformUser(userName = "a".repeat(255), activated = true)
             }
         }
 

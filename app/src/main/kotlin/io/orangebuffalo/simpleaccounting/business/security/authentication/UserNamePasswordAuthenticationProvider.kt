@@ -6,22 +6,22 @@ import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
 private const val AUTHENTICATION_REQUEST_TIMEOUT_MS: Long = 3000
+private const val AUTHENTICATION_LOCKS_COUNT = 256
 
 @Component
 class UserNamePasswordAuthenticationProvider(
     private val authenticationService: AuthenticationService,
 ) : AuthenticationProvider {
 
-    private val authenticationLocks = ConcurrentHashMap<String, ReentrantLock>()
+    private val authenticationLocks = Array(AUTHENTICATION_LOCKS_COUNT) { ReentrantLock() }
 
     override fun authenticate(authentication: Authentication): Authentication? {
         if (authentication !is UsernamePasswordAuthenticationToken) return null
-        val lock = authenticationLocks.computeIfAbsent(authentication.name) { ReentrantLock() }
+        val lock = authenticationLocks[Math.floorMod(authentication.name.hashCode(), authenticationLocks.size)]
         val acquired = try {
             lock.tryLock(AUTHENTICATION_REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS)
         } catch (_: InterruptedException) {
