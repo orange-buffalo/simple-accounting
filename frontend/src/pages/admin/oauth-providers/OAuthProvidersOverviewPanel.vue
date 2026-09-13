@@ -19,7 +19,7 @@
 
     <template #last-column>
       <SaActionLink
-        icon="pencil-solid"
+        icon="pencil"
         @click="navigateToProviderEdit"
       >
         {{ $t.oauthProvidersOverviewPanel.edit() }}
