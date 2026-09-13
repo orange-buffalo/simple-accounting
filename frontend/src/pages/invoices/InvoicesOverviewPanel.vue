@@ -63,7 +63,7 @@
       <SaOverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
-          icon="pencil-solid"
+          icon="pencil"
           @click="navigateToInvoiceEdit"
         >
           {{ $t.invoicesOverviewPanel.edit() }}
@@ -71,7 +71,7 @@
 
         <SaActionLink
           v-if="currentWorkspace.editable && statusInfo.isDraft"
-          icon="send-solid"
+          icon="send"
           @click="markSent"
         >
           {{ $t.invoicesOverviewPanel.markAsSent() }}
@@ -79,7 +79,7 @@
 
         <SaActionLink
           v-if="currentWorkspace.editable && (statusInfo.isSent || statusInfo.isOverdue)"
-          icon="income-solid"
+          icon="income"
           @click="markPaid"
         >
           {{ $t.invoicesOverviewPanel.markAsPaid() }}

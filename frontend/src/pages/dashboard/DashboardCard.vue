@@ -2,7 +2,7 @@
   <div class="sa-dashboard__card">
     <div class="sa-dashboard__card__header">
       <span class="sa-dashboard__card__header__icon">
-        <SaIcon :icon="headerIcon" />
+        <SaIcon :icon="headerIcon" variant="detailed" />
       </span>
 
       <slot v-if="loaded" name="header" />

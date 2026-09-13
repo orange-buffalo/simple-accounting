@@ -1,6 +1,6 @@
 <template>
   <div class="side-menu__link" @click="doLogout">
-    <SaIcon icon="logout" :size="27" />
+    <SaIcon icon="logout" :size="27" variant="detailed" />
     {{
       $t.navigationMenu.user.logout()
     }}

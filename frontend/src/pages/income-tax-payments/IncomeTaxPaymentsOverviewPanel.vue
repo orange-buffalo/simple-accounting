@@ -35,7 +35,7 @@
       <SaOverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
-          icon="pencil-solid"
+          icon="pencil"
           @click="navigateToTaxPaymentEdit"
         >
           {{ $t.incomeTaxPaymentsOverviewPanel.edit() }}

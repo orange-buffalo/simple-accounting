@@ -59,6 +59,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                 )
             }
+
+            reportRendering("users-overview.loaded")
         }
     }
 

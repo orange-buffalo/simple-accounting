@@ -7,12 +7,15 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import { iconByName } from '@/icons';
+  import type { SaIconVariant } from '@/icons';
 
   const props = withDefaults(defineProps<{
     icon: string,
     size?: number,
+    variant?: SaIconVariant,
   }>(), {
     size: 16,
+    variant: 'simple',
   });
 
   const style = {
@@ -20,7 +23,7 @@
     height: `${props.size}px`,
   };
 
-  const loadedIcon = computed(() => iconByName(props.icon));
+  const loadedIcon = computed(() => iconByName(props.icon, props.variant));
 
 </script>
 
@@ -32,8 +35,6 @@
       width: 100%;
       height: 100%;
       color: inherit;
-      fill: currentColor;
-      stroke: none;
     }
   }
 </style>

@@ -54,6 +54,7 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
                 MenuItem("My Profile", false),
                 MenuItem("Logout", false),
             )
+            reportRendering("navigation-menu.regular-user")
         }
 
         page.shouldHaveSideMenu().clickExpenses()

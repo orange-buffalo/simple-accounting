@@ -23,14 +23,16 @@ class AdminMenuTest : SaFullStackTestBase() {
         page.loginAs(preconditions.admin)
         page.shouldBeUsersOverviewPage()
 
-        page.shouldHaveSideMenu()
-            .shouldHaveItems(
+        page.shouldHaveSideMenu().apply {
+            shouldHaveItems(
                 NavigationMenu.MenuItem("Users", false),
                 NavigationMenu.MenuItem("Authentication Providers", false),
                 NavigationMenu.MenuItem("USER", true),
                 NavigationMenu.MenuItem("My Profile", false),
                 NavigationMenu.MenuItem("Logout", false),
             )
+            reportRendering("navigation-menu.admin-user")
+        }
 
         page.shouldHaveSideMenu().clickOAuthProvidersOverview()
         page.shouldBeOAuthProvidersOverviewPage()

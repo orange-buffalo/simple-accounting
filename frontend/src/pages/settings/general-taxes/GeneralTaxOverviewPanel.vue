@@ -10,7 +10,7 @@
 
     <template #last-column>
       <SaActionLink
-        icon="pencil-solid"
+        icon="pencil"
         @click="navigateToTaxEdit"
       >
         {{ $t.generalTaxesOverview.edit() }}

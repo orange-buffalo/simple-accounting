@@ -2,7 +2,7 @@
   <SaSideMenuLink
     to="/admin/users"
     :title="$t.navigationMenu.admin.users()"
-    icon="dashboard"
+    icon="users-overview"
   />
   <SaSideMenuLink
     to="/admin/oauth-providers"

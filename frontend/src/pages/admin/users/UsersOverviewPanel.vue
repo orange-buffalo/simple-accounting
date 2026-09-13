@@ -30,7 +30,7 @@
 
     <template #last-column>
       <SaActionLink
-        icon="pencil-solid"
+        icon="pencil"
         @click="navigateToUserEdit"
       >
         {{ $t.adminOverviewPanel.edit() }}
