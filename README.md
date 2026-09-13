@@ -26,13 +26,3 @@ For a quick look into Simple Accounting, you can run the demo locally:
 
 If you like to contribute to Simple Accounting, be it a bug report, improvement idea or
 a pull request, please refer to [Contributing](./docs/CONTRIBUTING.md) and [Development](./docs/Development.md) docs.
-
-## Icons
-
-Simple Accounting uses its own icon set, located in `frontend/src/icons/svg`. Icons are designed on a 24x24 grid
-in a monoline style and are named `<name>-<variant>.svg`, where the variant states the context the icon is drawn for:
-* `simple` - reduced to the essential shapes, for the pages, where icons are rendered small (13-20px);
-* `detailed` - richer drawing, for the places where icons are rendered large: navigation menu, dashboard cards
-  and document panels. A detailed variant is optional: when it is missing, the simple icon is used instead.
-
-See `SaIcon` component (`variant` property) for the usage details.
