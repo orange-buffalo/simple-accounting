@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 
 class NavigationMenu(private val page: Page) {
@@ -113,6 +114,11 @@ class NavigationMenu(private val page: Page) {
                 MenuItem(label, isSectionHeader)
             }
         menuItems.shouldContainInOrder(*expectedItems)
+    }
+
+    fun reportRendering(name: String): NavigationMenu {
+        container.reportRendering(name)
+        return this
     }
 
     fun shouldHaveWorkspaceName(name: String) {

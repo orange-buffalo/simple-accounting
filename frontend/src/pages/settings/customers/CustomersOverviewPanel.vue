@@ -2,7 +2,7 @@
   <SaOverviewItem :title="customer.name">
     <template #last-column>
       <SaActionLink
-        icon="pencil-solid"
+        icon="pencil"
         @click="navigateToCustomerEdit"
       >
         {{ $t.customersOverview.edit() }}

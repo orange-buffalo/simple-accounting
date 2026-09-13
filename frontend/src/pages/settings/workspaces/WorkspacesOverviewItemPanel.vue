@@ -18,7 +18,7 @@
             class="workspace-panel__action"
             @click="navigateToWorkspaceEdit"
           >
-            <SaIcon icon="pencil-solid" />
+            <SaIcon icon="pencil" />
             {{ $t.workspacesOverviewItemPanel.edit() }}
           </ElButton>
           <ElButton

@@ -35,6 +35,7 @@
       <SaIcon
         icon="empty-box"
         :size="48"
+        variant="detailed"
         class="sa-pageable-items__empty-results__icon"
       />
       <span>{{ $t.saPageableItems.emptyResults() }}</span>

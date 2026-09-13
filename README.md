@@ -27,31 +27,12 @@ For a quick look into Simple Accounting, you can run the demo locally:
 If you like to contribute to Simple Accounting, be it a bug report, improvement idea or
 a pull request, please refer to [Contributing](./docs/CONTRIBUTING.md) and [Development](./docs/Development.md) docs.
 
-## Credits
+## Icons
 
-Simple Accounting is using icons from these talented creators:
-* [Smashicons](https://www.flaticon.com/authors/smashicons) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [Skyclick](https://www.flaticon.com/authors/skyclick) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [Freepik](https://www.freepik.com/) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [Gregor Cresnar](https://www.flaticon.com/authors/gregor-cresnar) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [Chris Veigt](https://www.flaticon.com/authors/chris-veigt) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [itim2101](https://www.flaticon.com/authors/itim2101) from [Flaticon](https://www.flaticon.com/) 
-   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
-* [Pixel perfect](https://www.flaticon.com/authors/pixel-perfect) from [Flaticon](https://www.flaticon.com/).
-* [I Putu Kharismayadi](https://thenounproject.com/putukharismayadi/) from [The Noun Project](https://thenounproject.com/).
-* [pictohaven](https://thenounproject.com/pictohaven/) from [The Noun Project](https://thenounproject.com/).
-* [Phonlaphat Thongsriphong](https://thenounproject.com/phonlaphat.thongsriphong/) from [The Noun Project](https://thenounproject.com/).
-* [Rafael Garcia Motta](https://thenounproject.com/rafaelgmotta/) from [The Noun Project](https://thenounproject.com/).
-* [Fahmi](https://thenounproject.com/fahmi/) from [The Noun Project](https://thenounproject.com/).
-* [supalerk laipawat](https://thenounproject.com/supalerk.laipawat/) from [The Noun Project](https://thenounproject.com/).
-* [Adrien Coquet](https://thenounproject.com/adriencoquet/) from [The Noun Project](https://thenounproject.com/).
-* [Tomas Knopp](https://thenounproject.com/tomas.knopp/) from [The Noun Project](https://thenounproject.com/).
-* [Jemis mali](https://thenounproject.com/jemismali/) from [The Noun Project](https://thenounproject.com/).
-* [AliWijaya](https://thenounproject.com/aliwijaya/) from [The Noun Project](https://thenounproject.com/).
+Simple Accounting uses its own icon set, located in `frontend/src/icons/svg`. Icons are designed on a 24x24 grid
+in a monoline style and are named `<name>-<variant>.svg`, where the variant states the context the icon is drawn for:
+* `simple` - reduced to the essential shapes, for the pages, where icons are rendered small (13-20px);
+* `detailed` - richer drawing, for the places where icons are rendered large: navigation menu, dashboard cards
+  and document panels. A detailed variant is optional: when it is missing, the simple icon is used instead.
 
-Many thanks to the authors for their great work! 
+See `SaIcon` component (`variant` property) for the usage details.

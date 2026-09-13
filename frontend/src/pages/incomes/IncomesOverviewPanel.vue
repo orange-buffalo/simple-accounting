@@ -65,7 +65,7 @@
       <SaOverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
-          icon="pencil-solid"
+          icon="pencil"
           @click="navigateToIncomeEdit"
         >
           {{ $t.incomesOverviewPanel.edit() }}

@@ -13,6 +13,7 @@
       <SaIcon
         :size="40"
         :icon="documentTypeIcon"
+        variant="detailed"
         class="sa-document__file-icon"
       />
 

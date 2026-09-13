@@ -72,7 +72,7 @@
         </SaActionLink>
         <SaActionLink
           v-if="currentWorkspace.editable"
-          icon="pencil-solid"
+          icon="pencil"
           @click="navigateToExpenseEdit"
         >
           {{ $t.expensesOverviewPanel.edit() }}

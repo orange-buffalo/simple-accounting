@@ -10,7 +10,7 @@
     </template>
     <template #last-column>
       <SaActionLink
-        icon="pencil-solid"
+        icon="pencil"
         @click="navigateToCategoryEdit"
       >
         {{ $t.categoriesOverview.edit() }}

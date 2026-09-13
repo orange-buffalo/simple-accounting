@@ -16,7 +16,7 @@ class SaActionLink {
          * Tests can use this method to produce edit action link data value.
          */
         fun editActionLinkValue(label: String = "Edit"): String =
-            actionLinkValue(SaIconType.PENCIL_SOLID, label)
+            actionLinkValue(SaIconType.PENCIL, label)
 
         /**
          * Tests can use this method to produce copy action link data value.
@@ -28,12 +28,12 @@ class SaActionLink {
          * Tests can use this method to produce mark as sent action link data value.
          */
         fun markAsSentActionLinkValue(label: String = "Sent today"): String =
-            actionLinkValue(SaIconType.SEND_SOLID, label)
+            actionLinkValue(SaIconType.SEND, label)
 
         /**
          * Tests can use this method to produce mark as paid action link data value.
          */
         fun markAsPaidActionLinkValue(label: String = "Paid"): String =
-            actionLinkValue(SaIconType.INCOME_SOLID, label)
+            actionLinkValue(SaIconType.INCOME, label)
     }
 }
