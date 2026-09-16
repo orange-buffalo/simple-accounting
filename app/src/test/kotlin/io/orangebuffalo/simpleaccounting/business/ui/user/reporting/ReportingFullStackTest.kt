@@ -11,6 +11,92 @@ import java.time.LocalDate
 class ReportingFullStackTest : SaFullStackTestBase() {
 
     @Test
+    fun `should generate income tax report for the current Australian financial year`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    val delivery = category(workspace = workspace, name = "Delivery")
+                    val consulting = category(workspace = workspace, name = "Interplanetary consulting")
+                    val robotMaintenance = category(workspace = workspace, name = "Robot maintenance")
+
+                    income(
+                        workspace = workspace,
+                        category = delivery,
+                        dateReceived = LocalDate.of(1998, 7, 1),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(30000),
+                        status = IncomeStatus.FINALIZED,
+                    )
+                    income(
+                        workspace = workspace,
+                        category = consulting,
+                        dateReceived = LocalDate.of(1999, 6, 30),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(70000),
+                        status = IncomeStatus.FINALIZED,
+                    )
+                    income(
+                        workspace = workspace,
+                        category = delivery,
+                        dateReceived = LocalDate.of(1999, 3, 1),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(99999),
+                        status = IncomeStatus.PENDING_CONVERSION,
+                    )
+                    income(
+                        workspace = workspace,
+                        category = consulting,
+                        dateReceived = LocalDate.of(1999, 3, 2),
+                        status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                    )
+                    expense(
+                        workspace = workspace,
+                        category = robotMaintenance,
+                        datePaid = LocalDate.of(1999, 1, 10),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(10000),
+                        status = ExpenseStatus.FINALIZED,
+                    )
+                    expense(
+                        workspace = workspace,
+                        category = robotMaintenance,
+                        datePaid = LocalDate.of(1999, 2, 10),
+                        status = ExpenseStatus.PENDING_CONVERSION,
+                    )
+                }
+            }
+        }
+        page.authenticateViaCookie(testData.fry)
+
+        page.openReportingPage {
+            selectIncomeTaxReport()
+            dateRangePicker {
+                shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+            }
+            nextButton.click()
+
+            incomeTaxReport {
+                incomes {
+                    shouldBeVisible()
+                    shouldHaveTableData(
+                        IncomeTaxReportRow("Delivery", "1", "USD 300.00"),
+                        IncomeTaxReportRow("Interplanetary consulting", "1", "USD 700.00"),
+                        IncomeTaxReportRow("Pending", "2", ""),
+                    )
+                    shouldHaveTotal("USD 1,000.00")
+                }
+                expenses {
+                    shouldBeVisible()
+                    shouldHaveTableData(
+                        IncomeTaxReportRow("Robot maintenance", "1", "USD 100.00"),
+                        IncomeTaxReportRow("Pending", "1", ""),
+                    )
+                    shouldHaveTotal("USD 100.00")
+                }
+                shouldHaveNetTaxableIncome("USD 900.00")
+            }
+            reportRendering("reporting.income-tax")
+        }
+    }
+
+    @Test
     fun `should generate general tax report with all combinations of income and expense taxes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllCombinations.fry)
 

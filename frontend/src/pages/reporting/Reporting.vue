@@ -28,15 +28,28 @@
         v-if="reportSelectionActive"
         class="reporting-panel--content"
       >
-        <div
-          class="reporting-panel--report-selector"
-          :data-title="$t.reporting.wizard.buttons.select()"
-          @click="selectTaxReport"
-        >
-          <SaIcon icon="tax" />
-          <div>
-            <h4>{{ $t.reporting.wizard.reports.generalTax.title() }}</h4>
-            <span>{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
+        <div class="reporting-panel--report-selectors">
+          <div
+            class="reporting-panel--report-selector"
+            :data-title="$t.reporting.wizard.buttons.select()"
+            @click="selectReport(GENERAL_TAX_REPORT)"
+          >
+            <SaIcon icon="tax" />
+            <div>
+              <h4>{{ $t.reporting.wizard.reports.generalTax.title() }}</h4>
+              <span>{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
+            </div>
+          </div>
+          <div
+            class="reporting-panel--report-selector"
+            :data-title="$t.reporting.wizard.buttons.select()"
+            @click="selectReport(INCOME_TAX_REPORT)"
+          >
+            <SaIcon icon="reporting" />
+            <div>
+              <h4>{{ $t.reporting.wizard.reports.incomeTax.title() }}</h4>
+              <span>{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -71,6 +84,12 @@
         class="reporting-panel--content"
       >
         <GeneralTaxReport
+          v-if="selectedReport === GENERAL_TAX_REPORT"
+          :date-range="selectedDateRange"
+          @report-loaded="reportGenerationInProgress = false"
+        />
+        <IncomeTaxReport
+          v-if="selectedReport === INCOME_TAX_REPORT"
           :date-range="selectedDateRange"
           @report-loaded="reportGenerationInProgress = false"
         />
@@ -83,20 +102,24 @@
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import GeneralTaxReport from '@/pages/reporting/GeneralTaxReport.vue';
+  import IncomeTaxReport from '@/pages/reporting/IncomeTaxReport.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { apiDateString } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
   const VIEW_REPORT_STEP = 2;
 
-  const TAX_REPORT = 'taxReport';
+  const GENERAL_TAX_REPORT = 'generalTaxReport';
+  const INCOME_TAX_REPORT = 'incomeTaxReport';
+  type Report = typeof GENERAL_TAX_REPORT | typeof INCOME_TAX_REPORT;
 
   // todo #64: cleanup
   const activeWizardStep = ref(SELECT_REPORT_STEP);
   const selectedDateRange = ref<Array<Date>>([]);
-  const selectedReport = ref<string | undefined>();
+  const selectedReport = ref<Report>();
   const reportGenerationInProgress = ref(false);
 
   const reportSelectionActive = computed(() => activeWizardStep.value === SELECT_REPORT_STEP);
@@ -109,8 +132,11 @@
     if (reportSelectionActive.value) {
       return $t.value.reporting.wizard.steps.selectReport.description.select();
     }
-    if (selectedReport.value === TAX_REPORT) {
+    if (selectedReport.value === GENERAL_TAX_REPORT) {
       return $t.value.reporting.wizard.steps.selectReport.description.selected();
+    }
+    if (selectedReport.value === INCOME_TAX_REPORT) {
+      return $t.value.reporting.wizard.reports.incomeTax.title();
     }
     return $t.value.reporting.wizard.steps.selectReport.description.unknown();
   });
@@ -152,8 +178,11 @@
     activeWizardStep.value = SELECT_DATES_STEP;
   };
 
-  const selectTaxReport = () => {
-    selectedReport.value = TAX_REPORT;
+  const selectReport = (report: Report) => {
+    selectedReport.value = report;
+    selectedDateRange.value = report === INCOME_TAX_REPORT
+      ? getAustralianFinancialYearDateRange()
+      : [];
     navigateToSelectDatesStep();
   };
 
@@ -217,6 +246,12 @@
           left: 0;
         }
       }
+    }
+
+    &--report-selectors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
     }
   }
 </style>

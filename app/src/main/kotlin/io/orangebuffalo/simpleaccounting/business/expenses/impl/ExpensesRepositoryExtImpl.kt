@@ -40,8 +40,8 @@ class ExpensesRepositoryExtImpl(
         val incomeTaxableAmount = expense.incomeTaxableAdjustedAmountInDefaultCurrency
         val totalAmount = sum(
             case_()
-                .`when`(incomeTaxableAmount.isNull, 0L)
-                .otherwise(incomeTaxableAmount)
+                .`when`(expense.status.eq(ExpenseStatus.FINALIZED), incomeTaxableAmount)
+                .otherwise(0L)
         )
         return dslContext
             .select(
