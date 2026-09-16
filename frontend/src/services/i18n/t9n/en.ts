@@ -1232,6 +1232,10 @@ export default {
           title: () => 'General Tax Report',
           description: () => 'Collected and paid general taxes',
         },
+        incomeTax: {
+          title: () => 'Income Tax Report',
+          description: () => 'Taxable incomes and expenses by category',
+        },
       },
       dateRange: {
         separator: () => 'To',
@@ -1412,6 +1416,22 @@ export default {
       numberOfItems: () => 'Number of Items',
       itemsAmount: () => 'Items Amount',
       taxAmount: () => 'Tax Amount',
+    },
+  },
+
+  incomeTaxReport: {
+    uncategorized: () => 'Uncategorized',
+    pending: () => 'Pending',
+    sections: {
+      incomes: () => 'Incomes',
+      expenses: () => 'Expenses',
+      total: () => 'Total',
+      netTaxableIncome: () => 'Net Taxable Income',
+    },
+    tableColumns: {
+      category: () => 'Category',
+      numberOfItems: () => 'Number of Items',
+      amount: () => 'Amount',
     },
   },
 

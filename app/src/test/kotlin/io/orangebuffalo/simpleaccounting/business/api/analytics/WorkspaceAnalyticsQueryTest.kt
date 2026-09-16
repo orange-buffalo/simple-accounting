@@ -476,7 +476,7 @@ class WorkspaceAnalyticsQueryTest(
                     currency = "ZZG",
                     originalAmount = 210,
                     convertedAmounts = amountsInDefaultCurrency(210),
-                    incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                    incomeTaxableAmounts = amountsInDefaultCurrency(99999),
                     useDifferentExchangeRateForIncomeTaxPurposes = true,
                     status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
                 )
@@ -582,7 +582,7 @@ class WorkspaceAnalyticsQueryTest(
                     originalAmount = 233,
                     currency = "ZZH",
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
-                    incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                    incomeTaxableAmounts = amountsInDefaultCurrency(99999),
                     status = IncomeStatus.PENDING_CONVERSION
                 )
                 // Incomes: in range, pending conversion for taxation

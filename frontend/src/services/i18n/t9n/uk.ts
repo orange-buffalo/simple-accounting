@@ -1231,6 +1231,10 @@ export default {
           title: () => 'Звіт Загального Податку',
           description: () => 'Зібрані та сплачені загальні податки',
         },
+        incomeTax: {
+          title: () => 'Звіт з Податку на Прибуток',
+          description: () => 'Оподатковувані доходи та витрати за категоріями',
+        },
       },
       dateRange: {
         separator: () => 'До',
@@ -1411,6 +1415,22 @@ export default {
       numberOfItems: () => 'Кількість Елементів',
       itemsAmount: () => 'Сума Елементів',
       taxAmount: () => 'Сума Податку',
+    },
+  },
+
+  incomeTaxReport: {
+    uncategorized: () => 'Без категорії',
+    pending: () => 'Очікує',
+    sections: {
+      incomes: () => 'Доходи',
+      expenses: () => 'Витрати',
+      total: () => 'Усього',
+      netTaxableIncome: () => 'Чистий оподатковуваний дохід',
+    },
+    tableColumns: {
+      category: () => 'Категорія',
+      numberOfItems: () => 'Кількість елементів',
+      amount: () => 'Сума',
     },
   },
 
