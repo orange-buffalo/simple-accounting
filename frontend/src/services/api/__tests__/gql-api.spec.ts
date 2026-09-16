@@ -8,6 +8,18 @@ import {
 import { OperationContext } from '@urql/core';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/schema-types.ts';
 
+vi.mock('@/services/events', () => ({
+  LOGIN_REQUIRED_EVENT: {
+    emit: vi.fn(),
+  },
+  LOADING_STARTED_EVENT: {
+    emit: vi.fn(),
+  },
+  LOADING_FINISHED_EVENT: {
+    emit: vi.fn(),
+  },
+}));
+
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const TOKEN_EXP_EPOCH_SECONDS = 1578116455;
@@ -322,18 +334,6 @@ describe('GraphQL API Client', () => {
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.setSystemTime(API_TIME);
-
-    vi.mock('@/services/events', () => ({
-      LOGIN_REQUIRED_EVENT: {
-        emit: vi.fn(),
-      },
-      LOADING_STARTED_EVENT: {
-        emit: vi.fn(),
-      },
-      LOADING_FINISHED_EVENT: {
-        emit: vi.fn(),
-      },
-    }));
 
     ({
       useAuth,
