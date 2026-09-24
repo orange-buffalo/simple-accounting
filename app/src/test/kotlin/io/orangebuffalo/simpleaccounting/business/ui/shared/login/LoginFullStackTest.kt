@@ -90,7 +90,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
         // we do not set the browser time, so just verify that expiry is roughly correct
         val expectedExpires = (Instant.now().toEpochMilli() / 1000 + Duration.ofDays(30).seconds).toDouble()
-        refreshCookie.expires.shouldBeIn(expectedExpires - 20..expectedExpires + 20)
+        refreshCookie.expires.shouldNotBeNull().shouldBeIn(expectedExpires - 20..expectedExpires + 20)
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(0)
