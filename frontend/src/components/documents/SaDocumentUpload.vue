@@ -54,8 +54,6 @@
   import { useMutation } from '@/services/api/use-gql-api';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
-  Dropzone.autoDiscover = false;
-
   export interface UploadedDocumentDto {
     id: string;
     name: string;
@@ -153,7 +151,7 @@
           if (file.size > maxFileSize) {
             uploadingFailed.value = true;
             done();
-            dropzoneRequired().removeAllFiles();
+            dropzoneRequired().removeAllFiles(false);
           } else {
             selectedFile.value = file;
             document.value.id = undefined;
@@ -182,7 +180,7 @@
 
       dropzone.on('success', (file, response) => {
         uploading.value = false;
-        document.value = response as UploadedDocumentDto;
+        document.value = response as unknown as UploadedDocumentDto;
         emit('upload-completed', document.value as UploadedDocumentDto);
       });
     }
@@ -198,7 +196,7 @@
 
   const onRemove = () => {
     if (dropzone) {
-      dropzone.removeAllFiles();
+      dropzone.removeAllFiles(false);
     }
     document.value.id = undefined;
     document.value.name = undefined;
