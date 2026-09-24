@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
@@ -29,7 +30,7 @@ class Popper(
                     popperId = trigger.getAttribute(POPPER_REF_ATTRIBUTE).shouldNotBeBlank()
                 }
             }
-            return Popper(trigger.page(), popperId)
+            return Popper(trigger.page(), popperId.shouldNotBeNull())
         }
     }
 }
