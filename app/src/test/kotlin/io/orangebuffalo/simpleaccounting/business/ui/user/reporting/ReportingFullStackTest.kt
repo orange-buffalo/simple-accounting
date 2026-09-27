@@ -66,6 +66,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
 
         page.openReportingPage {
+            reportRendering("reporting.select-report")
             selectIncomeTaxReport()
             dateRangePicker {
                 shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))

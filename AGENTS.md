@@ -11,6 +11,9 @@
 5. Pull request titles must follow the Conventional Commits schema and provide a concise change description. In most cases,
    the pull request title is the commit message.
 6. Use `docs/pull_request_template.md` for pull request descriptions.
+7. When the user supplies review comments on work in progress, commit the previous work before addressing the comments.
+   Commit only the relevant previous work; do not include unrelated user changes. Then address the review comments and
+   leave those new changes uncommitted.
 
 ## Critical Build Requirements
 

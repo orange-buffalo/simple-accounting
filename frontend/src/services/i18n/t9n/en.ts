@@ -1203,6 +1203,7 @@ export default {
   reporting: {
     header: () => 'Reporting',
     wizard: {
+      selectionIntro: () => 'Choose the report you want to explore',
       steps: {
         selectReport: {
           title: () => 'Select a report',
@@ -1230,11 +1231,11 @@ export default {
       reports: {
         generalTax: {
           title: () => 'General Tax Report',
-          description: () => 'Collected and paid general taxes',
+          description: () => 'Review general taxes collected and paid over a selected period, for example when preparing a PAYG instalment.',
         },
         incomeTax: {
           title: () => 'Income Tax Report',
-          description: () => 'Taxable incomes and expenses by category',
+          description: () => 'Compare taxable incomes and expenses by category for a selected period, for example when preparing your annual tax return.',
         },
       },
       dateRange: {
