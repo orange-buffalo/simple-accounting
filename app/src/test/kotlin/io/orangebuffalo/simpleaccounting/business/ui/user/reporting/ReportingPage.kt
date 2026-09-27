@@ -15,6 +15,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import java.util.regex.Pattern
 
 class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Reporting")
@@ -31,13 +32,13 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     }
 
     fun selectGeneralTaxReport() {
-        reportingPanel.getByRole(AriaRole.HEADING, Locator.GetByRoleOptions().setName("General Tax Report"))
-            .locator("..").click()
+        reportingPanel.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(Pattern.compile("^General Tax Report")))
+            .click()
     }
 
     fun selectIncomeTaxReport() {
-        reportingPanel.getByRole(AriaRole.HEADING, Locator.GetByRoleOptions().setName("Income Tax Report"))
-            .locator("..").click()
+        reportingPanel.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(Pattern.compile("^Income Tax Report")))
+            .click()
     }
 
     companion object {

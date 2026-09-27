@@ -26,31 +26,36 @@
 
       <div
         v-if="reportSelectionActive"
-        class="reporting-panel--content"
+        class="reporting-panel--content reporting-panel--selection"
       >
+        <p class="reporting-panel--selection-intro">
+          {{ $t.reporting.wizard.selectionIntro() }}
+        </p>
         <div class="reporting-panel--report-selectors">
-          <div
+          <button
+            type="button"
             class="reporting-panel--report-selector"
-            :data-title="$t.reporting.wizard.buttons.select()"
             @click="selectReport(GENERAL_TAX_REPORT)"
           >
-            <SaIcon icon="tax" />
-            <div>
-              <h4>{{ $t.reporting.wizard.reports.generalTax.title() }}</h4>
-              <span>{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
-            </div>
-          </div>
-          <div
+            <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="tax" :size="42" /></span>
+            <span class="reporting-panel--report-copy">
+              <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.generalTax.title() }}</span>
+              <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
+            </span>
+            <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
+          </button>
+          <button
+            type="button"
             class="reporting-panel--report-selector"
-            :data-title="$t.reporting.wizard.buttons.select()"
             @click="selectReport(INCOME_TAX_REPORT)"
           >
-            <SaIcon icon="reporting" />
-            <div>
-              <h4>{{ $t.reporting.wizard.reports.incomeTax.title() }}</h4>
-              <span>{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
-            </div>
-          </div>
+            <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="reporting" :size="42" /></span>
+            <span class="reporting-panel--report-copy">
+              <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.incomeTax.title() }}</span>
+              <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
+            </span>
+            <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
+          </button>
         </div>
       </div>
 
@@ -210,48 +215,93 @@
       }
     }
 
-    &--report-selector {
-      border: 1px solid $secondary-grey;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      max-width: 200px;
-      position: relative;
-      overflow: hidden;
+    &--selection {
+      padding: 16px 0 28px;
+    }
 
-      &:before {
-        content: attr(data-title);
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        left: 100%;
-        top: 0;
-        background-color: $white;
-        transition: all 0.25s;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .sa-icon {
-        margin: 0 10px 0 0;
-        min-width: 45px;
-        min-height: 45px;
-      }
-
-      &:hover {
-        &:before {
-          left: 0;
-        }
-      }
+    &--selection-intro {
+      margin: 0 0 24px;
+      color: $secondary-text-color;
+      text-align: center;
     }
 
     &--report-selectors {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    &--report-selector {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      grid-template-rows: 1fr auto;
+      column-gap: 18px;
+      row-gap: 20px;
+      min-width: 0;
+      min-height: 220px;
+      padding: 26px;
+      border: 1px solid $secondary-grey;
+      border-radius: 6px;
+      background: $white;
+      color: $primary-text-color;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+
+      &:hover,
+      &:focus-visible {
+        border-color: $accent-primary-color;
+        background-color: $primary-grey;
+        box-shadow: 0 4px 16px rgba($primary-color, 0.1);
+      }
+
+      &:focus-visible {
+        outline: 2px solid $accent-primary-color;
+        outline-offset: 3px;
+      }
+    }
+
+    &--report-icon {
+      display: inline-flex;
+      color: $secondary-color;
+    }
+
+    &--report-copy {
       display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    &--report-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    &--report-description {
+      color: $secondary-text-color;
+      line-height: 1.5;
+    }
+
+    &--report-action {
+      display: flex;
+      grid-column: 2;
+      gap: 8px;
+      align-items: center;
+      color: $secondary-color;
+      font-weight: 600;
+    }
+
+    @media (max-width: $xs-screen) {
+      &--report-selectors {
+        grid-template-columns: 1fr;
+      }
+
+      &--report-selector {
+        min-height: 0;
+      }
     }
   }
 </style>
