@@ -457,7 +457,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
 
     private fun StorageSubSection<GoogleDriveSettings>.retryAuthorization(
         page: Page,
-    ) = page.shouldHaveAuthorizationPopupOpenBy {
+    ) = page.waitForPopup {
         settings.retryAuthorizationButton.click()
     }
 
