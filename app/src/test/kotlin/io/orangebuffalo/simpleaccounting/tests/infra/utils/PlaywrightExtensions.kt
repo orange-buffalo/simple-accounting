@@ -123,7 +123,7 @@ fun Page.withBlockedApiResponse(
         try {
             blockedRequestSpec()
             log.run { "Blocked request spec executed" }
-            route.fulfill(Route.FulfillOptions().setResponse(route.fetch()))
+            route.resume()
             if (resetOnCompletion) {
                 context().unroute("/api/$path")
             }
@@ -189,7 +189,7 @@ fun Page.withBlockedGqlApiResponse(
             try {
                 blockedRequestSpec()
                 log.trace { "Blocked request spec executed for $queryOrMutationName" }
-                route.fulfill(Route.FulfillOptions().setResponse(route.fetch()))
+                route.resume()
                 if (resetOnCompletion) {
                     context().unroute("/api/graphql")
                 }
