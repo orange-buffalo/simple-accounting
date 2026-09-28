@@ -40,16 +40,32 @@ to be enabled explicitly.
 
 ### Database
 
-Simple Accounting uses H2 database with file-based persistence. The database file is stored in `/data` directory.
-Mount it to the container to preserve between container restarts / upgrades. Port `9393` should be exposed
-to access the UI.
+Simple Accounting uses PostgreSQL. Create an empty database and a user with permission to create tables in it.
+Port `9393` should be exposed to access the UI. Mount `/data` if you use local document storage or are upgrading
+from a file-based H2 installation.
 
-We use automatic schema migration, so the database will be updated to the latest version on application start.
+The schema is created and updated automatically on startup. Configure:
 
-We highly recommend providing the following environment parameters to change the default credentials for the database:
+* `SA_DATABASE_HOST` - PostgreSQL host (default: `localhost`).
+* `SA_DATABASE_PORT` - PostgreSQL port (default: `5432`).
+* `SA_DATABASE_NAME` - database name (default: `simple-accounting`).
+* `SA_DATABASE_USERNAME` - PostgreSQL user (default: `sa`).
+* `SA_DATABASE_PASSWORD` - PostgreSQL password (default: empty; configure a password for production).
 
-* `SA_DATABASE_PASSWORD` - database password.
-* `SA_DATABASE_USERNAME` - database username.
+#### Upgrading from H2
+
+Stop the old application, back up `/data/db/simple-accounting.mv.db`, and keep the `/data` mount when starting
+the new version. On first start the application creates the PostgreSQL schema and, if it finds the H2 file,
+copies all application data to the empty PostgreSQL database. It migrates a temporary copy of the H2 file first;
+the original file remains unchanged. Keep using the original H2 username and password in `SA_DATABASE_USERNAME`
+and `SA_DATABASE_PASSWORD` for this first start (the PostgreSQL user must use those same credentials).
+If the credentials differ, set `SA_DATABASE_LEGACY_H2_USERNAME` and `SA_DATABASE_LEGACY_H2_PASSWORD`
+instead to access the old file.
+
+If the H2 database lives elsewhere, set `SA_DATABASE_LEGACY_H2_PATH` to its path **without** `.mv.db`.
+The import refuses to overwrite a PostgreSQL database containing application data and is marked complete only
+after the entire copy commits. Keep the H2 backup until you have verified the migrated data. Subsequent starts
+use PostgreSQL; the H2 file is not removed automatically.
 
 ### Google Drive integration
 
@@ -75,11 +91,10 @@ Enable Google Drive API for you project.
 ### Local file system storage
 
 As a simpler alternative to Google Drive, Simple Accounting can store uploaded documents directly on the host file
-system. This is well-suited for self-hosted deployments where all data should remain on a single server without
-requiring any third-party service.
+system. This is well-suited for self-hosted deployments without third-party document storage.
 
 The documents are organised under a configurable base directory, with one sub-directory per workspace. Make sure the
-base directory is on a persistent volume (for example under `/data`, which is already mounted for the database).
+base directory is on a persistent volume (for example under `/data`).
 
 The feature is disabled by default. Enable it and set the base directory with these environment parameters:
 
@@ -87,22 +102,9 @@ The feature is disabled by default. Enable it and set the base directory with th
 * `SA_DOCUMENTS_STORAGE_LOCAL_FS_BASE_DIRECTORY` — absolute path to the directory where documents will
   be stored (default: `/data/documents-storage/local`).
 
-### Enabling backups
+### Backups
 
-Simple Accounting can automatically backup the database to Dropbox. To enable this feature, you need to provide
-the following environment parameters:
-
-* `SA_BACKUP_ENABLED` = `true` - enable backups.
-* `SA_BACKUP_DROPBOX_ACTIVE` = `true` - enable Dropbox backup.
-* `SA_BACKUP_DROPBOX_ACCESSTOKEN` - Dropbox access token.
-* `SA_BACKUP_DROPBOX_REFRESHTOKEN` - Dropbox refresh token.
-* `SA_BACKUP_DROPBOX_CLIENTID` - Dropbox client ID.
-* `SA_BACKUP_DROPBOX_CLIENTSECRET` - Dropbox client secret.
-
-Refer to [Dropbox docs](https://www.dropbox.com/developers/reference/developer-guide) for how to setup the app
-and get the credentials. You can then use
-[Postman](https://learning.postman.com/docs/sending-requests/authorization/oauth-20/#specifying-an-authorization-code)
-to obtain the initial access and refresh token.
+Use `pg_dump` and your PostgreSQL server's backup/restore procedures.
 
 ## Administration
 

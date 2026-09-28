@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClientConfig
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PostgresTestDatabase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,6 +25,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -45,6 +48,17 @@ import kotlin.reflect.KProperty
     ApiTestClientConfig::class,
 )
 abstract class SaIntegrationTestBase {
+
+    companion object {
+        @JvmStatic
+        @DynamicPropertySource
+        fun postgresProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url") { PostgresTestDatabase.container.jdbcUrl }
+            registry.add("spring.datasource.username") { PostgresTestDatabase.container.username }
+            registry.add("spring.datasource.password") { PostgresTestDatabase.container.password }
+            registry.add("sa.database.legacy-h2-path") { PostgresTestDatabase.missingLegacyH2Path.toString() }
+        }
+    }
 
     @Autowired
     protected lateinit var aggregateTemplate: JdbcAggregateTemplate

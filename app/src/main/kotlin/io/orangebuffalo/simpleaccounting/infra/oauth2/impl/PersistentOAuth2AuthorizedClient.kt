@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
-@Table("PERSISTENT_OAUTH2_AUTHORIZED_CLIENT")
+@Table("persistent_oauth2_authorized_client")
 data class PersistentOAuth2AuthorizedClient(
     val clientRegistrationId: String,
     val userName: String,
@@ -14,7 +14,7 @@ data class PersistentOAuth2AuthorizedClient(
     val accessTokenIssuedAt: Instant?,
     val accessTokenExpiresAt: Instant?,
 
-    @field:MappedCollection(idColumn = "CLIENT_ID")
+    @field:MappedCollection(idColumn = "client_id")
     val accessTokenScopes: Set<ClientTokenScope>,
 
     val refreshToken: String?,
@@ -25,8 +25,8 @@ data class PersistentOAuth2AuthorizedClient(
 
 ) : AbstractEntity()
 
-@Table("PERSISTENT_OAUTH2_AUTHORIZED_CLIENT_ACCESS_TOKEN_SCOPES")
+@Table("persistent_oauth2_authorized_client_access_token_scopes")
 data class ClientTokenScope(
-    @field:Column("ACCESS_TOKEN_SCOPES")
+    @field:Column("access_token_scopes")
     val scope: String
 )

@@ -24,21 +24,15 @@ class DatabaseCleanupExtension : Extension, BeforeEachCallback {
 
         transactionTemplate.execute {
             if (tablesToTruncate.isEmpty()) {
-                tablesToTruncate.addAll(jdbcTemplate.queryForList("show tables")
-                    .asSequence()
-                    .map { it["TABLE_NAME"] as String }
-                    .filter { it != "flyway_schema_history" }
-                    .toList())
+                tablesToTruncate.addAll(jdbcTemplate.queryForList(
+                    "select tablename from pg_tables where schemaname = current_schema() and tablename <> 'flyway_schema_history'",
+                    String::class.java,
+                ).filterNotNull())
             }
 
-            jdbcTemplate.execute("set referential_integrity false")
-
-            tablesToTruncate.forEach {
-                @Suppress("SqlResolve", "SqlSourceToSinkFlow")
-                jdbcTemplate.execute("""truncate table "$it"""")
+            if (tablesToTruncate.isNotEmpty()) {
+                jdbcTemplate.execute("truncate table ${tablesToTruncate.joinToString()} cascade")
             }
-
-            jdbcTemplate.execute("set referential_integrity true")
         }
     }
 }

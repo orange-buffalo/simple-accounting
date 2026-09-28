@@ -67,13 +67,15 @@ open class SaJooqCodeGenTask : DefaultTask() {
                             .withValue(flywayMigrations.joinToString(",") { "$it/*.sql" }),
                         Property()
                             .withKey("sort")
-                            .withValue("flyway")
+                            .withValue("flyway"),
+                        Property()
+                            .withKey("defaultNameCase")
+                            .withValue("lower")
                     )
                     .withForcedTypes(
                         incomeStatusForcedType(),
                         expenseStatusForcedType(),
                         invoiceStatusForcedType(),
-                        // see below withJavaTimeTypes configuration
                         timestampForcedType(),
                         dateForcedType()
                     )
@@ -84,11 +86,6 @@ open class SaJooqCodeGenTask : DefaultTask() {
                     .withDirectory(outputDirectory.absolutePath)
                     .withPackageName(jooqModelPackage.get())
             )
-            // JOOQ has issues with timezones in timestamps
-            // to circumvent it, we need to manually map Timestamp to Instant
-            // and Timestamp is hardcoded to LocalDateTime, see
-            // https://github.com/jOOQ/jOOQ/issues/5713
-            // the only way around is to disable Java 8 Time support
             .withGenerate(
                 Generate()
                     .withJavaTimeTypes(false)
@@ -112,7 +109,7 @@ open class SaJooqCodeGenTask : DefaultTask() {
         .withEnumConverter(true)
 
     private fun timestampForcedType() = ForcedType()
-        .withIncludeTypes("TIMESTAMP")
+        .withIncludeTypes("TIMESTAMP.*")
         .withUserType("java.time.Instant")
         .withConverter("io.orangebuffalo.simpleaccounting.infra.jooq.InstantConverter")
 

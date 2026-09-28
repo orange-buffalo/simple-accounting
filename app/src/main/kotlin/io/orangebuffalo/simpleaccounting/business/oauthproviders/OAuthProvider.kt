@@ -11,7 +11,7 @@ import java.time.Instant
  * The application ships without any predefined providers: they are registered by admins,
  * who provide the client credentials issued by the provider and the endpoints to use.
  */
-@Table("OAUTH_PROVIDER")
+@Table("oauth_provider")
 data class OAuthProvider(
     /**
      * Human-readable name of the provider, as presented to the users on the login page.
@@ -49,7 +49,7 @@ data class OAuthProvider(
      */
     val userIdAttribute: String,
 
-    @field:MappedCollection(idColumn = "PROVIDER_ID")
+    @field:MappedCollection(idColumn = "provider_id")
     val scopes: Set<OAuthProviderScope>,
 
     override val id: String? = null,
@@ -57,7 +57,7 @@ data class OAuthProvider(
     override val createdAt: Instant? = null,
 ) : AbstractEntity()
 
-@Table("OAUTH_PROVIDER_SCOPE")
+@Table("oauth_provider_scope")
 data class OAuthProviderScope(
     val scope: String,
 )

@@ -17,7 +17,7 @@ data class Invoice(
     val dueDate: LocalDate,
     val currency: String,
     val amount: Long,
-    @field:MappedCollection(idColumn = "INVOICE_ID")
+    @field:MappedCollection(idColumn = "invoice_id")
     val attachments: Set<InvoiceAttachment> = setOf(),
     val notes: String? = null,
     val generalTaxId: String? = null,
@@ -28,7 +28,7 @@ data class Invoice(
 
 ) : AbstractEntity()
 
-@Table("INVOICE_ATTACHMENTS")
+@Table("invoice_attachments")
 data class InvoiceAttachment(
     val documentId: String
 )

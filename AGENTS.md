@@ -39,7 +39,7 @@ Required dependencies (pre-installed in CI environment):
 ## Project Structure
 
 Simple Accounting is a **Spring Boot + Vue.js** application:
-- **Backend**: `/app` - Kotlin, Spring Boot 3, WebFlux, GraphQL, JOOQ, H2 database
+- **Backend**: `/app` - Kotlin, Spring Boot, GraphQL, JOOQ, PostgreSQL (H2 only for importing legacy data)
 - **Frontend**: `/frontend` - Vue 3, TypeScript, Vite, Element Plus, Urql GraphQL client
 - **Build system**: Gradle multi-module with Bun for frontend dependencies
 
@@ -175,9 +175,9 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 
 ### Test Parallelization Model
 - Backend and full stack test parallelism is implemented with separate JVM forks, not concurrent JUnit execution inside the
-  same Spring `ApplicationContext` or H2 database.
+  same Spring `ApplicationContext` or PostgreSQL database.
 - Do not assume two tests are mutating the same database or sharing the same Spring context concurrently when diagnosing CI
-  failures. Each fork has its own process-local Spring context and in-memory database.
+  failures. Each fork has its own Spring context and Testcontainers PostgreSQL database.
 - Avoid changing generic test authentication, context, database, or mocking infrastructure to fix a suspected same-context
   test race unless there is concrete evidence that the failure occurs within one JVM fork.
 - If a full `:app:test` run reports many unrelated failures after a test infrastructure change, treat the infrastructure

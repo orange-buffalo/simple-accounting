@@ -28,7 +28,7 @@ data class Expense(
     /**
      * Converted amounts in default currency (i.e. from bank transaction in domestic currency).
      */
-    @field:Embedded.Empty(prefix = "CONVERTED_")
+    @field:Embedded.Empty(prefix = "converted_")
     val convertedAmounts: AmountsInDefaultCurrency,
 
     /**
@@ -41,10 +41,10 @@ data class Expense(
      * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes]
      * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different.
      */
-    @field:Embedded.Empty(prefix = "INCOME_TAXABLE_")
+    @field:Embedded.Empty(prefix = "income_taxable_")
     val incomeTaxableAmounts: AmountsInDefaultCurrency,
 
-    @field:MappedCollection(idColumn = "EXPENSE_ID")
+    @field:MappedCollection(idColumn = "expense_id")
     val attachments: Set<ExpenseAttachment> = setOf(),
 
     val percentOnBusiness: Int,
@@ -70,7 +70,7 @@ data class Expense(
 
 ) : AbstractEntity()
 
-@Table("EXPENSE_ATTACHMENTS")
+@Table("expense_attachments")
 data class ExpenseAttachment(
     val documentId: String
 )
