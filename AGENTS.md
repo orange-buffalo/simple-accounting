@@ -488,6 +488,7 @@ When tests fail, **ALWAYS** follow this systematic approach:
    - Can replay test execution step-by-step
 
 5. **Common root causes and solutions**:
+   - **Intermittent OAuth popup test failures with `Route is already handled!`**: Check the `completeOAuth2Flow` request in the Playwright network trace. When a request-blocking helper only needs to inspect the loading state before allowing the request through, resume the paused route; fetching and then fulfilling it can race with popup activity and mask the original failure when the route is aborted.
    - **Route configuration bugs**: Optional route params passed as empty strings → Use custom param processors (see `SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR` pattern)
    - **Missing workspace selection**: Frontend components using `useCurrentWorkspace()` before workspace loaded → Check that route properly initializes workspace
    - **Async data loading**: Component trying to use data before it's loaded → Add proper loading state checks in component wrapper
