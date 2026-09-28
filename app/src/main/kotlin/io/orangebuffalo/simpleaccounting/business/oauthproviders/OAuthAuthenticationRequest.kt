@@ -11,7 +11,7 @@ import java.time.Instant
  * Completing the flow requires both the [state] returned by the authorization server and the
  * [browserBinding] held by the browser, and consumes the request.
  */
-@Table("OAUTH_AUTHENTICATION_REQUEST")
+@Table("oauth_authentication_request")
 data class OAuthAuthenticationRequest(
     val state: String,
 

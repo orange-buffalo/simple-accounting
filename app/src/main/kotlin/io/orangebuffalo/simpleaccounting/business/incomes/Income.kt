@@ -28,7 +28,7 @@ data class Income(
     /**
      * Converted amounts in default currency (i.e. from bank transaction in domestic currency).
      */
-    @field:Embedded.Empty(prefix = "CONVERTED_")
+    @field:Embedded.Empty(prefix = "converted_")
     val convertedAmounts: AmountsInDefaultCurrency,
 
     /**
@@ -41,10 +41,10 @@ data class Income(
      * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes]
      * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different.
      */
-    @field:Embedded.Empty(prefix = "INCOME_TAXABLE_")
+    @field:Embedded.Empty(prefix = "income_taxable_")
     val incomeTaxableAmounts: AmountsInDefaultCurrency,
 
-    @field:MappedCollection(idColumn = "INCOME_ID")
+    @field:MappedCollection(idColumn = "income_id")
     val attachments: Set<IncomeAttachment> = setOf(),
 
     val notes: String? = null,
@@ -64,7 +64,7 @@ data class Income(
 
 ) : AbstractEntity()
 
-@Table("INCOME_ATTACHMENTS")
+@Table("income_attachments")
 data class IncomeAttachment(
     val documentId: String
 )

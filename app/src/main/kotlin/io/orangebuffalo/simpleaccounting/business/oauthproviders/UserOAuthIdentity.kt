@@ -9,7 +9,7 @@ import java.time.Instant
  *
  * As soon as a user has at least one identity linked, password login is no longer available for them.
  */
-@Table("USER_OAUTH_IDENTITY")
+@Table("user_oauth_identity")
 data class UserOAuthIdentity(
     val userId: String,
     val providerId: String,

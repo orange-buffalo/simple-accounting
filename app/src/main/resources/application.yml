@@ -16,7 +16,7 @@ spring:
       path: "/api/graphql/subscriptions"
 
   datasource:
-    url: jdbc:h2:/data/db/simple-accounting
+    url: jdbc:postgresql://${sa.database.host}:${sa.database.port}/${sa.database.name}
     username: "${sa.database.username}"
     password: "${sa.database.password}"
 
@@ -39,8 +39,7 @@ spring:
     resources:
       add-mappings: false
   flyway:
-    baseline-on-migrate: true
-    baseline-version: "0001"
+    locations: classpath:db/migration
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -59,6 +58,10 @@ sa:
   database:
     username: "sa"
     password: ""
+    host: "localhost"
+    port: 5432
+    name: "simple-accounting"
+    legacy-h2-path: /data/db/simple-accounting
   documents:
     storage:
       local-fs:
@@ -68,22 +71,11 @@ sa:
         base-api-url: "https://www.googleapis.com"
         client-id: "<replace>"
         client-secret: "<replace>"
-  backup:
-    enabled: false
-    scheduling-delay-in-hours: 12
-    dropbox:
-      active: false
-      access-token: ""
-      refresh-token: ""
-      client-id: ""
-      client-secret: ""
 ---
 
 spring:
   datasource:
-    url: jdbc:h2:./local-dev/dev
-    password: killallhumans
-    username: bender
+    url: jdbc:postgresql://${sa.database.host}:${sa.database.port}/${sa.database.name}
 
   security:
     oauth2:
@@ -96,6 +88,10 @@ spring:
       on-profile: development
 
 sa:
+  database:
+    legacy-h2-path: ./local-dev/dev
+    legacy-h2-username: bender
+    legacy-h2-password: killallhumans
   documents:
     storage:
       local-fs:
@@ -104,9 +100,6 @@ sa:
 ---
 
 spring:
-  datasource:
-    url: jdbc:h2:mem:ci-tests
-
   security:
     oauth2:
       client:
@@ -122,9 +115,6 @@ spring:
 ---
 
 spring:
-  datasource:
-    url: jdbc:h2:/tmp/sa-load-tests
-
   security:
     oauth2:
       client:

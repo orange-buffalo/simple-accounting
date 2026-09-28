@@ -50,7 +50,9 @@ dependencies {
     implementation(libs.graphqlKotlin.federation)
 
 
-    runtimeOnly("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.gson)
@@ -76,6 +78,7 @@ dependencies {
     testImplementation(libs.jackson.dataformat.yaml)
     testImplementation("tools.jackson.module:jackson-module-kotlin")
     testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.testcontainers.nginx)
     testImplementation(libs.playwright)
     testImplementation(libs.springRetry)

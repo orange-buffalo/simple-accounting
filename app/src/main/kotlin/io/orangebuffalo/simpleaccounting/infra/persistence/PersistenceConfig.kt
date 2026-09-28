@@ -31,7 +31,7 @@ class PersistenceConfig {
         jdbcMappingContext: JdbcMappingContext
     ): DSLContext = DSL.using(
         DefaultConfiguration()
-            .set(SQLDialect.H2)
+            .set(SQLDialect.POSTGRES)
             .set(dataSourceConnectionProvider)
             .set(jdbcConverter)
             .set(jdbcMappingContext)

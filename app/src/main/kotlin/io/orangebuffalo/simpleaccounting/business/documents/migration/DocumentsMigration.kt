@@ -5,10 +5,10 @@ import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
-@Table("DOCUMENTS_MIGRATION")
+@Table
 data class DocumentsMigration(
     val userId: String,
-    @field:MappedCollection(idColumn = "MIGRATION_ID")
+    @field:MappedCollection(idColumn = "migration_id")
     val documentsToMigrate: Set<DocumentsMigrationDocument> = setOf(),
     val migratedDocumentsCount: Int = 0,
     val completedAt: Instant? = null,
@@ -17,7 +17,7 @@ data class DocumentsMigration(
     override val createdAt: Instant? = null,
 ) : AbstractEntity()
 
-@Table("DOCUMENTS_MIGRATION_DOCUMENT")
+@Table
 data class DocumentsMigrationDocument(
     val documentId: String,
 )

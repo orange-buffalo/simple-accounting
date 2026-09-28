@@ -15,7 +15,7 @@ data class IncomeTaxPayment(
     val amount: Long,
     val title: String,
 
-    @field:MappedCollection(idColumn = "INCOME_TAX_PAYMENT_ID")
+    @field:MappedCollection(idColumn = "income_tax_payment_id")
     val attachments: Set<IncomeTaxPaymentAttachment> = setOf(),
 
     val notes: String? = null,
@@ -25,7 +25,7 @@ data class IncomeTaxPayment(
 
 ) : AbstractEntity()
 
-@Table("INCOME_TAX_PAYMENT_ATTACHMENTS")
+@Table("income_tax_payment_attachments")
 data class IncomeTaxPaymentAttachment(
     val documentId: String
 )

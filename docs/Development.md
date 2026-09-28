@@ -188,29 +188,17 @@ To run the load tests, follow these steps:
 * [part 2](https://github.com/orange-buffalo/simple-accounting-load-tests-data/raw/master/load-tests-db-snapshot.7z.002)
 
 1. Unzip the archives.
-2. Launch application with `load-tests` Spring Boot profile and `spring.datasource.url` set to
-   `jdbc:h2:<path-to-database-file>`.
+2. Start with an empty PostgreSQL database, the `load-tests` Spring Boot profile, and
+   `SA_DATABASE_LEGACY_H2_PATH` set to the extracted H2 snapshot path (without `.mv.db`).
+   The application imports the snapshot into PostgreSQL on first start.
 3. Start JMeter and open `load-tests/jmeter-load-tests.jmx` project.
 4. Launch the tests in JMeter.
 
-## Squashing Flyway migrations
+## Database migrations
 
-Occasionally we want to squash the Flyway migrations to reduce the number of files and make it easier to maintain.
-Follow these steps:
-
-1. Migrate target database to the latest version.
-2. Delete old migrations from `<root>/app/src/main/resources/db/migration`.
-3. Get current schema:
-   ```sql
-   script nodata nopasswords nosettings
-     to '<root>/app/src/main/resources/db/migration/V0001__Baseline.sql'
-     schema public;
-   ```
-4. Cleanup the script (remove users, remove sequences initialization, remove selectivity).
-5. Drop Flyway table on target database:
-   ```sql
-   drop table "flyway_schema_history";
-   ```
-6. Enable `spring.flyway.baseline-on-migrate=true` in `application.yml`.
-7. Once application started on the target database, set `spring.flyway.baseline-on-migrate` back to `false`
-   in `application.yml`.
+PostgreSQL migrations are in `app/src/main/resources/db/migration` and drive schema changes and jOOQ
+code generation. The historical H2 migrations in `app/src/main/resources/db/h2` are used **only** to
+upgrade a temporary copy of a legacy H2 database before copying its rows into PostgreSQL. Do not edit
+existing migration files. Add new PostgreSQL schema changes as versioned migrations after
+`V0001__Postgresql_baseline.sql`. Never drop the Flyway history of an existing installation to
+replace its migrations: that would invalidate upgrades and the one-time H2 import.

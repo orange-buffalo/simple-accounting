@@ -82,7 +82,7 @@ class PaginationQueryBuilder<R : Record>(
 
     @Suppress("UNCHECKED_CAST")
     private val createdAtField: Field<Instant> =
-        (table.field("CREATED_AT") as? Field<Instant>)
+        (table.field("created_at") as? Field<Instant>)
             ?: error("Table ${table.name} does not have a CREATED_AT field")
 
     fun onQuery(customizer: (SelectJoinStep<*>) -> SelectJoinStep<*>): PaginationQueryBuilder<R> {

@@ -66,6 +66,7 @@ playwright = { module = "com.microsoft.playwright:playwright", version.ref = "pl
 springRetry = { module = "org.springframework.retry:spring-retry", version.ref = "springRetry" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testContainers" }
 testcontainers-nginx = { module = "org.testcontainers:nginx", version.ref = "testContainers" }
 wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wireMock" }
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
