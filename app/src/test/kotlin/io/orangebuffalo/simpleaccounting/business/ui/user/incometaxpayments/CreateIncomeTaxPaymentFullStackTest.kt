@@ -31,8 +31,8 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             title { input.fill("Q1 Income Tax") }
             amount { input.fill("1500.00") }
-            datePaid { input.fill("3025-01-15") }
-            reportingDate { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
+            reportingDate { input.fill("15/01/3025") }
 
             saveButton.click()
         }
@@ -56,8 +56,8 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             title { input.fill("Annual Tax Payment") }
             amount { input.fill("5000.00") }
-            datePaid { input.fill("3025-02-20") }
-            reportingDate { input.fill("3025-02-15") }
+            datePaid { input.fill("20/02/3025") }
+            reportingDate { input.fill("15/02/3025") }
             notes {
                 input.fill("# Important\nTax payment for fiscal year 3024")
                 input.shouldHavePreviewWithHeading("Important")
@@ -88,8 +88,8 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             title { input.fill("Q2 Tax Payment") }
             amount { input.fill("2000.00") }
-            datePaid { input.fill("3025-04-15") }
-            reportingDate { input.fill("3025-04-10") }
+            datePaid { input.fill("15/04/3025") }
+            reportingDate { input.fill("10/04/3025") }
 
             documentsUpload {
                 selectFileForUpload(testFile)
@@ -131,8 +131,8 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             title { input.fill("Annual Corporate Tax") }
             amount { input.fill("10000.00") }
-            datePaid { input.fill("3025-12-31") }
-            reportingDate { input.fill("3025-12-15") }
+            datePaid { input.fill("31/12/3025") }
+            reportingDate { input.fill("15/12/3025") }
             notes {
                 input.fill("# Corporate Tax\nFull year payment for Planet Express Inc")
                 input.shouldHavePreviewWithHeading("Corporate Tax")

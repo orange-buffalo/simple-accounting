@@ -39,7 +39,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Interplanetary delivery fee") }
             originalAmount { input.fill("50.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
 
             saveButton.click()
         }
@@ -75,7 +75,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             title { input.fill("Moon cargo payment") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("100.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("110.00")
 
             saveButton.click()
@@ -112,7 +112,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             title { input.fill("Robot oil export") }
             currency { input.selectOption("GBPBritish Pound") }
             originalAmount { input.fill("80.00") }
-            dateReceived { input.fill("3025-01-16") }
+            dateReceived { input.fill("16/01/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             useDifferentExchangeRateForIncomeTaxPurposes().click()
             incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.00")
@@ -151,7 +151,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             title { input.fill("Pending Slurm payment") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("100.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
 
             saveButton.click()
         }
@@ -187,7 +187,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             title { input.fill("Omicron Persei cargo pending tax") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("80.00") }
-            dateReceived { input.fill("3025-01-16") }
+            dateReceived { input.fill("16/01/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             useDifferentExchangeRateForIncomeTaxPurposes().click()
 
@@ -224,7 +224,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Delivery to Omicron Persei 8") }
             originalAmount { input.fill("50.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
             notes {
                 input.fill("# Good News\n\nPayment received for **interplanetary** delivery")
                 input.shouldHavePreviewWithHeading("Good News")
@@ -265,7 +265,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Slurm supplies payment") }
             originalAmount { input.fill("75.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
 
             documentsUpload {
                 selectFileForUpload(testFile1)
@@ -329,7 +329,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("VAT-inclusive delivery income") }
             originalAmount { input.fill("100.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
             generalTax { input.selectOption("VAT") }
 
             saveButton.click()
@@ -392,7 +392,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should show validation errors for constraint violations`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
             originalAmount { input.fill("50.00") }
 
             title { input.fill("x".repeat(256)) }
@@ -454,7 +454,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
             originalAmount { input.fill("150.00") }
-            dateReceived { input.fill("3025-01-15") }
+            dateReceived { input.fill("15/01/3025") }
             linkedInvoice {
                 input.selectOption("Delivery to Mars")
             }

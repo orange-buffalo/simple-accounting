@@ -64,10 +64,10 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("150.00")
             }
             dateIssued {
-                input.shouldHaveValue("3025-01-15")
+                input.shouldHaveValue("15/01/3025")
             }
             dueDate {
-                input.shouldHaveValue("3025-02-15")
+                input.shouldHaveValue("15/02/3025")
             }
 
             alreadySent().shouldNotBeChecked()
@@ -294,11 +294,11 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditInvoicePage {
             alreadySent().shouldBeChecked()
             dateSent().shouldBeVisible()
-            dateSent().input.shouldHaveValue("3025-09-02")
+            dateSent().input.shouldHaveValue("02/09/3025")
 
             alreadyPaid().shouldBeChecked()
             datePaid().shouldBeVisible()
-            datePaid().input.shouldHaveValue("3025-09-15")
+            datePaid().input.shouldHaveValue("15/09/3025")
 
             reportRendering("edit-invoice.load-with-sent-and-paid-dates")
         }
@@ -330,8 +330,8 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("New Customer") }
             title { input.fill("Updated delivery services") }
             amount { input.fill("250.00") }
-            dateIssued { input.fill("3025-01-10") }
-            dueDate { input.fill("3025-02-10") }
+            dateIssued { input.fill("10/01/3025") }
+            dueDate { input.fill("10/02/3025") }
 
             saveButton.click()
         }
@@ -524,7 +524,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
             alreadySent().click()
-            dateSent().input.fill("3025-07-05")
+            dateSent().input.fill("05/07/3025")
 
             saveButton.click()
         }
@@ -562,7 +562,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
             alreadyPaid().click()
-            datePaid().input.fill("3025-08-15")
+            datePaid().input.fill("15/08/3025")
 
             saveButton.click()
         }
@@ -1032,7 +1032,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
 
             reportRendering("edit-invoice.validation-errors")
 
-            dueDate { input.fill("3025-02-01") }
+            dueDate { input.fill("01/02/3025") }
             saveButton.click()
 
             amount {

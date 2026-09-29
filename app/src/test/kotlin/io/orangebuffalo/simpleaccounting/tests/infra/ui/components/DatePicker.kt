@@ -6,23 +6,13 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class DatePicker private constructor(
     private val rootLocator: Locator,
 ) : UiComponent<DatePicker>() {
     private val inputLocator = rootLocator.locator("input")
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu")
-
-    private fun displayedDate(value: String) = if (value.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
-        LocalDate.parse(value).format(dateFormatter)
-    } else {
-        value
-    }
-
     fun fill(date: String) {
-        inputLocator.fill(displayedDate(date))
+        inputLocator.fill(date)
         inputLocator.blur()
     }
 
@@ -33,7 +23,7 @@ class DatePicker private constructor(
 
     fun shouldBeVisible() = inputLocator.shouldBeVisible()
 
-    fun shouldHaveValue(value: String) = inputLocator.shouldHaveValue(displayedDate(value))
+    fun shouldHaveValue(value: String) = inputLocator.shouldHaveValue(value)
 
     fun shouldBeEnabled() = inputLocator.shouldBeEnabled()
 

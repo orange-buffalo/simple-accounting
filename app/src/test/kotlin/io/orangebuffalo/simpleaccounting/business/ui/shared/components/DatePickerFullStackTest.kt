@@ -43,8 +43,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("3023-12-15")
-                input.shouldHaveValue("3023-12-15")
+                input.fill("15/12/3023")
+                input.shouldHaveValue("15/12/3023")
             }
             reportRendering("date-picker.typed-localized-format")
 
@@ -112,7 +112,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
             datePaid {
                 input.clickDay(20)
-                input.shouldHaveValue("3024-01-20")
+                input.shouldHaveValue("20/01/3024")
             }
 
             saveButton.click()
@@ -145,7 +145,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("3023-07-25")
+                input.shouldHaveValue("25/07/3023")
             }
         }
     }
@@ -169,8 +169,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("3023-12-31")
-                input.shouldHaveValue("3023-12-31")
+                input.fill("31/12/3023")
+                input.shouldHaveValue("31/12/3023")
             }
 
             saveButton.click()
@@ -203,8 +203,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("3024-02-29")
-                input.shouldHaveValue("3024-02-29")
+                input.fill("29/02/3024")
+                input.shouldHaveValue("29/02/3024")
             }
 
             saveButton.click()
@@ -237,7 +237,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("3023-07-25")
+                input.shouldHaveValue("25/07/3023")
                 input.clear()
                 input.shouldHaveValue("")
             }
@@ -333,8 +333,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 // Test that entering a date works correctly
                 // The date should be stored as entered, without timezone conversion
                 datePaid {
-                    input.fill("3023-12-31")
-                    input.shouldHaveValue("3023-12-31")
+                    input.fill("31/12/3023")
+                    input.shouldHaveValue("31/12/3023")
                 }
 
                 title.input.fill("Intergalactic timezone expense")

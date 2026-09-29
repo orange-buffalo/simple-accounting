@@ -53,10 +53,10 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("1,250.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-03-15")
+                input.shouldHaveValue("15/03/3025")
             }
             reportingDate {
-                input.shouldHaveValue("3025-03-10")
+                input.shouldHaveValue("10/03/3025")
             }
             notes {
                 input.shouldHaveValue("")
@@ -101,10 +101,10 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("5,000.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-12-31")
+                input.shouldHaveValue("31/12/3025")
             }
             reportingDate {
-                input.shouldHaveValue("3025-12-15")
+                input.shouldHaveValue("15/12/3025")
             }
             notes {
                 input.shouldHaveValue("# Corporate Tax\nFull year payment")
@@ -149,12 +149,12 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 input.fill("2500.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-01-15")
-                input.fill("3025-01-20")
+                input.shouldHaveValue("15/01/3025")
+                input.fill("20/01/3025")
             }
             reportingDate {
-                input.shouldHaveValue("3025-01-15")
-                input.fill("3025-01-18")
+                input.shouldHaveValue("15/01/3025")
+                input.fill("18/01/3025")
             }
 
             saveButton.click()

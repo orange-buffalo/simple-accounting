@@ -695,7 +695,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("")
             }
             datePaid {
-                input.shouldHaveValue("1999-03-28")
+                input.shouldHaveValue("28/03/1999")
             }
             generalTax {
                 input.shouldHaveSelectedValue("Select a tax")
@@ -737,7 +737,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("500.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-01-15")
+                input.shouldHaveValue("15/01/3025")
             }
             generalTax {
                 input.shouldHaveSelectedValue("VAT")
@@ -802,7 +802,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             percentOnBusiness().input.shouldHaveValue("80")
 
             // Fill in the missing fields
-            datePaid { input.fill("3025-02-01") }
+            datePaid { input.fill("01/02/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("625.00")
             saveButton.click()
         }

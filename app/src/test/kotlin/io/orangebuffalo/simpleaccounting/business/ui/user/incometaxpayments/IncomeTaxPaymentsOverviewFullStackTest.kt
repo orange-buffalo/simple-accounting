@@ -270,7 +270,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("")
             }
             datePaid {
-                input.shouldHaveValue("1999-03-28")
+                input.shouldHaveValue("28/03/1999")
             }
             reportingDate {
                 input.shouldHaveValue("")
@@ -299,10 +299,10 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("3,000.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-03-15")
+                input.shouldHaveValue("15/03/3025")
             }
             reportingDate {
-                input.shouldHaveValue("3025-03-10")
+                input.shouldHaveValue("10/03/3025")
             }
             notes {
                 input.shouldHaveValue("Tax payment for Planet Express")

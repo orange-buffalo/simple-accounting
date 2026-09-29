@@ -70,7 +70,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("50.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-01-20")
+                input.shouldHaveValue("20/01/3025")
             }
 
             // Verify conditional fields are hidden for default currency
@@ -125,7 +125,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("120.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-02-10")
+                input.shouldHaveValue("10/02/3025")
             }
 
             // Verify foreign currency fields are visible
@@ -179,7 +179,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("1,000.00")
             }
             datePaid {
-                input.shouldHaveValue("3025-03-05")
+                input.shouldHaveValue("05/03/3025")
             }
 
             // Verify foreign currency fields
@@ -504,7 +504,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Marketing") }
             title { input.fill("Updated robot parts") }
             originalAmount { input.fill("75.50") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
 
             saveButton.click()
         }
