@@ -1238,13 +1238,11 @@ export default {
         },
       },
       dateRange: {
-        separator: () => 'До',
         startPlaceholder: () => 'Дата початку',
         endPlaceholder: () => 'Дата закінчення',
       },
       buttons: {
         select: () => 'Обрати',
-        back: () => 'Назад',
         next: () => 'Далі',
       },
     },

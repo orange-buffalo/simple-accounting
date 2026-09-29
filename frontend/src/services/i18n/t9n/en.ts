@@ -1239,13 +1239,11 @@ export default {
         },
       },
       dateRange: {
-        separator: () => 'To',
         startPlaceholder: () => 'Start date',
         endPlaceholder: () => 'End date',
       },
       buttons: {
         select: () => 'Select',
-        back: () => 'Back',
         next: () => 'Next',
       },
     },

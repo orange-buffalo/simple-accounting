@@ -8,13 +8,35 @@
         finish-status="success"
       >
         <ElStep
-          :title="$t.reporting.wizard.steps.selectReport.title()"
           :description="reportSelectionStepDescription"
-        />
+        >
+          <template #title>
+            <button
+              v-if="!reportSelectionActive"
+              type="button"
+              class="reporting-panel--step-link"
+              @click="navigateToSelectReportStep"
+            >
+              {{ $t.reporting.wizard.steps.selectReport.title() }}
+            </button>
+            <span v-else>{{ $t.reporting.wizard.steps.selectReport.title() }}</span>
+          </template>
+        </ElStep>
         <ElStep
-          :title="$t.reporting.wizard.steps.selectDates.title()"
           :description="datesSelectionStepDescription"
-        />
+        >
+          <template #title>
+            <button
+              v-if="viewReportActive"
+              type="button"
+              class="reporting-panel--step-link"
+              @click="navigateToSelectDatesStep"
+            >
+              {{ $t.reporting.wizard.steps.selectDates.title() }}
+            </button>
+            <span v-else>{{ $t.reporting.wizard.steps.selectDates.title() }}</span>
+          </template>
+        </ElStep>
         <ElStep
           :title="$t.reporting.wizard.steps.viewReport.title()"
           :description="viewReportStepDescription"
@@ -61,34 +83,31 @@
         v-if="datesSelectionActive"
         class="reporting-panel--content reporting-panel--dates"
       >
-        <ElDatePicker
-          v-model="selectedDateRange"
-          type="daterange"
-          :format="datePickerFormat"
-          align="right"
-          unlink-panels
-          :range-separator="$t.reporting.wizard.dateRange.separator()"
-          :start-placeholder="$t.reporting.wizard.dateRange.startPlaceholder()"
-          :end-placeholder="$t.reporting.wizard.dateRange.endPlaceholder()"
-        />
+        <div class="reporting-panel--selected-range" aria-live="polite">
+          <span>{{ displayedDateRange[0] ? $t.common.date.medium(displayedDateRange[0]) : $t.reporting.wizard.dateRange.startPlaceholder() }}</span>
+          <span aria-hidden="true">—</span>
+          <span>{{ displayedDateRange[1] ? $t.common.date.medium(displayedDateRange[1]) : $t.reporting.wizard.dateRange.endPlaceholder() }}</span>
+        </div>
         <div class="reporting-panel--calendar-container">
           <ElDatePickerPanel
             v-model="selectedDateRange"
             type="daterange"
             :default-value="selectedDateRange[0]"
             :border="false"
+            :clearable="false"
             class="reporting-panel--calendar"
+            @calendar-change="onCalendarChange"
+            @update:model-value="onRangeSelected"
           />
         </div>
         <div class="reporting-panel--actions">
-          <ElButton @click="navigateToSelectReportStep">
-            {{ $t.reporting.wizard.buttons.back() }}
-          </ElButton>
           <ElButton
-            :disabled="selectedDateRange.length !== 2"
+            link
+            :disabled="selectedDateRange?.length !== 2 || rangeSelectionInProgress"
             @click="navigateToViewReportStep"
           >
             {{ $t.reporting.wizard.buttons.next() }}
+            <ArrowRight class="reporting-panel--next-icon" aria-hidden="true" />
           </ElButton>
         </div>
       </div>
@@ -97,11 +116,6 @@
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
-        <div class="reporting-panel--actions">
-          <ElButton @click="navigateToSelectDatesStep">
-            {{ $t.reporting.wizard.buttons.back() }}
-          </ElButton>
-        </div>
         <GeneralTaxReport
           v-if="selectedReport === GENERAL_TAX_REPORT"
           :date-range="selectedDateRange"
@@ -127,7 +141,7 @@
   import { $t } from '@/services/i18n';
   import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
   import { ElDatePickerPanel } from 'element-plus';
-  import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
+  import { ArrowRight } from '@element-plus/icons-vue';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
@@ -139,6 +153,9 @@
 
   const activeWizardStep = ref(SELECT_REPORT_STEP);
   const selectedDateRange = ref<Array<Date>>([]);
+  const rangeSelectionInProgress = ref(false);
+  const pendingDateRange = ref<Array<Date | null> | null>(null);
+  const displayedDateRange = computed(() => pendingDateRange.value ?? selectedDateRange.value);
   const selectedReport = ref<Report>();
   const reportGenerationInProgress = ref(false);
 
@@ -198,12 +215,24 @@
     activeWizardStep.value = SELECT_DATES_STEP;
   };
 
+  const onCalendarChange = (dates: Array<Date | null>) => {
+    rangeSelectionInProgress.value = dates.length !== 2 || dates.some((date) => date == null);
+    pendingDateRange.value = rangeSelectionInProgress.value ? dates : null;
+  };
+
+  const onRangeSelected = () => {
+    rangeSelectionInProgress.value = false;
+    pendingDateRange.value = null;
+  };
+
   const navigateToSelectReportStep = () => {
     activeWizardStep.value = SELECT_REPORT_STEP;
   };
 
   const selectReport = (report: Report) => {
     selectedReport.value = report;
+    rangeSelectionInProgress.value = false;
+    pendingDateRange.value = null;
     selectedDateRange.value = report === INCOME_TAX_REPORT
       ? getAustralianFinancialYearDateRange()
       : [];
@@ -231,6 +260,38 @@
       flex-direction: column;
       align-items: center;
       gap: 20px;
+    }
+
+    &--selected-range {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      color: $primary-text-color;
+    }
+
+    &--step-link {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $accent-primary-color;
+        outline-offset: 3px;
+      }
+    }
+
+    &--next-icon {
+      width: 1em;
+      height: 1em;
+      margin-left: 6px;
     }
 
     &--calendar-container {
