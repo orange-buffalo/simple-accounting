@@ -7,6 +7,8 @@ import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
@@ -22,6 +24,47 @@ private val testFixedDate: LocalDate = MOCK_TIME
     .toLocalDate()
 
 class DashboardFullStackTest : SaFullStackTestBase() {
+
+    @Test
+    fun `should filter tax payments by local calendar dates in Melbourne`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    incomeTaxPayment(
+                        workspace = workspace,
+                        reportingDate = LocalDate.of(1999, 1, 1),
+                        amount = 10000
+                    )
+                    incomeTaxPayment(
+                        workspace = workspace,
+                        reportingDate = LocalDate.of(1998, 12, 31),
+                        amount = 20000
+                    )
+                }
+            }
+        }
+        val context = createConfiguredBrowserContext(page.context().browser()!!) {
+            it.setTimezoneId("Australia/Melbourne")
+        }
+        val localPage = createNewPage(context)
+
+        try {
+            localPage.authenticateViaCookie(testData.fry)
+            localPage.openDashboard {
+                dateRangePicker {
+                    shouldHaveDateRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 3, 29))
+                }
+                profitCard {
+                    shouldBeLoaded()
+                    shouldHaveDetailsItem(0, "Income Tax Payments", "USD 100.00")
+                }
+            }
+        } finally {
+            localPage.close()
+            context.close()
+        }
+    }
 
     @Test
     fun `should use default dates when localStorage is empty`(page: Page) {
