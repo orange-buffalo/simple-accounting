@@ -6,28 +6,22 @@ import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
-import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ReportingInlineCalendar.Companion.reportingInlineCalendarByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.Locale
 import java.util.regex.Pattern
 
 class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Reporting")
     private val reportingPanel = page.locator(".reporting-panel")
     val nextButton = components.buttonByText("Next")
-    val inlineCalendar = InlineReportingCalendar(reportingPanel)
+    val inlineCalendar = components.reportingInlineCalendarByContainer(reportingPanel)
     val steps = components.stepsByContainer(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)
     val paidSection = TaxReportSection(components, "Paid", 1)
@@ -59,47 +53,6 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
             navigate("/reporting")
             shouldBeReportingPage(spec)
         }
-    }
-}
-
-@UiComponentMarker
-class InlineReportingCalendar(private val panel: Locator) : UiComponent<InlineReportingCalendar>() {
-    private val calendar = panel.locator(".reporting-panel--calendar")
-    private val selectedRange = panel.locator(".reporting-panel--selected-range")
-    private val dateFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH)
-    private val monthFormatter = DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH)
-
-    fun shouldBeVisible() {
-        calendar.shouldBeVisible()
-    }
-
-    fun shouldHaveSelectedRange(start: LocalDate, end: LocalDate) {
-        selectedRange.shouldHaveText("${start.format(dateFormatter)}—${end.format(dateFormatter)}")
-    }
-
-    fun selectRange(start: LocalDate, end: LocalDate) {
-        val header = calendar.locator(".el-date-range-picker__content.is-left .el-date-range-picker__header-label")
-        val currentMonth = YearMonth.parse(
-            "${header.nth(1).innerText()} ${header.nth(0).innerText().trim()}", monthFormatter
-        )
-        val monthsToStart = ChronoUnit.MONTHS.between(currentMonth, YearMonth.from(start)).toInt()
-        val navigation = if (monthsToStart < 0) "Previous Month" else "Next Month"
-        repeat(kotlin.math.abs(monthsToStart)) {
-            calendar.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(navigation)).click()
-        }
-        selectDay(0, start.dayOfMonth)
-        val monthsToEnd = ChronoUnit.MONTHS.between(YearMonth.from(start).plusMonths(1), YearMonth.from(end)).toInt()
-        repeat(monthsToEnd) {
-            calendar.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName("Next Month")).click()
-        }
-        selectDay(1, end.dayOfMonth)
-    }
-
-    fun selectDay(monthIndex: Int, day: Int) {
-        calendar.locator(".el-date-range-picker__content").nth(monthIndex)
-            .locator("td.available .el-date-table-cell__text")
-            .getByText(day.toString(), Locator.GetByTextOptions().setExact(true))
-            .click()
     }
 }
 
