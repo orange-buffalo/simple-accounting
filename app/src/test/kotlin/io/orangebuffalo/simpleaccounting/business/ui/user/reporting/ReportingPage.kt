@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import java.util.regex.Pattern
 
@@ -21,7 +22,9 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Reporting")
     private val reportingPanel = page.locator(".reporting-panel")
     val nextButton = components.buttonByText("Next")
+    val backButton = components.buttonByText("Back")
     val dateRangePicker = components.dateRangePickerByContainer(reportingPanel)
+    val inlineCalendar = InlineReportingCalendar(reportingPanel)
     val steps = components.stepsByContainer(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)
     val paidSection = TaxReportSection(components, "Paid", 1)
@@ -53,6 +56,22 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
             navigate("/reporting")
             shouldBeReportingPage(spec)
         }
+    }
+}
+
+@UiComponentMarker
+class InlineReportingCalendar(private val panel: Locator) : UiComponent<InlineReportingCalendar>() {
+    private val calendar = panel.locator(".reporting-panel--calendar")
+
+    fun shouldBeVisible() {
+        calendar.shouldBeVisible()
+    }
+
+    fun selectDay(monthIndex: Int, day: Int) {
+        calendar.locator(".el-date-range-picker__content").nth(monthIndex)
+            .locator("td.available .el-date-table-cell__text")
+            .getByText(day.toString(), Locator.GetByTextOptions().setExact(true))
+            .click()
     }
 }
 

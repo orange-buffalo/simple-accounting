@@ -1245,6 +1245,7 @@ export default {
       },
       buttons: {
         select: () => 'Select',
+        back: () => 'Back',
         next: () => 'Next',
       },
     },

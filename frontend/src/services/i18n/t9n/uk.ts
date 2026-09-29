@@ -1244,6 +1244,7 @@ export default {
       },
       buttons: {
         select: () => 'Обрати',
+        back: () => 'Назад',
         next: () => 'Далі',
       },
     },

@@ -25,7 +25,7 @@ import java.time.LocalDate
 class DatePickerFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should accept typed date in ISO format`(page: Page) {
+    fun `should accept typed date in the user's format`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = fry()
@@ -46,7 +46,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 input.fill("3023-12-15")
                 input.shouldHaveValue("3023-12-15")
             }
-            reportRendering("date-picker.typed-iso-format")
+            reportRendering("date-picker.typed-localized-format")
 
             saveButton.click()
         }
@@ -60,12 +60,12 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should display dates in ISO format regardless of locale`(page: Page) {
+    fun `should display dates in the selected locale format`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
-                    i18nSettings = I18nSettings(locale = "de_DE", language = "en")
+                    i18nSettings = I18nSettings(locale = "en_US", language = "en")
                 )
                 val workspace = workspace(owner = fry, defaultCurrency = "EUR")
                 val expense = expense(
@@ -81,9 +81,9 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("3023-07-25")
+                input.shouldHaveValue("07/25/3023")
             }
-            reportRendering("date-picker.de-locale-iso-format")
+            reportRendering("date-picker.us-locale-format")
         }
     }
 
@@ -300,9 +300,9 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.assumeEditExpensePage {
             datePaidUk {
                 input.openPopover()
-                input.shouldHavePopoverMonthYear("3024 January")
-                input.shouldHavePopoverWeekday("Mo")
-                input.shouldHavePopoverWeekday("Tu")
+                input.shouldHavePopoverMonthYear("3024 Січень")
+                input.shouldHavePopoverWeekday("пн")
+                input.shouldHavePopoverWeekday("вт")
             }
             reportRendering("date-picker.popover-ukrainian")
         }

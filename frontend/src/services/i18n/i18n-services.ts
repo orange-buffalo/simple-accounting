@@ -17,6 +17,7 @@ import {
 } from '@/services/i18n/formatters';
 
 import { setTranslationsFormatter } from '@/services/i18n/t9n/formatter';
+import { setDatePickerLocale } from '@/components/date-picker/date-picker-localization';
 
 // just a workaround for Typescript server error on importing json objects
 const supportedLocaleCodes = JSON.parse(supportedLocaleCodesJson);
@@ -116,6 +117,7 @@ async function setupI18n(locale: string, language: string) {
   await Promise.all([loadLocaleDeferred, loadLanguageDeferred]);
 
   initializeFormatter();
+  setDatePickerLocale(locale);
 }
 
 export function getSupportedLocales(): SupportedLocale[] {

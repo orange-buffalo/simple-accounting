@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <ElConfigProvider :locale="elementPlusLocale">
     <RouterView />
-  </div>
+  </ElConfigProvider>
 </template>
+
+<script setup lang="ts">
+  import { ElConfigProvider } from 'element-plus';
+  import { elementPlusLocale } from '@/components/date-picker/date-picker-localization';
+</script>

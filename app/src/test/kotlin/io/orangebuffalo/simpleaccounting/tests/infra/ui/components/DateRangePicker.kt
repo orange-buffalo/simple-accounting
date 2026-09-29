@@ -12,7 +12,7 @@ class DateRangePicker private constructor(
     private val startInput = picker.locator("input").first()
     private val endInput = picker.locator("input").nth(1)
     
-    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+    private val formatter = DateTimeFormatter.ofPattern("dd/MM/uuuu")
 
     fun shouldHaveDateRange(startDate: LocalDate, endDate: LocalDate) {
         val startValue = startInput.inputValue()
@@ -26,9 +26,9 @@ class DateRangePicker private constructor(
     }
 
     fun fillDateRange(startDate: String, endDate: String) {
-        startInput.fill(startDate)
+        startInput.fill(LocalDate.parse(startDate).format(formatter))
         endInput.click()
-        endInput.fill(endDate)
+        endInput.fill(LocalDate.parse(endDate).format(formatter))
         endInput.press("Enter")
     }
 

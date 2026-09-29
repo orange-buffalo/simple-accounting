@@ -71,6 +71,8 @@ class ReportingFullStackTest : SaFullStackTestBase() {
             dateRangePicker {
                 shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
             }
+            inlineCalendar { shouldBeVisible() }
+            reportRendering("reporting.select-dates")
             nextButton.click()
 
             incomeTaxReport {
@@ -94,6 +96,22 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveNetTaxableIncome("USD 900.00")
             }
             reportRendering("reporting.income-tax")
+            backButton.click()
+            dateRangePicker {
+                shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+            }
+            inlineCalendar {
+                selectDay(0, 2)
+                selectDay(1, 10)
+            }
+            dateRangePicker {
+                shouldHaveDateRange(LocalDate.of(1998, 7, 2), LocalDate.of(1998, 8, 10))
+            }
+            backButton.click()
+            selectIncomeTaxReport()
+            dateRangePicker {
+                shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+            }
         }
     }
 

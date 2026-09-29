@@ -1,8 +1,6 @@
 <template>
   <SaPage :header="$t.reporting.header()">
 
-    <!-- todo #64: navigation between steps-->
-
     <div class="reporting-panel">
       <ElSteps
         :active="activeWizardStep"
@@ -61,33 +59,49 @@
 
       <div
         v-if="datesSelectionActive"
-        class="reporting-panel--content text-center"
+        class="reporting-panel--content reporting-panel--dates"
       >
         <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
+          :format="datePickerFormat"
           align="right"
           unlink-panels
           :range-separator="$t.reporting.wizard.dateRange.separator()"
           :start-placeholder="$t.reporting.wizard.dateRange.startPlaceholder()"
           :end-placeholder="$t.reporting.wizard.dateRange.endPlaceholder()"
         />
-        <br>
-        <br>
-
-        <!-- todo #64: navigation -->
-        <ElButton
-          :disabled="selectedDateRange.length !== 2"
-          @click="navigateToViewReportStep"
-        >
-          {{ $t.reporting.wizard.buttons.next() }}
-        </ElButton>
+        <div class="reporting-panel--calendar-container">
+          <ElDatePickerPanel
+            v-model="selectedDateRange"
+            type="daterange"
+            :default-value="selectedDateRange[0]"
+            :border="false"
+            class="reporting-panel--calendar"
+          />
+        </div>
+        <div class="reporting-panel--actions">
+          <ElButton @click="navigateToSelectReportStep">
+            {{ $t.reporting.wizard.buttons.back() }}
+          </ElButton>
+          <ElButton
+            :disabled="selectedDateRange.length !== 2"
+            @click="navigateToViewReportStep"
+          >
+            {{ $t.reporting.wizard.buttons.next() }}
+          </ElButton>
+        </div>
       </div>
 
       <div
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
+        <div class="reporting-panel--actions">
+          <ElButton @click="navigateToSelectDatesStep">
+            {{ $t.reporting.wizard.buttons.back() }}
+          </ElButton>
+        </div>
         <GeneralTaxReport
           v-if="selectedReport === GENERAL_TAX_REPORT"
           :date-range="selectedDateRange"
@@ -112,6 +126,8 @@
   import { apiDateString } from '@/services/api';
   import { $t } from '@/services/i18n';
   import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
+  import { ElDatePickerPanel } from 'element-plus';
+  import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
@@ -121,7 +137,6 @@
   const INCOME_TAX_REPORT = 'incomeTaxReport';
   type Report = typeof GENERAL_TAX_REPORT | typeof INCOME_TAX_REPORT;
 
-  // todo #64: cleanup
   const activeWizardStep = ref(SELECT_REPORT_STEP);
   const selectedDateRange = ref<Array<Date>>([]);
   const selectedReport = ref<Report>();
@@ -183,6 +198,10 @@
     activeWizardStep.value = SELECT_DATES_STEP;
   };
 
+  const navigateToSelectReportStep = () => {
+    activeWizardStep.value = SELECT_REPORT_STEP;
+  };
+
   const selectReport = (report: Report) => {
     selectedReport.value = report;
     selectedDateRange.value = report === INCOME_TAX_REPORT
@@ -206,6 +225,25 @@
     background-color: $white;
     border-radius: 2px;
     overflow: hidden;
+
+    &--dates {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    &--calendar-container {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    &--actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
     &--content {
       margin-top: 20px;
