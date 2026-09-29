@@ -37,8 +37,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Delivery services") }
             amount { input.fill("150.00") }
-            dateIssued { input.fill("3025-01-15") }
-            dueDate { input.fill("3025-02-15") }
+            dateIssued { input.fill("15/01/3025") }
+            dueDate { input.fill("15/02/3025") }
 
             saveButton.click()
         }
@@ -71,8 +71,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Taxable delivery") }
             amount { input.fill("100.00") }
-            dateIssued { input.fill("3025-01-15") }
-            dueDate { input.fill("3025-02-15") }
+            dateIssued { input.fill("15/01/3025") }
+            dueDate { input.fill("15/02/3025") }
             generalTax { input.selectOption("VAT") }
 
             saveButton.click()
@@ -92,8 +92,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Delivery to Omicron Persei 8") }
             amount { input.fill("75.00") }
-            dateIssued { input.fill("3025-01-15") }
-            dueDate { input.fill("3025-02-15") }
+            dateIssued { input.fill("15/01/3025") }
+            dueDate { input.fill("15/02/3025") }
             notes {
                 input.fill("# Payment Terms\n\nNet 30 days")
                 input.shouldHavePreviewWithHeading("Payment Terms")
@@ -134,8 +134,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Moon cargo delivery") }
             amount { input.fill("200.00") }
-            dateIssued { input.fill("3025-01-15") }
-            dueDate { input.fill("3025-02-15") }
+            dateIssued { input.fill("15/01/3025") }
+            dueDate { input.fill("15/02/3025") }
 
             documentsUpload {
                 // Upload first document
@@ -203,16 +203,16 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Robot repair service") }
             amount { input.fill("300.00") }
-            dateIssued { input.fill("3025-01-10") }
-            dueDate { input.fill("3025-02-10") }
+            dateIssued { input.fill("10/01/3025") }
+            dueDate { input.fill("10/02/3025") }
 
             // Mark as already sent
             alreadySent().click()
-            dateSent().input.fill("3025-01-11")
+            dateSent().input.fill("11/01/3025")
 
             // Mark as already paid
             alreadyPaid().click()
-            datePaid().input.fill("3025-01-20")
+            datePaid().input.fill("20/01/3025")
 
             saveButton.click()
         }
@@ -269,7 +269,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             }
             shouldHaveNotifications { validationFailed() }
 
-            dueDate { input.fill("3025-02-15") }
+            dueDate { input.fill("15/02/3025") }
             saveButton.click()
 
             amount {
@@ -284,7 +284,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
             amount { input.fill("123.45") }
-            dueDate { input.fill("3025-02-15") }
+            dueDate { input.fill("15/02/3025") }
 
             title { input.fill("x".repeat(256)) }
             saveButton.click()

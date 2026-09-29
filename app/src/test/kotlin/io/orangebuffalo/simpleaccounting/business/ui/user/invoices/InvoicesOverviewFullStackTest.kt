@@ -479,10 +479,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("350.00")
             }
             dateIssued {
-                input.shouldHaveValue("3025-03-10")
+                input.shouldHaveValue("10/03/3025")
             }
             dueDate {
-                input.shouldHaveValue("3025-04-10")
+                input.shouldHaveValue("10/04/3025")
             }
             generalTax {
                 input.shouldHaveSelectedValue("Galactic VAT")
@@ -493,7 +493,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
 
             alreadySent().shouldBeChecked()
             dateSent().shouldBeVisible()
-            dateSent().input.shouldHaveValue("3025-03-12")
+            dateSent().input.shouldHaveValue("12/03/3025")
 
             alreadyPaid().shouldNotBeChecked()
             datePaid().shouldBeHidden()

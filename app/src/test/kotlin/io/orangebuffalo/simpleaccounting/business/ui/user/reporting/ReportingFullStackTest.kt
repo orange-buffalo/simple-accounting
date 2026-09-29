@@ -68,9 +68,11 @@ class ReportingFullStackTest : SaFullStackTestBase() {
         page.openReportingPage {
             reportRendering("reporting.select-report")
             selectIncomeTaxReport()
-            dateRangePicker {
-                shouldHaveDateRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+            inlineCalendar {
+                shouldBeVisible()
+                shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
             }
+            reportRendering("reporting.select-dates")
             nextButton.click()
 
             incomeTaxReport {
@@ -94,6 +96,22 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveNetTaxableIncome("USD 900.00")
             }
             reportRendering("reporting.income-tax")
+            steps { navigateToPreviousStep("Select reporting dates") }
+            inlineCalendar {
+                shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+                selectDay(0, 2)
+            }
+            nextButton.shouldBeDisabled()
+            inlineCalendar {
+                selectDay(1, 10)
+                shouldHaveSelectedRange(LocalDate.of(1998, 7, 2), LocalDate.of(1998, 8, 10))
+            }
+            nextButton.shouldBeEnabled()
+            steps { navigateToPreviousStep("Select a report") }
+            selectIncomeTaxReport()
+            inlineCalendar {
+                shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
+            }
         }
     }
 
@@ -107,13 +125,15 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveStepDescriptions("Tax Report", "Please select reporting date range", "")
             }
 
-            dateRangePicker {
-                fillDateRange("3025-01-01", "3025-12-31")
+            nextButton.shouldBeDisabled()
+            inlineCalendar {
+                selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
+                shouldHaveSelectedRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
             nextButton.click()
 
             steps {
-                shouldHaveStepDescriptions("Tax Report", "3025-01-01 to 3025-12-31", "Ready")
+                shouldHaveStepDescriptions("Tax Report", "1999-01-01 to 1999-12-31", "Ready")
             }
 
             // Collected section = from incomes
@@ -166,8 +186,8 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            dateRangePicker {
-                fillDateRange("3025-01-01", "3025-12-31")
+            inlineCalendar {
+                selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
             nextButton.click()
 
@@ -200,8 +220,8 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            dateRangePicker {
-                fillDateRange("3025-01-01", "3025-12-31")
+            inlineCalendar {
+                selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
             nextButton.click()
 
@@ -234,8 +254,8 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
-            dateRangePicker {
-                fillDateRange("3025-01-01", "3025-12-31")
+            inlineCalendar {
+                selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
             nextButton.click()
 
@@ -284,7 +304,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Slurm delivery revenue",
-                    dateReceived = LocalDate.of(3025, 3, 15),
+                    dateReceived = LocalDate.of(1999, 3, 15),
                     currency = "USD",
                     originalAmount = 30000,
                     convertedAmounts = amountsInDefaultCurrency(30000),
@@ -298,7 +318,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Robot repair income",
-                    dateReceived = LocalDate.of(3025, 6, 20),
+                    dateReceived = LocalDate.of(1999, 6, 20),
                     currency = "USD",
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
@@ -312,7 +332,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Moon cargo delivery",
-                    dateReceived = LocalDate.of(3025, 9, 10),
+                    dateReceived = LocalDate.of(1999, 9, 10),
                     currency = "USD",
                     originalAmount = 15000,
                     generalTax = tax,
@@ -323,7 +343,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     title = "Spaceship fuel",
-                    datePaid = LocalDate.of(3025, 4, 5),
+                    datePaid = LocalDate.of(1999, 4, 5),
                     currency = "USD",
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
@@ -337,7 +357,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     title = "Dark matter purchase",
-                    datePaid = LocalDate.of(3025, 7, 12),
+                    datePaid = LocalDate.of(1999, 7, 12),
                     currency = "USD",
                     originalAmount = 10000,
                     generalTax = tax,
@@ -348,7 +368,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Tip from Nibbler",
-                    dateReceived = LocalDate.of(3025, 5, 1),
+                    dateReceived = LocalDate.of(1999, 5, 1),
                     currency = "USD",
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
@@ -359,7 +379,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     title = "Bender's beer fund",
-                    datePaid = LocalDate.of(3025, 5, 15),
+                    datePaid = LocalDate.of(1999, 5, 15),
                     currency = "USD",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(3000),
@@ -384,7 +404,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Delivery to Omicron Persei 8",
-                    dateReceived = LocalDate.of(3025, 2, 10),
+                    dateReceived = LocalDate.of(1999, 2, 10),
                     currency = "USD",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(100000),
@@ -412,7 +432,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     title = "Spaceship maintenance",
-                    datePaid = LocalDate.of(3025, 5, 20),
+                    datePaid = LocalDate.of(1999, 5, 20),
                     currency = "USD",
                     originalAmount = 30000,
                     convertedAmounts = amountsInDefaultCurrency(30000),
@@ -441,7 +461,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     title = "Pending Slurm payment",
-                    dateReceived = LocalDate.of(3025, 4, 15),
+                    dateReceived = LocalDate.of(1999, 4, 15),
                     currency = "USD",
                     originalAmount = 50000,
                     generalTax = tax,
@@ -452,7 +472,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     title = "Pending dark matter delivery",
-                    datePaid = LocalDate.of(3025, 8, 22),
+                    datePaid = LocalDate.of(1999, 8, 22),
                     currency = "USD",
                     originalAmount = 25000,
                     generalTax = tax,

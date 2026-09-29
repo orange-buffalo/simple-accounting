@@ -1238,7 +1238,6 @@ export default {
         },
       },
       dateRange: {
-        separator: () => 'До',
         startPlaceholder: () => 'Дата початку',
         endPlaceholder: () => 'Дата закінчення',
       },

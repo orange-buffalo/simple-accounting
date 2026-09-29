@@ -7,6 +7,7 @@
       <ElDatePicker
         v-model="selectedDateRange"
         type="daterange"
+        :format="datePickerFormat"
         align="right"
         unlink-panels
         :range-separator="$t.dashboard.dateRange.separator()"
@@ -51,6 +52,7 @@
   import { useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
+  import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
 
   type DashboardInvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 

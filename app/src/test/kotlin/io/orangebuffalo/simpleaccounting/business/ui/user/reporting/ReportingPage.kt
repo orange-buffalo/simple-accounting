@@ -8,8 +8,8 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DateRangePicker.Companion.dateRangePickerByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ReportingInlineCalendar.Companion.reportingInlineCalendarByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
@@ -21,7 +21,7 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Reporting")
     private val reportingPanel = page.locator(".reporting-panel")
     val nextButton = components.buttonByText("Next")
-    val dateRangePicker = components.dateRangePickerByContainer(reportingPanel)
+    val inlineCalendar = components.reportingInlineCalendarByContainer(reportingPanel)
     val steps = components.stepsByContainer(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)
     val paidSection = TaxReportSection(components, "Paid", 1)

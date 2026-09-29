@@ -14,6 +14,7 @@
         <ElDatePicker
           v-model="formValues.validTill"
           type="datetime"
+          :format="dateTimePickerFormat"
           :placeholder="$t.workspaceAccessTokens.validTillPlaceholder()"
         />
       </SaFormItemInternal>
@@ -78,7 +79,7 @@
 
 <script lang="ts" setup>
   import copy from 'copy-to-clipboard';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { Delete } from '@element-plus/icons-vue';
   import { ElDatePicker, ElTooltip } from 'element-plus';
   import SaPage from '@/components/SaPage.vue';
@@ -90,6 +91,9 @@
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery, useMutation } from '@/services/api/use-gql-api';
   import { $t } from '@/services/i18n';
+  import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
+
+  const dateTimePickerFormat = computed(() => `${datePickerFormat.value} HH:mm`);
 
   const props = defineProps<{
     id: string,

@@ -7,6 +7,10 @@ val installFrontendDependencies by tasks.register<SaFrontendTask>("installFronte
     args.set("install --frozen-lockfile")
 }
 
+tasks.register<SaFrontendTask>("updateFrontendDependencies") {
+    args.set("install")
+}
+
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
     args.set("run build")
     inputFiles {

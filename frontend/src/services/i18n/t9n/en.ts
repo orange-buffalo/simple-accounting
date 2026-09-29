@@ -1239,7 +1239,6 @@ export default {
         },
       },
       dateRange: {
-        separator: () => 'To',
         startPlaceholder: () => 'Start date',
         endPlaceholder: () => 'End date',
       },

@@ -11,7 +11,6 @@ class DatePicker private constructor(
     private val rootLocator: Locator,
 ) : UiComponent<DatePicker>() {
     private val inputLocator = rootLocator.locator("input")
-
     fun fill(date: String) {
         inputLocator.fill(date)
         inputLocator.blur()

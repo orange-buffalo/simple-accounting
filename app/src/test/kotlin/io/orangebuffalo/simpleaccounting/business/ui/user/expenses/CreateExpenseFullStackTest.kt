@@ -38,7 +38,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Slurm supplies") }
             originalAmount { input.fill("50.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
 
             saveButton.click()
         }
@@ -75,7 +75,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             title { input.fill("Robot oil supplies") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("110.00")
 
             saveButton.click()
@@ -113,7 +113,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             title { input.fill("Spaceship parts") }
             currency { input.selectOption("GBPBritish Pound") }
             originalAmount { input.fill("80.00") }
-            datePaid { input.fill("3025-01-16") }
+            datePaid { input.fill("16/01/3025") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             useDifferentExchangeRateForIncomeTaxPurposes().click()
             incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.00")
@@ -151,7 +151,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Mixed delivery expense") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
             partialForBusiness().click()
             percentOnBusiness().input.fill("75")
 
@@ -195,7 +195,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Intergalactic delivery") }
             originalAmount { input.fill("50.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
             notes {
                 input.fill("# Important Note\n\nExpense notes with **markdown**")
                 input.shouldHavePreviewWithHeading("Important Note")
@@ -236,7 +236,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Oxygen tank refill") }
             originalAmount { input.fill("75.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
 
             documentsUpload {
                 // Upload first document
@@ -304,7 +304,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Hover scooter maintenance") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
             generalTax { input.selectOption("VAT") }
 
             saveButton.click()
@@ -380,7 +380,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should show validation errors for constraint violations`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            datePaid { input.fill("3025-01-15") }
+            datePaid { input.fill("15/01/3025") }
             originalAmount { input.fill("50.00") }
 
             title { input.fill("x".repeat(256)) }
