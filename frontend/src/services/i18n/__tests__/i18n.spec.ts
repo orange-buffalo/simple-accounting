@@ -117,6 +117,15 @@ describe('i18n', () => {
       .toBe('Oct 21, 2021');
   });
 
+  test('should format API date-only strings as local calendar dates', async () => {
+    await setLocaleFromProfile('en', 'en');
+
+    expect(formatMessage('{0, date, medium}', ['3025-01-15']))
+      .toBe('Jan 15, 3025');
+    expect(formatMessage('{0, date, medium}', ['3025-12-31']))
+      .toBe('Dec 31, 3025');
+  });
+
   test('should support date-time format', async () => {
     await setLocaleFromProfile('en', 'en');
 

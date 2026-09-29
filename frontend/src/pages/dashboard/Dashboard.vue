@@ -53,6 +53,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
   import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   type DashboardInvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 
@@ -173,8 +174,8 @@
     loading.value = true;
     const workspace = await getDashboardAnalyticsQuery({
       workspaceId: currentWorkspaceId,
-      fromDate: fromDate.toISOString().slice(0, 10),
-      toDate: toDate.toISOString().slice(0, 10),
+      fromDate: formatDateToLocalISOString(fromDate),
+      toDate: formatDateToLocalISOString(toDate),
     });
     const analytics = workspace?.analytics;
     if (analytics) {
