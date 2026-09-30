@@ -20,10 +20,8 @@ private const val WORKSPACE_PANEL_DATA_JS = """
         const nameEl = workspacePanel.querySelector('.workspace-panel__info-panel__name h3');
         const switchButton = workspacePanel.querySelector('.workspace-panel__info-panel__name button');
         const switchButtonVisible = switchButton !== null && switchButton.offsetParent !== null;
-        const defaultCurrencyPanel = workspacePanel.querySelector('.sa-item-attributes .sa-attribute-value');
-        const defaultCurrencyValue = defaultCurrencyPanel?.querySelector(':scope > div:nth-child(2)');
-        const residencyPanel = workspacePanel.querySelector('.sa-item-attributes .sa-attribute-value:nth-child(2)');
-        const residencyValue = residencyPanel?.querySelector(':scope > div:nth-child(2)');
+        const defaultCurrencyValue = workspacePanel.querySelector('[data-icon="multi-currency"]')?.closest('.overview-item-primary-attribute');
+        const residencyValue = workspacePanel.querySelector('[data-icon="globe"]')?.closest('.overview-item-primary-attribute');
         return {
             title: nameEl ? nameEl.textContent.trim() : null,
             switchButtonVisible: switchButtonVisible,

@@ -33,12 +33,12 @@
       </div>
 
       <div class="sa-item-attributes">
-        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.defaultCurrency()">
+        <SaOverviewItemPrimaryAttribute icon="multi-currency" :tooltip="$t.workspacesOverviewItemPanel.defaultCurrency()">
           {{ workspace.defaultCurrency }}
-        </WorkspacesAttributeValue>
-        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.residency()">
+        </SaOverviewItemPrimaryAttribute>
+        <SaOverviewItemPrimaryAttribute icon="globe" :tooltip="$t.workspacesOverviewItemPanel.residency()">
           {{ getCountryName(workspace.residency) }}
-        </WorkspacesAttributeValue>
+        </SaOverviewItemPrimaryAttribute>
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
+  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaActionMenu from '@/components/SaActionMenu.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
@@ -115,6 +115,10 @@
         h3 {
           margin-right: 10px;
         }
+      }
+
+      .sa-item-attributes {
+        margin-top: 5px;
       }
     }
 
