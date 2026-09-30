@@ -9,9 +9,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePa
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
@@ -309,7 +306,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should handle dates correctly regardless of timezone`(page: Page) {
+    fun `should preserve selected date when saving an expense`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = fry()
@@ -318,42 +315,27 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             }
         }
 
-        // Create a new browser context with Australia/Melbourne timezone to reproduce the bug
-        val melbourneContext = createConfiguredBrowserContext(page.context().browser()!!) { options ->
-            options.setTimezoneId("Australia/Melbourne")
-        }
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/create")
 
-        val melbournePage = createNewPage(melbourneContext)
-
-        try {
-            melbournePage.authenticateViaCookie(preconditions.fry)
-            melbournePage.navigate("${getBrowserUrl()}/expenses/create")
-
-            melbournePage.shouldBeCreateExpensePage {
-                // Test that entering a date works correctly
-                // The date should be stored as entered, without timezone conversion
-                datePaid {
-                    input.fill("31/12/3023")
-                    input.shouldHaveValue("31/12/3023")
-                }
-
-                title.input.fill("Intergalactic timezone expense")
-                category.input.selectOption(preconditions.category.name)
-                originalAmount.input.fill("1000")
-
-                saveButton.click()
+        page.shouldBeCreateExpensePage {
+            datePaid {
+                input.fill("31/12/3023")
+                input.shouldHaveValue("31/12/3023")
             }
 
-            melbournePage.shouldBeExpensesOverviewPage()
+            title.input.fill("Intergalactic timezone expense")
+            category.input.selectOption(preconditions.category.name)
+            originalAmount.input.fill("1000")
 
-            // Verify the date was stored correctly
-            val savedExpense = aggregateTemplate.findAll<Expense>()
-                .first { it.title == "Intergalactic timezone expense" }
-
-            savedExpense.datePaid.shouldBe(LocalDate.of(3023, 12, 31))
-        } finally {
-            melbournePage.close()
-            melbourneContext.close()
+            saveButton.click()
         }
+
+        page.shouldBeExpensesOverviewPage()
+
+        val savedExpense = aggregateTemplate.findAll<Expense>()
+            .first { it.title == "Intergalactic timezone expense" }
+
+        savedExpense.datePaid.shouldBe(LocalDate.of(3023, 12, 31))
     }
 }

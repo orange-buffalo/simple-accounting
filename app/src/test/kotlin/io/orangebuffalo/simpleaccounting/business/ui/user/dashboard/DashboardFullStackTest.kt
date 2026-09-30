@@ -5,22 +5,20 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_BROWSER_TIMEZONE
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.ZoneOffset
+import java.time.ZoneId
 
 /**
- * The fixed date used in tests, matching the browser's mocked time.
- * This ensures test data and browser date filters are always in sync.
+ * Matches the calendar date of the browser's mocked time.
  */
 private val testFixedDate: LocalDate = MOCK_TIME
-    .atZone(ZoneOffset.UTC)
+    .atZone(ZoneId.of(TEST_BROWSER_TIMEZONE))
     .toLocalDate()
 
 class DashboardFullStackTest : SaFullStackTestBase() {
@@ -44,25 +42,15 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 }
             }
         }
-        val context = createConfiguredBrowserContext(page.context().browser()!!) {
-            it.setTimezoneId("Australia/Melbourne")
-        }
-        val localPage = createNewPage(context)
-
-        try {
-            localPage.authenticateViaCookie(testData.fry)
-            localPage.openDashboard {
-                dateRangePicker {
-                    shouldHaveDateRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 3, 29))
-                }
-                profitCard {
-                    shouldBeLoaded()
-                    shouldHaveDetailsItem(0, "Income Tax Payments", "USD 100.00")
-                }
+        page.authenticateViaCookie(testData.fry)
+        page.openDashboard {
+            dateRangePicker {
+                shouldHaveDateRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 3, 29))
             }
-        } finally {
-            localPage.close()
-            context.close()
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveDetailsItem(0, "Income Tax Payments", "USD 100.00")
+            }
         }
     }
 

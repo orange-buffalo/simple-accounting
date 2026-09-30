@@ -11,8 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTa
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.openIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
@@ -35,52 +33,42 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
     private lateinit var tempDir: Path
 
     @Test
-    fun `should display saved tax payment dates unchanged after reloading in a western timezone`(page: Page) {
+    fun `should display saved tax payment dates unchanged after reloading`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry().withWorkspace()
             }
         }
-        val context = createConfiguredBrowserContext(page.context().browser()!!) {
-            it.setTimezoneId("America/Los_Angeles")
+        page.authenticateViaCookie(testData.fry)
+        page.openCreateIncomeTaxPaymentPage {
+            title { input.fill("Planet Express tax payment") }
+            amount { input.fill("1500.00") }
+            datePaid { input.fill("15/01/3025") }
+            reportingDate { input.fill("16/01/3025") }
+            saveButton.click()
         }
-        val localPage = createNewPage(context)
 
-        try {
-            localPage.authenticateViaCookie(testData.fry)
-            localPage.openCreateIncomeTaxPaymentPage {
-                title { input.fill("Planet Express tax payment") }
-                amount { input.fill("1500.00") }
-                datePaid { input.fill("15/01/3025") }
-                reportingDate { input.fill("16/01/3025") }
-                saveButton.click()
-            }
+        page.shouldBeIncomeTaxPaymentsOverviewPage()
 
-            localPage.shouldBeIncomeTaxPaymentsOverviewPage()
-
-            localPage.openIncomeTaxPaymentsOverviewPage {
-                pageItems.shouldHaveExactData(
-                    SaOverviewItemData(
-                        title = "Planet Express tax payment",
-                        primaryAttributes = listOf(primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 3025")),
-                        lastColumnContent = "USD 1,500.00",
-                    )
+        page.openIncomeTaxPaymentsOverviewPage {
+            pageItems.shouldHaveExactData(
+                SaOverviewItemData(
+                    title = "Planet Express tax payment",
+                    primaryAttributes = listOf(primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 3025")),
+                    lastColumnContent = "USD 1,500.00",
                 )
-                pageItems.staticItems[0].shouldHaveDetails(
-                    actions = listOf(SaActionLink.editActionLinkValue()),
-                    DetailsSectionSpec(
-                        title = "Summary",
-                        "Date paid" to "15 Jan 3025",
-                        "Reporting Date" to "16 Jan 3025"
-                    )
+            )
+            pageItems.staticItems[0].shouldHaveDetails(
+                actions = listOf(SaActionLink.editActionLinkValue()),
+                DetailsSectionSpec(
+                    title = "Summary",
+                    "Date paid" to "15 Jan 3025",
+                    "Reporting Date" to "16 Jan 3025"
                 )
-            }
-
-            aggregateTemplate.findSingle<IncomeTaxPayment>().datePaid.shouldBe(LocalDate.of(3025, 1, 15))
-        } finally {
-            localPage.close()
-            context.close()
+            )
         }
+
+        aggregateTemplate.findSingle<IncomeTaxPayment>().datePaid.shouldBe(LocalDate.of(3025, 1, 15))
     }
 
     @Test

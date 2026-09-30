@@ -548,7 +548,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Invoice Amount" to "USD 50.00",
                         "Date Issued" to "1 Feb 3025",
                         "Due Date" to "1 Mar 3025",
-                        "Date Sent" to "28 Mar 1999"
+                        "Date Sent" to "29 Mar 1999"
                     )
                 )
             }
