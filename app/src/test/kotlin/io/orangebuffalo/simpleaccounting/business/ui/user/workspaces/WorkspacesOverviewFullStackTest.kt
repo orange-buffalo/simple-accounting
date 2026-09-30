@@ -37,6 +37,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     title = "Planet Express",
                     switchButtonVisible = false,
                     defaultCurrency = "USD",
+                    residency = "Australia",
                 ),
             )
 
@@ -107,16 +108,19 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     title = "Planet Express",
                     switchButtonVisible = false,
                     defaultCurrency = "USD",
+                    residency = "Australia",
                 ),
                 WorkspacePanelData(
                     title = "Mom's Friendly Robot Company",
                     switchButtonVisible = true,
                     defaultCurrency = "EUR",
+                    residency = "Australia",
                 ),
                 WorkspacePanelData(
                     title = "Slurm Corp",
                     switchButtonVisible = true,
                     defaultCurrency = "GBP",
+                    residency = "Australia",
                 ),
             )
 
@@ -147,6 +151,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             defaultCurrency {
                 input.selectOption("EUREuro")
             }
+            residency { input.selectOption("Australia") }
             saveButton.click()
         }
 
@@ -156,11 +161,13 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     title = "Planet Express",
                     switchButtonVisible = false,
                     defaultCurrency = "USD",
+                    residency = "Australia",
                 ),
                 WorkspacePanelData(
                     title = "Mom's Friendly Robot Company",
                     switchButtonVisible = true,
                     defaultCurrency = "EUR",
+                    residency = "Australia",
                 ),
             )
         }

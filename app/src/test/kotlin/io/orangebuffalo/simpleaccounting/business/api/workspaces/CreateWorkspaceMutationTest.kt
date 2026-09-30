@@ -68,6 +68,7 @@ class CreateWorkspaceMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
+            countryCodeTestCases { value -> createWorkspaceMutation(residency = value) },
             mustNotBeBlankTestCases("name") { value ->
                 createWorkspaceMutation(name = value)
             },
@@ -103,6 +104,7 @@ class CreateWorkspaceMutationTest(
                     createWorkspaceMutation(
                         name = "Robot Arms Apts",
                         defaultCurrency = "EUR",
+                        residency = "UA",
                     )
                 }
                 .from(preconditions.fry)
@@ -111,6 +113,7 @@ class CreateWorkspaceMutationTest(
                         put("id", JsonValues.ANY_STRING)
                         put("name", "Robot Arms Apts")
                         put("defaultCurrency", "EUR")
+                        put("residency", "UA")
                     }
                 )
 
@@ -122,6 +125,7 @@ class CreateWorkspaceMutationTest(
                         name = "Robot Arms Apts",
                         defaultCurrency = "EUR",
                         ownerId = preconditions.fry.id!!,
+                        residency = "UA",
                     )
                 )
         }
@@ -130,12 +134,15 @@ class CreateWorkspaceMutationTest(
     private fun MutationProjection.createWorkspaceMutation(
         name: String = "Planet Express",
         defaultCurrency: String = "USD",
+        residency: String = "AU",
     ): MutationProjection = createWorkspace(
         name = name,
         defaultCurrency = defaultCurrency,
+        residency = residency,
     ) {
         this.id
         this.name
         this.defaultCurrency
+        this.residency
     }
 }

@@ -36,6 +36,9 @@
         <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.defaultCurrency()">
           {{ workspace.defaultCurrency }}
         </WorkspacesAttributeValue>
+        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.residency()">
+          {{ getCountryName(workspace.residency) }}
+        </WorkspacesAttributeValue>
       </div>
     </div>
   </div>
@@ -49,6 +52,7 @@
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
+  import { getCountryName } from '@/services/i18n/countries';
   import type { WorkspacesPageQuery } from '@/services/api/gql/graphql';
 
   type WorkspaceNode = WorkspacesPageQuery['workspaces']['edges'][0]['node'];

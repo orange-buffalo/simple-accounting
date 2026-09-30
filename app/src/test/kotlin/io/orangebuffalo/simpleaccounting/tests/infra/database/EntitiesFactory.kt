@@ -196,6 +196,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         name: String = "Planet Express",
         owner: PlatformUser? = null,
         defaultCurrency: String = "USD",
+        residency: String = "AU",
         createdAt: Instant = MOCK_TIME,
     ): Workspace {
         val ownerId = if (owner == null) platformUser().id else owner.id
@@ -203,6 +204,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             name = name,
             ownerId = ownerId!!,
             defaultCurrency = defaultCurrency,
+            residency = residency,
             createdAt = createdAt,
         ).save()
     }

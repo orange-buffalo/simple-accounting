@@ -3,11 +3,13 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.accountsetup
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
 class AccountSetupPage private constructor(page: Page) : SaPageBase(page) {
     val workspaceName = components.formItemTextInputByLabel("Workspace Name")
     val defaultCurrency = components.formItemTextInputByLabel("Main (default) Currency")
+    val residency = components.formItemSelectByLabel("Residency")
     val completeSetupButton = components.buttonByText("Complete setup")
 
     private fun shouldBeOpen() {

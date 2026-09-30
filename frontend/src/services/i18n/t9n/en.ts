@@ -1128,6 +1128,7 @@ export default {
       max,
     }),
     mustBeValidEndpointUrl: () => 'Please provide a valid http or https address',
+    mustBeValidCountryCode: () => 'Please select a valid country',
     notBlank: () => 'This value is required and should not be blank',
     notNull: () => 'This value is required',
     minConstraintViolated: (min: number) => format('The value must be no less than {min, number}', { min }),
@@ -1192,6 +1193,7 @@ export default {
   },
 
   accountSetup: {
+    residencyLabel: () => 'Residency',
     welcomeMessage: () => 'Welcome to simple-accounting! We now will create a new workspace for you - a place where the data of your business is stored. If you have multiple businesses, each of them can be represented as a separate workspace. You will be able to setup other workspaces, if needed, after the initial configuration.',
     workspaceNameLabel: () => 'Workspace Name',
     workspaceNamePlaceholder: () => 'Provide a name for your workspace',
@@ -1265,6 +1267,9 @@ export default {
       create: () => 'Create New Workspace',
     },
     generalInformation: {
+      residency: {
+        label: () => 'Residency',
+      },
       header: () => 'General Information',
       workspaceName: {
         label: () => 'Workspace Name',
@@ -1276,6 +1281,7 @@ export default {
   },
 
   workspacesOverviewItemPanel: {
+    residency: () => 'Residency',
     switchToThisWorkspace: () => 'Switch to this workspace',
     actions: () => 'Workspace actions',
     edit: () => 'Edit',

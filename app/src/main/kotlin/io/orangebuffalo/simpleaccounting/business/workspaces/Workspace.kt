@@ -9,6 +9,7 @@ data class Workspace(
     val name: String,
     val ownerId: String,
     val defaultCurrency: String,
+    val residency: String,
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,

@@ -28,9 +28,13 @@ class EditWorkspaceMutation(
         @NotBlank
         @Size(max = 255)
         name: String,
+        @GraphQLDescription("New residency country of the workspace (ISO 3166-1 alpha-2).")
+        @CountryCode
+        @NotBlank
+        residency: String,
     ): WorkspaceGqlDto {
         val workspace = workspacesService.getAccessibleWorkspace(id, WorkspaceAccessMode.ADMIN)
         workspace.validateVersion(version)
-        return workspacesService.save(workspace.copy(name = name)).toWorkspaceGqlDto()
+        return workspacesService.save(workspace.copy(name = name, residency = residency)).toWorkspaceGqlDto()
     }
 }

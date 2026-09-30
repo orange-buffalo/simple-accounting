@@ -22,10 +22,13 @@ private const val WORKSPACE_PANEL_DATA_JS = """
         const switchButtonVisible = switchButton !== null && switchButton.offsetParent !== null;
         const defaultCurrencyPanel = workspacePanel.querySelector('.sa-item-attributes .sa-attribute-value');
         const defaultCurrencyValue = defaultCurrencyPanel?.querySelector(':scope > div:nth-child(2)');
+        const residencyPanel = workspacePanel.querySelector('.sa-item-attributes .sa-attribute-value:nth-child(2)');
+        const residencyValue = residencyPanel?.querySelector(':scope > div:nth-child(2)');
         return {
             title: nameEl ? nameEl.textContent.trim() : null,
             switchButtonVisible: switchButtonVisible,
-            defaultCurrency: defaultCurrencyValue ? defaultCurrencyValue.textContent.trim() : null
+            defaultCurrency: defaultCurrencyValue ? defaultCurrencyValue.textContent.trim() : null,
+            residency: residencyValue ? residencyValue.textContent.trim() : null
         };
     };
 """
@@ -35,6 +38,7 @@ data class WorkspacePanelData(
     val title: String? = null,
     val switchButtonVisible: Boolean = false,
     val defaultCurrency: String? = null,
+    val residency: String? = null,
 )
 
 @UiComponentMarker

@@ -23,6 +23,7 @@ class WorkspaceQuery(
             version = workspace.version!!,
             name = workspace.name,
             defaultCurrency = workspace.defaultCurrency,
+            residency = workspace.residency,
         )
     }
 }

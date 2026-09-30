@@ -30,12 +30,17 @@ class CreateWorkspaceMutation(
         @NotBlank
         @Size(max = 3)
         defaultCurrency: String,
+        @GraphQLDescription("Residency country of the workspace (ISO 3166-1 alpha-2).")
+        @CountryCode
+        @NotBlank
+        residency: String,
     ): WorkspaceGqlDto {
         val currentUser = platformUsersService.getCurrentUser()
         val workspace = workspacesService.createWorkspace(
             Workspace(
                 name = name,
                 defaultCurrency = defaultCurrency,
+                residency = residency,
                 ownerId = currentUser.id!!,
             )
         )

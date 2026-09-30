@@ -31,6 +31,7 @@
             id
             name
             defaultCurrency
+            residency
           }
         }
         pageInfo {

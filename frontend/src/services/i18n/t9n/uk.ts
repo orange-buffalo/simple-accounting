@@ -1127,6 +1127,7 @@ export default {
       max,
     }),
     mustBeValidEndpointUrl: () => 'Будь ласка, вкажіть коректну http або https адресу',
+    mustBeValidCountryCode: () => 'Будь ласка, оберіть коректну країну',
     notBlank: () => 'Це поле є обов\'язковим і не повинно бути порожнім',
     notNull: () => 'Це поле є обов\'язковим',
     minConstraintViolated: (min: number) => format('Значення повинно бути не менше {min, number}', { min }),
@@ -1191,6 +1192,7 @@ export default {
   },
 
   accountSetup: {
+    residencyLabel: () => 'Країна резидентства',
     welcomeMessage: () => 'Ласкаво просимо до simple-accounting! Ми зараз створимо новий робочий простір для вас - місце, де зберігаються дані вашого бізнесу. Якщо у вас є декілька бізнесів, кожен з них може бути представлений як окремий робочий простір. Ви зможете налаштувати інші робочі простори, якщо це буде потрібно, після початкової конфігурації.',
     workspaceNameLabel: () => 'Назва робочого простору',
     workspaceNamePlaceholder: () => 'Вкажіть назву для вашого робочого простору',
@@ -1264,6 +1266,9 @@ export default {
       create: () => 'Створити новий робочий простір',
     },
     generalInformation: {
+      residency: {
+        label: () => 'Країна резидентства',
+      },
       header: () => 'Загальна інформація',
       workspaceName: {
         label: () => 'Назва робочого простору',
@@ -1275,6 +1280,7 @@ export default {
   },
 
   workspacesOverviewItemPanel: {
+    residency: () => 'Країна резидентства',
     switchToThisWorkspace: () => 'Перейти до цього робочого простору',
     actions: () => 'Дії робочого простору',
     edit: () => 'Редагувати',

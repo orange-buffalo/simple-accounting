@@ -23,6 +23,7 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openCreateWorkspacePage {
             name { input.fill("Mom's Friendly Robot Company") }
             defaultCurrency { input.selectOption("EUREuro") }
+            residency { input.selectOption("Ukraine") }
             saveButton.click()
         }
 
@@ -37,6 +38,7 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
                 name = "Mom's Friendly Robot Company",
                 defaultCurrency = "EUR",
                 ownerId = preconditions.fry.id!!,
+                residency = "UA",
             )
         )
     }
@@ -56,6 +58,7 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
+            residency { input.selectOption("Australia") }
             saveButton.click()
 
             name {

@@ -55,6 +55,9 @@ data class WorkspaceGqlDto(
 
     @GraphQLDescription("Default currency of the workspace.")
     val defaultCurrency: String,
+
+    @GraphQLDescription("Residency country of the workspace (ISO 3166-1 alpha-2).")
+    val residency: String,
 ) {
     @GraphQLDescription("Analytics data for this workspace.")
     fun analytics() = AnalyticsGqlDto(workspaceId = id)
@@ -403,4 +406,5 @@ internal fun io.orangebuffalo.simpleaccounting.business.workspaces.Workspace.toW
     version = version!!,
     name = name,
     defaultCurrency = defaultCurrency,
+    residency = residency,
 )
