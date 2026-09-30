@@ -296,6 +296,10 @@ When migrating a REST endpoint to GraphQL, follow these steps:
 
 ## Testing
 
+### Database Migrations
+
+Do not add dedicated Flyway migration tests that create isolated schemas, migrate between versions, and assert SQL backfills. Cover application behavior through the existing API and full stack tests instead.
+
 ### Assertion Library
 
 Use **kotest** as the primary assertion library for backend tests. Do **not** use assertj.
