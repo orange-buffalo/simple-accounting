@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
+import { formatDateToLocalISOString, getAustralianFinancialYearDateRange } from '@/services/date-utils';
+
+describe('formatDateToLocalISOString', () => {
+  it('preserves the local calendar day for API dates', () => {
+    expect(formatDateToLocalISOString(new Date(3025, 0, 15)))
+      .toBe('3025-01-15');
+  });
+});
 
 describe('getAustralianFinancialYearDateRange', () => {
   it('returns the financial year starting in the current calendar year after June', () => {

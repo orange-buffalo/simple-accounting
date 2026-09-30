@@ -270,7 +270,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("")
             }
             datePaid {
-                input.shouldHaveValue("28/03/1999")
+                input.shouldHaveValue("29/03/1999")
             }
             reportingDate {
                 input.shouldHaveValue("")

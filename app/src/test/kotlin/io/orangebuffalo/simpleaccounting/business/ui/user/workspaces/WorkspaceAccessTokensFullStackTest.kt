@@ -32,7 +32,7 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
             shouldHaveAccessLinks(
                 accessLinkRow(
                     token = testData.accessToken.token,
-                    validTill = "29 Mar 1999, 1:47 am",
+                    validTill = "29 Mar 1999, 11:47 am",
                 )
             )
             reportRenderingWithPopovers("workspace-access-tokens.loaded")
@@ -118,7 +118,7 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
                 WorkspaceAccessToken(
                     workspaceId = testData.workspace.id,
                     timeCreated = MOCK_TIME,
-                    validTill = Instant.parse("3025-01-15T10:00:00Z"),
+                    validTill = Instant.parse("3025-01-14T23:00:00Z"),
                     revoked = false,
                     token = createdToken.token,
                 )

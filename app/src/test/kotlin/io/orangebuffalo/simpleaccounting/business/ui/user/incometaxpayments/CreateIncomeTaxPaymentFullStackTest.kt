@@ -8,9 +8,15 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTaxPaymentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTaxPaymentPage.Companion.openCreateIncomeTaxPaymentPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.openIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test
@@ -25,6 +31,45 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @Test
+    fun `should display saved tax payment dates unchanged after reloading`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+        page.authenticateViaCookie(testData.fry)
+        page.openCreateIncomeTaxPaymentPage {
+            title { input.fill("Planet Express tax payment") }
+            amount { input.fill("1500.00") }
+            datePaid { input.fill("15/01/3025") }
+            reportingDate { input.fill("16/01/3025") }
+            saveButton.click()
+        }
+
+        page.shouldBeIncomeTaxPaymentsOverviewPage()
+
+        page.openIncomeTaxPaymentsOverviewPage {
+            pageItems.shouldHaveExactData(
+                SaOverviewItemData(
+                    title = "Planet Express tax payment",
+                    primaryAttributes = listOf(primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 3025")),
+                    lastColumnContent = "USD 1,500.00",
+                )
+            )
+            pageItems.staticItems[0].shouldHaveDetails(
+                actions = listOf(SaActionLink.editActionLinkValue()),
+                DetailsSectionSpec(
+                    title = "Summary",
+                    "Date paid" to "15 Jan 3025",
+                    "Reporting Date" to "16 Jan 3025"
+                )
+            )
+        }
+
+        aggregateTemplate.findSingle<IncomeTaxPayment>().datePaid.shouldBe(LocalDate.of(3025, 1, 15))
+    }
 
     @Test
     fun `should create income tax payment with required fields only`(page: Page) {

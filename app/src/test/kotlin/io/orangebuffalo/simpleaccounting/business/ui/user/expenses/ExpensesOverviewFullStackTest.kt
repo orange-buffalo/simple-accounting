@@ -695,7 +695,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("")
             }
             datePaid {
-                input.shouldHaveValue("28/03/1999")
+                input.shouldHaveValue("29/03/1999")
             }
             generalTax {
                 input.shouldHaveSelectedValue("Select a tax")
