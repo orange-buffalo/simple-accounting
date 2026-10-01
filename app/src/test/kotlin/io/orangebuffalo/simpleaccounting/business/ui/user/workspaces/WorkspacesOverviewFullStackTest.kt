@@ -13,6 +13,9 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesO
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAccessTokensPage.Companion.shouldBeWorkspaceAccessTokensPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
@@ -33,11 +36,13 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
             pageItems.shouldHaveExactData(
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Planet Express",
-                    switchButtonVisible = false,
-                    defaultCurrency = "USD",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    hasDetails = false,
                 ),
             )
 
@@ -104,23 +109,31 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
             pageItems.shouldHaveExactData(
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Planet Express",
-                    switchButtonVisible = false,
-                    defaultCurrency = "USD",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    hasDetails = false,
                 ),
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Mom's Friendly Robot Company",
-                    switchButtonVisible = true,
-                    defaultCurrency = "EUR",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "EUR"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    middleColumnContent = "Switch to this workspace",
+                    hasDetails = false,
                 ),
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Slurm Corp",
-                    switchButtonVisible = true,
-                    defaultCurrency = "GBP",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "GBP"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    middleColumnContent = "Switch to this workspace",
+                    hasDetails = false,
                 ),
             )
 
@@ -157,17 +170,22 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeWorkspacesOverviewPage {
             pageItems.shouldHaveExactData(
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Planet Express",
-                    switchButtonVisible = false,
-                    defaultCurrency = "USD",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    hasDetails = false,
                 ),
-                WorkspacePanelData(
+                SaOverviewItemData(
                     title = "Mom's Friendly Robot Company",
-                    switchButtonVisible = true,
-                    defaultCurrency = "EUR",
-                    residency = "Australia",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "EUR"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    middleColumnContent = "Switch to this workspace",
+                    hasDetails = false,
                 ),
             )
         }

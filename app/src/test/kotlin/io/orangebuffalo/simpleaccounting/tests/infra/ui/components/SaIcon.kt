@@ -36,6 +36,7 @@ class SaIcon {
 enum class SaIconType(val uiValue: String) {
     ATTACHMENT("attachment"),
     MULTI_CURRENCY("multi-currency"),
+    GLOBE("globe"),
     NOTES("notes"),
     PERCENT("percent"),
     TAX("tax"),

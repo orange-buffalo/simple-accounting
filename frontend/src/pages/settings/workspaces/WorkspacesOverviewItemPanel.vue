@@ -1,51 +1,44 @@
 <template>
-  <div class="workspace-panel">
-    <div class="workspace-panel__info-panel">
-      <div class="sa-item-title-panel">
-        <div class="workspace-panel__info-panel__name">
-          <h3>{{ workspace.name }}</h3>
-          <ElButton
-            v-if="!isCurrent"
-            link
-            @click="switchToWorkspace"
-          >
-            {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
-          </ElButton>
-        </div>
-        <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
-          <ElButton
-            link
-            class="workspace-panel__action"
-            @click="navigateToWorkspaceEdit"
-          >
-            <SaIcon icon="pencil" />
-            {{ $t.workspacesOverviewItemPanel.edit() }}
-          </ElButton>
-          <ElButton
-            link
-            class="workspace-panel__action"
-            @click="navigateToWorkspaceAccessTokens"
-          >
-            <SaIcon icon="share" />
-            {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
-          </ElButton>
-        </SaActionMenu>
-      </div>
-
-      <div class="sa-item-attributes">
-        <SaOverviewItemPrimaryAttribute icon="multi-currency" :tooltip="$t.workspacesOverviewItemPanel.defaultCurrency()">
-          {{ workspace.defaultCurrency }}
-        </SaOverviewItemPrimaryAttribute>
-        <SaOverviewItemPrimaryAttribute icon="globe" :tooltip="$t.workspacesOverviewItemPanel.residency()">
-          {{ getCountryName(workspace.residency) }}
-        </SaOverviewItemPrimaryAttribute>
-      </div>
-    </div>
-  </div>
+  <SaOverviewItem :title="workspace.name">
+    <template #primary-attributes>
+      <SaOverviewItemPrimaryAttribute icon="multi-currency" :tooltip="$t.workspacesOverviewItemPanel.defaultCurrency()">
+        {{ workspace.defaultCurrency }}
+      </SaOverviewItemPrimaryAttribute>
+      <SaOverviewItemPrimaryAttribute icon="globe" :tooltip="$t.workspacesOverviewItemPanel.residency()">
+        {{ getCountryName(workspace.residency) }}
+      </SaOverviewItemPrimaryAttribute>
+    </template>
+    <template #middle-column>
+      <ElButton v-if="!isCurrent" link @click="switchToWorkspace">
+        {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
+      </ElButton>
+    </template>
+    <template #last-column>
+      <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
+        <ElButton
+          link
+          class="workspace-panel__action"
+          @click="navigateToWorkspaceEdit"
+        >
+          <SaIcon icon="pencil" />
+          {{ $t.workspacesOverviewItemPanel.edit() }}
+        </ElButton>
+        <ElButton
+          link
+          class="workspace-panel__action"
+          @click="navigateToWorkspaceAccessTokens"
+        >
+          <SaIcon icon="share" />
+          {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
+        </ElButton>
+      </SaActionMenu>
+    </template>
+  </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaActionMenu from '@/components/SaActionMenu.vue';
@@ -92,40 +85,9 @@
 </script>
 
 <style lang="scss">
-  @use "@/styles/mixins.scss" as *;
-  @use "@/styles/vars.scss" as *;
-
-  .workspace-panel {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-
-    &__info-panel {
-      @include item-info-panel;
-      border-radius: 2px 1px 1px 2px;
-      flex-grow: 1;
-
-      &__name {
-        h3 {
-          display: inline-block;
-        }
-      }
-
-      .sa-item-title-panel {
-        h3 {
-          margin-right: 10px;
-        }
-      }
-
-      .sa-item-attributes {
-        margin-top: 5px;
-      }
-    }
-
-    &__action {
-      .sa-icon {
-        margin-right: 4px;
-      }
+  .workspace-panel__action {
+    .sa-icon {
+      margin-right: 4px;
     }
   }
 </style>
