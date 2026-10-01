@@ -7,14 +7,21 @@
       <SaOverviewItemPrimaryAttribute icon="globe" :tooltip="$t.workspacesOverviewItemPanel.residency()">
         {{ getCountryName(workspace.residency) }}
       </SaOverviewItemPrimaryAttribute>
-    </template>
-    <template #middle-column>
-      <ElButton v-if="!isCurrent" link @click="switchToWorkspace">
-        {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
-      </ElButton>
+      <SaOverviewItemPrimaryAttribute v-if="isCurrent" icon="success">
+        {{ $t.workspacesOverviewItemPanel.currentlyActive() }}
+      </SaOverviewItemPrimaryAttribute>
     </template>
     <template #last-column>
       <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
+        <ElButton
+          v-if="!isCurrent"
+          link
+          class="workspace-panel__action"
+          @click="switchToWorkspace"
+        >
+          <SaIcon icon="workspaces" />
+          {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
+        </ElButton>
         <ElButton
           link
           class="workspace-panel__action"

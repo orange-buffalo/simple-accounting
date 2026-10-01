@@ -1281,6 +1281,7 @@ export default {
   },
 
   workspacesOverviewItemPanel: {
+    currentlyActive: () => 'Currently active',
     residency: () => 'Residency',
     switchToThisWorkspace: () => 'Switch to this workspace',
     actions: () => 'Workspace actions',

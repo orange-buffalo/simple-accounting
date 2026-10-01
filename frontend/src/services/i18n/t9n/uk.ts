@@ -1280,6 +1280,7 @@ export default {
   },
 
   workspacesOverviewItemPanel: {
+    currentlyActive: () => 'Наразі активний',
     residency: () => 'Країна резидентства',
     switchToThisWorkspace: () => 'Перейти до цього робочого простору',
     actions: () => 'Дії робочого простору',

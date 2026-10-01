@@ -12,8 +12,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 class WorkspacePanel(
     private val item: SaOverviewItem,
 ) {
-    fun clickSwitchButton() {
-        item.clickMiddleColumnLink("Switch to this workspace")
+    fun clickSwitchAction() {
+        item.clickActionMenuItem("Switch to this workspace")
+    }
+
+    fun clickSwitchActionUk() {
+        item.clickActionMenuItem("Перейти до цього робочого простору")
     }
 
     fun shouldHaveActionMenuItems(vararg labels: String) {

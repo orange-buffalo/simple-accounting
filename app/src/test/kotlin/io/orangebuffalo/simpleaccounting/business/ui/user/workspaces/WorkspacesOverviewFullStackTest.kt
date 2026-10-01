@@ -41,6 +41,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     primaryAttributes = listOf(
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
+                        primaryAttribute(SaIconType.SUCCESS, "Currently active"),
                     ),
                     hasDetails = false,
                 ),
@@ -114,6 +115,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     primaryAttributes = listOf(
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
+                        primaryAttribute(SaIconType.SUCCESS, "Currently active"),
                     ),
                     hasDetails = false,
                 ),
@@ -123,7 +125,6 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "EUR"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
                     ),
-                    middleColumnContent = "Switch to this workspace",
                     hasDetails = false,
                 ),
                 SaOverviewItemData(
@@ -132,12 +133,14 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "GBP"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
                     ),
-                    middleColumnContent = "Switch to this workspace",
                     hasDetails = false,
                 ),
             )
 
             reportRendering("workspaces-overview.multiple-workspaces")
+            getWorkspacePanelByName("Mom's Friendly Robot Company")
+                .shouldHaveActionMenuItems("Switch to this workspace", "Edit", "Manage temporary access links")
+            reportRenderingWithPopovers("workspaces-overview.inactive-actions-menu")
         }
     }
 
@@ -175,6 +178,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     primaryAttributes = listOf(
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
+                        primaryAttribute(SaIconType.SUCCESS, "Currently active"),
                     ),
                     hasDetails = false,
                 ),
@@ -184,7 +188,6 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "EUR"),
                         primaryAttribute(SaIconType.GLOBE, "Australia"),
                     ),
-                    middleColumnContent = "Switch to this workspace",
                     hasDetails = false,
                 ),
             )
@@ -221,7 +224,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.openWorkspacesOverviewPage {
             shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company")
-            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
+            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchAction()
         }
 
         page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
@@ -231,6 +234,30 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage {
             pageItems.shouldHaveTitles()
             this.reportRendering("workspaces.switched-workspace-expenses-empty")
+        }
+
+        page.openWorkspacesOverviewPage {
+            pageItems.shouldHaveExactData(
+                SaOverviewItemData(
+                    title = "Planet Express",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                    ),
+                    hasDetails = false,
+                ),
+                SaOverviewItemData(
+                    title = "Mom's Friendly Robot Company",
+                    primaryAttributes = listOf(
+                        primaryAttribute(SaIconType.MULTI_CURRENCY, "USD"),
+                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                        primaryAttribute(SaIconType.SUCCESS, "Currently active"),
+                    ),
+                    hasDetails = false,
+                ),
+            )
+            getWorkspacePanelByName("Mom's Friendly Robot Company")
+                .shouldHaveActionMenuItems("Edit", "Manage temporary access links")
         }
     }
 
@@ -251,7 +278,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.openWorkspacesOverviewPage {
             shouldHaveWorkspaces("Planet Express", "Mom's Friendly Robot Company")
-            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchButton()
+            getWorkspacePanelByName("Mom's Friendly Robot Company").clickSwitchAction()
         }
 
         page.shouldHaveSideMenu().clickExpenses()
