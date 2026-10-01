@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "targetDate": "2026-10-01",
+  "schedules": [
+    {
+      "countryCode": "AU",
+      "jurisdiction": "national",
+      "taxpayer": "Australian resident individual",
+      "taxPeriod": {
+        "label": "2026–27",
+        "start": "2026-07-01",
+        "endExclusive": "2027-07-01"
+      },
+      "currency": "AUD",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0" },
+        { "threshold": "18200", "rate": "0.15" },
+        { "threshold": "45000", "rate": "0.30" },
+        { "threshold": "135000", "rate": "0.37" },
+        { "threshold": "190000", "rate": "0.45" }
+      ],
+      "limitations": ["Excludes the Medicare levy, tax offsets and deductions."],
+      "sources": [
+        { "title": "Tax rates – Australian resident", "url": "https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "US",
+      "jurisdiction": "federal",
+      "taxpayer": "Individual, single filing status",
+      "taxPeriod": {
+        "label": "2026",
+        "start": "2026-01-01",
+        "endExclusive": "2027-01-01"
+      },
+      "currency": "USD",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.10" },
+        { "threshold": "12400", "rate": "0.12" },
+        { "threshold": "50400", "rate": "0.22" },
+        { "threshold": "105700", "rate": "0.24" },
+        { "threshold": "201775", "rate": "0.32" },
+        { "threshold": "256225", "rate": "0.35" },
+        { "threshold": "640600", "rate": "0.37" }
+      ],
+      "limitations": ["Single filing status only; excludes state/local tax, standard deduction, credits and other taxes."],
+      "sources": [
+        { "title": "IRS releases tax inflation adjustments for tax year 2026, including amendments from the One, Big, Beautiful Bill", "url": "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "CA",
+      "jurisdiction": "federal",
+      "taxpayer": "Individual, federal income tax",
+      "taxPeriod": {
+        "label": "2026",
+        "start": "2026-01-01",
+        "endExclusive": "2027-01-01"
+      },
+      "currency": "CAD",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.14" },
+        { "threshold": "58523", "rate": "0.205" },
+        { "threshold": "117045", "rate": "0.26" },
+        { "threshold": "181440", "rate": "0.29" },
+        { "threshold": "258482", "rate": "0.33" }
+      ],
+      "limitations": ["Federal tax only; excludes provincial/territorial tax and credits, including the basic personal amount."],
+      "sources": [
+        { "title": "Current year tax rates and income brackets (2026)", "url": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/tax-rates-brackets/current-year.html", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "GB",
+      "jurisdiction": "England, Wales and Northern Ireland",
+      "taxpayer": "Individual, non-savings and non-dividend income, after personal allowance",
+      "taxPeriod": {
+        "label": "2026–27",
+        "start": "2026-04-06",
+        "endExclusive": "2027-04-06"
+      },
+      "currency": "GBP",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.20" },
+        { "threshold": "37700", "rate": "0.40" },
+        { "threshold": "125140", "rate": "0.45" }
+      ],
+      "limitations": ["Excludes Scotland, savings and dividend rates, National Insurance and the Personal Allowance; the allowance tapers for adjusted net income above £100,000."],
+      "sources": [
+        { "title": "Income Tax rates and allowances for current and previous tax years", "url": "https://www.gov.uk/government/publications/rates-and-allowances-income-tax/income-tax-rates-and-allowances-current-and-past", "accessedOn": "2026-10-01" },
+        { "title": "Annex A: rates and allowances", "url": "https://www.gov.uk/government/publications/budget-2025-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "NZ",
+      "jurisdiction": "national",
+      "taxpayer": "Individual, annual income tax rates",
+      "taxPeriod": {
+        "label": "2026–27 (rates effective from 1 April 2025)",
+        "start": "2026-04-01",
+        "endExclusive": "2027-04-01"
+      },
+      "currency": "NZD",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.105" },
+        { "threshold": "15600", "rate": "0.175" },
+        { "threshold": "53500", "rate": "0.30" },
+        { "threshold": "78100", "rate": "0.33" },
+        { "threshold": "180000", "rate": "0.39" }
+      ],
+      "limitations": ["Excludes tax credits and ACC levies; these are annual income-tax rates, not secondary or PAYE withholding rates."],
+      "sources": [
+        { "title": "Tax rates for individuals", "url": "https://www.ird.govt.nz/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "IE",
+      "jurisdiction": "national",
+      "taxpayer": "Single individual without qualifying children",
+      "taxPeriod": {
+        "label": "2026",
+        "start": "2026-01-01",
+        "endExclusive": "2027-01-01"
+      },
+      "currency": "EUR",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.20" },
+        { "threshold": "44000", "rate": "0.40" }
+      ],
+      "limitations": ["Single person band only; excludes tax credits, reliefs, Universal Social Charge and PRSI."],
+      "sources": [
+        { "title": "Tax rates, bands and reliefs", "url": "https://www.revenue.ie/en/personal-tax-credits-reliefs-and-exemptions/tax-relief-charts/index.aspx", "accessedOn": "2026-10-01" }
+      ]
+    },
+    {
+      "countryCode": "ZA",
+      "jurisdiction": "national",
+      "taxpayer": "Individual, ordinary taxable income",
+      "taxPeriod": {
+        "label": "2027",
+        "start": "2026-03-01",
+        "endExclusive": "2027-03-01"
+      },
+      "currency": "ZAR",
+      "basis": "annual_taxable_income",
+      "brackets": [
+        { "threshold": "0", "rate": "0.18" },
+        { "threshold": "245100", "rate": "0.26" },
+        { "threshold": "383100", "rate": "0.31" },
+        { "threshold": "530200", "rate": "0.36" },
+        { "threshold": "695800", "rate": "0.39" },
+        { "threshold": "887000", "rate": "0.41" },
+        { "threshold": "1878600", "rate": "0.45" }
+      ],
+      "limitations": ["Excludes age-related tax rebates, tax thresholds and other tax credits."],
+      "sources": [
+        { "title": "Rates of Tax for Individuals", "url": "https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/", "accessedOn": "2026-10-01" }
+      ]
+    }
+  ],
+  "unresolved": []
+}
