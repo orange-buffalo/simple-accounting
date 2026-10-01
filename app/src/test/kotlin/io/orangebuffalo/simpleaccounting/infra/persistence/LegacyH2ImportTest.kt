@@ -30,7 +30,7 @@ class LegacyH2ImportTest(
 
     @Test
     fun `imports all application entities and their references without changing the H2 file`() {
-        val source = createH2Database()
+        val source = createH2Database(MigrationVersion.fromVersion("0013"))
         connectToH2(source).use { connection ->
             connection.createStatement().use { statement ->
                 statement.executeUpdate("""insert into "PLATFORM_USER" ("ID", "VERSION", "USER_NAME", "PASSWORD_HASH", "IS_ADMIN", "FAILED_ATTEMPTS_COUNT", "LANGUAGE", "LOCALE", "ACTIVATED", "CREATED_AT") values ('fry', 0, 'Fry', 'hashed', true, 0, 'en', 'en', true, timestamp '1999-03-28 23:01:02')""")
@@ -78,7 +78,7 @@ class LegacyH2ImportTest(
 
     @Test
     fun `rejects a broken foreign key and rolls back every copied row`() {
-        val source = createH2Database()
+        val source = createH2Database(MigrationVersion.fromVersion("0013"))
         connectToH2(source).use { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("set referential_integrity false")
@@ -102,7 +102,7 @@ class LegacyH2ImportTest(
             try {
                 shouldThrow<SQLException> {
                     connection.createStatement().use { statement ->
-                        statement.executeUpdate("""insert into workspace (id, version, name, owner_id, default_currency, created_at) values ('planet', 0, 'Planet Express', 'missing', 'USD', timestamp '1999-03-28 23:01:02')""")
+                        statement.executeUpdate("""insert into workspace (id, version, name, owner_id, default_currency, residency, created_at) values ('planet', 0, 'Planet Express', 'missing', 'USD', 'AU', timestamp '1999-03-28 23:01:02')""")
                     }
                 }
             } finally {
@@ -145,7 +145,7 @@ class LegacyH2ImportTest(
         assertRow("select client_id, access_token_scopes from persistent_oauth2_authorized_client_access_token_scopes", "client1", "openid")
         assertRow("select id, name, client_id from oauth_provider", "provider1", "Planet Express SSO", "px-client")
         assertRow("select provider_id, scope from oauth_provider_scope", "provider1", "openid")
-        assertRow("select id, owner_id, name from workspace", "planet", "fry", "Planet Express")
+        assertRow("select id, owner_id, name, residency from workspace", "planet", "fry", "Planet Express", "AU")
         assertRow("select id, user_id, token from refresh_token", "refresh1", "fry", "slurm-refresh")
         assertRow("select id, user_id, folder_id from google_drive_storage_integration", "drive1", "fry", "mars-deliveries")
         assertRow("select id, user_id, token from user_activation_token", "activate1", "fry", "activate-fry")

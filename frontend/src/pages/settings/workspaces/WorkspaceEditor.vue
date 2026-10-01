@@ -5,6 +5,7 @@
       <h2>{{ $t.workspaceEditor.generalInformation.header() }}</h2>
       <SaFormInput prop="name" :label="$t.workspaceEditor.generalInformation.workspaceName.label()" />
       <SaFormCurrencyInput prop="defaultCurrency" :label="$t.workspaceEditor.generalInformation.defaultCurrency.label()" :disabled="isEditing" />
+      <SaFormCountryInput prop="residency" :label="$t.workspaceEditor.generalInformation.residency.label()" />
     </SaForm>
   </SaPage>
 </template>
@@ -16,6 +17,7 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormCurrencyInput from '@/components/form/SaFormCurrencyInput.vue';
+  import SaFormCountryInput from '@/components/form/SaFormCountryInput.vue';
   import { useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { graphql } from '@/services/api/gql';
@@ -45,21 +47,22 @@
         version
         name
         defaultCurrency
+        residency
       }
     }
   `), 'workspace');
 
   const createWorkspaceMutation = useMutation(graphql(`
-    mutation createWorkspace($name: String!, $defaultCurrency: String!) {
-      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
+    mutation createWorkspace($name: String!, $defaultCurrency: String!, $residency: String!) {
+      createWorkspace(name: $name, defaultCurrency: $defaultCurrency, residency: $residency) {
         id
       }
     }
   `), 'createWorkspace');
 
   const editWorkspaceMutation = useMutation(graphql(`
-    mutation editWorkspace($id: String!, $version: Int!, $name: String!) {
-      editWorkspace(id: $id, version: $version, name: $name) {
+    mutation editWorkspace($id: String!, $version: Int!, $name: String!, $residency: String!) {
+      editWorkspace(id: $id, version: $version, name: $name, residency: $residency) {
         id
       }
     }
@@ -71,6 +74,7 @@
     id: props.id,
     name: '',
     defaultCurrency: '',
+    residency: '',
   });
 
   const loadWorkspaceData = isEditing ? async () => {

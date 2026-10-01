@@ -136,7 +136,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQueryWithVariables(
                 query = """
                 mutation(${'$'}name: String!, ${'$'}defaultCurrency: String!) {
-                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency) {
+                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency, residency: "AU") {
                     id
                   }
                 }
@@ -175,7 +175,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQueryWithVariables(
                 query = """
                 mutation(${'$'}name: String!, ${'$'}defaultCurrency: String!) {
-                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency) {
+                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency, residency: "AU") {
                     id
                   }
                 }
@@ -212,7 +212,7 @@ class SaGraphQLNullFieldValidationInstrumentationTest(
             client.graphqlRawQueryWithVariables(
                 query = """
                 mutation(${'$'}name: String!, ${'$'}defaultCurrency: String!) {
-                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency) {
+                  createWorkspace(name: ${'$'}name, defaultCurrency: ${'$'}defaultCurrency, residency: "AU") {
                     id
                   }
                 }

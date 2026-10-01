@@ -36,6 +36,7 @@ class WorkspacesQuery(
                     version = record[workspace.version]!!,
                     name = record[workspace.name]!!,
                     defaultCurrency = record[workspace.defaultCurrency]!!,
+                    residency = record[workspace.residency]!!,
                 )
             }
     }

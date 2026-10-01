@@ -38,6 +38,7 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
             Workspace(
                 ownerId = fry.id!!,
                 defaultCurrency = "AUD",
+                residency = "AU",
                 name = "Planet Express",
             )
         )

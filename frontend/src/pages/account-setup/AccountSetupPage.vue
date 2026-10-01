@@ -19,6 +19,7 @@
         :placeholder="$t.accountSetup.defaultCurrencyPlaceholder()"
         prop="defaultCurrency"
       />
+      <SaFormCountryInput :label="$t.accountSetup.residencyLabel()" prop="residency" />
     </SaForm>
   </SaPageWithoutSideMenu>
 </template>
@@ -29,6 +30,7 @@
   import useNavigation from '@/services/use-navigation';
   import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormCountryInput from '@/components/form/SaFormCountryInput.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import { useWorkspaces } from '@/services/workspaces.ts';
   import { graphql } from '@/services/api/gql';
@@ -41,11 +43,12 @@
   const form = ref<CreateWorkspaceFormValues>({
     name: '',
     defaultCurrency: 'AUD',
+    residency: '',
   });
 
   const executeCreate = useMutation(graphql(`
-    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!) {
-      createWorkspace(name: $name, defaultCurrency: $defaultCurrency) {
+    mutation createWorkspaceAccountSetup($name: String!, $defaultCurrency: String!, $residency: String!) {
+      createWorkspace(name: $name, defaultCurrency: $defaultCurrency, residency: $residency) {
         id
         name
         defaultCurrency

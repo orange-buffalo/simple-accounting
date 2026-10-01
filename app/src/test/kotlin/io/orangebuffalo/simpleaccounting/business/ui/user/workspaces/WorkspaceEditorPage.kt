@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemCurrencyInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
@@ -17,6 +18,7 @@ abstract class WorkspaceEditorPageBase(
 
     val name = components.formItemTextInputByLabel("Workspace Name")
     val defaultCurrency = components.formItemCurrencyInputByLabel("Default Currency")
+    val residency = components.formItemSelectByLabel("Residency")
 
     val cancelButton = components.buttonByText("Cancel")
     val saveButton = components.buttonByText("Save")

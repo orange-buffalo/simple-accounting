@@ -1,54 +1,58 @@
 <template>
-  <div class="workspace-panel">
-    <div class="workspace-panel__info-panel">
-      <div class="sa-item-title-panel">
-        <div class="workspace-panel__info-panel__name">
-          <h3>{{ workspace.name }}</h3>
-          <ElButton
-            v-if="!isCurrent"
-            link
-            @click="switchToWorkspace"
-          >
-            {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
-          </ElButton>
-        </div>
-        <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
-          <ElButton
-            link
-            class="workspace-panel__action"
-            @click="navigateToWorkspaceEdit"
-          >
-            <SaIcon icon="pencil" />
-            {{ $t.workspacesOverviewItemPanel.edit() }}
-          </ElButton>
-          <ElButton
-            link
-            class="workspace-panel__action"
-            @click="navigateToWorkspaceAccessTokens"
-          >
-            <SaIcon icon="share" />
-            {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
-          </ElButton>
-        </SaActionMenu>
-      </div>
-
-      <div class="sa-item-attributes">
-        <WorkspacesAttributeValue :label="$t.workspacesOverviewItemPanel.defaultCurrency()">
-          {{ workspace.defaultCurrency }}
-        </WorkspacesAttributeValue>
-      </div>
-    </div>
-  </div>
+  <SaOverviewItem :title="workspace.name">
+    <template #primary-attributes>
+      <SaOverviewItemPrimaryAttribute icon="multi-currency" :tooltip="$t.workspacesOverviewItemPanel.defaultCurrency()">
+        {{ workspace.defaultCurrency }}
+      </SaOverviewItemPrimaryAttribute>
+      <SaOverviewItemPrimaryAttribute icon="globe" :tooltip="$t.workspacesOverviewItemPanel.residency()">
+        {{ getCountryName(workspace.residency) }}
+      </SaOverviewItemPrimaryAttribute>
+      <SaOverviewItemPrimaryAttribute v-if="isCurrent" icon="success">
+        {{ $t.workspacesOverviewItemPanel.currentlyActive() }}
+      </SaOverviewItemPrimaryAttribute>
+    </template>
+    <template #last-column>
+      <SaActionMenu :label="$t.workspacesOverviewItemPanel.actions()">
+        <ElButton
+          v-if="!isCurrent"
+          link
+          class="workspace-panel__action"
+          @click="switchToWorkspace"
+        >
+          <SaIcon icon="workspaces" />
+          {{ $t.workspacesOverviewItemPanel.switchToThisWorkspace() }}
+        </ElButton>
+        <ElButton
+          link
+          class="workspace-panel__action"
+          @click="navigateToWorkspaceEdit"
+        >
+          <SaIcon icon="pencil" />
+          {{ $t.workspacesOverviewItemPanel.edit() }}
+        </ElButton>
+        <ElButton
+          link
+          class="workspace-panel__action"
+          @click="navigateToWorkspaceAccessTokens"
+        >
+          <SaIcon icon="share" />
+          {{ $t.workspacesOverviewItemPanel.manageAccessTokens() }}
+        </ElButton>
+      </SaActionMenu>
+    </template>
+  </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
+  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaActionMenu from '@/components/SaActionMenu.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
+  import { getCountryName } from '@/services/i18n/countries';
   import type { WorkspacesPageQuery } from '@/services/api/gql/graphql';
 
   type WorkspaceNode = WorkspacesPageQuery['workspaces']['edges'][0]['node'];
@@ -88,36 +92,9 @@
 </script>
 
 <style lang="scss">
-  @use "@/styles/mixins.scss" as *;
-  @use "@/styles/vars.scss" as *;
-
-  .workspace-panel {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-
-    &__info-panel {
-      @include item-info-panel;
-      border-radius: 2px 1px 1px 2px;
-      flex-grow: 1;
-
-      &__name {
-        h3 {
-          display: inline-block;
-        }
-      }
-
-      .sa-item-title-panel {
-        h3 {
-          margin-right: 10px;
-        }
-      }
-    }
-
-    &__action {
-      .sa-icon {
-        margin-right: 4px;
-      }
+  .workspace-panel__action {
+    .sa-icon {
+      margin-right: 4px;
     }
   }
 </style>

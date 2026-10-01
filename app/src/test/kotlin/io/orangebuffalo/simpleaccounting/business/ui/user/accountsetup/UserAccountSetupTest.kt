@@ -20,19 +20,21 @@ class UserAccountSetupTest : SaFullStackTestBase() {
         page.loginAs(preconditions.fry)
         page.shouldHaveSideMenuHidden()
         page.shouldBeAccountSetupPage {
-            workspaceName { input.fill("Workspace X") }
+            workspaceName { input.fill("Planet Express") }
             defaultCurrency {
                 input.shouldHaveValue("AUD")
                 input.fill("USD")
             }
+            residency { input.selectOption("Ukraine") }
             completeSetupButton { click() }
         }
         page.shouldBeDashboardPage()
         page.shouldHaveSideMenu()
-            .shouldHaveWorkspaceName("Workspace X")
+            .shouldHaveWorkspaceName("Planet Express")
 
         aggregateTemplate.findSingle<Workspace>().should { workspace ->
-            workspace.name.shouldBe("Workspace X")
+            workspace.name.shouldBe("Planet Express")
+            workspace.residency.shouldBe("UA")
             workspace.defaultCurrency.shouldBe("USD")
             workspace.ownerId.shouldBe(preconditions.fry.id)
         }
@@ -51,6 +53,7 @@ class UserAccountSetupTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
             workspaceName { shouldHaveValidationError("This value is required and should not be blank") }
             defaultCurrency { shouldHaveValidationError("This value is required and should not be blank") }
+            residency { shouldHaveValidationError("This value is required and should not be blank") }
             workspaceName { input.fill("x".repeat(256)) }
             defaultCurrency { input.fill("x".repeat(4)) }
             completeSetupButton { click() }

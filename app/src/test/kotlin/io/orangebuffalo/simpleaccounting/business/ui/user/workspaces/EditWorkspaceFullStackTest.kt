@@ -32,6 +32,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
             }
 
             reportRendering("edit-workspace.loaded")
+            residency { input.shouldHaveSelectedValue("Australia") }
         }
     }
 
@@ -49,6 +50,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
             name {
                 input.fill("Mom's Friendly Robot Company")
             }
+            residency { input.selectOption("Ukraine") }
             saveButton.click()
         }
 
@@ -62,6 +64,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
                     name = "Mom's Friendly Robot Company",
                     defaultCurrency = "USD",
                     ownerId = testData.fry.id!!,
+                    residency = "UA",
                 )
             )
     }

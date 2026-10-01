@@ -74,6 +74,7 @@ class EditWorkspaceMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
+            countryCodeTestCases { value -> editWorkspaceMutation(id = preconditions.fryWorkspace.id!!, residency = value) },
             mustNotBeBlankTestCases("name") { value ->
                 editWorkspaceMutation(id = preconditions.fryWorkspace.id!!, name = value)
             },
@@ -100,12 +101,13 @@ class EditWorkspaceMutationTest(
     inner class BusinessFlow {
 
         @Test
-        fun `should update the workspace name`() {
+        fun `should update the workspace name and residency`() {
             client
                 .graphqlMutation {
                     editWorkspaceMutation(
                         id = preconditions.fryWorkspace.id!!,
                         name = "New New York Express",
+                        residency = "UA",
                     )
                 }
                 .from(preconditions.fry)
@@ -114,6 +116,7 @@ class EditWorkspaceMutationTest(
                         put("id", preconditions.fryWorkspace.id!!)
                         put("name", "New New York Express")
                         put("defaultCurrency", preconditions.fryWorkspace.defaultCurrency)
+                        put("residency", "UA")
                     }
                 )
 
@@ -123,6 +126,7 @@ class EditWorkspaceMutationTest(
                         name = "New New York Express",
                         defaultCurrency = preconditions.fryWorkspace.defaultCurrency,
                         ownerId = preconditions.fry.id!!,
+                        residency = "UA",
                     )
                 )
         }
@@ -154,13 +158,16 @@ class EditWorkspaceMutationTest(
         id: String,
         version: Int = preconditions.fryWorkspace.version!!,
         name: String = "Planet Express",
+        residency: String = "AU",
     ): MutationProjection = editWorkspace(
         id = id,
         version = version,
         name = name,
+        residency = residency,
     ) {
         this.id
         this.name
         this.defaultCurrency
+        this.residency
     }
 }

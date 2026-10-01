@@ -95,12 +95,14 @@ class WorkspaceQueryTest(
             client.graphql {
                 workspace(id = preconditions.fryWorkspace.id!!) {
                     name
+                    residency
                 }
             }
                 .from(preconditions.fry)
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("name", "Planet Express")
+                        put("residency", "AU")
                     }
                 )
         }

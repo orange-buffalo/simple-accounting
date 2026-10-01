@@ -1094,6 +1094,7 @@ export type MutationCreateUserActivationTokenArgs = {
 export type MutationCreateWorkspaceArgs = {
   defaultCurrency: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  residency: Scalars['String']['input'];
 };
 
 
@@ -1240,6 +1241,7 @@ export type MutationEditUserArgs = {
 export type MutationEditWorkspaceArgs = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  residency: Scalars['String']['input'];
   version: Scalars['Int']['input'];
 };
 
@@ -1423,6 +1425,8 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
+  /** All supported ISO 3166-1 alpha-2 country codes. */
+  countries: Array<Scalars['String']['output']>;
   /** Loads OAuth2 endpoints from an OpenID Connect discovery document. */
   discoverOidcProviderConfiguration: OidcProviderConfiguration;
   /** Returns documents migration tasks for the current user with cursor-based pagination. Results are sorted by creation time descending by default, newest first. */
@@ -1681,6 +1685,8 @@ export enum ValidationErrorCode {
   MaxConstraintViolated = 'MaxConstraintViolated',
   /** The field value must be greater than or equal to the specified minimum. */
   MinConstraintViolated = 'MinConstraintViolated',
+  /** The field must be a valid ISO 3166-1 alpha-2 country code. */
+  MustBeValidCountryCode = 'MustBeValidCountryCode',
   /** The field must be an https URL, or an http URL of a loopback host. */
   MustBeValidEndpointUrl = 'MustBeValidEndpointUrl',
   /** The field must not be null, empty, or blank. */
@@ -1754,6 +1760,8 @@ export type Workspace = {
   invoices: InvoicesConnection;
   /** Name of the workspace. */
   name: Scalars['String']['output'];
+  /** Residency country of the workspace (ISO 3166-1 alpha-2). */
+  residency: Scalars['String']['output'];
   /** Returns a standalone document by its ID if it belongs to this workspace, or null if not found. */
   standaloneDocument?: Maybe<StandaloneDocument>;
   /** Standalone documents in this workspace with cursor-based pagination. */
