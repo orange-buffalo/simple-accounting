@@ -41,8 +41,7 @@ to be enabled explicitly.
 ### Database
 
 Simple Accounting uses PostgreSQL. Create an empty database and a user with permission to create tables in it.
-Port `9393` should be exposed to access the UI. Mount `/data` if you use local document storage or are upgrading
-from a file-based H2 installation.
+Port `9393` should be exposed to access the UI. Mount `/data` if you use local document storage.
 
 The schema is created and updated automatically on startup. Configure:
 
@@ -51,21 +50,6 @@ The schema is created and updated automatically on startup. Configure:
 * `SA_DATABASE_NAME` - database name (default: `simple-accounting`).
 * `SA_DATABASE_USERNAME` - PostgreSQL user (default: `sa`).
 * `SA_DATABASE_PASSWORD` - PostgreSQL password (default: empty; configure a password for production).
-
-#### Upgrading from H2
-
-Stop the old application, back up `/data/db/simple-accounting.mv.db`, and keep the `/data` mount when starting
-the new version. On first start the application creates the PostgreSQL schema and, if it finds the H2 file,
-copies all application data to the empty PostgreSQL database. It migrates a temporary copy of the H2 file first;
-the original file remains unchanged. Keep using the original H2 username and password in `SA_DATABASE_USERNAME`
-and `SA_DATABASE_PASSWORD` for this first start (the PostgreSQL user must use those same credentials).
-If the credentials differ, set `SA_DATABASE_LEGACY_H2_USERNAME` and `SA_DATABASE_LEGACY_H2_PASSWORD`
-instead to access the old file.
-
-If the H2 database lives elsewhere, set `SA_DATABASE_LEGACY_H2_PATH` to its path **without** `.mv.db`.
-The import refuses to overwrite a PostgreSQL database containing application data and is marked complete only
-after the entire copy commits. Keep the H2 backup until you have verified the migrated data. Subsequent starts
-use PostgreSQL; the H2 file is not removed automatically.
 
 ### Google Drive integration
 
