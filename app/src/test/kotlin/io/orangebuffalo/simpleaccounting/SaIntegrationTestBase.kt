@@ -56,7 +56,6 @@ abstract class SaIntegrationTestBase {
             registry.add("spring.datasource.url") { PostgresTestDatabase.container.jdbcUrl }
             registry.add("spring.datasource.username") { PostgresTestDatabase.container.username }
             registry.add("spring.datasource.password") { PostgresTestDatabase.container.password }
-            registry.add("sa.database.legacy-h2-path") { PostgresTestDatabase.missingLegacyH2Path.toString() }
         }
     }
 

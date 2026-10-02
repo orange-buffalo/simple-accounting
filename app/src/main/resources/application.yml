@@ -61,7 +61,6 @@ sa:
     host: "localhost"
     port: 5432
     name: "simple-accounting"
-    legacy-h2-path: /data/db/simple-accounting
   documents:
     storage:
       local-fs:
@@ -88,10 +87,6 @@ spring:
       on-profile: development
 
 sa:
-  database:
-    legacy-h2-path: ./local-dev/dev
-    legacy-h2-username: bender
-    legacy-h2-password: killallhumans
   documents:
     storage:
       local-fs:

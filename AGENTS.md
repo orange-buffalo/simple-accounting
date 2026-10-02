@@ -39,7 +39,7 @@ Required dependencies (pre-installed in CI environment):
 ## Project Structure
 
 Simple Accounting is a **Spring Boot + Vue.js** application:
-- **Backend**: `/app` - Kotlin, Spring Boot, GraphQL, JOOQ, PostgreSQL (H2 only for importing legacy data)
+- **Backend**: `/app` - Kotlin, Spring Boot, GraphQL, JOOQ, PostgreSQL
 - **Frontend**: `/frontend` - Vue 3, TypeScript, Vite, Element Plus, Urql GraphQL client
 - **Build system**: Gradle multi-module with Bun for frontend dependencies
 
