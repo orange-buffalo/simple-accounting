@@ -42,8 +42,11 @@ workers inherit the calling session's active model. Time and cost limits are che
 model session or build may exceed them. These are not hard spend caps. The controller serializes builds/repair runs
 within a worktree via a lock, but other tools/processes can still modify files; review detects snapshot drift.
 
-Profiles: `frontend`, `backend`, `full`; `harness` only for agent-workflow/docs changes, not application/build changes.
-Use full for GraphQL, shared infrastructure, or unclear blast radius. UI rendering still requires the related full-stack
+Profiles: `frontend`, `backend`, `targeted`, `full`; `harness` only for agent-workflow/docs changes, not application/build changes.
+Prefer `targeted` with fully qualified `testClasses` (up to 10) for bounded API/backend/full-stack changes; it runs only
+`:app:test --tests <class>` for each class. Run additional relevant Gradle tasks separately when needed (e.g. `checkAgentHarness`
+for harness edits), and include that evidence in the review request. Use `full` only when targeted tests cannot reasonably
+cover the blast radius. UI rendering still requires the related full-stack
 test and manual inspection of generated PNGs as specified in `AGENTS.md`; reviewers must report missing evidence.
 `full` runs the repository's required `assemble check` sequence, including its regular full-stack tests. The separate
 Docker distribution E2E task is not included: the existing task currently reports NO-SOURCE locally and must not be

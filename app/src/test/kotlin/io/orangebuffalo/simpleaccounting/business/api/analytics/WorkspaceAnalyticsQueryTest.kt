@@ -5,9 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxBracket
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedule
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxScheduleSource
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedulesRepository
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
@@ -19,7 +16,6 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -30,7 +26,6 @@ import java.time.LocalDate
 @DisplayName("workspace.analytics")
 class WorkspaceAnalyticsQueryTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val schedulesRepository: IncomeTaxSchedulesRepository,
 ) : SaIntegrationTestBase() {
 
     @Nested
@@ -38,11 +33,6 @@ class WorkspaceAnalyticsQueryTest(
     inner class IncomeTaxEstimate {
         private val start = LocalDate.of(3025, 7, 1)
         private val end = LocalDate.of(3026, 6, 30)
-
-        @BeforeEach
-        fun clearSeededIncomeTaxSchedules() {
-            schedulesRepository.deleteAll()
-        }
 
         @Test
         fun `should estimate marginal tax on taxable profit and ignore pending entries`() {
@@ -149,22 +139,15 @@ class WorkspaceAnalyticsQueryTest(
         }
 
         private fun saveSchedule() {
-            schedulesRepository.save(IncomeTaxSchedule(
-                countryCode = "AU",
-                jurisdiction = "national",
-                taxpayer = "Australian resident individual",
-                taxPeriodLabel = "3025–26",
-                periodStart = start,
-                periodEnd = end,
-                currency = "AUD",
-                basis = "annual_taxable_income",
-                limitations = "Excludes levies.",
-                brackets = setOf(
-                    IncomeTaxBracket(BigDecimal.ZERO, BigDecimal("0.10")),
-                    IncomeTaxBracket(BigDecimal("100"), BigDecimal("0.20")),
-                ),
-                sources = setOf(IncomeTaxScheduleSource("Planet Express tax office", "https://example.com", start)),
-            ))
+            preconditions {
+                incomeTaxSchedule(
+                    periodStart = start,
+                    brackets = setOf(
+                        IncomeTaxBracket(BigDecimal.ZERO, BigDecimal("0.10")),
+                        IncomeTaxBracket(BigDecimal("100"), BigDecimal("0.20")),
+                    ),
+                )
+            }
         }
 
         private fun verifyEstimate(

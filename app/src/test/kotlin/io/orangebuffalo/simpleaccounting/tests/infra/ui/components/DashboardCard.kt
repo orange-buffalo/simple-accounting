@@ -60,7 +60,7 @@ class DashboardCard private constructor(
     }
 
     fun shouldHaveEstimateUnavailableReason(reason: String) {
-        Tooltip(card.locator(".sa-dashboard__tax-unavailable")).shouldHaveText(reason)
+        Tooltip.byTrigger(card.locator(".sa-dashboard__tax-unavailable")).shouldHaveText(reason)
     }
 
     companion object {

@@ -4,9 +4,6 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxBracket
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedule
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxScheduleSource
-import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedulesRepository
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
@@ -14,9 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPag
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_BROWSER_TIMEZONE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.ZoneId
@@ -28,14 +23,7 @@ private val testFixedDate: LocalDate = MOCK_TIME
     .atZone(ZoneId.of(TEST_BROWSER_TIMEZONE))
     .toLocalDate()
 
-class DashboardFullStackTest(
-    @Autowired private val schedulesRepository: IncomeTaxSchedulesRepository,
-) : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun clearSeededIncomeTaxSchedules() {
-        schedulesRepository.deleteAll()
-    }
+class DashboardFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should filter tax payments by local calendar dates in Melbourne`(page: Page) {
@@ -352,22 +340,13 @@ class DashboardFullStackTest(
                         incomeTaxableAmounts = amountsInDefaultCurrency(5000),
                     )
                     incomeTaxPayment(workspace = workspace, reportingDate = start, amount = 1000)
-                    IncomeTaxSchedule(
-                        countryCode = "AU",
-                        jurisdiction = "national",
-                        taxpayer = "Australian resident individual",
-                        taxPeriodLabel = "3025–26",
+                    incomeTaxSchedule(
                         periodStart = start,
-                        periodEnd = end,
-                        currency = "AUD",
-                        basis = "annual_taxable_income",
-                        limitations = "Excludes levies.",
                         brackets = setOf(
                             IncomeTaxBracket(BigDecimal.ZERO, BigDecimal("0.10")),
                             IncomeTaxBracket(BigDecimal("100"), BigDecimal("0.20")),
                         ),
-                        sources = setOf(IncomeTaxScheduleSource("Planet Express tax office", "https://example.com", start)),
-                    ).save()
+                    )
                 }
             }
         }
@@ -391,6 +370,39 @@ class DashboardFullStackTest(
                 shouldHaveDetailsItem(2, "Profit", "$0.00")
             }
             reportRendering("dashboard.no-tax-rates")
+        }
+    }
+
+    @Test
+    fun `should explain why tax estimate is unavailable in a different currency`(page: Page) {
+        val start = LocalDate.of(3025, 7, 1)
+        val end = LocalDate.of(3026, 6, 30)
+        val data = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it, residency = "AU", defaultCurrency = "USD")
+                    income(
+                        workspace = workspace,
+                        dateReceived = start,
+                        convertedAmounts = amountsInDefaultCurrency(25000),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(25000),
+                    )
+                    incomeTaxSchedule(periodStart = start)
+                }
+            }
+        }
+
+        page.authenticateViaCookie(data.fry)
+        page.openDashboard {
+            dateRangePicker { fillDateRange(start.toString(), end.toString()) }
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 250.00")
+                shouldHaveDetailsItem(1, "Estimated Tax", "Unavailable")
+                shouldHaveEstimateUnavailableReason("Tax rates are in AUD, but this workspace uses USD.")
+                shouldHaveDetailsItem(2, "Profit", "USD 250.00")
+            }
+            reportRendering("dashboard.tax-currency-mismatch")
         }
     }
 

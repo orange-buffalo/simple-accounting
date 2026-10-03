@@ -96,7 +96,7 @@ export default {
     await ctx.tool.transform((editor) => {
       editor.add({
         name: 'sa_review', description: 'Run Gradle validation and bounded specialist review/fix cycles. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
-        input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'full'] }, runId: string, clarification: string }, ['requirements', 'base', 'profile']),
+        input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'targeted', 'full'] }, testClasses: { type: 'array', items: string }, runId: string, clarification: string }, ['requirements', 'base', 'profile']),
         execute: async (input, context) => run('review', input, context),
       });
       editor.add({

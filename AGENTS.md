@@ -116,8 +116,8 @@ After making changes, choose validation based on the assessed blast radius:
      ./gradlew :frontend:lint :frontend:testFrontend --console=plain
      ```
 
-2. **Broad or unclear changes**: If the change touches shared infrastructure, cross-module behavior, generated APIs, build
-   logic, or the blast radius is unclear, run the full validation sequence:
+2. **Broad or unclear changes**: Prefer targeted classes when they cover the affected behavior, including local GraphQL
+   and UI changes. If the impact spans many unrelated features or cannot reasonably be bounded, run the full sequence:
    ```bash
    ./gradlew assemble check --console=plain
    ```
@@ -172,10 +172,8 @@ For GraphQL changes, regenerate committed artifacts as needed before validation:
 ```
 
 ### Before committing changes:
-```bash
-./gradlew assemble check
-```
-**IMPORTANT**: Run without `--build-cache` to ensure the full compilation pipeline works from scratch, as CI runs with a fresh checkout.
+Use the validation level appropriate to the blast radius above; do not run the full suite just because a commit is planned.
+When running a full build, do not add `--build-cache`, so the pipeline works from a fresh checkout as in CI.
 
 ## Architecture Notes
 

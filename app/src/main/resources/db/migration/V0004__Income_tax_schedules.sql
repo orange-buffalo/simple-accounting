@@ -7,12 +7,12 @@ create table income_tax_schedule (
     taxpayer character varying(255) not null,
     tax_period_label character varying(100) not null,
     period_start date not null,
-    period_end_exclusive date not null,
+    period_end date not null,
     currency character varying(3) not null,
     basis character varying(50) not null,
     limitations text not null,
     primary key (id),
-    constraint income_tax_schedule_period_check check (period_start < period_end_exclusive),
+    constraint income_tax_schedule_period_check check (period_start <= period_end),
     constraint income_tax_schedule_country_period_uq unique (country_code, jurisdiction, taxpayer, period_start)
 );
 
