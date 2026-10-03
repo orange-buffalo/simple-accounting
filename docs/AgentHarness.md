@@ -20,9 +20,9 @@ repository configuration is not a sandbox against the host or the primary implem
 
 ## Everyday use
 
-Ask for an implementation normally, or use `/accounting-implement <request>`. `AGENTS.md` routes implementation work
-through `simple-accounting-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
-the agent calls `accounting_review(requirements, base, profile)`.
+Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md` routes implementation work
+through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
+the agent calls `sa_review(requirements, base, profile)`.
 When the user steers an active task, preserve the original contract and add their change through the optional
 `clarification` field on the same run; this does not reset its budgets.
 
@@ -63,8 +63,8 @@ pattern, not the paths traversed; a path-based secret deny would not protect rec
 
 ## Verified human-feedback learning
 
-Use `/accounting-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
-apply accepted corrections, and review the corrected state. Then invoke `accounting_learn(runId, feedback)`.
+Use `/sa-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
+apply accepted corrections, and review the corrected state. Then invoke `sa_learn(runId, feedback)`.
 
 The learning controller examines the original snapshots and actual review artifacts, classifies corrections, and treats
 reviewer-miss explanations as hypotheses. A fresh verifier checks source grounding and the proposed prevention. Fresh

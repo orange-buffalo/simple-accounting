@@ -247,12 +247,16 @@ export class Controller {
         const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifactDirectory: original.dir, artifacts: [] };
         for (const [index, round] of original.rounds.entries()) {
           const snapshotFile = path.join(evidenceDir, `round-${index + 1}-snapshot.txt`);
+          const reportFile = path.join(evidenceDir, `round-${index + 1}-reports.json`);
           await writeFile(snapshotFile, json(round.snapshot), { mode: 0o600 });
-          source.rounds.push({ snapshotFile, reports: round.reports, validation: round.validation, accepted: round.accepted });
+          await save(reportFile, { reports: round.reports, validation: round.validation, accepted: round.accepted });
+          source.rounds.push({ snapshotFile, reportFile, axes: round.reports.map((report) => report.axis), validation: round.validation });
         }
         for (const [index, artifact] of original.artifacts.entries()) {
           const promptFile = path.join(evidenceDir, `agent-${index + 1}-prompt.txt`);
+          const resultFile = path.join(evidenceDir, `agent-${index + 1}-result.txt`);
           await writeFile(promptFile, artifact.prompt, { mode: 0o600 });
+          await writeFile(resultFile, artifact.text, { mode: 0o600 });
           const investigation = [];
           const tools = artifact.messages?.filter((message) => message.type === 'assistant').flatMap((message) => message.content.filter((part) => part.type === 'tool')) ?? [];
           for (const [toolIndex, tool] of tools.entries()) {
@@ -261,7 +265,7 @@ export class Controller {
             await writeFile(file, `Tool: ${tool.name}\nInput: ${json(tool.state?.input)}\n${output}`, { mode: 0o600 });
             investigation.push({ file, tool: tool.name, input: tool.state?.input, ...(output.length <= 4000 ? { output } : {}) });
           }
-          source.artifacts.push({ artifact: `agent-${index + 1}.json`, role: artifact.role, promptFile, text: artifact.text,
+          source.artifacts.push({ artifact: `agent-${index + 1}.json`, role: artifact.role, promptFile, resultFile,
             sessionId: artifact.sessionId, knowledgeHash: artifact.knowledgeHash, investigation });
         }
         if (json(source).length > 300000) throw new Error('Original review evidence index exceeds context budget; split feedback by reviewed task');

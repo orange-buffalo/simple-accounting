@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "agents": {
-    "accounting-reviewer": {
+    "sa-reviewer": {
       "description": "Read-only accounting review and learning verification; normally launched by the repository controller",
       "mode": "subagent",
       "steps": 20,
@@ -15,7 +15,7 @@
         { "action": "read", "resource": "**/*.key", "effect": "deny" }
       ]
     },
-    "accounting-fixer": {
+    "sa-fixer": {
       "description": "Apply validated findings without committing or launching other agents",
       "mode": "subagent",
       "steps": 30,

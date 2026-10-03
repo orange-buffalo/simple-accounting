@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
-import { Controller, hash, knowledge, snapshot, validateFindings, validateBlindReport } from '../../.opencode/plugins/accounting-review/core.js';
+import { Controller, hash, knowledge, snapshot, validateFindings, validateBlindReport } from '../../.opencode/plugins/sa-review/core.js';
 
 const exec = promisify(execFile);
 const report = { findings: [], coverage: ['workspace isolation'], gaps: [] };
@@ -13,7 +13,7 @@ const answer = (value, cost = 0) => ({ text: JSON.stringify(value), cost, sessio
 
 async function fixture(t, overrides = {}) {
   await mkdir('/tmp/opencode', { recursive: true });
-  const root = await mkdtemp('/tmp/opencode/accounting-controller-');
+  const root = await mkdtemp('/tmp/opencode/sa-controller-');
   const git = (...args) => exec('git', args, { cwd: root });
   await git('init', '--quiet');
   await git('config', 'user.name', 'Fry');

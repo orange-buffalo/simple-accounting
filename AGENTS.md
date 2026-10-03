@@ -4,10 +4,10 @@
 
 ## Automatic Implementation Review and Learning
 
-For implementation requests, load the repository skill `simple-accounting-delivery` and follow `docs/AgentHarness.md`.
-After implementation, invoke the executable `accounting_review` controller before handover; it owns validation,
+For implementation requests, load the repository skill `sa-delivery` and follow `docs/AgentHarness.md`.
+After implementation, invoke the executable `sa_review` controller before handover; it owns validation,
 specialist review, finding verification, bounded repair, and re-review. Do not replace it with informal self-review.
-For human corrections to previously reviewed work, also load `simple-accounting-feedback` and invoke `accounting_learn`
+For human corrections to previously reviewed work, also load `sa-feedback` and invoke `sa_learn`
 against the original run. Preserve the commit-before-feedback rule below. Never promote unverified candidate lessons.
 Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
 repository plugin injects their content into each agent request. If the controller is unavailable, report that explicitly

@@ -1,5 +1,5 @@
 {
-  "name": "simple-accounting-review-controller",
+  "name": "sa-review-controller",
   "private": true,
   "type": "module",
   "main": "index.js"

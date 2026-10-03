@@ -29,7 +29,7 @@ class BootstrapTests(unittest.TestCase):
         Path('/tmp/opencode').mkdir(parents=True, exist_ok=True)
 
     def install(self, data, digest=None):
-        with tempfile.TemporaryDirectory(prefix='accounting-bootstrap-', dir='/tmp/opencode') as directory:
+        with tempfile.TemporaryDirectory(prefix='sa-bootstrap-', dir='/tmp/opencode') as directory:
             root = Path(directory)
             (root / '.harness').mkdir()
             (root / '.harness/upstream.json').write_text(json.dumps({

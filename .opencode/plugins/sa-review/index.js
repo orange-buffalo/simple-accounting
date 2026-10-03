@@ -13,28 +13,28 @@ export async function createWorkers(ctx, directory = root) {
     const delegations = new Map();
     const contexts = new Map();
     const bindWorker = async (session, work) => {
-      if (session.parentID !== work.parentSessionID) throw new Error('Accounting worker must be a child of the calling session');
+      if (session.parentID !== work.parentSessionID) throw new Error('SA worker must be a child of the calling session');
       work.sessionId = session.id;
       frozen.set(session.id, work.bundle);
-      const agent = await ctx.agent.get({ agentID: work.fixer ? 'accounting-fixer' : 'accounting-reviewer' });
+      const agent = await ctx.agent.get({ agentID: work.fixer ? 'sa-fixer' : 'sa-reviewer' });
       const permissions = agent.data?.permissions ?? agent.permissions;
       if (!Array.isArray(permissions)) throw new Error('Worker permission rules unavailable');
       await ctx.session.update({ sessionID: session.id, permissions: work.blind
         ? [{ action: '*', resource: '*', effect: 'deny' }] : permissions });
     };
     await ctx.session.hook('prompt', async (event) => {
-      const token = event.prompt.text.match(/^ACCOUNTING_WORKER:([a-f0-9-]+)\n/)?.[1];
+      const token = event.prompt.text.match(/^SA_WORKER:([a-f0-9-]+)\n/)?.[1];
       const work = token && delegations.get(token);
       if (!work) return;
       const session = await ctx.session.get({ sessionID: event.sessionID });
       await bindWorker(session, work);
-      event.metadata = { ...event.metadata, accountingRole: work.role, knowledgeHash: hash(work.bundle), accountingParent: work.parentSessionID };
+      event.metadata = { ...event.metadata, saRole: work.role, knowledgeHash: hash(work.bundle), saParent: work.parentSessionID };
     });
     for (const kind of ['context', 'generate']) {
       await ctx.session.hook(kind, async (event) => {
         if (!frozen.has(event.sessionID) && delegations.size) {
           const session = await ctx.session.get({ sessionID: event.sessionID });
-          const work = [...delegations.values()].find((entry) => entry.parentSessionID === session.parentID && session.title === `Accounting ${entry.role}`);
+          const work = [...delegations.values()].find((entry) => entry.parentSessionID === session.parentID && session.title === `SA ${entry.role}`);
           if (work) await bindWorker(session, work);
         }
         const work = [...delegations.values()].find((entry) => entry.sessionId === event.sessionID);
@@ -55,8 +55,8 @@ export async function createWorkers(ctx, directory = root) {
       const work = { role, bundle, fixer, blind, parentSessionID };
       delegations.set(token, work);
       try {
-        const delegated = await subagent.execute({ agent: fixer ? 'accounting-fixer' : 'accounting-reviewer', description: `Accounting ${role}`,
-          prompt: `ACCOUNTING_WORKER:${token}\n${prompt}`, background: false,
+        const delegated = await subagent.execute({ agent: fixer ? 'sa-fixer' : 'sa-reviewer', description: `SA ${role}`,
+          prompt: `SA_WORKER:${token}\n${prompt}`, background: false,
           ...(model ? { model: `${model.providerID}/${model.id}${model.variant ? `#${model.variant}` : ''}` } : {}),
         }, context);
         if (!work.sessionId) throw new Error(`Subagent did not bind a child worker: ${JSON.stringify(delegated)}`);
@@ -77,7 +77,7 @@ export async function createWorkers(ctx, directory = root) {
 }
 
 export default {
-  id: 'simple-accounting.review-controller',
+  id: 'sa-review-controller',
   async setup(ctx) {
     const { contexts, execute } = await createWorkers(ctx);
     const controller = new Controller(root, execute);
@@ -95,12 +95,12 @@ export default {
     };
     await ctx.tool.transform((editor) => {
       editor.add({
-        name: 'accounting_review', description: 'Run Gradle validation and bounded specialist review/fix cycles. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
+        name: 'sa_review', description: 'Run Gradle validation and bounded specialist review/fix cycles. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
         input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'full'] }, runId: string, clarification: string }, ['requirements', 'base', 'profile']),
         execute: async (input, context) => run('review', input, context),
       });
       editor.add({
-        name: 'accounting_learn', description: 'Investigate human corrections against original review artifacts; independently verify and blind-evaluate before promoting lessons. Does not implement feedback or commit.',
+        name: 'sa_learn', description: 'Investigate human corrections against original review artifacts; independently verify and blind-evaluate before promoting lessons. Does not implement feedback or commit.',
         input: schema({ runId: string, feedback: string }, ['runId', 'feedback']),
         execute: async (input, context) => run('learn', input, context),
       });

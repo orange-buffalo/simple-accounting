@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import plugin, { createWorkers } from '../../.opencode/plugins/accounting-review/index.js';
+import plugin, { createWorkers } from '../../.opencode/plugins/sa-review/index.js';
 
 test('plugin registers executable tools and injects knowledge before every model request', async () => {
   const hooks = new Map();
@@ -11,7 +11,7 @@ test('plugin registers executable tools and injects knowledge before every model
     tool: { transform: async (callback) => callback({ add: (tool) => tools.push(tool) }) },
     skill: { transform: async (callback) => callback({ add: (skill) => skills.push(skill) }) },
   });
-  assert.deepEqual(tools.map((tool) => tool.name), ['accounting_review', 'accounting_learn']);
+  assert.deepEqual(tools.map((tool) => tool.name), ['sa_review', 'sa_learn']);
   for (const kind of ['context', 'generate']) {
     const event = { sessionID: 'ses_fry', system: [] };
     await hooks.get(kind)(event);
@@ -30,12 +30,12 @@ test('workers use native child sessions, freeze knowledge and deny blind tools',
       update: async (rules) => permissions.push(rules),
       hook: async (kind, handler) => hooks.set(kind, handler),
       create: async () => { throw new Error('Standalone session creation is forbidden'); },
-      get: async () => ({ id: 'ses_leela', parentID: 'ses_fry', title: 'Accounting blind-baseline', outcome: 'succeeded', cost: 0.25 }),
+      get: async () => ({ id: 'ses_leela', parentID: 'ses_fry', title: 'SA blind-baseline', outcome: 'succeeded', cost: 0.25 }),
       context: async () => [{ type: 'assistant', finish: 'stop', content: [{ type: 'text', text: '{"findings":[]}' }] }],
     },
     tool: { list: async () => [{ id: 'subagent', execute: async (input, actualContext) => {
       calls++; assert.equal(actualContext, context); assert.equal(input.background, false);
-      assert.equal(input.agent, 'accounting-reviewer'); assert.equal(input.model, undefined);
+      assert.equal(input.agent, 'sa-reviewer'); assert.equal(input.model, undefined);
       const event = { sessionID: 'ses_leela', system: [], tools: { read: {}, shell: {} } };
       await hooks.get('context')(event);
       assert.match(event.system[0].text, /Frozen Fry lesson/);
