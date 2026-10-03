@@ -1329,8 +1329,11 @@ type PushNotificationMessage {
 }
 
 type Query {
-  "All supported ISO 3166-1 alpha-2 country codes."
-  countries: [String!]! @auth(type : REGULAR_USER)
+  "Supported ISO 3166-1 alpha-2 country codes, optionally restricted to countries supporting a currency."
+  countries(
+    "Only return countries supporting this ISO 4217 currency code."
+    currency: String
+  ): [String!]! @auth(type : REGULAR_USER)
   "Loads OAuth2 endpoints from an OpenID Connect discovery document."
   discoverOidcProviderConfiguration(
     "Base URL of the OpenID Connect provider."

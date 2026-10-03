@@ -1,5 +1,5 @@
 <template>
-  <SaFormSelect v-bind="props" filterable>
+  <SaFormSelect v-bind="props" :disabled="!props.currency || loading || !data.length" filterable>
     <ElOption
       v-for="country in countries"
       :key="country.code"
@@ -10,20 +10,56 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
   import { graphql } from '@/services/api/gql';
-  import { useQuery } from '@/services/api/use-gql-api';
+  import { useLazyQuery } from '@/services/api/use-gql-api';
   import { getCountryName } from '@/services/i18n/countries';
+  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
-  const props = defineProps<SaFormComponentProps>();
-  const [, data] = useQuery(graphql(`
-    query countriesForResidency {
-      countries
+  const props = defineProps<SaFormComponentProps & {
+    currency?: string | null,
+  }>();
+  const formApi = useSaFormComponentsApi();
+  const data = ref<string[]>([]);
+  const loading = ref(false);
+  const loadCountries = useLazyQuery(graphql(`
+    query countriesForResidency($currency: String!) {
+      countries(currency: $currency)
     }
   `), 'countries');
-  const countries = computed(() => (data.value ?? [])
+  watch(() => props.currency, async (currency, _, onCleanup) => {
+    let active = true;
+    onCleanup(() => { active = false; });
+    data.value = [];
+    const values = formApi.formValues.value as Record<string, unknown>;
+    if (!currency) {
+      values[props.prop] = null;
+    }
+    loading.value = !!currency;
+    if (currency) {
+      try {
+        const result = await loadCountries({ currency });
+        if (active) {
+          data.value = result;
+          const currentValues = formApi.formValues.value as Record<string, unknown>;
+          if (!result.includes(currentValues[props.prop] as string)) {
+            currentValues[props.prop] = null;
+          }
+        }
+      } catch (error: unknown) {
+        if (active) {
+          const currentValues = formApi.formValues.value as Record<string, unknown>;
+          currentValues[props.prop] = null;
+          throw error;
+        }
+      } finally {
+        if (active) loading.value = false;
+      }
+    }
+  }, { immediate: true });
+  const countries = computed(() => data.value
     .map((code) => ({ code, name: getCountryName(code) }))
     .sort((a, b) => a.name.localeCompare(b.name)));
 </script>

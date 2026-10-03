@@ -30,7 +30,9 @@ The controller:
 
 1. Freezes original requirements, approved knowledge, policy, and the changed-file snapshot (including untracked files).
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
-   receiving the complete snapshot and duplicated file contents in every prompt.
+    receiving the complete snapshot and duplicated file contents in every prompt.
+    Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
+    aggregate full-file contents stored privately on disk. Individual-file safety limits still apply.
 3. Launches four read-only reviewers **in parallel** as native subagents of the calling session, each with an exclusive scope:
    - **Functional**: every functional requirement implemented and covered by test assertions, including branches,
      conditions, boundaries, failures and regressions. Excludes security/access-rule coverage.

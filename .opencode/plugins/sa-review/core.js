@@ -90,9 +90,10 @@ export async function snapshot(root, base) {
     if (data.includes(0)) throw new Error(`Binary review file: ${file}`);
     contents[file] = data.toString('utf8');
   }
-  const diff = await git('diff', '--no-ext-diff', '--no-textconv', '--no-color', base, '--');
+  const diffs = [];
+  for (const file of files) diffs.push(await git('diff', '--no-ext-diff', '--no-textconv', '--no-color', base, '--', file));
+  const diff = diffs.join('');
   const result = { base, head: (await git('rev-parse', 'HEAD')).trim(), files, diff, contents };
-  if (json(result).length > 600000) throw new Error('Review snapshot exceeds limit; split the task');
   return { ...result, fingerprint: hash(json(result)) };
 }
 
@@ -183,6 +184,7 @@ export class Controller {
       await writeFile(artifact, `Source: ${file}\n${diff || snapshot.contents[file] || '(deleted or empty file)'}`, { mode: 0o600 });
       sources.push({ file, artifact });
     }
+    if (json(sources).length > 600000) throw new Error('Review source index exceeds context limit; split the task');
     return sources;
   }
 

@@ -1446,7 +1446,7 @@ export type PushNotificationMessage = {
 
 export type Query = {
   __typename?: 'Query';
-  /** All supported ISO 3166-1 alpha-2 country codes. */
+  /** Supported ISO 3166-1 alpha-2 country codes, optionally restricted to countries supporting a currency. */
   countries: Array<Scalars['String']['output']>;
   /** Loads OAuth2 endpoints from an OpenID Connect discovery document. */
   discoverOidcProviderConfiguration: OidcProviderConfiguration;
@@ -1484,6 +1484,11 @@ export type Query = {
   workspace: Workspace;
   /** Returns all workspaces accessible by the current user with cursor-based pagination. */
   workspaces: WorkspacesConnection;
+};
+
+
+export type QueryCountriesArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
 };
 
 

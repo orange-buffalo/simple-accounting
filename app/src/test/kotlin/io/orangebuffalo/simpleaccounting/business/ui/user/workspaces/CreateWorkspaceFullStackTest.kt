@@ -22,8 +22,17 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateWorkspacePage {
             name { input.fill("Mom's Friendly Robot Company") }
+            residency { input.shouldBeDisabled() }
+            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
+            residency {
+                input.shouldHaveOptions("Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard & McDonald Islands", "Kiribati", "Nauru", "Norfolk Island", "Tuvalu")
+                input.selectOption("Australia")
+            }
             defaultCurrency { input.selectOption("EUREuro") }
-            residency { input.selectOption("Ukraine") }
+            residency {
+                input.shouldBeEmpty()
+                input.selectOption("Germany")
+            }
             saveButton.click()
         }
 
@@ -38,7 +47,7 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
                 name = "Mom's Friendly Robot Company",
                 defaultCurrency = "EUR",
                 ownerId = preconditions.fry.id!!,
-                residency = "UA",
+                residency = "DE",
             )
         )
     }
@@ -58,6 +67,7 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
+            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
             residency { input.selectOption("Australia") }
             saveButton.click()
 

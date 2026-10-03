@@ -19,7 +19,7 @@
         :placeholder="$t.accountSetup.defaultCurrencyPlaceholder()"
         prop="defaultCurrency"
       />
-      <SaFormCountryInput :label="$t.accountSetup.residencyLabel()" prop="residency" />
+      <SaFormCountryInput :label="$t.accountSetup.residencyLabel()" prop="residency" :currency="form.defaultCurrency" />
     </SaForm>
   </SaPageWithoutSideMenu>
 </template>

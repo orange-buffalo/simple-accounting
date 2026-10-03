@@ -23,9 +23,24 @@ class UserAccountSetupTest : SaFullStackTestBase() {
             workspaceName { input.fill("Planet Express") }
             defaultCurrency {
                 input.shouldHaveValue("AUD")
+            }
+            residency {
+                input.selectOption("Australia")
+            }
+            defaultCurrency {
+                input.fill("")
+            }
+            residency {
+                input.shouldBeDisabled()
+                input.shouldBeEmpty()
+            }
+            defaultCurrency {
                 input.fill("USD")
             }
-            residency { input.selectOption("Ukraine") }
+            residency {
+                input.shouldBeEmpty()
+                input.selectOption("United States")
+            }
             completeSetupButton { click() }
         }
         page.shouldBeDashboardPage()
@@ -34,7 +49,7 @@ class UserAccountSetupTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Workspace>().should { workspace ->
             workspace.name.shouldBe("Planet Express")
-            workspace.residency.shouldBe("UA")
+            workspace.residency.shouldBe("US")
             workspace.defaultCurrency.shouldBe("USD")
             workspace.ownerId.shouldBe(preconditions.fry.id)
         }

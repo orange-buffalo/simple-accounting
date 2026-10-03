@@ -86,6 +86,72 @@ test('targeted reviews use selected classes as source hints and freeze the selec
   assert.match(invalid.error, /Invalid test classes/);
 });
 
+test('aggregate diffs above the command buffer limit do not block file-backed review', async (t) => {
+  const { root, input } = await fixture(t);
+  const files = Array.from({ length: 24 }, (_, index) => `.harness/generated-${index}.txt`);
+  const original = 'Planet Express Slurm deliveries\n'.repeat(6500);
+  const updated = 'Planet Express robot deliveries\n'.repeat(6500);
+  for (const file of files) await writeFile(path.join(root, file), original);
+  await exec('git', ['add', '.harness'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'tests: add generated delivery schedules'], { cwd: root });
+  const base = (await exec('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
+  for (const file of files) await writeFile(path.join(root, file), updated);
+  const before = await snapshot(root, base);
+  assert.ok(Buffer.byteLength(before.diff) > 8 * 1024 * 1024);
+  const controller = new Controller(root, async ({ prompt }) => {
+    assert.ok(prompt.length < 10000);
+    assert.doesNotMatch(prompt, /Planet Express robot deliveries/);
+    return answer(report);
+  });
+  const result = await controller.review({ ...input, base });
+  assert.equal(result.status, 'passed');
+  assert.equal(result.fingerprint, before.fingerprint);
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
+  for (const file of files) {
+    const source = state.rounds[0].sources.find((entry) => entry.file === file);
+    assert.match(await readFile(source.artifact, 'utf8'), /\+Planet Express robot deliveries/);
+    assert.equal(state.rounds[0].snapshot.contents[file], updated);
+  }
+  await writeFile(path.join(root, files[0]), `${updated}New Slurm route\n`);
+  assert.notEqual((await snapshot(root, base)).fingerprint, result.fingerprint);
+});
+
+test('large generated-source snapshots remain file-backed without expanding reviewer prompts', async (t) => {
+  const { root, input } = await fixture(t);
+  const files = ['graphql.ts', 'gql.ts', 'schema-types.ts', 'schema.graphqls'];
+  const generated = 'Slurm delivery types\n'.repeat(9000);
+  const directory = path.join(root, 'frontend/generated');
+  await mkdir(directory, { recursive: true });
+  for (const file of files) await writeFile(path.join(directory, file), generated);
+  await exec('git', ['add', 'frontend/generated'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'tests: add generated delivery types'], { cwd: root });
+  const base = (await exec('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
+  for (const file of files) await writeFile(path.join(directory, file), `${generated}New Slurm delivery\n`);
+  const before = await snapshot(root, base);
+  assert.ok(JSON.stringify(before).length > 600000);
+  const roles = [];
+  const controller = new Controller(root, async ({ role, prompt }) => {
+    roles.push(role);
+    assert.ok(prompt.length < 10000);
+    assert.doesNotMatch(prompt, /Slurm delivery types/);
+    return answer(report);
+  });
+  const result = await controller.review({ ...input, base, profile: 'full' });
+  assert.equal(result.status, 'passed');
+  assert.deepEqual(roles, reviewers);
+  assert.equal(result.fingerprint, before.fingerprint);
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
+  for (const file of files) {
+    const source = state.rounds[0].sources.find((entry) => entry.file === `frontend/generated/${file}`);
+    const packet = await readFile(source.artifact, 'utf8');
+    assert.match(packet, /\+New Slurm delivery/);
+    assert.ok(packet.length < 1000);
+    assert.equal(state.rounds[0].snapshot.contents[source.file], `${generated}New Slurm delivery\n`);
+  }
+  await writeFile(path.join(directory, files[0]), `${generated}Old Slurm delivery\n`);
+  assert.notEqual((await snapshot(root, base)).fingerprint, result.fingerprint);
+});
+
 test('validates submitted findings, repairs and re-reviews every exclusive scope', async (t) => {
   const { root, input } = await fixture(t);
   let fixed = false;
@@ -160,6 +226,19 @@ test('snapshot includes untracked files, refuses secrets and invalid base', asyn
   await assert.rejects(snapshot(root, '--help'), /full commit SHA/);
   await writeFile(path.join(root, '.env'), 'SLURM_SECRET=secret');
   await assert.rejects(snapshot(root, input.base), /Secret-like/);
+});
+
+test('snapshot still refuses oversized, binary and non-regular individual files', async (t) => {
+  for (const kind of ['oversized', 'binary', 'directory']) {
+    const { root, input } = await fixture(t);
+    if (kind === 'directory') {
+      await exec('git', ['rm', '-f', 'AGENTS.md'], { cwd: root });
+      await mkdir(path.join(root, 'AGENTS.md'));
+    } else {
+      await writeFile(path.join(root, 'AGENTS.md'), kind === 'binary' ? Buffer.from([0]) : 'S'.repeat(256001));
+    }
+    await assert.rejects(snapshot(root, input.base), kind === 'binary' ? /Binary review file/ : /Unsupported review file/);
+  }
 });
 
 test('harness profile refuses application changes', async (t) => {
