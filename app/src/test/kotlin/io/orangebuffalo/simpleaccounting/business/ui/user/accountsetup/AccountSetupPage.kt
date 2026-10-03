@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
-class AccountSetupPage private constructor(page: Page) : SaPageBase(page) {
+class AccountSetupPage private constructor(page: Page) : SaPageBase(page, ".sa-page-without-side-menu__content") {
     val workspaceName = components.formItemTextInputByLabel("Workspace Name")
     val defaultCurrency = components.formItemTextInputByLabel("Main (default) Currency")
     val residency = components.formItemSelectByLabel("Residency")

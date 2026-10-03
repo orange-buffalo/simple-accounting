@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
@@ -306,6 +306,54 @@ test('unsupported learning remains candidate and never changes knowledge', async
   assert.equal(result.status, 'candidate'); assert.equal(await knowledge(root), '[]');
 });
 
+test('learning preserves feedback on preflight failures without invoking agents', async (t) => {
+  for (const failure of ['missing run', 'invalid run ID', 'original state', 'missing reports', 'policy', 'knowledge integrity']) {
+    await t.test(failure, async (t) => {
+      const { root, input } = await fixture(t);
+      const controller = new Controller(root, async () => answer(report));
+      const original = await controller.review(input);
+      const originalFile = path.join(original.evidence, 'state.json');
+      const runId = failure === 'missing run' ? 'review-missing' : failure === 'invalid run ID' ? '../../slurm' : original.runId;
+      if (failure === 'original state') await writeFile(originalFile, 'Slurm');
+      if (failure === 'missing reports') {
+        const state = JSON.parse(await readFile(originalFile, 'utf8'));
+        state.rounds[0].reports = [];
+        await writeFile(originalFile, JSON.stringify(state));
+      }
+      if (failure === 'policy') await writeFile(path.join(root, '.harness/policy.json'), '{}');
+      if (failure === 'knowledge integrity') {
+        await mkdir(path.join(root, '.harness/lessons'));
+        await writeFile(path.join(root, '.harness/lessons/slurm.json'), '{}');
+        await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1,
+          lessons: [{ id: 'slurm', sha256: hash('Bender') }],
+        }));
+      }
+      const originalState = await readFile(originalFile, 'utf8');
+      const registryFile = path.join(root, '.harness/knowledge.json');
+      const registry = await readFile(registryFile, 'utf8');
+      let calls = 0;
+      controller.agent = async () => { calls++; throw new Error('No model should run'); };
+      const result = await controller.learn({ runId, feedback: 'Fry correction' });
+      assert.equal(result.status, 'candidate');
+      assert.ok(result.error);
+      if (failure === 'knowledge integrity') assert.match(result.error, /Lesson integrity failure/);
+      if (failure === 'policy') assert.match(result.error, /Invalid controller policy/);
+      if (failure === 'missing run') assert.match(result.error, /ENOENT/);
+      if (failure === 'invalid run ID') assert.match(result.error, /Invalid artifact ID/);
+      if (failure === 'missing reports') assert.match(result.error, /Original reviewer evidence unavailable/);
+      const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+      assert.equal(state.originalRun, runId);
+      assert.equal(state.feedback, 'Fry correction');
+      assert.equal(state.error, result.error);
+      assert.equal((await stat(path.join(result.evidence, 'state.json'))).mode & 0o777, 0o600);
+      assert.equal(calls, 0);
+      assert.equal(result.cost, 0);
+      assert.equal(await readFile(originalFile, 'utf8'), originalState);
+      assert.equal(await readFile(registryFile, 'utf8'), registry);
+    });
+  }
+});
+
 test('learning investigation receives actual reviewer prompts and tool investigation', async (t) => {
   const { root, input } = await fixture(t);
   const controller = new Controller(root, async () => ({ ...answer(report), messages: [{ type: 'assistant', content: [
@@ -314,14 +362,115 @@ test('learning investigation receives actual reviewer prompts and tool investiga
   const original = await controller.review(input);
   const roles = [];
   controller.agent = async ({ role, prompt }) => {
-    assert.match(prompt, /Slurm ownership code/);
+    assert.doesNotMatch(prompt, /Slurm ownership code/);
     assert.match(prompt, /agent-1-prompt\.txt/);
+    const source = JSON.parse(prompt.split('Original evidence:\n')[1]);
+    const investigation = JSON.parse(await readFile(source.artifacts[0].investigationFile, 'utf8'));
+    assert.deepEqual(investigation[0].input, { path: 'slurm.kt' });
+    assert.match(await readFile(investigation[0].file, 'utf8'), /Slurm ownership code/);
     roles.push(role);
     return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership' })
       : answer({ valid: false, evidence: [], issues: ['Incomplete proposal'] });
   };
   assert.equal((await controller.learn({ runId: original.runId, feedback: 'Slurm leak' })).status, 'candidate');
   assert.deepEqual(roles, ['feedback-analysis', 'learning-validator']);
+});
+
+test('large learning histories keep bounded prompts and complete private evidence', async (t) => {
+  const { root, input } = await fixture(t);
+  const tools = Array.from({ length: 120 }, (_, index) => ({
+    type: 'tool', id: `cargo-${index}`, name: 'read', state: {
+      status: 'completed', metadata: { provider: 'Planet Express' }, time: { start: index, end: index + 1 },
+      input: { path: `slurm-${index}.kt`, detail: 'Fry input '.repeat(100) },
+      content: [{ type: 'text', text: `Slurm ownership ${index} ${'Bender cargo '.repeat(200)}` }],
+    },
+  }));
+  const controller = new Controller(root, async ({ role }) => ({
+    ...answer(role === 'functional' ? { ...report, findings: [finding] } : role === 'finding-validator'
+      ? { accepted: [], rejected: [{ id: 'functional-1', reason: 'Not a defect' }], gaps: [] } : report),
+    messages: [{ type: 'assistant', id: 'msg_fry', time: { created: 1, completed: 2 }, content: [...tools,
+      { type: 'image', mimeType: 'image/png', data: 'Slurm cargo' }, { type: 'text', text: 'Fry investigation' },
+    ] }, { type: 'user', id: 'msg_leela', text: 'Planet Express request' }],
+  }));
+  const original = await controller.review(input);
+  const stateFile = path.join(original.evidence, 'state.json');
+  const originalState = await readFile(stateFile, 'utf8');
+  const roles = [];
+  controller.agent = async ({ role, prompt, artifactRoots }) => {
+    roles.push(role);
+    assert.ok(prompt.length < 15000);
+    assert.doesNotMatch(prompt, /Bender cargo|Fry input/);
+    const source = JSON.parse(prompt.split('Original evidence:\n')[1]);
+    assert.equal(source.artifacts.length, reviewers.length + 1);
+    assert.equal('artifactDirectory' in source, false);
+    for (const entry of [...source.rounds, ...source.artifacts]) {
+      for (const [key, file] of Object.entries(entry)) {
+        if (key.endsWith('File')) {
+          const relative = path.relative(artifactRoots[0], file);
+          assert.equal(path.isAbsolute(relative), false);
+          assert.equal(relative.startsWith('..'), false);
+        }
+      }
+    }
+    const saved = JSON.parse(originalState);
+    for (const [index, artifact] of source.artifacts.entries()) {
+      assert.equal(artifact.toolCount, 120);
+      assert.equal(path.dirname(artifact.investigationFile), artifactRoots[0]);
+      assert.equal((await stat(artifact.investigationFile)).mode & 0o777, 0o600);
+      assert.equal(path.dirname(artifact.artifactFile), artifactRoots[0]);
+      assert.equal((await stat(artifact.artifactFile)).mode & 0o777, 0o600);
+      assert.deepEqual(await readFile(artifact.artifactFile), await readFile(path.join(original.evidence, `agent-${index + 1}.json`)));
+      assert.equal(await readFile(artifact.promptFile, 'utf8'), saved.artifacts[index].prompt);
+      assert.equal(await readFile(artifact.resultFile, 'utf8'), saved.artifacts[index].text);
+      const investigation = JSON.parse(await readFile(artifact.investigationFile, 'utf8'));
+      assert.equal(investigation.length, tools.length);
+      for (const [toolIndex, entry] of investigation.entries()) {
+        assert.equal(entry.pointer, `/messages/0/content/${toolIndex}`);
+        assert.equal(entry.id, tools[toolIndex].id);
+        assert.equal(entry.status, tools[toolIndex].state.status);
+        assert.deepEqual(entry.metadata, tools[toolIndex].state.metadata);
+        assert.deepEqual(entry.time, tools[toolIndex].state.time);
+        assert.deepEqual(entry.input, tools[toolIndex].state.input);
+        assert.equal((await stat(entry.file)).mode & 0o777, 0o600);
+        assert.equal(await readFile(entry.file, 'utf8'),
+          `Tool: read\nInput: ${JSON.stringify(entry.input, null, 2)}\n${tools[toolIndex].state.content[0].text}`);
+      }
+      assert.equal((await stat(artifact.messagesFile)).mode & 0o777, 0o600);
+      const navigation = JSON.parse(await readFile(artifact.messagesFile, 'utf8'));
+      assert.equal(navigation.artifactFile, artifact.artifactFile);
+      assert.equal(navigation.messages[0].pointer, '/messages/0');
+      assert.equal(navigation.messages[0].id, 'msg_fry');
+      assert.deepEqual(navigation.messages[0].time, { created: 1, completed: 2 });
+      assert.deepEqual(navigation.messages[1], { pointer: '/messages/1', id: 'msg_leela', type: 'user',
+        parts: [{ pointer: '/messages/1/text', type: 'text' }],
+      });
+      assert.deepEqual(navigation.messages[0].parts, saved.artifacts[index].messages[0].content.map((part, partIndex) => ({
+        pointer: `/messages/0/content/${partIndex}`, ...(part.id ? { id: part.id } : {}), type: part.type,
+      })));
+    }
+    assert.equal(await readFile(source.rounds[0].snapshotFile, 'utf8'), JSON.stringify(saved.rounds[0].snapshot, null, 2));
+    const sources = JSON.parse(await readFile(source.rounds[0].sourcesFile, 'utf8'));
+    assert.deepEqual(sources.map((entry) => entry.file), saved.rounds[0].snapshot.files);
+    for (const entry of sources) {
+      assert.equal(await readFile(entry.contentFile, 'utf8'), saved.rounds[0].snapshot.contents[entry.file]);
+      assert.equal((await stat(entry.contentFile)).mode & 0o777, 0o600);
+    }
+    assert.equal(await readFile(source.rounds[0].diffFile, 'utf8'), saved.rounds[0].snapshot.diff);
+    assert.deepEqual(JSON.parse(await readFile(source.rounds[0].reportFile, 'utf8')), {
+      reports: saved.rounds[0].reports, accepted: saved.rounds[0].accepted, rejected: saved.rounds[0].rejected,
+    });
+    return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership' })
+      : answer({ valid: false, evidence: [], issues: ['Incomplete proposal'] });
+  };
+  const result = await controller.learn({ runId: original.runId, feedback: 'Slurm leak' });
+  assert.equal(result.status, 'candidate');
+  assert.match(result.error, /not independently verified/);
+  assert.deepEqual(roles, ['feedback-analysis', 'learning-validator']);
+  assert.equal(await readFile(stateFile, 'utf8'), originalState);
+  const learningState = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  assert.equal(learningState.originalRun, original.runId);
+  assert.equal(learningState.feedback, 'Slurm leak');
+  assert.equal(await knowledge(root), '[]');
 });
 
 test('identical unsupported learning judgments cannot promote knowledge', async (t) => {

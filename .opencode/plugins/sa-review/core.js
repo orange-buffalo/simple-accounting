@@ -275,39 +275,68 @@ export class Controller {
 
   async learn({ runId, feedback, parentSessionID }) {
     return this.exclusive(async () => {
-      const original = JSON.parse(await readFile(path.join(this.runtime, safeId(runId), 'state.json'), 'utf8'));
       const id = `lesson-${randomUUID()}`;
-      const policy = await this.policy();
-      const state = { id, dir: path.join(this.runtime, id), started: Date.now(), policy, parentSessionID, cost: 0, artifacts: [], knowledge: await knowledge(this.root, policy.maxKnowledgeChars), status: 'candidate' };
+      const state = { id, dir: path.join(this.runtime, id), originalRun: runId, feedback, started: Date.now(), parentSessionID, cost: 0, artifacts: [], status: 'candidate' };
+      await save(path.join(state.dir, 'state.json'), state);
       try {
+        const original = JSON.parse(await readFile(path.join(this.runtime, safeId(runId), 'state.json'), 'utf8'));
+        const policy = await this.policy();
+        state.policy = policy;
+        state.knowledge = await knowledge(this.root, policy.maxKnowledgeChars);
         if (!original.rounds.some((round) => round.reports.length)) throw new Error('Original reviewer evidence unavailable');
         const evidenceDir = path.join(state.dir, 'original-evidence');
         await mkdir(evidenceDir, { recursive: true });
-        const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifactDirectory: original.dir, artifacts: [] };
+        const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifacts: [] };
         for (const [index, round] of original.rounds.entries()) {
           const snapshotFile = path.join(evidenceDir, `round-${index + 1}-snapshot.txt`);
           const reportFile = path.join(evidenceDir, `round-${index + 1}-reports.json`);
+          const sourcesFile = path.join(evidenceDir, `round-${index + 1}-sources.json`);
+          const diffFile = path.join(evidenceDir, `round-${index + 1}-diff.txt`);
           await writeFile(snapshotFile, json(round.snapshot), { mode: 0o600 });
-          await save(reportFile, { reports: round.reports, accepted: round.accepted });
-          source.rounds.push({ snapshotFile, reportFile, axes: round.reports.map((report) => report.axis) });
+          await writeFile(diffFile, round.snapshot.diff, { mode: 0o600 });
+          const sources = [];
+          for (const [fileIndex, file] of round.snapshot.files.entries()) {
+            const content = round.snapshot.contents[file];
+            const contentFile = path.join(evidenceDir, `round-${index + 1}-source-${fileIndex + 1}.txt`);
+            if (content !== null) await writeFile(contentFile, content, { mode: 0o600 });
+            sources.push({ file, contentFile: content === null ? null : contentFile });
+          }
+          await save(sourcesFile, sources);
+          await save(reportFile, { reports: round.reports, accepted: round.accepted, rejected: round.rejected ?? [] });
+          source.rounds.push({ snapshotFile, sourcesFile, diffFile, reportFile, axes: round.reports.map((report) => report.axis) });
         }
         for (const [index, artifact] of original.artifacts.entries()) {
+          const artifactFile = path.join(evidenceDir, `agent-${index + 1}.json`);
           const promptFile = path.join(evidenceDir, `agent-${index + 1}-prompt.txt`);
           const resultFile = path.join(evidenceDir, `agent-${index + 1}-result.txt`);
+          const investigationFile = path.join(evidenceDir, `agent-${index + 1}-investigation.json`);
+          const messagesFile = path.join(evidenceDir, `agent-${index + 1}-messages.json`);
+          await writeFile(artifactFile, await readFile(path.join(this.runtime, safeId(runId), `agent-${index + 1}.json`)), { mode: 0o600 });
           await writeFile(promptFile, artifact.prompt, { mode: 0o600 });
           await writeFile(resultFile, artifact.text, { mode: 0o600 });
           const investigation = [];
-          const tools = artifact.messages?.filter((message) => message.type === 'assistant').flatMap((message) => message.content.filter((part) => part.type === 'tool')) ?? [];
-          for (const [toolIndex, tool] of tools.entries()) {
+          const messages = (artifact.messages ?? []).map((message, messageIndex) => ({
+            pointer: `/messages/${messageIndex}`, id: message.id, type: message.type, time: message.time,
+            parts: [...(message.content ?? []).map((part, partIndex) => ({
+              pointer: `/messages/${messageIndex}/content/${partIndex}`, id: part.id, type: part.type,
+            })), ...(typeof message.text === 'string' ? [{ pointer: `/messages/${messageIndex}/text`, type: 'text' }] : [])],
+          }));
+          const tools = (artifact.messages ?? []).flatMap((message, messageIndex) =>
+            (message.content ?? []).flatMap((part, partIndex) => part.type === 'tool' ? [{ tool: part, messageIndex, partIndex }] : []));
+          for (const [toolIndex, { tool, messageIndex, partIndex }] of tools.entries()) {
             const file = path.join(evidenceDir, `agent-${index + 1}-tool-${toolIndex + 1}.txt`);
             const output = tool.state?.content?.map((part) => part.text ?? json(part)).join('\n') ?? json(tool);
             await writeFile(file, `Tool: ${tool.name}\nInput: ${json(tool.state?.input)}\n${output}`, { mode: 0o600 });
-            investigation.push({ file, tool: tool.name, input: tool.state?.input, ...(output.length <= 4000 ? { output } : {}) });
+            investigation.push({ file, pointer: `/messages/${messageIndex}/content/${partIndex}`, id: tool.id,
+              tool: tool.name, input: tool.state?.input, status: tool.state?.status, metadata: tool.state?.metadata, time: tool.state?.time });
           }
-          source.artifacts.push({ artifact: `agent-${index + 1}.json`, role: artifact.role, promptFile, resultFile,
-            sessionId: artifact.sessionId, knowledgeHash: artifact.knowledgeHash, investigation });
+          await save(investigationFile, investigation);
+          await save(messagesFile, { artifactFile, messages });
+          source.artifacts.push({ artifactFile, role: artifact.role, promptFile, resultFile,
+            sessionId: artifact.sessionId, knowledgeHash: artifact.knowledgeHash, investigationFile, messagesFile, toolCount: investigation.length });
         }
-        if (json(source).length > 300000) throw new Error('Original review evidence index exceeds context budget; split feedback by reviewed task');
+        await save(path.join(evidenceDir, 'index.json'), source);
+        if (json(source).length > 300000) throw new Error('Original review evidence navigation index exceeds context budget');
         const proposal = await this.ask(state, 'feedback-analysis', `Classify EACH human correction as defect, missed existing requirement, new requirement/preference, or invalid. Read relevant original snapshot, exact reviewer prompt and investigation files from the evidence index before making claims. Ground each in actual reviewer artifacts (not retrospective speculation). Explain likely failure mechanism as a hypothesis with cited evidence; propose the smallest general preventive instruction and executable regression when possible. Include a distinct held-out analogous defective case and a clean counterexample as self-contained source/requirements, never disclose the answer in their input. Return ONLY JSON {"dispositions":[{"feedback":"text","classification":"defect","evidence":"artifact/source references","hypothesis":"why missed"}],"scope":"applicable contracts","guidance":"general guidance without test answers","replay":{"input":"self-contained original defect/requirements","expected":"specific defect"},"heldOut":{"input":"different analogous code and requirements","expected":"specific defect"},"clean":{"input":"correct code and requirements","expected":"no findings"}}. New scope alone is not reviewer improvement.\nHuman feedback:\n${feedback}\nOriginal evidence:\n${json(source)}`);
         state.proposal = proposal;
         const verified = await this.ask(state, 'learning-validator', `Independently read relevant original snapshot, exact prompt and investigation files from the evidence index and verify proposal claims. Check all feedback is accounted for, defect exists in original requirements/snapshot, cited reviews actually missed it, guidance is general and truthful, replay faithfully represents the original defect, heldOut is distinct and valid, clean is truly clean, cases do not leak answers, and expected outcomes are correct. Treat missed-review explanations as hypotheses. Reject unsupported or newly introduced requirements as proof of reviewer improvement. Return ONLY JSON {"valid":true,"evidence":["specific checks"],"issues":[]}.\nFeedback:\n${feedback}\nProposal:\n${json(proposal)}\nOriginal evidence:\n${json(source)}`);

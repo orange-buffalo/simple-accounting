@@ -1,61 +1,76 @@
 <template>
-  <SaFormSelect v-bind="props" :disabled="!props.currency || loading || !data.length" filterable>
-    <ElOption
-      v-for="country in countries"
-      :key="country.code"
-      :value="country.code"
-      :label="country.name"
-    />
-  </SaFormSelect>
+  <SaFormItemInternal v-bind="props" v-model="inputValue">
+    <ElSelect
+      v-model="inputValue"
+      :disabled="!props.currency || loading || !data.length"
+      :loading="loading"
+      :aria-busy="loading"
+      :placeholder="placeholder"
+      filterable
+    >
+      <ElOption
+        v-for="country in countries"
+        :key="country.code"
+        :value="country.code"
+        :label="country.name"
+      />
+    </ElSelect>
+  </SaFormItemInternal>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
-  import SaFormSelect from '@/components/form/SaFormSelect.vue';
+  import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api';
   import { getCountryName } from '@/services/i18n/countries';
-  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<SaFormComponentProps & {
     currency?: string | null,
   }>();
-  const formApi = useSaFormComponentsApi();
+  const inputValue = ref<string | null>();
   const data = ref<string[]>([]);
   const loading = ref(false);
+  const loadFailed = ref(false);
+  const placeholder = computed(() => {
+    if (!props.currency) return $t.value.saFormCountryInput.selectCurrency();
+    if (loading.value) return $t.value.saFormCountryInput.loading();
+    if (loadFailed.value) return $t.value.saFormCountryInput.loadFailed();
+    if (!data.value.length) return $t.value.saFormCountryInput.noCountries();
+    return undefined;
+  });
   const loadCountries = useLazyQuery(graphql(`
     query countriesForResidency($currency: String!) {
       countries(currency: $currency)
     }
   `), 'countries');
-  watch(() => props.currency, async (currency, _, onCleanup) => {
+  watch(() => props.currency, async (currency, previousCurrency, onCleanup) => {
     let active = true;
     onCleanup(() => { active = false; });
     data.value = [];
-    const values = formApi.formValues.value as Record<string, unknown>;
-    if (!currency) {
-      values[props.prop] = null;
+    loadFailed.value = false;
+    if (!currency || previousCurrency) {
+      inputValue.value = null;
     }
     loading.value = !!currency;
     if (currency) {
+      let loaded = false;
       try {
         const result = await loadCountries({ currency });
+        loaded = true;
         if (active) {
           data.value = result;
-          const currentValues = formApi.formValues.value as Record<string, unknown>;
-          if (!result.includes(currentValues[props.prop] as string)) {
-            currentValues[props.prop] = null;
+          if (inputValue.value && !result.includes(inputValue.value)) {
+            inputValue.value = null;
           }
         }
-      } catch (error: unknown) {
-        if (active) {
-          const currentValues = formApi.formValues.value as Record<string, unknown>;
-          currentValues[props.prop] = null;
-          throw error;
-        }
       } finally {
-        if (active) loading.value = false;
+        if (active) {
+          loadFailed.value = !loaded;
+          loading.value = false;
+        }
       }
     }
   }, { immediate: true });

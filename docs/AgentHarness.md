@@ -93,7 +93,11 @@ do not paste build/test results into worker inputs.
 Use `/sa-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
 apply accepted corrections, and review the corrected state. Then invoke `sa_learn(runId, feedback)`.
 
-The learning controller examines the original snapshots and actual review artifacts, classifies corrections, and treats
+The learning controller examines the original snapshots and actual review artifacts, keeping evidence size independent
+of prompt context size. Its compact index points to per-round source packets, per-agent investigation manifests and
+exact private tool transcripts; investigators read relevant artifacts rather than receiving duplicated tool inputs/outputs
+inline. Evidence is preserved without truncation, and the index still has a context safety limit. Learning state records
+the original run ID and feedback even when evaluation cannot start. The controller classifies corrections and treats
 reviewer-miss explanations as hypotheses. A fresh verifier checks source grounding and the proposed prevention. Fresh
 read-only sessions then review a blind original-defect replay, a distinct analogous case, and a clean counterexample
 with old and proposed guidance. When intervening lessons exist, the cumulative deployed bundle is also tested before

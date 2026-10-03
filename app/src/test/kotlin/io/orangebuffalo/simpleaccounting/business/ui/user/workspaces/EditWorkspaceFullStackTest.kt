@@ -109,8 +109,8 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openEditWorkspacePage(testData.workspace.id!!) {
             residency { input.shouldBeEmpty() }
             saveButton.click()
-            residency { shouldHaveValidationError("This value is required and should not be blank") }
             shouldHaveNotifications { validationFailed() }
+            residency { shouldHaveValidationError("This value is required and should not be blank") }
             residency { input.selectOption("United States") }
             saveButton.click()
         }
@@ -133,21 +133,21 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openEditWorkspacePage(testData.workspace.id!!) {
             name { input.fill("") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("edit-workspace.validation-error-name")
-            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -169,6 +169,6 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         page.shouldBeWorkspacesOverviewPage()
 
         aggregateTemplate.findSingle<Workspace>(testData.workspace.id!!)
-            .name shouldBe "Planet Express"
+            .name.shouldBe("Planet Express")
     }
 }

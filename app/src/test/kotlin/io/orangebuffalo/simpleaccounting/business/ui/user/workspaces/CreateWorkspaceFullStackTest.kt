@@ -22,15 +22,8 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateWorkspacePage {
             name { input.fill("Mom's Friendly Robot Company") }
-            residency { input.shouldBeDisabled() }
-            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
-            residency {
-                input.shouldHaveOptions("Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard & McDonald Islands", "Kiribati", "Nauru", "Norfolk Island", "Tuvalu")
-                input.selectOption("Australia")
-            }
             defaultCurrency { input.selectOption("EUREuro") }
             residency {
-                input.shouldBeEmpty()
                 input.selectOption("Germany")
             }
             saveButton.click()
@@ -53,28 +46,58 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should disable residency until currency is selected and reset it on currency change`(page: Page) {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateWorkspacePage {
+            residency {
+                input.shouldBeDisabled()
+                input.shouldHavePlaceholder("Select a currency first")
+            }
+            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
+            residency {
+                input.shouldHaveOptions(
+                    "Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard & McDonald Islands",
+                    "Kiribati", "Nauru", "Norfolk Island", "Tuvalu",
+                )
+                input.selectOption("Australia")
+            }
+            defaultCurrency { input.selectOption("USDUS Dollar") }
+            residency {
+                input.shouldBeEmpty()
+                input.shouldHaveOptions(
+                    "American Samoa", "British Indian Ocean Territory", "British Virgin Islands", "Caribbean Netherlands", "Ecuador",
+                    "Guam", "Haiti", "Marshall Islands", "Micronesia", "Northern Mariana Islands", "Palau", "Panama",
+                    "Puerto Rico", "Timor-Leste", "Turks & Caicos Islands", "U.S. Outlying Islands",
+                    "U.S. Virgin Islands", "United States",
+                )
+                input.selectOption("United States")
+            }
+        }
+    }
+
+    @Test
     fun `should show validation errors for invalid inputs`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateWorkspacePage {
             name { input.fill("") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("create-workspace.validation-error-name")
-            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
             defaultCurrency { input.selectOption("AUDAustralian Dollar") }
             residency { input.selectOption("Australia") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
