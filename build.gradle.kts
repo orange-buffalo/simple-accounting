@@ -56,10 +56,17 @@ develocity {
     }
 }
 
+val testAgentHarnessBootstrap = tasks.register<Exec>("testAgentHarnessBootstrap") {
+    group = "verification"
+    description = "Tests pinned agent-skill installation without network access."
+    commandLine("python3", "-B", "-m", "unittest", "discover", "-s", ".harness/tests", "-p", "test_*.py")
+}
+
 val checkAgentHarness = tasks.register<Exec>("checkAgentHarness") {
     group = "verification"
     description = "Runs offline regression tests for the repository agent controller."
     commandLine("node", "--test", ".harness/tests/core.test.mjs", ".harness/tests/plugin.test.mjs")
+    dependsOn(testAgentHarnessBootstrap)
 }
 
 tasks.register<Exec>("bootstrapAgentHarness") {

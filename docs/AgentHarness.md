@@ -23,12 +23,15 @@ repository configuration is not a sandbox against the host or the primary implem
 Ask for an implementation normally, or use `/accounting-implement <request>`. `AGENTS.md` routes implementation work
 through `simple-accounting-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
 the agent calls `accounting_review(requirements, base, profile)`.
+When the user steers an active task, preserve the original contract and add their change through the optional
+`clarification` field on the same run; this does not reset its budgets.
 
 The controller:
 
 1. Freezes original requirements, approved knowledge, policy, and the changed-file snapshot (including untracked files).
 2. Runs the profile's Gradle tasks in one invocation, never invoking Bun directly or cancelling a build.
-3. Launches separate read-only requirements, quality, security, consistency, and UX reviewers.
+3. Launches read-only requirements, quality, security, consistency, and UX reviewers as native subagents of the calling
+   session. Fixers and learning workers are also children, not standalone top-level sessions.
 4. Independently validates findings; missing coverage or failed reviewers block handover.
 5. Applies validated findings through a restricted fixer, then validates and re-reviews all axes.
 6. Stops at a clean receipt, a blocker, or the configured repair budget. No automatic budget extension.
@@ -42,6 +45,9 @@ within a worktree via a lock, but other tools/processes can still modify files; 
 Profiles: `frontend`, `backend`, `full`; `harness` only for agent-workflow/docs changes, not application/build changes.
 Use full for GraphQL, shared infrastructure, or unclear blast radius. UI rendering still requires the related full-stack
 test and manual inspection of generated PNGs as specified in `AGENTS.md`; reviewers must report missing evidence.
+`full` runs the repository's required `assemble check` sequence, including its regular full-stack tests. The separate
+Docker distribution E2E task is not included: the existing task currently reports NO-SOURCE locally and must not be
+represented as executed E2E coverage. Configure and validate that task separately if distribution behavior is in scope.
 Fixers cannot change harness, CI, AGENTS, or build configuration and cannot run shell commands. Generated GraphQL files,
 protected changes, and failed validation require the primary agent's explicit repair and resume with the **same run ID**.
 
@@ -50,6 +56,10 @@ hashes, findings/dispositions, validation logs, and receipts. Treat them as pote
 commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require new review.
 After an interrupted process leaves `controller.lock`, inspect its PID and active sessions/builds before manually
 removing that **single stale file**. Never delete active-run locks or reset budgets to work around a blocker.
+
+Workers use glob plus read for investigation. Grep is denied because OpenCode's grep permission resource is the search
+pattern, not the paths traversed; a path-based secret deny would not protect recursive searches. Read denies cover
+`.env*`, `.test-config.yaml`, `.pem`, and `.key` files for both reviewers and fixers.
 
 ## Verified human-feedback learning
 

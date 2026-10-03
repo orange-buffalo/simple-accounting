@@ -52,11 +52,11 @@ test('validates findings, repairs, reruns validation and all axes', async (t) =>
   const roles = [];
   const controller = new Controller(root, async ({ role, fixer }) => {
     roles.push(role);
-    if (fixer) { fixed = true; await writeFile(path.join(root, 'AGENTS.md'), 'Secure Slurm deliveries\n'); return { text: 'fixed', cost: 0 }; }
+    if (fixer) { fixed = true; await mkdir(path.join(root, 'frontend/src'), { recursive: true }); await writeFile(path.join(root, 'frontend/src/slurm.ts'), 'Secure Slurm deliveries\n'); return { text: 'fixed', cost: 0 }; }
     if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'requirements-1' }], rejected: [], gaps: [] });
     return answer({ ...report, findings: fixed || role !== 'requirements' ? [] : [finding] });
   }, async () => { validations++; return { code: 0 }; });
-  const result = await controller.review(input);
+  const result = await controller.review({ ...input, profile: 'full' });
   assert.equal(result.status, 'passed'); assert.equal(result.fixes, 1); assert.equal(validations, 2);
   assert.deepEqual(roles, ['requirements', 'security', 'finding-validator', 'fixer', 'requirements', 'security']);
 });
@@ -78,6 +78,8 @@ test('validation failure blocks without calling models and resumes same budget',
   controller.validate = async () => ({ code: 0 });
   const resumed = await controller.review({ ...input, runId: blocked.runId });
   assert.equal(resumed.status, 'passed'); assert.equal(resumed.runId, blocked.runId);
+  assert.equal(resumed.error, undefined);
+  assert.equal(JSON.parse(await readFile(path.join(resumed.evidence, 'state.json'))).error, undefined);
 });
 
 test('incomplete coverage, invalid output and drift are never passes', async (t) => {
@@ -134,6 +136,7 @@ test('knowledge integrity, promotion status and limits fail closed', async (t) =
 });
 
 test('invalid findings and unsafe run IDs are rejected', async (t) => {
+  for (const invalid of [null, 1, '', ' ']) assert.throws(() => validateFindings({ ...report, coverage: [invalid] }), /Incomplete/);
   assert.throws(() => validateFindings({ ...report, findings: [{ id: 'slurm' }] }), /Invalid finding/);
   const { root, input } = await fixture(t);
   const controller = new Controller(root, async () => answer(report), async () => ({ code: 0 }));
@@ -173,13 +176,13 @@ test('unsupported learning remains candidate and never changes knowledge', async
 test('learning investigation receives actual reviewer prompts and tool investigation', async (t) => {
   const { root, input } = await fixture(t);
   const controller = new Controller(root, async () => ({ ...answer(report), messages: [{ type: 'assistant', content: [
-    { type: 'tool', name: 'read', state: { input: { path: 'slurm.kt' }, content: 'Slurm ownership code' } },
+    { type: 'tool', name: 'read', state: { input: { path: 'slurm.kt' }, content: [{ type: 'text', text: 'Slurm ownership code' }] } },
   ] }] }), async () => ({ code: 0 }));
   const original = await controller.review(input);
   const roles = [];
   controller.agent = async ({ role, prompt }) => {
     assert.match(prompt, /Slurm ownership code/);
-    assert.match(prompt, /Review requirements/);
+    assert.match(prompt, /agent-1-prompt\.txt/);
     roles.push(role);
     return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership' })
       : answer({ valid: false, evidence: [], issues: ['Incomplete proposal'] });
@@ -193,7 +196,7 @@ test('identical unsupported learning judgments cannot promote knowledge', async 
   const controller = new Controller(root, async () => answer(report), async () => ({ code: 0 }));
   const original = await controller.review(input);
   controller.agent = async ({ role }) => {
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak' }], scope: 'deliveries', guidance: 'Check ownership',
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap' }], scope: 'deliveries', guidance: 'Check ownership',
       replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['Source check'], issues: [] });
     if (role === 'evaluation-judge') return answer({ aCorrect: false, bCorrect: true, evidence: 'Invented improvement' });
@@ -218,7 +221,7 @@ test('intervening cumulative knowledge is evaluated before promotion', async (t)
   await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1, lessons: [{ id: 'slurm', sha256: hash(lesson) }] }));
   let cumulativeCalls = 0;
   controller.agent = async ({ role, prompt, knowledge: bundle }) => {
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak' }], scope: 'delivery access', guidance: 'Check ownership',
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap' }], scope: 'delivery access', guidance: 'Check ownership',
       replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['Source check'], issues: [] });
     if (role === 'blind-cumulative') { cumulativeCalls++; assert.match(bundle, /cargo integrity/); assert.match(bundle, /Check ownership/); }
@@ -237,4 +240,22 @@ test('worktree lock serializes controller invocations', async (t) => {
   while (!release) await new Promise((resolve) => setImmediate(resolve));
   await assert.rejects(controller.review(input), { code: 'EEXIST' });
   release({ code: 1 }); await first;
+});
+
+test('protected infrastructure drift blocks before executing post-fix validation', async (t) => {
+  for (const target of ['gradlew', 'buildSrc/Slurm.kt', 'frontend/package.json', 'frontend/build-config/slurm.js']) {
+    const { root, input } = await fixture(t);
+    let validations = 0;
+    const controller = new Controller(root, async ({ role, fixer }) => {
+      if (fixer) {
+        await mkdir(path.dirname(path.join(root, target)), { recursive: true });
+        await writeFile(path.join(root, target), 'Bender altered validation');
+        return { text: 'fixed', cost: 0 };
+      }
+      return role === 'finding-validator' ? answer({ accepted: [{ ...finding, id: 'requirements-1' }], rejected: [], gaps: [] })
+        : answer({ ...report, findings: role === 'requirements' ? [finding] : [] });
+    }, async () => { validations++; return { code: 0 }; });
+    const result = await controller.review({ ...input, profile: 'full' });
+    assert.equal(result.status, 'blocked'); assert.match(result.error, /protected infrastructure/); assert.equal(validations, 1);
+  }
 });
