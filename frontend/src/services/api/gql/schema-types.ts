@@ -675,6 +675,27 @@ export enum IncomeStatus {
   PendingConversionForTaxationPurposes = 'PENDING_CONVERSION_FOR_TAXATION_PURPOSES'
 }
 
+/** Estimated income tax in the workspace default currency, or an unavailability reason. */
+export type IncomeTaxEstimate = {
+  __typename?: 'IncomeTaxEstimate';
+  /** Estimated tax in minor currency units, if available. */
+  amount?: Maybe<Scalars['Long']['output']>;
+  /** Workspace residency country code. */
+  countryCode: Scalars['String']['output'];
+  /** Currency of the tax schedule, if found. */
+  taxCurrency?: Maybe<Scalars['String']['output']>;
+  /** Reason an estimate cannot be made, if unavailable. */
+  unavailableReason?: Maybe<IncomeTaxEstimateUnavailableReason>;
+  /** Workspace default currency code. */
+  workspaceCurrency: Scalars['String']['output'];
+};
+
+export enum IncomeTaxEstimateUnavailableReason {
+  CurrencyMismatch = 'CURRENCY_MISMATCH',
+  NoTaxRates = 'NO_TAX_RATES',
+  PartialYear = 'PARTIAL_YEAR'
+}
+
 /** An income tax payment in a workspace. */
 export type IncomeTaxPayment = {
   __typename?: 'IncomeTaxPayment';
@@ -1945,6 +1966,8 @@ export type WorkspaceAnalytics = {
   expensesSummary: ExpensesSummary;
   /** Summary of general taxes in the given date range. */
   generalTaxesSummary: GeneralTaxesSummary;
+  /** Estimated marginal individual income tax for a full tax year, or why it is unavailable. */
+  incomeTaxEstimate: IncomeTaxEstimate;
   /** Summary of income tax payments in the given date range. */
   incomeTaxPaymentsSummary: IncomeTaxPaymentsSummary;
   /** Summary of incomes in the given date range. */
@@ -1961,6 +1984,13 @@ export type WorkspaceAnalyticsExpensesSummaryArgs = {
 
 /** Analytics data for a workspace. */
 export type WorkspaceAnalyticsGeneralTaxesSummaryArgs = {
+  fromDate: Scalars['LocalDate']['input'];
+  toDate: Scalars['LocalDate']['input'];
+};
+
+
+/** Analytics data for a workspace. */
+export type WorkspaceAnalyticsIncomeTaxEstimateArgs = {
   fromDate: Scalars['LocalDate']['input'];
   toDate: Scalars['LocalDate']['input'];
 };

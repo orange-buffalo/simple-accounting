@@ -13,6 +13,9 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeAttachment
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxBracket
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedule
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxScheduleSource
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
@@ -483,6 +486,34 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     }
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
+
+    fun incomeTaxSchedule(
+        countryCode: String = "AU",
+        jurisdiction: String = "national",
+        taxpayer: String = "Australian resident individual",
+        taxPeriodLabel: String = "3025–26",
+        periodStart: LocalDate = LocalDate.of(3025, 7, 1),
+        periodEnd: LocalDate = periodStart.plusYears(1).minusDays(1),
+        currency: String = "AUD",
+        basis: String = "annual_taxable_income",
+        limitations: String = "Excludes levies.",
+        brackets: Set<IncomeTaxBracket> = emptySet(),
+        sources: Set<IncomeTaxScheduleSource> = emptySet(),
+        createdAt: Instant = MOCK_TIME,
+    ): IncomeTaxSchedule = IncomeTaxSchedule(
+        countryCode = countryCode,
+        jurisdiction = jurisdiction,
+        taxpayer = taxpayer,
+        taxPeriodLabel = taxPeriodLabel,
+        periodStart = periodStart,
+        periodEnd = periodEnd,
+        currency = currency,
+        basis = basis,
+        limitations = limitations,
+        brackets = brackets,
+        sources = sources,
+        createdAt = createdAt,
+    ).save()
 
     fun <T : Any> T.save(): T = infra.save(this)
 

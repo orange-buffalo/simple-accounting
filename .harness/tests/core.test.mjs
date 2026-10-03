@@ -45,6 +45,38 @@ test('passes only after every required reviewer and validation', async (t) => {
   assert.equal(result.fingerprint, (await snapshot(root, input.base)).fingerprint);
 });
 
+test('reviewers receive the validation log path, not its potentially huge contents', async (t) => {
+  const { root, input } = await fixture(t);
+  const largeLog = 'SLURM_LOG_CONTENT'.repeat(700000);
+  const controller = new Controller(root, async ({ prompt }) => {
+    assert.ok(prompt.length < 100000);
+    assert.match(prompt, /gradle-1\.log/);
+    assert.doesNotMatch(prompt, /SLURM_LOG_CONTENT/);
+    return answer(report);
+  }, async (_, tasks, logFile) => {
+    await writeFile(logFile, largeLog);
+    return { tasks, code: 0, signal: null, logFile };
+  });
+  const result = await controller.review(input);
+  assert.equal(result.status, 'passed');
+  assert.equal((await readFile(path.join(result.evidence, 'gradle-1.log'), 'utf8')).length, largeLog.length);
+});
+
+test('targeted reviews run only selected backend classes and freeze the selection', async (t) => {
+  const { root, input } = await fixture(t, { validation: { targeted: [':app:test'] } });
+  const testClasses = ['io.orangebuffalo.simpleaccounting.business.api.analytics.WorkspaceAnalyticsQueryTest'];
+  const controller = new Controller(root, async () => answer(report), async (_, tasks, logFile, selected) => {
+    assert.deepEqual(tasks, [':app:test']);
+    assert.deepEqual(selected, testClasses);
+    return { tasks, code: 0, logFile };
+  });
+  assert.equal((await controller.review({ ...input, profile: 'targeted', testClasses })).status, 'passed');
+  const missing = await controller.review({ ...input, profile: 'targeted' });
+  assert.match(missing.error, /requires backend test classes/);
+  const invalid = await controller.review({ ...input, profile: 'targeted', testClasses: ['--all'] });
+  assert.match(invalid.error, /Invalid test classes/);
+});
+
 test('validates findings, repairs, reruns validation and all axes', async (t) => {
   const { root, input } = await fixture(t);
   let fixed = false;

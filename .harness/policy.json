@@ -10,6 +10,7 @@
     "harness": ["checkAgentHarness"],
     "frontend": [":frontend:lint", ":frontend:testFrontend", ":frontend:verifyGqlTypes"],
     "backend": [":app:compileKotlin", ":app:compileTestKotlin", ":app:test"],
+    "targeted": [":app:test"],
     "full": ["assemble", "check"]
   }
 }

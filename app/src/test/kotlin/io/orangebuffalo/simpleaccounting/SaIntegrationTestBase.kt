@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting
 
 import io.orangebuffalo.simpleaccounting.business.documents.storage.local.LocalFileSystemDocumentsStorageProperties
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedulesRepository
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
@@ -62,6 +63,9 @@ abstract class SaIntegrationTestBase {
     @Autowired
     protected lateinit var aggregateTemplate: JdbcAggregateTemplate
 
+    @Autowired
+    private lateinit var incomeTaxSchedulesRepository: IncomeTaxSchedulesRepository
+
     // TODO make private when legacy tests are migrated to preconditions usage
     protected lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
 
@@ -96,6 +100,7 @@ abstract class SaIntegrationTestBase {
 
     @BeforeEach
     fun setupSaIntegrationTestBase() {
+        incomeTaxSchedulesRepository.deleteAll()
         entitiesFactoryInfra = EntitiesFactoryInfra(
             platformTransactionManager = platformTransactionManager,
             jdbcAggregateTemplate = aggregateTemplate,

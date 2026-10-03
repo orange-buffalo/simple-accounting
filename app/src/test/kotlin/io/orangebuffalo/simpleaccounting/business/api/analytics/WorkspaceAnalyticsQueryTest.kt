@@ -4,8 +4,13 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxBracket
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -15,12 +20,160 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @DisplayName("workspace.analytics")
 class WorkspaceAnalyticsQueryTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
+
+    @Nested
+    @DisplayName("workspace.analytics.incomeTaxEstimate")
+    inner class IncomeTaxEstimate {
+        private val start = LocalDate.of(3025, 7, 1)
+        private val end = LocalDate.of(3026, 6, 30)
+
+        @Test
+        fun `should estimate marginal tax on taxable profit and ignore pending entries`() {
+            val data = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry, defaultCurrency = "AUD", residency = "AU").also {
+                        income(workspace = it, dateReceived = start, incomeTaxableAmounts = amountsInDefaultCurrency(25000))
+                        expense(workspace = it, datePaid = end, incomeTaxableAmounts = amountsInDefaultCurrency(5000))
+                        income(
+                            workspace = it, dateReceived = start,
+                            incomeTaxableAmounts = amountsInDefaultCurrency(99999),
+                            status = IncomeStatus.PENDING_CONVERSION
+                        )
+                    }
+                }
+            }
+            saveSchedule()
+
+            verifyEstimate(data.workspace, data.fry, start, end, buildJsonObject {
+                put("amount", 3000)
+                put("unavailableReason", JsonNull)
+                put("countryCode", "AU")
+                put("workspaceCurrency", "AUD")
+                put("taxCurrency", JsonNull)
+            })
+        }
+
+        @Test
+        fun `should not estimate for a partial tax year`() {
+            val data = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry, defaultCurrency = "AUD")
+                }
+            }
+            saveSchedule()
+
+            verifyEstimate(data.workspace, data.fry, start.plusDays(1), end, buildJsonObject {
+                put("amount", JsonNull)
+                put("unavailableReason", "PARTIAL_YEAR")
+                put("countryCode", "AU")
+                put("workspaceCurrency", "AUD")
+                put("taxCurrency", JsonNull)
+            })
+        }
+
+        @Test
+        fun `should estimate zero tax when expenses exceed income`() {
+            val data = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry, defaultCurrency = "AUD").also {
+                        expense(workspace = it, datePaid = start, incomeTaxableAmounts = amountsInDefaultCurrency(20000))
+                    }
+                }
+            }
+            saveSchedule()
+
+            verifyEstimate(data.workspace, data.fry, start, end, buildJsonObject {
+                put("amount", 0)
+                put("unavailableReason", JsonNull)
+                put("countryCode", "AU")
+                put("workspaceCurrency", "AUD")
+                put("taxCurrency", JsonNull)
+            })
+        }
+
+        @Test
+        fun `should not estimate if there is no schedule for the year`() {
+            val data = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry, defaultCurrency = "AUD")
+                }
+            }
+
+            verifyEstimate(data.workspace, data.fry, start, end, buildJsonObject {
+                put("amount", JsonNull)
+                put("unavailableReason", "NO_TAX_RATES")
+                put("countryCode", "AU")
+                put("workspaceCurrency", "AUD")
+                put("taxCurrency", JsonNull)
+            })
+        }
+
+        @Test
+        fun `should not apply brackets in a different currency`() {
+            val data = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                }
+            }
+            saveSchedule()
+
+            verifyEstimate(data.workspace, data.fry, start, end, buildJsonObject {
+                put("amount", JsonNull)
+                put("unavailableReason", "CURRENCY_MISMATCH")
+                put("countryCode", "AU")
+                put("workspaceCurrency", "USD")
+                put("taxCurrency", "AUD")
+            })
+        }
+
+        private fun saveSchedule() {
+            preconditions {
+                incomeTaxSchedule(
+                    periodStart = start,
+                    brackets = setOf(
+                        IncomeTaxBracket(BigDecimal.ZERO, BigDecimal("0.10")),
+                        IncomeTaxBracket(BigDecimal("100"), BigDecimal("0.20")),
+                    ),
+                )
+            }
+        }
+
+        private fun verifyEstimate(
+            workspace: Workspace,
+            fry: PlatformUser,
+            fromDate: LocalDate,
+            toDate: LocalDate,
+            expected: JsonObject,
+        ) {
+            client.graphql {
+                workspace(id = workspace.id!!) {
+                    analytics {
+                        incomeTaxEstimate(fromDate = fromDate, toDate = toDate) {
+                            amount
+                            unavailableReason
+                            countryCode
+                            workspaceCurrency
+                            taxCurrency
+                        }
+                    }
+                }
+            }.from(fry).executeAndVerifyResponse("workspace" to buildJsonObject {
+                put("analytics", buildJsonObject { put("incomeTaxEstimate", expected) })
+            })
+        }
+    }
 
     @Nested
     @DisplayName("workspace.analytics.expensesSummary")

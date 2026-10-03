@@ -59,6 +59,10 @@ class DashboardCard private constructor(
         detailsItems.shouldHaveCount(count)
     }
 
+    fun shouldHaveEstimateUnavailableReason(reason: String) {
+        Tooltip.byTrigger(card.locator(".sa-dashboard__tax-unavailable")).shouldHaveText(reason)
+    }
+
     companion object {
         fun ComponentsAccessors.dashboardCardByIcon(icon: String) =
             DashboardCard(page.locator(".sa-dashboard__card:has(.sa-icon[data-icon=\"$icon\"])"))
