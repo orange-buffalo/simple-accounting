@@ -1,0 +1,6 @@
+{
+  "name": "simple-accounting-review-controller",
+  "private": true,
+  "type": "module",
+  "main": "index.js"
+}

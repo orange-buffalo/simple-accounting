@@ -2,6 +2,17 @@
 
 **ALWAYS follow these instructions first. Only search for additional information or use bash commands if these instructions are incomplete or found to be incorrect.**
 
+## Automatic Implementation Review and Learning
+
+For implementation requests, load the repository skill `simple-accounting-delivery` and follow `docs/AgentHarness.md`.
+After implementation, invoke the executable `accounting_review` controller before handover; it owns validation,
+specialist review, finding verification, bounded repair, and re-review. Do not replace it with informal self-review.
+For human corrections to previously reviewed work, also load `simple-accounting-feedback` and invoke `accounting_learn`
+against the original run. Preserve the commit-before-feedback rule below. Never promote unverified candidate lessons.
+Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
+repository plugin injects their content into each agent request. If the controller is unavailable, report that explicitly
+and do not claim automatic review or learning ran. These workflows never authorize publishing or merging.
+
 ## Commits and Pull Requests
 1. Follow the Conventional Commits schema for commit messages: `<type>[optional scope]: <concise description>`.
 2. Use single-line commit messages only. Do not add detailed multi-line descriptions.

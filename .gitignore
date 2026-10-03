@@ -31,3 +31,7 @@ frontend/coverage
 codecov
 codecov.SHA256SUM
 codecov.SHA256SUM.sig
+
+# Private agent execution artifacts and pinned upstream installation
+.harness/runtime/
+.harness/vendor/

@@ -55,3 +55,27 @@ develocity {
         }
     }
 }
+
+val checkAgentHarness = tasks.register<Exec>("checkAgentHarness") {
+    group = "verification"
+    description = "Runs offline regression tests for the repository agent controller."
+    commandLine("node", "--test", ".harness/tests/core.test.mjs", ".harness/tests/plugin.test.mjs")
+}
+
+tasks.register<Exec>("bootstrapAgentHarness") {
+    group = "development"
+    description = "Installs checksum-pinned Compound Engineering reference skills."
+    commandLine("python3", ".harness/bootstrap.py")
+}
+
+tasks.register<Exec>("doctorAgentHarness") {
+    group = "verification"
+    description = "Checks the local agent workflow prerequisites."
+    commandLine("python3", ".harness/doctor.py")
+}
+
+subprojects {
+    tasks.matching { it.name == "check" }.configureEach {
+        dependsOn(checkAgentHarness)
+    }
+}

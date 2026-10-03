@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "maxFixCycles": 2,
+  "maxElapsedMinutes": 60,
+  "maxCostUsd": 20,
+  "maxKnowledgeChars": 30000,
+  "reviewers": ["requirements", "quality", "security", "consistency", "ux"],
+  "models": {},
+  "validation": {
+    "harness": ["checkAgentHarness"],
+    "frontend": [":frontend:lint", ":frontend:testFrontend", ":frontend:verifyGqlTypes"],
+    "backend": [":app:compileKotlin", ":app:compileTestKotlin", ":app:test"],
+    "full": ["assemble", "check", "e2eTest"]
+  }
+}
