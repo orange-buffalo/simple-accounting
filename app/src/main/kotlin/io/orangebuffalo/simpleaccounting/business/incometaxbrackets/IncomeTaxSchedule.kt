@@ -14,7 +14,7 @@ data class IncomeTaxSchedule(
     val taxpayer: String,
     val taxPeriodLabel: String,
     val periodStart: LocalDate,
-    val periodEndExclusive: LocalDate,
+    val periodEnd: LocalDate,
     val currency: String,
     val basis: String,
     val limitations: String,

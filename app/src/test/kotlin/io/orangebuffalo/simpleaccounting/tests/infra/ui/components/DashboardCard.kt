@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import com.microsoft.playwright.Page
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
@@ -9,7 +8,6 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 @UiComponentMarker
 class DashboardCard private constructor(
     private val card: Locator,
-    private val page: Page,
 ) : UiComponent<DashboardCard>() {
     private val headerAmount = card.locator(".sa-dashboard__card__header__amount")
     private val headerFinalized = card.locator(".sa-dashboard__card__header__finalized")
@@ -62,14 +60,11 @@ class DashboardCard private constructor(
     }
 
     fun shouldHaveEstimateUnavailableReason(reason: String) {
-        val indicator = card.locator(".sa-dashboard__tax-unavailable")
-        indicator.hover()
-        val tooltipId = indicator.getAttribute("aria-describedby")
-        page.locator("#$tooltipId").shouldHaveText(reason)
+        Tooltip(card.locator(".sa-dashboard__tax-unavailable")).shouldHaveText(reason)
     }
 
     companion object {
         fun ComponentsAccessors.dashboardCardByIcon(icon: String) =
-            DashboardCard(page.locator(".sa-dashboard__card:has(.sa-icon[data-icon=\"$icon\"])"), page)
+            DashboardCard(page.locator(".sa-dashboard__card:has(.sa-icon[data-icon=\"$icon\"])"))
     }
 }

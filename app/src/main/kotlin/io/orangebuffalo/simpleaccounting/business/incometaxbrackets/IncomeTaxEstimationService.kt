@@ -35,8 +35,8 @@ class IncomeTaxEstimationService(
             return IncomeTaxEstimate(unavailableReason = IncomeTaxEstimateUnavailableReason.PARTIAL_YEAR)
         }
 
-        val schedule = schedulesRepository.findByCountryCodeAndPeriodStartAndPeriodEndExclusive(
-            workspace.residency, fromDate, toDate.plusDays(1)
+        val schedule = schedulesRepository.findByCountryCodeAndPeriodStartAndPeriodEnd(
+            workspace.residency, fromDate, toDate
         ).singleOrNull() ?: return IncomeTaxEstimate(unavailableReason = IncomeTaxEstimateUnavailableReason.NO_TAX_RATES)
         if (schedule.currency != workspace.defaultCurrency) {
             return IncomeTaxEstimate(

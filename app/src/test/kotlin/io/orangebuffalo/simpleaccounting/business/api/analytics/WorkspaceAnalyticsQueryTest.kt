@@ -19,6 +19,7 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -37,6 +38,11 @@ class WorkspaceAnalyticsQueryTest(
     inner class IncomeTaxEstimate {
         private val start = LocalDate.of(3025, 7, 1)
         private val end = LocalDate.of(3026, 6, 30)
+
+        @BeforeEach
+        fun clearSeededIncomeTaxSchedules() {
+            schedulesRepository.deleteAll()
+        }
 
         @Test
         fun `should estimate marginal tax on taxable profit and ignore pending entries`() {
@@ -149,7 +155,7 @@ class WorkspaceAnalyticsQueryTest(
                 taxpayer = "Australian resident individual",
                 taxPeriodLabel = "3025–26",
                 periodStart = start,
-                periodEndExclusive = end.plusDays(1),
+                periodEnd = end,
                 currency = "AUD",
                 basis = "annual_taxable_income",
                 limitations = "Excludes levies.",
