@@ -12,6 +12,8 @@ import io.orangebuffalo.simpleaccounting.business.analytics.WorkspaceAnalyticsSe
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxEstimateUnavailableReason
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxEstimationService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -75,6 +77,26 @@ class AnalyticsGqlDto(private val workspaceId: String) {
         val incomeTaxPaymentService = env.graphQlContext.getBean<IncomeTaxPaymentService>()
         val statistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspaceId)
         return IncomeTaxPaymentsSummaryGqlDto(totalTaxPayments = statistics.totalTaxPayments)
+    }
+
+    @GraphQLDescription("Estimated marginal individual income tax for a full tax year, or why it is unavailable.")
+    fun incomeTaxEstimate(
+        @GraphQLDescription("Start date of the range (inclusive).") fromDate: LocalDate,
+        @GraphQLDescription("End date of the range (inclusive).") toDate: LocalDate,
+        env: DataFetchingEnvironment,
+    ): IncomeTaxEstimateGqlDto {
+        val workspace = env.withRequestAuthentication {
+            env.graphQlContext.getBean<WorkspacesService>()
+                .getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        }
+        val estimate = env.graphQlContext.getBean<IncomeTaxEstimationService>().estimate(workspace, fromDate, toDate)
+        return IncomeTaxEstimateGqlDto(
+            amount = estimate.amount,
+            unavailableReason = estimate.unavailableReason,
+            countryCode = workspace.residency,
+            workspaceCurrency = workspace.defaultCurrency,
+            taxCurrency = estimate.taxCurrency,
+        )
     }
 
     @GraphQLDescription("Summary of general taxes in the given date range.")
@@ -220,6 +242,17 @@ data class IncomesSummaryItemGqlDto(
 data class IncomeTaxPaymentsSummaryGqlDto(
     @GraphQLDescription("Total amount of all income tax payments in the range.")
     val totalTaxPayments: Long,
+)
+
+@GraphQLName("IncomeTaxEstimate")
+@GraphQLDescription("Estimated income tax in the workspace default currency, or an unavailability reason.")
+data class IncomeTaxEstimateGqlDto(
+    @GraphQLDescription("Estimated tax in minor currency units, if available.") val amount: Long?,
+    @GraphQLDescription("Reason an estimate cannot be made, if unavailable.")
+    val unavailableReason: IncomeTaxEstimateUnavailableReason?,
+    @GraphQLDescription("Workspace residency country code.") val countryCode: String,
+    @GraphQLDescription("Workspace default currency code.") val workspaceCurrency: String,
+    @GraphQLDescription("Currency of the tax schedule, if found.") val taxCurrency: String?,
 )
 
 @GraphQLName("GeneralTaxesSummary")

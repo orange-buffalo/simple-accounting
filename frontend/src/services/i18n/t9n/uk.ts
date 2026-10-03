@@ -134,7 +134,12 @@ export default {
         currencyExchangeDifference: () => 'Різниця валютного курсу',
         incomeTaxPayments: () => 'Виплати Податку на Прибуток',
         estimatedTax: () => 'Розрахунковий Податок',
-        estimatedTaxPlaceholder: () => 'незабаром..',
+        estimatedTaxUnavailable: () => 'Недоступно',
+        estimateRequiresFullYear: () => 'Виберіть повний податковий рік для розрахунку податку.',
+        estimateNoRates: (country: string) => format('Немає ставок податку на прибуток для {0} за вибраний рік.', [country]),
+        estimateCurrencyMismatch: (workspace: string, tax: string) => format(
+          'Ставки податку вказані у {1}, а валюта робочого простору — {0}.', [workspace, tax],
+        ),
         profit: () => 'Прибуток',
       },
       invoice: {

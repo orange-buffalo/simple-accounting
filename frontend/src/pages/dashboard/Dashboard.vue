@@ -30,6 +30,7 @@
         :income-taxable-amount="profitData.incomeTaxableAmount"
         :currency-exchange-difference="profitData.currencyExchangeDifference"
         :total-tax-payments="profitData.totalTaxPayments"
+        :income-tax-estimate="profitData.incomeTaxEstimate"
         :total-profit="profitData.totalProfit"
       />
       <DashboardInvoices
@@ -110,6 +111,13 @@
           incomeTaxPaymentsSummary(fromDate: $fromDate, toDate: $toDate) {
             totalTaxPayments
           }
+          incomeTaxEstimate(fromDate: $fromDate, toDate: $toDate) {
+            amount
+            unavailableReason
+            countryCode
+            workspaceCurrency
+            taxCurrency
+          }
         }
         invoices(first: 100, statusIn: [SENT, OVERDUE]) {
           edges {
@@ -155,6 +163,7 @@
     incomeTaxableAmount: number;
     currencyExchangeDifference: number;
     totalTaxPayments: number;
+    incomeTaxEstimate: GetDashboardAnalyticsQuery['workspace']['analytics']['incomeTaxEstimate'] | null;
     totalProfit: number;
   }
 
@@ -166,6 +175,7 @@
     incomeTaxableAmount: 0,
     currencyExchangeDifference: 0,
     totalTaxPayments: 0,
+    incomeTaxEstimate: null,
     totalProfit: 0,
   });
 
@@ -194,8 +204,9 @@
         incomeTaxableAmount,
         currencyExchangeDifference,
         totalTaxPayments: analytics.incomeTaxPaymentsSummary.totalTaxPayments,
+        incomeTaxEstimate: analytics.incomeTaxEstimate,
         totalProfit: incomeTaxableAmount + currencyExchangeDifference
-          - analytics.incomeTaxPaymentsSummary.totalTaxPayments,
+          - (analytics.incomeTaxEstimate.amount ?? 0),
       };
     } else {
       expensesSummary.value = null;

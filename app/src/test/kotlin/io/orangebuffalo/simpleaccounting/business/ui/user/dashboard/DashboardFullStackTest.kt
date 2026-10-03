@@ -4,6 +4,9 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxBracket
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxSchedule
+import io.orangebuffalo.simpleaccounting.business.incometaxbrackets.IncomeTaxScheduleSource
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_BROWSER_TIMEZONE
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
@@ -13,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResp
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.ZoneId
+import java.math.BigDecimal
 
 /**
  * Matches the calendar date of the browser's mocked time.
@@ -142,7 +146,8 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldHaveAmount("USD 130.00")
                 shouldHaveDetailsItemsCount(3)
                 shouldHaveDetailsItem(0, "Income Tax Payments", "USD 0.00")
-                shouldHaveDetailsItem(1, "Estimated Tax", "coming soon..")
+                shouldHaveDetailsItem(1, "Estimated Tax", "Unavailable")
+                shouldHaveEstimateUnavailableReason("Select a full income-tax year to estimate tax.")
                 shouldHaveDetailsItem(2, "Profit", "USD 130.00")
             }
 
@@ -313,6 +318,69 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldHaveAmount("USD 600.00")
                 shouldHaveFinalizedText("Total of 3 incomes")
             }
+        }
+    }
+
+    @Test
+    fun `should show estimated tax and after tax profit for a full tax year`(page: Page) {
+        val start = LocalDate.of(3025, 7, 1)
+        val end = LocalDate.of(3026, 6, 30)
+        val data = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it, residency = "AU", defaultCurrency = "AUD")
+                    income(
+                        workspace = workspace,
+                        dateReceived = start,
+                        convertedAmounts = amountsInDefaultCurrency(25000),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(25000),
+                    )
+                    expense(
+                        workspace = workspace,
+                        datePaid = end,
+                        convertedAmounts = amountsInDefaultCurrency(5000),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(5000),
+                    )
+                    incomeTaxPayment(workspace = workspace, reportingDate = start, amount = 1000)
+                }
+            }
+        }
+        aggregateTemplate.insert(IncomeTaxSchedule(
+            countryCode = "AU",
+            jurisdiction = "national",
+            taxpayer = "Australian resident individual",
+            taxPeriodLabel = "3025–26",
+            periodStart = start,
+            periodEndExclusive = end.plusDays(1),
+            currency = "AUD",
+            basis = "annual_taxable_income",
+            limitations = "Excludes levies.",
+            brackets = setOf(
+                IncomeTaxBracket(BigDecimal.ZERO, BigDecimal("0.10")),
+                IncomeTaxBracket(BigDecimal("100"), BigDecimal("0.20")),
+            ),
+            sources = setOf(IncomeTaxScheduleSource("Planet Express tax office", "https://example.com", start)),
+        ))
+
+        page.authenticateViaCookie(data.fry)
+        page.openDashboard {
+            dateRangePicker { fillDateRange(start.toString(), end.toString()) }
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("$200.00")
+                shouldHaveDetailsItem(0, "Income Tax Payments", "$10.00")
+                shouldHaveDetailsItem(1, "Estimated Tax", "$30.00")
+                shouldHaveDetailsItem(2, "Profit", "$170.00")
+            }
+            reportRendering("dashboard.estimated-tax")
+
+            dateRangePicker { fillDateRange("3026-07-01", "3027-06-30") }
+            profitCard {
+                shouldHaveDetailsItem(1, "Estimated Tax", "Unavailable")
+                shouldHaveEstimateUnavailableReason("No income tax rates are available for Australia for the selected year.")
+                shouldHaveDetailsItem(2, "Profit", "$0.00")
+            }
+            reportRendering("dashboard.no-tax-rates")
         }
     }
 

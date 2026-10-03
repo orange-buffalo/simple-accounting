@@ -526,6 +526,20 @@ type IncomeEdge {
   node: Income!
 }
 
+"Estimated income tax in the workspace default currency, or an unavailability reason."
+type IncomeTaxEstimate {
+  "Estimated tax in minor currency units, if available."
+  amount: Long
+  "Workspace residency country code."
+  countryCode: String!
+  "Currency of the tax schedule, if found."
+  taxCurrency: String
+  "Reason an estimate cannot be made, if unavailable."
+  unavailableReason: IncomeTaxEstimateUnavailableReason
+  "Workspace default currency code."
+  workspaceCurrency: String!
+}
+
 "An income tax payment in a workspace."
 type IncomeTaxPayment {
   "Amount of the tax payment in cents."
@@ -1713,6 +1727,13 @@ type WorkspaceAnalytics {
     "End date of the range (inclusive)."
     toDate: LocalDate!
   ): GeneralTaxesSummary!
+  "Estimated marginal individual income tax for a full tax year, or why it is unavailable."
+  incomeTaxEstimate(
+    "Start date of the range (inclusive)."
+    fromDate: LocalDate!,
+    "End date of the range (inclusive)."
+    toDate: LocalDate!
+  ): IncomeTaxEstimate!
   "Summary of income tax payments in the given date range."
   incomeTaxPaymentsSummary(
     "Start date of the range (inclusive)."
@@ -1913,6 +1934,12 @@ enum IncomeStatus {
   FINALIZED
   PENDING_CONVERSION
   PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+}
+
+enum IncomeTaxEstimateUnavailableReason {
+  CURRENCY_MISMATCH
+  NO_TAX_RATES
+  PARTIAL_YEAR
 }
 
 enum InvoiceStatus {

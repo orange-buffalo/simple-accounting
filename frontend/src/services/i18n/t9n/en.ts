@@ -134,7 +134,12 @@ export default {
         currencyExchangeDifference: () => 'Currency exchange rate difference',
         incomeTaxPayments: () => 'Income Tax Payments',
         estimatedTax: () => 'Estimated Tax',
-        estimatedTaxPlaceholder: () => 'coming soon..',
+        estimatedTaxUnavailable: () => 'Unavailable',
+        estimateRequiresFullYear: () => 'Select a full income-tax year to estimate tax.',
+        estimateNoRates: (country: string) => format('No income tax rates are available for {0} for the selected year.', [country]),
+        estimateCurrencyMismatch: (workspace: string, tax: string) => format(
+          'Tax rates are in {1}, but this workspace uses {0}.', [workspace, tax],
+        ),
         profit: () => 'Profit',
       },
       invoice: {

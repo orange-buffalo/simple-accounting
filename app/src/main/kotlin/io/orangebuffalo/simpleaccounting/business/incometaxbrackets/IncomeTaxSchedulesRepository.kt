@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 import java.time.LocalDate
 
 interface IncomeTaxSchedulesRepository : AbstractEntityRepository<IncomeTaxSchedule> {
-    fun findByCountryCodeAndPeriodStartLessThanEqualAndPeriodEndExclusiveGreaterThan(
+    fun findByCountryCodeAndPeriodStartAndPeriodEndExclusive(
         countryCode: String,
         periodStart: LocalDate,
         periodEndExclusive: LocalDate,

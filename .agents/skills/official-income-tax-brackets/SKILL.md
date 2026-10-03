@@ -5,7 +5,7 @@ description: Research official individual income-tax brackets for supported coun
 
 # Official income-tax brackets
 
-Use this skill when asked to collect or update **individual marginal income-tax brackets** for Simple Accounting from government sources. This is a research and extraction workflow, not an API integration or an automated scraper. The initial supported set is `AU`, `US`, `CA`, `GB`, `NZ`, `IE`, and `ZA` only. Do not silently add countries; extend this guide with official starting points and update `FinancialYearStartRegistry` when coverage is requested.
+Use this skill when asked to collect or update **individual marginal income-tax brackets** for Simple Accounting from government sources. This is a research and extraction workflow, not an API integration or an automated scraper. The initial supported set is `AU`, `US`, `CA`, `GB`, `NZ`, `IE`, and `ZA` only. Do not silently add countries; extend this guide with official starting points when coverage is requested.
 
 ## Define the request
 
