@@ -1,0 +1,59 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "sa-reviewer": {
+      "description": "Read-only accounting review and learning verification; normally launched by the repository controller",
+      "mode": "subagent",
+      "steps": 20,
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "**/.env*", "effect": "deny" },
+        { "action": "read", "resource": "**/.test-config.yaml", "effect": "deny" },
+        { "action": "read", "resource": "**/*.pem", "effect": "deny" },
+        { "action": "read", "resource": "**/*.key", "effect": "deny" }
+      ]
+    },
+    "sa-fixer": {
+      "description": "Apply validated findings without committing or launching other agents",
+      "mode": "subagent",
+      "steps": 30,
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "**/.env*", "effect": "deny" },
+        { "action": "read", "resource": "**/.test-config.yaml", "effect": "deny" },
+        { "action": "read", "resource": "**/*.pem", "effect": "deny" },
+        { "action": "read", "resource": "**/*.key", "effect": "deny" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "**/.git/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/.gitignore", "effect": "deny" },
+        { "action": "edit", "resource": "**/gradlew", "effect": "deny" },
+        { "action": "edit", "resource": "**/gradlew.bat", "effect": "deny" },
+        { "action": "edit", "resource": "**/gradle/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/buildSrc/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/gradle.properties", "effect": "deny" },
+        { "action": "edit", "resource": "**/package.json", "effect": "deny" },
+        { "action": "edit", "resource": "**/bun.lock", "effect": "deny" },
+        { "action": "edit", "resource": "**/frontend/build-config/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/vite.config.ts", "effect": "deny" },
+        { "action": "edit", "resource": "**/codegen.ts", "effect": "deny" },
+        { "action": "edit", "resource": "**/tsconfig*.json", "effect": "deny" },
+        { "action": "edit", "resource": "**/.eslint*", "effect": "deny" },
+        { "action": "edit", "resource": "**/.compound-engineering/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/docs/AgentHarness.md", "effect": "deny" },
+        { "action": "edit", "resource": "**/.harness/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/.opencode/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/.agents/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/.github/**", "effect": "deny" },
+        { "action": "edit", "resource": "**/AGENTS.md", "effect": "deny" },
+        { "action": "edit", "resource": "**/build.gradle.kts", "effect": "deny" },
+        { "action": "edit", "resource": "**/settings.gradle.kts", "effect": "deny" },
+        { "action": "edit", "resource": "**/.env*", "effect": "deny" },
+        { "action": "edit", "resource": "**/.test-config.yaml", "effect": "deny" }
+      ]
+    }
+  }
+}
