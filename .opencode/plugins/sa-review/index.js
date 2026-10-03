@@ -9,71 +9,93 @@ const schema = (properties, required) => ({ type: 'object', properties, required
 const string = { type: 'string', minLength: 1 };
 
 export async function createWorkers(ctx, directory = root) {
-    const frozen = new Map();
-    const delegations = new Map();
-    const contexts = new Map();
-    const bindWorker = async (session, work) => {
-      if (session.parentID !== work.parentSessionID) throw new Error('SA worker must be a child of the calling session');
-      work.sessionId = session.id;
-      frozen.set(session.id, work.bundle);
-      const agent = await ctx.agent.get({ agentID: work.fixer ? 'sa-fixer' : 'sa-reviewer' });
-      const permissions = agent.data?.permissions ?? agent.permissions;
-      if (!Array.isArray(permissions)) throw new Error('Worker permission rules unavailable');
-      await ctx.session.update({ sessionID: session.id, permissions: work.blind
-        ? [{ action: '*', resource: '*', effect: 'deny' }] : permissions });
-    };
-    await ctx.session.hook('prompt', async (event) => {
-      const token = event.prompt.text.match(/^SA_WORKER:([a-f0-9-]+)\n/)?.[1];
-      const work = token && delegations.get(token);
-      if (!work) return;
-      const session = await ctx.session.get({ sessionID: event.sessionID });
-      await bindWorker(session, work);
-      event.metadata = { ...event.metadata, saRole: work.role, knowledgeHash: hash(work.bundle), saParent: work.parentSessionID };
-    });
-    for (const kind of ['context', 'generate']) {
-      await ctx.session.hook(kind, async (event) => {
-        if (!frozen.has(event.sessionID) && delegations.size) {
-          const session = await ctx.session.get({ sessionID: event.sessionID });
-          const work = [...delegations.values()].find((entry) => entry.parentSessionID === session.parentID && session.title === `SA ${entry.role}`);
+  const frozen = new Map();
+  const delegations = new Map();
+  const contexts = new Map();
+  const bindWorker = async (session, work) => {
+    if (session.parentID !== work.parentSessionID) throw new Error('SA worker must be a child of the calling session');
+    if (work.sessionId && work.sessionId !== session.id) throw new Error('SA worker token is already bound to another session');
+    work.sessionId = session.id;
+    frozen.set(session.id, work.bundle);
+    const agent = await ctx.agent.get({ agentID: work.fixer ? 'sa-fixer' : 'sa-reviewer' });
+    const permissions = agent.data?.permissions ?? agent.permissions;
+    if (!Array.isArray(permissions)) throw new Error('Worker permission rules unavailable');
+    await ctx.session.update({ sessionID: session.id, permissions: work.blind
+      ? [{ action: '*', resource: '*', effect: 'deny' }] : [...permissions,
+        { action: 'read', resource: '**/.harness/runtime/**', effect: 'deny' },
+        ...work.artifactReads,
+        { action: 'read', resource: '**/build/test-results/**', effect: 'deny' },
+        { action: 'read', resource: '**/build/reports/**', effect: 'deny' },
+        { action: 'read', resource: '**/*.log', effect: 'deny' },
+      ] });
+  };
+  await ctx.session.hook('prompt', async (event) => {
+    const token = event.prompt.text.match(/^SA_WORKER:([a-f0-9-]+)\n/)?.[1];
+    const work = token && delegations.get(token);
+    if (!work) return;
+    const session = await ctx.session.get({ sessionID: event.sessionID });
+    await bindWorker(session, work);
+    event.metadata = { ...event.metadata, saRole: work.role, knowledgeHash: hash(work.bundle), saParent: work.parentSessionID };
+  });
+  for (const kind of ['context', 'generate']) {
+    await ctx.session.hook(kind, async (event) => {
+      if (!frozen.has(event.sessionID) && delegations.size) {
+        const session = await ctx.session.get({ sessionID: event.sessionID });
+        if ([...delegations.values()].some((entry) => entry.parentSessionID === session.parentID)) {
+          const messages = await ctx.session.context({ sessionID: event.sessionID });
+          const prompt = messages.find((message) => message.type === 'user')?.text;
+          const token = prompt?.match(/^(?:You are a subagent spawned by another session\.\n)?SA_WORKER:([a-f0-9-]+)\n/)?.[1];
+          const work = token && delegations.get(token);
           if (work) await bindWorker(session, work);
         }
-        const work = [...delegations.values()].find((entry) => entry.sessionId === event.sessionID);
-        if (work && event.tools) {
-          const allowed = work.blind ? [] : work.fixer ? ['read', 'glob', 'patch', 'edit', 'write'] : ['read', 'glob'];
-          for (const id of Object.keys(event.tools)) if (!allowed.includes(id)) delete event.tools[id];
-        }
-        const bundle = frozen.get(event.sessionID) ?? await knowledge(directory);
-        event.system.push({ type: 'text', text: `Approved repository lessons (apply when relevant):\n${bundle}` });
-      });
-    }
-    const execute = async ({ role, prompt, knowledge: bundle, fixer, model, parentSessionID }) => {
-      const blind = role.startsWith('blind-') || role === 'evaluation-judge';
-      const context = contexts.get(parentSessionID);
-      const subagent = (await ctx.tool.list()).find((tool) => tool.id === 'subagent');
-      if (!context || !subagent) throw new Error('Native subagent delegation unavailable; standalone sessions are not permitted');
-      const token = randomUUID();
-      const work = { role, bundle, fixer, blind, parentSessionID };
-      delegations.set(token, work);
-      try {
-        const delegated = await subagent.execute({ agent: fixer ? 'sa-fixer' : 'sa-reviewer', description: `SA ${role}`,
-          prompt: `SA_WORKER:${token}\n${prompt}`, background: false,
-          ...(model ? { model: `${model.providerID}/${model.id}${model.variant ? `#${model.variant}` : ''}` } : {}),
-        }, context);
-        if (!work.sessionId) throw new Error(`Subagent did not bind a child worker: ${JSON.stringify(delegated)}`);
-        const info = await ctx.session.get({ sessionID: work.sessionId });
-        const messages = await ctx.session.context({ sessionID: work.sessionId });
-        const assistant = messages.filter((message) => message.type === 'assistant').at(-1);
-        return { text: assistant?.content.filter((part) => part.type === 'text').map((part) => part.text).join('\n') ?? '',
-          sessionId: work.sessionId, parentSessionID: info.parentID, cost: info.cost, messages,
-          failed: info.outcome !== 'succeeded' || !assistant || Boolean(assistant.error) || assistant.finish !== 'stop' };
-      } catch (error) {
-        if (!work.sessionId) throw error;
-        const info = await ctx.session.get({ sessionID: work.sessionId });
-        return { text: error.message, failed: true, sessionId: work.sessionId, parentSessionID: info.parentID,
-          cost: info.cost, messages: await ctx.session.context({ sessionID: work.sessionId }) };
-      } finally { if (work.sessionId) frozen.delete(work.sessionId); delegations.delete(token); }
-    };
-    return { contexts, execute };
+      }
+      const work = [...delegations.values()].find((entry) => entry.sessionId === event.sessionID);
+      if (work && event.tools) {
+        const allowed = work.blind ? [] : work.fixer ? ['read', 'glob', 'patch', 'edit', 'write'] : ['read', 'glob'];
+        for (const id of Object.keys(event.tools)) if (!allowed.includes(id)) delete event.tools[id];
+      }
+      if (work) event.system.push({ type: 'text', text: 'You are a delegated review/fix/learning worker, not the primary implementation agent. Never run builds/tests or inspect their results, logs, pass/fail status or CI status. Inspect source-level behavior and assertions only. Visual artifacts may be inspected for usability, never for test-pass verification. Follow only your assigned responsibility; do not repeat other reviewers\' checks.' });
+      const bundle = frozen.get(event.sessionID) ?? await knowledge(directory);
+      event.system.push({ type: 'text', text: `Approved repository lessons (apply when relevant):\n${bundle}` });
+    });
+  }
+  const execute = async ({ role, prompt, knowledge: bundle, fixer, model, artifactRoots = [], parentSessionID }) => {
+    if (!fixer && !model) throw new Error('An explicit configured reviewer model is required');
+    const artifactReads = artifactRoots.map((artifactRoot) => {
+      const relative = path.relative(path.join(directory, '.harness/runtime'), path.resolve(artifactRoot));
+      if (!/^[a-zA-Z0-9_-]+\/(sources|original-evidence)$/.test(relative)
+        || (relative.endsWith('/original-evidence') && !['feedback-analysis', 'learning-validator'].includes(role))) {
+        throw new Error('Invalid delegated artifact root');
+      }
+      return { action: 'read', resource: `**/.harness/runtime/${relative}/**`, effect: 'allow' };
+    });
+    const blind = role.startsWith('blind-') || role === 'evaluation-judge';
+    const context = contexts.get(parentSessionID);
+    const subagent = (await ctx.tool.list()).find((tool) => tool.id === 'subagent');
+    if (!context || !subagent) throw new Error('Native subagent delegation unavailable; standalone sessions are not permitted');
+    const token = randomUUID();
+    const work = { role, bundle, fixer, blind, artifactReads, parentSessionID };
+    delegations.set(token, work);
+    try {
+      const delegated = await subagent.execute({ agent: fixer ? 'sa-fixer' : 'sa-reviewer', description: `SA ${role}`,
+        prompt: `SA_WORKER:${token}\n${prompt}`, background: false,
+        ...(model ? { model: `${model.providerID}/${model.id}${model.variant ? `#${model.variant}` : ''}` } : {}),
+      }, context);
+      if (!work.sessionId) throw new Error(`Subagent did not bind a child worker: ${JSON.stringify(delegated)}`);
+      const info = await ctx.session.get({ sessionID: work.sessionId });
+      const messages = await ctx.session.context({ sessionID: work.sessionId });
+      const assistant = messages.filter((message) => message.type === 'assistant').at(-1);
+      return { text: assistant?.content.filter((part) => part.type === 'text').map((part) => part.text).join('\n') ?? '',
+        sessionId: work.sessionId, parentSessionID: info.parentID, cost: info.cost, messages,
+        failed: info.outcome !== 'succeeded' || !assistant || Boolean(assistant.error) || assistant.finish !== 'stop' };
+    } catch (error) {
+      if (!work.sessionId) throw error;
+      const info = await ctx.session.get({ sessionID: work.sessionId });
+      return { text: error.message, failed: true, sessionId: work.sessionId, parentSessionID: info.parentID,
+        cost: info.cost, messages: await ctx.session.context({ sessionID: work.sessionId }) };
+    } finally { if (work.sessionId) frozen.delete(work.sessionId); delegations.delete(token); }
+  };
+  return { contexts, execute };
 }
 
 export default {
@@ -81,21 +103,14 @@ export default {
   async setup(ctx) {
     const { contexts, execute } = await createWorkers(ctx);
     const controller = new Controller(root, execute);
-    const withCallerModel = async (input, context) => {
-      const caller = await ctx.session.get({ sessionID: context.sessionID });
-      const messages = await ctx.session.context({ sessionID: context.sessionID });
-      const defaultModel = caller.model ?? messages.filter((message) => message.type === 'assistant').at(-1)?.model;
-      if (!defaultModel) throw new Error('Caller model unavailable; select a model before running the controller');
-      return { ...input, defaultModel, parentSessionID: context.sessionID };
-    };
     const run = async (method, input, context) => {
       contexts.set(context.sessionID, context);
-      try { return { content: JSON.stringify(await controller[method](await withCallerModel(input, context)), null, 2) }; }
+      try { return { content: JSON.stringify(await controller[method]({ ...input, parentSessionID: context.sessionID }), null, 2) }; }
       finally { contexts.delete(context.sessionID); }
     };
     await ctx.tool.transform((editor) => {
       editor.add({
-        name: 'sa_review', description: 'Run Gradle validation and bounded specialist review/fix cycles. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
+        name: 'sa_review', description: 'Run parallel, exclusively scoped source reviews and bounded finding verification/fix cycles. Never runs builds/tests or checks their results. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
         input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'targeted', 'full'] }, testClasses: { type: 'array', items: string }, runId: string, clarification: string }, ['requirements', 'base', 'profile']),
         execute: async (input, context) => run('review', input, context),
       });

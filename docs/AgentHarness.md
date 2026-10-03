@@ -29,40 +29,62 @@ When the user steers an active task, preserve the original contract and add thei
 The controller:
 
 1. Freezes original requirements, approved knowledge, policy, and the changed-file snapshot (including untracked files).
-2. Runs the profile's Gradle tasks in one invocation, never invoking Bun directly or cancelling a build.
-3. Launches read-only requirements, quality, security, consistency, and UX reviewers as native subagents of the calling
-   session. Fixers and learning workers are also children, not standalone top-level sessions.
-4. Independently validates findings; missing coverage or failed reviewers block handover.
-5. Applies validated findings through a restricted fixer, then validates and re-reviews all axes.
+2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
+   receiving the complete snapshot and duplicated file contents in every prompt.
+3. Launches four read-only reviewers **in parallel** as native subagents of the calling session, each with an exclusive scope:
+   - **Functional**: every functional requirement implemented and covered by test assertions, including branches,
+     conditions, boundaries, failures and regressions. Excludes security/access-rule coverage.
+   - **Security**: authentication, authorization, workspace ownership/isolation and other data-access/security rules,
+     with positive and negative test coverage. Excludes non-security functional behavior.
+   - **Code**: repository patterns, standards, guidelines and consistency with surrounding code, including test conventions.
+     Excludes behavior/test-coverage, security and usability checks.
+   - **UX**: user-friendly, convenient, accessible UI, interaction flow, i18n and loading/error/empty feedback, when applicable.
+     Excludes business-rule/test-coverage, security and code-convention checks; explicitly reports N/A for non-UI changes.
+   Fixers and learning workers are also children, not standalone top-level sessions.
+4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
+   block handover. The validator is not another general reviewer.
+5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
 6. Stops at a clean receipt, a blocker, or the configured repair budget. No automatic budget extension.
+   After the controller returns, the primary implementation agent must rerun its selected Gradle validation and check
+   results before handover if repairs occurred (`fixes > 0`), including applicable regenerated rendering reports. Any
+   subsequent source fix invalidates a passed receipt and requires a fresh review; blocked runs resume with the same ID.
 
-Configure `.harness/policy.json`: `maxFixCycles` (0–5), elapsed minutes, USD cost, reviewers, validation profiles, and
-optional per-role model references using OpenCode's `{ "providerID": "...", "id": "..." }` shape. Without overrides,
-workers inherit the calling session's active model. Time and cost limits are checked **between operations**; an in-flight
-model session or build may exceed them. These are not hard spend caps. The controller serializes builds/repair runs
-within a worktree via a lock, but other tools/processes can still modify files; review detects snapshot drift.
+Configure `.harness/policy.json`: `maxFixCycles` (0–5), elapsed minutes, USD cost, the four required reviewers, and
+`reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
+Optional `models` entries override individual roles with the same model-reference shape. All read-only workers,
+including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
+Fixers may inherit it unless overridden. Time and cost limits are checked **between operations**; an in-flight parallel
+batch may exceed them. These are not hard spend caps. The controller awaits every worker in a batch, accounts for all
+reported costs and saves separate artifacts before proceeding or blocking. Interrupted/unaccounted workers prevent resume.
+The worktree lock serializes controller invocations, not reviewers within a run. Review detects snapshot drift.
 
 Profiles: `frontend`, `backend`, `targeted`, `full`; `harness` only for agent-workflow/docs changes, not application/build changes.
-Prefer `targeted` with fully qualified `testClasses` (up to 10) for bounded API/backend/full-stack changes; it runs only
-`:app:test --tests <class>` for each class. Run additional relevant Gradle tasks separately when needed (e.g. `checkAgentHarness`
-for harness edits), and include that evidence in the review request. Use `full` only when targeted tests cannot reasonably
-cover the blast radius. UI rendering still requires the related full-stack
-test and manual inspection of generated PNGs as specified in `AGENTS.md`; reviewers must report missing evidence.
-`full` runs the repository's required `assemble check` sequence, including its regular full-stack tests. The separate
-Docker distribution E2E task is not included: the existing task currently reports NO-SOURCE locally and must not be
-represented as executed E2E coverage. Configure and validate that task separately if distribution behavior is in scope.
+Profiles describe review scope, not validation tasks. Prefer `targeted` with fully qualified `testClasses` (up to 10)
+for bounded API/backend/full-stack changes; these classes are source-navigation hints, never execution receipts.
+The controller **never runs builds/tests or checks their results**. Workers never read build/test logs, result reports,
+CI status or pass/fail receipts, and cannot execute verification commands. Functional/security coverage is assessed from
+test source and assertions, not whether tests passed. The primary implementation agent runs and checks appropriate Gradle
+validation under `AGENTS.md`, including after fixes; CI may independently perform mechanical validation as needed.
+Do not include build/test results in review requests. UI rendering still requires the primary agent to run the related
+full-stack test and inspect generated PNGs. UX may inspect visual artifacts only to assess an applicable usability concern,
+not to verify test success. A clean review receipt does not claim successful builds/tests.
 Fixers cannot change harness, CI, AGENTS, or build configuration and cannot run shell commands. Generated GraphQL files,
-protected changes, and failed validation require the primary agent's explicit repair and resume with the **same run ID**.
+protected changes require the primary agent's explicit repair and resume with the **same run ID**.
 
 Artifacts are private under `.harness/runtime/<run-id>/`: state, snapshots, exact worker prompts/transcripts, knowledge
-hashes, findings/dispositions, validation logs, and receipts. Treat them as potentially sensitive source data; do not
+hashes, findings/dispositions, changed-source packets, and receipts. Treat them as potentially sensitive source data; do not
 commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require new review.
-After an interrupted process leaves `controller.lock`, inspect its PID and active sessions/builds before manually
+After an interrupted process leaves `controller.lock`, inspect its PID and active sessions before manually
 removing that **single stale file**. Never delete active-run locks or reset budgets to work around a blocker.
 
 Workers use glob plus read for investigation. Grep is denied because OpenCode's grep permission resource is the search
 pattern, not the paths traversed; a path-based secret deny would not protect recursive searches. Read denies cover
 `.env*`, `.test-config.yaml`, `.pem`, and `.key` files for both reviewers and fixers.
+Worker read permissions also deny runtime state/transcripts, build test-result/report directories and `.log` files;
+only the delegation's own changed-source packets are readable within runtime. Learning investigators/verifiers receive
+an explicit grant for their lesson run's original-evidence files; other runs remain denied. Visual artifacts under
+`app/build/rendering-report/` remain readable for UX. Host instructions and arbitrary user text are not a perfect sandbox;
+do not paste build/test results into worker inputs.
 
 ## Verified human-feedback learning
 

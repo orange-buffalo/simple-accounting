@@ -4,13 +4,7 @@
   "maxElapsedMinutes": 60,
   "maxCostUsd": 20,
   "maxKnowledgeChars": 30000,
-  "reviewers": ["requirements", "quality", "security", "consistency", "ux"],
-  "models": {},
-  "validation": {
-    "harness": ["checkAgentHarness"],
-    "frontend": [":frontend:lint", ":frontend:testFrontend", ":frontend:verifyGqlTypes"],
-    "backend": [":app:compileKotlin", ":app:compileTestKotlin", ":app:test"],
-    "targeted": [":app:test"],
-    "full": ["assemble", "check"]
-  }
+  "reviewers": ["functional", "security", "code", "ux"],
+  "reviewerModel": { "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" },
+  "models": {}
 }

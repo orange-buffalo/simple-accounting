@@ -5,8 +5,10 @@
 ## Automatic Implementation Review and Learning
 
 For implementation requests, load the repository skill `sa-delivery` and follow `docs/AgentHarness.md`.
-After implementation, invoke the executable `sa_review` controller before handover; it owns validation,
-specialist review, finding verification, bounded repair, and re-review. Do not replace it with informal self-review.
+After implementation, invoke the executable `sa_review` controller before handover; it owns parallel, exclusively scoped
+specialist source review, finding verification, bounded repair, and re-review. The primary implementation agent owns
+build/test execution and checking results, including after controller repairs. Review workers never inspect build/test
+results or duplicate pass/fail verification. Do not replace the controller with informal self-review.
 For human corrections to previously reviewed work, also load `sa-feedback` and invoke `sa_learn`
 against the original run. Preserve the commit-before-feedback rule below. Never promote unverified candidate lessons.
 Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
