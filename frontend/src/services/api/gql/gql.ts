@@ -27,7 +27,7 @@ type Documents = {
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": typeof types.DownloadDocumentStoragesDocument,
     "\n    query getInvoicesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        invoices(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n              dateIssued\n              amount\n              currency\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.GetInvoicesForSelectDocument,
     "\n    query getInvoiceForSelect($workspaceId: String!, $invoiceId: String!) {\n      workspace(id: $workspaceId) {\n        invoice(id: $invoiceId) {\n          id\n          title\n          dateIssued\n          amount\n          currency\n        }\n      }\n    }\n  ": typeof types.GetInvoiceForSelectDocument,
-    "\n    query countriesForResidency {\n      countries\n    }\n  ": typeof types.CountriesForResidencyDocument,
+    "\n    query countriesForResidency($currency: String!) {\n      countries(currency: $currency)\n    }\n  ": typeof types.CountriesForResidencyDocument,
     "\n    query getGeneralTaxesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": typeof types.GetGeneralTaxesForSelectDocument,
     "\n    query getGeneralTaxForSelect($workspaceId: String!, $generalTaxId: String!) {\n      workspace(id: $workspaceId) {\n        generalTax(id: $generalTaxId) {\n          id\n          title\n        }\n      }\n    }\n  ": typeof types.GetGeneralTaxForSelectDocument,
     "\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n": typeof types.PaginationPageInfoFragmentDoc,
@@ -131,7 +131,7 @@ const documents: Documents = {
     "\n    query downloadDocumentStorages {\n      getDownloadDocumentStorages {\n        id\n      }\n    }\n  ": types.DownloadDocumentStoragesDocument,
     "\n    query getInvoicesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        invoices(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n              dateIssued\n              amount\n              currency\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.GetInvoicesForSelectDocument,
     "\n    query getInvoiceForSelect($workspaceId: String!, $invoiceId: String!) {\n      workspace(id: $workspaceId) {\n        invoice(id: $invoiceId) {\n          id\n          title\n          dateIssued\n          amount\n          currency\n        }\n      }\n    }\n  ": types.GetInvoiceForSelectDocument,
-    "\n    query countriesForResidency {\n      countries\n    }\n  ": types.CountriesForResidencyDocument,
+    "\n    query countriesForResidency($currency: String!) {\n      countries(currency: $currency)\n    }\n  ": types.CountriesForResidencyDocument,
     "\n    query getGeneralTaxesForSelect($workspaceId: String!, $first: Int!, $freeSearchText: String) {\n      workspace(id: $workspaceId) {\n        generalTaxes(first: $first, freeSearchText: $freeSearchText) {\n          edges {\n            node {\n              id\n              title\n            }\n          }\n          totalCount\n        }\n      }\n    }\n  ": types.GetGeneralTaxesForSelectDocument,
     "\n    query getGeneralTaxForSelect($workspaceId: String!, $generalTaxId: String!) {\n      workspace(id: $workspaceId) {\n        generalTax(id: $generalTaxId) {\n          id\n          title\n        }\n      }\n    }\n  ": types.GetGeneralTaxForSelectDocument,
     "\n  fragment PaginationPageInfo on PageInfo {\n    endCursor\n    hasNextPage\n    hasPreviousPage\n    startCursor\n  }\n": types.PaginationPageInfoFragmentDoc,
@@ -291,7 +291,7 @@ export function graphql(source: "\n    query getInvoiceForSelect($workspaceId: S
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    query countriesForResidency {\n      countries\n    }\n  "): (typeof documents)["\n    query countriesForResidency {\n      countries\n    }\n  "];
+export function graphql(source: "\n    query countriesForResidency($currency: String!) {\n      countries(currency: $currency)\n    }\n  "): (typeof documents)["\n    query countriesForResidency($currency: String!) {\n      countries(currency: $currency)\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

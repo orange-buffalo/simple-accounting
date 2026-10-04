@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdir, readFile, writeFile, rename, open, unlink, lstat } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, open, unlink, lstat, chmod } from 'node:fs/promises';
 import path from 'node:path';
 
 const exec = promisify(execFile);
@@ -15,6 +15,27 @@ export const reviewerScopes = {
 };
 const reviewRules = 'Stay strictly within your exclusive responsibility; do not repeat checks assigned to another reviewer. Read only relevant source and test files with glob/read; grep and command execution are denied. Never inspect build/test results, logs, pass/fail status, CI status or test-execution receipts, and never ask for them merely to verify tests passed. Coverage means source-level assertions for behavior, not evidence of execution. Inspect visual artifacts only for an applicable usability concern, not test success. Disclosed limitations are not defects unless a requirement promises otherwise. Return concise source-grounded findings and coverage; missing applicable source evidence is a gap.';
 export const parse = (text) => JSON.parse(text.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, ''));
+export function feedbackItems(feedback) {
+  let batch;
+  try { batch = JSON.parse(feedback); } catch { return { kind: 'review-improvement', items: [{ ref: '1', file: 'docs/AgentHarness.md', line: 93, comment: feedback }] }; }
+  if (!Array.isArray(batch.items) || !batch.items.length || !['review-improvement', 'user-confirmed-policy'].includes(batch.kind)
+    || batch.items.some((item) => typeof item.ref !== 'string' || !item.ref.trim()
+      || typeof item.comment !== 'string' || !item.comment.trim() || typeof item.file !== 'string' || !item.file.trim()
+      || !Number.isInteger(item.line) || item.line < 1)
+    || new Set(batch.items.map((item) => item.ref)).size !== batch.items.length) throw new Error('Invalid feedback batch; ask the user to clarify, never discard it');
+  return batch;
+}
+
+export function feedbackReport(state) {
+  const escape = (text) => String(text ?? '').replaceAll('|', '\\|').replaceAll('\n', '<br>');
+  const rows = (state.feedbackBatch?.items ?? [{ ref: '1', file: 'docs/AgentHarness.md', line: 93, comment: state.feedback }]).map((item) => {
+    const disposition = state.proposal?.dispositions?.find((entry) => entry.ref === item.ref);
+    const action = [item.action, disposition?.action, disposition?.lesson, state.status === 'verified'
+      ? `Active instruction ${state.id}/${item.ref}: ${disposition?.lesson} Published in .harness/lessons/${state.id}.json and supplied through knowledge(). ${state.feedbackBatch?.kind === 'user-confirmed-policy' ? 'Policy verified; reviewer improvement not measured.' : 'Blind replay, held-out and clean evaluations passed.'}` : `Investigation unresolved; user clarification required: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ');
+    return `| ${escape(item.ref)} | ${escape(item.file)}:${item.line} | ${escape(item.comment)} | ${escape(action)} |`;
+  });
+  return ['| Ref index | File:line | Initial user comment | Agent action |', '| --- | --- | --- | --- |', ...rows].join('\n');
+}
 const safeId = (id) => {
   if (!/^[a-z0-9-]{1,80}$/.test(id)) throw new Error('Invalid artifact ID');
   return id;
@@ -28,11 +49,31 @@ export function protectedDrift(before, after) {
   return [...new Set([...before.files, ...after.files])].filter((file) => protectedFile(file) && before.contents[file] !== after.contents[file]);
 }
 
+async function privateDirectory(directory) {
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  let current = directory;
+  while (current.split(path.sep).includes('.harness') && path.basename(current) !== '.harness') {
+    await chmod(current, 0o700);
+    current = path.dirname(current);
+  }
+}
+
 export async function save(file, value) {
-  await mkdir(path.dirname(file), { recursive: true });
+  await privateDirectory(path.dirname(file));
   const temp = `${file}.${randomUUID()}.tmp`;
   await writeFile(temp, json(value), { mode: 0o600 });
   await rename(temp, file);
+}
+
+export function deployedLesson(lesson) {
+  const dispositions = lesson.evidence?.dispositions ?? lesson.dispositions ?? [];
+  const instructions = dispositions.map((entry) => {
+    if (typeof entry.ref !== 'string' || !entry.ref.trim()
+      || typeof entry.lesson !== 'string' || !entry.lesson.trim()) throw new Error('Invalid per-feedback instruction');
+    return { ref: entry.ref, instruction: entry.lesson };
+  });
+  if (new Set(instructions.map((entry) => entry.ref)).size !== instructions.length) throw new Error('Duplicate feedback instruction');
+  return { id: lesson.id, guidance: lesson.guidance, scope: lesson.scope, instructions };
 }
 
 export async function knowledge(root, limit = 30000) {
@@ -46,7 +87,7 @@ export async function knowledge(root, limit = 30000) {
     if (hash(raw) !== entry.sha256) throw new Error(`Lesson integrity failure: ${entry.id}`);
     const lesson = JSON.parse(raw);
     if (lesson.status !== 'verified' || !lesson.guidance || !lesson.evidence) throw new Error('Unverified lesson');
-    lessons.push({ id: entry.id, guidance: lesson.guidance, scope: lesson.scope });
+    lessons.push(deployedLesson({ ...lesson, id: entry.id }));
   }
   const text = json(lessons);
   if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
@@ -90,9 +131,10 @@ export async function snapshot(root, base) {
     if (data.includes(0)) throw new Error(`Binary review file: ${file}`);
     contents[file] = data.toString('utf8');
   }
-  const diff = await git('diff', '--no-ext-diff', '--no-textconv', '--no-color', base, '--');
+  const diffs = [];
+  for (const file of files) diffs.push(await git('diff', '--no-ext-diff', '--no-textconv', '--no-color', base, '--', file));
+  const diff = diffs.join('');
   const result = { base, head: (await git('rev-parse', 'HEAD')).trim(), files, diff, contents };
-  if (json(result).length > 600000) throw new Error('Review snapshot exceeds limit; split the task');
   return { ...result, fingerprint: hash(json(result)) };
 }
 
@@ -104,7 +146,7 @@ export class Controller {
   }
 
   async exclusive(work) {
-    await mkdir(this.runtime, { recursive: true });
+    await privateDirectory(this.runtime);
     const file = path.join(this.runtime, 'controller.lock');
     const lock = await open(file, 'wx', 0o600);
     await lock.writeFile(json({ pid: process.pid, started: Date.now() }));
@@ -114,7 +156,9 @@ export class Controller {
   async policy() {
     const policy = JSON.parse(await readFile(path.join(this.root, '.harness/policy.json'), 'utf8'));
     if (policy.version !== 1 || !Number.isInteger(policy.maxFixCycles) || policy.maxFixCycles < 0
-      || policy.maxFixCycles > 5 || !(policy.maxElapsedMinutes > 0) || !(policy.maxCostUsd > 0)
+      || policy.maxFixCycles > 5 || (policy.maxReviewRounds !== undefined
+        && (!Number.isInteger(policy.maxReviewRounds) || policy.maxReviewRounds < 1 || policy.maxReviewRounds > 2))
+      || !(policy.maxElapsedMinutes > 0) || !(policy.maxCostUsd > 0)
       || !Array.isArray(policy.reviewers) || !policy.reviewers.length
       || new Set(policy.reviewers).size !== policy.reviewers.length
       || policy.reviewers.some((role) => !Object.hasOwn(reviewerScopes, role))
@@ -129,8 +173,8 @@ export class Controller {
   }
 
   boundary(state) {
-    if (Date.now() - state.started >= state.policy.maxElapsedMinutes * 60000) throw new Error('Elapsed-time budget exhausted');
-    if (state.cost >= state.policy.maxCostUsd) throw new Error('Cost budget exhausted');
+    if (Date.now() - (state.budgetStarted ?? state.started) >= state.policy.maxElapsedMinutes * 60000) throw new Error('Elapsed-time budget exhausted');
+    if (state.cost - (state.budgetCostBaseline ?? 0) >= state.policy.maxCostUsd) throw new Error('Cost budget exhausted');
   }
 
   async ask(state, role, prompt, bundle = state.knowledge, fixer = false) {
@@ -179,10 +223,11 @@ export class Controller {
       const diff = (await exec('git', ['diff', '--no-ext-diff', '--no-textconv', '--no-color', snapshot.base, '--', file],
         { cwd: this.root, maxBuffer: 8 * 1024 * 1024 })).stdout;
       const artifact = path.join(state.dir, 'sources', `round-${state.rounds.length}`, `${index + 1}.txt`);
-      await mkdir(path.dirname(artifact), { recursive: true });
+      await privateDirectory(path.dirname(artifact));
       await writeFile(artifact, `Source: ${file}\n${diff || snapshot.contents[file] || '(deleted or empty file)'}`, { mode: 0o600 });
       sources.push({ file, artifact });
     }
+    if (json(sources).length > 600000) throw new Error('Review source index exceeds context limit; split the task');
     return sources;
   }
 
@@ -210,7 +255,19 @@ export class Controller {
       }
       if (input.clarification?.trim()) {
         state.clarifications ??= [];
-        if (!state.clarifications.some((entry) => entry.text === input.clarification)) state.clarifications.push({ text: input.clarification, time: Date.now() });
+        const text = input.clarification.trim();
+        if (!state.clarifications.some((entry) => entry.text.trim() === text)) {
+          const time = Date.now();
+          state.clarifications.push({ text, time });
+          if (time - (state.budgetStarted ?? state.started) >= state.policy.maxElapsedMinutes * 60000
+            || state.cost - (state.budgetCostBaseline ?? 0) >= state.policy.maxCostUsd) {
+            state.budgetHistory ??= [];
+            state.budgetHistory.push({ started: state.budgetStarted ?? state.started,
+              costBaseline: state.budgetCostBaseline ?? 0, ended: time, cost: state.cost, feedback: text });
+            state.budgetStarted = time;
+            state.budgetCostBaseline = state.cost;
+          }
+        }
       }
       try {
         if (!state.requirements?.trim()) throw new Error('Original requirements are required');
@@ -222,6 +279,9 @@ export class Controller {
             || !/^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)+[a-zA-Z_][a-zA-Z0-9_]*(?:\$[a-zA-Z_][a-zA-Z0-9_]*)?$/.test(name))) throw new Error('Invalid test classes');
         for (;;) {
           this.boundary(state);
+          if (state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)) {
+            state.status = 'needs-human'; state.error = 'Two-round review limit reached; ask the user how to address unresolved findings'; break;
+          }
           const before = await snapshot(this.root, state.base);
           if (state.profile === 'harness' && before.files.some((file) => !harnessFile(file))) throw new Error('Harness profile cannot validate application/build changes');
           const round = { snapshot: before, reports: [], accepted: [] };
@@ -255,7 +315,9 @@ export class Controller {
           const gaps = round.reports.flatMap((report) => report.gaps.map((gap) => `${report.axis}: ${gap}`));
           if (gaps.length) throw new Error(`Incomplete review: ${json(gaps)}`);
           if (!round.accepted.length) { state.status = 'passed'; state.fingerprint = before.fingerprint; break; }
-          if (state.fixes >= state.policy.maxFixCycles) { state.status = 'needs-human'; break; }
+          if (state.fixes >= state.policy.maxFixCycles || state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)) {
+            state.status = 'needs-human'; break;
+          }
           state.fixes++;
           await save(path.join(dir, 'state.json'), state);
           await this.ask(state, 'fixer', `Apply ONLY these validated findings. Do not launch agents, change controller/policy/build infrastructure, commit, push or merge. If a protected edit or generated artifact requires shell execution, explain the blocker instead. Preserve unrelated work.\n${contract}\nValidated findings:\n${json(round.accepted)}`, state.knowledge, true);
@@ -273,42 +335,84 @@ export class Controller {
 
   async learn({ runId, feedback, parentSessionID }) {
     return this.exclusive(async () => {
-      const original = JSON.parse(await readFile(path.join(this.runtime, safeId(runId), 'state.json'), 'utf8'));
       const id = `lesson-${randomUUID()}`;
-      const policy = await this.policy();
-      const state = { id, dir: path.join(this.runtime, id), started: Date.now(), policy, parentSessionID, cost: 0, artifacts: [], knowledge: await knowledge(this.root, policy.maxKnowledgeChars), status: 'candidate' };
+      const state = { id, dir: path.join(this.runtime, id), originalRun: runId, feedback, started: Date.now(), parentSessionID, cost: 0, artifacts: [], status: 'candidate' };
+      await save(path.join(state.dir, 'state.json'), state);
       try {
+        state.feedbackBatch = feedbackItems(feedback);
+        const original = JSON.parse(await readFile(path.join(this.runtime, safeId(runId), 'state.json'), 'utf8'));
+        const policy = await this.policy();
+        state.policy = policy;
+        state.knowledge = await knowledge(this.root, policy.maxKnowledgeChars);
         if (!original.rounds.some((round) => round.reports.length)) throw new Error('Original reviewer evidence unavailable');
         const evidenceDir = path.join(state.dir, 'original-evidence');
-        await mkdir(evidenceDir, { recursive: true });
-        const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifactDirectory: original.dir, artifacts: [] };
+        await privateDirectory(evidenceDir);
+        const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifacts: [] };
         for (const [index, round] of original.rounds.entries()) {
           const snapshotFile = path.join(evidenceDir, `round-${index + 1}-snapshot.txt`);
           const reportFile = path.join(evidenceDir, `round-${index + 1}-reports.json`);
+          const sourcesFile = path.join(evidenceDir, `round-${index + 1}-sources.json`);
+          const diffFile = path.join(evidenceDir, `round-${index + 1}-diff.txt`);
           await writeFile(snapshotFile, json(round.snapshot), { mode: 0o600 });
-          await save(reportFile, { reports: round.reports, accepted: round.accepted });
-          source.rounds.push({ snapshotFile, reportFile, axes: round.reports.map((report) => report.axis) });
+          await writeFile(diffFile, round.snapshot.diff, { mode: 0o600 });
+          const sources = [];
+          for (const [fileIndex, file] of round.snapshot.files.entries()) {
+            const content = round.snapshot.contents[file];
+            const contentFile = path.join(evidenceDir, `round-${index + 1}-source-${fileIndex + 1}.txt`);
+            if (content !== null) await writeFile(contentFile, content, { mode: 0o600 });
+            sources.push({ file, contentFile: content === null ? null : contentFile });
+          }
+          await save(sourcesFile, sources);
+          await save(reportFile, { reports: round.reports, accepted: round.accepted, rejected: round.rejected ?? [] });
+          source.rounds.push({ snapshotFile, sourcesFile, diffFile, reportFile, axes: round.reports.map((report) => report.axis) });
         }
         for (const [index, artifact] of original.artifacts.entries()) {
+          const artifactFile = path.join(evidenceDir, `agent-${index + 1}.json`);
           const promptFile = path.join(evidenceDir, `agent-${index + 1}-prompt.txt`);
           const resultFile = path.join(evidenceDir, `agent-${index + 1}-result.txt`);
+          const investigationFile = path.join(evidenceDir, `agent-${index + 1}-investigation.json`);
+          const messagesFile = path.join(evidenceDir, `agent-${index + 1}-messages.json`);
+          await writeFile(artifactFile, await readFile(path.join(this.runtime, safeId(runId), `agent-${index + 1}.json`)), { mode: 0o600 });
           await writeFile(promptFile, artifact.prompt, { mode: 0o600 });
           await writeFile(resultFile, artifact.text, { mode: 0o600 });
           const investigation = [];
-          const tools = artifact.messages?.filter((message) => message.type === 'assistant').flatMap((message) => message.content.filter((part) => part.type === 'tool')) ?? [];
-          for (const [toolIndex, tool] of tools.entries()) {
+          const messages = (artifact.messages ?? []).map((message, messageIndex) => ({
+            pointer: `/messages/${messageIndex}`, id: message.id, type: message.type, time: message.time,
+            parts: [...(message.content ?? []).map((part, partIndex) => ({
+              pointer: `/messages/${messageIndex}/content/${partIndex}`, id: part.id, type: part.type,
+            })), ...(typeof message.text === 'string' ? [{ pointer: `/messages/${messageIndex}/text`, type: 'text' }] : [])],
+          }));
+          const tools = (artifact.messages ?? []).flatMap((message, messageIndex) =>
+            (message.content ?? []).flatMap((part, partIndex) => part.type === 'tool' ? [{ tool: part, messageIndex, partIndex }] : []));
+          for (const [toolIndex, { tool, messageIndex, partIndex }] of tools.entries()) {
             const file = path.join(evidenceDir, `agent-${index + 1}-tool-${toolIndex + 1}.txt`);
             const output = tool.state?.content?.map((part) => part.text ?? json(part)).join('\n') ?? json(tool);
             await writeFile(file, `Tool: ${tool.name}\nInput: ${json(tool.state?.input)}\n${output}`, { mode: 0o600 });
-            investigation.push({ file, tool: tool.name, input: tool.state?.input, ...(output.length <= 4000 ? { output } : {}) });
+            investigation.push({ file, pointer: `/messages/${messageIndex}/content/${partIndex}`, id: tool.id,
+              tool: tool.name, input: tool.state?.input, status: tool.state?.status, metadata: tool.state?.metadata, time: tool.state?.time });
           }
-          source.artifacts.push({ artifact: `agent-${index + 1}.json`, role: artifact.role, promptFile, resultFile,
-            sessionId: artifact.sessionId, knowledgeHash: artifact.knowledgeHash, investigation });
+          await save(investigationFile, investigation);
+          await save(messagesFile, { artifactFile, messages });
+          source.artifacts.push({ artifactFile, role: artifact.role, promptFile, resultFile,
+            sessionId: artifact.sessionId, knowledgeHash: artifact.knowledgeHash, investigationFile, messagesFile, toolCount: investigation.length });
         }
-        if (json(source).length > 300000) throw new Error('Original review evidence index exceeds context budget; split feedback by reviewed task');
-        const proposal = await this.ask(state, 'feedback-analysis', `Classify EACH human correction as defect, missed existing requirement, new requirement/preference, or invalid. Read relevant original snapshot, exact reviewer prompt and investigation files from the evidence index before making claims. Ground each in actual reviewer artifacts (not retrospective speculation). Explain likely failure mechanism as a hypothesis with cited evidence; propose the smallest general preventive instruction and executable regression when possible. Include a distinct held-out analogous defective case and a clean counterexample as self-contained source/requirements, never disclose the answer in their input. Return ONLY JSON {"dispositions":[{"feedback":"text","classification":"defect","evidence":"artifact/source references","hypothesis":"why missed"}],"scope":"applicable contracts","guidance":"general guidance without test answers","replay":{"input":"self-contained original defect/requirements","expected":"specific defect"},"heldOut":{"input":"different analogous code and requirements","expected":"specific defect"},"clean":{"input":"correct code and requirements","expected":"no findings"}}. New scope alone is not reviewer improvement.\nHuman feedback:\n${feedback}\nOriginal evidence:\n${json(source)}`);
+        await save(path.join(evidenceDir, 'index.json'), source);
+        if (json(source).length > 300000) throw new Error('Original review evidence navigation index exceeds context budget');
+        const policyLearning = state.feedbackBatch.kind === 'user-confirmed-policy';
+        const proposal = await this.ask(state, 'feedback-analysis', `Investigate EVERY indexed human correction. Never ignore, dismiss, or independently reject user feedback. If you believe feedback conflicts with facts or requirements, record a question with arguments, reasoning and concrete options for the user; do not invent a resolution. Classify each as defect, missed existing requirement, or new requirement/preference. A preference is an actionable lesson, not a reason to skip learning. Read relevant original snapshots, exact prompts and tool investigations before claiming why a reviewer missed something. Unknown causes must be stated as unknown, not guessed. Account for each exact ref and comment, with a concise action and preventive lesson. Return ONLY JSON {"questions":[],"dispositions":[{"ref":"exact input ref","feedback":"exact initial comment","classification":"new requirement/preference","evidence":"artifact/source references","hypothesis":"source-grounded cause or unknown","action":"correction","lesson":"preventive instruction"}],"scope":"applicable contracts","guidance":"general truthful guidance"${policyLearning ? '' : ',"replay":{"input":"self-contained original defect/requirements","expected":"specific defect"},"heldOut":{"input":"different analogous code and requirements","expected":"specific defect"},"clean":{"input":"correct code and requirements","expected":"no findings"}'}}. ${policyLearning ? 'This batch explicitly records user-confirmed policy. Verify faithful, scoped interpretation of the human instructions and source-grounded correction, not a speculative historic reviewer-failure theory. Do not claim measured reviewer improvement; blind baseline failure is not necessary to learn an explicit user preference.' : 'Reviewer-improvement claims still require blind replay, held-out and clean evaluation; new scope alone is not proof of improvement.'}\nHuman feedback batch:\n${json(state.feedbackBatch)}\nOriginal evidence:\n${json(source)}`);
         state.proposal = proposal;
-        const verified = await this.ask(state, 'learning-validator', `Independently read relevant original snapshot, exact prompt and investigation files from the evidence index and verify proposal claims. Check all feedback is accounted for, defect exists in original requirements/snapshot, cited reviews actually missed it, guidance is general and truthful, replay faithfully represents the original defect, heldOut is distinct and valid, clean is truly clean, cases do not leak answers, and expected outcomes are correct. Treat missed-review explanations as hypotheses. Reject unsupported or newly introduced requirements as proof of reviewer improvement. Return ONLY JSON {"valid":true,"evidence":["specific checks"],"issues":[]}.\nFeedback:\n${feedback}\nProposal:\n${json(proposal)}\nOriginal evidence:\n${json(source)}`);
+        if (proposal.questions?.length) throw new Error(`User clarification required: ${json(proposal.questions)}`);
+        if (!Array.isArray(proposal.dispositions) || proposal.dispositions.length !== state.feedbackBatch.items.length
+          || state.feedbackBatch.items.some((item) => !proposal.dispositions.some((entry) => (entry.ref === item.ref
+            || (state.feedbackBatch.items.length === 1 && entry.ref === undefined)) && entry.feedback === item.comment))
+          || proposal.dispositions.some((entry) => !['defect', 'missed existing requirement', 'new requirement/preference'].includes(entry.classification))) {
+          throw new Error('Missing, changed or dismissed human feedback; user clarification required');
+        }
+        if (state.feedbackBatch.items.length === 1 && proposal.dispositions[0].ref === undefined) proposal.dispositions[0].ref = state.feedbackBatch.items[0].ref;
+        if (proposal.dispositions.some((entry) => ['action', 'lesson'].some((key) => typeof entry[key] !== 'string' || !entry[key].trim()))) {
+          throw new Error('Every human correction requires an action and lesson; user clarification required');
+        }
+        const verified = await this.ask(state, 'learning-validator', `Independently read the original snapshots, exact prompts and investigation files and verify each indexed disposition. Never dismiss human feedback. Check every exact comment is accounted for, guidance and corrections are faithful, general, scoped and truthful; unknown historic failure causes must remain unknown. ${policyLearning ? 'This is user-confirmed policy learning, not a claim of measured reviewer improvement. New preferences are valid lessons. Verify each preventive lesson against the explicit human instruction and relevant source; do not demand that the preference existed before the user stated it or invent a reviewer miss.' : 'For improvement claims check original defect, missed existing requirement, faithful replay, distinct held-out, clean case, no answer leakage, and correct expected outcomes. New scope alone does not prove improvement.'} If anything is wrong, provide specific arguments, reasoning and options for clarification, not unilateral dismissal. Return ONLY JSON {"valid":true,"evidence":["specific checks"],"issues":[]}.\nFeedback batch:\n${json(state.feedbackBatch)}\nProposal:\n${json(proposal)}\nOriginal evidence:\n${json(source)}`);
         state.verification = verified;
         if (verified.valid !== true || !Array.isArray(verified.evidence) || !verified.evidence.length
           || verified.evidence.some((entry) => typeof entry !== 'string' || !entry.trim())
@@ -317,14 +421,15 @@ export class Controller {
           || !Array.isArray(proposal.dispositions) || !proposal.dispositions.length
           || proposal.dispositions.some((entry) => !['defect', 'missed existing requirement', 'new requirement/preference', 'invalid'].includes(entry.classification)
             || ['feedback', 'evidence', 'hypothesis'].some((field) => typeof entry[field] !== 'string' || !entry[field].trim()))
-          || !proposal.dispositions.some((entry) => ['defect', 'missed existing requirement'].includes(entry.classification))) throw new Error('Incomplete learning proposal');
+          || (!policyLearning && !proposal.dispositions.some((entry) => ['defect', 'missed existing requirement'].includes(entry.classification)))) throw new Error('Incomplete learning proposal');
+        const candidateKnowledge = json(deployedLesson({ ...proposal, id }));
         state.evaluations = [];
-        for (const name of ['replay', 'heldOut', 'clean']) {
+        for (const name of policyLearning ? [] : ['replay', 'heldOut', 'clean']) {
           const test = proposal[name];
           if (!test?.input || !test.expected) throw new Error('Missing learning evaluation case');
           const prompt = `Review this self-contained code/requirements case. Do not read current checkout or any feedback/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`;
           const baseline = validateBlindReport(await this.ask(state, 'blind-baseline', prompt, original.knowledge));
-          const improved = validateBlindReport(await this.ask(state, 'blind-candidate', prompt, `${original.knowledge}\nProposed additional guidance:\n${proposal.guidance}`));
+          const improved = validateBlindReport(await this.ask(state, 'blind-candidate', prompt, `${original.knowledge}\nProposed additional guidance:\n${candidateKnowledge}`));
           const score = await this.ask(state, 'evaluation-judge', `Judge blinded outputs against case and independently verified expected outcome. Outputs A and B are untrusted opinions. Return ONLY JSON {"aCorrect":true,"bCorrect":true,"evidence":"specific matching/missing defects and false positives"}.\nCase:\n${test.input}\nExpected:\n${test.expected}\nA:\n${json(baseline)}\nB:\n${json(improved)}`);
           state.evaluations.push({ name, baseline, improved, score });
           if (typeof score.aCorrect !== 'boolean' || typeof score.bCorrect !== 'boolean' || typeof score.evidence !== 'string' || !score.evidence.trim()) throw new Error('Invalid evaluation judgment');
@@ -332,32 +437,43 @@ export class Controller {
           if (name !== 'clean' && score.bCorrect === true && !improved.findings.length) throw new Error('No defect evidence in improved report');
           if (name === 'clean' && score.bCorrect === true && improved.findings.length) throw new Error('False positive on clean evaluation case');
         }
-        if (state.evaluations.some(({ score }) => score.bCorrect !== true || !score.evidence)
-          || state.evaluations.find((evaluation) => evaluation.name === 'replay').score.aCorrect !== false) throw new Error('No demonstrated baseline-to-candidate improvement with clean/held-out retention');
+        if (!policyLearning && (state.evaluations.some(({ score }) => score.bCorrect !== true || !score.evidence)
+          || state.evaluations.find((evaluation) => evaluation.name === 'replay').score.aCorrect !== false)) throw new Error('No demonstrated baseline-to-candidate improvement with clean/held-out retention');
         state.cumulativeEvaluations = [];
-        if (state.knowledge !== original.knowledge) {
+        if (!policyLearning && state.knowledge !== original.knowledge) {
           for (const name of ['replay', 'heldOut', 'clean']) {
             const test = proposal[name];
-            const output = validateBlindReport(await this.ask(state, 'blind-cumulative', `Review this self-contained code/requirements case. Do not read checkout/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`, `${state.knowledge}\nProposed additional guidance:\n${proposal.guidance}`));
+            const output = validateBlindReport(await this.ask(state, 'blind-cumulative', `Review this self-contained code/requirements case. Do not read checkout/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`, `${state.knowledge}\nProposed additional guidance:\n${candidateKnowledge}`));
             const score = await this.ask(state, 'evaluation-judge', `Independently score this report against case and expected outcome. Return ONLY JSON {"correct":true,"evidence":"specific matches or false positives"}.\nCase:\n${test.input}\nExpected:\n${test.expected}\nReport:\n${json(output)}`);
             state.cumulativeEvaluations.push({ name, output, score });
             if (score.correct !== true || !score.evidence || (name === 'clean' ? output.findings.length !== 0 : output.findings.length === 0)) throw new Error('Cumulative deployed guidance did not pass evaluation');
           }
         }
         state.status = 'verified';
-        const lesson = { id, status: 'verified', scope: proposal.scope, guidance: proposal.guidance,
+        const lesson = { id, status: 'verified', kind: state.feedbackBatch.kind, scope: proposal.scope, guidance: proposal.guidance,
           evidence: { originalRun: runId, verification: verified, evaluations: state.evaluations, cumulativeEvaluations: state.cumulativeEvaluations, dispositions: proposal.dispositions },
-          limitations: 'Single blind replay, synthetic held-out and clean cases; probabilistic evidence, not a proven recurrence reduction.' };
+          limitations: policyLearning ? 'Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed.'
+            : 'Single blind replay, synthetic held-out and clean cases; probabilistic evidence, not a proven recurrence reduction.' };
         const file = path.join(this.root, '.harness/lessons', `${id}.json`);
-        await save(file, lesson);
         const registryFile = path.join(this.root, '.harness/knowledge.json');
         const registry = JSON.parse(await readFile(registryFile, 'utf8'));
+        if (json([...JSON.parse(state.knowledge), deployedLesson(lesson)]).length > policy.maxKnowledgeChars) throw new Error('New knowledge exceeds budget; curate registry');
+        await save(file, lesson);
         registry.lessons.push({ id, sha256: hash(await readFile(file, 'utf8')) });
-        if (json([...JSON.parse(state.knowledge), { id, guidance: lesson.guidance, scope: lesson.scope }]).length > policy.maxKnowledgeChars) throw new Error('New knowledge exceeds budget; curate registry');
         await save(registryFile, registry);
-      } catch (error) { state.status = 'candidate'; state.error = error.message; }
+      } catch (error) {
+        state.status = 'candidate'; state.error = error.message; state.requiresUser = true;
+        state.questions = state.proposal?.questions?.length ? state.proposal.questions : [{
+          question: 'How should this unresolved learning concern be addressed?',
+          reasoning: state.error, arguments: state.verification?.issues ?? [],
+          options: ['Clarify the disputed interpretation', 'Correct the evidence-grounding claim and retry', 'Keep the instruction as explicit user policy without claiming reviewer improvement'],
+        }];
+      }
+      const reportFile = path.join(state.dir, 'feedback-report.md');
+      await writeFile(reportFile, feedbackReport(state), { mode: 0o600 });
       await save(path.join(state.dir, 'state.json'), state);
-      return { lessonId: id, status: state.status, error: state.error, evidence: state.dir, cost: state.cost };
+      return { lessonId: id, status: state.status, error: state.error, evidence: state.dir, cost: state.cost,
+        requiresUser: state.requiresUser ?? false, questions: state.questions ?? [], reportFile, report: feedbackReport(state) };
     });
   }
 }

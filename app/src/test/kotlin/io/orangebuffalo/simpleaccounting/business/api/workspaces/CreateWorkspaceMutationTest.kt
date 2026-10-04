@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.workspaces
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -68,7 +70,16 @@ class CreateWorkspaceMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
-            countryCodeTestCases { value -> createWorkspaceMutation(residency = value) },
+            countryCodeTestCases { value ->
+                createWorkspaceMutation(
+                    residency = value,
+                    defaultCurrency = when (value) {
+                        "AU" -> "AUD"
+                        "UA" -> "UAH"
+                        else -> "USD"
+                    },
+                )
+            },
             mustNotBeBlankTestCases("name") { value ->
                 createWorkspaceMutation(name = value)
             },
@@ -77,10 +88,10 @@ class CreateWorkspaceMutationTest(
             },
             mustNotBeBlankTestCases("defaultCurrency") { value ->
                 createWorkspaceMutation(defaultCurrency = value)
-            },
+            }.filterNot { it is GraphqlMutationValidBoundaryTestCase },
             sizeConstraintTestCases("defaultCurrency", maxLength = 3) { value ->
                 createWorkspaceMutation(defaultCurrency = value)
-            },
+            }.filterNot { it is GraphqlMutationValidBoundaryTestCase },
         ).flatten()
 
         @ParameterizedTest(name = "{0}")
@@ -104,7 +115,7 @@ class CreateWorkspaceMutationTest(
                     createWorkspaceMutation(
                         name = "Robot Arms Apts",
                         defaultCurrency = "EUR",
-                        residency = "UA",
+                        residency = "DE",
                     )
                 }
                 .from(preconditions.fry)
@@ -113,7 +124,7 @@ class CreateWorkspaceMutationTest(
                         put("id", JsonValues.ANY_STRING)
                         put("name", "Robot Arms Apts")
                         put("defaultCurrency", "EUR")
-                        put("residency", "UA")
+                        put("residency", "DE")
                     }
                 )
 
@@ -125,8 +136,37 @@ class CreateWorkspaceMutationTest(
                         name = "Robot Arms Apts",
                         defaultCurrency = "EUR",
                         ownerId = preconditions.fry.id!!,
-                        residency = "UA",
+                        residency = "DE",
                     )
+                )
+        }
+
+        @ParameterizedTest
+        @CsvSource("USD,AU", "AUD,US", "XXX,US", "usd,US")
+        fun `should reject incompatible currency and residency without creating a workspace`(currency: String, residency: String) {
+            val fry = preconditions.fry
+            val before = aggregateTemplate.findAll<Workspace>()
+            client.graphqlMutation { createWorkspaceMutation(defaultCurrency = currency, residency = residency) }
+                .from(fry)
+                .executeAndVerifyBusinessErrorCode(
+                    errorCode = "INCOMPATIBLE_CURRENCY",
+                    path = DgsConstants.MUTATION.CreateWorkspace,
+                )
+            aggregateTemplate.findAll<Workspace>().shouldBe(before)
+        }
+
+        @ParameterizedTest
+        @CsvSource("USD,US", "USD,PA", "EUR,PL", "INR,BT")
+        fun `should accept supported country currencies including additional currencies`(currency: String, residency: String) {
+            client.graphqlMutation { createWorkspaceMutation(defaultCurrency = currency, residency = residency) }
+                .from(preconditions.fry)
+                .executeAndVerifySuccessResponse(
+                    DgsConstants.MUTATION.CreateWorkspace to buildJsonObject {
+                        put("id", JsonValues.ANY_STRING)
+                        put("name", "Planet Express")
+                        put("defaultCurrency", currency)
+                        put("residency", residency)
+                    }
                 )
         }
     }
@@ -134,7 +174,7 @@ class CreateWorkspaceMutationTest(
     private fun MutationProjection.createWorkspaceMutation(
         name: String = "Planet Express",
         defaultCurrency: String = "USD",
-        residency: String = "AU",
+        residency: String = "US",
     ): MutationProjection = createWorkspace(
         name = name,
         defaultCurrency = defaultCurrency,

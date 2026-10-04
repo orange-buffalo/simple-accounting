@@ -1,0 +1,36 @@
+{
+  "id": "lesson-5c2a2f06-b8c1-4ca1-99f8-0b27bb88cb8d",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Review-controller budget handling and human-feedback workflow policy.",
+  "guidance": "Treat explicit user feedback as an indexed policy contract. Apply budget renewal narrowly to distinct user feedback, preserve audit evidence and all non-budget review limits, and do not claim reviewer-improvement evidence for user-confirmed policy learning.",
+  "evidence": {
+    "originalRun": "review-c1b1fd52-c45a-475c-b9a6-ccc2b5281e90",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F20 exact comment is preserved and classified as a new requirement/preference; no historic reviewer failure or measured improvement is claimed.",
+        "core.js:236-250 trims and deduplicates clarification text, archives exhausted elapsed/cost epochs, and renews only budget epoch fields while preserving cumulative cost, original start, artifacts, rounds, and fixes.",
+        "core.js:155-158 applies renewed epoch baselines; core.js:260-264 retains the hard two-round cap.",
+        "core.test.mjs:248-300 source-covers elapsed, cost, combined exhaustion, duplicate/whitespace-equivalent feedback, ordinary resume, and preserved round limit.",
+        "docs/AgentHarness.md:26-30 faithfully documents the narrow user-feedback exception and prohibits invented clarifications.",
+        "Original snapshot, all reviewer prompts, result artifacts, and investigation manifests support that F1-F19 remain an earlier verified user-policy lesson; no unsupported historic cause is introduced."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F20",
+        "feedback": "also, make sure the expired or exceeded budget is reset on new user feedback",
+        "classification": "new requirement/preference",
+        "evidence": "`.opencode/plugins/sa-review/core.js:236-250` trims and deduplicates clarification feedback, archives an exhausted elapsed-time or cost budget epoch, and establishes `budgetStarted`/`budgetCostBaseline` without changing cumulative `cost`, `started`, evidence, rounds, or fixes. `core.js:155-158` applies the renewed epoch to budget checks; `core.js:260-264` retains the two-round cap. `.harness/tests/core.test.mjs:248-300` source-covers elapsed, cost, combined exhaustion, duplicate feedback, ordinary resume, and preserved round limit. `docs/AgentHarness.md:26-30` documents the scoped renewal rule.",
+        "hypothesis": "This is explicit user-confirmed controller policy; no historic reviewer-failure cause is asserted.",
+        "action": "Implemented renewal for distinct trimmed clarification feedback after elapsed-time or cost exhaustion, recording the previous epoch while retaining cumulative usage and review evidence; documented the exception and added scoped regression coverage.",
+        "lesson": "Distinct new user feedback may renew only an exhausted elapsed-time or cost budget epoch. Preserve original start, cumulative cost, archived epochs, evidence, repair count, and the two-round limit; whitespace-equivalent duplicate feedback and ordinary continuation must not renew budgets."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import io.orangebuffalo.simpleaccounting.business.countries.CountryFinancialRegistry
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
@@ -18,9 +19,15 @@ class WorkspacesService(
 
     fun getUserWorkspaces(userName: String): List<Workspace> = workspacesRepository.findAllByOwnerUserName(userName)
 
-    fun createWorkspace(workspace: Workspace): Workspace = workspacesRepository.save(workspace)
+    fun createWorkspace(workspace: Workspace): Workspace = save(workspace)
 
-    fun save(workspace: Workspace) = workspacesRepository.save(workspace)
+    fun save(workspace: Workspace): Workspace {
+        if (CountryFinancialRegistry.byResidency[workspace.residency]
+                ?.supportedCurrencies?.contains(workspace.defaultCurrency) != true) {
+            throw IncompatibleWorkspaceCurrencyException(workspace.residency, workspace.defaultCurrency)
+        }
+        return workspacesRepository.save(workspace)
+    }
 
     fun saveSharedWorkspace(token: String): Workspace {
         val accessToken = getValidWorkspaceAccessToken(token)

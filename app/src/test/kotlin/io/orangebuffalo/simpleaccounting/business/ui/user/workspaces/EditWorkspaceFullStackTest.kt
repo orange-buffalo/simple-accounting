@@ -18,7 +18,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry)
+                val workspace = workspace(owner = fry, residency = "US")
             }
         }
 
@@ -32,7 +32,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
             }
 
             reportRendering("edit-workspace.loaded")
-            residency { input.shouldHaveSelectedValue("Australia") }
+            residency { input.shouldHaveSelectedValue("United States") }
         }
     }
 
@@ -50,7 +50,8 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
             name {
                 input.fill("Mom's Friendly Robot Company")
             }
-            residency { input.selectOption("Ukraine") }
+            defaultCurrency { input.shouldBeDisabled() }
+            residency { input.selectOption("Panama") }
             saveButton.click()
         }
 
@@ -64,7 +65,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
                     name = "Mom's Friendly Robot Company",
                     defaultCurrency = "USD",
                     ownerId = testData.fry.id!!,
-                    residency = "UA",
+                    residency = "PA",
                 )
             )
     }
@@ -74,7 +75,7 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express", defaultCurrency = "USD")
+                val workspace = workspace(owner = fry, residency = "US")
             }
         }
 
@@ -97,6 +98,29 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should require correcting a residency incompatible with the existing currency`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "USD", residency = "AU")
+            }
+        }
+        page.authenticateViaCookie(testData.fry)
+        page.openEditWorkspacePage(testData.workspace.id!!) {
+            residency { input.shouldBeEmpty() }
+            saveButton.click()
+            shouldHaveNotifications { validationFailed() }
+            residency { shouldHaveValidationError("This value is required and should not be blank") }
+            residency { input.selectOption("United States") }
+            saveButton.click()
+        }
+        page.shouldBeWorkspacesOverviewPage {
+            shouldHaveWorkspaces("Planet Express")
+        }
+        aggregateTemplate.findSingle<Workspace>(testData.workspace.id!!).residency.shouldBe("US")
+    }
+
+    @Test
     fun `should show validation errors for invalid inputs`(page: Page) {
         val testData = preconditions {
             object {
@@ -109,21 +133,21 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openEditWorkspacePage(testData.workspace.id!!) {
             name { input.fill("") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("edit-workspace.validation-error-name")
-            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -145,6 +169,6 @@ class EditWorkspaceFullStackTest : SaFullStackTestBase() {
         page.shouldBeWorkspacesOverviewPage()
 
         aggregateTemplate.findSingle<Workspace>(testData.workspace.id!!)
-            .name shouldBe "Planet Express"
+            .name.shouldBe("Planet Express")
     }
 }

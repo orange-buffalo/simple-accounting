@@ -1,4 +1,21 @@
 {
   "version": 1,
-  "lessons": []
+  "lessons": [
+    {
+      "id": "lesson-e7a9ee57-1344-470d-8427-e4c3e9014025",
+      "sha256": "bb38d5f9ee93193be90840ab3c7dc4c1edd2e30cc564a48b16022fd14c09b2b0"
+    },
+    {
+      "id": "lesson-5c2a2f06-b8c1-4ca1-99f8-0b27bb88cb8d",
+      "sha256": "28392118820faf138275e418c2bed0fbf54a8fa29e845dafd82eb0172c5a5f1d"
+    },
+    {
+      "id": "lesson-09f86ab6-cfdd-4a6b-8c33-35321b460ae0",
+      "sha256": "2a093286a40344de44533558fc128f68cb9f2e15be2bc9be8aa90cc28617ba30"
+    },
+    {
+      "id": "lesson-c6fe8e54-fd60-40bc-989f-47a4cd31ba0e",
+      "sha256": "b936cefe48ffc4353d64585749a5438964cd7312d64201068de7c962655e84e5"
+    }
+  ]
 }

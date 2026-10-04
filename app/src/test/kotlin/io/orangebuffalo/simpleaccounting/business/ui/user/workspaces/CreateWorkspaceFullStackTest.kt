@@ -1,5 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContain
+
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.CreateWorkspacePage.Companion.openCreateWorkspacePage
@@ -23,7 +26,9 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openCreateWorkspacePage {
             name { input.fill("Mom's Friendly Robot Company") }
             defaultCurrency { input.selectOption("EUREuro") }
-            residency { input.selectOption("Ukraine") }
+            residency {
+                input.selectOption("Germany")
+            }
             saveButton.click()
         }
 
@@ -38,9 +43,37 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
                 name = "Mom's Friendly Robot Company",
                 defaultCurrency = "EUR",
                 ownerId = preconditions.fry.id!!,
-                residency = "UA",
+                residency = "DE",
             )
         )
+    }
+
+    @Test
+    fun `should disable residency until currency is selected and reset it on currency change`(page: Page) {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateWorkspacePage {
+            residency {
+                input.shouldBeDisabled()
+                input.shouldHavePlaceholder("Select a currency first")
+            }
+            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
+            residency {
+                input.shouldHaveOptions { options ->
+                    options.shouldContainAll("Australia", "Christmas Island")
+                    options.shouldNotContain("United States")
+                }
+                input.selectOption("Australia")
+            }
+            defaultCurrency { input.selectOption("USDUS Dollar") }
+            residency {
+                input.shouldBeEmpty()
+                input.shouldHaveOptions { options ->
+                    options.shouldContainAll("United States", "Haiti")
+                    options.shouldNotContain("Australia")
+                }
+                input.selectOption("United States")
+            }
+        }
     }
 
     @Test
@@ -49,22 +82,23 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
         page.openCreateWorkspacePage {
             name { input.fill("") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
 
             reportRendering("create-workspace.validation-error-name")
-            shouldHaveNotifications { validationFailed() }
 
             name { input.fill("x".repeat(256)) }
+            defaultCurrency { input.selectOption("AUDAustralian Dollar") }
             residency { input.selectOption("Australia") }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
 
             name {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 

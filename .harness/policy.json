@@ -1,6 +1,7 @@
 {
   "version": 1,
-  "maxFixCycles": 2,
+  "maxFixCycles": 1,
+  "maxReviewRounds": 2,
   "maxElapsedMinutes": 60,
   "maxCostUsd": 20,
   "maxKnowledgeChars": 30000,

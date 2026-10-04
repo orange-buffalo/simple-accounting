@@ -5,7 +5,7 @@
       <h2>{{ $t.workspaceEditor.generalInformation.header() }}</h2>
       <SaFormInput prop="name" :label="$t.workspaceEditor.generalInformation.workspaceName.label()" />
       <SaFormCurrencyInput prop="defaultCurrency" :label="$t.workspaceEditor.generalInformation.defaultCurrency.label()" :disabled="isEditing" />
-      <SaFormCountryInput prop="residency" :label="$t.workspaceEditor.generalInformation.residency.label()" />
+      <SaFormCountryInput prop="residency" :label="$t.workspaceEditor.generalInformation.residency.label()" :currency="formValues.defaultCurrency" />
     </SaForm>
   </SaPage>
 </template>

@@ -1,0 +1,200 @@
+{
+  "id": "lesson-e7a9ee57-1344-470d-8427-e4c3e9014025",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Applicable to API and full-stack test design, dependent country-input behavior, source/reporting accuracy, commit precedence, and human-feedback learning/controller policy.",
+  "guidance": "Treat explicit user feedback and preferences as actionable, indexed contracts. Preserve exact evidence, distinguish what source proves from what a report explains, ask the user rather than dismissing conflicts, and retain default workflow rules only subject to explicit user instructions.",
+  "evidence": {
+    "originalRun": "review-261103da-2402-4b40-9c40-ccfc8966b746",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "Verified F1/F3/F9/F10 against current CountriesQueryTest: independent representative assertions, nullable parameters with separate empty-string case, and no null-versus-wire-omission claim.",
+        "Verified F2/F4/F5/F6/F11 against current Kotlin test organization and original round-1 snapshot: nested API grouping is retained; component states moved from the prior JS/page coverage; notification assertions precede persistent validation assertions.",
+        "Verified F7/F8 against SaFormCountryInput.vue and the original snapshot: standard v-model binding replaced injected-form-value casting; reset/loading/stale/failure behavior matches the scoped instruction.",
+        "Verified F12 accurately distinguishes the source selector change from report-only rationale.",
+        "Verified F13/F17/F19 against AGENTS.md and sa-feedback skill: automatic pre-feedback commit remains the default and explicit user no-commit instructions override it without being treated as an error.",
+        "Verified F14/F15/F16/F18 against core.js and AgentHarness.md: two-round cap, per-reference feedback handling, clarification rather than dismissal, and stable feedback table are implemented.",
+        "Read original round-1 snapshot, reviewer prompts, reports, and investigation manifests. The proposal does not assert unsupported historic reviewer-failure causes; F2 appropriately leaves the reason unknown.",
+        "All 19 exact feedback comments have matching dispositions, actions, and scoped preventive lessons; policy-learning language does not claim measured reviewer improvement."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F1",
+        "feedback": "Earlier feedback: use independent expected API data instead of deriving expectations from production code.",
+        "classification": "defect",
+        "evidence": "CountriesQueryTest.kt:61-67 and :80-90 use literal representative inclusions/exclusions rather than CountryFinancialRegistry; original round-1 snapshot shows the prior test derived expected values from CountryFinancialRegistry.",
+        "hypothesis": "User-confirmed correction; no historic reviewer-failure claim is needed.",
+        "action": "Replaced production-derived expectations with representative independent country assertions.",
+        "lesson": "Tests of production mappings must use independent representative expected values; do not reproduce the production registry/filtering logic in assertions."
+      },
+      {
+        "ref": "F2",
+        "feedback": "Earlier feedback: follow nested Authorization / Business Flow API-test conventions.",
+        "classification": "missed existing requirement",
+        "evidence": "CountriesQueryTest.kt:20-57 groups Authorization and Business Flow; repository API-test convention is reflected in the corrected nested structure. Original reviewer investigations include CountriesQueryTest.kt, but do not establish why enforcement was missed.",
+        "hypothesis": "Historic reason remains unknown; reviewers inspected relevant source but did not enforce the neighboring-test convention.",
+        "action": "Retained nested Authorization and Business Flow grouping.",
+        "lesson": "When adding API tests, compare neighboring tests and preserve their authorization/business-flow nesting conventions."
+      },
+      {
+        "ref": "F3",
+        "feedback": "Earlier feedback: use nullable optional input instead of an empty sentinel converted with ifEmpty.",
+        "classification": "new requirement/preference",
+        "evidence": "CountriesQueryTest.kt:23-51 uses String? with @NullSource for nullable input; :93-100 separately checks actual empty-string input. The nullable GraphQL invocation is not evidence that the wire variable was omitted.",
+        "hypothesis": "User-confirmed policy; no claim is made that null covers omitted wire input.",
+        "action": "Used nullable Kotlin test parameters and @NullSource, retaining a separate empty-string case.",
+        "lesson": "Model nullable optional API input as null and test an actual empty string separately; never equate null with omission of a wire input unless the request construction proves omission."
+      },
+      {
+        "ref": "F4",
+        "feedback": "Earlier feedback: separate currency/residency UI checks from setup/create happy-path persistence scenarios.",
+        "classification": "new requirement/preference",
+        "evidence": "SaFormCountryInputFullStackTest.kt:20-125 contains component-state scenarios; UserAccountSetupTest.kt:19-37 is focused on setup persistence.",
+        "hypothesis": "User-confirmed testing-organization preference.",
+        "action": "Moved country-input state scenarios to the shared component full-stack class and kept creation wiring separately covered.",
+        "lesson": "Keep reusable component interaction-state coverage in its component full-stack test; keep page happy paths focused on page workflow and persistence."
+      },
+      {
+        "ref": "F5",
+        "feedback": "Earlier feedback: assert ephemeral validation notifications before persistent field-validation errors.",
+        "classification": "defect",
+        "evidence": "UserAccountSetupTest.kt:48-52 and :55-59 assert validationFailed() immediately after submission before persistent field errors; no notification-disappearance wait is present.",
+        "hypothesis": "User-confirmed correction; no historic reviewer-failure claim is needed.",
+        "action": "Ordered notification assertions immediately after submit, before field-error assertions.",
+        "lesson": "For submissions producing transient notifications and persistent field errors, assert the notification first without waiting for it to disappear."
+      },
+      {
+        "ref": "F6",
+        "feedback": "Earlier feedback: remove JS component tests; use Kotlin full-stack component coverage.",
+        "classification": "new requirement/preference",
+        "evidence": "SaFormCountryInputFullStackTest.kt:20-125 covers reset, loading, stale-response, failure, and recovery states; original round-1 snapshot lists frontend/src/components/form/__tests__/SaFormCountryInput.spec.ts, while the current source is absent.",
+        "hypothesis": "User-confirmed scoped preference; it does not establish a repository-wide ban on JavaScript component tests.",
+        "action": "Removed the JavaScript component test and added Kotlin component full-stack coverage.",
+        "lesson": "When directed for a component, move its behavioral coverage to the corresponding Kotlin full-stack component test; do not generalize the direction into a repository-wide test-framework prohibition."
+      },
+      {
+        "ref": "F7",
+        "feedback": "Earlier feedback: reset on currency-change start; no local catch/rethrow or additional reset on failure.",
+        "classification": "defect",
+        "evidence": "SaFormCountryInput.vue:49-75 clears data and resets input at transition start, uses try/finally for loading cleanup, has no local catch/rethrow, and guards stale requests through active.",
+        "hypothesis": "User-confirmed correction; no historic reviewer-failure claim is needed.",
+        "action": "Reset at transition start; retained try/finally cleanup, global error handling, valid initial-edit preservation, and stale-result guard.",
+        "lesson": "On dependent-input changes, reset at transition start; use finally only for local cleanup, let shared error handling surface failures, and guard stale asynchronous results."
+      },
+      {
+        "ref": "F8",
+        "feedback": "Earlier feedback: use standard form-value binding instead of casting/indexing injected formValues.",
+        "classification": "missed existing requirement",
+        "evidence": "SaFormCountryInput.vue:2-4 uses SaFormItemInternal v-model and local inputValue; it no longer imports or casts injected formValues as shown by the original round-1 snapshot.",
+        "hypothesis": "User-confirmed correction aligned with sibling form binding patterns; no historic reviewer-failure claim is needed.",
+        "action": "Replaced injected-form-values casting/indexing with SaFormItemInternal v-model and local inputValue.",
+        "lesson": "Form components must use the standard SaFormItemInternal v-model binding and local value state instead of casting/indexing injected form values."
+      },
+      {
+        "ref": "F9",
+        "feedback": "i do not think it is reasonable to maintain the list in the test. in this case, where the values are coming from third party provider, we can have a plumbing case to ensure some of the countries are there in the response. maintainitng the full list in assertion is not viable",
+        "classification": "new requirement/preference",
+        "evidence": "CountriesQueryTest.kt:58-67 checks only AU and US plus no GraphQL errors; the original round-1 snapshot used Locale.getISOCountries() for an exhaustive assertion.",
+        "hypothesis": "Explicit user testing preference for third-party-provider plumbing coverage.",
+        "action": "Removed the maintained ISO-list expectation and kept representative AU/US plumbing assertions.",
+        "lesson": "For third-party reference data, prefer representative plumbing assertions over exhaustive maintained-list assertions unless exhaustive membership is the contract."
+      },
+      {
+        "ref": "F10",
+        "feedback": "same here, i do not think we need full list. just two is enough to ensure proper filtering, right?",
+        "classification": "new requirement/preference",
+        "evidence": "CountriesQueryTest.kt:69-90 asserts two independently chosen included countries and one excluded country for each currency; original round-1 snapshot derived an exhaustive filtered list from production data.",
+        "hypothesis": "Explicit user preference; exclusion remains necessary to verify filtering rather than only presence.",
+        "action": "Reduced filtered assertions to two inclusions plus one exclusion per currency.",
+        "lesson": "For filtered third-party data, use a small independent sample of included values and at least one excluded value; do not maintain exhaustive fixtures."
+      },
+      {
+        "ref": "F11",
+        "feedback": "this is not page-related logic, but component-owned. It must be moved to the component test full stack class (see other component-specific tests we have)",
+        "classification": "missed existing requirement",
+        "evidence": "SaFormCountryInputFullStackTest.kt:17-125 owns the component state scenarios; UserAccountSetupTest.kt:19-59 retains page setup and validation behavior.",
+        "hypothesis": "User-confirmed correction aligned with existing component-specific full-stack test organization; no historic reviewer-failure claim is needed.",
+        "action": "Moved account-setup country-input state scenarios into SaFormCountryInputFullStackTest.",
+        "lesson": "Place reusable component-owned full-stack scenarios in the component-specific full-stack class, not in a consuming page test."
+      },
+      {
+        "ref": "F12",
+        "feedback": "why this change?",
+        "classification": "new requirement/preference",
+        "evidence": "AccountSetupPage.kt:9 targets .sa-page-without-side-menu__content; SaFormCountryInputFullStackTest.kt:114 produces the component rendering report. The selector rationale is reported externally, not documented in source.",
+        "hypothesis": "The source establishes the actual selector change, but the rationale is intentionally report/conversation-only rather than source-documented.",
+        "action": "Kept the selector targeting the public-page container required for the component rendering report; documented rationale in the report/conversation, not source comments.",
+        "lesson": "When a test-selector change is questioned, provide its concrete DOM/rendering rationale in the review report; add source comments only when the code itself needs non-obvious durable explanation."
+      },
+      {
+        "ref": "F13",
+        "feedback": "you can commit the progress BEFORE addressing review comments. the leave the changes uncommitted until i tell.",
+        "classification": "new requirement/preference",
+        "evidence": "AGENTS.md:31-37 retains automatic pre-feedback commit behavior with explicit-user-instruction precedence; supplied policy action identifies only commit 65cc6dcea54e0c21dd00b29da32f3c2feda347e8 as authorized prior progress.",
+        "hypothesis": "Explicit scoped authorization and commit policy, not a claim that authorization is always required.",
+        "action": "Used the scoped authorization only for prior-progress commit 65cc6dcea54e0c21dd00b29da32f3c2feda347e8 and left corrections uncommitted.",
+        "lesson": "Automatically commit prior relevant progress before feedback by default, but explicit user instructions override that default; scoped authorization never covers later corrections."
+      },
+      {
+        "ref": "F14",
+        "feedback": "reduce the review cycles - 5 is too much, do at most 2 rounds",
+        "classification": "new requirement/preference",
+        "evidence": "core.js:248-252 and :286-287 cap review rounds at two; docs/AgentHarness.md:49-56 documents initial review plus one re-review, including resumed attempts.",
+        "hypothesis": "Explicit harness policy.",
+        "action": "Implemented a hard two-round cap, including resumed/legacy policy behavior, with no silent restart.",
+        "lesson": "Review controllers must cap all attempts, including resumes, at two rounds and require user direction for unresolved findings."
+      },
+      {
+        "ref": "F15",
+        "feedback": "fix the harness - agent cannot at any circumstances ignore or dismiss user review feedback. user review must always result in invsetigation and lessons learned. if agent believes something is not right in the user feedback, it must ask user, providing arguments, reasoning and options how to address it. never it can just dismiss on its own.",
+        "classification": "new requirement/preference",
+        "evidence": "AGENTS.md:14-16; core.js:370-381 requires exact per-ref dispositions, actions, and lessons; core.js:372 and :383-387 route questions/verification issues to user clarification; docs/AgentHarness.md:101-111 states the same policy.",
+        "hypothesis": "Explicit harness policy; independently verified policy learning must not invent reviewer-improvement evidence.",
+        "action": "Required complete per-reference dispositions, actions, and preventive lessons; disputes or failed verification require user-directed arguments, reasoning, and options.",
+        "lesson": "Never autonomously dismiss human review feedback: investigate every indexed comment, record an action and lesson, and ask the user with evidence and options for any conflict."
+      },
+      {
+        "ref": "F16",
+        "feedback": "after receiving human review and addressing it, harness must provide a report to the user - a table with columns: ref index (so further discussions could refer to it), file:line as a reference so tooling could open the code there, initial user comment, agent action (concise description how it was fixed, which lessons were recorded, etc.)",
+        "classification": "new requirement/preference",
+        "evidence": "core.js:29-38 builds the stable four-column feedback report; AGENTS.md:16 and docs/AgentHarness.md:113-115 require presentation after corrections.",
+        "hypothesis": "Explicit reporting requirement.",
+        "action": "Added stable feedback-report generation, including every indexed comment and unresolved status on failure.",
+        "lesson": "After human-feedback handling, always provide a stable table with ref, file:line, exact initial comment, and concise action/lesson status for every item."
+      },
+      {
+        "ref": "F17",
+        "feedback": "do not commit until i tell. why didnt lessons work? i provided feeback, it must be used for learning. fix what is wrong with harness!!",
+        "classification": "new requirement/preference",
+        "evidence": "AGENTS.md:34-37 and sa-feedback/SKILL.md:8-12 make explicit no-commit instructions override the default; core.js:318-383 preserves evidence and requires complete feedback processing.",
+        "hypothesis": "Explicit no-commit instruction and feedback-learning policy; no contradiction exists with the retained automatic default.",
+        "action": "Retained private file-backed evidence, bounded navigation prompts, and preflight feedback processing; prior fixes were committed only under F13's scoped authorization.",
+        "lesson": "Honor explicit no-commit instructions without treating that precedence as a workflow failure, while still investigating and learning every feedback item from preserved evidence."
+      },
+      {
+        "ref": "F18",
+        "feedback": "make sure that ALL user feedback in this session is addressed according to the above",
+        "classification": "new requirement/preference",
+        "evidence": "sa-feedback/SKILL.md:8-14 requires every human comment, complete indexed batch handling, and carrying unresolved feedback forward; core.js:373-381 rejects incomplete dispositions.",
+        "hypothesis": "Explicit session-wide feedback-accountability requirement.",
+        "action": "Carried forward all earlier corrections and later harness/current feedback; marked earlier wording as summary rather than fabricating exact quotation.",
+        "lesson": "For session feedback, maintain a complete indexed ledger across follow-ups; preserve exact comments where available and explicitly label summaries rather than presenting them as quotations."
+      },
+      {
+        "ref": "F19",
+        "feedback": "fix the factual calims and harnessgaps, retain automatic rule, make it clear that any explicit user insruction (like do not commit) overrrules the written repo instructions and this is not an error/issue, then run the leraning again",
+        "classification": "new requirement/preference",
+        "evidence": "AGENTS.md:14-16 and :31-37 correct feedback/commit-policy claims; sa-feedback/SKILL.md:8-16 distinguishes null/omission and explicit policy learning; core.js:369-423 implements user-confirmed-policy learning without reviewer-improvement claims.",
+        "hypothesis": "Explicit factual-correction and policy-learning instruction.",
+        "action": "Corrected null-versus-omission and report-versus-source-documentation claims, retained the automatic commit default with explicit-user precedence, and performed the authorized single policy-learning retry.",
+        "lesson": "State behavioral evidence precisely, distinguish source documentation from reported rationale and null from omitted wire input, and retain workflow defaults while honoring explicit user overrides."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

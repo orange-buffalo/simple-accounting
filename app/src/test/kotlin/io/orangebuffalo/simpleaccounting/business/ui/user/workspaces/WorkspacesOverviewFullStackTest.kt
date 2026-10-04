@@ -167,7 +167,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             defaultCurrency {
                 input.selectOption("EUREuro")
             }
-            residency { input.selectOption("Australia") }
+            residency { input.selectOption("Germany") }
             saveButton.click()
         }
 
@@ -186,7 +186,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                     title = "Mom's Friendly Robot Company",
                     primaryAttributes = listOf(
                         primaryAttribute(SaIconType.MULTI_CURRENCY, "EUR"),
-                        primaryAttribute(SaIconType.GLOBE, "Australia"),
+                        primaryAttribute(SaIconType.GLOBE, "Germany"),
                     ),
                     hasDetails = false,
                 ),

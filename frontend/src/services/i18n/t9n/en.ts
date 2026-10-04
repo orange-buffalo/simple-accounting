@@ -1192,6 +1192,13 @@ export default {
     successNotification: (userName: string) => format('User {0} has been successfully saved', [userName]),
   },
 
+  saFormCountryInput: {
+    loadFailed: () => 'Could not load countries. Refresh the page to try again.',
+    selectCurrency: () => 'Select a currency first',
+    loading: () => 'Loading countries...',
+    noCountries: () => 'No countries available for this currency',
+  },
+
   saForm: {
     inputValidationFailed: () => 'Some of the fields have not been filled correctly. Please check the form and try again.',
     submittedOutdatedState: () => 'This record has changed since you opened it. Reload the page and apply your changes again.',

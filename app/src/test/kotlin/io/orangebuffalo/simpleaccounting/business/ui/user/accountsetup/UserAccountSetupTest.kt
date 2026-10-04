@@ -21,21 +21,17 @@ class UserAccountSetupTest : SaFullStackTestBase() {
         page.shouldHaveSideMenuHidden()
         page.shouldBeAccountSetupPage {
             workspaceName { input.fill("Planet Express") }
-            defaultCurrency {
-                input.shouldHaveValue("AUD")
-                input.fill("USD")
-            }
-            residency { input.selectOption("Ukraine") }
+            defaultCurrency { input.shouldHaveValue("AUD") }
+            residency { input.selectOption("Australia") }
             completeSetupButton { click() }
         }
         page.shouldBeDashboardPage()
-        page.shouldHaveSideMenu()
-            .shouldHaveWorkspaceName("Planet Express")
+        page.shouldHaveSideMenu().shouldHaveWorkspaceName("Planet Express")
 
         aggregateTemplate.findSingle<Workspace>().should { workspace ->
             workspace.name.shouldBe("Planet Express")
-            workspace.residency.shouldBe("UA")
-            workspace.defaultCurrency.shouldBe("USD")
+            workspace.residency.shouldBe("AU")
+            workspace.defaultCurrency.shouldBe("AUD")
             workspace.ownerId.shouldBe(preconditions.fry.id)
         }
     }
@@ -66,7 +62,6 @@ class UserAccountSetupTest : SaFullStackTestBase() {
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
-            // no workspace yet - setup is required
         }
     }
 }
