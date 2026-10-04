@@ -14,7 +14,9 @@ against the original run. Preserve the commit-before-feedback rule below. Never 
 Human review feedback must never be ignored or autonomously dismissed. Investigate every comment and learn from it,
 including new preferences. If feedback appears wrong or conflicting, ask the user with arguments, reasoning and options.
 After corrections, provide a table with ref index, file:line, initial user comment and agent action including lesson status.
-Review runs have at most two rounds; unresolved issues require user direction, not silent restart or budget extension.
+Review runs have at most two rounds; never silently restart or extend the review budget. Exhausting review rounds
+does not stop implementation: finish the required fixes and validation, then report the exhausted review limit,
+receipt status and any remaining issues. Ask for user direction only for genuine ambiguity or external blockers.
 New human feedback renews expired time or exhausted cost budgets with prior usage retained; it never resets the
 two-round limit. Ordinary continuation or repeated feedback does not renew budgets.
 Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's

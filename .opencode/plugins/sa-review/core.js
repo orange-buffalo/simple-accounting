@@ -238,7 +238,7 @@ export class Controller {
       let state;
       if (input.runId) {
         state = JSON.parse(await readFile(path.join(dir, 'state.json'), 'utf8'));
-        if (!['running', 'blocked'].includes(state.status)) throw new Error('Run cannot be resumed');
+        if (!['running', 'blocked', 'review-exhausted'].includes(state.status)) throw new Error('Run cannot be resumed');
         if (state.pendingAgent || state.pendingAgents?.length) throw new Error('Unreconciled interrupted agent operation; inspect its session and cost before resuming');
         if (input.requirements !== state.requirements || input.base !== state.base || input.profile !== state.profile
           || json(input.testClasses ?? []) !== json(state.testClasses ?? [])) throw new Error('Resume contract changed');
@@ -280,7 +280,9 @@ export class Controller {
         for (;;) {
           this.boundary(state);
           if (state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)) {
-            state.status = 'needs-human'; state.error = 'Two-round review limit reached; ask the user how to address unresolved findings'; break;
+            state.status = 'review-exhausted';
+            state.error = 'Two-round review limit reached; finish implementation and validation, then report the review limit and outstanding findings';
+            break;
           }
           const before = await snapshot(this.root, state.base);
           if (state.profile === 'harness' && before.files.some((file) => !harnessFile(file))) throw new Error('Harness profile cannot validate application/build changes');
@@ -316,7 +318,8 @@ export class Controller {
           if (gaps.length) throw new Error(`Incomplete review: ${json(gaps)}`);
           if (!round.accepted.length) { state.status = 'passed'; state.fingerprint = before.fingerprint; break; }
           if (state.fixes >= state.policy.maxFixCycles || state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)) {
-            state.status = 'needs-human'; break;
+            state.status = state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)
+              ? 'review-exhausted' : 'needs-human'; break;
           }
           state.fixes++;
           await save(path.join(dir, 'state.json'), state);
@@ -326,9 +329,15 @@ export class Controller {
           if (changedProtected.length) throw new Error(`Fixer changed protected infrastructure: ${json(changedProtected)}`);
           if (afterFix.fingerprint === before.fingerprint) throw new Error('Fixer made no changes; human intervention needed');
         }
-      } catch (error) { state.status = 'blocked'; state.error = error.message; }
+      } catch (error) {
+        state.status = state.rounds.length >= Math.min(state.policy.maxReviewRounds ?? 2, 2)
+          ? 'review-exhausted' : 'blocked';
+        state.error = error.message;
+      }
       await save(path.join(dir, 'state.json'), state);
       return { runId: id, status: state.status, error: state.error, fixes: state.fixes, cost: state.cost, evidence: dir,
+        reviewRoundsExhausted: state.status === 'review-exhausted',
+        nextAction: state.status === 'review-exhausted' ? 'finish-implementation-and-validation' : undefined,
         unresolved: state.status === 'passed' ? [] : state.rounds.at(-1)?.accepted ?? [], fingerprint: state.fingerprint };
     });
   }

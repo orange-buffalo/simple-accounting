@@ -622,6 +622,11 @@ type IncomesSummaryItem {
   totalAmount: Long!
 }
 
+"Workspace-scoped integration providers."
+type IntegrationsGqlDto {
+  wise: WiseIntegrationGqlDto!
+}
+
 "Invoice for a customer."
 type Invoice {
   "Amount of the invoice in cents."
@@ -1178,6 +1183,8 @@ type Mutation {
     "The workspace access token."
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
+  "Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token."
+  setupWiseIntegration(accounts: [WiseAccountInput!]! @size(max : 2147483647, min : 1), token: String! @notBlank @size(max : 2000, min : 0), workspaceId: String!): WiseSetupResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.") @businessError(errorCode : "ALREADY_ACTIVE", errorCodeDescription : "Wise is already active for this workspace.") @businessError(errorCode : "INVALID_ACCOUNTS", errorCodeDescription : "The selected Wise accounts are invalid or have changed.")
   "Starts migration of documents that are not stored in the current upload storage."
   startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.") @businessError(errorCode : "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE", errorCodeDescription : "Current upload storage is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE", errorCodeDescription : "At least one source storage required for migration is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS", errorCodeDescription : "The current user already has an incomplete documents migration.")
   "Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow."
@@ -1208,6 +1215,8 @@ type Mutation {
     "The locale of the user profile, e.g. 'en-US'."
     locale: String! @notBlank @size(max : 36, min : 0)
   ): UserProfile! @auth(type : AUTHENTICATED_USER)
+  "Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token."
+  verifyWiseIntegrationToken(token: String! @notBlank @size(max : 2000, min : 0), workspaceId: String!): WiseAccountsResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.")
 }
 
 "An OAuth2 provider the users can authenticate with."
@@ -1354,6 +1363,8 @@ type Query {
   getDownloadDocumentStorages: [DownloadDocumentStorageResponse!]! @auth(type : AUTHENTICATED_ACTOR) @slowOperation
   "Returns the current user's Google Drive storage integration status."
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
+  "Whether Wise is configured for the owned workspace. Never returns credentials."
+  integrations(workspaceId: String!): IntegrationsGqlDto! @auth(type : REGULAR_USER)
   "Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name."
   myOAuthProviderLinks: [OAuthProviderLinkGqlDto!]! @auth(type : AUTHENTICATED_USER)
   "Returns the OAuth2 provider with the given ID."
@@ -1530,6 +1541,31 @@ type ValidationErrorParam {
   name: String!
   "The parameter value."
   value: String!
+}
+
+"A currency balance or Jar belonging to a Wise profile. IDs preserve 64-bit precision as strings."
+type WiseAccountGqlDto {
+  accountId: String!
+  currency: String!
+  name: String
+  profileId: String!
+  profileName: String!
+  type: String!
+}
+
+"Verified balances across all Wise profiles."
+type WiseAccountsResult {
+  accounts: [WiseAccountGqlDto!]!
+}
+
+"Wise integration metadata. Credentials are never returned."
+type WiseIntegrationGqlDto {
+  active: Boolean!
+}
+
+"Whether the integration was saved successfully."
+type WiseSetupResult {
+  success: Boolean!
 }
 
 "Workspace of a user."
@@ -1993,6 +2029,18 @@ enum SaveSharedWorkspaceErrorCodes {
   INVALID_WORKSPACE_ACCESS_TOKEN
 }
 
+"Possible business error codes for the setupWiseIntegration operation."
+enum SetupWiseIntegrationErrorCodes {
+  "Wise is already active for this workspace."
+  ALREADY_ACTIVE
+  "The selected Wise accounts are invalid or have changed."
+  INVALID_ACCOUNTS
+  "Wise rejected the personal token."
+  INVALID_TOKEN
+  "Wise accounts could not be loaded."
+  UNAVAILABLE
+}
+
 "Possible business error codes for the startDocumentsMigration operation."
 enum StartDocumentsMigrationErrorCodes {
   "The current user already has an incomplete documents migration."
@@ -2037,6 +2085,14 @@ enum ValidationErrorCode {
   SizeConstraintViolated
 }
 
+"Possible business error codes for the verifyWiseIntegrationToken operation."
+enum VerifyWiseIntegrationTokenErrorCodes {
+  "Wise rejected the personal token."
+  INVALID_TOKEN
+  "Wise accounts could not be loaded."
+  UNAVAILABLE
+}
+
 "A date-time instant, serialized as an ISO-8601 string (e.g. '2025-01-15T10:30:00Z')."
 scalar DateTime
 
@@ -2045,3 +2101,10 @@ scalar LocalDate
 
 "A 64-bit signed integer."
 scalar Long
+
+"A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients."
+input WiseAccountInput {
+  accountId: String!
+  currency: String!
+  profileId: String!
+}

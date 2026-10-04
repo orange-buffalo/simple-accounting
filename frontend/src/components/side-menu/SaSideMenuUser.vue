@@ -66,6 +66,12 @@
     />
 
     <SaSideMenuLink
+      to="/settings/integrations"
+      :title="$t.integrations.header()"
+      icon="integrations"
+    />
+
+    <SaSideMenuLink
       to="/settings/workspaces"
       :title="$t.navigationMenu.settings.workspaces()"
       icon="workspaces"

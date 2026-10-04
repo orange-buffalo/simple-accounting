@@ -2,6 +2,45 @@
 import { format } from './formatter';
 
 export default {
+  integrations: {
+    header: () => 'Integrations',
+    ownerOnly: () => 'Integrations are available only for workspaces you own.',
+    loading: () => 'Loading integrations…',
+    active: () => 'active',
+    setup: () => 'Setup',
+    view: () => 'View',
+    next: () => 'Next',
+    back: () => 'Back',
+    selected: () => 'Selected',
+    wise: {
+      description: () => 'Connect your Wise currency balances and Jars to your workspace.',
+      setupHeader: () => 'Setup Wise integration',
+      viewHeader: () => 'Wise integration',
+      tokenStep: () => 'Personal token',
+      accountsStep: () => 'Select accounts',
+      finishStep: () => 'Activate',
+      tokenLabel: () => 'Personal API token',
+      verifying: () => 'Verifying token and loading accounts…',
+      saving: () => 'Activating Wise integration…',
+      selectAccounts: () => 'Select the currency balances and Jars to use for this integration. Click an account to select or deselect it.',
+      noAccounts: () => 'No balances or Jars are available. Add an account in Wise, then try again.',
+      balance: () => 'Currency balance',
+      accountId: (id: string) => format('Account ID: {0}', [id]),
+      success: () => 'Wise integration activated successfully.',
+      invalidToken: () => 'Wise rejected this token. Check the token and try again.',
+      invalidAccounts: () => 'The selected accounts have changed. Go back and select your accounts again.',
+      alreadyActive: () => 'Wise is already active for this workspace. Open Integrations to view it.',
+      unavailable: () => 'Wise could not be reached or its accounts could not be loaded. Please try again.',
+      instructions: {
+        login: () => 'Sign in to your Wise account on wise.com.',
+        navigate: () => 'Open Your Account → Connect and manage apps → API tokens → Add new token.',
+        readOnly: () => 'Choose read-only access when creating your personal token. Do not grant transfer or payment permissions.',
+        copy: () => 'Complete two-step verification and copy the token. Wise displays it only once. Paste it below.',
+        documentation: () => 'Wise personal API token guide',
+        security: () => 'Use a dedicated read-only token. It is stored on the server and never displayed again. You can revoke it in Wise at any time.',
+      },
+    },
+  },
   common: {
     date: {
       medium: (date?: Date | string) => format('{0, date, medium}', [date]),

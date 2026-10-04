@@ -1,0 +1,83 @@
+{
+  "id": "lesson-bbed31a6-b99b-4b06-b04b-8811e61bdb8a",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Wise integration configuration, endpoint versioning, GraphQL integration namespace, business-error mapping, explicit commit precedence, and review-exhaustion delivery behavior.",
+  "guidance": "These are user-confirmed policies verified against the original snapshots/prompts and current source. They are actionable scoped instructions, not evidence of measured reviewer improvement or a speculative account of historic reviewer failure.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F23: original snapshots show the raw simpleaccounting.wise @Value; current WiseProperties is documented, typed, and rooted at sa.wise, with mocks updated accordingly.",
+        "F24: original snapshots use a versioned base URL; current client uses a version-neutral origin and explicit /2026Q4 endpoint paths, including matching mocks.",
+        "F25: original prompts/snapshots contain the flat wiseIntegrationActive query; current API, frontend operation, and API assertions use integrations.wise.active.",
+        "F26: original reviewer prompts contained no declarative-error-mapping preference; current mutations use @BusinessError with dedicated exceptions, while WiseApiClient retains only specific transport/deserialization sanitization catches.",
+        "F27: the exact no-commit instruction is fully represented as an explicit workflow override, consistent with AGENTS.md; the proposal does not claim publishing or measured improvement.",
+        "F28: the new policy expressly supersedes the prior F14 stop-for-direction rule only for review-round exhaustion. AGENTS.md, docs/AgentHarness.md, and core.js preserve the two-round cap while directing implementation and validation to finish and report review-exhausted status.",
+        "All original reviewer prompts record an empty clarification list; each F23-F28 item is therefore correctly classified as a new user-confirmed requirement/preference, without speculative historic reviewer-failure claims.",
+        "The proposal explicitly distinguishes verified policy learning from measured reviewer improvement and keeps unknown historic causes unknown."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F23",
+        "feedback": "all properties must be defined via typed documented `@ConfigurationProperties`, in `sa` root namespace",
+        "classification": "new requirement/preference",
+        "evidence": "Original round-1 snapshot records `WiseApiClient` using `@Value(\"${simpleaccounting.wise.api-base-url:https://api.wise.com/2026Q4}\")`; original reviewer prompts contained no F23 clarification. Current `WiseProperties.kt:6-12` is documented, typed, annotated `@ConfigurationProperties(\"sa.wise\")`, and `WiseApiClient.kt:16-19` injects it. `WiseApiMocks.kt:8` supplies `sa.wise.api-base-url`.",
+        "hypothesis": "This explicit configuration policy was not present in the original reviewer prompts; no historic reviewer-failure cause is claimed.",
+        "action": "Replaced the raw `@Value` property with injected `WiseProperties` under `sa.wise`, including property documentation and updated mock configuration.",
+        "lesson": "Define application configuration through documented typed `@ConfigurationProperties` classes rooted under `sa`; do not introduce ad-hoc `@Value` properties."
+      },
+      {
+        "ref": "F24",
+        "feedback": "`2026Q4` has issues with account statements we will need in the future tasks, so we will have to use `v1` alongside `2026Q4`. for this reason, base url should not include the api version",
+        "classification": "new requirement/preference",
+        "evidence": "Original round-1 snapshot records a default base URL of `https://api.wise.com/2026Q4` and unversioned client paths. Current `WiseProperties.kt:10-11` defaults to `https://api.wise.com`; `WiseApiClient.kt:25-28` explicitly prefixes profile and balance paths with `/2026Q4`; `WiseApiMocks.kt:25-41` mirrors that endpoint versioning. Original reviewer prompts contained no future `/v1` statement requirement.",
+        "hypothesis": "The future coexistence requirement was introduced by this user-confirmed policy; no historic reviewer-failure cause is claimed.",
+        "action": "Moved the version out of the configurable base URL and made the currently supported profile/balance endpoints explicitly `/2026Q4`, leaving future statement endpoints free to select `/v1`.",
+        "lesson": "Keep third-party API origins version-neutral when multiple provider API versions must coexist; select the supported version explicitly per endpoint."
+      },
+      {
+        "ref": "F25",
+        "feedback": "i want the integrations to be structured as `integrations.wise.<active|other data>`",
+        "classification": "new requirement/preference",
+        "evidence": "Original round-1 snapshot shows the flat `wiseIntegrationActive(workspaceId): Boolean` query and frontend selection of that field. Current `WiseIntegrationGqlApi.kt:29-34` exposes `integrations(workspaceId): IntegrationsGqlDto`; `IntegrationsGqlDto` and `WiseIntegrationGqlDto` at lines 100-104 provide the `integrations.wise.active` hierarchy. Original reviewer prompts contained no requested GraphQL namespace shape.",
+        "hypothesis": "The desired extensible API hierarchy was added as explicit policy after the original review contract; no historic reviewer-failure cause is claimed.",
+        "action": "Replaced the flat active query with workspace-scoped `integrations.wise.active` metadata and updated dependent frontend/API artifacts.",
+        "lesson": "Expose provider integration metadata through the extensible workspace-scoped GraphQL hierarchy `integrations.<provider>.<data>` rather than flat provider-specific root fields."
+      },
+      {
+        "ref": "F26",
+        "feedback": "i do not like try/catch code. use declarative business exception mapping",
+        "classification": "new requirement/preference",
+        "evidence": "Original round-1 snapshot shows Wise API methods importing no `BusinessError` annotation and the original correction action identifies business API try/catch/error-enum handling. Current `WiseIntegrationGqlApi.kt:44-78` annotates mutations with `@BusinessError` and lets `WiseInvalidTokenException`, `WiseUnavailableException`, and invalid-account exceptions propagate. `WiseApiClient.kt:32-46` retains only specific infrastructure transport/deserialization sanitization catches. Original reviewer prompts did not prescribe declarative business-error mapping.",
+        "hypothesis": "This is an explicit architectural preference added after the original contract; no historic reviewer-failure cause is claimed.",
+        "action": "Removed business-layer try/catch response mapping in favor of declared GraphQL business errors and dedicated exceptions; retained narrowly scoped infrastructure sanitization catches.",
+        "lesson": "Map expected business failures declaratively with `@BusinessError` and dedicated exceptions; reserve catches for specific infrastructure failures that require local handling such as credential-safe sanitization."
+      },
+      {
+        "ref": "F27",
+        "feedback": "this time DO NOT COMMIT anything",
+        "classification": "new requirement/preference",
+        "evidence": "`AGENTS.md:35-41` states that explicit no-commit instructions suspend the default pre-feedback commit rule. The user-confirmed action records that the Wise work and corrections remain uncommitted. Original reviewer prompts concern source review and contain no commit instruction.",
+        "hypothesis": "This was an explicit workflow override, not a source-review omission; no historic reviewer-failure cause is claimed.",
+        "action": "Honored the no-commit instruction; no prior work or feedback correction was committed or published.",
+        "lesson": "Treat an explicit user no-commit instruction as overriding automatic commit workflow defaults for its stated scope; do not commit or publish until the user authorizes it."
+      },
+      {
+        "ref": "F28",
+        "feedback": "also fix the harness - if 2 rounds of review exchausted, the agent must not stop. it should finish the job completely and then just report to user about the 2 rounds fact. but no stopping because of this, job must be done",
+        "classification": "new requirement/preference",
+        "evidence": "The previously approved F14 instructed controllers to require user direction after unresolved two-round exhaustion. Current `AGENTS.md:17-21` and `docs/AgentHarness.md:57-60` instead require implementation and validation to finish, disclosure of exhausted rounds/receipt/remaining issues, and user direction only for ambiguity or external blockers. Current `.opencode/plugins/sa-review/core.js:282-285,338-341` returns `review-exhausted` with `nextAction: finish-implementation-and-validation` while retaining the two-round cap. Original review evidence documents two rounds and does not include this later policy clarification.",
+        "hypothesis": "This user-confirmed policy explicitly supersedes the prior F14 stopping rule; no historic reviewer-failure theory is claimed.",
+        "action": "Updated controller status/next-action behavior and harness guidance so review exhaustion ends automated review only; the primary agent must complete fixes and validation without restarting or extending review rounds.",
+        "lesson": "A two-round review limit caps automated review, not delivery work: after exhaustion, finish required implementation and validation, report the exhausted limit, receipt status, and remaining issues, and seek direction only for genuine ambiguity or external blockers."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}
