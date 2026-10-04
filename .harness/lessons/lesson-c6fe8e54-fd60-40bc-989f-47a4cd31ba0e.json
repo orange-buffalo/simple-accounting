@@ -1,0 +1,35 @@
+{
+  "id": "lesson-c6fe8e54-fd60-40bc-989f-47a4cd31ba0e",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Workspace create and edit API write paths and any future API write path whose valid values depend on another field or frontend-filtered reference data.",
+  "guidance": "Treat the residency/currency relationship as a server-enforced invariant. Preserve authorization and optimistic-version precedence before edit validation, permit repairs of legacy inconsistent records, and do not claim measured reviewer improvement or speculate about historic reviewer intent.",
+  "evidence": {
+    "originalRun": "review-c1b1fd52-c45a-475c-b9a6-ccc2b5281e90",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F22 exact comment is retained verbatim and classified as a defect; its action and lesson address the API invariant without dismissing the reported security concern.",
+        "Pre-correction security artifact agent-2-result.txt independently documents that create/edit accepted ISO residency values without currency compatibility validation; original mutation snapshots confirm the absence of that check.",
+        "Current WorkspacesService.kt:24-30 authoritatively rejects registry-unsupported residency/currency pairs before repository persistence; both mutation declarations expose INCOMPATIBLE_CURRENCY.",
+        "CreateWorkspaceMutationTest.kt:144-171 and EditWorkspaceMutationTest.kt:137-193 provide source-level direct API coverage for rejected inputs/no mutation, valid secondary currencies, legacy repair, ownership, and stale-version precedence.",
+        "The disposition appropriately treats historic implementer/reviewer cause as unknown and makes no measured reviewer-improvement claim; it accurately notes retained evidence that a round-1 security reviewer identified the gap."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F22",
+        "feedback": "we have a security issue. valid countrly is only guaranteeed by the frontend code. nothing on the api level prevents a user from supplying invalid combination of currency and country code. both implementer and reviewer missed that.",
+        "classification": "defect",
+        "evidence": "Current server enforcement is in app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/workspaces/WorkspacesService.kt:24-30, which rejects residency/currency pairs absent from CountryFinancialRegistry. CreateWorkspaceMutation.kt:26-30 and EditWorkspaceMutation.kt:24-28 declare typed INCOMPATIBLE_CURRENCY business errors; edit resolves ownership and validates version before save at EditWorkspaceMutation.kt:43-45. Direct API coverage rejects invalid, unknown, and noncanonical currencies without persistence at CreateWorkspaceMutationTest.kt:144-156; it covers supported secondary currencies at :158-171, invalid edit persistence at EditWorkspaceMutationTest.kt:137-150, legacy repair at :152-168, ownership at :170-182, and stale-version precedence at :184-193. Retained original round-1 security artifact agent-2-result.txt identified the same missing server validation in the pre-correction implementation; therefore the historic claim that every reviewer missed it is not independently established by retained evidence.",
+        "hypothesis": "The original feature contract centered on frontend-dependent residency choices and did not explicitly state the server-side cross-field invariant. The pre-correction source gap is established; the specific historic implementer/reviewer failure cause is unknown and is not inferred.",
+        "action": "Added shared authoritative validation before workspace persistence, declared typed GraphQL errors for both write mutations, and added direct negative and precedence API coverage proving invalid input cannot create or modify a workspace.",
+        "lesson": "Frontend option filtering is not a security or business-invariant boundary. For every API write path, trace cross-field constraints to authoritative server-side validation and add direct negative API tests proving rejected input leaves persisted state unchanged."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.api.workspaces
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
+import io.orangebuffalo.simpleaccounting.business.workspaces.IncompatibleWorkspaceCurrencyException
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
@@ -21,6 +23,11 @@ class CreateWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Creates a new workspace for the current user.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+    @BusinessError(
+        exceptionClass = IncompatibleWorkspaceCurrencyException::class,
+        errorCode = "INCOMPATIBLE_CURRENCY",
+        errorCodeDescription = "The currency is not supported for the residency country.",
+    )
     fun createWorkspace(
         @GraphQLDescription("Name of the workspace.")
         @NotBlank

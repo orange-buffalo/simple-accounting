@@ -923,7 +923,7 @@ type Mutation {
     name: String! @notBlank @size(max : 255, min : 0),
     "Residency country of the workspace (ISO 3166-1 alpha-2)."
     residency: String! @countryCode @notBlank
-  ): Workspace! @auth(type : REGULAR_USER)
+  ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INCOMPATIBLE_CURRENCY", errorCodeDescription : "The currency is not supported for the residency country.")
   "Creates a new access token for sharing workspace access."
   createWorkspaceAccessToken(
     "The expiration time of the token."
@@ -1154,7 +1154,7 @@ type Mutation {
     residency: String! @countryCode @notBlank,
     "Version of the workspace state used for editing."
     version: Int!
-  ): Workspace! @auth(type : REGULAR_USER)
+  ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INCOMPATIBLE_CURRENCY", errorCodeDescription : "The currency is not supported for the residency country.")
   "Revokes the refresh token and clears its cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails."
@@ -1869,6 +1869,12 @@ enum CreateUserErrorCodes {
   USER_ALREADY_EXISTS
 }
 
+"Possible business error codes for the createWorkspace operation."
+enum CreateWorkspaceErrorCodes {
+  "The currency is not supported for the residency country."
+  INCOMPATIBLE_CURRENCY
+}
+
 "Possible business error codes for the deleteDocument operation."
 enum DeleteDocumentErrorCodes {
   "The document is attached to another entity and cannot be deleted."
@@ -1925,6 +1931,12 @@ enum EditOAuthProviderErrorCodes {
 enum EditUserErrorCodes {
   "A user with the given username already exists."
   USER_ALREADY_EXISTS
+}
+
+"Possible business error codes for the editWorkspace operation."
+enum EditWorkspaceErrorCodes {
+  "The currency is not supported for the residency country."
+  INCOMPATIBLE_CURRENCY
 }
 
 enum ExpenseStatus {

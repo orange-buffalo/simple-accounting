@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.api.workspaces
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
+import io.orangebuffalo.simpleaccounting.business.workspaces.IncompatibleWorkspaceCurrencyException
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
@@ -19,6 +21,11 @@ class EditWorkspaceMutation(
     @Suppress("unused")
     @GraphQLDescription("Updates an existing workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+    @BusinessError(
+        exceptionClass = IncompatibleWorkspaceCurrencyException::class,
+        errorCode = "INCOMPATIBLE_CURRENCY",
+        errorCodeDescription = "The currency is not supported for the residency country.",
+    )
     fun editWorkspace(
         @GraphQLDescription("ID of the workspace to update.")
         id: String,

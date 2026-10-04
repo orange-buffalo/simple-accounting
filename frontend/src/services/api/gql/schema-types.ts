@@ -220,6 +220,12 @@ export enum CreateUserErrorCodes {
   UserAlreadyExists = 'USER_ALREADY_EXISTS'
 }
 
+/** Possible business error codes for the createWorkspace operation. */
+export enum CreateWorkspaceErrorCodes {
+  /** The currency is not supported for the residency country. */
+  IncompatibleCurrency = 'INCOMPATIBLE_CURRENCY'
+}
+
 /** A customer in a workspace. */
 export type Customer = {
   __typename?: 'Customer';
@@ -417,6 +423,12 @@ export enum EditOAuthProviderErrorCodes {
 export enum EditUserErrorCodes {
   /** A user with the given username already exists. */
   UserAlreadyExists = 'USER_ALREADY_EXISTS'
+}
+
+/** Possible business error codes for the editWorkspace operation. */
+export enum EditWorkspaceErrorCodes {
+  /** The currency is not supported for the residency country. */
+  IncompatibleCurrency = 'INCOMPATIBLE_CURRENCY'
 }
 
 /** Business expense. */
