@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdir, readFile, writeFile, rename, open, unlink, lstat } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, open, unlink, lstat, chmod } from 'node:fs/promises';
 import path from 'node:path';
 
 const exec = promisify(execFile);
@@ -31,7 +31,7 @@ export function feedbackReport(state) {
   const rows = (state.feedbackBatch?.items ?? [{ ref: '1', file: 'docs/AgentHarness.md', line: 93, comment: state.feedback }]).map((item) => {
     const disposition = state.proposal?.dispositions?.find((entry) => entry.ref === item.ref);
     const action = [item.action, disposition?.action, disposition?.lesson, state.status === 'verified'
-      ? `Recorded verified lesson ${state.id}.` : `Investigation unresolved; user clarification required: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ');
+      ? `Active instruction ${state.id}/${item.ref}: ${disposition?.lesson} Published in .harness/lessons/${state.id}.json and supplied through knowledge(). ${state.feedbackBatch?.kind === 'user-confirmed-policy' ? 'Policy verified; reviewer improvement not measured.' : 'Blind replay, held-out and clean evaluations passed.'}` : `Investigation unresolved; user clarification required: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ');
     return `| ${escape(item.ref)} | ${escape(item.file)}:${item.line} | ${escape(item.comment)} | ${escape(action)} |`;
   });
   return ['| Ref index | File:line | Initial user comment | Agent action |', '| --- | --- | --- | --- |', ...rows].join('\n');
@@ -49,11 +49,31 @@ export function protectedDrift(before, after) {
   return [...new Set([...before.files, ...after.files])].filter((file) => protectedFile(file) && before.contents[file] !== after.contents[file]);
 }
 
+async function privateDirectory(directory) {
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  let current = directory;
+  while (current.split(path.sep).includes('.harness') && path.basename(current) !== '.harness') {
+    await chmod(current, 0o700);
+    current = path.dirname(current);
+  }
+}
+
 export async function save(file, value) {
-  await mkdir(path.dirname(file), { recursive: true });
+  await privateDirectory(path.dirname(file));
   const temp = `${file}.${randomUUID()}.tmp`;
   await writeFile(temp, json(value), { mode: 0o600 });
   await rename(temp, file);
+}
+
+export function deployedLesson(lesson) {
+  const dispositions = lesson.evidence?.dispositions ?? lesson.dispositions ?? [];
+  const instructions = dispositions.map((entry) => {
+    if (typeof entry.ref !== 'string' || !entry.ref.trim()
+      || typeof entry.lesson !== 'string' || !entry.lesson.trim()) throw new Error('Invalid per-feedback instruction');
+    return { ref: entry.ref, instruction: entry.lesson };
+  });
+  if (new Set(instructions.map((entry) => entry.ref)).size !== instructions.length) throw new Error('Duplicate feedback instruction');
+  return { id: lesson.id, guidance: lesson.guidance, scope: lesson.scope, instructions };
 }
 
 export async function knowledge(root, limit = 30000) {
@@ -67,7 +87,7 @@ export async function knowledge(root, limit = 30000) {
     if (hash(raw) !== entry.sha256) throw new Error(`Lesson integrity failure: ${entry.id}`);
     const lesson = JSON.parse(raw);
     if (lesson.status !== 'verified' || !lesson.guidance || !lesson.evidence) throw new Error('Unverified lesson');
-    lessons.push({ id: entry.id, guidance: lesson.guidance, scope: lesson.scope });
+    lessons.push(deployedLesson({ ...lesson, id: entry.id }));
   }
   const text = json(lessons);
   if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
@@ -126,7 +146,7 @@ export class Controller {
   }
 
   async exclusive(work) {
-    await mkdir(this.runtime, { recursive: true });
+    await privateDirectory(this.runtime);
     const file = path.join(this.runtime, 'controller.lock');
     const lock = await open(file, 'wx', 0o600);
     await lock.writeFile(json({ pid: process.pid, started: Date.now() }));
@@ -203,7 +223,7 @@ export class Controller {
       const diff = (await exec('git', ['diff', '--no-ext-diff', '--no-textconv', '--no-color', snapshot.base, '--', file],
         { cwd: this.root, maxBuffer: 8 * 1024 * 1024 })).stdout;
       const artifact = path.join(state.dir, 'sources', `round-${state.rounds.length}`, `${index + 1}.txt`);
-      await mkdir(path.dirname(artifact), { recursive: true });
+      await privateDirectory(path.dirname(artifact));
       await writeFile(artifact, `Source: ${file}\n${diff || snapshot.contents[file] || '(deleted or empty file)'}`, { mode: 0o600 });
       sources.push({ file, artifact });
     }
@@ -326,7 +346,7 @@ export class Controller {
         state.knowledge = await knowledge(this.root, policy.maxKnowledgeChars);
         if (!original.rounds.some((round) => round.reports.length)) throw new Error('Original reviewer evidence unavailable');
         const evidenceDir = path.join(state.dir, 'original-evidence');
-        await mkdir(evidenceDir, { recursive: true });
+        await privateDirectory(evidenceDir);
         const source = { requirements: original.requirements, clarifications: original.clarifications, rounds: [], artifacts: [] };
         for (const [index, round] of original.rounds.entries()) {
           const snapshotFile = path.join(evidenceDir, `round-${index + 1}-snapshot.txt`);
@@ -402,13 +422,14 @@ export class Controller {
           || proposal.dispositions.some((entry) => !['defect', 'missed existing requirement', 'new requirement/preference', 'invalid'].includes(entry.classification)
             || ['feedback', 'evidence', 'hypothesis'].some((field) => typeof entry[field] !== 'string' || !entry[field].trim()))
           || (!policyLearning && !proposal.dispositions.some((entry) => ['defect', 'missed existing requirement'].includes(entry.classification)))) throw new Error('Incomplete learning proposal');
+        const candidateKnowledge = json(deployedLesson({ ...proposal, id }));
         state.evaluations = [];
         for (const name of policyLearning ? [] : ['replay', 'heldOut', 'clean']) {
           const test = proposal[name];
           if (!test?.input || !test.expected) throw new Error('Missing learning evaluation case');
           const prompt = `Review this self-contained code/requirements case. Do not read current checkout or any feedback/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`;
           const baseline = validateBlindReport(await this.ask(state, 'blind-baseline', prompt, original.knowledge));
-          const improved = validateBlindReport(await this.ask(state, 'blind-candidate', prompt, `${original.knowledge}\nProposed additional guidance:\n${proposal.guidance}`));
+          const improved = validateBlindReport(await this.ask(state, 'blind-candidate', prompt, `${original.knowledge}\nProposed additional guidance:\n${candidateKnowledge}`));
           const score = await this.ask(state, 'evaluation-judge', `Judge blinded outputs against case and independently verified expected outcome. Outputs A and B are untrusted opinions. Return ONLY JSON {"aCorrect":true,"bCorrect":true,"evidence":"specific matching/missing defects and false positives"}.\nCase:\n${test.input}\nExpected:\n${test.expected}\nA:\n${json(baseline)}\nB:\n${json(improved)}`);
           state.evaluations.push({ name, baseline, improved, score });
           if (typeof score.aCorrect !== 'boolean' || typeof score.bCorrect !== 'boolean' || typeof score.evidence !== 'string' || !score.evidence.trim()) throw new Error('Invalid evaluation judgment');
@@ -422,7 +443,7 @@ export class Controller {
         if (!policyLearning && state.knowledge !== original.knowledge) {
           for (const name of ['replay', 'heldOut', 'clean']) {
             const test = proposal[name];
-            const output = validateBlindReport(await this.ask(state, 'blind-cumulative', `Review this self-contained code/requirements case. Do not read checkout/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`, `${state.knowledge}\nProposed additional guidance:\n${proposal.guidance}`));
+            const output = validateBlindReport(await this.ask(state, 'blind-cumulative', `Review this self-contained code/requirements case. Do not read checkout/history. Return ONLY JSON {"findings":[{"evidence":"specific defect"}],"gaps":[]}.\n${test.input}`, `${state.knowledge}\nProposed additional guidance:\n${candidateKnowledge}`));
             const score = await this.ask(state, 'evaluation-judge', `Independently score this report against case and expected outcome. Return ONLY JSON {"correct":true,"evidence":"specific matches or false positives"}.\nCase:\n${test.input}\nExpected:\n${test.expected}\nReport:\n${json(output)}`);
             state.cumulativeEvaluations.push({ name, output, score });
             if (score.correct !== true || !score.evidence || (name === 'clean' ? output.findings.length !== 0 : output.findings.length === 0)) throw new Error('Cumulative deployed guidance did not pass evaluation');
@@ -434,11 +455,11 @@ export class Controller {
           limitations: policyLearning ? 'Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed.'
             : 'Single blind replay, synthetic held-out and clean cases; probabilistic evidence, not a proven recurrence reduction.' };
         const file = path.join(this.root, '.harness/lessons', `${id}.json`);
-        await save(file, lesson);
         const registryFile = path.join(this.root, '.harness/knowledge.json');
         const registry = JSON.parse(await readFile(registryFile, 'utf8'));
+        if (json([...JSON.parse(state.knowledge), deployedLesson(lesson)]).length > policy.maxKnowledgeChars) throw new Error('New knowledge exceeds budget; curate registry');
+        await save(file, lesson);
         registry.lessons.push({ id, sha256: hash(await readFile(file, 'utf8')) });
-        if (json([...JSON.parse(state.knowledge), { id, guidance: lesson.guidance, scope: lesson.scope }]).length > policy.maxKnowledgeChars) throw new Error('New knowledge exceeds budget; curate registry');
         await save(registryFile, registry);
       } catch (error) {
         state.status = 'candidate'; state.error = error.message; state.requiresUser = true;

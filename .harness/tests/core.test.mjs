@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, stat, chmod } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
@@ -360,7 +360,8 @@ test('verified learning promotes only after baseline miss and successful candida
       assert.match(artifactRoots[0], /\/\.harness\/runtime\/lesson-[a-z0-9-]+\/original-evidence$/);
     } else assert.deepEqual(artifactRoots, []);
     bundles.push({ role, bundle });
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }],
+    if (role === 'blind-candidate') assert.doesNotMatch(bundle, /PRIVATE_FRY_EVIDENCE|Slurm leak/);
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'PRIVATE_FRY_EVIDENCE', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }],
       scope: 'delivery access', guidance: 'Check delivery ownership', replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['source confirms leak'], issues: [] });
     if (role === 'evaluation-judge') return answer({ aCorrect: prompt.includes('Bender correct'), bCorrect: true, evidence: 'candidate catches leak without false positives' });
@@ -371,6 +372,7 @@ test('verified learning promotes only after baseline miss and successful candida
   assert.match(await knowledge(root), /delivery ownership/);
   assert.equal(bundles.filter((entry) => entry.role === 'blind-baseline').every((entry) => entry.bundle === '[]'), true);
   assert.equal(bundles.filter((entry) => entry.role === 'blind-candidate').every((entry) => entry.bundle.includes('delivery ownership')), true);
+  assert.equal(bundles.filter((entry) => entry.role === 'blind-candidate').every((entry) => entry.bundle.includes('Verify ownership')), true);
   for (const role of ['feedback-analysis', 'learning-validator', 'blind-baseline', 'blind-candidate', 'evaluation-judge']) {
     assert.ok(bundles.some((entry) => entry.role === role), `Configured model verified for ${role}`);
   }
@@ -421,6 +423,25 @@ test('every human preference is investigated, independently verified and reporte
   assert.match(lesson.limitations, /no measured reviewer improvement/);
   assert.equal(lesson.evidence.dispositions.length, 2);
   assert.equal(JSON.parse(await knowledge(root)).length, 1);
+  assert.deepEqual(JSON.parse(await knowledge(root))[0].instructions, [
+    { ref: 'F1', instruction: 'Follow policy F1' },
+    { ref: 'F2', instruction: 'Follow policy F2' },
+  ]);
+  assert.match(result.report, /Active instruction .*\/F1: Follow policy F1/);
+  assert.match(result.report, /reviewer improvement not measured/);
+  const received = [];
+  controller.agent = async ({ knowledge: bundle }) => {
+    received.push(JSON.parse(bundle)[0].instructions);
+    return answer(report);
+  };
+  assert.equal((await controller.review(input)).status, 'passed');
+  assert.equal(received.length, 4);
+  for (const instructions of received) assert.deepEqual(instructions, [
+    { ref: 'F1', instruction: 'Follow policy F1' },
+    { ref: 'F2', instruction: 'Follow policy F2' },
+  ]);
+  const withoutInstructions = JSON.stringify([{ id: result.lessonId, guidance: lesson.guidance, scope: lesson.scope }], null, 2);
+  await assert.rejects(knowledge(root, withoutInstructions.length + 1), /exceeds/);
 });
 
 test('omitted, dismissed, disputed or unverified human feedback requires user decision without promotion', async (t) => {
@@ -676,15 +697,54 @@ test('intervening cumulative knowledge is evaluated before promotion', async (t)
   await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1, lessons: [{ id: 'slurm', sha256: hash(lesson) }] }));
   let cumulativeCalls = 0;
   controller.agent = async ({ role, prompt, knowledge: bundle }) => {
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }], scope: 'delivery access', guidance: 'Check ownership',
+    if (['blind-candidate', 'blind-cumulative'].includes(role)) assert.doesNotMatch(bundle, /PRIVATE_FRY_EVIDENCE|Slurm leak/);
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'PRIVATE_FRY_EVIDENCE', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }], scope: 'delivery access', guidance: 'Check ownership',
       replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['Source check'], issues: [] });
-    if (role === 'blind-cumulative') { cumulativeCalls++; assert.match(bundle, /cargo integrity/); assert.match(bundle, /Check ownership/); }
+    if (role === 'blind-cumulative') { cumulativeCalls++; assert.match(bundle, /cargo integrity/); assert.match(bundle, /Check ownership/); assert.match(bundle, /Verify ownership/); }
     if (role === 'evaluation-judge') return answer({ aCorrect: prompt.includes('Bender correct'), bCorrect: true, correct: true, evidence: 'Verified defect/clean result' });
     return answer({ findings: role !== 'blind-baseline' && !prompt.includes('Bender correct') ? [{ evidence: 'Ownership leak' }] : [], gaps: [] });
   };
   assert.equal((await controller.learn({ runId: original.runId, feedback: 'Slurm leak' })).status, 'verified');
   assert.equal(cumulativeCalls, 3);
+});
+
+test('publication accounts for instructions and never deploys private disposition evidence', async (t) => {
+  for (const oversized of [false, true]) {
+    const { root, input } = await fixture(t, { maxKnowledgeChars: 1000 });
+    await mkdir(path.join(root, '.harness/runtime'), { recursive: true });
+    await chmod(path.join(root, '.harness/runtime'), 0o755);
+    const controller = new Controller(root, async () => answer(report));
+    const original = await controller.review(input);
+    for (const directory of ['.harness/runtime', path.relative(root, original.evidence),
+      path.relative(root, path.join(original.evidence, 'sources')), path.relative(root, path.join(original.evidence, 'sources/round-1'))]) {
+      assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);
+    }
+    const instruction = oversized ? 'Check independent country expectations. '.repeat(100) : 'Check independent country expectations';
+    controller.agent = async ({ role }) => role === 'feedback-analysis'
+      ? answer({ questions: [], scope: 'API tests', guidance: 'Use independent assertions', dispositions: [{
+        ref: 'F1', feedback: 'Private Fry feedback', classification: 'new requirement/preference',
+        evidence: 'PRIVATE_SOURCE_ARTIFACT', hypothesis: 'PRIVATE_INVESTIGATION', action: 'PRIVATE_FIX_DETAILS', lesson: instruction,
+      }] })
+      : answer({ valid: true, evidence: ['Source checked'], issues: [] });
+    const result = await controller.learn({ runId: original.runId, feedback: JSON.stringify({ kind: 'user-confirmed-policy',
+      items: [{ ref: 'F1', file: 'app/SlurmTest.kt', line: 1, comment: 'Private Fry feedback' }] }) });
+    if (oversized) {
+      assert.equal(result.status, 'candidate');
+      assert.match(result.error, /New knowledge exceeds budget/);
+      assert.equal(await knowledge(root), '[]');
+      await assert.rejects(readFile(path.join(root, '.harness/lessons', `${result.lessonId}.json`)), { code: 'ENOENT' });
+    } else {
+      assert.equal(result.status, 'verified');
+      const bundle = await knowledge(root);
+      assert.ok(bundle.includes(instruction));
+      assert.doesNotMatch(bundle, /PRIVATE_|Private Fry feedback/);
+    }
+    for (const directory of ['.harness/runtime', path.relative(root, result.evidence),
+      path.relative(root, path.join(result.evidence, 'original-evidence'))]) {
+      assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);
+    }
+  }
 });
 
 test('worktree lock serializes controller invocations', async (t) => {

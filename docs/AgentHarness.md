@@ -116,6 +116,14 @@ the blind evaluation below. Omitted, changed, disputed or dismissed comments blo
 After addressing human review, always present the returned table with columns **ref index**, **file:line**,
 **initial user comment**, and **agent action**, including fixes and recorded lessons or unresolved status. Carry forward
 all unresolved earlier feedback in the session. File references must identify real source locations.
+Each verified row identifies its active instruction by lesson ID and feedback ref, with the exact preventive rule
+and lesson file path. Policy verification is distinguished from measured reviewer improvement.
+
+The deployed knowledge bundle includes every verified disposition's `ref` and `lesson` as an `instructions` entry,
+alongside the general guidance and scope. This also activates detailed instructions in existing verified lesson files;
+they are not merely archival evidence. The same projection is used for candidate evaluations and publication size
+checks, so detailed instructions cannot disappear between learning, evaluation and agent delivery. Integrity checks
+and the knowledge-size limit apply to the full bundle; no instructions are silently truncated.
 
 The learning controller examines the original snapshots and actual review artifacts, keeping evidence size independent
 of prompt context size. Its compact index points to per-round source packets, per-agent investigation manifests and

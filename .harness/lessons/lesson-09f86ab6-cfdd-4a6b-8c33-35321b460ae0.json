@@ -1,0 +1,37 @@
+{
+  "id": "lesson-09f86ab6-cfdd-4a6b-8c33-35321b460ae0",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Human-feedback learning, knowledge deployment, evaluation/publication integrity, and feedback reporting.",
+  "guidance": "Verified feedback policy is not merely archival evidence: each disposition's preventive instruction must reach actual agents and be transparently reported. Preserve private evidence and do not claim promotion or reviewer improvement until verification and registry publication occur.",
+  "evidence": {
+    "originalRun": "review-c1b1fd52-c45a-475c-b9a6-ccc2b5281e90",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F21’s exact comment is preserved and classified as a defect; its action and preventive lesson directly address deployment of verified feedback instructions and transparent reporting.",
+        "`.opencode/plugins/sa-review/core.js:68-94` projects every verified disposition ref/lesson into the knowledge bundle and rejects invalid or duplicate instructions; `:180-192` supplies that bundle to agents.",
+        "`.opencode/plugins/sa-review/core.js:425, 446, 460` uses the same deployed projection for candidate/cumulative evaluation bundles and knowledge-size publication checks; `:461-463` publishes only after the size check.",
+        "`.opencode/plugins/sa-review/core.js:29-37` reports the active instruction, feedback ref, lesson path, delivery through `knowledge()`, and distinguishes policy verification from measured improvement.",
+        "`.harness/tests/core.test.mjs:396-445` covers deployed instructions reaching review agents and reporting; `:690-710` cumulative bundle use; `:712-747` instruction-size accounting, private-evidence exclusion, no orphan lesson on oversized publication, and private artifact permissions.",
+        "`docs/AgentHarness.md:119-126` accurately documents active-instruction reporting, full instruction deployment, evaluation/size reuse, and non-truncation. `.harness/knowledge.json` and its verified lesson files retain F1-F20, including F1’s deployed instruction.",
+        "The proposal treats F21 as user-confirmed policy and does not claim measured reviewer improvement; the new lesson is described as prospective until independently verified and published."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F21",
+        "feedback": "For instance, for F1 I expect the knowldege/lessons/guidenlines whatever the harness is using to be extended with this information / requirement / statement. But I do not see any of this. Neither the table provides the explanation why.",
+        "classification": "defect",
+        "evidence": "`.opencode/plugins/sa-review/core.js:68-94` projects every verified disposition's `ref` and `lesson` into the deployed knowledge bundle; `:425`, `:432`, `:446`, and `:460` use that same projection for candidate/cumulative evaluation and publication-size checks. `docs/AgentHarness.md:119-126` documents deployment and reporting. `.harness/tests/core.test.mjs:396-445` source-covers delivery to review agents and report text; `:690-710` covers cumulative knowledge; `:712-747` covers publication size, no private-evidence deployment, and private artifact permissions. `.harness/knowledge.json` currently contains the verified F1-F20 lessons, whose deployed instructions include F1-F20.",
+        "hypothesis": "The earlier candidate lesson was not promoted, so it could not extend the active knowledge registry. The supplied correction identifies its failed investigator test citation; the current implementation corrects the deployment/reporting mechanism without claiming measured reviewer improvement.",
+        "action": "Retain the corrected shared `deployedLesson` projection and its source coverage; promote this verified policy disposition so F21's preventive instruction is added to `.harness/lessons/` and `.harness/knowledge.json`, delivered to agents, and named in the feedback table with its lesson path.",
+        "lesson": "Every verified per-feedback instruction must be projected into the active knowledge bundle used by agents, candidate/cumulative evaluation, and publication-size checks; the feedback report must identify its deployed instruction and lesson path, while distinguishing policy verification from measured improvement."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}
