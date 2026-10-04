@@ -24,7 +24,10 @@ Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md
 through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
 the agent calls `sa_review(requirements, base, profile)`.
 When the user steers an active task, preserve the original contract and add their change through the optional
-`clarification` field on the same run; this does not reset its budgets.
+`clarification` field on the same run. Genuinely new human feedback renews expired elapsed-time or exhausted cost
+budgets, recording the prior budget epoch and retaining total usage and all evidence. Repeated feedback and ordinary
+continuation do not renew budgets. The caller must supply actual new user feedback, not invent a clarification to
+work around a blocker. Renewal never resets the two-round review limit or repair count.
 
 The controller:
 
@@ -46,12 +49,14 @@ The controller:
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
    block handover. The validator is not another general reviewer.
 5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
-6. Stops at a clean receipt, a blocker, or the configured repair budget. No automatic budget extension.
+6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds (initial review
+    and one re-review), including resumed attempts. No automatic budget extension or restart to bypass this limit.
    After the controller returns, the primary implementation agent must rerun its selected Gradle validation and check
    results before handover if repairs occurred (`fixes > 0`), including applicable regenerated rendering reports. Any
    subsequent source fix invalidates a passed receipt and requires a fresh review; blocked runs resume with the same ID.
 
-Configure `.harness/policy.json`: `maxFixCycles` (0–5), elapsed minutes, USD cost, the four required reviewers, and
+Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
+the two-round limit), elapsed minutes, USD cost, the four required reviewers, and
 `reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
 Optional `models` entries override individual roles with the same model-reference shape. All read-only workers,
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
@@ -92,6 +97,25 @@ do not paste build/test results into worker inputs.
 
 Use `/sa-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
 apply accepted corrections, and review the corrected state. Then invoke `sa_learn(runId, feedback)`.
+The automatic pre-feedback progress commit remains the default, but explicit user instructions override repository
+workflow defaults. A no-commit instruction suspends this default until authorized; observing that precedence is not
+an error or issue. Authorization to commit prior progress does not authorize committing new corrections.
+
+Every human comment must be investigated and included in learning; new scope or preferences cannot be dismissed.
+If feedback appears wrong or conflicts with evidence, the agent must ask the user with arguments, reasoning and
+concrete options before resolving it. Unverified learning returns `requiresUser`, clarification questions and a private
+`feedback-report.md`; it is unresolved work, not a completed or dismissed correction. No unverified lesson is injected.
+
+Pass an indexed JSON batch as the `feedback` string: `{"kind":"user-confirmed-policy","items":[{"ref":"F1",
+"file":"path","line":1,"comment":"exact initial comment","action":"applied correction"}]}`. Stable refs and exact
+comments ensure every item has an investigated disposition, corrective action and preventive lesson. This mode learns
+explicit human instructions through independent source/intent verification; it does not claim measured reviewer
+improvement or require a preference to predate the user's instruction. Use `review-improvement` for claims requiring
+the blind evaluation below. Omitted, changed, disputed or dismissed comments block promotion and require user direction.
+
+After addressing human review, always present the returned table with columns **ref index**, **file:line**,
+**initial user comment**, and **agent action**, including fixes and recorded lessons or unresolved status. Carry forward
+all unresolved earlier feedback in the session. File references must identify real source locations.
 
 The learning controller examines the original snapshots and actual review artifacts, keeping evidence size independent
 of prompt context size. Its compact index points to per-round source packets, per-agent investigation manifests and
@@ -104,6 +128,8 @@ with old and proposed guidance. When intervening lessons exist, the cumulative d
 promotion. A separate evaluator checks outcomes. Promotion requires baseline replay failure,
 candidate success on all three cases, independent grounding, and complete feedback dispositions.
 
+Independently verified human-policy lessons record the complete dispositions and their verification separately from
+measured reviewer-improvement lessons; preferences are learned without inventing reviewer-miss explanations.
 Approved lesson JSON and its integrity digest are added to `.harness/lessons/` and `.harness/knowledge.json` (uncommitted).
 Review these changes like code. Unverified proposals stay in runtime artifacts and never enter agent instructions.
 Missing original runs, new requirements, invalid feedback, baseline already succeeding, and inconclusive evaluations

@@ -179,6 +179,32 @@ test('repair cap cannot be exceeded', async (t) => {
   assert.equal(result.status, 'needs-human'); assert.equal(result.fixes, 0);
 });
 
+test('review stops after two rounds even with a larger legacy repair budget or resume', async (t) => {
+  const { root, input } = await fixture(t, { maxFixCycles: 5 });
+  let fixes = 0;
+  const controller = new Controller(root, async ({ role, fixer }) => {
+    if (fixer) {
+      fixes++;
+      await mkdir(path.join(root, 'frontend'), { recursive: true });
+      await writeFile(path.join(root, 'frontend/slurm.ts'), `Slurm ${fixes}`);
+      return { text: 'fixed', cost: 0 };
+    }
+    if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] });
+    return answer({ ...report, findings: role === 'functional' ? [finding] : [] });
+  });
+  const result = await controller.review({ ...input, profile: 'full' });
+  assert.equal(result.status, 'needs-human');
+  assert.equal(fixes, 1);
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  assert.equal(state.rounds.length, 2);
+  state.status = 'blocked';
+  await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(state));
+  const resumed = await controller.review({ ...input, profile: 'full', runId: result.runId });
+  assert.equal(resumed.status, 'needs-human');
+  assert.match(resumed.error, /Two-round/);
+  assert.equal(fixes, 1);
+});
+
 test('failed reviewer blocks, records all concurrent costs, and resumes the same budget', async (t) => {
   const { root, input } = await fixture(t);
   let calls = 0;
@@ -217,6 +243,60 @@ test('cost budget and expired elapsed budget block, including resume', async (t)
   await writeFile(stateFile, JSON.stringify(state));
   const resumed = await controller.review({ ...input, runId: result.runId });
   assert.match(resumed.error, /Elapsed-time budget/);
+});
+
+test('new human feedback renews exhausted budgets without erasing usage or review rounds', async (t) => {
+  for (const exhausted of ['elapsed', 'cost', 'both']) {
+    const { root, input } = await fixture(t, { maxCostUsd: 1 });
+    let calls = 0;
+    const controller = new Controller(root, async () => {
+      calls++;
+      return answer({ ...report, gaps: ['Await Fry feedback'] }, 0.1);
+    });
+    const first = await controller.review(input);
+    const stateFile = path.join(first.evidence, 'state.json');
+    const state = JSON.parse(await readFile(stateFile));
+    if (exhausted !== 'cost') state.started = 0;
+    if (exhausted !== 'elapsed') state.cost = 2;
+    await writeFile(stateFile, JSON.stringify(state));
+    const feedback = 'Fry requests representative country assertions, not full provider lists';
+    const resumed = await controller.review({ ...input, runId: first.runId, clarification: feedback });
+    assert.match(resumed.error, /Incomplete review/);
+    assert.equal(calls, 8);
+    const renewed = JSON.parse(await readFile(stateFile));
+    assert.equal(renewed.started, state.started);
+    assert.equal(renewed.rounds.length, 2);
+    assert.equal(renewed.budgetHistory.length, 1);
+    assert.equal(renewed.budgetHistory[0].cost, state.cost);
+    assert.equal(renewed.budgetCostBaseline, state.cost);
+    assert.ok(Math.abs(renewed.cost - state.cost - 0.4) < 0.000001);
+    const capped = await controller.review({ ...input, runId: first.runId,
+      clarification: 'Leela additionally requests component-owned full-stack coverage' });
+    assert.equal(capped.status, 'needs-human');
+    assert.match(capped.error, /Two-round/);
+    assert.equal(calls, 8);
+  }
+});
+
+test('repeated feedback or ordinary resume cannot renew expired budgets', async (t) => {
+  const { root, input } = await fixture(t);
+  let calls = 0;
+  const controller = new Controller(root, async () => {
+    calls++;
+    return answer({ ...report, gaps: ['Await Fry feedback'] });
+  });
+  const feedback = 'Fry requests representative countries';
+  const result = await controller.review({ ...input, clarification: feedback });
+  const stateFile = path.join(result.evidence, 'state.json');
+  const state = JSON.parse(await readFile(stateFile));
+  state.started = 0;
+  await writeFile(stateFile, JSON.stringify(state));
+  for (const clarification of [undefined, ` ${feedback} `]) {
+    const resumed = await controller.review({ ...input, runId: result.runId, clarification });
+    assert.match(resumed.error, /Elapsed-time budget/);
+    assert.equal(calls, 4);
+    assert.equal(JSON.parse(await readFile(stateFile)).budgetHistory, undefined);
+  }
 });
 
 test('snapshot includes untracked files, refuses secrets and invalid base', async (t) => {
@@ -280,7 +360,7 @@ test('verified learning promotes only after baseline miss and successful candida
       assert.match(artifactRoots[0], /\/\.harness\/runtime\/lesson-[a-z0-9-]+\/original-evidence$/);
     } else assert.deepEqual(artifactRoots, []);
     bundles.push({ role, bundle });
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap' }],
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }],
       scope: 'delivery access', guidance: 'Check delivery ownership', replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['source confirms leak'], issues: [] });
     if (role === 'evaluation-judge') return answer({ aCorrect: prompt.includes('Bender correct'), bCorrect: true, evidence: 'candidate catches leak without false positives' });
@@ -304,6 +384,95 @@ test('unsupported learning remains candidate and never changes knowledge', async
     ? answer({ valid: false, evidence: [], issues: ['new requirement'] }) : answer({ guidance: 'Invented preference' });
   const result = await controller.learn({ runId: original.runId, feedback: 'New preference' });
   assert.equal(result.status, 'candidate'); assert.equal(await knowledge(root), '[]');
+  assert.equal(result.requiresUser, true);
+  assert.ok(result.questions[0].reasoning);
+  assert.ok(result.questions[0].options.length);
+  assert.match(result.report, /New preference/);
+  assert.equal(await readFile(result.reportFile, 'utf8'), result.report);
+});
+
+test('every human preference is investigated, independently verified and reported as policy learning', async (t) => {
+  const { root, input } = await fixture(t);
+  const controller = new Controller(root, async () => answer(report));
+  const original = await controller.review(input);
+  const items = [
+    { ref: 'F1', file: 'app/SlurmTest.kt', line: 62, comment: 'Use representative third-party countries, not the full list', action: 'Replaced exhaustive fixture' },
+    { ref: 'F2', file: 'app/SlurmTest.kt', line: 83, comment: 'Move component cases to component full-stack tests' },
+  ];
+  const roles = [];
+  controller.agent = async ({ role, prompt }) => {
+    roles.push(role);
+    assert.match(prompt, /Never (ignore|dismiss)/);
+    for (const item of items) assert.ok(prompt.includes(item.comment));
+    if (role === 'feedback-analysis') return answer({ questions: [], scope: 'API fixtures and component tests',
+      guidance: 'Use representative third-party fixtures; keep component cases in component full-stack classes',
+      dispositions: items.map((item) => ({ ref: item.ref, feedback: item.comment, classification: 'new requirement/preference',
+        evidence: 'Human instruction and original snapshot', hypothesis: 'Historic cause unknown', action: 'Applied correction', lesson: `Follow policy ${item.ref}` })),
+    });
+    return answer({ valid: true, evidence: ['Both policies match the human instructions and source'], issues: [] });
+  };
+  const result = await controller.learn({ runId: original.runId, feedback: JSON.stringify({ kind: 'user-confirmed-policy', items }) });
+  assert.equal(result.status, 'verified');
+  assert.equal(result.requiresUser, false);
+  assert.deepEqual(roles, ['feedback-analysis', 'learning-validator']);
+  for (const item of items) assert.ok(result.report.includes(`| ${item.ref} | ${item.file}:${item.line} | ${item.comment} |`));
+  const lesson = JSON.parse(await readFile(path.join(root, '.harness/lessons', `${result.lessonId}.json`), 'utf8'));
+  assert.equal(lesson.kind, 'user-confirmed-policy');
+  assert.match(lesson.limitations, /no measured reviewer improvement/);
+  assert.equal(lesson.evidence.dispositions.length, 2);
+  assert.equal(JSON.parse(await knowledge(root)).length, 1);
+});
+
+test('omitted, dismissed, disputed or unverified human feedback requires user decision without promotion', async (t) => {
+  for (const failure of ['omitted', 'dismissed', 'disputed', 'verification']) {
+    await t.test(failure, async (t) => {
+      const { root, input } = await fixture(t);
+      const controller = new Controller(root, async () => answer(report));
+      const original = await controller.review(input);
+      const items = [{ ref: 'F1', file: 'app/Slurm.kt', line: 1, comment: 'Human instruction' },
+        { ref: 'F2', file: 'app/Fry.kt', line: 2, comment: 'Another human instruction' }];
+      const dispositions = items.map((item) => ({ ref: item.ref, feedback: item.comment, classification: 'new requirement/preference',
+        action: 'Fixed', lesson: 'Prevent recurrence', evidence: 'source', hypothesis: 'unknown' }));
+      if (failure === 'omitted') dispositions.pop();
+      if (failure === 'dismissed') dispositions[0].classification = 'invalid';
+      controller.agent = async ({ role }) => role === 'feedback-analysis'
+        ? answer({ scope: 'tests', guidance: 'Follow instructions', dispositions,
+          questions: failure === 'disputed' ? [{ question: 'Which behavior?', arguments: 'Source conflict', reasoning: 'Two incompatible requirements', options: ['A', 'B'] }] : [] })
+        : answer({ valid: false, evidence: ['Source conflict'], issues: ['Explain conflict to user and choose A or B'] });
+      const result = await controller.learn({ runId: original.runId, feedback: JSON.stringify({ kind: 'user-confirmed-policy', items }) });
+      assert.equal(result.status, 'candidate');
+      assert.equal(result.requiresUser, true);
+      assert.ok(result.questions.length);
+      for (const item of items) assert.ok(result.report.includes(item.comment));
+      assert.equal(await knowledge(root), '[]');
+      assert.equal((await stat(result.reportFile)).mode & 0o777, 0o600);
+    });
+  }
+});
+
+test('every feedback kind requires action and lesson, including legacy plain-text feedback', async (t) => {
+  for (const kind of ['review-improvement', 'user-confirmed-policy', 'plain-text']) {
+    await t.test(kind, async (t) => {
+      const { root, input } = await fixture(t);
+      const controller = new Controller(root, async () => answer(report));
+      const original = await controller.review(input);
+      const items = [{ ref: 'F1', file: 'app/Slurm.kt', line: 1, comment: 'Human instruction' }];
+      let verifierCalls = 0;
+      controller.agent = async ({ role }) => {
+        if (role === 'learning-validator') verifierCalls++;
+        return answer({ scope: 'tests', guidance: 'Follow instruction', dispositions: [{
+          ref: kind === 'plain-text' ? '1' : 'F1', feedback: 'Human instruction', classification: 'defect',
+          evidence: 'source', hypothesis: 'unknown',
+        }] });
+      };
+      const result = await controller.learn({ runId: original.runId,
+        feedback: kind === 'plain-text' ? 'Human instruction' : JSON.stringify({ kind, items }) });
+      assert.equal(result.requiresUser, true);
+      assert.match(result.error, /requires an action and lesson/);
+      assert.equal(verifierCalls, 0);
+      assert.equal(await knowledge(root), '[]');
+    });
+  }
 });
 
 test('learning preserves feedback on preflight failures without invoking agents', async (t) => {
@@ -369,7 +538,9 @@ test('learning investigation receives actual reviewer prompts and tool investiga
     assert.deepEqual(investigation[0].input, { path: 'slurm.kt' });
     assert.match(await readFile(investigation[0].file, 'utf8'), /Slurm ownership code/);
     roles.push(role);
-    return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership' })
+    return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership', dispositions: [
+      { feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'unknown', action: 'Fixed ownership', lesson: 'Verify ownership' },
+    ] })
       : answer({ valid: false, evidence: [], issues: ['Incomplete proposal'] });
   };
   assert.equal((await controller.learn({ runId: original.runId, feedback: 'Slurm leak' })).status, 'candidate');
@@ -459,7 +630,9 @@ test('large learning histories keep bounded prompts and complete private evidenc
     assert.deepEqual(JSON.parse(await readFile(source.rounds[0].reportFile, 'utf8')), {
       reports: saved.rounds[0].reports, accepted: saved.rounds[0].accepted, rejected: saved.rounds[0].rejected,
     });
-    return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership' })
+    return role === 'feedback-analysis' ? answer({ guidance: 'Check ownership', dispositions: [
+      { feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'unknown', action: 'Fixed ownership', lesson: 'Verify ownership' },
+    ] })
       : answer({ valid: false, evidence: [], issues: ['Incomplete proposal'] });
   };
   const result = await controller.learn({ runId: original.runId, feedback: 'Slurm leak' });
@@ -478,7 +651,7 @@ test('identical unsupported learning judgments cannot promote knowledge', async 
   const controller = new Controller(root, async () => answer(report));
   const original = await controller.review(input);
   controller.agent = async ({ role }) => {
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap' }], scope: 'deliveries', guidance: 'Check ownership',
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }], scope: 'deliveries', guidance: 'Check ownership',
       replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['Source check'], issues: [] });
     if (role === 'evaluation-judge') return answer({ aCorrect: false, bCorrect: true, evidence: 'Invented improvement' });
@@ -503,7 +676,7 @@ test('intervening cumulative knowledge is evaluated before promotion', async (t)
   await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1, lessons: [{ id: 'slurm', sha256: hash(lesson) }] }));
   let cumulativeCalls = 0;
   controller.agent = async ({ role, prompt, knowledge: bundle }) => {
-    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap' }], scope: 'delivery access', guidance: 'Check ownership',
+    if (role === 'feedback-analysis') return answer({ dispositions: [{ feedback: 'Slurm leak', classification: 'defect', evidence: 'source', hypothesis: 'coverage gap', action: 'Fixed ownership', lesson: 'Verify ownership' }], scope: 'delivery access', guidance: 'Check ownership',
       replay: { input: 'Fry defect', expected: 'leak' }, heldOut: { input: 'Leela defect', expected: 'leak' }, clean: { input: 'Bender correct', expected: 'no findings' } });
     if (role === 'learning-validator') return answer({ valid: true, evidence: ['Source check'], issues: [] });
     if (role === 'blind-cumulative') { cumulativeCalls++; assert.match(bundle, /cargo integrity/); assert.match(bundle, /Check ownership/); }

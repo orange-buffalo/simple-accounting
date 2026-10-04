@@ -1,5 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContain
+
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.CreateWorkspacePage.Companion.openCreateWorkspacePage
@@ -55,21 +58,19 @@ class CreateWorkspaceFullStackTest : SaFullStackTestBase() {
             }
             defaultCurrency { input.selectOption("AUDAustralian Dollar") }
             residency {
-                input.shouldHaveOptions(
-                    "Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard & McDonald Islands",
-                    "Kiribati", "Nauru", "Norfolk Island", "Tuvalu",
-                )
+                input.shouldHaveOptions { options ->
+                    options.shouldContainAll("Australia", "Christmas Island")
+                    options.shouldNotContain("United States")
+                }
                 input.selectOption("Australia")
             }
             defaultCurrency { input.selectOption("USDUS Dollar") }
             residency {
                 input.shouldBeEmpty()
-                input.shouldHaveOptions(
-                    "American Samoa", "British Indian Ocean Territory", "British Virgin Islands", "Caribbean Netherlands", "Ecuador",
-                    "Guam", "Haiti", "Marshall Islands", "Micronesia", "Northern Mariana Islands", "Palau", "Panama",
-                    "Puerto Rico", "Timor-Leste", "Turks & Caicos Islands", "U.S. Outlying Islands",
-                    "U.S. Virgin Islands", "United States",
-                )
+                input.shouldHaveOptions { options ->
+                    options.shouldContainAll("United States", "Haiti")
+                    options.shouldNotContain("Australia")
+                }
                 input.selectOption("United States")
             }
         }

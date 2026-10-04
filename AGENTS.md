@@ -11,6 +11,12 @@ build/test execution and checking results, including after controller repairs. R
 results or duplicate pass/fail verification. Do not replace the controller with informal self-review.
 For human corrections to previously reviewed work, also load `sa-feedback` and invoke `sa_learn`
 against the original run. Preserve the commit-before-feedback rule below. Never promote unverified candidate lessons.
+Human review feedback must never be ignored or autonomously dismissed. Investigate every comment and learn from it,
+including new preferences. If feedback appears wrong or conflicting, ask the user with arguments, reasoning and options.
+After corrections, provide a table with ref index, file:line, initial user comment and agent action including lesson status.
+Review runs have at most two rounds; unresolved issues require user direction, not silent restart or budget extension.
+New human feedback renews expired time or exhausted cost budgets with prior usage retained; it never resets the
+two-round limit. Ordinary continuation or repeated feedback does not renew budgets.
 Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
 repository plugin injects their content into each agent request. If the controller is unavailable, report that explicitly
 and do not claim automatic review or learning ran. These workflows never authorize publishing or merging.
@@ -27,6 +33,10 @@ and do not claim automatic review or learning ran. These workflows never authori
 7. When the user supplies review comments on work in progress, commit the previous work before addressing the comments.
    Commit only the relevant previous work; do not include unrelated user changes. Then address the review comments and
    leave those new changes uncommitted.
+   Explicit user instructions override this repository workflow default. For example, "do not commit until I tell you"
+   suspends the automatic pre-feedback commit until the user authorizes it. Following that instruction is not a defect
+   or a violation of the repository workflow. A scoped authorization to commit prior progress does not authorize
+   committing subsequent corrections.
 
 ## Critical Build Requirements
 

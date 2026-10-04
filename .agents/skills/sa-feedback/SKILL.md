@@ -5,6 +5,12 @@ description: Use when human feedback identifies a defect or preference missed du
 
 # Verified feedback learning
 
-Follow the human-feedback section of `sa-delivery`. Distinguish an existing requirement miss from new scope or preference. Inspect the original run before changing its evidence. Call `sa_learn` once for the feedback batch; every accepted concern needs a disposition and a preventive measure or an explicit reason it does not generalize.
+Follow the human-feedback section of `sa-delivery`. Inspect the original run before changing its evidence. Investigate EVERY human comment; never ignore, dismiss or reject one autonomously. If a comment appears incorrect or conflicting, ask the user with arguments, reasoning and concrete options before choosing a resolution. New requirements and preferences are lessons too, not grounds to skip learning.
 
-Learning is not a model weight update. Only registry-approved, source-grounded lessons influence future agents. The controller records candidates even when baseline replay already catches the issue, verification fails, or the original evidence is insufficient. Such outcomes must not be presented as proven reviewer improvement.
+The automatic pre-feedback commit remains the default. Explicit user instructions override repository workflow defaults: a no-commit instruction suspends that default until authorized. This precedence is not an error or reviewer defect. Scoped authorization does not include later corrections.
+
+Call `sa_learn` once for the complete indexed feedback batch. Pass JSON in `feedback`: `{"kind":"user-confirmed-policy","items":[{"ref":"F1","file":"path","line":1,"comment":"exact initial user comment","action":"concise applied correction"}]}` for explicit human instructions/preferences. Use `review-improvement` only when claiming measured reviewer improvement, with the additional blind evaluation gates. Every item requires an investigated disposition and preventive lesson. A candidate with `requiresUser` is unresolved: present its questions with evidence and options, never hand it over as dismissed or completed.
+
+After addressing feedback, present the returned report table: ref index, file:line, initial user comment, agent action (correction and lesson status). Preserve stable references across follow-up discussions and carry earlier unresolved comments forward.
+
+Learning is not a model weight update. Only registry-approved, independently verified lessons influence future agents. Explicit human policy can be learned without inventing historic reviewer failure or proving a baseline miss; this is not measured reviewer improvement. Unsupported proposals remain unpromoted and require user clarification, not unilateral dismissal.
