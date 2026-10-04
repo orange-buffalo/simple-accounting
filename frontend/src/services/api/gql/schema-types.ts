@@ -797,6 +797,12 @@ export type IncomesSummaryItem = {
   totalAmount: Scalars['Long']['output'];
 };
 
+/** Workspace-scoped integration providers. */
+export type IntegrationsGqlDto = {
+  __typename?: 'IntegrationsGqlDto';
+  wise: WiseIntegrationGqlDto;
+};
+
 /** Invoice for a customer. */
 export type Invoice = {
   __typename?: 'Invoice';
@@ -942,6 +948,8 @@ export type Mutation = {
   revokeWorkspaceAccessToken: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
+  /** Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token. */
+  setupWiseIntegration: WiseSetupResult;
   /** Starts migration of documents that are not stored in the current upload storage. */
   startDocumentsMigration: DocumentsMigration;
   /** Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow. */
@@ -952,6 +960,8 @@ export type Mutation = {
   unlinkOAuthIdentity: UnlinkOAuthIdentityResponse;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
+  /** Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token. */
+  verifyWiseIntegrationToken: WiseAccountsResult;
 };
 
 
@@ -1296,6 +1306,13 @@ export type MutationSaveSharedWorkspaceArgs = {
 };
 
 
+export type MutationSetupWiseIntegrationArgs = {
+  accounts: Array<WiseAccountInput>;
+  token: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
+};
+
+
 export type MutationStartOAuthIdentityLinkingArgs = {
   providerId: Scalars['String']['input'];
 };
@@ -1317,6 +1334,12 @@ export type MutationUpdateProfileArgs = {
   documentsStorage?: InputMaybe<Scalars['String']['input']>;
   language: Scalars['String']['input'];
   locale: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyWiseIntegrationTokenArgs = {
+  token: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
 };
 
 /** The outcome of a completed OAuth2 flow. */
@@ -1472,6 +1495,8 @@ export type Query = {
   getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
+  /** Whether Wise is configured for the owned workspace. Never returns credentials. */
+  integrations: IntegrationsGqlDto;
   /** Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name. */
   myOAuthProviderLinks: Array<OAuthProviderLinkGqlDto>;
   /** Returns the OAuth2 provider with the given ID. */
@@ -1512,6 +1537,11 @@ export type QueryDiscoverOidcProviderConfigurationArgs = {
 export type QueryDocumentsMigrationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
+};
+
+
+export type QueryIntegrationsArgs = {
+  workspaceId: Scalars['String']['input'];
 };
 
 
@@ -1589,6 +1619,18 @@ export enum SaGrapQlErrorType {
 export enum SaveSharedWorkspaceErrorCodes {
   /** The provided workspace access token is not valid (unknown, expired, or revoked). */
   InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
+}
+
+/** Possible business error codes for the setupWiseIntegration operation. */
+export enum SetupWiseIntegrationErrorCodes {
+  /** Wise is already active for this workspace. */
+  AlreadyActive = 'ALREADY_ACTIVE',
+  /** The selected Wise accounts are invalid or have changed. */
+  InvalidAccounts = 'INVALID_ACCOUNTS',
+  /** Wise rejected the personal token. */
+  InvalidToken = 'INVALID_TOKEN',
+  /** Wise accounts could not be loaded. */
+  Unavailable = 'UNAVAILABLE'
 }
 
 /** A standalone document in a workspace. */
@@ -1755,6 +1797,50 @@ export type ValidationErrorParam = {
   name: Scalars['String']['output'];
   /** The parameter value. */
   value: Scalars['String']['output'];
+};
+
+/** Possible business error codes for the verifyWiseIntegrationToken operation. */
+export enum VerifyWiseIntegrationTokenErrorCodes {
+  /** Wise rejected the personal token. */
+  InvalidToken = 'INVALID_TOKEN',
+  /** Wise accounts could not be loaded. */
+  Unavailable = 'UNAVAILABLE'
+}
+
+/** A currency balance or Jar belonging to a Wise profile. IDs preserve 64-bit precision as strings. */
+export type WiseAccountGqlDto = {
+  __typename?: 'WiseAccountGqlDto';
+  accountId: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  profileId: Scalars['String']['output'];
+  profileName: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+/** A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients. */
+export type WiseAccountInput = {
+  accountId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  profileId: Scalars['String']['input'];
+};
+
+/** Verified balances across all Wise profiles. */
+export type WiseAccountsResult = {
+  __typename?: 'WiseAccountsResult';
+  accounts: Array<WiseAccountGqlDto>;
+};
+
+/** Wise integration metadata. Credentials are never returned. */
+export type WiseIntegrationGqlDto = {
+  __typename?: 'WiseIntegrationGqlDto';
+  active: Scalars['Boolean']['output'];
+};
+
+/** Whether the integration was saved successfully. */
+export type WiseSetupResult = {
+  __typename?: 'WiseSetupResult';
+  success: Scalars['Boolean']['output'];
 };
 
 /** Workspace of a user. */

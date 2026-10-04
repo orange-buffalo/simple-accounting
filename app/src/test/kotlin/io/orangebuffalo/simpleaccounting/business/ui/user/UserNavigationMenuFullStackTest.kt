@@ -49,6 +49,7 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
                 MenuItem("Customers", false),
                 MenuItem("Categories", false),
                 MenuItem("General Taxes", false),
+                MenuItem("Integrations", false),
                 MenuItem("Workspaces", false),
                 MenuItem("USER", true),
                 MenuItem("My Profile", false),

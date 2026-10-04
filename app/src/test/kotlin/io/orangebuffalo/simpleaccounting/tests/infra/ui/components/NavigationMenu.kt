@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
@@ -62,6 +63,16 @@ class NavigationMenu(private val page: Page) {
 
     fun clickWorkspaces(): NavigationMenu {
         container.getByText("Workspaces").click()
+        return this
+    }
+
+    fun clickIntegrations(): NavigationMenu {
+        container.getByText("Integrations", Locator.GetByTextOptions().setExact(true)).click()
+        return this
+    }
+
+    fun shouldNotHaveIntegrations(): NavigationMenu {
+        container.getByText("Integrations", Locator.GetByTextOptions().setExact(true)).shouldBeHidden()
         return this
     }
 

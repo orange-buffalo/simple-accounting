@@ -47,13 +47,17 @@ The controller:
      Excludes business-rule/test-coverage, security and code-convention checks; explicitly reports N/A for non-UI changes.
    Fixers and learning workers are also children, not standalone top-level sessions.
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
-   block handover. The validator is not another general reviewer.
+    prevent a clean review receipt. The validator is not another general reviewer.
 5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
 6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds (initial review
     and one re-review), including resumed attempts. No automatic budget extension or restart to bypass this limit.
    After the controller returns, the primary implementation agent must rerun its selected Gradle validation and check
    results before handover if repairs occurred (`fixes > 0`), including applicable regenerated rendering reports. Any
-   subsequent source fix invalidates a passed receipt and requires a fresh review; blocked runs resume with the same ID.
+    subsequent source fix invalidates a passed receipt; resume with the same ID when rounds remain.
+    Exhausting rounds returns `review-exhausted` with `nextAction: finish-implementation-and-validation`.
+    The primary agent must finish required fixes and validation, not stop or ask permission solely because review
+    rounds ran out. Report the two-round limit, receipt status and any remaining issues without claiming a clean review.
+    Genuine ambiguity and external blockers still require user direction. Never start another run to evade the cap.
 
 Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
 the two-round limit), elapsed minutes, USD cost, the four required reviewers, and
@@ -80,7 +84,8 @@ protected changes require the primary agent's explicit repair and resume with th
 
 Artifacts are private under `.harness/runtime/<run-id>/`: state, snapshots, exact worker prompts/transcripts, knowledge
 hashes, findings/dispositions, changed-source packets, and receipts. Treat them as potentially sensitive source data; do not
-commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require new review.
+commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require review when
+rounds remain; after exhaustion, finish validation and disclose that the final source has no clean review receipt.
 After an interrupted process leaves `controller.lock`, inspect its PID and active sessions before manually
 removing that **single stale file**. Never delete active-run locks or reset budgets to work around a blocker.
 

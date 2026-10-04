@@ -41,6 +41,7 @@ class ThirdPartyApisMocksContextInitializer : ApplicationContextInitializer<Conf
             applicationContext,
             *GoogleDriveApiMocks.configProperties(),
             *GoogleOAuthMocks.configProperties(),
+            *WiseApiMocks.configProperties(),
         )
     }
 }

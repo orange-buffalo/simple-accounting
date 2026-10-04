@@ -193,15 +193,17 @@ test('review stops after two rounds even with a larger legacy repair budget or r
     return answer({ ...report, findings: role === 'functional' ? [finding] : [] });
   });
   const result = await controller.review({ ...input, profile: 'full' });
-  assert.equal(result.status, 'needs-human');
+  assert.equal(result.status, 'review-exhausted');
+  assert.equal(result.reviewRoundsExhausted, true);
+  assert.equal(result.nextAction, 'finish-implementation-and-validation');
   assert.equal(fixes, 1);
   const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
   assert.equal(state.rounds.length, 2);
-  state.status = 'blocked';
-  await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(state));
   const resumed = await controller.review({ ...input, profile: 'full', runId: result.runId });
-  assert.equal(resumed.status, 'needs-human');
+  assert.equal(resumed.status, 'review-exhausted');
   assert.match(resumed.error, /Two-round/);
+  assert.match(resumed.error, /finish implementation and validation/);
+  assert.equal(resumed.nextAction, 'finish-implementation-and-validation');
   assert.equal(fixes, 1);
 });
 
@@ -272,7 +274,8 @@ test('new human feedback renews exhausted budgets without erasing usage or revie
     assert.ok(Math.abs(renewed.cost - state.cost - 0.4) < 0.000001);
     const capped = await controller.review({ ...input, runId: first.runId,
       clarification: 'Leela additionally requests component-owned full-stack coverage' });
-    assert.equal(capped.status, 'needs-human');
+    assert.equal(capped.status, 'review-exhausted');
+    assert.equal(capped.nextAction, 'finish-implementation-and-validation');
     assert.match(capped.error, /Two-round/);
     assert.equal(calls, 8);
   }
