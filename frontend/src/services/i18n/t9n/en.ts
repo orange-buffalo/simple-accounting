@@ -4,7 +4,6 @@ import { format } from './formatter';
 export default {
   integrations: {
     header: () => 'Integrations',
-    ownerOnly: () => 'Integrations are available only for workspaces you own.',
     loading: () => 'Loading integrations…',
     active: () => 'active',
     setup: () => 'Setup',

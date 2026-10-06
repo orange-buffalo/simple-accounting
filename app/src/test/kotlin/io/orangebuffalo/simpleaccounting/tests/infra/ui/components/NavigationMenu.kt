@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
@@ -71,11 +71,6 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
-    fun shouldNotHaveIntegrations(): NavigationMenu {
-        container.getByText("Integrations", Locator.GetByTextOptions().setExact(true)).shouldBeHidden()
-        return this
-    }
-
     fun clickWorkspacesUk(): NavigationMenu {
         container.getByText("Проекти").click()
         return this
@@ -124,7 +119,7 @@ class NavigationMenu(private val page: Page) {
                 val isSectionHeader = element.hasClass("side-menu__category")
                 MenuItem(label, isSectionHeader)
             }
-        menuItems.shouldContainInOrder(*expectedItems)
+        menuItems.shouldContainExactly(*expectedItems)
     }
 
     fun reportRendering(name: String): NavigationMenu {

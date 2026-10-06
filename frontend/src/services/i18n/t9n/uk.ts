@@ -4,7 +4,6 @@ import { format } from '@/services/i18n/t9n/formatter';
 export default {
   integrations: {
     header: () => 'Інтеграції',
-    ownerOnly: () => 'Інтеграції доступні лише для ваших робочих просторів.',
     loading: () => 'Завантаження інтеграцій…',
     active: () => 'активна',
     setup: () => 'Налаштувати',

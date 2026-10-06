@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.infra.thirdparty.wise
+package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -13,7 +13,7 @@ import java.net.http.HttpClient
 import java.time.Duration
 
 @Component
-class WiseApiClient(
+internal class WiseApiClient(
     properties: WiseProperties,
 ) {
     private val client = RestClient.builder().baseUrl(properties.apiBaseUrl)
@@ -46,18 +46,6 @@ class WiseApiClient(
         }
     }
 }
-
-class WiseInvalidTokenException : RuntimeException("Wise rejected the token")
-class WiseUnavailableException : RuntimeException("Wise accounts could not be loaded")
-
-data class WiseAccount(
-    val profileId: Long,
-    val profileName: String,
-    val accountId: Long,
-    val currency: String,
-    val name: String?,
-    val type: String,
-)
 
 @Serializable
 private data class WiseProfile(val id: Long, val fullName: String)

@@ -1363,7 +1363,7 @@ type Query {
   getDownloadDocumentStorages: [DownloadDocumentStorageResponse!]! @auth(type : AUTHENTICATED_ACTOR) @slowOperation
   "Returns the current user's Google Drive storage integration status."
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse! @auth(type : AUTHENTICATED_USER) @slowOperation
-  "Whether Wise is configured for the owned workspace. Never returns credentials."
+  "Integration providers configurable for the owned workspace."
   integrations(workspaceId: String!): IntegrationsGqlDto! @auth(type : REGULAR_USER)
   "Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name."
   myOAuthProviderLinks: [OAuthProviderLinkGqlDto!]! @auth(type : AUTHENTICATED_USER)
@@ -1543,7 +1543,7 @@ type ValidationErrorParam {
   value: String!
 }
 
-"A currency balance or Jar belonging to a Wise profile. IDs preserve 64-bit precision as strings."
+"A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values."
 type WiseAccountGqlDto {
   accountId: String!
   currency: String!
@@ -2102,7 +2102,7 @@ scalar LocalDate
 "A 64-bit signed integer."
 scalar Long
 
-"A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients."
+"A Wise account selection. Identifiers are opaque values returned by token verification."
 input WiseAccountInput {
   accountId: String!
   currency: String!

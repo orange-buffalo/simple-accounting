@@ -73,7 +73,7 @@ export type OAuthAuthenticationOutcome =
   /** The user has been logged in. */
   | 'LOGIN';
 
-/** A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients. */
+/** A Wise account selection. Identifiers are opaque values returned by token verification. */
 export type WiseAccountInput = {
   accountId: string;
   currency: string;

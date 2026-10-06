@@ -3,16 +3,13 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettingsRepository
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountSelection
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidAccountsException
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.infra.graphql.Query
-import io.orangebuffalo.simpleaccounting.infra.thirdparty.wise.WiseApiClient
-import io.orangebuffalo.simpleaccounting.infra.thirdparty.wise.WiseInvalidTokenException
-import io.orangebuffalo.simpleaccounting.infra.thirdparty.wise.WiseUnavailableException
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -20,26 +17,22 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
-class WiseIntegrationGqlApi {
+class IntegrationsGqlApi {
     @Component
     class Queries(
-        private val workspaces: WorkspacesService,
-        private val settings: WiseIntegrationSettingsRepository,
+        private val wise: WiseIntegrationService,
     ) : Query {
-        @GraphQLDescription("Whether Wise is configured for the owned workspace. Never returns credentials.")
+        @GraphQLDescription("Integration providers configurable for the owned workspace.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         fun integrations(workspaceId: String): IntegrationsGqlDto {
-            workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
-            return IntegrationsGqlDto(WiseIntegrationGqlDto(settings.existsByWorkspaceId(workspaceId)))
+            return IntegrationsGqlDto(WiseIntegrationGqlDto(wise.isActive(workspaceId)))
         }
     }
 
     @Component
     @Validated
     class Mutations(
-        private val workspaces: WorkspacesService,
-        private val settings: WiseIntegrationSettingsRepository,
-        private val wise: WiseApiClient,
+        private val wise: WiseIntegrationService,
     ) : Mutation {
         @GraphQLDescription("Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
@@ -49,8 +42,7 @@ class WiseIntegrationGqlApi {
             workspaceId: String,
             @NotBlank @Size(max = 2000) token: String,
         ): WiseAccountsResult {
-            workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
-            return WiseAccountsResult(accounts = wise.getAccounts(token).map {
+            return WiseAccountsResult(accounts = wise.verifyToken(workspaceId, token).map {
                 WiseAccountGqlDto(it.profileId.toString(), it.profileName, it.accountId.toString(), it.currency, it.name, it.type)
             })
         }
@@ -66,28 +58,20 @@ class WiseIntegrationGqlApi {
             @NotBlank @Size(max = 2000) token: String,
             @Valid @Size(min = 1) accounts: List<WiseAccountInput>,
         ): WiseSetupResult {
-            workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
-            if (settings.existsByWorkspaceId(workspaceId)) throw WiseAlreadyActiveException()
-            val verified = verifyWiseIntegrationToken(workspaceId, token)
-            val available = verified.accounts.map { WiseAccountInput(it.profileId, it.accountId, it.currency) }.toSet()
-            if (accounts.toSet().size != accounts.size || !available.containsAll(accounts)) {
-                throw WiseInvalidAccountsException()
-            }
-            val selected = accounts.map { WiseIntegrationAccount(it.profileId.toLong(), it.accountId.toLong(), it.currency) }.toSet()
-            settings.save(WiseIntegrationSettings(workspaceId, token, selected))
+            wise.setup(workspaceId, token, accounts.map { WiseAccountSelection(it.profileId, it.accountId, it.currency) })
             return WiseSetupResult(true)
         }
     }
 }
 
-@GraphQLDescription("A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients.")
+@GraphQLDescription("A Wise account selection. Identifiers are opaque values returned by token verification.")
 data class WiseAccountInput(
     @field:Size(min = 1, max = 19) val profileId: String,
     @field:Size(min = 1, max = 19) val accountId: String,
     @field:Size(min = 3, max = 3) val currency: String,
 )
 
-@GraphQLDescription("A currency balance or Jar belonging to a Wise profile. IDs preserve 64-bit precision as strings.")
+@GraphQLDescription("A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values.")
 data class WiseAccountGqlDto(
     val profileId: String,
     val profileName: String,
@@ -108,6 +92,3 @@ data class WiseAccountsResult(val accounts: List<WiseAccountGqlDto>)
 
 @GraphQLDescription("Whether the integration was saved successfully.")
 data class WiseSetupResult(val success: Boolean)
-
-class WiseAlreadyActiveException : DuplicateKeyException("Wise is already active for this workspace")
-class WiseInvalidAccountsException : RuntimeException("The selected Wise accounts are invalid or have changed")
