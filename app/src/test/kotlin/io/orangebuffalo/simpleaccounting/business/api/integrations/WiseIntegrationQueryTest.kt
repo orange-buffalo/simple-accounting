@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrat
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -20,6 +21,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
             val fry = fry()
             val leela = platformUser(userName = "Leela")
             val farnsworth = farnsworth()
+            val adminWorkspace = workspace(owner = farnsworth)
             val workspace = workspace(owner = fry)
             val shared = workspaceAccessToken(workspace = workspace, validTill = MOCK_TIME.plusSeconds(10000))
         }
@@ -30,25 +32,34 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
     inner class Authorization {
         @Test
         fun `should reject anonymous requests`() {
-            client.graphql { integrationStatus() }.fromAnonymous().executeAndVerifyNotAuthorized(path = "integrations")
+            client.graphql { integrationStatus() }.fromAnonymous().executeAndVerifyNotAuthorized(path = "workspace")
         }
 
         @Test
         fun `should reject administrators`() {
-            client.graphql { integrationStatus() }.from(preconditions.farnsworth)
-                .executeAndVerifyNotAuthorized(path = "integrations")
+            client.graphql { integrationStatus(preconditions.adminWorkspace.id!!) }.from(preconditions.farnsworth)
+                .executeAndVerifyNotAuthorized(paths = listOf("workspace", "integrations"), locationColumn = 5, locationLine = 3)
         }
 
         @Test
         fun `should reject shared workspace sessions`() {
             client.graphql { integrationStatus() }.usingSharedWorkspaceToken(preconditions.shared.token)
-                .executeAndVerifyNotAuthorized(path = "integrations")
+                .executeAndVerifyNotAuthorized(paths = listOf("workspace", "integrations"), locationColumn = 5, locationLine = 3)
         }
 
         @Test
         fun `should reject another users workspace`() {
             client.graphql { integrationStatus() }.from(preconditions.leela)
-                .executeAndVerifyEntityNotFoundError(path = "integrations")
+                .executeAndVerifyEntityNotFoundError(path = "workspace")
+        }
+
+        @Test
+        fun `should reject integrations for a saved shared workspace`() {
+            client.graphqlMutation { saveSharedWorkspace(token = preconditions.shared.token) { id } }
+                .from(preconditions.leela)
+                .executeAndVerifySuccessResponse("saveSharedWorkspace" to json("""{"id":"${preconditions.workspace.id}"}"""))
+            client.graphql { integrationStatus() }.from(preconditions.leela)
+                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 5, locationLine = 3)
         }
     }
 
@@ -58,7 +69,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         @Test
         fun `should report inactive Wise integration`() {
             client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("integrations" to json("""{"wise":{"active":false}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false}}}"""))
         }
 
         @Test
@@ -68,15 +79,15 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
                     setOf(WiseIntegrationAccount(101, 302, "EUR"))))
             }
             client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("integrations" to json("""{"wise":{"active":true}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true}}}"""))
             val other = preconditions { workspace(owner = preconditions.fry) }
             client.graphql { integrationStatus(other.id!!) }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("integrations" to json("""{"wise":{"active":false}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false}}}"""))
         }
     }
 
     private fun QueryProjection.integrationStatus(workspaceId: String = preconditions.workspace.id!!) =
-        integrations(workspaceId) { wise { active } }
+        workspace(id = workspaceId) { integrations { wise { active } } }
 
     private fun json(value: String) = Json.parseToJsonElement(value) as JsonObject
 }

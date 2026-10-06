@@ -1495,8 +1495,6 @@ export type Query = {
   getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
-  /** Integration providers configurable for the owned workspace. */
-  integrations: IntegrationsGqlDto;
   /** Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name. */
   myOAuthProviderLinks: Array<OAuthProviderLinkGqlDto>;
   /** Returns the OAuth2 provider with the given ID. */
@@ -1537,11 +1535,6 @@ export type QueryDiscoverOidcProviderConfigurationArgs = {
 export type QueryDocumentsMigrationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
-};
-
-
-export type QueryIntegrationsArgs = {
-  workspaceId: Scalars['String']['input'];
 };
 
 
@@ -1878,6 +1871,8 @@ export type Workspace = {
   incomeTaxPayments: IncomeTaxPaymentsConnection;
   /** Incomes in this workspace with cursor-based pagination. */
   incomes: IncomesConnection;
+  /** Integration providers configurable for this owned workspace. */
+  integrations: IntegrationsGqlDto;
   /** Returns an invoice by its ID if it belongs to this workspace, or null if not found. */
   invoice?: Maybe<Invoice>;
   /** Invoices in this workspace with cursor-based pagination. */

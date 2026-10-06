@@ -24,11 +24,12 @@
   import { $t } from '@/services/i18n';
 
   const props = defineProps<{ workspaceId: string }>();
-  const [loading, integrations] = useQuery(graphql(/* GraphQL */ `
+  const [loading, workspace] = useQuery(graphql(/* GraphQL */ `
     query integrationProviders($workspaceId: String!) {
-      integrations(workspaceId: $workspaceId) { wise { active } }
+      workspace(id: $workspaceId) { integrations { wise { active } } }
     }
-  `), 'integrations', { variables: { workspaceId: props.workspaceId } });
+  `), 'workspace', { variables: { workspaceId: props.workspaceId } });
+  const integrations = computed(() => workspace.value?.integrations ?? null);
   const providers = computed(() => [{
     id: 'wise', logo: WiseLogo, description: $t.value.integrations.wise.description(),
     active: integrations.value?.wise.active === true, setup: 'wise-setup', view: 'wise-view',
