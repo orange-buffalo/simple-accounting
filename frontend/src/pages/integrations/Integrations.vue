@@ -1,11 +1,13 @@
 <template>
-  <IntegrationPage :header="$t.integrations.header()" v-slot="{ workspaceId }">
-    <IntegrationProviders :key="workspaceId" :workspace-id="workspaceId" />
-  </IntegrationPage>
+  <SaPage :header="$t.integrations.header()">
+    <IntegrationProviders :workspace-id="workspaceId" />
+  </SaPage>
 </template>
 
 <script lang="ts" setup>
-  import IntegrationPage from './IntegrationPage.vue';
+  import SaPage from '@/components/SaPage.vue';
+  import { useCurrentWorkspace } from '@/services/workspaces';
   import IntegrationProviders from './IntegrationProviders.vue';
   import { $t } from '@/services/i18n';
+  const workspaceId = useCurrentWorkspace().currentWorkspace.id;
 </script>

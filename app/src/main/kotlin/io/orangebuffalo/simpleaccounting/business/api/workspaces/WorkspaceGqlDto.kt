@@ -20,8 +20,6 @@ import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoicesGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.integrations.IntegrationsGqlDto
-import io.orangebuffalo.simpleaccounting.business.api.integrations.WiseIntegrationGqlDto
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.standalonedocuments.StandaloneDocumentsGqlApi
@@ -64,8 +62,7 @@ data class WorkspaceGqlDto(
 ) {
     @GraphQLDescription("Integration providers configurable for this owned workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-    fun integrations(env: DataFetchingEnvironment): IntegrationsGqlDto =
-        IntegrationsGqlDto(WiseIntegrationGqlDto(env.graphQlContext.getBean<WiseIntegrationService>().isActive(id)))
+    fun integrations() = IntegrationsGqlDto(workspaceId = id)
 
     @GraphQLDescription("Analytics data for this workspace.")
     fun analytics() = AnalyticsGqlDto(workspaceId = id)

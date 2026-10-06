@@ -624,6 +624,7 @@ type IncomesSummaryItem {
 
 "Workspace-scoped integration providers."
 type IntegrationsGqlDto {
+  "Wise integration metadata for this workspace."
   wise: WiseIntegrationGqlDto!
 }
 
@@ -1558,6 +1559,7 @@ type WiseAccountsResult {
 
 "Wise integration metadata. Credentials are never returned."
 type WiseIntegrationGqlDto {
+  "Whether Wise is active for this workspace."
   active: Boolean!
 }
 
