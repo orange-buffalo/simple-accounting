@@ -22,7 +22,6 @@
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import WiseLogo from '@/icons/svg/wise-simple.svg?component';
   import { $t } from '@/services/i18n';
-  import './integrations.scss';
 
   const props = defineProps<{ workspaceId: string }>();
   const [loading, integrations] = useQuery(graphql(/* GraphQL */ `
@@ -35,3 +34,35 @@
     active: integrations.value?.wise.active === true, setup: 'wise-setup', view: 'wise-view',
   }]);
 </script>
+
+<style scoped lang="scss">
+  @use "@/styles/vars.scss" as *;
+
+  .integration-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 20px;
+    max-width: 840px;
+    margin: 24px auto;
+  }
+
+  .integration-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 26px;
+    border: 1px solid $secondary-grey;
+    border-radius: 6px;
+    background: $white;
+    color: $primary-text-color;
+    font: inherit;
+    text-align: center;
+    overflow-wrap: anywhere;
+
+    p { color: $secondary-text-color; line-height: 1.5; }
+    a { color: $secondary-color; font-weight: 600; }
+    &__logo { width: 144px; height: 36px; color: $secondary-color; }
+  }
+</style>

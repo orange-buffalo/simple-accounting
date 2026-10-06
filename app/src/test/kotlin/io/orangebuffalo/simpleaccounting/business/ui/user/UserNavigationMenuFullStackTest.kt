@@ -13,6 +13,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.GeneralTa
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.shouldBeIntegrationsPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.reporting.ReportingPage.Companion.shouldBeReportingPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.NavigationMenu.MenuItem
@@ -87,6 +88,9 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
 
         page.shouldHaveSideMenu().clickWorkspaces()
         page.shouldBeWorkspacesOverviewPage()
+
+        page.shouldHaveSideMenu().clickIntegrations()
+        page.shouldBeIntegrationsPage()
 
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage()

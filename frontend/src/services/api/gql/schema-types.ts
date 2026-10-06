@@ -1495,7 +1495,7 @@ export type Query = {
   getDownloadDocumentStorages: Array<DownloadDocumentStorageResponse>;
   /** Returns the current user's Google Drive storage integration status. */
   googleDriveStorageIntegrationStatus: GoogleDriveStorageIntegrationStatusResponse;
-  /** Whether Wise is configured for the owned workspace. Never returns credentials. */
+  /** Integration providers configurable for the owned workspace. */
   integrations: IntegrationsGqlDto;
   /** Returns all registered OAuth2 providers together with the identity the current user has linked at each of them, if any. Sorted by provider name. */
   myOAuthProviderLinks: Array<OAuthProviderLinkGqlDto>;
@@ -1807,7 +1807,7 @@ export enum VerifyWiseIntegrationTokenErrorCodes {
   Unavailable = 'UNAVAILABLE'
 }
 
-/** A currency balance or Jar belonging to a Wise profile. IDs preserve 64-bit precision as strings. */
+/** A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values. */
 export type WiseAccountGqlDto = {
   __typename?: 'WiseAccountGqlDto';
   accountId: Scalars['String']['output'];
@@ -1818,7 +1818,7 @@ export type WiseAccountGqlDto = {
   type: Scalars['String']['output'];
 };
 
-/** A Wise account selection. IDs are decimal strings to preserve 64-bit precision in clients. */
+/** A Wise account selection. Identifiers are opaque values returned by token verification. */
 export type WiseAccountInput = {
   accountId: Scalars['String']['input'];
   currency: Scalars['String']['input'];

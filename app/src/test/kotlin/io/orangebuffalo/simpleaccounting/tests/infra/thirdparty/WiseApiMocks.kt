@@ -5,9 +5,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 object WiseApiMocks {
     const val TOKEN = "fry-read-only-wise-token"
 
-    fun configProperties() = arrayOf("sa.wise.api-base-url=${ThirdPartyApisMocks.server.baseUrl()}/wise")
+    fun configProperties() = arrayOf("sa.integrations.wise.api-base-url=${ThirdPartyApisMocks.server.baseUrl()}/wise")
 
-    fun accounts() {
+    fun setupAccounts() {
         stub("/profiles", """[
             {"id":101,"type":"PERSONAL","fullName":"Philip J. Fry","extra":"ignored"},
             {"id":202,"type":"BUSINESS","fullName":"Planet Express"}

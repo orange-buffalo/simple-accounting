@@ -81,7 +81,6 @@
   import type { VerifyWiseTokenMutation } from '@/services/api/gql/graphql';
   import { handleGqlApiBusinessError } from '@/services/api/api-utils';
   import { $t } from '@/services/i18n';
-  import './integrations.scss';
 
   const props = defineProps<{ workspaceId: string }>();
   const verifyToken = useMutation(graphql(/* GraphQL */ `
@@ -162,3 +161,49 @@
     } finally { busy.value = false; }
   };
 </script>
+
+<style scoped lang="scss">
+  @use "@/styles/vars.scss" as *;
+
+  .integration-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 20px;
+    max-width: 840px;
+    margin: 24px auto;
+  }
+
+  .integration-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 26px;
+    border: 1px solid $secondary-grey;
+    border-radius: 6px;
+    background: $white;
+    color: $primary-text-color;
+    font: inherit;
+    text-align: center;
+    overflow-wrap: anywhere;
+
+    &--selectable {
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+      &:hover, &[aria-pressed="true"] { border-color: $accent-primary-color; background: $primary-grey; }
+      &:focus-visible { outline: 2px solid $accent-primary-color; outline-offset: 3px; }
+    }
+  }
+
+  .integration-wizard {
+    padding: 20px;
+    border: 1px solid $secondary-grey;
+    border-radius: 2px;
+    background: $white;
+    &__content { margin-top: 24px; }
+    &__content li { margin-bottom: 12px; }
+    &__actions, &__result { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
+    &__result { flex-direction: column; align-items: center; text-align: center; }
+  }
+</style>

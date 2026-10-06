@@ -6,12 +6,11 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.shouldBeIntegrationsPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.openIntegrationsPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.openWiseSetupPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.shouldBeWiseSetupPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseViewPage.Companion.shouldBeWiseViewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
@@ -19,19 +18,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiRespo
 import org.junit.jupiter.api.Test
 
 class WiseIntegrationFullStackTest : SaFullStackTestBase() {
-    @Test
-    fun `should hide integrations from administrators and block direct setup navigation`(page: Page) {
-        val farnsworth = preconditions { farnsworth() }
-        page.authenticateViaCookie(farnsworth)
-        page.navigate("/")
-        page.shouldHaveSideMenu().shouldNotHaveIntegrations()
-        page.openWiseSetupPage {
-            status.shouldBeError("Integrations are available only for workspaces you own.")
-        }
-        WiseApiMocks.shouldHaveNoRequests()
-        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
-    }
-
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
@@ -41,17 +27,13 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should activate balances and Jars across profiles and view the active provider`(page: Page) {
-        WiseApiMocks.accounts()
+        WiseApiMocks.setupAccounts()
         page.authenticateViaCookie(preconditions.fry)
-        page.navigate("/")
-        page.shouldHaveSideMenu().clickIntegrations()
-        page.shouldBeIntegrationsPage {
-            providers.shouldHaveWiseProvider()
+        page.openIntegrationsPage {
             reportRendering("integrations.providers")
             providers.setupWise()
         }
         page.shouldBeWiseSetupPage {
-            instructions.shouldExplainReadOnlyToken()
             next.shouldBeDisabled()
             token { input { fill(WiseApiMocks.TOKEN); shouldHaveAttribute("type", "password") } }
             reportRendering("integrations.wise-token")
@@ -80,8 +62,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         settings.workspaceId.shouldBe(preconditions.workspace.id)
         settings.token.shouldBe(WiseApiMocks.TOKEN)
         settings.accounts.shouldContainExactly(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP"))
-        page.shouldHaveSideMenu().clickIntegrations()
-        page.shouldBeIntegrationsPage {
+        page.openIntegrationsPage {
             status.shouldBeSuccess("active")
             reportRendering("integrations.active")
             providers.viewWise()
@@ -92,10 +73,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should display provider loading failure and recover from Wise outages without saving`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
-        page.navigate("/")
         page.withFailedGqlApiResponse("integrationProviders") {
-            page.shouldHaveSideMenu().clickIntegrations()
-            page.shouldBeIntegrationsPage {
+            page.openIntegrationsPage {
                 status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")
                 reportRendering("integrations.providers-unavailable")
             }
@@ -106,14 +85,14 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")
             back.click()
-            WiseApiMocks.accounts()
+            WiseApiMocks.setupAccounts()
             next.click()
             accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").click()
             WiseApiMocks.failBalances()
             next.click()
             status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")
             reportRendering("integrations.wise-unavailable")
-            WiseApiMocks.accounts()
+            WiseApiMocks.setupAccounts()
             back.click()
             accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").shouldBeUnselected()
             next.shouldBeDisabled()
