@@ -2,7 +2,9 @@
   <div v-if="loading" role="status" aria-live="polite">
     <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.loading() }}</SaStatusLabel>
   </div>
-  <SaStatusLabel v-else-if="integrations === null" status="failure">{{ $t.integrations.wise.unavailable() }}</SaStatusLabel>
+  <SaStatusLabel v-else-if="integrations === null" role="alert" status="failure">
+    {{ $t.integrations.wise.unavailable() }}
+  </SaStatusLabel>
   <div v-else class="integration-cards">
     <article v-for="provider in providers" :key="provider.id" class="integration-card">
       <component :is="provider.logo" class="integration-card__logo" aria-label="Wise" role="img" />

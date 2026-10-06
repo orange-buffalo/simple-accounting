@@ -1,0 +1,34 @@
+{
+  "id": "lesson-b7af71d0-84bb-417c-8261-6922d329655c",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "SA review-controller feedback-turn lifecycle, budget/round accounting, cumulative source review, and knowledge refresh.",
+  "guidance": "This is user-confirmed harness policy. It supersedes contrary lifetime-cap or no-restart interpretations for distinct feedback turns; it does not claim measured reviewer improvement or speculate about historic reviewer failure.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F51’s exact comment is preserved verbatim and its disposition applies the requested per-distinct-feedback-turn reset while retaining cumulative run evidence.",
+        "`core.js:260-287` creates a new turn for distinct normalized feedback, reloads knowledge, records prior turn state, resets turn round/fix baselines, and starts a new time/cost budget epoch.",
+        "`core.js:297-309` enforces two rounds relative to the current turn and supplies reviewers cumulative changes from the original base, explicitly including analogous earlier-turn code; `docs/AgentHarness.md:29-38` and `AGENTS.md:17-20` state the same policy.",
+        "The proposal correctly treats the historic cause as unknown and explicitly avoids claims of measured reviewer improvement. Its preventive lesson is general, scoped to feedback-turn lifecycle, and faithful to the user instruction."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F51",
+        "feedback": "this is a bug in harness you need to fix. the limit of two roudns applies per turn. one user provides review feedback, the limits must reset and all the changes must get re-reviewed. ideally, the expectaion is that the new lessons lerned help to identify and fix similar issues in code implemented in previous turns of this session",
+        "classification": "defect",
+        "evidence": "`.opencode/plugins/sa-review/core.js:260-287` defines review turns, starts a new turn only for distinct normalized feedback, reloads knowledge, resets round/fix baselines and budget epoch while retaining cumulative state. Lines 297-309 apply the two-round limit relative to the current turn and review cumulative changes from the original base, including earlier turns. Lines 243-245 allow a feedback-driven resume from `review-exhausted`. Original evidence records prior feedback that required preserving an exhausted two-round cap, but does not establish a historic cause beyond the now-corrected per-turn policy.",
+        "hypothesis": "The historic implementation cause is unknown from the supplied original snapshots, which cover application changes rather than the prior controller source. The current source faithfully implements the explicit correction without claiming reviewer-improvement evidence.",
+        "action": "Keep two automated review rounds per distinct user-feedback turn. On unique feedback, retain cumulative evidence and usage, create a fresh turn with new round/fix and time/cost baselines, reload approved knowledge, and review all cumulative session changes. Do not reset for whitespace-equivalent duplicate feedback or ordinary continuation.",
+        "lesson": "Review limits are scoped to a distinct feedback turn, not the lifetime of a run. Fresh, distinct user feedback must receive up to two new automated review rounds over cumulative changes with refreshed approved knowledge; preserve cumulative evidence, original base, total usage, and duplicate-feedback protections."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

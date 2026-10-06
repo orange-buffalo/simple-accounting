@@ -7,10 +7,12 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
 class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Integrations")
-    val providers = ProviderCards(page.locator(".integration-cards"))
+    val providers = ProviderCards(components)
     val status = components.statusLabel()
 
     companion object {
@@ -27,7 +29,10 @@ class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
         }
     }
 
-    class ProviderCards(private val container: Locator) {
+    @UiComponentMarker
+    class ProviderCards(components: ComponentsAccessors) {
+        private val container = components.page.locator(".integration-cards")
+
         fun setupWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Setup →").setExact(true)).click()
         fun viewWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("View →").setExact(true)).click()
     }

@@ -13,6 +13,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,6 +38,19 @@ class VerifyWiseIntegrationTokenMutationTest(@Autowired private val client: ApiT
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+        @Test
+        fun `should reject saved shared workspace access without contacting Wise or persisting`() {
+            client.graphqlMutation { saveSharedWorkspace(token = preconditions.shared.token) { id } }
+                .from(preconditions.leela)
+                .executeAndVerifySuccessResponse("saveSharedWorkspace" to buildJsonObject {
+                    put("id", preconditions.workspace.id)
+                })
+            client.graphqlMutation { verifyToken() }.from(preconditions.leela)
+                .executeAndVerifyEntityNotFoundError(path = "verifyWiseIntegrationToken")
+            WiseApiMocks.shouldHaveNoRequests()
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+        }
+
         @Test
         fun `should reject anonymous requests`() {
             client.graphqlMutation { verifyToken() }.fromAnonymous()

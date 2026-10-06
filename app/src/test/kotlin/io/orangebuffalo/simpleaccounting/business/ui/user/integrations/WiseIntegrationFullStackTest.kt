@@ -26,6 +26,35 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should independently select account tuples that differ by currency`(page: Page) {
+        WiseApiMocks.setupAccountsWithSharedIds()
+        page.authenticateViaCookie(preconditions.fry)
+        page.openWiseSetupPage {
+            token { input.fill(WiseApiMocks.TOKEN) }
+            next.click()
+            val dollars = accounts.account("Philip J. Fry", "USD", "Currency balance", "301")
+            val euros = accounts.account("Philip J. Fry", "EUR", "Currency balance", "301")
+            dollars.shouldBeUnselected()
+            euros.shouldBeUnselected()
+            dollars.click()
+            dollars.shouldBeSelected()
+            euros.shouldBeUnselected()
+            dollars.click()
+            next.shouldBeDisabled()
+            euros.click()
+            dollars.shouldBeUnselected()
+            euros.shouldBeSelected()
+            dollars.click()
+            dollars.shouldBeSelected()
+            euros.shouldBeSelected()
+            next.click()
+            status.shouldBeSuccess("Wise integration activated successfully.")
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().accounts
+            .shouldBe(setOf(WiseIntegrationAccount(101, 301, "USD"), WiseIntegrationAccount(101, 301, "EUR")))
+    }
+
+    @Test
     fun `should activate balances and Jars across profiles and view the active provider`(page: Page) {
         WiseApiMocks.setupAccounts()
         page.authenticateViaCookie(preconditions.fry)

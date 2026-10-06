@@ -26,6 +26,14 @@ object WiseApiMocks {
             .willReturn(aResponse().withStatus(status)))
     }
 
+    fun setupAccountsWithSharedIds() {
+        setupAccounts()
+        stub("/profiles/101/balances?types=STANDARD,SAVINGS", """[
+            {"id":301,"currency":"USD","type":"STANDARD"},
+            {"id":301,"currency":"EUR","type":"STANDARD"}
+        ]""")
+    }
+
     fun failBalances(status: Int = 503) {
         ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/202/balances?types=STANDARD,SAVINGS"))
             .willReturn(aResponse().withStatus(status)))

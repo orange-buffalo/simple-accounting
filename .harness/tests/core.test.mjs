@@ -205,6 +205,60 @@ test('review stops after two rounds even with a larger legacy repair budget or r
   assert.match(resumed.error, /finish implementation and validation/);
   assert.equal(resumed.nextAction, 'finish-implementation-and-validation');
   assert.equal(fixes, 1);
+  const legacyState = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
+  delete legacyState.reviewTurns;
+  await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(legacyState));
+  const feedback = 'Fry requests lazy integration fields in earlier deliveries';
+  const renewed = await controller.review({ ...input, profile: 'full', runId: result.runId, clarification: feedback });
+  assert.equal(renewed.status, 'review-exhausted');
+  assert.equal(renewed.turnRounds, 2);
+  assert.equal(renewed.totalRounds, 4);
+  assert.equal(renewed.fixes, 1);
+  assert.equal(renewed.totalFixes, 2);
+  assert.equal(fixes, 2);
+  const duplicate = await controller.review({ ...input, profile: 'full', runId: result.runId,
+    clarification: '  Fry requests\n lazy integration fields in earlier deliveries  ' });
+  assert.equal(duplicate.turn, renewed.turn);
+  assert.equal(duplicate.totalRounds, 4);
+  assert.equal(fixes, 2);
+});
+
+test('new feedback refreshes lessons and reviews committed earlier-turn changes from the original base', async (t) => {
+  const { root, input } = await fixture(t);
+  const bundles = [];
+  const controller = new Controller(root, async ({ knowledge: bundle, prompt }) => {
+    bundles.push(bundle);
+    assert.match(prompt, /cumulative changes from the original base/);
+    assert.match(prompt, /analogous issues/);
+    return answer(report, 0.1);
+  });
+  const first = await controller.review(input);
+  const original = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
+  await exec('git', ['add', 'AGENTS.md'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'docs: first delivery turn'], { cwd: root });
+  const lesson = { id: 'lesson-leela', status: 'verified', guidance: 'Resolve fields lazily', scope: 'GraphQL',
+    evidence: { dispositions: [{ ref: 'F1', lesson: 'Defer database access until its GraphQL field is selected' }] } };
+  const raw = JSON.stringify(lesson);
+  await mkdir(path.join(root, '.harness/lessons'));
+  await writeFile(path.join(root, '.harness/lessons/lesson-leela.json'), raw);
+  await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1,
+    lessons: [{ id: lesson.id, sha256: hash(raw) }] }));
+  const next = await controller.review({ ...input, runId: first.runId, clarification: 'Leela requests lazy field resolution' });
+  assert.equal(next.status, 'passed');
+  assert.equal(next.turn, 2);
+  assert.equal(next.turnRounds, 1);
+  assert.equal(next.totalRounds, 2);
+  const state = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
+  assert.equal(state.base, input.base);
+  assert.equal(state.started, original.started);
+  assert.deepEqual(state.rounds[0], original.rounds[0]);
+  assert.equal(state.reviewTurns[0].fingerprint, first.fingerprint);
+  assert.equal(state.reviewTurns[0].knowledge, '[]');
+  assert.match(state.reviewTurns[1].knowledge, /Defer database access/);
+  assert.equal(state.rounds[1].snapshot.contents['AGENTS.md'], 'Planet Express review\n');
+  assert.ok(Math.abs(state.cost - 0.8) < 0.000001);
+  assert.ok(bundles.slice(4).every((bundle) => bundle.includes(lesson.evidence.dispositions[0].lesson)));
+  await assert.rejects(controller.review({ ...input, runId: first.runId }), /cannot be resumed/);
 });
 
 test('failed reviewer blocks, records all concurrent costs, and resumes the same budget', async (t) => {
@@ -272,12 +326,13 @@ test('new human feedback renews exhausted budgets without erasing usage or revie
     assert.equal(renewed.budgetHistory[0].cost, state.cost);
     assert.equal(renewed.budgetCostBaseline, state.cost);
     assert.ok(Math.abs(renewed.cost - state.cost - 0.4) < 0.000001);
-    const capped = await controller.review({ ...input, runId: first.runId,
+    const nextTurn = await controller.review({ ...input, runId: first.runId,
       clarification: 'Leela additionally requests component-owned full-stack coverage' });
-    assert.equal(capped.status, 'review-exhausted');
-    assert.equal(capped.nextAction, 'finish-implementation-and-validation');
-    assert.match(capped.error, /Two-round/);
-    assert.equal(calls, 8);
+    assert.equal(nextTurn.status, 'blocked');
+    assert.equal(nextTurn.turnRounds, 1);
+    assert.equal(nextTurn.totalRounds, 3);
+    assert.match(nextTurn.error, /Incomplete review/);
+    assert.equal(calls, 12);
   }
 });
 
@@ -294,7 +349,7 @@ test('repeated feedback or ordinary resume cannot renew expired budgets', async 
   const state = JSON.parse(await readFile(stateFile));
   state.started = 0;
   await writeFile(stateFile, JSON.stringify(state));
-  for (const clarification of [undefined, ` ${feedback} `]) {
+  for (const clarification of [undefined, ` ${feedback} `, 'Fry  requests\nrepresentative countries']) {
     const resumed = await controller.review({ ...input, runId: result.runId, clarification });
     assert.match(resumed.error, /Elapsed-time budget/);
     assert.equal(calls, 4);
