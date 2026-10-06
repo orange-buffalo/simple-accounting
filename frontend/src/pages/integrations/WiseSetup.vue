@@ -117,7 +117,7 @@
     default: return $t.value.integrations.wise.unavailable();
     }
   });
-  const accountKey = (account: Account) => `${account.profileId}:${account.accountId}`;
+  const accountKey = (account: Account) => `${account.profileId}:${account.accountId}:${account.currency}`;
   const toggle = (account: Account) => {
     const key = accountKey(account);
     if (selected.value.has(key)) selected.value.delete(key);

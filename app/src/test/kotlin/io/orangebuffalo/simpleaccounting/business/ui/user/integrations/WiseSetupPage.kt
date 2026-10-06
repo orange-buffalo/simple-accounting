@@ -10,13 +10,15 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
 class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Setup Wise integration")
     val token = components.formItemTextInputByLabel("Personal API token")
     val next = components.buttonByText("Next")
     val back = components.buttonByText("Back")
-    val accounts = AccountCards(page.locator(".integration-cards"))
+    val accounts = AccountCards(components)
     val status = components.statusLabel()
 
     companion object {
@@ -34,13 +36,18 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
 
     }
 
-    class AccountCards(private val container: Locator) {
+    @UiComponentMarker
+    class AccountCards(components: ComponentsAccessors) {
+        private val container = components.page.locator(".integration-cards")
+
         fun account(profile: String, currency: String, name: String, id: String): AccountCard {
-            val card = container.getByRole(AriaRole.BUTTON).filter(Locator.FilterOptions().setHasText("Account ID: $id"))
+            val card = container.getByRole(AriaRole.BUTTON)
+                .filter(Locator.FilterOptions().setHasText("$profile$currency${name}Account ID: $id"))
             return AccountCard(card, profile, currency, name, id)
         }
     }
 
+    @UiComponentMarker
     class AccountCard(
         private val card: Locator,
         private val profile: String,

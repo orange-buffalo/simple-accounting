@@ -41,6 +41,19 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
     @DisplayName("Authorization")
     inner class Authorization {
         @Test
+        fun `should reject saved shared workspace access without contacting Wise or persisting`() {
+            client.graphqlMutation { saveSharedWorkspace(token = preconditions.shared.token) { id } }
+                .from(preconditions.leela)
+                .executeAndVerifySuccessResponse("saveSharedWorkspace" to buildJsonObject {
+                    put("id", preconditions.workspace.id)
+                })
+            client.graphqlMutation { setup() }.from(preconditions.leela)
+                .executeAndVerifyEntityNotFoundError(path = "setupWiseIntegration")
+            WiseApiMocks.shouldHaveNoRequests()
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+        }
+
+        @Test
         fun `should reject anonymous requests without contacting Wise`() {
             client.graphqlMutation { setup() }.fromAnonymous()
                 .executeAndVerifyNotAuthorized(path = "setupWiseIntegration")
@@ -73,6 +86,24 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
     @Nested
     @DisplayName("Business Flow")
     inner class BusinessFlow {
+        @Test
+        fun `should persist selected account tuples that differ only by currency`() {
+            WiseApiMocks.setupAccountsWithSharedIds()
+            client.graphqlMutation {
+                setup(listOf(
+                    WiseAccountInput(profileId = "101", accountId = "301", currency = "USD"),
+                    WiseAccountInput(profileId = "101", accountId = "301", currency = "EUR"),
+                ))
+            }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("setupWiseIntegration" to setupResult(true))
+            val persisted = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+            persisted.workspaceId.shouldBe(preconditions.workspace.id)
+            persisted.accounts.shouldBe(setOf(
+                WiseIntegrationAccount(101, 301, "USD"),
+                WiseIntegrationAccount(101, 301, "EUR"),
+            ))
+        }
+
         @Test
         fun `should reject blank tokens and empty account selections without contacting Wise`() {
             for (token in listOf("", " ")) {

@@ -26,14 +26,16 @@ Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md
 through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
 the agent calls `sa_review(requirements, base, profile)`.
 When the user steers an active task, preserve the original contract and add their change through the optional
-`clarification` field on the same run. Genuinely new human feedback renews expired elapsed-time or exhausted cost
-budgets, recording the prior budget epoch and retaining total usage and all evidence. Repeated feedback and ordinary
-continuation do not renew budgets. The caller must supply actual new user feedback, not invent a clarification to
-work around a blocker. Renewal never resets the two-round review limit or repair count.
+`clarification` field on the same run. Distinct new human review feedback starts a fresh review turn, resetting its
+round, repair, elapsed-time and cost limits while retaining total usage, original base and all evidence. Whitespace-equivalent
+duplicate feedback and ordinary continuation do not renew limits. Never invent feedback to work around a blocker.
+Passed, blocked and exhausted runs can start a new feedback turn; unreconciled workers still prevent resumption.
 
 The controller:
 
-1. Freezes original requirements, approved knowledge, policy, and the changed-file snapshot (including untracked files).
+1. Preserves original requirements and base, freezes policy and the changed-file snapshot (including untracked files),
+   and refreshes approved knowledge for each new feedback turn. Review cumulative changes, not only the latest delta:
+   apply learned instructions to analogous issues in relevant code from earlier turns of the session.
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
@@ -51,18 +53,19 @@ The controller:
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
     prevent a clean review receipt. The validator is not another general reviewer.
 5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
-6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds (initial review
-    and one re-review), including resumed attempts. No automatic budget extension or restart to bypass this limit.
+6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds per turn
+    (initial review and one re-review), including resumed attempts in that turn. Distinct human feedback starts a fresh
+    turn on the same run; it does not erase prior rounds, repairs, receipts, knowledge bundles or usage.
    After the controller returns, the primary implementation agent must rerun its selected Gradle validation and check
    results before handover if repairs occurred (`fixes > 0`), including applicable regenerated rendering reports. Any
     subsequent source fix invalidates a passed receipt; resume with the same ID when rounds remain.
     Exhausting rounds returns `review-exhausted` with `nextAction: finish-implementation-and-validation`.
     The primary agent must finish required fixes and validation, not stop or ask permission solely because review
     rounds ran out. Report the two-round limit, receipt status and any remaining issues without claiming a clean review.
-    Genuine ambiguity and external blockers still require user direction. Never start another run to evade the cap.
+     Genuine ambiguity and external blockers still require user direction. Never start another run to evade a turn's cap.
 
 Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
-the two-round limit), elapsed minutes, USD cost, the four required reviewers, and
+the per-turn two-round limit), elapsed minutes, USD cost, the four required reviewers, and
 `reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
 Optional `models` entries override individual roles with the same model-reference shape. All read-only workers,
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
@@ -102,8 +105,9 @@ do not paste build/test results into worker inputs.
 
 ## Verified human-feedback learning
 
-Use `/sa-feedback <original run ID and corrections>`. Apply accepted corrections and review the corrected state,
-then invoke `sa_learn(runId, feedback)`. Commit the completed implementation turn separately under `AGENTS.md`.
+Use `/sa-feedback <original run ID and corrections>`. Apply accepted corrections, then invoke `sa_learn(runId, feedback)`
+before reviewing so verified lessons reach the new turn's reviewers. Resume the original run with distinct feedback as
+clarification and review cumulative changes against its original base. Commit the completed turn separately under `AGENTS.md`.
 Explicit user instructions override this default. A no-commit instruction suspends automatic commits until authorized;
 observing that precedence is not an error or issue. Scoped authorization covers only its stated scope.
 
@@ -151,7 +155,7 @@ must not be described as proven reviewer improvement. Synthetic cases and a sing
 not proof that recurrence has fallen. Prefer adding executable regressions alongside guidance.
 
 The plugin injects the complete small approved bundle before every agent-loop/generate model call, including delegated
-workers. It fails rather than silently truncating oversized bundles. Review workers receive the run's frozen bundle;
+workers. It fails rather than silently truncating oversized bundles. Review workers receive the current turn's frozen bundle;
 blind baseline/candidate workers receive their explicitly selected bundle, not the newly approved one.
 Blind workers and evaluators have all tools denied at session level, preventing checkout/history reads through tools.
 They still receive host system instructions; this is not a fully hermetic evaluation sandbox and host prompts can
