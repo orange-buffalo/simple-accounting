@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidA
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
-import io.orangebuffalo.simpleaccounting.infra.graphql.Query
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -18,17 +17,6 @@ import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
 class IntegrationsGqlApi {
-    @Component
-    class Queries(
-        private val wise: WiseIntegrationService,
-    ) : Query {
-        @GraphQLDescription("Integration providers configurable for the owned workspace.")
-        @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-        fun integrations(workspaceId: String): IntegrationsGqlDto {
-            return IntegrationsGqlDto(WiseIntegrationGqlDto(wise.isActive(workspaceId)))
-        }
-    }
-
     @Component
     @Validated
     class Mutations(

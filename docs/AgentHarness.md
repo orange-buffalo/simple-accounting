@@ -1,7 +1,9 @@
 # Repository agent workflow
 
 This repository combines checksum-pinned Compound Engineering reference skills with a local OpenCode V2 controller.
-It is not CE's `lfg` pipeline and does not commit, push, create PRs, or merge. Existing PR/release skills remain opt-in.
+It is not CE's `lfg` pipeline. The controller does not commit, push, create PRs, or merge. The primary agent commits
+each implementation turn separately under `AGENTS.md`; explicit user instructions override this default.
+Existing PR/release skills remain opt-in.
 
 ## Setup
 
@@ -100,11 +102,10 @@ do not paste build/test results into worker inputs.
 
 ## Verified human-feedback learning
 
-Use `/sa-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
-apply accepted corrections, and review the corrected state. Then invoke `sa_learn(runId, feedback)`.
-The automatic pre-feedback progress commit remains the default, but explicit user instructions override repository
-workflow defaults. A no-commit instruction suspends this default until authorized; observing that precedence is not
-an error or issue. Authorization to commit prior progress does not authorize committing new corrections.
+Use `/sa-feedback <original run ID and corrections>`. Apply accepted corrections and review the corrected state,
+then invoke `sa_learn(runId, feedback)`. Commit the completed implementation turn separately under `AGENTS.md`.
+Explicit user instructions override this default. A no-commit instruction suspends automatic commits until authorized;
+observing that precedence is not an error or issue. Scoped authorization covers only its stated scope.
 
 Every human comment must be investigated and included in learning; new scope or preferences cannot be dismissed.
 If feedback appears wrong or conflicts with evidence, the agent must ask the user with arguments, reasoning and

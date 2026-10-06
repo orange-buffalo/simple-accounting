@@ -32,11 +32,10 @@ and do not claim automatic review or learning ran. These workflows never authori
 5. Pull request titles must follow the Conventional Commits schema and provide a concise change description. In most cases,
    the pull request title is the commit message.
 6. Use `docs/pull_request_template.md` for pull request descriptions.
-7. When the user supplies review comments on work in progress, commit the previous work before addressing the comments.
-   Commit only the relevant previous work; do not include unrelated user changes. Then address the review comments and
-   leave those new changes uncommitted.
+7. After each implementation turn, commit that turn's completed changes as a separate commit, including review corrections.
+   Commit only relevant agent changes; do not include unrelated user changes or combine separate turns into one commit.
    Explicit user instructions override this repository workflow default. For example, "do not commit until I tell you"
-   suspends the automatic pre-feedback commit until the user authorizes it. Following that instruction is not a defect
+   suspends automatic commits until the user authorizes them. Following that instruction is not a defect
    or a violation of the repository workflow. A scoped authorization to commit prior progress does not authorize
    committing subsequent corrections.
 

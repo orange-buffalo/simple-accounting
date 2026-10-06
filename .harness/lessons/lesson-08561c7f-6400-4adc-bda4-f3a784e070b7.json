@@ -1,0 +1,35 @@
+{
+  "id": "lesson-08561c7f-6400-4adc-bda4-f3a784e070b7",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Workspace-scoped GraphQL integration metadata, including provider status queries, frontend operations, generated artifacts, and authorization/isolation tests.",
+  "guidance": "Treat this as a user-confirmed new policy with corrected chronology. Do not infer or claim a historic reviewer failure or measured reviewer improvement; preserve the workspace ownership and authorization contract.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F46 exact comment is preserved and accounted for as a new specification/policy evolution, not a historic reviewer miss or measured-improvement claim.",
+        "Both original review snapshots record the earlier standalone root `wiseIntegrationActive(workspaceId)` design in `WiseIntegrationGqlApi.kt`; the supplied clarification records its subsequent root `integrations(workspaceId)` replacement before this workspace nesting change.",
+        "Current source implements `Workspace.integrations` at `WorkspaceGqlDto.kt:65-68`, with nested regular-user authorization and service-mediated workspace access validation.",
+        "`WiseIntegrationQueryTest.kt:34-63` covers anonymous, administrator, transient shared-token, other-owner, and saved-shared-workspace denial; lines 70-85 cover inactive and per-workspace activation isolation; lines 89-90 query `workspace(id) { integrations { wise { active } } }`.",
+        "The proposed preventive lesson is faithful, general, scoped to workspace-owned integration metadata, and excludes the explicitly non-learning commit-workflow preference."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F46",
+        "feedback": "ah, i now realized it must be nested in workspace, not stan on its own, as it is per-workspace",
+        "classification": "new requirement/preference",
+        "evidence": "The original round-1 and round-2 snapshots contain the standalone root query `wiseIntegrationActive(workspaceId)` in `business/api/integrations/WiseIntegrationGqlApi.kt`; the supplied chronology records its later replacement with root `integrations(workspaceId)` at commit `1e0cbfa1`. Current `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/workspaces/WorkspaceGqlDto.kt:65-68` exposes `Workspace.integrations`, and `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/api/integrations/WiseIntegrationQueryTest.kt:89-90` queries `workspace(id) { integrations { wise { active } } }`.",
+        "hypothesis": "This is an explicit specification evolution after the original review snapshots, not evidence of a historic reviewer miss. The chronological source evidence shows earlier standalone-root designs before the user clarified that integration metadata is workspace-owned.",
+        "action": "Replace the later standalone root integrations namespace with `workspace(id).integrations.wise.active`; retain regular-user authorization and service-level owner validation. Update frontend operations, generated GraphQL artifacts, and authorization/isolation coverage, including saved shared-workspace access.",
+        "lesson": "Nest workspace-owned integration metadata under the Workspace GraphQL object rather than exposing it through any standalone root status or provider-namespace query."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}
