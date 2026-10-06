@@ -1,6 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.api.integrations
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
+import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountSelection
@@ -70,10 +73,18 @@ data class WiseAccountGqlDto(
 )
 
 @GraphQLDescription("Workspace-scoped integration providers.")
-data class IntegrationsGqlDto(val wise: WiseIntegrationGqlDto)
+class IntegrationsGqlDto(private val workspaceId: String) {
+    @GraphQLDescription("Wise integration metadata for this workspace.")
+    fun wise() = WiseIntegrationGqlDto(workspaceId)
+}
 
 @GraphQLDescription("Wise integration metadata. Credentials are never returned.")
-data class WiseIntegrationGqlDto(val active: Boolean)
+class WiseIntegrationGqlDto(private val workspaceId: String) {
+    @GraphQLDescription("Whether Wise is active for this workspace.")
+    fun active(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
+        env.graphQlContext.getBean<WiseIntegrationService>().isActive(workspaceId)
+    }
+}
 
 @GraphQLDescription("Verified balances across all Wise profiles.")
 data class WiseAccountsResult(val accounts: List<WiseAccountGqlDto>)

@@ -1,0 +1,53 @@
+{
+  "id": "lesson-6256b33d-5284-4d3e-af3a-bae112ae8b82",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "GraphQL lazy field-resolution/resource use and fixed-workspace integration page/component ownership.",
+  "guidance": "These user-confirmed policies are actionable and source-verified. They do not establish measured reviewer improvement or support speculation about historic reviewer intent.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F48 exact feedback is preserved and classified as a new user policy; current IntegrationsGqlApi.kt:75-84 constructs workspace-ID carriers only, with the repository-backed service call confined to active(env). WiseIntegrationQueryTest.kt:79-93 independently verifies no settings-repository interaction for unselected namespace fields and a read when active is selected. Original reviewer prompts at agent-8-prompt.txt:4-7 and agent-9-prompt.txt:4-7 contain no lazy field-resolution requirement.",
+        "F49 exact feedback is preserved and its scoped lesson faithfully prohibits the redundant fixed-page workspace-change lifecycle, not workspace events generally. The round-2 snapshot records the former IntegrationPage subscription/key wrapper; current Integrations.vue:1-13, WiseSetup.vue:1-70, and WiseView.vue:1-8 use SaPage directly, and the integrations directory contains no IntegrationPage.vue.",
+        "F50 exact feedback is preserved and the lesson remains narrowly about a non-reused, page-owned integration wizard. The round-2 snapshot shows WiseSetup.vue as a pass-through to WiseSetupWizard.vue; current WiseSetup.vue:1-213 contains the page and wizard behavior together, and the integrations directory contains no WiseSetupWizard.vue.",
+        "The reviewed original reviewer prompts/investigation records establish only what reviewers were asked to assess; the proposal correctly states that historic reviewer causes are unknown and does not claim reviewer failure or measured improvement.",
+        "All indexed F48-F50 comments have a matching classification, source-grounded action, and preventive lesson. The scope and guidance correctly present them as actionable, user-confirmed policy learning."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F48",
+        "feedback": "we should not retrieve particular integration status unless it is asked. so this should be a getter-like property, not a constructore like (same as integrations in workspace itslef). this is a generic rule - any gql property that requires additional calculation / database access only consumes resources if requested.",
+        "classification": "new requirement/preference",
+        "evidence": "Current `IntegrationsGqlApi.kt:75-84` constructs only workspace-id carrier DTOs; the repository-backed `WiseIntegrationService.isActive` call exists solely in the selected `active` resolver. `WiseIntegrationQueryTest.kt:79-93` independently spies on the settings repository and proves no interactions for `workspace.name`, `integrations.__typename`, and `wise.__typename`, then verifies the repository read when `active` is selected. The preserved round-2 snapshot shows the earlier eager/root status design; reviewer prompts at `agent-8-prompt.txt:4-7` and `agent-9-prompt.txt:4-7` contain no field-selection/lazy-resolution policy.",
+        "hypothesis": "This explicit resource-selection rule was not part of the original reviewer prompt or acceptance requirements; no historic reviewer-failure theory is warranted.",
+        "action": "Replace eager integration-status construction with lightweight workspace-id DTOs and field resolvers; add repository-spy API coverage for unselected namespace fields and selected `active`.",
+        "lesson": "For GraphQL properties requiring additional computation or database access, defer that work to the selected field resolver; namespace DTO construction must remain lightweight."
+      },
+      {
+        "ref": "F49",
+        "feedback": "all this logic is dead code. workspace cannot be changed while on this page. this change event is for always-visible parts of the app like left panel. when you remove it, IntegrationPage itself becomes redundant, and other components should use SaPage directly",
+        "classification": "new requirement/preference",
+        "evidence": "The preserved round-2 snapshot at `round-2-snapshot.txt:65-70` shows `IntegrationPage.vue` subscribing to `WORKSPACE_CHANGED_EVENT`, maintaining a workspace ref, and passing a keyed slot; `Integrations.vue` and `WiseSetup.vue` used that wrapper. Current `Integrations.vue:1-13`, `WiseSetup.vue:1-167`, and `WiseView.vue:1-8` use `SaPage` directly, while workspace-consuming views capture `useCurrentWorkspace().currentWorkspace.id` during setup. `glob frontend/src/pages/integrations/*` confirms `IntegrationPage.vue` is removed. The original reviewer prompts do not state fixed-workspace-page lifecycle ownership.",
+        "hypothesis": "The original source exposed the redundant lifecycle, but the exact policy that workspace-change events belong only to persistent application chrome was supplied later; historic reviewer cause is unknown.",
+        "action": "Remove `IntegrationPage`, its subscription/ref/key lifecycle, and all wrapper use; make each integration page own its `SaPage` directly.",
+        "lesson": "Do not subscribe fixed-workspace page views to workspace-change events intended for persistent application chrome; avoid wrappers whose only purpose is that redundant lifecycle."
+      },
+      {
+        "ref": "F50",
+        "feedback": "makes no sense to have sub-component",
+        "classification": "new requirement/preference",
+        "evidence": "The preserved round-2 snapshot at `round-2-snapshot.txt:68-69` shows `WiseSetup.vue` as a pass-through page delegating all wizard behavior to the single-use `WiseSetupWizard.vue`. Current `WiseSetup.vue:1-213` contains the page, wizard behavior, workspace capture, and scoped styles together; the integrations-page glob confirms `WiseSetupWizard.vue` is removed. The original reviewer prompts did not specify that a page-owned, non-reused wizard must not be split into a subcomponent.",
+        "hypothesis": "The original implementation structure was visible to the code reviewer, but the user’s preference for keeping this one-page wizard co-located was not an original stated contract; no speculative reviewer-failure claim is supported.",
+        "action": "Merge the one-use wizard implementation and styles into `WiseSetup.vue` and remove the artificial prop/key boundary and separate component.",
+        "lesson": "Keep a non-reused, page-owned integration wizard in its page component rather than splitting it into a pass-through page and single-use subcomponent."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

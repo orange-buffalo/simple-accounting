@@ -1,8 +1,8 @@
 <template>
-  <IntegrationPage :header="$t.integrations.wise.viewHeader()" />
+  <SaPage :header="$t.integrations.wise.viewHeader()" />
 </template>
 
 <script lang="ts" setup>
-  import IntegrationPage from './IntegrationPage.vue';
+  import SaPage from '@/components/SaPage.vue';
   import { $t } from '@/services/i18n';
 </script>

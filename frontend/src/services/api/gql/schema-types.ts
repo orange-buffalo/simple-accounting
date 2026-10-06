@@ -800,6 +800,7 @@ export type IncomesSummaryItem = {
 /** Workspace-scoped integration providers. */
 export type IntegrationsGqlDto = {
   __typename?: 'IntegrationsGqlDto';
+  /** Wise integration metadata for this workspace. */
   wise: WiseIntegrationGqlDto;
 };
 
@@ -1827,6 +1828,7 @@ export type WiseAccountsResult = {
 /** Wise integration metadata. Credentials are never returned. */
 export type WiseIntegrationGqlDto = {
   __typename?: 'WiseIntegrationGqlDto';
+  /** Whether Wise is active for this workspace. */
   active: Scalars['Boolean']['output'];
 };
 
