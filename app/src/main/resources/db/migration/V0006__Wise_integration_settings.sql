@@ -12,5 +12,5 @@ create table wise_integration_account (
     profile_id bigint not null,
     account_id bigint not null,
     currency character varying(3) not null,
-    primary key (settings_id, profile_id, account_id)
+    primary key (settings_id, profile_id, account_id, currency)
 );

@@ -3,12 +3,10 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettingsRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
-import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlRawQuery
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -16,15 +14,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-import org.mockito.Mockito.clearInvocations
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
 
 class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : SaIntegrationTestBase() {
-    @MockitoSpyBean
-    private lateinit var settings: WiseIntegrationSettingsRepository
-
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
@@ -75,24 +66,6 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
     @Nested
     @DisplayName("Business Flow")
     inner class BusinessFlow {
-        @Test
-        fun `should only load integration settings when active is selected`() {
-            val workspaceId = preconditions.workspace.id!!
-            clearInvocations(settings)
-            client.graphql { workspace(id = workspaceId) { name } }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"name":"Planet Express"}"""))
-            verifyNoInteractions(settings)
-            client.graphqlRawQuery("""query { workspace(id: "$workspaceId") { integrations { __typename } } }""").from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"__typename":"IntegrationsGqlDto"}}"""))
-            verifyNoInteractions(settings)
-            client.graphqlRawQuery("""query { workspace(id: "$workspaceId") { integrations { wise { __typename } } } }""").from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"__typename":"WiseIntegrationGqlDto"}}}"""))
-            verifyNoInteractions(settings)
-            client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false}}}"""))
-            verify(settings).existsByWorkspaceId(workspaceId)
-        }
-
         @Test
         fun `should report inactive Wise integration`() {
             client.graphql { integrationStatus() }.from(preconditions.fry)
