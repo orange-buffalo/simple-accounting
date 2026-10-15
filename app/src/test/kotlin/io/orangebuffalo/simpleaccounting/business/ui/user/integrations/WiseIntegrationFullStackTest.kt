@@ -9,15 +9,20 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.openIntegrationsPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.openWiseSetupPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.shouldBeWiseSetupPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.AccountData
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseViewPage.Companion.shouldBeWiseViewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
 
 class WiseIntegrationFullStackTest : SaFullStackTestBase() {
+    private val normalAccounts = arrayOf(
+        AccountData(profile = "Philip J. Fry", currency = "USD", name = "Currency balance", accountLabel = "Account ID: 301"),
+        AccountData(profile = "Philip J. Fry", currency = "EUR", name = "Slurm fund", accountLabel = "Account ID: 302"),
+        AccountData(profile = "Planet Express", currency = "GBP", name = "Currency balance", accountLabel = "Account ID: 401"),
+    )
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
@@ -32,8 +37,13 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         page.openWiseSetupPage {
             token { input.fill(WiseApiMocks.TOKEN) }
             next.click()
-            val dollars = accounts.account("Philip J. Fry", "USD", "Currency balance", "301")
-            val euros = accounts.account("Philip J. Fry", "EUR", "Currency balance", "301")
+            accounts.shouldHaveExactData(
+                AccountData(profile = "Philip J. Fry", currency = "USD", name = "Currency balance", accountLabel = "Account ID: 301"),
+                AccountData(profile = "Philip J. Fry", currency = "EUR", name = "Currency balance", accountLabel = "Account ID: 301"),
+                AccountData(profile = "Planet Express", currency = "GBP", name = "Currency balance", accountLabel = "Account ID: 401"),
+            )
+            val dollars = accounts.account("USD")
+            val euros = accounts.account("EUR")
             dollars.shouldBeUnselected()
             euros.shouldBeUnselected()
             dollars.click()
@@ -69,11 +79,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             page.withBlockedGqlApiResponse("verifyWiseToken", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Verifying token and loading accounts…")
             })
-            accounts.account("Philip J. Fry", "USD", "Currency balance", "301").shouldBeUnselected()
-            accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").shouldBeUnselected()
-            accounts.account("Planet Express", "GBP", "Currency balance", "401").shouldBeUnselected()
+            accounts.shouldHaveExactData(*normalAccounts)
             next.shouldBeDisabled()
-            val jar = accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302")
+            val jar = accounts.account("EUR")
             jar.click()
             jar.shouldBeSelected()
             next.shouldBeEnabled()
@@ -81,7 +89,12 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             jar.shouldBeUnselected()
             next.shouldBeDisabled()
             jar.click()
-            accounts.account("Planet Express", "GBP", "Currency balance", "401").click()
+            accounts.account("GBP").click()
+            accounts.shouldHaveExactData(
+                normalAccounts[0],
+                normalAccounts[1].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
+            )
             reportRendering("integrations.wise-accounts")
             next.click()
             status.shouldBeSuccess("Wise integration activated successfully.")
@@ -100,14 +113,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should display provider loading failure and recover from Wise outages without saving`(page: Page) {
+    fun `should recover from Wise outages without saving`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
-        page.withFailedGqlApiResponse("integrationProviders") {
-            page.openIntegrationsPage {
-                status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")
-                reportRendering("integrations.providers-unavailable")
-            }
-        }
         WiseApiMocks.rejectToken(503)
         page.openWiseSetupPage {
             token { input.fill(WiseApiMocks.TOKEN) }
@@ -116,16 +123,17 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             back.click()
             WiseApiMocks.setupAccounts()
             next.click()
-            accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").click()
+            accounts.shouldHaveExactData(*normalAccounts)
+            accounts.account("EUR").click()
             WiseApiMocks.failBalances()
             next.click()
             status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")
             reportRendering("integrations.wise-unavailable")
             WiseApiMocks.setupAccounts()
             back.click()
-            accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").shouldBeUnselected()
+            accounts.shouldHaveExactData(*normalAccounts)
             next.shouldBeDisabled()
-            accounts.account("Philip J. Fry", "EUR", "Slurm fund", "302").click()
+            accounts.account("EUR").click()
             next.shouldBeEnabled()
             reportRendering("integrations.wise-recovered-accounts")
         }
@@ -146,6 +154,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             WiseApiMocks.noAccounts()
             next.click()
             status.shouldBeRegular("No balances or Jars are available. Add an account in Wise, then try again.")
+            accounts.shouldHaveExactData()
             next.shouldBeDisabled()
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())

@@ -35,7 +35,10 @@ The controller:
 
 1. Preserves original requirements and base, freezes policy and the changed-file snapshot (including untracked files),
    and refreshes approved knowledge for each new feedback turn. Review cumulative changes, not only the latest delta:
-   apply learned instructions to analogous issues in relevant code from earlier turns of the session.
+    apply learned instructions to analogous issues in relevant code from earlier turns of the session.
+    On feedback turns, code review must record a source-grounded per-file feedback audit for every cumulative
+    non-generated code file, including earlier-turn changes. Missing or duplicate file dispositions block a clean
+    receipt. Reviewers must justify exceptional mocks and other deviations rather than stopping at the commented file.
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the

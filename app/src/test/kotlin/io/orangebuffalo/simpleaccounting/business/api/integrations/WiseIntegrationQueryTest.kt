@@ -1,8 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.integrations
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
@@ -75,8 +73,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         @Test
         fun `should report activation only for the configured workspace`() {
             preconditions {
-                aggregateTemplate.insert(WiseIntegrationSettings(preconditions.workspace.id!!, "fry-personal-token",
-                    setOf(WiseIntegrationAccount(101, 302, "EUR"))))
+                wiseIntegrationSettings(workspace = preconditions.workspace)
             }
             client.graphql { integrationStatus() }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true}}}"""))

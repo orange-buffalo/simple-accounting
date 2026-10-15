@@ -86,6 +86,41 @@ test('targeted reviews use selected classes as source hints and freeze the selec
   assert.match(invalid.error, /Invalid test classes/);
 });
 
+test('feedback audit cannot omit analogous earlier-turn source files', async (t) => {
+  const { root, input: originalInput } = await fixture(t);
+  const input = { ...originalInput, profile: 'full' };
+  await mkdir(path.join(root, 'app/src/test'), { recursive: true });
+  const earlier = 'app/src/test/BenderTest.kt';
+  const latest = 'app/src/test/FryTest.kt';
+  await writeFile(path.join(root, earlier), 'class BenderTest { val service = mock(Service::class.java) }');
+  const first = await new Controller(root, async () => answer(report)).review(input);
+  await exec('git', ['add', '.'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'tests: preserve earlier turn'], { cwd: root });
+  await writeFile(path.join(root, latest), 'class FryTest');
+  const feedback = { ...input, runId: first.runId, clarification: 'Avoid exceptional-case mocks throughout branch changes' };
+  const incomplete = await new Controller(root, async ({ role, prompt }) => {
+    if (role === 'code') {
+      assert.ok(prompt.includes(earlier));
+      assert.ok(prompt.includes(latest));
+      assert.match(prompt, /Mandatory branch-wide feedback audit/);
+      return answer({ ...report, feedbackAudit: [{ file: latest, evidence: 'Fry uses real preconditions' }] });
+    }
+    return answer(report);
+  }).review(feedback);
+  assert.equal(incomplete.status, 'blocked');
+  assert.match(incomplete.error, /Incomplete branch-wide feedback audit/);
+  const complete = await new Controller(root, async ({ role }) => answer(role === 'code' ? {
+    ...report, feedbackAudit: [
+      { file: earlier, evidence: 'Inspected earlier service mock against branch-wide feedback; exception requires justification' },
+      { file: latest, evidence: 'Inspected latest factory preconditions against branch-wide feedback' },
+    ],
+  } : report)).review(feedback);
+  assert.equal(complete.status, 'passed');
+  const state = JSON.parse(await readFile(path.join(complete.evidence, 'state.json')));
+  assert.deepEqual(state.rounds.at(-1).feedbackAuditFiles, [earlier, latest]);
+  assert.equal(state.rounds.at(-1).reports.find(({ axis }) => axis === 'code').feedbackAudit.length, 2);
+});
+
 test('aggregate diffs above the command buffer limit do not block file-backed review', async (t) => {
   const { root, input } = await fixture(t);
   const files = Array.from({ length: 24 }, (_, index) => `.harness/generated-${index}.txt`);
@@ -190,7 +225,8 @@ test('review stops after two rounds even with a larger legacy repair budget or r
       return { text: 'fixed', cost: 0 };
     }
     if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] });
-    return answer({ ...report, findings: role === 'functional' ? [finding] : [] });
+    return answer({ ...report, findings: role === 'functional' ? [finding] : [],
+      feedbackAudit: [{ file: 'frontend/slurm.ts', evidence: 'Inspected cumulative Slurm implementation against current feedback' }] });
   });
   const result = await controller.review({ ...input, profile: 'full' });
   assert.equal(result.status, 'review-exhausted');

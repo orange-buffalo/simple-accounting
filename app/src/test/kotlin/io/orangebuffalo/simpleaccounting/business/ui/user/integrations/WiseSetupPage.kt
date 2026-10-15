@@ -4,7 +4,12 @@ import com.microsoft.playwright.Page
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
-import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
+import io.kotest.matchers.collections.shouldContainExactly
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
@@ -37,32 +42,58 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     }
 
     @UiComponentMarker
-    class AccountCards(components: ComponentsAccessors) {
+    class AccountCards(private val components: ComponentsAccessors) {
         private val container = components.page.locator(".integration-cards")
 
-        fun account(profile: String, currency: String, name: String, id: String): AccountCard {
+        fun shouldHaveExactData(vararg expected: AccountData) {
+            shouldSatisfy("Wise accounts should exactly match the expected data") {
+                data().shouldContainExactly(*expected)
+            }
+        }
+
+        private fun data(): List<AccountData> {
+            val json = container.evaluate("""
+                container => JSON.stringify(Array.from(container.querySelectorAll('button')).map(card => ({
+                    profile: card.querySelector('strong').textContent,
+                    currency: card.querySelectorAll('span')[0].textContent,
+                    name: card.querySelectorAll('span')[1].textContent,
+                    accountLabel: card.querySelector('small').textContent,
+                    selected: card.getAttribute('aria-pressed') === 'true',
+                    selectionLabel: card.querySelectorAll('span')[2]?.textContent ?? null
+                })))
+            """) as String
+            return Json.decodeFromString(json)
+        }
+
+        fun account(currency: String): AccountCard {
+            shouldSatisfy("Exactly one Wise account should have currency $currency") {
+                data().filter { it.currency == currency }.shouldBeSingle()
+            }
             val card = container.getByRole(AriaRole.BUTTON)
-                .filter(Locator.FilterOptions().setHasText("$profile$currency${name}Account ID: $id"))
-            return AccountCard(card, profile, currency, name, id)
+                .filter(Locator.FilterOptions().setHas(components.page.getByText(currency, Page.GetByTextOptions().setExact(true))))
+            card.shouldHaveCount(1)
+            return AccountCard(card)
         }
     }
 
+    @Serializable
+    data class AccountData(
+        val profile: String,
+        val currency: String,
+        val name: String,
+        val accountLabel: String,
+        val selected: Boolean = false,
+        val selectionLabel: String? = null,
+    )
+
     @UiComponentMarker
-    class AccountCard(
-        private val card: Locator,
-        private val profile: String,
-        private val currency: String,
-        private val name: String,
-        private val id: String,
-    ) {
+    class AccountCard(private val card: Locator) {
         fun shouldBeUnselected() {
             card.shouldHaveAttribute("aria-pressed", "false")
-            card.shouldHaveText("$profile$currency${name}Account ID: $id")
         }
 
         fun shouldBeSelected() {
             card.shouldHaveAttribute("aria-pressed", "true")
-            card.shouldHaveText("$profile$currency${name}Account ID: $id✓ Selected")
         }
 
         fun click() = card.click()
