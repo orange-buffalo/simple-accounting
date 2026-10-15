@@ -8,7 +8,7 @@
       </ElSteps>
 
       <div class="integration-wizard__content">
-        <template v-if="step === 0">
+        <template v-if="step === steps.TOKEN_INPUT">
           <ol>
             <li>{{ $t.integrations.wise.instructions.login() }}</li>
             <li>{{ $t.integrations.wise.instructions.navigate() }}</li>
@@ -26,7 +26,7 @@
           </SaForm>
         </template>
 
-        <template v-else-if="step === 1">
+        <template v-else-if="step === steps.ACCOUNT_SELECTION">
           <div v-if="busy" role="status" aria-live="polite">
             <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.wise.verifying() }}</SaStatusLabel>
           </div>
@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onUnmounted, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaForm from '@/components/form/SaForm.vue';
@@ -101,14 +101,13 @@
   `), 'setupWiseIntegration');
   type Account = VerifyWiseTokenMutation['verifyWiseIntegrationToken']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
-  const step = ref(0);
+  const steps = { TOKEN_INPUT: 0, ACCOUNT_SELECTION: 1, ACTIVATION: 2 };
+  const step = ref(steps.TOKEN_INPUT);
   const busy = ref(false);
   const saved = ref(false);
   const error = ref<SetupWiseIntegrationErrorCodes | VerifyWiseIntegrationTokenErrorCodes | null>(null);
   const accounts = ref<Account[]>([]);
   const selected = ref(new Set<string>());
-  let disposed = false;
-  onUnmounted(() => { disposed = true; form.value.token = ''; });
   const errorMessage = computed(() => {
     switch (error.value) {
     case SetupWiseIntegrationErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
@@ -123,20 +122,26 @@
     if (selected.value.has(key)) selected.value.delete(key);
     else selected.value.add(key);
   };
-  const back = () => { step.value = 0; error.value = null; accounts.value = []; selected.value.clear(); };
+  const back = () => {
+    step.value = steps.TOKEN_INPUT;
+    error.value = null;
+    accounts.value = [];
+    selected.value.clear();
+  };
   const verify = async () => {
     if (busy.value || !form.value.token.trim()) return;
-    step.value = 1;
+    step.value = steps.ACCOUNT_SELECTION;
     busy.value = true;
     error.value = VerifyWiseIntegrationTokenErrorCodes.Unavailable;
     accounts.value = [];
     selected.value.clear();
     try {
       const result = await verifyToken({ workspaceId, token: form.value.token.trim() });
-      if (!disposed) { accounts.value = result.accounts; error.value = null; }
+      accounts.value = result.accounts;
+      error.value = null;
     } catch (e: unknown) {
       const code = handleGqlApiBusinessError<VerifyWiseIntegrationTokenErrorCodes>(e);
-      if (!disposed) error.value = code;
+      error.value = code;
     } finally { busy.value = false; }
   };
   const recover = async () => {
@@ -145,7 +150,7 @@
   };
   const save = async () => {
     if (busy.value || selected.value.size === 0) return;
-    step.value = 2;
+    step.value = steps.ACTIVATION;
     busy.value = true;
     error.value = SetupWiseIntegrationErrorCodes.Unavailable;
     try {
@@ -154,14 +159,12 @@
         accounts: accounts.value.filter(account => selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
       });
-      if (!disposed) {
-        saved.value = result.success;
-        error.value = null;
-        if (result.success) form.value.token = '';
-      }
+      saved.value = result.success;
+      error.value = null;
+      if (result.success) form.value.token = '';
     } catch (e: unknown) {
       const code = handleGqlApiBusinessError<SetupWiseIntegrationErrorCodes>(e);
-      if (!disposed) error.value = code;
+      error.value = code;
     } finally { busy.value = false; }
   };
 </script>

@@ -31,42 +31,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should independently select account tuples that differ by currency`(page: Page) {
+    fun `should select accounts independently across currencies and profiles and view the active provider`(page: Page) {
         WiseApiMocks.setupAccountsWithSharedIds()
-        page.authenticateViaCookie(preconditions.fry)
-        page.openWiseSetupPage {
-            token { input.fill(WiseApiMocks.TOKEN) }
-            next.click()
-            accounts.shouldHaveExactData(
-                AccountData(profile = "Philip J. Fry", currency = "USD", name = "Currency balance", accountLabel = "Account ID: 301"),
-                AccountData(profile = "Philip J. Fry", currency = "EUR", name = "Currency balance", accountLabel = "Account ID: 301"),
-                AccountData(profile = "Planet Express", currency = "GBP", name = "Currency balance", accountLabel = "Account ID: 401"),
-            )
-            val dollars = accounts.account("USD")
-            val euros = accounts.account("EUR")
-            dollars.shouldBeUnselected()
-            euros.shouldBeUnselected()
-            dollars.click()
-            dollars.shouldBeSelected()
-            euros.shouldBeUnselected()
-            dollars.click()
-            next.shouldBeDisabled()
-            euros.click()
-            dollars.shouldBeUnselected()
-            euros.shouldBeSelected()
-            dollars.click()
-            dollars.shouldBeSelected()
-            euros.shouldBeSelected()
-            next.click()
-            status.shouldBeSuccess("Wise integration activated successfully.")
-        }
-        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().accounts
-            .shouldBe(setOf(WiseIntegrationAccount(101, 301, "USD"), WiseIntegrationAccount(101, 301, "EUR")))
-    }
-
-    @Test
-    fun `should activate balances and Jars across profiles and view the active provider`(page: Page) {
-        WiseApiMocks.setupAccounts()
         page.authenticateViaCookie(preconditions.fry)
         page.openIntegrationsPage {
             reportRendering("integrations.providers")
@@ -79,20 +45,32 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             page.withBlockedGqlApiResponse("verifyWiseToken", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Verifying token and loading accounts…")
             })
-            accounts.shouldHaveExactData(*normalAccounts)
+            accounts.shouldHaveExactData(
+                AccountData(profile = "Philip J. Fry", currency = "USD", name = "Currency balance", accountLabel = "Account ID: 301"),
+                AccountData(profile = "Philip J. Fry", currency = "EUR", name = "Currency balance", accountLabel = "Account ID: 301"),
+                AccountData(profile = "Planet Express", currency = "GBP", name = "Currency balance", accountLabel = "Account ID: 401"),
+            )
+            val dollars = accounts.account("USD")
+            val euros = accounts.account("EUR")
+            dollars.shouldBeUnselected()
+            euros.shouldBeUnselected()
             next.shouldBeDisabled()
-            val jar = accounts.account("EUR")
-            jar.click()
-            jar.shouldBeSelected()
+            dollars.click()
+            dollars.shouldBeSelected()
+            euros.shouldBeUnselected()
             next.shouldBeEnabled()
-            jar.click()
-            jar.shouldBeUnselected()
+            dollars.click()
             next.shouldBeDisabled()
-            jar.click()
+            euros.click()
+            dollars.shouldBeUnselected()
+            euros.shouldBeSelected()
+            dollars.click()
+            dollars.shouldBeSelected()
+            euros.shouldBeSelected()
             accounts.account("GBP").click()
             accounts.shouldHaveExactData(
-                normalAccounts[0],
-                normalAccounts[1].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[0].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[1].copy(name = "Currency balance", accountLabel = "Account ID: 301", selected = true, selectionLabel = "✓ Selected"),
                 normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
             )
             reportRendering("integrations.wise-accounts")
@@ -103,7 +81,11 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         settings.workspaceId.shouldBe(preconditions.workspace.id)
         settings.token.shouldBe(WiseApiMocks.TOKEN)
-        settings.accounts.shouldContainExactly(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP"))
+        settings.accounts.shouldContainExactly(
+            WiseIntegrationAccount(101, 301, "USD"),
+            WiseIntegrationAccount(101, 301, "EUR"),
+            WiseIntegrationAccount(202, 401, "GBP"),
+        )
         page.openIntegrationsPage {
             status.shouldBeSuccess("active")
             reportRendering("integrations.active")
