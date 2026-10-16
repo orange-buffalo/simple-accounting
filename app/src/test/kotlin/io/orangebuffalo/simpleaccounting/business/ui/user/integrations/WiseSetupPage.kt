@@ -6,6 +6,7 @@ import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
@@ -107,12 +108,14 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class WizardStep(components: ComponentsAccessors, title: String) {
-        private val header = components.page.locator(".el-collapse-item__header")
+        private val container = components.page.locator(".el-step")
             .filter(Locator.FilterOptions().setHasText(title))
+        private val header = container.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(title).setExact(true))
 
         fun click() = header.click()
-        fun shouldBeOpen() = header.shouldHaveAttribute("aria-expanded", "true")
-        fun shouldBeCompleted() = header.locator(".step-number").shouldHaveAttribute("aria-label", "Completed")
-        fun shouldBePending() = header.locator(".step-number").shouldHaveAttribute("aria-label", "Pending")
+        fun shouldBeDisabled() = header.shouldBeDisabled()
+        fun shouldBeOpen() = header.shouldHaveAttribute("aria-current", "step")
+        fun shouldBeCompleted() = container.locator(".el-step__head").shouldContainClass("is-success")
+        fun shouldBePending() = container.locator(".el-step__head").shouldContainClass("is-process")
     }
 }

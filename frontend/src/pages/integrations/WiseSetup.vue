@@ -4,40 +4,36 @@
       <div v-if="initializing" class="integration-wizard__result" role="status" aria-live="polite">
         <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.loading() }}</SaStatusLabel>
       </div>
-      <ElCollapse v-else v-model="step" accordion>
-        <ElCollapseItem :name="steps.TOKEN_INPUT" :disabled="busy">
-          <template #title>
-            <span class="step-number" :class="{ 'step-number--success': verified }"
-                  :aria-label="verified ? $t.integrations.wise.completed() : $t.integrations.wise.pending()">1</span>
-            {{ $t.integrations.wise.tokenStep() }}
-          </template>
-          <div v-if="step === steps.TOKEN_INPUT" class="integration-wizard__content">
-            <ol>
-              <li>{{ $t.integrations.wise.instructions.login() }}</li>
-              <li>{{ $t.integrations.wise.instructions.navigate() }}</li>
-              <li>{{ $t.integrations.wise.instructions.readOnly() }}</li>
-              <li>{{ $t.integrations.wise.instructions.copy() }}</li>
-            </ol>
-            <p>
-              <a href="https://docs.wise.com/guides/developer/auth-and-security/personal-api-token" target="_blank" rel="noopener noreferrer">
-                {{ $t.integrations.wise.instructions.documentation() }}
-              </a>
-            </p>
-            <p>{{ $t.integrations.wise.instructions.security() }}</p>
-            <p v-if="configured">{{ $t.integrations.wise.savedToken() }}</p>
-            <SaForm v-model="form" :on-submit="verify" :submit-button-label="$t.integrations.next()" :submit-button-disabled="!configured && !form.token?.trim()">
-              <SaFormInput prop="token" type="password" :label="$t.integrations.wise.tokenLabel()" />
-            </SaForm>
-          </div>
-        </ElCollapseItem>
-
-        <ElCollapseItem :name="steps.ACCOUNT_SELECTION" :disabled="(!verified && !error && !busy) || busy">
-          <template #title>
-            <span class="step-number" :class="{ 'step-number--success': saved }"
-                  :aria-label="saved ? $t.integrations.wise.completed() : $t.integrations.wise.pending()">2</span>
-            {{ $t.integrations.wise.accountsStep() }}
-          </template>
-          <template v-if="step === steps.ACCOUNT_SELECTION">
+      <template v-else>
+        <ElSteps :active="step" align-center finish-status="success">
+          <ElStep v-for="item in wizardSteps" :key="item.value" :status="item.status">
+            <template #title>
+              <button type="button" class="integration-wizard__step" :disabled="item.disabled"
+                      :aria-current="step === item.value ? 'step' : undefined" @click="navigateStep(item.value)">
+                {{ item.title }}
+              </button>
+            </template>
+          </ElStep>
+        </ElSteps>
+        <div v-if="step === steps.TOKEN_INPUT" class="integration-wizard__content">
+          <ol>
+            <li>{{ $t.integrations.wise.instructions.login() }}</li>
+            <li>{{ $t.integrations.wise.instructions.navigate() }}</li>
+            <li>{{ $t.integrations.wise.instructions.readOnly() }}</li>
+            <li>{{ $t.integrations.wise.instructions.copy() }}</li>
+          </ol>
+          <p>
+            <a href="https://docs.wise.com/guides/developer/auth-and-security/personal-api-token" target="_blank" rel="noopener noreferrer">
+              {{ $t.integrations.wise.instructions.documentation() }}
+            </a>
+          </p>
+          <p>{{ $t.integrations.wise.instructions.security() }}</p>
+          <p v-if="configured">{{ $t.integrations.wise.savedToken() }}</p>
+          <SaForm v-model="form" :on-submit="verify" :submit-button-label="$t.integrations.next()" :submit-button-disabled="!configured && !form.token?.trim()">
+            <SaFormInput prop="token" type="password" :label="$t.integrations.wise.tokenLabel()" />
+          </SaForm>
+        </div>
+        <template v-else-if="step === steps.ACCOUNT_SELECTION">
           <div v-if="busy" class="integration-wizard__result" role="status" aria-live="polite">
             <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.wise.verifying() }}</SaStatusLabel>
           </div>
@@ -67,16 +63,8 @@
               <ElButton type="primary" :disabled="selected.size === 0" @click="save">{{ $t.integrations.next() }}</ElButton>
             </div>
           </div>
-          </template>
-        </ElCollapseItem>
-
-        <ElCollapseItem :name="steps.ACTIVATION" :disabled="busy || (!saved && !saveError)">
-          <template #title>
-            <span class="step-number" :class="{ 'step-number--success': saved }"
-                  :aria-label="saved ? $t.integrations.wise.completed() : $t.integrations.wise.pending()">3</span>
-            {{ $t.integrations.wise.finishStep() }}
-          </template>
-          <div v-if="step === steps.ACTIVATION" class="integration-wizard__result" aria-live="polite">
+        </template>
+        <div v-else class="integration-wizard__result" aria-live="polite">
           <SaStatusLabel v-if="busy" status="regular" custom-icon="loading" role="status">
             {{ $t.integrations.wise.saving() }}
           </SaStatusLabel>
@@ -88,16 +76,15 @@
             <SaStatusLabel status="failure" role="alert">{{ errorMessage }}</SaStatusLabel>
             <ElButton @click="recover">{{ $t.integrations.back() }}</ElButton>
           </template>
-          </div>
-        </ElCollapseItem>
-      </ElCollapse>
+        </div>
+      </template>
     </div>
   </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
-  import { ElCollapse, ElCollapseItem, ElTag } from 'element-plus';
+  import { ElStep, ElSteps, ElTag } from 'element-plus';
   import SaPage from '@/components/SaPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaForm from '@/components/form/SaForm.vue';
@@ -132,8 +119,8 @@
   `), 'workspace', { variables: { workspaceId } });
   type Account = VerifyWiseTokenMutation['verifyWiseIntegrationToken']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
-  const steps = { TOKEN_INPUT: 'token', ACCOUNT_SELECTION: 'accounts', ACTIVATION: 'save' };
-  const step = ref<string>(steps.TOKEN_INPUT);
+  const steps = { TOKEN_INPUT: 0, ACCOUNT_SELECTION: 1, ACTIVATION: 2 };
+  const step = ref(steps.TOKEN_INPUT);
   const configured = ref(false);
   const verified = ref(false);
   const verifiedToken = ref<string | null>(null);
@@ -143,6 +130,28 @@
   const saveError = ref(false);
   const accounts = ref<Account[]>([]);
   const selected = ref(new Set<string>());
+  const wizardSteps = computed(() => [
+    {
+      value: steps.TOKEN_INPUT,
+      title: $t.value.integrations.wise.tokenStep(),
+      status: verified.value ? 'success' as const
+        : step.value === steps.TOKEN_INPUT ? 'process' as const : 'wait' as const,
+      disabled: busy.value,
+    },
+    {
+      value: steps.ACCOUNT_SELECTION,
+      title: $t.value.integrations.wise.accountsStep(),
+      status: saved.value || step.value === steps.ACTIVATION ? 'success' as const
+        : step.value === steps.ACCOUNT_SELECTION ? 'process' as const : 'wait' as const,
+      disabled: busy.value || !verified.value,
+    },
+    {
+      value: steps.ACTIVATION,
+      title: $t.value.integrations.wise.finishStep(),
+      status: saved.value ? 'success' as const : 'wait' as const,
+      disabled: busy.value || (!saved.value && !saveError.value),
+    },
+  ]);
   const errorMessage = computed(() => {
     switch (error.value) {
     case SetupWiseIntegrationErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
@@ -163,6 +172,10 @@
     saveError.value = false;
   };
   let revision = 0;
+  const navigateStep = (target: number) => {
+    if (target === steps.TOKEN_INPUT) back();
+    else step.value = target;
+  };
   watch(() => form.value.token, () => {
     revision += 1;
     verified.value = false;
@@ -286,21 +299,14 @@
     &__result { flex-direction: column; align-items: center; text-align: center; }
   }
 
-  .step-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    margin-right: 12px;
-    border: 1px solid var(--el-text-color-secondary);
-    border-radius: 50%;
-    color: var(--el-text-color-secondary);
-    &--success {
-      border-color: var(--el-color-success);
-      background: var(--el-color-success);
-      color: var(--el-color-white);
-    }
+  .integration-wizard__step {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    &:disabled { cursor: default; }
+    &:focus-visible { outline: 2px solid $accent-primary-color; outline-offset: 3px; }
   }
 </style>

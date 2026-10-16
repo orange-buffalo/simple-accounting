@@ -19,8 +19,6 @@ export default {
       deletedHint: () => 'This saved account is no longer available in Wise. It will be removed from the integration when you save.',
       profileId: (id: string) => format('Profile ID: {0}', [id]),
       savedToken: () => 'Leave the token unchanged to keep using the saved credential, or enter a replacement token.',
-      pending: () => 'Pending',
-      completed: () => 'Completed',
       tokenStep: () => 'Personal token',
       accountsStep: () => 'Select accounts',
       finishStep: () => 'Save integration',

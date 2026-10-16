@@ -143,12 +143,15 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             WiseApiMocks.removeJar(token = replacementToken)
             token { input.fill(replacementToken) }
             tokenStep.shouldBePending()
+            accountsStep.shouldBeDisabled()
             next.click()
             accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
             tokenStep.shouldBeCompleted()
             accounts.account("USD").click()
             page.withBlockedGqlApiResponse("saveWiseIntegration", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Saving Wise integration…")
+                tokenStep.shouldBeDisabled()
+                accountsStep.shouldBeDisabled()
                 reportRendering("integrations.wise-saving")
             })
             status.shouldBeSuccess("Wise integration saved successfully.")
