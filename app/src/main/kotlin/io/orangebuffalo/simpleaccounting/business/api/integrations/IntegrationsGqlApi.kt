@@ -22,7 +22,7 @@ import org.springframework.validation.annotation.Validated
 class IntegrationsGqlApi {
     @Component
     @Validated
-    class Mutations(
+    class VerifyWiseIntegrationTokenMutation(
         private val wise: WiseIntegrationService,
     ) : Mutation {
         @GraphQLDescription("Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token.")
@@ -37,7 +37,13 @@ class IntegrationsGqlApi {
                 WiseAccountGqlDto(it.profileId.toString(), it.profileName, it.accountId.toString(), it.currency, it.name, it.type)
             })
         }
+    }
 
+    @Component
+    @Validated
+    class SetupWiseIntegrationMutation(
+        private val wise: WiseIntegrationService,
+    ) : Mutation {
         @GraphQLDescription("Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         @BusinessError(WiseInvalidTokenException::class, "INVALID_TOKEN", "Wise rejected the personal token.")

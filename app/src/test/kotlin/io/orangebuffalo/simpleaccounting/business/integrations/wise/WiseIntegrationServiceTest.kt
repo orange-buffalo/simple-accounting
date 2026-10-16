@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.http.Fault
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -14,13 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 import org.junit.jupiter.api.Test
-import ch.qos.logback.classic.Logger
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.read.ListAppender
-import com.github.tomakehurst.wiremock.http.Fault
-import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
-import org.slf4j.LoggerFactory
 
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 @TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
@@ -75,33 +69,14 @@ class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegration
     }
 
     @Test
-    fun `should log actionable diagnostics without exposing credentials`() {
-        val logger = LoggerFactory.getLogger(WiseApiClient::class.java) as Logger
-        val appender = ListAppender<ILoggingEvent>().apply { start() }
-        logger.addAppender(appender)
-        try {
-            val responses = listOf(
-                aResponse().withStatus(404).withBody("<html>Missing Wise endpoint $token</html>") to
-                    listOf("HTTP 404", "<html>Missing Wise endpoint [REDACTED]</html>"),
-                aResponse().withStatus(503).withBody("Wise unavailable") to listOf("HTTP 503", "Wise unavailable"),
-                aResponse().withStatus(204) to listOf("HTTP 204", "empty response body"),
-                okJson("""{"unexpected":"$token"}""") to listOf("HTTP 200", "invalid response body", "[REDACTED]"),
-                aResponse().withFault(Fault.EMPTY_RESPONSE) to listOf("No usable response received", "ResourceAccessException"),
-            )
-            for ((response, expected) in responses) {
-                appender.list.clear()
-                ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles")).willReturn(response))
-                shouldThrow<WiseUnavailableException> { verifyToken() }
-                val message = appender.list.single().formattedMessage
-                message.shouldContain("Wise GET http://")
-                message.shouldContain("/wise/2026Q4/profiles failed:")
-                expected.forEach { message.shouldContain(it) }
-                message.shouldNotContain(token)
-                (message.length <= 4096).shouldBe(true)
-            }
-        } finally {
-            logger.detachAppender(appender)
-            appender.stop()
+    fun `should treat empty responses and transport failures as unavailable`() {
+        for (response in listOf(aResponse().withStatus(204), aResponse().withFault(Fault.EMPTY_RESPONSE))) {
+            ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles")).willReturn(response))
+
+            val exception = shouldThrow<WiseUnavailableException> { verifyToken() }
+            exception.message.shouldBe("Wise accounts could not be loaded")
+            exception.cause.shouldBe(null)
         }
     }
+
 }

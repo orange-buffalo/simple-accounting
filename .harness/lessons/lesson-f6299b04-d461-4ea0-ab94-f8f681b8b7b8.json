@@ -1,0 +1,35 @@
+{
+  "id": "lesson-f6299b04-d461-4ea0-ab94-f8f681b8b7b8",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Wise integration and analogous source tests that would assert logging or log output; production diagnostics remain required where independently specified.",
+  "guidance": "Treat F67 as an explicit policy overriding F66 only as to logging assertions; it does not remove the production credential-redacted diagnostic requirement. No measured reviewer improvement is claimed.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F67 exact comment is preserved and classified as a new user preference, without claiming a historic reviewer failure or measured improvement.",
+        "Current WiseIntegrationServiceTest.kt:1-70 has no Logback, Fault, or logging-output assertion imports; it retains service behavior and public error-sanitization assertions only.",
+        "Current WiseApiClient.kt:34-70 retains bounded, token-redacted production diagnostics and sanitized public exceptions.",
+        "The supplied F66 clarification explicitly required logging assertions; F67 unambiguously supersedes that testing direction while preserving the independently required production diagnostics.",
+        "The proposed lesson is faithful, scoped to logging-output tests, and does not prohibit behavior or sanitization tests."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F67",
+        "feedback": "no we do not write tests fro logging!!!",
+        "classification": "new requirement/preference",
+        "evidence": "`WiseIntegrationServiceTest.kt:1-70` has no Logback/Fault/string-assertion imports and contains only service-behavior/error-sanitization tests; `WiseApiClient.kt:65-70` retains bounded token-redacted production diagnostics. The prior F66 clarification requested Logback diagnostic assertions, and F67 expressly supersedes that testing direction.",
+        "hypothesis": "User-confirmed policy clarification; no historic reviewer-failure theory is asserted.",
+        "action": "Removed the logging-only diagnostic test and its unused imports while retaining production diagnostics and behavior/error-sanitization coverage.",
+        "lesson": "Do not add tests that assert logging or log output. Retain production bounded credential-redacted diagnostics where required, and test observable service behavior rather than diagnostic log emission."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}
