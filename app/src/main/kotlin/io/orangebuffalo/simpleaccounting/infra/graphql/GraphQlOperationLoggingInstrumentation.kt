@@ -17,7 +17,7 @@ class GraphQlOperationLoggingInstrumentation : Instrumentation {
         parameters: InstrumentationExecutionParameters,
         state: InstrumentationState?,
     ): InstrumentationContext<ExecutionResult> {
-        val operationName = parameters.operation ?: parameters.query?.take(80) ?: "unknown"
+        val operationName = parameters.operation ?: "anonymous"
         logger.info { "GraphQL operation started: $operationName" }
         val startTime = System.currentTimeMillis()
 

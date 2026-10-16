@@ -15,6 +15,9 @@ import EditIncome from '@/pages/incomes/EditIncome.vue';
 import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
 import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 import Reporting from '@/pages/reporting/Reporting.vue';
+import Integrations from '@/pages/integrations/Integrations.vue';
+import WiseSetup from '@/pages/integrations/WiseSetup.vue';
+import WiseView from '@/pages/integrations/WiseView.vue';
 import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
 import DocumentsMigration from '@/pages/documents/DocumentsMigration.vue';
 import EditStandaloneDocument from '@/pages/documents/EditStandaloneDocument.vue';
@@ -267,6 +270,21 @@ export default function setupRouter() {
             name: 'edit-general-tax',
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditGeneralTax,
+          },
+          {
+            path: 'settings/integrations',
+            name: 'integrations',
+            component: Integrations,
+          },
+          {
+            path: 'settings/integrations/wise/setup',
+            name: 'wise-setup',
+            component: WiseSetup,
+          },
+          {
+            path: 'settings/integrations/wise',
+            name: 'wise-view',
+            component: WiseView,
           },
           {
             path: 'settings/workspaces',

@@ -1,0 +1,183 @@
+{
+  "id": "lesson-17c82183-14a3-4755-9395-6f22e0fed422",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Wise integration API naming, layering, configuration, documentation, tests, UI page-object ownership, rendering-based static-content validation, and Vue styling conventions.",
+  "guidance": "These are explicit, user-confirmed current policies. Their source-grounded corrections are verified above; no measured reviewer improvement or speculative historic reviewer-failure claim is made.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "Read preserved round-2 snapshot, reviewer prompt, investigation records, and finding-validation result; the proposal treats F29-F45 as current user policies, not evidence of historic reviewer failure or measured improvement.",
+        "F29-F32: IntegrationsGqlApi is provider-neutral; root documentation is neutral; it depends only on WiseIntegrationService; exposed account identifiers are documented opaque.",
+        "F33-F34: WiseApiClient and typed WiseProperties are in business.integrations.wise; properties use sa.integrations.wise and mocks use the same prefix.",
+        "F35: dedicated SetupWiseIntegrationMutationTest, VerifyWiseIntegrationTokenMutationTest, and WiseIntegrationQueryTest exist with authorization/business-flow nesting.",
+        "F36-F37: unsupported direct-route UI coverage is absent; UserNavigationMenuFullStackTest owns exact regular-user menu assertions and menu navigation; Wise page workflows open routes directly.",
+        "F38: WiseIntegrationFullStackTest has rendering reports for static views; IntegrationsPage.ProviderCards has only Setup/View interactions, with branding/description assertions and their caller removed.",
+        "F39-F43: setupAccounts is an action-named stub helper; direct client and logging tests, shared IntegrationCards wrapper, and duplicate GraphQlFailureMocks utility are absent; WireMock-backed WiseIntegrationServiceTest and PlaywrightExtensions.withFailedGqlApiResponse are present.",
+        "F44-F45: IntegrationPage has no frontend authorization gate while GraphQL operations retain RequiredAuth; integration styles are scoped Vue SFC styles and the external SCSS file is absent.",
+        "F40 remains faithful despite the original safety requirement: GraphQlOperationLoggingInstrumentation still uses only parameters.operation or anonymous and does not log raw queries; the user explicitly requested removal of its dedicated test."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F29",
+        "feedback": "this is not \"wise integraiton\" any longer, but just \"integrations\"",
+        "classification": "new requirement/preference",
+        "evidence": "Current provider-neutral API namespace is `IntegrationsGqlApi` in `app/src/main/kotlin/io/orangebuffalo/simpleaccounting/business/api/integrations/IntegrationsGqlApi.kt:20`.",
+        "hypothesis": "User-confirmed current naming policy; no historic reviewer-failure theory is asserted.",
+        "action": "Renamed the API namespace to `IntegrationsGqlApi`.",
+        "lesson": "Name the extensible integration API after the provider-neutral integrations domain, not its first provider."
+      },
+      {
+        "ref": "F30",
+        "feedback": "No, \"wise\" is only relevant for \"WiseIntegrationGqlDto\", IntegrationsGqlDto is about all integrations user can configure",
+        "classification": "new requirement/preference",
+        "evidence": "`IntegrationsGqlApi.kt:25` documents configurable integration providers, while `IntegrationsGqlDto` at line 85 contains the provider-specific `wise` DTO.",
+        "hypothesis": "User-confirmed API-documentation boundary; no historic cause is asserted.",
+        "action": "Made the root description provider-neutral and retained Wise-specific wording only for Wise DTOs.",
+        "lesson": "Document integration root DTOs as extensible provider collections; reserve provider names for provider-scoped types."
+      },
+      {
+        "ref": "F31",
+        "feedback": "api client should be internal to the wise integraiton service. all other parts of the system, in particular api here, should interact with the busienss service only",
+        "classification": "new requirement/preference",
+        "evidence": "`IntegrationsGqlApi.kt:23,35` injects only `WiseIntegrationService`; `WiseIntegrationService.kt:12` owns the internal `WiseApiClient`, declared `internal` in `WiseApiClient.kt:16`.",
+        "hypothesis": "User-confirmed layering policy; no historic cause is asserted.",
+        "action": "Restricted GraphQL API interaction to `WiseIntegrationService`; made the client service-internal.",
+        "lesson": "Keep provider clients internal to their business integration service; APIs depend only on that service."
+      },
+      {
+        "ref": "F32",
+        "feedback": "do not say that about ids. they are opaque for this api clients and just pass through",
+        "classification": "new requirement/preference",
+        "evidence": "`IntegrationsGqlApi.kt:67` and line 74 describe selection and returned identifiers as opaque values.",
+        "hypothesis": "User-confirmed public API documentation policy; no historic cause is asserted.",
+        "action": "Changed identifier documentation to state opacity and pass-through semantics.",
+        "lesson": "Describe third-party identifiers exposed by the API as opaque unless clients are meant to interpret them."
+      },
+      {
+        "ref": "F33",
+        "feedback": "client and properties should move to `business.integrations.wise` package, they are part of it",
+        "classification": "new requirement/preference",
+        "evidence": "`WiseApiClient.kt:1` and `WiseProperties.kt:1` are in `business.integrations.wise`; the former `infra/thirdparty/wise` source is absent from the current tree.",
+        "hypothesis": "User-confirmed ownership/package policy; no historic cause is asserted.",
+        "action": "Moved the Wise client and properties into the Wise business-integration package.",
+        "lesson": "Place provider-specific client/configuration implementation with its owning business integration when it is not shared infrastructure."
+      },
+      {
+        "ref": "F34",
+        "feedback": "shoudl be `sa.integrations.wise`",
+        "classification": "new requirement/preference",
+        "evidence": "`WiseProperties.kt:8` uses typed `@ConfigurationProperties(\"sa.integrations.wise\")`.",
+        "hypothesis": "User-confirmed configuration namespace policy; no historic cause is asserted.",
+        "action": "Updated the typed Wise configuration prefix and corresponding mock configuration usage.",
+        "lesson": "Root integration-provider configuration under `sa.integrations.<provider>` using typed configuration properties."
+      },
+      {
+        "ref": "F35",
+        "feedback": "we should have a class per every mutation. plus a class per resonable level of data queeries (integrations.wise in this case)",
+        "classification": "new requirement/preference",
+        "evidence": "Separate tests exist at `SetupWiseIntegrationMutationTest.kt:26`, `VerifyWiseIntegrationTokenMutationTest.kt:25`, and `WiseIntegrationQueryTest.kt:17`; each preserves authorization/business-flow nesting.",
+        "hypothesis": "User-confirmed test-organization policy; no historic cause is asserted.",
+        "action": "Split mutation and provider-query coverage into dedicated test classes.",
+        "lesson": "Organize GraphQL tests by mutation and by reasonable query hierarchy level rather than one broad API test class."
+      },
+      {
+        "ref": "F36",
+        "feedback": "this test is bad. we have a dedicated menu test that verifies the exact list of the menu items. direct opening we do not care - api-level tests are verifying access to actual data/functions, and what will happen on ui is not our concern for unsupported cases. no maintenance efforts should be spent on this.",
+        "classification": "new requirement/preference",
+        "evidence": "`WiseIntegrationFullStackTest.kt` contains no administrator or unsupported-direct-route scenario; exact regular-user menu coverage is in `UserNavigationMenuFullStackTest.kt:41-58`, and API authorization tests cover unsupported actors, e.g. `SetupWiseIntegrationMutationTest.kt:43-70`.",
+        "hypothesis": "User-confirmed test-scope policy; no historic cause is asserted.",
+        "action": "Removed unsupported-route UI coverage while retaining dedicated menu and API authorization coverage.",
+        "lesson": "Do not maintain UI tests for unsupported direct routes when dedicated menu and API authorization coverage own those concerns."
+      },
+      {
+        "ref": "F37",
+        "feedback": "clicking through the menu should be part of the menu test - dedicated one, check we should have it. in the page tests, we just open them directly. right?",
+        "classification": "new requirement/preference",
+        "evidence": "Menu navigation is exercised in `UserNavigationMenuFullStackTest.kt:92-93`; integration-page scenarios open the page directly through `IntegrationsPage.openIntegrationsPage` at `WiseIntegrationFullStackTest.kt:32,65`.",
+        "hypothesis": "User-confirmed responsibility split between menu and page tests; no historic cause is asserted.",
+        "action": "Moved menu traversal to the dedicated menu test and used direct page opening in page workflows.",
+        "lesson": "Keep navigation clicks in dedicated menu tests; page tests should open their target pages directly."
+      },
+      {
+        "ref": "F38",
+        "feedback": "no static tests are not validated like that. screenshot is enough for that.",
+        "classification": "new requirement/preference",
+        "evidence": "`WiseIntegrationFullStackTest.kt:33,39,56,59,67,79,94,101,114` emits rendering reports; `IntegrationsPage.ProviderCards` at lines 30-33 exposes only Setup/View interactions and contains no static Wise branding/description assertions.",
+        "hypothesis": "User-confirmed visual-validation policy, clarified by the explicit selection to remove static card assertions; no historic cause is asserted.",
+        "action": "Removed token-instruction and provider-card branding/description assertions and their caller; retained interaction/state assertions and rendering reports.",
+        "lesson": "Use rendering reports for static integration-card and instructional content; retain source assertions for interactive and stateful behavior only."
+      },
+      {
+        "ref": "F39",
+        "feedback": "strange name. is it a getter? maybe `setupAccounts`?",
+        "classification": "new requirement/preference",
+        "evidence": "Current callers use `WiseApiMocks.setupAccounts()` at `WiseIntegrationFullStackTest.kt:30,88,95`.",
+        "hypothesis": "User-confirmed test-helper naming preference; no historic cause is asserted.",
+        "action": "Renamed the account-stubbing helper to `setupAccounts`.",
+        "lesson": "Name test stubbing helpers as actions; avoid getter-like names for setup operations."
+      },
+      {
+        "ref": "F40",
+        "feedback": "we do not need this test",
+        "classification": "new requirement/preference",
+        "evidence": "`app/src/test/kotlin/io/orangebuffalo/simpleaccounting/infra/graphql/GraphQlOperationLoggingInstrumentationTest.kt` is absent; production instrumentation remains separately implemented under `app/src/main/kotlin/.../infra/graphql/`.",
+        "hypothesis": "User-confirmed test-maintenance policy; no historic cause is asserted.",
+        "action": "Removed the logging instrumentation test without restoring the removed raw-query fallback.",
+        "lesson": "Remove tests explicitly deemed unnecessary while preserving the independently required production safety behavior."
+      },
+      {
+        "ref": "F41",
+        "feedback": "this is an internal component, should not be tested directly, but via the business service with wiremocks server",
+        "classification": "new requirement/preference",
+        "evidence": "Direct `WiseApiClientTest` is absent; `WiseIntegrationServiceTest.kt:15-27` constructs the service with `WiseApiClient` against WireMock and tests provider interaction through the service.",
+        "hypothesis": "User-confirmed internal-component test-boundary policy; no historic cause is asserted.",
+        "action": "Replaced direct client testing with WireMock-backed service tests.",
+        "lesson": "Test internal provider clients through their owning service and a WireMock server, not through direct client test classes."
+      },
+      {
+        "ref": "F42",
+        "feedback": "this is one-page componetn, not a shared one. such wrappers we only have for reusabe cmponent. page-local should host in the page object",
+        "classification": "new requirement/preference",
+        "evidence": "The shared `tests/infra/ui/components/IntegrationCards.kt` file is absent; page-local `ProviderCards` is nested in `app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/ui/user/integrations/IntegrationsPage.kt:30-33`.",
+        "hypothesis": "User-confirmed page-object ownership policy; no historic cause is asserted.",
+        "action": "Moved integration-card wrappers into the integrations page object.",
+        "lesson": "Keep one-page test wrappers in their page object; reserve shared component infrastructure for reusable components."
+      },
+      {
+        "ref": "F43",
+        "feedback": "we have similar method in another utility, why here?",
+        "classification": "new requirement/preference",
+        "evidence": "`GraphQlFailureMocks.kt` is absent; `WiseIntegrationFullStackTest.kt:17,76` imports and uses `withFailedGqlApiResponse` from the existing Playwright utility location.",
+        "hypothesis": "User-confirmed helper-consolidation policy; no historic cause is asserted.",
+        "action": "Consolidated failed-GraphQL response handling alongside existing Playwright extensions.",
+        "lesson": "Add test helpers beside equivalent existing utilities rather than creating parallel utility files."
+      },
+      {
+        "ref": "F44",
+        "feedback": "what that? why?",
+        "classification": "new requirement/preference",
+        "evidence": "`frontend/src/pages/integrations/IntegrationPage.vue:2-4` renders its workspace slot without a frontend access gate; server authorization remains declared in `IntegrationsGqlApi.kt:26,38,51`.",
+        "hypothesis": "User-confirmed policy to remove the unexplained client-side gate while retaining authoritative server authorization; no historic cause is asserted.",
+        "action": "Removed the defensive frontend access gate and retained server-side authorization.",
+        "lesson": "Do not add unexplained client-side access gates where server authorization is the authoritative boundary."
+      },
+      {
+        "ref": "F45",
+        "feedback": "we use style tags in vue files",
+        "classification": "new requirement/preference",
+        "evidence": "`IntegrationProviders.vue:38` contains a scoped Vue SFC style block; the prior external `frontend/src/pages/integrations/integrations.scss` file is absent.",
+        "hypothesis": "User-confirmed frontend style-location convention; no historic cause is asserted.",
+        "action": "Moved integration styles into scoped Vue style blocks.",
+        "lesson": "Keep page/component styles in their Vue single-file component style blocks unless shared styling is required."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

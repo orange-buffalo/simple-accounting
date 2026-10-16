@@ -17,6 +17,7 @@ import mu.KotlinLogging
 import org.awaitility.Awaitility.await
 import java.nio.file.Files
 import java.time.Duration
+import java.util.function.Consumer
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
 private val log = KotlinLogging.logger { }
@@ -229,6 +230,23 @@ fun Page.withBlockedGqlApiResponse(
 fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) {
     withClue(message ?: "Spec is not satisfied on ($this)") {
         await().atMost(Duration.ofMillis(UI_ASSERTIONS_TIMEOUT_MS.toLong())).untilAsserted { spec() }
+    }
+}
+
+fun Page.withFailedGqlApiResponse(operationName: String, spec: () -> Unit) {
+    val handler = Consumer<Route> { route ->
+        if (route.request().postData()?.contains("\"operationName\":\"$operationName\"") == true) {
+            route.fulfill(Route.FulfillOptions().setStatus(200).setContentType("application/json")
+                .setBody("""{"errors":[{"message":"Good news, everyone! The service is unavailable."}],"data":null}"""))
+        } else {
+            route.resume()
+        }
+    }
+    context().route("/api/graphql", handler)
+    try {
+        spec()
+    } finally {
+        context().unroute("/api/graphql", handler)
     }
 }
 

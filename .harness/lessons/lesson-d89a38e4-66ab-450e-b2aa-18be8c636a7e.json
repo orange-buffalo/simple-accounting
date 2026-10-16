@@ -1,0 +1,80 @@
+{
+  "id": "lesson-d89a38e4-66ab-450e-b2aa-18be8c636a7e",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Test precondition construction, mock minimization and cumulative feedback audit, exhaustive full-stack collection assertions and lookup DSLs, and frontend generic-versus-business error ownership.",
+  "guidance": "These are user-confirmed, scoped contracts. The cited current sources substantiate the corrections; no measured reviewer improvement or speculative historic reviewer-failure claim is made.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F56–F57: current WiseIntegrationQueryTest uses the persisted EntitiesFactory.wiseIntegrationSettings(workspace = ...) factory; EntitiesFactory.kt:490-500 supplies named configurable inputs and saves the entity.",
+        "F58: WiseIntegrationServiceTest injects the real service, creates persisted user/workspace preconditions, and stubs only WireMock HTTP endpoints. sa-review/core.js:309-325 requires a per-file cumulative feedback audit and blocks incomplete audits; core.test.mjs:89-121 covers omission of an earlier-turn file.",
+        "F59–F60: WiseSetupPage.AccountCards snapshots all account-card fields and selection state, retries exact ordered typed-list equality, and currency lookup first requires exactly one typed match and one button locator.",
+        "F61: Integrations.vue has no page-local generic error branch; WiseSetup.vue uses handleGqlApiBusinessError for mutation business errors, which rethrows non-business errors to the global handler.",
+        "All six exact comments are preserved, classifications and lessons are scoped to their instructions, and hypotheses avoid claims about unknown historic causes or measured reviewer improvement."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F56",
+        "feedback": "never user aggregateTemplate in preconditions setup - always via `preconditions` factory methods.",
+        "classification": "missed existing requirement",
+        "evidence": "WiseIntegrationQueryTest.kt:75-77 now creates settings through `preconditions { wiseIntegrationSettings(workspace = preconditions.workspace) }`; EntitiesFactory.kt:490-500 provides the persisted Wise settings factory.",
+        "hypothesis": "Unknown; the original source and feedback establish the required factory pattern but do not establish a historic reviewer cause.",
+        "action": "Added `EntitiesFactory.wiseIntegrationSettings` and replaced direct aggregate insertion while retaining persisted activation/isolation assertions.",
+        "lesson": "Create test preconditions exclusively through `preconditions`/`lazyPreconditions` factory methods; never access `aggregateTemplate` directly for precondition setup."
+      },
+      {
+        "ref": "F57",
+        "feedback": "use named parameters, not positional, for preconditions setup when more than one parameter is used",
+        "classification": "missed existing requirement",
+        "evidence": "WiseIntegrationQueryTest.kt:76 uses `wiseIntegrationSettings(workspace = preconditions.workspace)`; EntitiesFactory.kt:490-500 declares the factory's configurable inputs and constructs its entity with named properties.",
+        "hypothesis": "Unknown; no source evidence establishes why the positional-argument convention was missed.",
+        "action": "Uses named setup arguments and supplies only the relevant workspace parameter.",
+        "lesson": "In precondition setup, use named arguments whenever more than one parameter is supplied; rely on factory defaults for unrelated values."
+      },
+      {
+        "ref": "F58",
+        "feedback": "we use mocks ONLY in exceptional cases. why do you mock a service here???? fix the harness - there was a comment about this in current session for a different test, but this test was not fixed. once user provides feedback, harness MUST find the same issues in all the changes made in current branch.",
+        "classification": "missed existing requirement",
+        "evidence": "WiseIntegrationServiceTest.kt:20 injects the actual `WiseIntegrationService`; lines 22-26 persist Fry and workspace through preconditions; lines 35-64 stub only the WireMock HTTP boundary. The original evidence records cumulative branch re-review as an explicit contract in agent-23-prompt.txt:24-32.",
+        "hypothesis": "The original evidence confirms cumulative-review instructions, but does not prove why the analogous mock remained; historic cause is unknown.",
+        "action": "Replaced service mocking with the Spring service plus persisted preconditions and HTTP-boundary stubs; added the stated cumulative branch feedback-audit requirement to the harness workflow.",
+        "lesson": "Use real services and persistence-backed preconditions by default; mock only unavoidable external boundaries. On each distinct feedback turn, audit all cumulative branch changes for analogous issues and fail closed when that audit is absent."
+      },
+      {
+        "ref": "F59",
+        "feedback": "this is incorrect. it does not execute an exhaustive assertion. any extra data is silently accepted. the data must be asserted in full here. the page object should proivde a method similar to to how overview items are asserted (full data collected via js, assertion on typed objects with autoretries)",
+        "classification": "defect",
+        "evidence": "WiseSetupPage.kt:48-66 now snapshots every account-card button into serializable `AccountData` and retries `shouldContainExactly`; WiseIntegrationFullStackTest.kt:40-44, 82, and 93-97 use exact expected lists, including selected state.",
+        "hypothesis": "Unknown; the prior non-exhaustive assertion is identified by the feedback, but source evidence does not establish why it was accepted.",
+        "action": "Added typed full-card JavaScript snapshots and retrying exact-list assertions covering all rendered fields and selection state.",
+        "lesson": "For dynamic repeated UI items, page objects must expose retrying typed snapshots and tests must assert exact ordered collections so unexpected items fail the assertion."
+      },
+      {
+        "ref": "F60",
+        "feedback": "account lookup should be simplified once we have full data assertion in place. pick one field by which lookup is executed. assert firs that the account list contains exactly one item with such field, then use it for further intractions.",
+        "classification": "new requirement/preference",
+        "evidence": "WiseSetupPage.kt:68-75 looks up an account by currency, first retries `data().filter { it.currency == currency }.shouldBeSingle()`, then asserts one corresponding button before returning it; WiseIntegrationFullStackTest.kt:45-46 and 84 use currency-only lookup.",
+        "hypothesis": "This is a user-confirmed test-DSL preference; no historic reviewer-failure theory is needed.",
+        "action": "Simplified account lookup to currency and added exact-one typed-data and locator assertions before interaction.",
+        "lesson": "After exhaustive collection assertions, identify an item by one stable field; first assert exactly one typed item matches it, then assert exactly one UI locator and interact."
+      },
+      {
+        "ref": "F61",
+        "feedback": "we do not need to handle general API errors specificically on every page. for this, we do have global error handler. only page-specific BUSINESS errors must be handled.",
+        "classification": "new requirement/preference",
+        "evidence": "Integrations.vue:3-16 handles loading and available integration data without a page-local generic error panel; lines 30-39 obtain provider state through `useQuery` and derive only page data.",
+        "hypothesis": "This is a user-confirmed error-handling boundary; no historic reviewer-failure theory is needed.",
+        "action": "Removed the page-specific generic provider-query error panel and scenario; retained provider-specific business-error handling in the Wise setup flow.",
+        "lesson": "Rely on the global handler for generic GraphQL/API failures; add page-local handling only for business errors whose recovery or presentation is page-specific."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

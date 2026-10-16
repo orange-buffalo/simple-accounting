@@ -14,9 +14,12 @@ against the original run. Preserve the commit-before-feedback rule below. Never 
 Human review feedback must never be ignored or autonomously dismissed. Investigate every comment and learn from it,
 including new preferences. If feedback appears wrong or conflicting, ask the user with arguments, reasoning and options.
 After corrections, provide a table with ref index, file:line, initial user comment and agent action including lesson status.
-Review runs have at most two rounds; unresolved issues require user direction, not silent restart or budget extension.
-New human feedback renews expired time or exhausted cost budgets with prior usage retained; it never resets the
-two-round limit. Ordinary continuation or repeated feedback does not renew budgets.
+Each implementation or distinct human-feedback turn has at most two review rounds. New user review feedback starts
+a fresh turn on the same run, resetting round, repair, time and cost limits while preserving cumulative evidence and usage.
+Refresh approved lessons and review cumulative session changes against the original base, including similar issues
+in earlier-turn code. Duplicate feedback and ordinary continuation never reset limits. Exhausting a turn's review rounds
+does not stop implementation: finish the required fixes and validation, then report the exhausted review limit,
+receipt status and any remaining issues. Ask for user direction only for genuine ambiguity or external blockers.
 Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
 repository plugin injects their content into each agent request. If the controller is unavailable, report that explicitly
 and do not claim automatic review or learning ran. These workflows never authorize publishing or merging.
@@ -30,11 +33,10 @@ and do not claim automatic review or learning ran. These workflows never authori
 5. Pull request titles must follow the Conventional Commits schema and provide a concise change description. In most cases,
    the pull request title is the commit message.
 6. Use `docs/pull_request_template.md` for pull request descriptions.
-7. When the user supplies review comments on work in progress, commit the previous work before addressing the comments.
-   Commit only the relevant previous work; do not include unrelated user changes. Then address the review comments and
-   leave those new changes uncommitted.
+7. After each implementation turn, commit that turn's completed changes as a separate commit, including review corrections.
+   Commit only relevant agent changes; do not include unrelated user changes or combine separate turns into one commit.
    Explicit user instructions override this repository workflow default. For example, "do not commit until I tell you"
-   suspends the automatic pre-feedback commit until the user authorizes it. Following that instruction is not a defect
+   suspends automatic commits until the user authorizes them. Following that instruction is not a defect
    or a violation of the repository workflow. A scoped authorization to commit prior progress does not authorize
    committing subsequent corrections.
 

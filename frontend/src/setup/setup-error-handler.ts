@@ -17,4 +17,8 @@ export default function setupErrorHandler(app: App) {
     console.error('Failure during component processing', err, vm, info);
     showErrorNotification($t.value.errorHandler.fatalErrorMessage());
   };
+  window.addEventListener('unhandledrejection', (event) => {
+    event.preventDefault();
+    app.config.errorHandler?.(event.reason, null, 'unhandled promise rejection');
+  });
 }

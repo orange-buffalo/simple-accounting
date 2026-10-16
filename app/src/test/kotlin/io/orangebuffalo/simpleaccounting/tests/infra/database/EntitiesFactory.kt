@@ -21,6 +21,8 @@ import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPay
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationPurpose
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationRequest
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthProvider
@@ -484,6 +486,18 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             createdAt = createdAt,
         ).save()
     }
+
+    fun wiseIntegrationSettings(
+        workspace: Workspace? = null,
+        token: String = "fry-personal-token",
+        accounts: Set<WiseIntegrationAccount> = emptySet(),
+        createdAt: Instant = MOCK_TIME,
+    ): WiseIntegrationSettings = WiseIntegrationSettings(
+        workspaceId = (workspace ?: workspace()).id!!,
+        token = token,
+        accounts = accounts,
+        createdAt = createdAt,
+    ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
 

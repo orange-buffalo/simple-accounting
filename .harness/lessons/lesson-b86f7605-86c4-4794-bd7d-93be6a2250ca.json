@@ -1,0 +1,35 @@
+{
+  "id": "lesson-b86f7605-86c4-4794-bd7d-93be6a2250ca",
+  "status": "verified",
+  "kind": "user-confirmed-policy",
+  "scope": "Wise setup wizard loading and completion status-panel layout and rendering coverage.",
+  "guidance": "Treat the requested loading-status alignment as an actionable UX policy. Source confirms the scoped correction and preserves accessibility announcements; no measured reviewer improvement is claimed.",
+  "evidence": {
+    "originalRun": "review-8b3ab123-4fc4-4b6a-bf99-37dfdafc3c1e",
+    "verification": {
+      "valid": true,
+      "evidence": [
+        "F68’s exact comment is preserved and classified as a new UX preference without inferring reviewer failure.",
+        "WiseSetup.vue:30-32 applies integration-wizard__result to the account-loading live status; :215-216 center its flex content and text, matching the success/saving result panel at :59-69.",
+        "The loading wrapper retains role=\"status\" and aria-live=\"polite\".",
+        "WiseIntegrationFullStackTest.kt:57-60 captures the blocked account-loading state as integrations.wise-loading-accounts.",
+        "The proposed scoped lesson is faithful to the requested alignment and makes no measured-improvement or historic-cause claim."
+      ],
+      "issues": []
+    },
+    "evaluations": [],
+    "cumulativeEvaluations": [],
+    "dispositions": [
+      {
+        "ref": "F68",
+        "feedback": "the loading sastatus (collecting accounts) is left aligned. should be centered just like the success sastatus",
+        "classification": "new requirement/preference",
+        "evidence": "frontend/src/pages/integrations/WiseSetup.vue:30 wraps the account-loading SaStatusLabel in integration-wizard__result; WiseSetup.vue:215-216 defines that layout as centered flex content with centered text, also used by the success/saving panel at lines 59-69. app/src/test/kotlin/io/orangebuffalo/simpleaccounting/business/ui/user/integrations/WiseIntegrationFullStackTest.kt:57-60 captures the blocked account-loading state as integrations.wise-loading-accounts.",
+        "hypothesis": "User-confirmed visual consistency policy; historic cause is unknown and no reviewer-failure theory is inferred.",
+        "action": "Applied the existing centered integration-wizard__result layout to the account-loading live-status wrapper while retaining role=status and aria-live=polite; added a loading-state rendering capture to the existing blocked token-verification scenario.",
+        "lesson": "Wizard loading status panels must use the same centered result layout as completed success panels; inspect rendered loading states as well as completed states when changing wizard status presentation."
+      }
+    ]
+  },
+  "limitations": "Independently verified interpretation of explicit human policy; no measured reviewer improvement or recurrence reduction claimed."
+}

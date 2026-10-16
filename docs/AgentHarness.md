@@ -1,7 +1,9 @@
 # Repository agent workflow
 
 This repository combines checksum-pinned Compound Engineering reference skills with a local OpenCode V2 controller.
-It is not CE's `lfg` pipeline and does not commit, push, create PRs, or merge. Existing PR/release skills remain opt-in.
+It is not CE's `lfg` pipeline. The controller does not commit, push, create PRs, or merge. The primary agent commits
+each implementation turn separately under `AGENTS.md`; explicit user instructions override this default.
+Existing PR/release skills remain opt-in.
 
 ## Setup
 
@@ -24,14 +26,19 @@ Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md
 through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
 the agent calls `sa_review(requirements, base, profile)`.
 When the user steers an active task, preserve the original contract and add their change through the optional
-`clarification` field on the same run. Genuinely new human feedback renews expired elapsed-time or exhausted cost
-budgets, recording the prior budget epoch and retaining total usage and all evidence. Repeated feedback and ordinary
-continuation do not renew budgets. The caller must supply actual new user feedback, not invent a clarification to
-work around a blocker. Renewal never resets the two-round review limit or repair count.
+`clarification` field on the same run. Distinct new human review feedback starts a fresh review turn, resetting its
+round, repair, elapsed-time and cost limits while retaining total usage, original base and all evidence. Whitespace-equivalent
+duplicate feedback and ordinary continuation do not renew limits. Never invent feedback to work around a blocker.
+Passed, blocked and exhausted runs can start a new feedback turn; unreconciled workers still prevent resumption.
 
 The controller:
 
-1. Freezes original requirements, approved knowledge, policy, and the changed-file snapshot (including untracked files).
+1. Preserves original requirements and base, freezes policy and the changed-file snapshot (including untracked files),
+   and refreshes approved knowledge for each new feedback turn. Review cumulative changes, not only the latest delta:
+    apply learned instructions to analogous issues in relevant code from earlier turns of the session.
+    On feedback turns, code review must record a source-grounded per-file feedback audit for every cumulative
+    non-generated code file, including earlier-turn changes. Missing or duplicate file dispositions block a clean
+    receipt. Reviewers must justify exceptional mocks and other deviations rather than stopping at the commented file.
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
@@ -47,16 +54,21 @@ The controller:
      Excludes business-rule/test-coverage, security and code-convention checks; explicitly reports N/A for non-UI changes.
    Fixers and learning workers are also children, not standalone top-level sessions.
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
-   block handover. The validator is not another general reviewer.
+    prevent a clean review receipt. The validator is not another general reviewer.
 5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
-6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds (initial review
-    and one re-review), including resumed attempts. No automatic budget extension or restart to bypass this limit.
+6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds per turn
+    (initial review and one re-review), including resumed attempts in that turn. Distinct human feedback starts a fresh
+    turn on the same run; it does not erase prior rounds, repairs, receipts, knowledge bundles or usage.
    After the controller returns, the primary implementation agent must rerun its selected Gradle validation and check
    results before handover if repairs occurred (`fixes > 0`), including applicable regenerated rendering reports. Any
-   subsequent source fix invalidates a passed receipt and requires a fresh review; blocked runs resume with the same ID.
+    subsequent source fix invalidates a passed receipt; resume with the same ID when rounds remain.
+    Exhausting rounds returns `review-exhausted` with `nextAction: finish-implementation-and-validation`.
+    The primary agent must finish required fixes and validation, not stop or ask permission solely because review
+    rounds ran out. Report the two-round limit, receipt status and any remaining issues without claiming a clean review.
+     Genuine ambiguity and external blockers still require user direction. Never start another run to evade a turn's cap.
 
 Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
-the two-round limit), elapsed minutes, USD cost, the four required reviewers, and
+the per-turn two-round limit), elapsed minutes, USD cost, the four required reviewers, and
 `reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
 Optional `models` entries override individual roles with the same model-reference shape. All read-only workers,
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
@@ -80,7 +92,8 @@ protected changes require the primary agent's explicit repair and resume with th
 
 Artifacts are private under `.harness/runtime/<run-id>/`: state, snapshots, exact worker prompts/transcripts, knowledge
 hashes, findings/dispositions, changed-source packets, and receipts. Treat them as potentially sensitive source data; do not
-commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require new review.
+commit or publish them. A passed receipt applies only to its recorded fingerprint. New edits require review when
+rounds remain; after exhaustion, finish validation and disclose that the final source has no clean review receipt.
 After an interrupted process leaves `controller.lock`, inspect its PID and active sessions before manually
 removing that **single stale file**. Never delete active-run locks or reset budgets to work around a blocker.
 
@@ -95,11 +108,11 @@ do not paste build/test results into worker inputs.
 
 ## Verified human-feedback learning
 
-Use `/sa-feedback <original run ID and corrections>`. First follow the existing commit-before-feedback rule,
-apply accepted corrections, and review the corrected state. Then invoke `sa_learn(runId, feedback)`.
-The automatic pre-feedback progress commit remains the default, but explicit user instructions override repository
-workflow defaults. A no-commit instruction suspends this default until authorized; observing that precedence is not
-an error or issue. Authorization to commit prior progress does not authorize committing new corrections.
+Use `/sa-feedback <original run ID and corrections>`. Apply accepted corrections, then invoke `sa_learn(runId, feedback)`
+before reviewing so verified lessons reach the new turn's reviewers. Resume the original run with distinct feedback as
+clarification and review cumulative changes against its original base. Commit the completed turn separately under `AGENTS.md`.
+Explicit user instructions override this default. A no-commit instruction suspends automatic commits until authorized;
+observing that precedence is not an error or issue. Scoped authorization covers only its stated scope.
 
 Every human comment must be investigated and included in learning; new scope or preferences cannot be dismissed.
 If feedback appears wrong or conflicts with evidence, the agent must ask the user with arguments, reasoning and
@@ -145,7 +158,7 @@ must not be described as proven reviewer improvement. Synthetic cases and a sing
 not proof that recurrence has fallen. Prefer adding executable regressions alongside guidance.
 
 The plugin injects the complete small approved bundle before every agent-loop/generate model call, including delegated
-workers. It fails rather than silently truncating oversized bundles. Review workers receive the run's frozen bundle;
+workers. It fails rather than silently truncating oversized bundles. Review workers receive the current turn's frozen bundle;
 blind baseline/candidate workers receive their explicitly selected bundle, not the newly approved one.
 Blind workers and evaluators have all tools denied at session level, preventing checkout/history reads through tools.
 They still receive host system instructions; this is not a fully hermetic evaluation sandbox and host prompts can

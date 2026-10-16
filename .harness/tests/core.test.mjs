@@ -86,6 +86,41 @@ test('targeted reviews use selected classes as source hints and freeze the selec
   assert.match(invalid.error, /Invalid test classes/);
 });
 
+test('feedback audit cannot omit analogous earlier-turn source files', async (t) => {
+  const { root, input: originalInput } = await fixture(t);
+  const input = { ...originalInput, profile: 'full' };
+  await mkdir(path.join(root, 'app/src/test'), { recursive: true });
+  const earlier = 'app/src/test/BenderTest.kt';
+  const latest = 'app/src/test/FryTest.kt';
+  await writeFile(path.join(root, earlier), 'class BenderTest { val service = mock(Service::class.java) }');
+  const first = await new Controller(root, async () => answer(report)).review(input);
+  await exec('git', ['add', '.'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'tests: preserve earlier turn'], { cwd: root });
+  await writeFile(path.join(root, latest), 'class FryTest');
+  const feedback = { ...input, runId: first.runId, clarification: 'Avoid exceptional-case mocks throughout branch changes' };
+  const incomplete = await new Controller(root, async ({ role, prompt }) => {
+    if (role === 'code') {
+      assert.ok(prompt.includes(earlier));
+      assert.ok(prompt.includes(latest));
+      assert.match(prompt, /Mandatory branch-wide feedback audit/);
+      return answer({ ...report, feedbackAudit: [{ file: latest, evidence: 'Fry uses real preconditions' }] });
+    }
+    return answer(report);
+  }).review(feedback);
+  assert.equal(incomplete.status, 'blocked');
+  assert.match(incomplete.error, /Incomplete branch-wide feedback audit/);
+  const complete = await new Controller(root, async ({ role }) => answer(role === 'code' ? {
+    ...report, feedbackAudit: [
+      { file: earlier, evidence: 'Inspected earlier service mock against branch-wide feedback; exception requires justification' },
+      { file: latest, evidence: 'Inspected latest factory preconditions against branch-wide feedback' },
+    ],
+  } : report)).review(feedback);
+  assert.equal(complete.status, 'passed');
+  const state = JSON.parse(await readFile(path.join(complete.evidence, 'state.json')));
+  assert.deepEqual(state.rounds.at(-1).feedbackAuditFiles, [earlier, latest]);
+  assert.equal(state.rounds.at(-1).reports.find(({ axis }) => axis === 'code').feedbackAudit.length, 2);
+});
+
 test('aggregate diffs above the command buffer limit do not block file-backed review', async (t) => {
   const { root, input } = await fixture(t);
   const files = Array.from({ length: 24 }, (_, index) => `.harness/generated-${index}.txt`);
@@ -190,19 +225,76 @@ test('review stops after two rounds even with a larger legacy repair budget or r
       return { text: 'fixed', cost: 0 };
     }
     if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] });
-    return answer({ ...report, findings: role === 'functional' ? [finding] : [] });
+    return answer({ ...report, findings: role === 'functional' ? [finding] : [],
+      feedbackAudit: [{ file: 'frontend/slurm.ts', evidence: 'Inspected cumulative Slurm implementation against current feedback' }] });
   });
   const result = await controller.review({ ...input, profile: 'full' });
-  assert.equal(result.status, 'needs-human');
+  assert.equal(result.status, 'review-exhausted');
+  assert.equal(result.reviewRoundsExhausted, true);
+  assert.equal(result.nextAction, 'finish-implementation-and-validation');
   assert.equal(fixes, 1);
   const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
   assert.equal(state.rounds.length, 2);
-  state.status = 'blocked';
-  await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(state));
   const resumed = await controller.review({ ...input, profile: 'full', runId: result.runId });
-  assert.equal(resumed.status, 'needs-human');
+  assert.equal(resumed.status, 'review-exhausted');
   assert.match(resumed.error, /Two-round/);
+  assert.match(resumed.error, /finish implementation and validation/);
+  assert.equal(resumed.nextAction, 'finish-implementation-and-validation');
   assert.equal(fixes, 1);
+  const legacyState = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
+  delete legacyState.reviewTurns;
+  await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(legacyState));
+  const feedback = 'Fry requests lazy integration fields in earlier deliveries';
+  const renewed = await controller.review({ ...input, profile: 'full', runId: result.runId, clarification: feedback });
+  assert.equal(renewed.status, 'review-exhausted');
+  assert.equal(renewed.turnRounds, 2);
+  assert.equal(renewed.totalRounds, 4);
+  assert.equal(renewed.fixes, 1);
+  assert.equal(renewed.totalFixes, 2);
+  assert.equal(fixes, 2);
+  const duplicate = await controller.review({ ...input, profile: 'full', runId: result.runId,
+    clarification: '  Fry requests\n lazy integration fields in earlier deliveries  ' });
+  assert.equal(duplicate.turn, renewed.turn);
+  assert.equal(duplicate.totalRounds, 4);
+  assert.equal(fixes, 2);
+});
+
+test('new feedback refreshes lessons and reviews committed earlier-turn changes from the original base', async (t) => {
+  const { root, input } = await fixture(t);
+  const bundles = [];
+  const controller = new Controller(root, async ({ knowledge: bundle, prompt }) => {
+    bundles.push(bundle);
+    assert.match(prompt, /cumulative changes from the original base/);
+    assert.match(prompt, /analogous issues/);
+    return answer(report, 0.1);
+  });
+  const first = await controller.review(input);
+  const original = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
+  await exec('git', ['add', 'AGENTS.md'], { cwd: root });
+  await exec('git', ['commit', '-qm', 'docs: first delivery turn'], { cwd: root });
+  const lesson = { id: 'lesson-leela', status: 'verified', guidance: 'Resolve fields lazily', scope: 'GraphQL',
+    evidence: { dispositions: [{ ref: 'F1', lesson: 'Defer database access until its GraphQL field is selected' }] } };
+  const raw = JSON.stringify(lesson);
+  await mkdir(path.join(root, '.harness/lessons'));
+  await writeFile(path.join(root, '.harness/lessons/lesson-leela.json'), raw);
+  await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1,
+    lessons: [{ id: lesson.id, sha256: hash(raw) }] }));
+  const next = await controller.review({ ...input, runId: first.runId, clarification: 'Leela requests lazy field resolution' });
+  assert.equal(next.status, 'passed');
+  assert.equal(next.turn, 2);
+  assert.equal(next.turnRounds, 1);
+  assert.equal(next.totalRounds, 2);
+  const state = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
+  assert.equal(state.base, input.base);
+  assert.equal(state.started, original.started);
+  assert.deepEqual(state.rounds[0], original.rounds[0]);
+  assert.equal(state.reviewTurns[0].fingerprint, first.fingerprint);
+  assert.equal(state.reviewTurns[0].knowledge, '[]');
+  assert.match(state.reviewTurns[1].knowledge, /Defer database access/);
+  assert.equal(state.rounds[1].snapshot.contents['AGENTS.md'], 'Planet Express review\n');
+  assert.ok(Math.abs(state.cost - 0.8) < 0.000001);
+  assert.ok(bundles.slice(4).every((bundle) => bundle.includes(lesson.evidence.dispositions[0].lesson)));
+  await assert.rejects(controller.review({ ...input, runId: first.runId }), /cannot be resumed/);
 });
 
 test('failed reviewer blocks, records all concurrent costs, and resumes the same budget', async (t) => {
@@ -270,11 +362,13 @@ test('new human feedback renews exhausted budgets without erasing usage or revie
     assert.equal(renewed.budgetHistory[0].cost, state.cost);
     assert.equal(renewed.budgetCostBaseline, state.cost);
     assert.ok(Math.abs(renewed.cost - state.cost - 0.4) < 0.000001);
-    const capped = await controller.review({ ...input, runId: first.runId,
+    const nextTurn = await controller.review({ ...input, runId: first.runId,
       clarification: 'Leela additionally requests component-owned full-stack coverage' });
-    assert.equal(capped.status, 'needs-human');
-    assert.match(capped.error, /Two-round/);
-    assert.equal(calls, 8);
+    assert.equal(nextTurn.status, 'blocked');
+    assert.equal(nextTurn.turnRounds, 1);
+    assert.equal(nextTurn.totalRounds, 3);
+    assert.match(nextTurn.error, /Incomplete review/);
+    assert.equal(calls, 12);
   }
 });
 
@@ -291,7 +385,7 @@ test('repeated feedback or ordinary resume cannot renew expired budgets', async 
   const state = JSON.parse(await readFile(stateFile));
   state.started = 0;
   await writeFile(stateFile, JSON.stringify(state));
-  for (const clarification of [undefined, ` ${feedback} `]) {
+  for (const clarification of [undefined, ` ${feedback} `, 'Fry  requests\nrepresentative countries']) {
     const resumed = await controller.review({ ...input, runId: result.runId, clarification });
     assert.match(resumed.error, /Elapsed-time budget/);
     assert.equal(calls, 4);
