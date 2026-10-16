@@ -31,7 +31,9 @@ export function feedbackReport(state) {
   const escape = (text) => String(text ?? '').replaceAll('|', '\\|').replaceAll('\n', '<br>');
   const rows = (state.feedbackBatch?.items ?? [{ ref: '1', file: 'docs/AgentHarness.md', line: 93, comment: state.feedback }]).map((item) => {
     const disposition = state.proposal?.dispositions?.find((entry) => entry.ref === item.ref);
-    const action = [item.action, disposition?.action, disposition?.lesson, state.status === 'verified'
+    const action = state.catalog ? [item.action, disposition?.action, disposition?.prevention,
+      state.status === 'verified' ? `Active rules: ${(disposition?.ruleIds ?? []).join(', ') || 'workflow remedy; no additional rule'}. Catalog: .harness/prevention.json. Verified prevention, not measured improvement.`
+        : `Unresolved: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ') : [item.action, disposition?.action, disposition?.lesson, state.status === 'verified'
       ? `Active instruction ${state.id}/${item.ref}: ${disposition?.lesson} Published in .harness/lessons/${state.id}.json and supplied through knowledge(). ${state.feedbackBatch?.kind === 'user-confirmed-policy' ? 'Policy verified; reviewer improvement not measured.' : 'Blind replay, held-out and clean evaluations passed.'}` : `Investigation unresolved; user clarification required: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ');
     return `| ${escape(item.ref)} | ${escape(item.file)}:${item.line} | ${escape(item.comment)} | ${escape(action)} |`;
   });
@@ -78,6 +80,9 @@ export function deployedLesson(lesson) {
 }
 
 export async function knowledge(root, limit = 30000) {
+  try {
+    return catalogText(JSON.parse(await readFile(path.join(root, '.harness/prevention.json'), 'utf8')), limit);
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const registry = JSON.parse(await readFile(path.join(root, '.harness/knowledge.json'), 'utf8'));
   if (registry.version !== 1 || !Array.isArray(registry.lessons)) throw new Error('Invalid knowledge registry');
   const lessons = [];
@@ -93,6 +98,50 @@ export async function knowledge(root, limit = 30000) {
   const text = json(lessons);
   if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
   return text;
+}
+
+export function catalogText(catalog, limit = 30000) {
+  if (catalog?.version !== 2 || !Array.isArray(catalog.rules)) throw new Error('Invalid prevention catalog');
+  const ids = new Set();
+  for (const rule of catalog.rules) {
+    safeId(rule.id);
+    if (ids.has(rule.id) || ['category', 'appliesWhen', 'instruction', 'reason'].some((key) => typeof rule[key] !== 'string' || !rule[key].trim())
+      || Object.keys(rule).some((key) => !['id', 'category', 'appliesWhen', 'instruction', 'reason', 'example'].includes(key))
+      || (rule.example !== undefined && (typeof rule.example !== 'string' || !rule.example.trim()))) throw new Error('Invalid prevention rule');
+    ids.add(rule.id);
+  }
+  const text = json(catalog.rules);
+  if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
+  return text;
+}
+
+export function curate(catalog, proposal, items, limit = 30000) {
+  catalogText(catalog, limit);
+  if (!Array.isArray(proposal.upsert) || !Array.isArray(proposal.retire)
+    || !Array.isArray(proposal.dispositions) || proposal.dispositions.length !== items.length
+    || new Set(proposal.dispositions.map((entry) => entry.ref)).size !== items.length) throw new Error('Incomplete learning proposal');
+  const rules = new Map(catalog.rules.map((rule) => [rule.id, rule]));
+  catalogText({ version: 2, rules: proposal.upsert }, limit);
+  for (const rule of proposal.upsert) rules.set(rule.id, rule);
+  const retired = new Set();
+  for (const entry of proposal.retire) {
+    if (!catalog.rules.some((rule) => rule.id === entry.id) || retired.has(entry.id)
+      || proposal.upsert.some((rule) => rule.id === entry.id) || typeof entry.reason !== 'string' || !entry.reason.trim()
+      || !Array.isArray(entry.replacements) || !entry.replacements.length) throw new Error('Invalid rule retirement');
+    retired.add(entry.id);
+    rules.delete(entry.id);
+  }
+  for (const entry of proposal.retire) if (entry.replacements.some((id) => !rules.has(id))) throw new Error('Missing replacement rule');
+  for (const item of items) {
+    const entry = proposal.dispositions.find((entry) => entry.ref === item.ref);
+    if (!entry || entry.feedback !== item.comment
+      || !['missing-knowledge', 'not-applied', 'ambiguity', 'execution-tooling'].includes(entry.diagnosis)
+      || ['action', 'prevention', 'evidence'].some((key) => typeof entry[key] !== 'string' || !entry[key].trim())
+      || !Array.isArray(entry.ruleIds) || entry.ruleIds.some((id) => !rules.has(id))) throw new Error('Missing, changed or incomplete human feedback disposition');
+  }
+  const result = { version: 2, rules: [...rules.values()] };
+  catalogText(result, limit);
+  return result;
 }
 
 export function validateFindings(report) {
@@ -373,7 +422,68 @@ export class Controller {
     });
   }
 
-  async learn({ runId, feedback, parentSessionID }) {
+  async learn(input) {
+    let catalogRaw;
+    try { catalogRaw = await readFile(path.join(this.root, '.harness/prevention.json'), 'utf8'); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; return this.learnV1(input); }
+    return this.exclusive(async () => {
+      const id = `lesson-${randomUUID()}`;
+      const state = { id, dir: path.join(this.runtime, id), originalRun: input.runId, feedback: input.feedback,
+        started: Date.now(), parentSessionID: input.parentSessionID, cost: 0, artifacts: [], status: 'candidate', catalog: true };
+      await save(path.join(state.dir, 'state.json'), state);
+      try {
+        state.feedbackBatch = feedbackItems(input.feedback);
+        const catalog = JSON.parse(catalogRaw);
+        state.catalog = catalog;
+        state.policy = await this.policy();
+        state.knowledge = catalogText(catalog, state.policy.maxKnowledgeChars);
+        const originalFile = path.join(this.runtime, safeId(input.runId), 'state.json');
+        let original;
+        try { original = JSON.parse(await readFile(originalFile, 'utf8')); }
+        catch (error) { if (error.code !== 'ENOENT') throw error; }
+        const sources = [];
+        const evidenceDir = path.join(state.dir, 'original-evidence');
+        await privateDirectory(evidenceDir);
+        for (const [index, round] of (original?.rounds ?? []).entries()) {
+          const artifact = path.join(evidenceDir, `round-${index + 1}.json`);
+          await save(artifact, { requirements: original.requirements, snapshot: round.snapshot,
+            findings: round.accepted, knowledge: original.reviewTurns?.findLast((turn) => turn.roundStart <= index)?.knowledge ?? original.knowledge });
+          sources.push(artifact);
+        }
+        const context = `Human feedback: ${json(state.feedbackBatch)}\nOriginal source packets: ${json(sources)}. ${original ? 'Read relevant source packets and current source.' : 'Original run unavailable; do not infer historic intent or a reviewer miss. Explicit preferences can still be verified against current source.'}`;
+        state.proposal = await this.ask(state, 'feedback-analysis', `Investigate EVERY exact indexed comment. Never dismiss human feedback. Diagnose missing-knowledge, not-applied (an existing rule was ignored), ambiguity (including a new preference), or execution-tooling. State unknown historical causes as unknown. Prefer reusing/clarifying existing rules or improving application/workflow/automation over adding paraphrases. Propose only compact operational rules, never audit history. Preserve scope and exceptions; consolidate duplicates and explicitly replace obsolete guidance. For nontrivial generalization supply an analogous case and a non-applicable case; simple explicit preferences can explain why cases are unnecessary. Ask the user about genuine conflicts with evidence and options. Return ONLY JSON {"questions":[],"dispositions":[{"ref":"input ref","feedback":"exact comment","diagnosis":"not-applied","evidence":"source or explicit preference","action":"correction","prevention":"concrete reusable remedy","ruleIds":["existing-or-upsert-id"]}],"upsert":[{"id":"stable-id","category":"testing","appliesWhen":"scope and exceptions","instruction":"actionable rule","reason":"short failure mechanism"}],"retire":[{"id":"obsolete-id","replacements":["active-id"],"reason":"why replaced"}],"caseCheck":{"analogous":"case and expected application or justified N/A","nonApplicable":"case and expected exclusion or justified N/A"}}. Empty upsert/retire is valid when existing rules suffice. All ruleIds must exist after curation. Never claim measured improvement.\n${context}`);
+        if (state.proposal.questions?.length) throw new Error(`User clarification required: ${json(state.proposal.questions)}`);
+        const next = curate(catalog, state.proposal, state.feedbackBatch.items, state.policy.maxKnowledgeChars);
+        if (['analogous', 'nonApplicable'].some((key) => typeof state.proposal.caseCheck?.[key] !== 'string'
+          || !state.proposal.caseCheck[key].trim())) throw new Error('Missing scoped case checks or justification');
+        state.verification = await this.ask(state, 'learning-validator', `Independently verify every exact comment and the proposed remedy against relevant source and user intent. Never dismiss feedback. Check diagnosis, reuse of existing guidance, faithful preservation of all still-applicable rules/exceptions, replacements, duplicate prevention and caseCheck expectations. A preference does not require a historic miss or blind evaluation. Check the complete resulting active catalog, not only additions. Return ONLY JSON {"valid":true,"evidence":["source-grounded checks"],"issues":[]}; unresolved conflicts need evidence and options, not autonomous dismissal.\n${context}\nProposal: ${json(state.proposal)}\nResulting catalog: ${catalogText(next, state.policy.maxKnowledgeChars)}`);
+        const verification = state.verification;
+        if (verification.valid !== true || !Array.isArray(verification.evidence) || !verification.evidence.length
+          || verification.evidence.some((entry) => typeof entry !== 'string' || !entry.trim())
+          || !Array.isArray(verification.issues) || verification.issues.length) throw new Error('Prevention not independently verified');
+        const current = JSON.parse(await readFile(path.join(this.root, '.harness/prevention.json'), 'utf8'));
+        if (json(current) !== json(catalog)) throw new Error('Catalog changed during learning; retry against current rules');
+        await save(path.join(this.root, '.harness/prevention.json'), next);
+        state.status = 'verified';
+      } catch (error) {
+        state.error = error.message;
+        state.requiresUser = true;
+        state.questions = state.proposal?.questions?.length ? state.proposal.questions : [{
+          question: 'How should this unresolved prevention concern be addressed?', reasoning: state.error,
+          arguments: state.verification?.issues ?? [], options: ['Clarify the interpretation', 'Correct the proposed remedy and retry'],
+        }];
+      }
+      const reportFile = path.join(state.dir, 'feedback-report.md');
+      const report = feedbackReport(state);
+      await writeFile(reportFile, report, { mode: 0o600 });
+      await save(path.join(state.dir, 'state.json'), state);
+      return { lessonId: id, status: state.status, error: state.error, evidence: state.dir, cost: state.cost,
+        requiresUser: state.requiresUser ?? false, questions: state.questions ?? [], reportFile, report };
+    });
+  }
+
+  // Compatibility for worktrees that have not migrated their version-one registry yet.
+  async learnV1({ runId, feedback, parentSessionID }) {
     return this.exclusive(async () => {
       const id = `lesson-${randomUUID()}`;
       const state = { id, dir: path.join(this.runtime, id), originalRun: runId, feedback, started: Date.now(), parentSessionID, cost: 0, artifacts: [], status: 'candidate' };

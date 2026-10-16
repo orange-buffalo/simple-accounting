@@ -56,7 +56,7 @@ export async function createWorkers(ctx, directory = root) {
       }
       if (work) event.system.push({ type: 'text', text: 'You are a delegated review/fix/learning worker, not the primary implementation agent. Never run builds/tests or inspect their results, logs, pass/fail status or CI status. Inspect source-level behavior and assertions only. Visual artifacts may be inspected for usability, never for test-pass verification. Follow only your assigned responsibility; do not repeat other reviewers\' checks.' });
       const bundle = frozen.get(event.sessionID) ?? await knowledge(directory);
-      event.system.push({ type: 'text', text: `Approved repository lessons (apply when relevant):\n${bundle}` });
+      event.system.push({ type: 'text', text: `Approved repository lessons: apply relevant constraints BEFORE implementation, not only during review. The complete active catalog follows; preserve its scopes and exceptions.\n${bundle}` });
     });
   }
   const execute = async ({ role, prompt, knowledge: bundle, fixer, model, artifactRoots = [], parentSessionID }) => {
@@ -115,7 +115,7 @@ export default {
         execute: async (input, context) => run('review', input, context),
       });
       editor.add({
-        name: 'sa_learn', description: 'Investigate human corrections against original review artifacts; independently verify and blind-evaluate before promoting lessons. Does not implement feedback or commit.',
+        name: 'sa_learn', description: 'Diagnose every human correction, reuse or curate compact preventive rules, and independently verify their scope before publication. Does not implement feedback or commit; verification is not measured improvement.',
         input: schema({ runId: string, feedback: string }, ['runId', 'feedback']),
         execute: async (input, context) => run('learn', input, context),
       });

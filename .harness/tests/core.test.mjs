@@ -1,4 +1,5 @@
 import test from 'node:test';
+import './prevention.test.mjs';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, stat, chmod } from 'node:fs/promises';
 import { execFile } from 'node:child_process';

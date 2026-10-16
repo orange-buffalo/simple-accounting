@@ -106,7 +106,28 @@ an explicit grant for their lesson run's original-evidence files; other runs rem
 `app/build/rendering-report/` remain readable for UX. Host instructions and arbitrary user text are not a perfect sandbox;
 do not paste build/test results into worker inputs.
 
-## Verified human-feedback learning
+## Prevention before implementation
+
+`.harness/prevention.json` is the active, curated experience catalog. Each rule has a stable `id`, `category`,
+`appliesWhen`, actionable `instruction`, a brief `reason`, and an optional useful `example`. Apply its relevant
+constraints **before coding**. The plugin injects every rule before model calls; review workers freeze that complete
+bundle for their turn. There is no heuristic relevance filter and no silent truncation. Validation and publication
+use exactly the same projection and size limit as injection.
+
+The initial migration accounts for all 67 original feedback instructions (F1–F68, with no F47).
+`.harness/migrate-knowledge.mjs` records their explicit destinations. Forty scoped rules consolidate repeated guidance;
+four additional rules capture this prevention workflow and safe live-consumer migration. F14/F20's obsolete lifetime
+limits are replaced by F51's per-feedback-turn limits, retaining duplicate-feedback protections. General guidance
+about authorization/version precedence, legacy repairs, evidence accuracy and verification limitations is retained.
+The old detailed investigations remain recoverable from Git rather than being part of the active catalog.
+
+Stage a new format separately before changing any file consumed by a running hook. Make the loader compatible first,
+then reload the project location and confirm the new tools/hooks are active before retiring old data. The empty
+version-one `.harness/knowledge.json` is a compatibility bridge for already-loaded old hooks: they remain runnable,
+but must reload to consume the new catalog. Until reload, read the active catalog directly under `AGENTS.md`.
+The loader retains version-one support for unmigrated worktrees; only those worktrees use the legacy learning path.
+
+## Human-feedback learning
 
 Use `/sa-feedback <original run ID and corrections>`. Apply accepted corrections, then invoke `sa_learn(runId, feedback)`
 before reviewing so verified lessons reach the new turn's reviewers. Resume the original run with distinct feedback as
@@ -121,52 +142,33 @@ concrete options before resolving it. Unverified learning returns `requiresUser`
 
 Pass an indexed JSON batch as the `feedback` string: `{"kind":"user-confirmed-policy","items":[{"ref":"F1",
 "file":"path","line":1,"comment":"exact initial comment","action":"applied correction"}]}`. Stable refs and exact
-comments ensure every item has an investigated disposition, corrective action and preventive lesson. This mode learns
-explicit human instructions through independent source/intent verification; it does not claim measured reviewer
-improvement or require a preference to predate the user's instruction. Use `review-improvement` for claims requiring
-the blind evaluation below. Omitted, changed, disputed or dismissed comments block promotion and require user direction.
+comments ensure every item has an investigated disposition, corrective action and prevention remedy. Explicit new
+preferences are valid without pretending they were earlier requirements. The legacy `review-improvement` label remains
+accepted, but is not a measurement claim. Omitted, changed, disputed or dismissed comments block publication.
 
 After addressing human review, always present the returned table with columns **ref index**, **file:line**,
 **initial user comment**, and **agent action**, including fixes and recorded lessons or unresolved status. Carry forward
 all unresolved earlier feedback in the session. File references must identify real source locations.
-Each verified row identifies its active instruction by lesson ID and feedback ref, with the exact preventive rule
-and lesson file path. Policy verification is distinguished from measured reviewer improvement.
+Each verified row identifies its active rule IDs and catalog path, or a concrete workflow/automation remedy that
+requires no new rule. Verification is distinguished from measured improvement.
 
-The deployed knowledge bundle includes every verified disposition's `ref` and `lesson` as an `instructions` entry,
-alongside the general guidance and scope. This also activates detailed instructions in existing verified lesson files;
-they are not merely archival evidence. The same projection is used for candidate evaluations and publication size
-checks, so detailed instructions cannot disappear between learning, evaluation and agent delivery. Integrity checks
-and the knowledge-size limit apply to the full bundle; no instructions are silently truncated.
+Learning uses two focused workers: diagnosis/curation and independent verification. Diagnose missing knowledge,
+failure to apply existing guidance, ambiguity/new requirements, or execution/tooling failure. Reuse existing rules,
+clarify them, or improve the implementation workflow/automated safeguard before adding a new rule. Explicit upserts
+and replacements preserve unrelated experience; retirement requires active replacements and a reason. The verifier
+checks the entire resulting catalog for preserved scope, exceptions and conflicts. Nontrivial generalizations need an
+analogous and a non-applicable case; simple preferences may justify why those checks are unnecessary. Blind replay
+ceremonies are not required. Missing original runs are disclosed rather than used to invent a historical diagnosis.
 
-The learning controller examines the original snapshots and actual review artifacts, keeping evidence size independent
-of prompt context size. Its compact index points to per-round source packets, per-agent investigation manifests and
-exact private tool transcripts; investigators read relevant artifacts rather than receiving duplicated tool inputs/outputs
-inline. Evidence is preserved without truncation, and the index still has a context safety limit. Learning state records
-the original run ID and feedback even when evaluation cannot start. The controller classifies corrections and treats
-reviewer-miss explanations as hypotheses. A fresh verifier checks source grounding and the proposed prevention. Fresh
-read-only sessions then review a blind original-defect replay, a distinct analogous case, and a clean counterexample
-with old and proposed guidance. When intervening lessons exist, the cumulative deployed bundle is also tested before
-promotion. A separate evaluator checks outcomes. Promotion requires baseline replay failure,
-candidate success on all three cases, independent grounding, and complete feedback dispositions.
+Only compact approved rules are published, atomically and after checking for intervening catalog edits. Feedback,
+original source packets and investigation details stay in ignored private runtime files; none enter ordinary prompts.
+Candidates never change active knowledge. Review catalog edits like code. Learning is not a model-weight update.
 
-Independently verified human-policy lessons record the complete dispositions and their verification separately from
-measured reviewer-improvement lessons; preferences are learned without inventing reviewer-miss explanations.
-Approved lesson JSON and its integrity digest are added to `.harness/lessons/` and `.harness/knowledge.json` (uncommitted).
-Review these changes like code. Unverified proposals stay in runtime artifacts and never enter agent instructions.
-Missing original runs, new requirements, invalid feedback, baseline already succeeding, and inconclusive evaluations
-must not be described as proven reviewer improvement. Synthetic cases and a single stochastic trial are weak evidence,
-not proof that recurrence has fallen. Prefer adding executable regressions alongside guidance.
-
-The plugin injects the complete small approved bundle before every agent-loop/generate model call, including delegated
-workers. It fails rather than silently truncating oversized bundles. Review workers receive the current turn's frozen bundle;
-blind baseline/candidate workers receive their explicitly selected bundle, not the newly approved one.
-Blind workers and evaluators have all tools denied at session level, preventing checkout/history reads through tools.
-They still receive host system instructions; this is not a fully hermetic evaluation sandbox and host prompts can
-influence outcomes. An interrupted model operation blocks resume until its session and cost are reconciled.
-
-Track escaped defects and repeated defects per applicable task exposure, blind recall/false positives, run costs,
-knowledge hashes, and unresolved coverage over subsequent real tasks. The stored evidence enables comparison; it does
-not claim automatic model training or demonstrated long-term improvement before there are real feedback runs.
+For comparable tasks, inspect initial-round accepted defects separately from later review repairs, and count substantive
+human corrections and recurring rule IDs in learning dispositions. Review rejected findings for false alarms rather than
+treating every rejection as a false positive. Compare like task scopes/exposures and deduplicate repeated feedback by
+original run/ref/comment. These lightweight observations use existing runtime state; no growing public audit ledger is
+needed. Smaller files, verified rules and synthetic checks do not establish fewer real mistakes.
 
 ## Limitations and validation
 
