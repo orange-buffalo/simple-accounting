@@ -11,46 +11,54 @@ class WiseIntegrationService internal constructor(
     private val client: WiseApiClient,
 ) {
     fun isActive(workspaceId: String): Boolean {
-        workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         return settings.existsByWorkspaceId(workspaceId)
     }
 
     fun verifyToken(workspaceId: String, token: String?): List<WiseAccount> {
-        workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
-        return client.getAccounts(resolveToken(token, settings.findByWorkspaceId(workspaceId)))
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
+        return client.getAccounts(resolveToken(token = token, existing = settings.findByWorkspaceId(workspaceId)))
     }
 
     fun loadAccounts(workspaceId: String, token: String?): List<WiseSelectableAccount> {
-        workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)
-        val available = client.getAccounts(resolveToken(token, existing))
+        val available = client.getAccounts(resolveToken(token = token, existing = existing))
         val selected = existing?.accounts.orEmpty()
         val current = available.map { account ->
-            WiseSelectableAccount(account, selected.contains(WiseIntegrationAccount(account.profileId, account.accountId, account.currency)), false)
+            WiseSelectableAccount(
+                account = account,
+                selected = selected.contains(WiseIntegrationAccount(profileId = account.profileId, accountId = account.accountId, currency = account.currency)),
+                deleted = false,
+            )
         }
         val missing = selected.filter { saved ->
             available.none { it.profileId == saved.profileId && it.accountId == saved.accountId && it.currency == saved.currency }
         }.map { saved ->
-            WiseSelectableAccount(WiseAccount(saved.profileId, "", saved.accountId, saved.currency, null, ""), true, true)
+            WiseSelectableAccount(
+                account = WiseAccount(profileId = saved.profileId, profileName = "", accountId = saved.accountId, currency = saved.currency, name = null, type = ""),
+                selected = true,
+                deleted = true,
+            )
         }
         return current + missing
     }
 
     fun setup(workspaceId: String, token: String?, accounts: List<WiseAccountSelection>) {
-        workspaces.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)
-        val resolvedToken = resolveToken(token, existing)
+        val resolvedToken = resolveToken(token = token, existing = existing)
         val available = client.getAccounts(resolvedToken).map {
-            WiseAccountSelection(it.profileId.toString(), it.accountId.toString(), it.currency)
+            WiseAccountSelection(profileId = it.profileId.toString(), accountId = it.accountId.toString(), currency = it.currency)
         }.toSet()
         if (accounts.isEmpty() || accounts.toSet().size != accounts.size || !available.containsAll(accounts)) {
             throw WiseInvalidAccountsException()
         }
         val selected = accounts.map {
-            WiseIntegrationAccount(it.profileId.toLong(), it.accountId.toLong(), it.currency)
+            WiseIntegrationAccount(profileId = it.profileId.toLong(), accountId = it.accountId.toLong(), currency = it.currency)
         }.toSet()
         settings.save(existing?.copy(token = resolvedToken, accounts = selected)
-            ?: WiseIntegrationSettings(workspaceId, resolvedToken, selected))
+            ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected))
     }
 
     private fun resolveToken(token: String?, existing: WiseIntegrationSettings?): String =

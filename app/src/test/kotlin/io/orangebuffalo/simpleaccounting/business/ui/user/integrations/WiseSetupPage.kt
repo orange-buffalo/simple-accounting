@@ -6,7 +6,7 @@ import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
-import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.WizardStep.Companion.wizardStep
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
@@ -27,8 +27,8 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     val back = components.buttonByText("Back")
     val accounts = AccountCards(components)
     val status = components.statusLabel()
-    val tokenStep = WizardStep(components, "Personal token")
-    val accountsStep = WizardStep(components, "Select accounts")
+    val tokenStep = components.wizardStep("Personal token")
+    val accountsStep = components.wizardStep("Select accounts")
 
     companion object {
         fun Page.shouldBeWiseSetupPage(spec: WiseSetupPage.() -> Unit = {}) {
@@ -96,26 +96,14 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     class AccountCard(private val card: Locator) {
         fun shouldBeDeleted() = card.shouldBeDisabled()
         fun shouldBeUnselected() {
-            card.shouldHaveAttribute("aria-pressed", "false")
+            card.shouldHaveAttribute(name = "aria-pressed", value = "false")
         }
 
         fun shouldBeSelected() {
-            card.shouldHaveAttribute("aria-pressed", "true")
+            card.shouldHaveAttribute(name = "aria-pressed", value = "true")
         }
 
         fun click() = card.click()
     }
 
-    @UiComponentMarker
-    class WizardStep(components: ComponentsAccessors, title: String) {
-        private val container = components.page.locator(".el-step")
-            .filter(Locator.FilterOptions().setHasText(title))
-        private val header = container.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(title).setExact(true))
-
-        fun click() = header.click()
-        fun shouldBeDisabled() = header.shouldBeDisabled()
-        fun shouldBeOpen() = header.shouldHaveAttribute("aria-current", "step")
-        fun shouldBeCompleted() = container.locator(".el-step__head").shouldContainClass("is-success")
-        fun shouldBePending() = container.locator(".el-step__head").shouldContainClass("is-process")
-    }
 }

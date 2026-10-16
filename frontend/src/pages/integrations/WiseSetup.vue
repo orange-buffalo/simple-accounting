@@ -93,31 +93,31 @@
   import { graphql } from '@/services/api/gql';
   import { useQuery, useMutation } from '@/services/api/use-gql-api';
   import {
-    SetupWiseIntegrationErrorCodes, VerifyWiseIntegrationTokenErrorCodes,
+    SaveWiseIntegrationSettingsErrorCodes, ListWiseAccountsErrorCodes,
   } from '@/services/api/gql/schema-types';
-  import type { VerifyWiseTokenMutation } from '@/services/api/gql/graphql';
+  import type { ListWiseAccountsMutation } from '@/services/api/gql/graphql';
   import { handleGqlApiBusinessError } from '@/services/api/api-utils';
   import { $t } from '@/services/i18n';
 
   const workspaceId = useCurrentWorkspace().currentWorkspace.id;
-  const verifyToken = useMutation(graphql(/* GraphQL */ `
-    mutation verifyWiseToken($workspaceId: String!, $token: String) {
-      verifyWiseIntegrationToken(workspaceId: $workspaceId, token: $token) {
-        accounts { profileId profileName accountId currency name type selected deleted }
+  const listAccounts = useMutation(graphql(/* GraphQL */ `
+    mutation listWiseAccounts($workspaceId: String!, $token: String) {
+      listWiseAccounts(workspaceId: $workspaceId, token: $token) {
+        accounts { profileId profileName accountId currency name type usedByIntegration deleted }
       }
     }
-  `), 'verifyWiseIntegrationToken');
-  const setup = useMutation(graphql(/* GraphQL */ `
-    mutation saveWiseIntegration($workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!) {
-      setupWiseIntegration(workspaceId: $workspaceId, token: $token, accounts: $accounts) { success }
+  `), 'listWiseAccounts');
+  const saveSettings = useMutation(graphql(/* GraphQL */ `
+    mutation saveWiseIntegrationSettings($workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!) {
+      saveWiseIntegrationSettings(workspaceId: $workspaceId, token: $token, accounts: $accounts) { success }
     }
-  `), 'setupWiseIntegration');
+  `), 'saveWiseIntegrationSettings');
   const [initializing, configuration] = useQuery(graphql(/* GraphQL */ `
     query wiseConfiguration($workspaceId: String!) {
       workspace(id: $workspaceId) { integrations { wise { active } } }
     }
   `), 'workspace', { variables: { workspaceId } });
-  type Account = VerifyWiseTokenMutation['verifyWiseIntegrationToken']['accounts'][number];
+  type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
   const steps = { TOKEN_INPUT: 0, ACCOUNT_SELECTION: 1, ACTIVATION: 2 };
   const step = ref(steps.TOKEN_INPUT);
@@ -126,7 +126,7 @@
   const verifiedToken = ref<string | null>(null);
   const busy = ref(false);
   const saved = ref(false);
-  const error = ref<SetupWiseIntegrationErrorCodes | VerifyWiseIntegrationTokenErrorCodes | null>(null);
+  const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const saveError = ref(false);
   const accounts = ref<Account[]>([]);
   const selected = ref(new Set<string>());
@@ -154,8 +154,8 @@
   ]);
   const errorMessage = computed(() => {
     switch (error.value) {
-    case SetupWiseIntegrationErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
-    case SetupWiseIntegrationErrorCodes.InvalidAccounts: return $t.value.integrations.wise.invalidAccounts();
+    case SaveWiseIntegrationSettingsErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
+    case SaveWiseIntegrationSettingsErrorCodes.InvalidAccounts: return $t.value.integrations.wise.invalidAccounts();
     default: return $t.value.integrations.wise.unavailable();
     }
   });
@@ -198,20 +198,21 @@
     accounts.value = [];
     selected.value.clear();
     try {
-      const result = await verifyToken({ workspaceId, token });
+      const result = await listAccounts({ workspaceId, token });
       if (requestRevision !== revision) return;
       accounts.value = result.accounts;
-      selected.value = new Set(result.accounts.filter(account => account.selected && !account.deleted).map(accountKey));
+      selected.value = new Set(result.accounts
+        .filter(account => account.usedByIntegration && !account.deleted).map(accountKey));
       verifiedToken.value = token;
       verified.value = true;
       error.value = null;
     } catch (e: unknown) {
-      const code = handleGqlApiBusinessError<VerifyWiseIntegrationTokenErrorCodes>(e);
+      const code = handleGqlApiBusinessError<ListWiseAccountsErrorCodes>(e);
       if (requestRevision === revision) error.value = code;
     } finally { busy.value = false; }
   };
   const recover = async () => {
-    if (error.value === SetupWiseIntegrationErrorCodes.InvalidToken) back();
+    if (error.value === SaveWiseIntegrationSettingsErrorCodes.InvalidToken) back();
     else await verify();
   };
   const save = async () => {
@@ -221,7 +222,7 @@
     error.value = null;
     saveError.value = false;
     try {
-      const result = await setup({
+      const result = await saveSettings({
         workspaceId, token: verifiedToken.value,
         accounts: accounts.value.filter(account => !account.deleted && selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
@@ -229,17 +230,17 @@
       error.value = null;
       if (result.success) {
         const savedAccounts = accounts.value.filter(account => !account.deleted)
-          .map(account => ({ ...account, selected: selected.value.has(accountKey(account)) }));
+          .map(account => ({ ...account, usedByIntegration: selected.value.has(accountKey(account)) }));
         form.value.token = '';
         configured.value = true;
         verifiedToken.value = null;
         accounts.value = savedAccounts;
-        selected.value = new Set(savedAccounts.filter(account => account.selected).map(accountKey));
+        selected.value = new Set(savedAccounts.filter(account => account.usedByIntegration).map(accountKey));
         verified.value = true;
         saved.value = true;
       }
     } catch (e: unknown) {
-      const code = handleGqlApiBusinessError<SetupWiseIntegrationErrorCodes>(e);
+      const code = handleGqlApiBusinessError<SaveWiseIntegrationSettingsErrorCodes>(e);
       error.value = code;
       saveError.value = true;
     } finally { busy.value = false; }

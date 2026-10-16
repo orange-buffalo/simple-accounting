@@ -308,6 +308,34 @@
       "appliesWhen": "Changing Wise setup status presentation",
       "instruction": "Wizard loading status panels must use the same centered result layout as completed success panels; inspect rendered loading states as well as completed states when changing wizard status presentation.",
       "reason": "Loading and completed states need visual consistency and accessible announcements."
+    },
+    {
+      "id": "api-semantic-contract-names",
+      "category": "backend",
+      "appliesWhen": "Naming GraphQL operations and exposed fields",
+      "instruction": "Use names that describe the observable domain action and state, not incidental internal steps or UI-local interaction terms; preserve UI vocabulary inside UI-only models.",
+      "reason": "API names are long-lived client contracts and should not misstate credential or persistence behavior."
+    },
+    {
+      "id": "kotlin-named-multiple-arguments",
+      "category": "workflow",
+      "appliesWhen": "Writing Kotlin calls or constructors with more than one supplied argument",
+      "instruction": "Use named arguments for every supplied argument; exclude Java calls and individual elements of a vararg.",
+      "reason": "Names keep multi-value call sites unambiguous."
+    },
+    {
+      "id": "graphql-input-documentation",
+      "category": "backend",
+      "appliesWhen": "Documenting optional GraphQL credential or similarly stateful inputs",
+      "instruction": "Document supplied, null, omitted, empty, and blank semantics where applicable, including the effective value and whether it is persisted, replaced, or retained.",
+      "reason": "Generated schema documentation is the client-facing contract for wire-input semantics."
+    },
+    {
+      "id": "independent-workflow-tests",
+      "category": "testing",
+      "appliesWhen": "A test contains independently meaningful create, update, replacement, deletion, or rejection workflows",
+      "instruction": "Split independent workflows into separate tests with their own relevant preconditions and outcome assertions. Retain a compact parameterized or table-driven test for variants sharing one setup boundary and observable outcome.",
+      "reason": "Independent workflows need isolated failure signals; identical boundary variants do not."
     }
   ]
 }

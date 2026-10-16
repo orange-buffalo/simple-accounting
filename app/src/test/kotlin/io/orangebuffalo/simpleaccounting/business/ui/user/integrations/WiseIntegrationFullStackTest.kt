@@ -30,7 +30,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should select accounts independently across currencies and profiles and update the active provider`(page: Page) {
+    fun `should create integration selecting accounts independently across currencies and profiles`(page: Page) {
         WiseApiMocks.setupAccountsWithSharedIds()
         page.authenticateViaCookie(preconditions.fry)
         page.openIntegrationsPage {
@@ -39,9 +39,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         }
         page.shouldBeWiseSetupPage {
             next.shouldBeDisabled()
-            token { input { fill(WiseApiMocks.TOKEN); shouldHaveAttribute("type", "password") } }
+            token { input { fill(WiseApiMocks.TOKEN); shouldHaveAttribute(name = "type", value = "password") } }
             reportRendering("integrations.wise-token")
-            page.withBlockedGqlApiResponse("verifyWiseToken", initiator = { next.click() }, blockedRequestSpec = {
+            page.withBlockedGqlApiResponse("listWiseAccounts", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Verifying token and loading accounts…")
                 reportRendering("integrations.wise-loading-accounts")
             })
@@ -82,10 +82,27 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         settings.workspaceId.shouldBe(preconditions.workspace.id)
         settings.token.shouldBe(WiseApiMocks.TOKEN)
         settings.accounts.shouldContainExactly(
-            WiseIntegrationAccount(101, 301, "USD"),
-            WiseIntegrationAccount(101, 301, "EUR"),
-            WiseIntegrationAccount(202, 401, "GBP"),
+            WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
+            WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
+            WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
         )
+    }
+
+    @Test
+    fun `should update accounts of the active provider using the saved credential`(page: Page) {
+        val settings = preconditions {
+            wiseIntegrationSettings(
+                workspace = preconditions.workspace,
+                token = WiseApiMocks.TOKEN,
+                accounts = setOf(
+                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
+                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
+                    WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
+                ),
+            )
+        }
+        WiseApiMocks.setupAccountsWithSharedIds()
+        page.authenticateViaCookie(preconditions.fry)
         page.openIntegrationsPage {
             status.shouldBeSuccess("active")
             reportRendering("integrations.active")
@@ -106,16 +123,16 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         updated.id.shouldBe(settings.id)
         updated.token.shouldBe(WiseApiMocks.TOKEN)
-        updated.accounts.shouldContainExactly(WiseIntegrationAccount(101, 301, "EUR"), WiseIntegrationAccount(202, 401, "GBP"))
+        updated.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
     }
 
     @Test
-    fun `should mark deleted saved accounts and revisit token step to replace the credential`(page: Page) {
+    fun `should mark deleted saved accounts and exclude them when saving`(page: Page) {
         preconditions {
             wiseIntegrationSettings(
                 workspace = preconditions.workspace,
                 token = WiseApiMocks.TOKEN,
-                accounts = setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")),
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")),
             )
         }
         WiseApiMocks.setupAccounts()
@@ -131,24 +148,46 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             accountsStep.shouldBeOpen()
             tokenStep.shouldBeCompleted()
             reportRendering("integrations.wise-update-deleted")
+            next.click()
+            status.shouldBeSuccess("Wise integration saved successfully.")
+            accountsStep.click()
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
+        }
+        val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+        settings.token.shouldBe(WiseApiMocks.TOKEN)
+        settings.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
+    }
+
+    @Test
+    fun `should revisit token step to replace the saved credential`(page: Page) {
+        preconditions {
+            wiseIntegrationSettings(
+                workspace = preconditions.workspace,
+                token = WiseApiMocks.TOKEN,
+                accounts = setOf(WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")),
+            )
+        }
+        WiseApiMocks.setupAccounts()
+        page.authenticateViaCookie(preconditions.fry)
+        page.openWiseSetupPage {
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
             tokenStep.click()
             tokenStep.shouldBeOpen()
             token { input.shouldHaveValue("") }
             reportRendering("integrations.wise-update-token")
             accountsStep.click()
-            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
             tokenStep.click()
             val replacementToken = "bender-replacement-token"
             WiseApiMocks.setupAccounts(token = replacementToken)
-            WiseApiMocks.removeJar(token = replacementToken)
             token { input.fill(replacementToken) }
             tokenStep.shouldBePending()
             accountsStep.shouldBeDisabled()
             next.click()
-            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
             tokenStep.shouldBeCompleted()
             accounts.account("USD").click()
-            page.withBlockedGqlApiResponse("saveWiseIntegration", initiator = { next.click() }, blockedRequestSpec = {
+            page.withBlockedGqlApiResponse("saveWiseIntegrationSettings", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Saving Wise integration…")
                 tokenStep.shouldBeDisabled()
                 accountsStep.shouldBeDisabled()
@@ -158,13 +197,14 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             accountsStep.click()
             accounts.shouldHaveExactData(
                 normalAccounts[0].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[1],
                 normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
             )
             accountsStep.shouldBeCompleted()
         }
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         settings.token.shouldBe("bender-replacement-token")
-        settings.accounts.shouldContainExactly(WiseIntegrationAccount(101, 301, "USD"), WiseIntegrationAccount(202, 401, "GBP"))
+        settings.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
     }
 
     @Test
