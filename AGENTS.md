@@ -20,8 +20,9 @@ Refresh approved lessons and review cumulative session changes against the origi
 in earlier-turn code. Duplicate feedback and ordinary continuation never reset limits. Exhausting a turn's review rounds
 does not stop implementation: finish the required fixes and validation, then report the exhausted review limit,
 receipt status and any remaining issues. Ask for user direction only for genuine ambiguity or external blockers.
-Every implementation and review agent must respect the approved lessons in `.harness/knowledge.json`; OpenCode's
-repository plugin injects their content into each agent request. If the controller is unavailable, report that explicitly
+Every implementation and review agent must respect the active rules in `.harness/prevention.json` before coding;
+identify relevant constraints in the implementation approach. OpenCode's repository plugin injects the complete catalog
+into each agent request. If the controller is unavailable, report that explicitly
 and do not claim automatic review or learning ran. These workflows never authorize publishing or merging.
 
 ## Commits and Pull Requests

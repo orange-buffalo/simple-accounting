@@ -23,6 +23,8 @@ test('plugin registers executable tools and injects knowledge before every model
     const event = { sessionID: 'ses_fry', system: [] };
     await hooks.get(kind)(event);
     assert.match(event.system[0].text, /Approved repository lessons/);
+    assert.match(event.system[0].text, /BEFORE implementation/);
+    assert.match(event.system[0].text, /live-consumer-migration/);
   }
 });
 

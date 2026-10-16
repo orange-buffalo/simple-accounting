@@ -1,0 +1,313 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "id": "diagnose-before-learning",
+      "category": "learning",
+      "appliesWhen": "Investigating an incorrect implementation or human correction",
+      "instruction": "Diagnose missing knowledge, failure to apply existing guidance, ambiguous or new requirements, or execution/tooling failure. Reuse or clarify existing rules or improve the workflow/automated safeguard instead of appending a paraphrase for every correction.",
+      "reason": "More instructions do not cure failures to apply existing knowledge."
+    },
+    {
+      "id": "curate-scoped-rules",
+      "category": "learning",
+      "appliesWhen": "Updating accumulated implementation experience",
+      "instruction": "Keep actionable scoped rules with brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and preserve exceptions and still-applicable experience. Check analogous and non-applicable cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
+      "reason": "A coherent current guide prevents mistakes better than an accumulating history."
+    },
+    {
+      "id": "measure-real-outcomes",
+      "category": "learning",
+      "appliesWhen": "Assessing whether accumulated experience improves quality",
+      "instruction": "Compare recurring mistakes, substantive user corrections, initial-review defects and false alarms across comparable tasks. Distinguish first-implementation quality from review-assisted delivery; verification or a larger catalog is not measured improvement.",
+      "reason": "The goal is fewer wrong implementations and user corrections, not an audit trail."
+    },
+    {
+      "id": "live-consumer-migration",
+      "category": "workflow",
+      "appliesWhen": "Changing files consumed by a running plugin or hook",
+      "instruction": "Stage the new format separately, make the consumer compatible first, and establish reload behavior before switching live data. Preserve a compatible bridge for already-loaded hooks and verify migration completeness before retiring the old format.",
+      "reason": "A live hook can reject new data before the updated loader has been activated."
+    },
+    {
+      "id": "independent-expectations",
+      "category": "testing",
+      "appliesWhen": "Production mappings and third-party reference data",
+      "instruction": "Use independent representative expected values, including an excluded value for filtered data. Do not reproduce production registry/filtering logic or maintain exhaustive provider lists unless exhaustive membership is the contract.",
+      "reason": "Mirroring implementation can reproduce its defect; exhaustive external fixtures add maintenance."
+    },
+    {
+      "id": "api-test-structure",
+      "category": "testing",
+      "appliesWhen": "Adding GraphQL API tests",
+      "instruction": "When adding API tests, compare neighboring tests and preserve their authorization/business-flow nesting conventions. Organize GraphQL tests by mutation and by reasonable query hierarchy level rather than one broad API test class.",
+      "reason": "Consistent boundaries expose missing business and authorization scenarios."
+    },
+    {
+      "id": "nullable-wire-input",
+      "category": "testing",
+      "appliesWhen": "Testing optional API input",
+      "instruction": "Model nullable optional API input as null and test an actual empty string separately; never equate null with omission of a wire input unless the request construction proves omission.",
+      "reason": "Null, empty and omitted wire fields have different semantics."
+    },
+    {
+      "id": "component-test-ownership",
+      "category": "testing",
+      "appliesWhen": "Testing reusable component behavior",
+      "instruction": "Keep reusable interaction-state coverage in the component-specific Kotlin full-stack test and page happy paths focused on workflow and persistence. A direction to move one component's coverage is not a repository-wide prohibition on other test frameworks.",
+      "reason": "Duplicated component cases make consuming page tests expensive and brittle."
+    },
+    {
+      "id": "transient-notifications",
+      "category": "testing",
+      "appliesWhen": "Submissions with transient notifications and persistent field errors",
+      "instruction": "For submissions producing transient notifications and persistent field errors, assert the notification first without waiting for it to disappear.",
+      "reason": "Checking persistent state first can miss a transient notification."
+    },
+    {
+      "id": "dependent-input-transitions",
+      "category": "frontend",
+      "appliesWhen": "Input changes that invalidate dependent values and start async work",
+      "instruction": "On dependent-input changes, reset at transition start; use finally only for local cleanup, let shared error handling surface failures, and guard stale asynchronous results.",
+      "reason": "Late responses or old selections can overwrite current input state."
+    },
+    {
+      "id": "form-component-binding",
+      "category": "frontend",
+      "appliesWhen": "Implementing form components",
+      "instruction": "Form components must use the standard SaFormItemInternal v-model binding and local value state instead of casting/indexing injected form values.",
+      "reason": "Standard binding preserves the form contract and type safety."
+    },
+    {
+      "id": "selector-rationale",
+      "category": "testing",
+      "appliesWhen": "Explaining a questioned test-selector change",
+      "instruction": "When a test-selector change is questioned, provide its concrete DOM/rendering rationale in the review report; add source comments only when the code itself needs non-obvious durable explanation.",
+      "reason": "A report explanation and a source comment serve different purposes."
+    },
+    {
+      "id": "explicit-commit-precedence",
+      "category": "workflow",
+      "appliesWhen": "Committing implementation or feedback corrections",
+      "instruction": "Commit completed relevant turns separately by default, including prior progress before feedback. Explicit no-commit instructions override that default and are not a workflow defect. Scoped authorization covers only that scope, not later corrections or publication.",
+      "reason": "Workflow defaults must respect explicit user control."
+    },
+    {
+      "id": "feedback-review-turns",
+      "category": "workflow",
+      "appliesWhen": "Resuming review after human feedback",
+      "instruction": "Each distinct feedback turn has up to two review rounds with fresh round, repair, time and cost limits. Refresh knowledge and review cumulative changes against the original base, including analogous earlier-turn issues. Preserve cumulative usage and prior state. Whitespace-equivalent duplicate feedback and ordinary continuation never reset limits.",
+      "reason": "Distinct feedback needs current review without evading limits through duplicate requests."
+    },
+    {
+      "id": "feedback-completeness",
+      "category": "workflow",
+      "appliesWhen": "Responding to human corrections or preferences",
+      "instruction": "Investigate every item, including new preferences. Preserve exact comments and stable refs across follow-ups; label summaries and carry unresolved items forward. Ask with evidence and options about genuine conflicts rather than dismissing feedback. Report ref, file:line, initial comment, correction and active rule/remedy or unresolved status.",
+      "reason": "Partial handling leaves known mistakes unresolved."
+    },
+    {
+      "id": "precise-evidence",
+      "category": "workflow",
+      "appliesWhen": "Explaining behavior or learning from corrections",
+      "instruction": "State behavioral evidence precisely, distinguish source documentation from reported rationale and null from omitted wire input, and retain workflow defaults while honoring explicit user overrides.",
+      "reason": "Unsupported diagnoses produce unreliable prevention."
+    },
+    {
+      "id": "active-prevention",
+      "category": "learning",
+      "appliesWhen": "Starting implementation or publishing learned guidance",
+      "instruction": "Apply the complete active catalog before coding and identify relevant constraints in the implementation approach. Inject all distilled rules; never silently truncate or leave accepted preventive instructions undeployed. Use the same active projection for validation and size checks. Feedback reports identify active rule IDs and the catalog path; verification is not measured improvement.",
+      "reason": "Prevention before coding is stronger than catching the same defect during review."
+    },
+    {
+      "id": "server-cross-field-invariants",
+      "category": "backend",
+      "appliesWhen": "API writes whose values depend on another field, including residency/currency",
+      "instruction": "Enforce cross-field constraints on the server and add negative API tests proving rejected input leaves persistence unchanged. Preserve authorization and optimistic-version precedence before edit validation and permit repairs of legacy inconsistent records.",
+      "reason": "Direct API callers bypass UI filtering."
+    },
+    {
+      "id": "typed-provider-config",
+      "category": "backend",
+      "appliesWhen": "Defining application or integration configuration",
+      "instruction": "Use documented typed @ConfigurationProperties rooted under sa, with provider settings under sa.integrations.<provider>. Do not add ad-hoc @Value properties.",
+      "reason": "Typed domain-owned configuration keeps settings consistent."
+    },
+    {
+      "id": "provider-api-versions",
+      "category": "backend",
+      "appliesWhen": "Providers with multiple API versions",
+      "instruction": "Keep third-party API origins version-neutral when multiple provider API versions must coexist; select the supported version explicitly per endpoint.",
+      "reason": "A version embedded in the origin prevents mixed-version endpoints."
+    },
+    {
+      "id": "workspace-integrations-api",
+      "category": "backend",
+      "appliesWhen": "Exposing workspace-owned integration metadata in GraphQL",
+      "instruction": "Nest metadata under Workspace.integrations.<provider>.<data>, not standalone status/provider root queries. Name the API and root DTO documentation after the provider-neutral integrations domain; reserve provider names for provider-scoped types. Describe third-party IDs as opaque unless clients should interpret them.",
+      "reason": "Workspace ownership and extensible naming prevent flat first-provider-specific APIs."
+    },
+    {
+      "id": "business-error-mapping",
+      "category": "backend",
+      "appliesWhen": "Mapping expected business failures",
+      "instruction": "Map expected business failures declaratively with `@BusinessError` and dedicated exceptions; reserve catches for specific infrastructure failures that require local handling such as credential-safe sanitization.",
+      "reason": "Broad catches hide unexpected defects."
+    },
+    {
+      "id": "review-exhaustion-delivery",
+      "category": "workflow",
+      "appliesWhen": "Exhausting automated review rounds",
+      "instruction": "A two-round review limit caps automated review, not delivery work: after exhaustion, finish required implementation and validation, report the exhausted limit, receipt status, and remaining issues, and seek direction only for genuine ambiguity or external blockers.",
+      "reason": "A review budget caps automation, not delivery of required fixes."
+    },
+    {
+      "id": "integration-service-boundary",
+      "category": "backend",
+      "appliesWhen": "Implementing provider clients and configuration",
+      "instruction": "Keep provider clients internal to their business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning business integration when it is not shared infrastructure.",
+      "reason": "The owning service prevents provider details leaking into APIs."
+    },
+    {
+      "id": "page-navigation-tests",
+      "category": "testing",
+      "appliesWhen": "Designing page and menu full-stack tests",
+      "instruction": "Do not maintain UI tests for unsupported direct routes when dedicated menu and API authorization coverage own those concerns. Keep navigation clicks in dedicated menu tests; page tests should open their target pages directly.",
+      "reason": "Repeated navigation obscures the page business workflow."
+    },
+    {
+      "id": "static-rendering",
+      "category": "testing",
+      "appliesWhen": "Validating static integration cards and instructional content",
+      "instruction": "Use rendering reports for static integration-card and instructional content; retain source assertions for interactive and stateful behavior only.",
+      "reason": "Rendering review avoids assertions duplicating static copy."
+    },
+    {
+      "id": "test-helper-placement",
+      "category": "testing",
+      "appliesWhen": "Adding stubs, page objects and utilities",
+      "instruction": "Name test stubbing helpers as actions; avoid getter-like names for setup operations. Keep one-page test wrappers in their page object; reserve shared component infrastructure for reusable components. Add test helpers beside equivalent existing utilities rather than creating parallel utility files.",
+      "reason": "Clear ownership prevents parallel utility hierarchies."
+    },
+    {
+      "id": "remove-unnecessary-tests",
+      "category": "testing",
+      "appliesWhen": "User-directed removal of unnecessary tests",
+      "instruction": "Remove tests explicitly deemed unnecessary while preserving the independently required production safety behavior.",
+      "reason": "Removing redundant coverage does not revoke production requirements."
+    },
+    {
+      "id": "provider-service-tests",
+      "category": "testing",
+      "appliesWhen": "Testing internal provider clients",
+      "instruction": "Test internal provider clients through their owning service and a WireMock server, not through direct client test classes.",
+      "reason": "Service boundaries cover observable integration behavior."
+    },
+    {
+      "id": "server-access-boundary",
+      "category": "frontend",
+      "appliesWhen": "Adding client-side access gates",
+      "instruction": "Do not add unexplained client-side access gates where server authorization is the authoritative boundary.",
+      "reason": "UI gating is not authorization."
+    },
+    {
+      "id": "page-owned-components",
+      "category": "frontend",
+      "appliesWhen": "Non-reused page behavior such as an integration wizard",
+      "instruction": "Keep single-use behavior and styles in the owning Vue page/component; do not retain a pass-through wrapper unless it has reusable or independent value. Use shared styles only when genuinely shared.",
+      "reason": "Pass-through layers and scattered styles make behavior harder to follow."
+    },
+    {
+      "id": "lazy-graphql-fields",
+      "category": "backend",
+      "appliesWhen": "GraphQL fields requiring extra computation or database access",
+      "instruction": "For GraphQL properties requiring additional computation or database access, defer that work to the selected field resolver; namespace DTO construction must remain lightweight.",
+      "reason": "Eager namespace construction spends resources for unselected fields."
+    },
+    {
+      "id": "workspace-page-lifecycle",
+      "category": "frontend",
+      "appliesWhen": "Implementing fixed-workspace pages",
+      "instruction": "Do not subscribe fixed-workspace page views to workspace-change events intended for persistent application chrome; avoid wrappers whose only purpose is that redundant lifecycle.",
+      "reason": "Redundant subscriptions introduce stale-state paths."
+    },
+    {
+      "id": "unmerged-migrations",
+      "category": "backend",
+      "appliesWhen": "Considering follow-up database migrations",
+      "instruction": "Before adding a follow-up migration for unmerged work, establish the predecessor migration's merge/release status; amend the unmerged migration when appropriate instead of creating a redundant successor.",
+      "reason": "Unreleased migrations can often be corrected directly."
+    },
+    {
+      "id": "real-preconditions",
+      "category": "testing",
+      "appliesWhen": "Setting up backend and full-stack tests",
+      "instruction": "Use real services and persistence-backed preconditions/lazyPreconditions factories; never access aggregateTemplate directly for setup. Use named arguments when supplying multiple parameters and defaults for unrelated values. Mock only unavoidable external boundaries; prefer persistence to repository mocks/spies. On distinct feedback turns audit cumulative branch changes for analogous issues; missing audit prevents a clean receipt.",
+      "reason": "Realistic setup exercises application boundaries instead of implementation details."
+    },
+    {
+      "id": "graphql-laziness-tests",
+      "category": "testing",
+      "appliesWhen": "Testing GraphQL lazy fields",
+      "instruction": "Do not add tests for GraphQL framework-guaranteed field laziness; test application behavior and retain lazy resolver structure where required.",
+      "reason": "Framework-mechanics tests add coupling without application coverage."
+    },
+    {
+      "id": "exact-ui-collections",
+      "category": "testing",
+      "appliesWhen": "Asserting and interacting with dynamic repeated UI items",
+      "instruction": "For dynamic repeated UI items, page objects must expose retrying typed snapshots and tests must assert exact ordered collections so unexpected items fail the assertion. After exhaustive collection assertions, identify an item by one stable field; first assert exactly one typed item matches it, then assert exactly one UI locator and interact.",
+      "reason": "Partial assertions and first-match selection hide unexpected or duplicate items."
+    },
+    {
+      "id": "frontend-error-ownership",
+      "category": "frontend",
+      "appliesWhen": "Handling GraphQL/API errors in pages",
+      "instruction": "Rely on the global handler for generic GraphQL/API failures; add page-local handling only for business errors whose recovery or presentation is page-specific.",
+      "reason": "Duplicate handlers create inconsistent or suppressed feedback."
+    },
+    {
+      "id": "setup-persistence",
+      "category": "testing",
+      "appliesWhen": "Testing successful credential-backed setup",
+      "instruction": "A successful credential-backed setup flow must assert every required persisted setting, including the credential where the test fixture can safely inspect it. Merge overlapping full-stack success scenarios when identical provider mocking and setup flow differ only in additional assertions; retain distinct workflows only for independently meaningful behavior.",
+      "reason": "UI success can hide incomplete persistence; overlapping journeys waste validation time."
+    },
+    {
+      "id": "ordinary-vue-async",
+      "category": "frontend",
+      "appliesWhen": "Ordinary page-local Vue async flows",
+      "instruction": "Do not add unmount/disposal guards to ordinary page-local Vue async flows unless a concrete lifecycle requirement demonstrates that framework lifecycle handling is insufficient; keep ordinary error handling intact.",
+      "reason": "Speculative lifecycle machinery adds complexity; dependent-input races remain a distinct concern."
+    },
+    {
+      "id": "semantic-wizard-steps",
+      "category": "frontend",
+      "appliesWhen": "Representing multi-step UI state",
+      "instruction": "Represent multi-step UI state with semantic named constants rather than raw numeric indices, while preserving the component library's required index convention.",
+      "reason": "Named steps improve readability without changing library behavior."
+    },
+    {
+      "id": "credential-safe-diagnostics",
+      "category": "backend",
+      "appliesWhen": "Diagnosing credential-backed provider setup",
+      "instruction": "For credential-backed third-party setup, provide bounded credential-redacted server diagnostics identifying the endpoint and either HTTP/provider failure response, empty or malformed response, or transport no-response cause; retain sanitized public business errors.",
+      "reason": "Useful diagnostics must locate failures without disclosing credentials."
+    },
+    {
+      "id": "no-log-assertions",
+      "category": "testing",
+      "appliesWhen": "Testing integration diagnostics",
+      "instruction": "Do not add tests that assert logging or log output. Retain production bounded credential-redacted diagnostics where required, and test observable service behavior rather than diagnostic log emission.",
+      "reason": "Tests should cover service behavior rather than diagnostic emission."
+    },
+    {
+      "id": "wizard-status-layout",
+      "category": "frontend",
+      "appliesWhen": "Changing Wise setup status presentation",
+      "instruction": "Wizard loading status panels must use the same centered result layout as completed success panels; inspect rendered loading states as well as completed states when changing wizard status presentation.",
+      "reason": "Loading and completed states need visual consistency and accessible announcements."
+    }
+  ]
+}
