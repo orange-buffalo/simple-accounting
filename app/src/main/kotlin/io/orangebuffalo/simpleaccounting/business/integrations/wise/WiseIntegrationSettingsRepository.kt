@@ -4,4 +4,5 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 
 interface WiseIntegrationSettingsRepository : AbstractEntityRepository<WiseIntegrationSettings> {
     fun existsByWorkspaceId(workspaceId: String): Boolean
+    fun findByWorkspaceId(workspaceId: String): WiseIntegrationSettings?
 }

@@ -5,6 +5,8 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.WizardStep.Companion.wizardStep
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
@@ -25,6 +27,8 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     val back = components.buttonByText("Back")
     val accounts = AccountCards(components)
     val status = components.statusLabel()
+    val tokenStep = components.wizardStep("Personal token")
+    val accountsStep = components.wizardStep("Select accounts")
 
     companion object {
         fun Page.shouldBeWiseSetupPage(spec: WiseSetupPage.() -> Unit = {}) {
@@ -59,7 +63,8 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
                     name: card.querySelectorAll('span')[1].textContent,
                     accountLabel: card.querySelector('small').textContent,
                     selected: card.getAttribute('aria-pressed') === 'true',
-                    selectionLabel: card.querySelectorAll('span')[2]?.textContent ?? null
+                    selectionLabel: Array.from(card.children).find(child => child.tagName === 'SPAN' && child.textContent.startsWith('✓'))?.textContent ?? null,
+                    deleted: card.disabled
                 })))
             """) as String
             return Json.decodeFromString(json)
@@ -84,18 +89,21 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
         val accountLabel: String,
         val selected: Boolean = false,
         val selectionLabel: String? = null,
+        val deleted: Boolean = false,
     )
 
     @UiComponentMarker
     class AccountCard(private val card: Locator) {
+        fun shouldBeDeleted() = card.shouldBeDisabled()
         fun shouldBeUnselected() {
-            card.shouldHaveAttribute("aria-pressed", "false")
+            card.shouldHaveAttribute(name = "aria-pressed", value = "false")
         }
 
         fun shouldBeSelected() {
-            card.shouldHaveAttribute("aria-pressed", "true")
+            card.shouldHaveAttribute(name = "aria-pressed", value = "true")
         }
 
         fun click() = card.click()
     }
+
 }

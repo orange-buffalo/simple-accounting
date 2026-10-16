@@ -7,18 +7,18 @@ object WiseApiMocks {
 
     fun configProperties() = arrayOf("sa.integrations.wise.api-base-url=${ThirdPartyApisMocks.server.baseUrl()}/wise")
 
-    fun setupAccounts() {
-        stub("/profiles", """[
+    fun setupAccounts(token: String = TOKEN) {
+        stub(path = "/profiles", response = """[
             {"id":101,"type":"PERSONAL","fullName":"Philip J. Fry","extra":"ignored"},
             {"id":202,"type":"BUSINESS","fullName":"Planet Express"}
-        ]""")
-        stub("/profiles/101/balances?types=STANDARD,SAVINGS", """[
+        ]""", token = token)
+        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
             {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":42}},
             {"id":302,"currency":"EUR","type":"SAVINGS","name":"Slurm fund"}
-        ]""")
-        stub("/profiles/202/balances?types=STANDARD,SAVINGS", """[
+        ]""", token = token)
+        stub(path = "/profiles/202/balances?types=STANDARD,SAVINGS", response = """[
             {"id":401,"currency":"GBP","type":"STANDARD","name":null}
-        ]""")
+        ]""", token = token)
     }
 
     fun rejectToken(status: Int = 401) {
@@ -28,7 +28,7 @@ object WiseApiMocks {
 
     fun setupAccountsWithSharedIds() {
         setupAccounts()
-        stub("/profiles/101/balances?types=STANDARD,SAVINGS", """[
+        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
             {"id":301,"currency":"USD","type":"STANDARD"},
             {"id":301,"currency":"EUR","type":"STANDARD"}
         ]""")
@@ -40,13 +40,19 @@ object WiseApiMocks {
     }
 
     fun noAccounts() {
-        stub("/profiles", """[{"id":101,"fullName":"Philip J. Fry"}]""")
-        stub("/profiles/101/balances?types=STANDARD,SAVINGS", "[]")
+        stub(path = "/profiles", response = """[{"id":101,"fullName":"Philip J. Fry"}]""")
+        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = "[]")
     }
 
-    private fun stub(path: String, response: String) {
+    fun removeJar(token: String = TOKEN) {
+        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
+            {"id":301,"currency":"USD","type":"STANDARD"}
+        ]""", token = token)
+    }
+
+    private fun stub(path: String, response: String, token: String = TOKEN) {
         ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4$path"))
-            .withHeader("Authorization", equalTo("Bearer $TOKEN"))
+            .withHeader("Authorization", equalTo("Bearer $token"))
             .willReturn(okJson(response)))
     }
 

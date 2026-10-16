@@ -34,6 +34,6 @@ class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
         private val container = components.page.locator(".integration-cards")
 
         fun setupWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Setup →").setExact(true)).click()
-        fun viewWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("View →").setExact(true)).click()
+        fun updateWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Update →").setExact(true)).click()
     }
 }

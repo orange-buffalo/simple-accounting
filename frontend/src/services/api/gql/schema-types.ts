@@ -869,6 +869,14 @@ export type InvoicesConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Possible business error codes for the listWiseAccounts operation. */
+export enum ListWiseAccountsErrorCodes {
+  /** Wise rejected the personal token. */
+  InvalidToken = 'INVALID_TOKEN',
+  /** Wise accounts could not be loaded. */
+  Unavailable = 'UNAVAILABLE'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Activates a user account using the provided token and sets the user's password. The token is invalidated after successful activation. Accessible by anonymous users. */
@@ -941,6 +949,8 @@ export type Mutation = {
   editWorkspace: Workspace;
   /** Revokes the refresh token and clears its cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
+  /** Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential. */
+  listWiseAccounts: WiseAccountsResult;
   /** Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails. */
   refreshAccessToken: RefreshAccessTokenResponse;
   /** Removes a standalone document from the specified workspace. */
@@ -949,8 +959,8 @@ export type Mutation = {
   revokeWorkspaceAccessToken: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
-  /** Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token. */
-  setupWiseIntegration: WiseSetupResult;
+  /** Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential. */
+  saveWiseIntegrationSettings: WiseSettingsSaveResult;
   /** Starts migration of documents that are not stored in the current upload storage. */
   startDocumentsMigration: DocumentsMigration;
   /** Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow. */
@@ -961,8 +971,6 @@ export type Mutation = {
   unlinkOAuthIdentity: UnlinkOAuthIdentityResponse;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
-  /** Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token. */
-  verifyWiseIntegrationToken: WiseAccountsResult;
 };
 
 
@@ -1290,6 +1298,12 @@ export type MutationEditWorkspaceArgs = {
 };
 
 
+export type MutationListWiseAccountsArgs = {
+  token?: InputMaybe<Scalars['String']['input']>;
+  workspaceId: Scalars['String']['input'];
+};
+
+
 export type MutationRemoveStandaloneDocumentArgs = {
   removeDocumentIfUnused?: InputMaybe<Scalars['Boolean']['input']>;
   standaloneDocumentId: Scalars['String']['input'];
@@ -1307,9 +1321,9 @@ export type MutationSaveSharedWorkspaceArgs = {
 };
 
 
-export type MutationSetupWiseIntegrationArgs = {
+export type MutationSaveWiseIntegrationSettingsArgs = {
   accounts: Array<WiseAccountInput>;
-  token: Scalars['String']['input'];
+  token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1335,12 +1349,6 @@ export type MutationUpdateProfileArgs = {
   documentsStorage?: InputMaybe<Scalars['String']['input']>;
   language: Scalars['String']['input'];
   locale: Scalars['String']['input'];
-};
-
-
-export type MutationVerifyWiseIntegrationTokenArgs = {
-  token: Scalars['String']['input'];
-  workspaceId: Scalars['String']['input'];
 };
 
 /** The outcome of a completed OAuth2 flow. */
@@ -1615,10 +1623,8 @@ export enum SaveSharedWorkspaceErrorCodes {
   InvalidWorkspaceAccessToken = 'INVALID_WORKSPACE_ACCESS_TOKEN'
 }
 
-/** Possible business error codes for the setupWiseIntegration operation. */
-export enum SetupWiseIntegrationErrorCodes {
-  /** Wise is already active for this workspace. */
-  AlreadyActive = 'ALREADY_ACTIVE',
+/** Possible business error codes for the saveWiseIntegrationSettings operation. */
+export enum SaveWiseIntegrationSettingsErrorCodes {
   /** The selected Wise accounts are invalid or have changed. */
   InvalidAccounts = 'INVALID_ACCOUNTS',
   /** Wise rejected the personal token. */
@@ -1793,26 +1799,22 @@ export type ValidationErrorParam = {
   value: Scalars['String']['output'];
 };
 
-/** Possible business error codes for the verifyWiseIntegrationToken operation. */
-export enum VerifyWiseIntegrationTokenErrorCodes {
-  /** Wise rejected the personal token. */
-  InvalidToken = 'INVALID_TOKEN',
-  /** Wise accounts could not be loaded. */
-  Unavailable = 'UNAVAILABLE'
-}
-
 /** A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values. */
 export type WiseAccountGqlDto = {
   __typename?: 'WiseAccountGqlDto';
   accountId: Scalars['String']['output'];
   currency: Scalars['String']['output'];
+  /** Whether the saved account is no longer available with this credential and cannot be selected. */
+  deleted: Scalars['Boolean']['output'];
   name?: Maybe<Scalars['String']['output']>;
   profileId: Scalars['String']['output'];
   profileName: Scalars['String']['output'];
   type: Scalars['String']['output'];
+  /** Whether this account is part of the saved configuration. */
+  usedByIntegration: Scalars['Boolean']['output'];
 };
 
-/** A Wise account selection. Identifiers are opaque values returned by token verification. */
+/** A Wise account to use in the integration. Identifiers are opaque values returned by listWiseAccounts. */
 export type WiseAccountInput = {
   accountId: Scalars['String']['input'];
   currency: Scalars['String']['input'];
@@ -1833,8 +1835,8 @@ export type WiseIntegrationGqlDto = {
 };
 
 /** Whether the integration was saved successfully. */
-export type WiseSetupResult = {
-  __typename?: 'WiseSetupResult';
+export type WiseSettingsSaveResult = {
+  __typename?: 'WiseSettingsSaveResult';
   success: Scalars['Boolean']['output'];
 };
 
