@@ -7,14 +7,12 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountSelection
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAlreadyActiveException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidAccountsException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -25,16 +23,17 @@ class IntegrationsGqlApi {
     class VerifyWiseIntegrationTokenMutation(
         private val wise: WiseIntegrationService,
     ) : Mutation {
-        @GraphQLDescription("Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token.")
+        @GraphQLDescription("Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         @BusinessError(WiseInvalidTokenException::class, "INVALID_TOKEN", "Wise rejected the personal token.")
         @BusinessError(WiseUnavailableException::class, "UNAVAILABLE", "Wise accounts could not be loaded.")
         fun verifyWiseIntegrationToken(
             workspaceId: String,
-            @NotBlank @Size(max = 2000) token: String,
+            @Size(max = 2000) token: String? = null,
         ): WiseAccountsResult {
-            return WiseAccountsResult(accounts = wise.verifyToken(workspaceId, token).map {
-                WiseAccountGqlDto(it.profileId.toString(), it.profileName, it.accountId.toString(), it.currency, it.name, it.type)
+            return WiseAccountsResult(accounts = wise.loadAccounts(workspaceId, token).map {
+                val account = it.account
+                WiseAccountGqlDto(account.profileId.toString(), account.profileName, account.accountId.toString(), account.currency, account.name, account.type, it.selected, it.deleted)
             })
         }
     }
@@ -44,15 +43,14 @@ class IntegrationsGqlApi {
     class SetupWiseIntegrationMutation(
         private val wise: WiseIntegrationService,
     ) : Mutation {
-        @GraphQLDescription("Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token.")
+        @GraphQLDescription("Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         @BusinessError(WiseInvalidTokenException::class, "INVALID_TOKEN", "Wise rejected the personal token.")
         @BusinessError(WiseUnavailableException::class, "UNAVAILABLE", "Wise accounts could not be loaded.")
-        @BusinessError(WiseAlreadyActiveException::class, "ALREADY_ACTIVE", "Wise is already active for this workspace.")
         @BusinessError(WiseInvalidAccountsException::class, "INVALID_ACCOUNTS", "The selected Wise accounts are invalid or have changed.")
         fun setupWiseIntegration(
             workspaceId: String,
-            @NotBlank @Size(max = 2000) token: String,
+            @Size(max = 2000) token: String? = null,
             @Valid @Size(min = 1) accounts: List<WiseAccountInput>,
         ): WiseSetupResult {
             wise.setup(workspaceId, token, accounts.map { WiseAccountSelection(it.profileId, it.accountId, it.currency) })
@@ -76,6 +74,10 @@ data class WiseAccountGqlDto(
     val currency: String,
     val name: String?,
     val type: String,
+    @GraphQLDescription("Whether this account is part of the saved configuration.")
+    val selected: Boolean,
+    @GraphQLDescription("Whether the saved account is no longer available with this credential and cannot be selected.")
+    val deleted: Boolean,
 )
 
 @GraphQLDescription("Workspace-scoped integration providers.")

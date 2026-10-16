@@ -17,7 +17,6 @@ import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayme
 import Reporting from '@/pages/reporting/Reporting.vue';
 import Integrations from '@/pages/integrations/Integrations.vue';
 import WiseSetup from '@/pages/integrations/WiseSetup.vue';
-import WiseView from '@/pages/integrations/WiseView.vue';
 import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
 import DocumentsMigration from '@/pages/documents/DocumentsMigration.vue';
 import EditStandaloneDocument from '@/pages/documents/EditStandaloneDocument.vue';
@@ -280,11 +279,6 @@ export default function setupRouter() {
             path: 'settings/integrations/wise/setup',
             name: 'wise-setup',
             component: WiseSetup,
-          },
-          {
-            path: 'settings/integrations/wise',
-            name: 'wise-view',
-            component: WiseView,
           },
           {
             path: 'settings/workspaces',

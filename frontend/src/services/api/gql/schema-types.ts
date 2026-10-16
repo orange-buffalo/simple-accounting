@@ -949,7 +949,7 @@ export type Mutation = {
   revokeWorkspaceAccessToken: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
   saveSharedWorkspace: Workspace;
-  /** Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token. */
+  /** Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential. */
   setupWiseIntegration: WiseSetupResult;
   /** Starts migration of documents that are not stored in the current upload storage. */
   startDocumentsMigration: DocumentsMigration;
@@ -961,7 +961,7 @@ export type Mutation = {
   unlinkOAuthIdentity: UnlinkOAuthIdentityResponse;
   /** Updates the current user profile information. */
   updateProfile: UserProfile;
-  /** Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token. */
+  /** Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential. */
   verifyWiseIntegrationToken: WiseAccountsResult;
 };
 
@@ -1309,7 +1309,7 @@ export type MutationSaveSharedWorkspaceArgs = {
 
 export type MutationSetupWiseIntegrationArgs = {
   accounts: Array<WiseAccountInput>;
-  token: Scalars['String']['input'];
+  token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1339,7 +1339,7 @@ export type MutationUpdateProfileArgs = {
 
 
 export type MutationVerifyWiseIntegrationTokenArgs = {
-  token: Scalars['String']['input'];
+  token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1617,8 +1617,6 @@ export enum SaveSharedWorkspaceErrorCodes {
 
 /** Possible business error codes for the setupWiseIntegration operation. */
 export enum SetupWiseIntegrationErrorCodes {
-  /** Wise is already active for this workspace. */
-  AlreadyActive = 'ALREADY_ACTIVE',
   /** The selected Wise accounts are invalid or have changed. */
   InvalidAccounts = 'INVALID_ACCOUNTS',
   /** Wise rejected the personal token. */
@@ -1806,9 +1804,13 @@ export type WiseAccountGqlDto = {
   __typename?: 'WiseAccountGqlDto';
   accountId: Scalars['String']['output'];
   currency: Scalars['String']['output'];
+  /** Whether the saved account is no longer available with this credential and cannot be selected. */
+  deleted: Scalars['Boolean']['output'];
   name?: Maybe<Scalars['String']['output']>;
   profileId: Scalars['String']['output'];
   profileName: Scalars['String']['output'];
+  /** Whether this account is part of the saved configuration. */
+  selected: Scalars['Boolean']['output'];
   type: Scalars['String']['output'];
 };
 

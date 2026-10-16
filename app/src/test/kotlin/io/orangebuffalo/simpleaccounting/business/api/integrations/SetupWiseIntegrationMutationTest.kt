@@ -111,10 +111,8 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
         fun `should reject blank tokens and empty account selections without contacting Wise`() {
             for (token in listOf("", " ")) {
                 client.graphqlMutation { setup(token = token) }
-                    .from(preconditions.fry).executeAndVerifyValidationError(
-                        violationPath = "token", error = "MustNotBeBlank", message = "must not be blank",
-                        path = "setupWiseIntegration",
-                    )
+                    .from(preconditions.fry)
+                    .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_TOKEN", path = "setupWiseIntegration")
             }
             client.graphqlMutation { setup(emptyList()) }.from(preconditions.fry)
                 .executeAndVerifyValidationError(
@@ -127,7 +125,7 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
         }
 
         @Test
-        fun `should save only selected accounts and reject repeated activation without changing state`() {
+        fun `should update selected accounts with the saved credential and replace the credential`() {
             WiseApiMocks.setupAccounts()
             client.graphqlMutation { setup() }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("setupWiseIntegration" to setupResult(true))
@@ -135,12 +133,39 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
             persisted.workspaceId.shouldBe(preconditions.workspace.id)
             persisted.token.shouldBe(WiseApiMocks.TOKEN)
             persisted.accounts.shouldBe(setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")))
-            client.graphqlMutation { setup(token = "bender-replacement-token") }.from(preconditions.fry)
-                .executeAndVerifyBusinessErrorCode(errorCode = "ALREADY_ACTIVE", path = "setupWiseIntegration")
-            val unchanged = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            unchanged.id.shouldBe(persisted.id)
-            unchanged.token.shouldBe(WiseApiMocks.TOKEN)
-            unchanged.accounts.shouldBe(setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")))
+            val selection = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD"))
+            client.graphqlMutation { setup(selected = selection, token = null) }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("setupWiseIntegration" to setupResult(true))
+            val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+            updated.id.shouldBe(persisted.id)
+            updated.token.shouldBe(WiseApiMocks.TOKEN)
+            updated.accounts.shouldBe(setOf(WiseIntegrationAccount(101, 301, "USD")))
+
+            val replacementToken = "bender-replacement-token"
+            WiseApiMocks.setupAccounts(token = replacementToken)
+            client.graphqlMutation { setup(token = replacementToken) }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("setupWiseIntegration" to setupResult(true))
+            val replaced = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+            replaced.id.shouldBe(persisted.id)
+            replaced.token.shouldBe(replacementToken)
+            replaced.accounts.shouldBe(setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")))
+        }
+
+        @Test
+        fun `should reject removed accounts and invalid replacement tokens without changing saved settings`() {
+            WiseApiMocks.setupAccounts()
+            client.graphqlMutation { setup() }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("setupWiseIntegration" to setupResult(true))
+            val original = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+            WiseApiMocks.removeJar()
+            client.graphqlMutation { setup(token = null) }.from(preconditions.fry)
+                .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_ACCOUNTS", path = "setupWiseIntegration")
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBe(original)
+
+            WiseApiMocks.rejectToken()
+            client.graphqlMutation { setup(token = "bender-revoked-token") }.from(preconditions.fry)
+                .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_TOKEN", path = "setupWiseIntegration")
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBe(original)
         }
 
         @Test
@@ -183,7 +208,7 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
             WiseAccountInput(profileId = "101", accountId = "302", currency = "EUR"),
             WiseAccountInput(profileId = "202", accountId = "401", currency = "GBP"),
         ),
-        token: String = WiseApiMocks.TOKEN,
+        token: String? = WiseApiMocks.TOKEN,
     ) = setupWiseIntegration(selected, token, preconditions.workspace.id!!) { success }
 
     private fun setupResult(success: Boolean) = buildJsonObject {

@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.Integrati
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.openWiseSetupPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.shouldBeWiseSetupPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.AccountData
-import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseViewPage.Companion.shouldBeWiseViewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
@@ -31,7 +30,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should select accounts independently across currencies and profiles and view the active provider`(page: Page) {
+    fun `should select accounts independently across currencies and profiles and update the active provider`(page: Page) {
         WiseApiMocks.setupAccountsWithSharedIds()
         page.authenticateViaCookie(preconditions.fry)
         page.openIntegrationsPage {
@@ -76,7 +75,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             )
             reportRendering("integrations.wise-accounts")
             next.click()
-            status.shouldBeSuccess("Wise integration activated successfully.")
+            status.shouldBeSuccess("Wise integration saved successfully.")
             reportRendering("integrations.wise-success")
         }
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
@@ -90,9 +89,79 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         page.openIntegrationsPage {
             status.shouldBeSuccess("active")
             reportRendering("integrations.active")
-            providers.viewWise()
+            providers.updateWise()
         }
-        page.shouldBeWiseViewPage()
+        page.shouldBeWiseSetupPage {
+            accounts.shouldHaveExactData(
+                normalAccounts[0].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[1].copy(name = "Currency balance", accountLabel = "Account ID: 301", selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
+            )
+            accountsStep.shouldBeOpen()
+            tokenStep.shouldBeCompleted()
+            accounts.account("USD").click()
+            next.click()
+            status.shouldBeSuccess("Wise integration saved successfully.")
+        }
+        val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+        updated.id.shouldBe(settings.id)
+        updated.token.shouldBe(WiseApiMocks.TOKEN)
+        updated.accounts.shouldContainExactly(WiseIntegrationAccount(101, 301, "EUR"), WiseIntegrationAccount(202, 401, "GBP"))
+    }
+
+    @Test
+    fun `should mark deleted saved accounts and revisit token step to replace the credential`(page: Page) {
+        preconditions {
+            wiseIntegrationSettings(
+                workspace = preconditions.workspace,
+                token = WiseApiMocks.TOKEN,
+                accounts = setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")),
+            )
+        }
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.removeJar()
+        page.authenticateViaCookie(preconditions.fry)
+        page.openWiseSetupPage {
+            val deletedJar = AccountData(
+                profile = "Profile ID: 101", currency = "EUR", name = "Currency balance",
+                accountLabel = "Account ID: 302", deleted = true,
+            )
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
+            accounts.account("EUR").shouldBeDeleted()
+            accountsStep.shouldBeOpen()
+            tokenStep.shouldBeCompleted()
+            reportRendering("integrations.wise-update-deleted")
+            tokenStep.click()
+            tokenStep.shouldBeOpen()
+            token { input.shouldHaveValue("") }
+            reportRendering("integrations.wise-update-token")
+            accountsStep.click()
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
+            tokenStep.click()
+            val replacementToken = "bender-replacement-token"
+            WiseApiMocks.setupAccounts(token = replacementToken)
+            WiseApiMocks.removeJar(token = replacementToken)
+            token { input.fill(replacementToken) }
+            tokenStep.shouldBePending()
+            next.click()
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"), deletedJar)
+            tokenStep.shouldBeCompleted()
+            accounts.account("USD").click()
+            page.withBlockedGqlApiResponse("saveWiseIntegration", initiator = { next.click() }, blockedRequestSpec = {
+                status.shouldBeRegular("Saving Wise integration…")
+                reportRendering("integrations.wise-saving")
+            })
+            status.shouldBeSuccess("Wise integration saved successfully.")
+            accountsStep.click()
+            accounts.shouldHaveExactData(
+                normalAccounts[0].copy(selected = true, selectionLabel = "✓ Selected"),
+                normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
+            )
+            accountsStep.shouldBeCompleted()
+        }
+        val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+        settings.token.shouldBe("bender-replacement-token")
+        settings.accounts.shouldContainExactly(WiseIntegrationAccount(101, 301, "USD"), WiseIntegrationAccount(202, 401, "GBP"))
     }
 
     @Test

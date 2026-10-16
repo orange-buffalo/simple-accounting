@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
@@ -38,6 +39,14 @@ class VerifyWiseIntegrationTokenMutationTest(@Autowired private val client: ApiT
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+        @Test
+        fun `should reject access to the saved credential of another workspace`() {
+            preconditions { wiseIntegrationSettings(workspace = preconditions.workspace, token = WiseApiMocks.TOKEN) }
+            client.graphqlMutation { verifyToken(token = null) }.from(preconditions.leela)
+                .executeAndVerifyEntityNotFoundError(path = "verifyWiseIntegrationToken")
+            WiseApiMocks.shouldHaveNoRequests()
+        }
+
         @Test
         fun `should reject saved shared workspace access without contacting Wise or persisting`() {
             client.graphqlMutation { saveSharedWorkspace(token = preconditions.shared.token) { id } }
@@ -84,13 +93,42 @@ class VerifyWiseIntegrationTokenMutationTest(@Autowired private val client: ApiT
     @DisplayName("Business Flow")
     inner class BusinessFlow {
         @Test
+        fun `should require a token when no credential has been saved`() {
+            client.graphqlMutation { verifyToken(token = null) }.from(preconditions.fry)
+                .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_TOKEN", path = "verifyWiseIntegrationToken")
+            WiseApiMocks.shouldHaveNoRequests()
+        }
+
+        @Test
+        fun `should load saved selections and deleted accounts without exposing or updating the credential`() {
+            preconditions {
+                wiseIntegrationSettings(
+                    workspace = preconditions.workspace,
+                    token = WiseApiMocks.TOKEN,
+                    accounts = setOf(WiseIntegrationAccount(101, 302, "EUR"), WiseIntegrationAccount(202, 401, "GBP")),
+                )
+            }
+            val original = aggregateTemplate.findAll<WiseIntegrationSettings>()
+            WiseApiMocks.setupAccounts()
+            WiseApiMocks.removeJar()
+            client.graphqlMutation {
+                verifyWiseIntegrationToken(workspaceId = preconditions.workspace.id!!, token = null) {
+                    accounts { profileId; accountId; currency; selected; deleted }
+                }
+            }.from(preconditions.fry).executeAndVerifySuccessResponse("verifyWiseIntegrationToken" to
+                (Json.parseToJsonElement("""{"accounts":[
+                    {"profileId":"101","accountId":"301","currency":"USD","selected":false,"deleted":false},
+                    {"profileId":"202","accountId":"401","currency":"GBP","selected":true,"deleted":false},
+                    {"profileId":"101","accountId":"302","currency":"EUR","selected":true,"deleted":true}
+                ]}""") as JsonObject))
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(original)
+        }
+
+        @Test
         fun `should reject blank tokens without contacting Wise`() {
             for (token in listOf("", " ")) {
                 client.graphqlMutation { verifyToken(token) }.from(preconditions.fry)
-                    .executeAndVerifyValidationError(
-                        violationPath = "token", error = "MustNotBeBlank", message = "must not be blank",
-                        path = "verifyWiseIntegrationToken",
-                    )
+                    .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_TOKEN", path = "verifyWiseIntegrationToken")
             }
             WiseApiMocks.shouldHaveNoRequests()
         }
@@ -125,7 +163,7 @@ class VerifyWiseIntegrationTokenMutationTest(@Autowired private val client: ApiT
         }
     }
 
-    private fun MutationProjection.verifyToken(token: String = WiseApiMocks.TOKEN) =
+    private fun MutationProjection.verifyToken(token: String? = WiseApiMocks.TOKEN) =
         verifyWiseIntegrationToken(workspaceId = preconditions.workspace.id!!, token = token) {
             accounts { profileId; profileName; accountId; currency; name; type }
         }

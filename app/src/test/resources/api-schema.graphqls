@@ -1184,8 +1184,8 @@ type Mutation {
     "The workspace access token."
     token: String! @notBlank
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_WORKSPACE_ACCESS_TOKEN", errorCodeDescription : "The provided workspace access token is not valid (unknown, expired, or revoked).")
-  "Activates Wise for an owned workspace, verifying every selected profile, balance and currency against the personal token."
-  setupWiseIntegration(accounts: [WiseAccountInput!]! @size(max : 2147483647, min : 1), token: String! @notBlank @size(max : 2000, min : 0), workspaceId: String!): WiseSetupResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.") @businessError(errorCode : "ALREADY_ACTIVE", errorCodeDescription : "Wise is already active for this workspace.") @businessError(errorCode : "INVALID_ACCOUNTS", errorCodeDescription : "The selected Wise accounts are invalid or have changed.")
+  "Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential."
+  setupWiseIntegration(accounts: [WiseAccountInput!]! @size(max : 2147483647, min : 1), token: String @size(max : 2000, min : 0), workspaceId: String!): WiseSetupResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.") @businessError(errorCode : "INVALID_ACCOUNTS", errorCodeDescription : "The selected Wise accounts are invalid or have changed.")
   "Starts migration of documents that are not stored in the current upload storage."
   startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.") @businessError(errorCode : "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE", errorCodeDescription : "Current upload storage is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE", errorCodeDescription : "At least one source storage required for migration is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS", errorCodeDescription : "The current user already has an incomplete documents migration.")
   "Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow."
@@ -1216,8 +1216,8 @@ type Mutation {
     "The locale of the user profile, e.g. 'en-US'."
     locale: String! @notBlank @size(max : 36, min : 0)
   ): UserProfile! @auth(type : AUTHENTICATED_USER)
-  "Verifies a personal token and lists balances and Jars across all Wise profiles without persisting the token."
-  verifyWiseIntegrationToken(token: String! @notBlank @size(max : 2000, min : 0), workspaceId: String!): WiseAccountsResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.")
+  "Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential."
+  verifyWiseIntegrationToken(token: String @size(max : 2000, min : 0), workspaceId: String!): WiseAccountsResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.")
 }
 
 "An OAuth2 provider the users can authenticate with."
@@ -1546,9 +1546,13 @@ type ValidationErrorParam {
 type WiseAccountGqlDto {
   accountId: String!
   currency: String!
+  "Whether the saved account is no longer available with this credential and cannot be selected."
+  deleted: Boolean!
   name: String
   profileId: String!
   profileName: String!
+  "Whether this account is part of the saved configuration."
+  selected: Boolean!
   type: String!
 }
 
@@ -2033,8 +2037,6 @@ enum SaveSharedWorkspaceErrorCodes {
 
 "Possible business error codes for the setupWiseIntegration operation."
 enum SetupWiseIntegrationErrorCodes {
-  "Wise is already active for this workspace."
-  ALREADY_ACTIVE
   "The selected Wise accounts are invalid or have changed."
   INVALID_ACCOUNTS
   "Wise rejected the personal token."
