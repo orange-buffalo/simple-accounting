@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountSelection
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAlreadyActiveException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidAccountsException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
@@ -15,7 +16,6 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
@@ -42,7 +42,7 @@ class IntegrationsGqlApi {
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         @BusinessError(WiseInvalidTokenException::class, "INVALID_TOKEN", "Wise rejected the personal token.")
         @BusinessError(WiseUnavailableException::class, "UNAVAILABLE", "Wise accounts could not be loaded.")
-        @BusinessError(DuplicateKeyException::class, "ALREADY_ACTIVE", "Wise is already active for this workspace.")
+        @BusinessError(WiseAlreadyActiveException::class, "ALREADY_ACTIVE", "Wise is already active for this workspace.")
         @BusinessError(WiseInvalidAccountsException::class, "INVALID_ACCOUNTS", "The selected Wise accounts are invalid or have changed.")
         fun setupWiseIntegration(
             workspaceId: String,

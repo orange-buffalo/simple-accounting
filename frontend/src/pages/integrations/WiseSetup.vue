@@ -35,8 +35,10 @@
             <ElButton @click="back">{{ $t.integrations.back() }}</ElButton>
           </div>
           <template v-else>
-            <p>{{ $t.integrations.wise.selectAccounts() }}</p>
-            <SaStatusLabel v-if="accounts.length === 0" status="regular">{{ $t.integrations.wise.noAccounts() }}</SaStatusLabel>
+            <p role="status" aria-live="polite">{{ $t.integrations.wise.selectAccounts() }}</p>
+            <SaStatusLabel v-if="accounts.length === 0" status="regular" role="status" aria-live="polite">
+              {{ $t.integrations.wise.noAccounts() }}
+            </SaStatusLabel>
             <div class="integration-cards">
               <button v-for="account in accounts" :key="accountKey(account)" type="button" class="integration-card integration-card--selectable"
                       :aria-pressed="selected.has(accountKey(account))" @click="toggle(account)">

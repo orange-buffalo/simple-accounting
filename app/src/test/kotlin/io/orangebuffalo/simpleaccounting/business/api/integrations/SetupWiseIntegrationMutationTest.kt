@@ -58,6 +58,7 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
             client.graphqlMutation { setup() }.fromAnonymous()
                 .executeAndVerifyNotAuthorized(path = "setupWiseIntegration")
             WiseApiMocks.shouldHaveNoRequests()
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
         }
 
         @Test
@@ -65,6 +66,7 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
             client.graphqlMutation { setup() }.from(preconditions.farnsworth)
                 .executeAndVerifyNotAuthorized(path = "setupWiseIntegration")
             WiseApiMocks.shouldHaveNoRequests()
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
         }
 
         @Test
@@ -72,6 +74,7 @@ class SetupWiseIntegrationMutationTest(@Autowired private val client: ApiTestCli
             client.graphqlMutation { setup() }.usingSharedWorkspaceToken(preconditions.shared.token)
                 .executeAndVerifyNotAuthorized(path = "setupWiseIntegration")
             WiseApiMocks.shouldHaveNoRequests()
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
         }
 
         @Test

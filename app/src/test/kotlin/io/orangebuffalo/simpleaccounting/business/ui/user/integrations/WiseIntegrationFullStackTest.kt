@@ -15,6 +15,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import org.junit.jupiter.api.Test
 
 class WiseIntegrationFullStackTest : SaFullStackTestBase() {
@@ -28,6 +30,16 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             val fry = fry()
             val workspace = workspace(owner = fry)
         }
+    }
+
+    @Test
+    fun `should report provider query failures through the global error handler`(page: Page) {
+        page.authenticateViaCookie(preconditions.fry)
+        page.withFailedGqlApiResponse("integrationProviders") {
+            page.openIntegrationsPage {}
+            page.shouldHaveNotifications { error() }
+        }
+        WiseApiMocks.shouldHaveNoRequests()
     }
 
     @Test

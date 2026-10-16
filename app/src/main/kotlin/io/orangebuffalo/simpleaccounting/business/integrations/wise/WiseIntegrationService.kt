@@ -33,7 +33,11 @@ class WiseIntegrationService internal constructor(
         val selected = accounts.map {
             WiseIntegrationAccount(it.profileId.toLong(), it.accountId.toLong(), it.currency)
         }.toSet()
-        settings.save(WiseIntegrationSettings(workspaceId, token, selected))
+        try {
+            settings.save(WiseIntegrationSettings(workspaceId, token, selected))
+        } catch (_: DuplicateKeyException) {
+            throw WiseAlreadyActiveException()
+        }
     }
 }
 
@@ -50,5 +54,5 @@ data class WiseAccount(
 
 class WiseInvalidTokenException : RuntimeException("Wise rejected the token")
 class WiseUnavailableException : RuntimeException("Wise accounts could not be loaded")
-class WiseAlreadyActiveException : DuplicateKeyException("Wise is already active for this workspace")
+class WiseAlreadyActiveException : RuntimeException("Wise is already active for this workspace")
 class WiseInvalidAccountsException : RuntimeException("The selected Wise accounts are invalid or have changed")

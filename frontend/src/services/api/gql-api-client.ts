@@ -122,6 +122,11 @@ async function executeGqlRequestAndHandleErrors<Data>(
       throw new ClientApiError(`Network error`, result.error.networkError);
     }
     if (result.error.graphQLErrors.length > 1) {
+      if (result.error.graphQLErrors.every(
+        (error) => error.extensions?.errorType === SaGrapQlErrorType.NotAuthorized,
+      )) {
+        throw new ApiAuthError();
+      }
       throw new ApiError(
         `Multiple errors received, which is not supported: ${JSON.stringify(result.error.graphQLErrors)}`);
     }
