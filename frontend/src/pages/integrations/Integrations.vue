@@ -5,7 +5,7 @@
     </div>
     <div v-else-if="integrations" class="integration-cards">
       <article v-for="provider in providers" :key="provider.id" class="integration-card">
-        <component :is="provider.logo" class="integration-card__logo" aria-label="Wise" role="img" />
+        <component :is="provider.logo" class="integration-card__logo" :aria-label="provider.name" role="img" />
         <SaStatusLabel v-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
         <p>{{ provider.description }}</p>
         <RouterLink :to="{ name: provider.active ? provider.view : provider.setup }">
@@ -34,7 +34,8 @@
   `), 'workspace', { variables: { workspaceId } });
   const integrations = computed(() => workspace.value?.integrations ?? null);
   const providers = computed(() => [{
-    id: 'wise', logo: WiseLogo, description: $t.value.integrations.wise.description(),
+    id: 'wise', name: $t.value.integrations.wise.name(), logo: WiseLogo,
+    description: $t.value.integrations.wise.description(),
     active: integrations.value?.wise.active === true, setup: 'wise-setup', view: 'wise-view',
   }]);
 </script>

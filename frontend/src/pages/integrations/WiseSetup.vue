@@ -27,7 +27,7 @@
         </template>
 
         <template v-else-if="step === steps.ACCOUNT_SELECTION">
-          <div v-if="busy" role="status" aria-live="polite">
+          <div v-if="busy" class="integration-wizard__result" role="status" aria-live="polite">
             <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.wise.verifying() }}</SaStatusLabel>
           </div>
           <div v-else-if="error" role="alert" class="integration-wizard__result">
@@ -57,7 +57,9 @@
         </template>
 
         <div v-else class="integration-wizard__result" aria-live="polite">
-          <SaStatusLabel v-if="busy" status="regular" custom-icon="loading">{{ $t.integrations.wise.saving() }}</SaStatusLabel>
+          <SaStatusLabel v-if="busy" status="regular" custom-icon="loading" role="status">
+            {{ $t.integrations.wise.saving() }}
+          </SaStatusLabel>
           <template v-else-if="saved">
             <SaStatusLabel status="success">{{ $t.integrations.wise.success() }}</SaStatusLabel>
             <RouterLink :to="{ name: 'integrations' }">{{ $t.integrations.header() }}</RouterLink>

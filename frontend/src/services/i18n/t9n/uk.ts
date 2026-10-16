@@ -12,6 +12,7 @@ export default {
     back: () => 'Назад',
     selected: () => 'Вибрано',
     wise: {
+      name: () => 'Wise',
       description: () => 'Підключіть валютні баланси та скарбнички Wise до робочого простору.',
       setupHeader: () => 'Налаштування інтеграції Wise',
       viewHeader: () => 'Інтеграція Wise',

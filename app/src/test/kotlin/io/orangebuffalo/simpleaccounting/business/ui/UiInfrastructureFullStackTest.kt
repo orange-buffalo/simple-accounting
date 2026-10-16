@@ -5,11 +5,23 @@ import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToke
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.openLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.openIntegrationsPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
 import org.springframework.data.jdbc.core.deleteAll
 
 class UiInfrastructureFullStackTest : SaFullStackTestBase() {
+
+    @Test
+    fun `should report GraphQL query failures through the global error handler`(page: Page) {
+        page.authenticateViaCookie(preconditions.fry)
+        page.withFailedGqlApiResponse("integrationProviders") {
+            page.openIntegrationsPage {}
+            page.shouldHaveNotifications { error() }
+        }
+    }
 
     @Test
     fun `should redirect to login page when auth expired`(page: Page) {

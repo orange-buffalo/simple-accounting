@@ -12,6 +12,7 @@ export default {
     back: () => 'Back',
     selected: () => 'Selected',
     wise: {
+      name: () => 'Wise',
       description: () => 'Connect your Wise currency balances and Jars to your workspace.',
       setupHeader: () => 'Setup Wise integration',
       viewHeader: () => 'Wise integration',
