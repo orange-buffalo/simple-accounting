@@ -5,9 +5,11 @@
 ## Automatic Implementation Review and Learning
 
 For implementation requests, load the repository skill `sa-delivery` and follow `docs/AgentHarness.md`.
-After implementation, invoke the executable `sa_review` controller before handover; it owns parallel, exclusively scoped
-specialist source review, finding verification, bounded repair, and re-review. The primary implementation agent owns
-build/test execution and checking results, including after controller repairs. Review workers never inspect build/test
+Before each of at most two review rounds, finish orchestrator self-review, wait for all relevant tests to complete,
+check results and finish all own verifications. Only then invoke `sa_review` with completed preflight attestations;
+it launches two identically configured full reviewers and two prevention.json compliance reviewers in parallel,
+then owns finding verification and bounded repair. Repairs return control for fresh orchestrator checks before re-review.
+The primary implementation agent owns build/test execution and checking results, including after controller repairs. Review workers never inspect build/test
 results or duplicate pass/fail verification. Do not replace the controller with informal self-review.
 For human corrections to previously reviewed work, also load `sa-feedback` and invoke `sa_learn`
 against the original run. Preserve the commit-before-feedback rule below. Never promote unverified candidate lessons.

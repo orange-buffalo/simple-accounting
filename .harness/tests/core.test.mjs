@@ -8,11 +8,13 @@ import path from 'node:path';
 import { Controller, hash, knowledge, snapshot, validateFindings, validateBlindReport, reviewerScopes } from '../../.opencode/plugins/sa-review/core.js';
 
 const exec = promisify(execFile);
-const report = { findings: [], coverage: ['workspace isolation'], gaps: [] };
+const report = { findings: [], coverage: ['workspace isolation'], gaps: [], ruleAudit: [] };
 const finding = { id: 'slurm', severity: 'medium', file: 'AGENTS.md', line: 1, evidence: 'Original requirement missing', remedy: 'Add required guidance' };
 const answer = (value, cost = 0) => ({ text: JSON.stringify(value), cost, sessionId: 'ses_fry' });
-const reviewers = ['functional', 'security', 'code', 'ux'];
-const reviewerModel = { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' };
+const reviewers = ['review-1', 'review-2', 'compliance-1', 'compliance-2'];
+const reviewerModel = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
+const auditedRules = (rules, files) => rules.map(({ id }) => ({ id, evidence: 'Checked cumulative changes against this rule',
+  fileAudit: [{ files, evidence: 'Checked changed sources; justified N/A for documentation-only changes' }] }));
 
 async function fixture(t, overrides = {}) {
   await mkdir('/tmp/opencode', { recursive: true });
@@ -32,7 +34,7 @@ async function fixture(t, overrides = {}) {
   await git('commit', '-qm', 'feat: start Planet Express');
   const base = (await git('rev-parse', 'HEAD')).stdout.trim();
   await writeFile(path.join(root, 'AGENTS.md'), 'Planet Express review\n');
-  const input = { base, requirements: 'Keep Planet Express deliveries secure', profile: 'harness' };
+  const input = { base, preflight: { selfReviewCompleted: true, testsCompleted: true, verificationsCompleted: true }, requirements: 'Keep Planet Express deliveries secure', profile: 'harness' };
   return { root, input, policy };
 }
 
@@ -47,6 +49,144 @@ test('passes only after every configured reviewer without running validation', a
   assert.equal(result.status, 'passed');
   assert.deepEqual(roles, reviewers);
   assert.equal(result.fingerprint, (await snapshot(root, input.base)).fingerprint);
+});
+
+test('missing or incomplete orchestrator preflight never launches workers or consumes rounds', async (t) => {
+  const { root, input } = await fixture(t);
+  let calls = 0;
+  const controller = new Controller(root, async () => { calls++; return answer(report); });
+  let runId;
+  for (const preflight of [undefined, {}, ...Object.keys(input.preflight).map((key) => ({ ...input.preflight, [key]: false }))]) {
+    const result = await controller.review({ ...input, runId, preflight });
+    runId = result.runId;
+    assert.equal(result.status, 'awaiting-verification');
+    assert.equal(result.turnRounds, 0);
+    assert.equal(result.nextAction, 'self-review-and-complete-verifications-then-resume');
+    assert.equal(calls, 0);
+  }
+  assert.equal((await controller.review({ ...input, runId })).status, 'passed');
+  assert.equal(calls, 4);
+});
+
+test('both compliance reviewers must independently account for every frozen rule', async (t) => {
+  const rules = [
+    { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' },
+    { id: 'robot-oil', category: 'testing', appliesWhen: 'Oil tests', instruction: 'Use real oil services', reason: 'Exercise behavior' },
+  ];
+  for (const roleToBreak of ['compliance-1', 'compliance-2']) {
+    for (const invalid of [undefined, [], [{ id: 'cargo-access', evidence: 'Inspected' }],
+      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'cargo-access', evidence: 'Duplicate' }],
+      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'unknown', evidence: 'Unknown' }],
+      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'robot-oil', evidence: '' }], 'valid']) {
+      const { root, input } = await fixture(t);
+      await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+      const result = await new Controller(root, async ({ role, knowledge: bundle }) => {
+        assert.deepEqual(JSON.parse(bundle), rules);
+        return answer({ ...report, ruleAudit: role === roleToBreak && invalid !== 'valid' ? invalid
+          : auditedRules(rules, ['AGENTS.md', '.harness/prevention.json']) });
+      }).review(input);
+      assert.equal(result.status, invalid === 'valid' ? 'passed' : 'blocked');
+      if (invalid !== 'valid') assert.match(result.error, /Incomplete prevention rule audit/);
+    }
+  }
+});
+
+test('compliance requires complete unique evidenced file dispositions for every rule and both agents', async (t) => {
+  const rule = { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' };
+  for (const roleToBreak of ['compliance-1', 'compliance-2']) {
+    for (const fileAudit of [undefined, [], [{ files: ['AGENTS.md'], evidence: 'Missed the catalog' }],
+      [{ files: ['AGENTS.md', 'AGENTS.md'], evidence: 'Duplicate' }],
+      [{ files: ['AGENTS.md', '.harness/unknown.json'], evidence: 'Unknown file' }],
+      [{ files: ['AGENTS.md', '.harness/prevention.json'], evidence: '' }],
+      [{ files: [], evidence: 'Empty group' }]]) {
+      const { root, input } = await fixture(t);
+      await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules: [rule] }));
+      const result = await new Controller(root, async ({ role }) => answer({ ...report,
+        ruleAudit: role === roleToBreak ? [{ id: rule.id, evidence: 'Rule checked', fileAudit }]
+          : auditedRules([rule], ['AGENTS.md', '.harness/prevention.json']) })).review(input);
+      assert.equal(result.status, 'blocked');
+      assert.match(result.error, /Incomplete prevention file audit/);
+    }
+  }
+});
+
+test('policy bridge remains readable by old consumers while new consumers select the paired topology', async (t) => {
+  const bridge = JSON.parse(await readFile(new URL('../policy.json', import.meta.url)));
+  assert.deepEqual(bridge.reviewerModel, reviewerModel);
+  assert.deepEqual(bridge.reviewers, ['functional', 'security', 'code', 'ux']);
+  assert.deepEqual(bridge.reviewTopology, reviewers);
+  const { root, input } = await fixture(t, bridge);
+  const roles = [];
+  const result = await new Controller(root, async ({ role }) => { roles.push(role); return answer(report); }).review(input);
+  assert.equal(result.status, 'passed');
+  assert.deepEqual(roles, reviewers);
+});
+
+test('paired topology cannot hide an invalid legacy policy bridge', async (t) => {
+  for (const bridge of [undefined, null, [], ['functional', 'security', 'code'],
+    ['functional', 'security', 'code', 'slurm'], ['functional', 'security', 'code', 'code'], reviewers]) {
+    const { root, input } = await fixture(t, { reviewers: bridge, reviewTopology: reviewers });
+    let calls = 0;
+    const controller = new Controller(root, async () => { calls++; return answer(report); });
+    await assert.rejects(controller.review(input), /Invalid legacy reviewer compatibility bridge/);
+    assert.equal(calls, 0);
+  }
+  const { root, input } = await fixture(t, { reviewers: ['functional', 'security', 'code', 'ux'], reviewTopology: null });
+  await assert.rejects(new Controller(root, async () => answer(report)).review(input), /Invalid controller policy/);
+});
+
+test('legacy runs migrate reviewer topology without resetting evidence, usage or round limits', async (t) => {
+  const { root, input } = await fixture(t);
+  let fail = true;
+  const roles = [];
+  const controller = new Controller(root, async ({ role }) => {
+    roles.push(role);
+    return { ...answer(report, 0.25), failed: fail && role === 'review-1' };
+  });
+  const first = await controller.review(input);
+  assert.equal(first.status, 'blocked');
+  const statePath = path.join(first.evidence, 'state.json');
+  const original = JSON.parse(await readFile(statePath));
+  const legacy = ['functional', 'security', 'code', 'ux'];
+  original.policy.reviewers = legacy;
+  await writeFile(statePath, JSON.stringify(original));
+  fail = false;
+  const waiting = await controller.review({ ...input, runId: first.runId, preflight: undefined });
+  assert.equal(waiting.status, 'awaiting-verification');
+  assert.equal(waiting.turnRounds, 1);
+  assert.equal(waiting.cost, first.cost);
+  assert.deepEqual(roles, reviewers);
+  const resumed = await controller.review({ ...input, runId: first.runId });
+  assert.equal(resumed.status, 'passed');
+  assert.equal(resumed.turnRounds, 2);
+  assert.deepEqual(roles, [...reviewers, ...reviewers]);
+  const state = JSON.parse(await readFile(statePath));
+  assert.deepEqual(state.reviewerTopologyMigration.previous, legacy);
+  assert.deepEqual(state.policy.reviewers, reviewers);
+  assert.deepEqual(state.rounds[0], original.rounds[0]);
+  assert.equal(state.cost, first.cost * 2);
+});
+
+test('legacy migration never silently drops frozen role model overrides', async (t) => {
+  for (const model of [reviewerModel, { ...reviewerModel, variant: 'low' }]) {
+    const { root, input } = await fixture(t);
+    let calls = 0;
+    const controller = new Controller(root, async () => { calls++; return answer(report); });
+    const first = await controller.review({ ...input, preflight: undefined });
+    const statePath = path.join(first.evidence, 'state.json');
+    const legacy = JSON.parse(await readFile(statePath));
+    legacy.policy.reviewers = ['functional', 'security', 'code', 'ux'];
+    legacy.policy.models = { security: model };
+    await writeFile(statePath, JSON.stringify(legacy));
+    if (model.variant === reviewerModel.variant) {
+      assert.equal((await controller.review({ ...input, runId: first.runId })).status, 'passed');
+      assert.equal(calls, 4);
+    } else {
+      await assert.rejects(controller.review({ ...input, runId: first.runId }), /Legacy per-role model overrides.*without resetting usage or round limits/);
+      assert.equal(calls, 0);
+      assert.deepEqual(JSON.parse(await readFile(statePath)), legacy);
+    }
+  }
 });
 
 test('reviewers receive focused source indexes without logs or duplicated full snapshots', async (t) => {
@@ -100,7 +240,7 @@ test('feedback audit cannot omit analogous earlier-turn source files', async (t)
   await writeFile(path.join(root, latest), 'class FryTest');
   const feedback = { ...input, runId: first.runId, clarification: 'Avoid exceptional-case mocks throughout branch changes' };
   const incomplete = await new Controller(root, async ({ role, prompt }) => {
-    if (role === 'code') {
+    if (role.startsWith('review-')) {
       assert.ok(prompt.includes(earlier));
       assert.ok(prompt.includes(latest));
       assert.match(prompt, /Mandatory branch-wide feedback audit/);
@@ -110,7 +250,7 @@ test('feedback audit cannot omit analogous earlier-turn source files', async (t)
   }).review(feedback);
   assert.equal(incomplete.status, 'blocked');
   assert.match(incomplete.error, /Incomplete branch-wide feedback audit/);
-  const complete = await new Controller(root, async ({ role }) => answer(role === 'code' ? {
+  const complete = await new Controller(root, async ({ role }) => answer(role.startsWith('review-') ? {
     ...report, feedbackAudit: [
       { file: earlier, evidence: 'Inspected earlier service mock against branch-wide feedback; exception requires justification' },
       { file: latest, evidence: 'Inspected latest factory preconditions against branch-wide feedback' },
@@ -119,7 +259,7 @@ test('feedback audit cannot omit analogous earlier-turn source files', async (t)
   assert.equal(complete.status, 'passed');
   const state = JSON.parse(await readFile(path.join(complete.evidence, 'state.json')));
   assert.deepEqual(state.rounds.at(-1).feedbackAuditFiles, [earlier, latest]);
-  assert.equal(state.rounds.at(-1).reports.find(({ axis }) => axis === 'code').feedbackAudit.length, 2);
+  assert.equal(state.rounds.at(-1).reports.find(({ axis }) => axis === 'review-1').feedbackAudit.length, 2);
 });
 
 test('aggregate diffs above the command buffer limit do not block file-backed review', async (t) => {
@@ -188,7 +328,7 @@ test('large generated-source snapshots remain file-backed without expanding revi
   assert.notEqual((await snapshot(root, base)).fingerprint, result.fingerprint);
 });
 
-test('validates submitted findings, repairs and re-reviews every exclusive scope', async (t) => {
+test('repairs return to orchestrator before the next parallel review round', async (t) => {
   const { root, input } = await fixture(t);
   let fixed = false;
   const roles = [];
@@ -198,10 +338,17 @@ test('validates submitted findings, repairs and re-reviews every exclusive scope
     assert.equal(artifactRoots.length, 1);
     assert.match(artifactRoots[0], /\/\.harness\/runtime\/review-[a-z0-9-]+\/sources$/);
     if (fixer) { fixed = true; await mkdir(path.join(root, 'frontend/src'), { recursive: true }); await writeFile(path.join(root, 'frontend/src/slurm.ts'), 'Secure Slurm deliveries\n'); return { text: 'fixed', cost: 0 }; }
-    if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] });
-    return answer({ ...report, findings: fixed || role !== 'functional' ? [] : [finding] });
+    if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'review-1-1' }], rejected: [], gaps: [] });
+    return answer({ ...report, findings: fixed || role !== 'review-1' ? [] : [finding] });
   });
-  const result = await controller.review({ ...input, profile: 'full' });
+  const first = await controller.review({ ...input, profile: 'full' });
+  assert.equal(first.status, 'awaiting-verification');
+  assert.equal(first.turnRounds, 1);
+  assert.deepEqual(roles, [...reviewers, 'finding-validator', 'fixer']);
+  const waiting = await controller.review({ ...input, profile: 'full', runId: first.runId, preflight: undefined });
+  assert.equal(waiting.status, 'awaiting-verification');
+  assert.deepEqual(roles, [...reviewers, 'finding-validator', 'fixer']);
+  const result = await controller.review({ ...input, profile: 'full', runId: first.runId });
   assert.equal(result.status, 'passed'); assert.equal(result.fixes, 1);
   assert.deepEqual(roles, [...reviewers, 'finding-validator', 'fixer', ...reviewers]);
 });
@@ -209,8 +356,8 @@ test('validates submitted findings, repairs and re-reviews every exclusive scope
 test('repair cap cannot be exceeded', async (t) => {
   const { root, input } = await fixture(t, { maxFixCycles: 0 });
   const controller = new Controller(root, async ({ role }) => role === 'finding-validator'
-    ? answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [{ id: 'security-1', reason: 'Duplicate contract' }], gaps: [] })
-    : answer({ ...report, findings: ['functional', 'security'].includes(role) ? [finding] : [] }));
+    ? answer({ accepted: [{ ...finding, id: 'review-1-1' }], rejected: [{ id: 'review-2-1', reason: 'Duplicate contract' }], gaps: [] })
+    : answer({ ...report, findings: ['review-1', 'review-2'].includes(role) ? [finding] : [] }));
   const result = await controller.review(input);
   assert.equal(result.status, 'needs-human'); assert.equal(result.fixes, 0);
 });
@@ -225,11 +372,13 @@ test('review stops after two rounds even with a larger legacy repair budget or r
       await writeFile(path.join(root, 'frontend/slurm.ts'), `Slurm ${fixes}`);
       return { text: 'fixed', cost: 0 };
     }
-    if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] });
-    return answer({ ...report, findings: role === 'functional' ? [finding] : [],
+    if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: 'review-1-1' }], rejected: [], gaps: [] });
+    return answer({ ...report, findings: role === 'review-1' ? [finding] : [],
       feedbackAudit: [{ file: 'frontend/slurm.ts', evidence: 'Inspected cumulative Slurm implementation against current feedback' }] });
   });
-  const result = await controller.review({ ...input, profile: 'full' });
+  const first = await controller.review({ ...input, profile: 'full' });
+  assert.equal(first.status, 'awaiting-verification');
+  const result = await controller.review({ ...input, profile: 'full', runId: first.runId });
   assert.equal(result.status, 'review-exhausted');
   assert.equal(result.reviewRoundsExhausted, true);
   assert.equal(result.nextAction, 'finish-implementation-and-validation');
@@ -246,7 +395,9 @@ test('review stops after two rounds even with a larger legacy repair budget or r
   delete legacyState.reviewTurns;
   await writeFile(path.join(result.evidence, 'state.json'), JSON.stringify(legacyState));
   const feedback = 'Fry requests lazy integration fields in earlier deliveries';
-  const renewed = await controller.review({ ...input, profile: 'full', runId: result.runId, clarification: feedback });
+  const nextTurn = await controller.review({ ...input, profile: 'full', runId: result.runId, clarification: feedback });
+  assert.equal(nextTurn.status, 'awaiting-verification');
+  const renewed = await controller.review({ ...input, profile: 'full', runId: result.runId });
   assert.equal(renewed.status, 'review-exhausted');
   assert.equal(renewed.turnRounds, 2);
   assert.equal(renewed.totalRounds, 4);
@@ -267,7 +418,8 @@ test('new feedback refreshes lessons and reviews committed earlier-turn changes 
     bundles.push(bundle);
     assert.match(prompt, /cumulative changes from the original base/);
     assert.match(prompt, /analogous issues/);
-    return answer(report, 0.1);
+    return answer({ ...report, ruleAudit: auditedRules(JSON.parse(bundle),
+      ['AGENTS.md', '.harness/knowledge.json', '.harness/lessons/lesson-leela.json']) }, 0.1);
   });
   const first = await controller.review(input);
   const original = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
@@ -302,7 +454,7 @@ test('failed reviewer blocks, records all concurrent costs, and resumes the same
   const { root, input } = await fixture(t);
   let calls = 0;
   let failed = true;
-  const controller = new Controller(root, async ({ role }) => { calls++; return { ...answer(report, 0.25), failed: failed && role === 'functional' }; });
+  const controller = new Controller(root, async ({ role }) => { calls++; return { ...answer(report, 0.25), failed: failed && role === 'review-1' }; });
   const blocked = await controller.review(input);
   assert.equal(blocked.status, 'blocked'); assert.equal(calls, 4); assert.equal(blocked.cost, 1);
   failed = false;
@@ -527,7 +679,8 @@ test('every human preference is investigated, independently verified and reporte
   const received = [];
   controller.agent = async ({ knowledge: bundle }) => {
     received.push(JSON.parse(bundle)[0].instructions);
-    return answer(report);
+    return answer({ ...report, ruleAudit: auditedRules(JSON.parse(bundle),
+      ['AGENTS.md', '.harness/knowledge.json', `.harness/lessons/${result.lessonId}.json`]) });
   };
   assert.equal((await controller.review(input)).status, 'passed');
   assert.equal(received.length, 4);
@@ -673,8 +826,8 @@ test('large learning histories keep bounded prompts and complete private evidenc
     },
   }));
   const controller = new Controller(root, async ({ role }) => ({
-    ...answer(role === 'functional' ? { ...report, findings: [finding] } : role === 'finding-validator'
-      ? { accepted: [], rejected: [{ id: 'functional-1', reason: 'Not a defect' }], gaps: [] } : report),
+    ...answer(role === 'review-1' ? { ...report, findings: [finding] } : role === 'finding-validator'
+      ? { accepted: [], rejected: [{ id: 'review-1-1', reason: 'Not a defect' }], gaps: [] } : report),
     messages: [{ type: 'assistant', id: 'msg_fry', time: { created: 1, completed: 2 }, content: [...tools,
       { type: 'image', mimeType: 'image/png', data: 'Slurm cargo' }, { type: 'text', text: 'Fry investigation' },
     ] }, { type: 'user', id: 'msg_leela', text: 'Planet Express request' }],
@@ -846,7 +999,7 @@ test('worktree lock serializes controller invocations', async (t) => {
   const { root, input } = await fixture(t);
   let release;
   const controller = new Controller(root, async ({ role }) => {
-    if (role === 'functional') await new Promise((resolve) => { release = resolve; });
+    if (role === 'review-1') await new Promise((resolve) => { release = resolve; });
     return answer(report);
   });
   const first = controller.review(input);
@@ -866,8 +1019,8 @@ test('protected infrastructure drift blocks before post-fix review', async (t) =
         await writeFile(path.join(root, target), 'Bender altered validation');
         return { text: 'fixed', cost: 0 };
       }
-      return role === 'finding-validator' ? answer({ accepted: [{ ...finding, id: 'functional-1' }], rejected: [], gaps: [] })
-        : answer({ ...report, findings: role === 'functional' ? [finding] : [] });
+      return role === 'finding-validator' ? answer({ accepted: [{ ...finding, id: 'review-1-1' }], rejected: [], gaps: [] })
+        : answer({ ...report, findings: role === 'review-1' ? [finding] : [] });
     });
     const result = await controller.review({ ...input, profile: 'full' });
     assert.equal(result.status, 'blocked'); assert.match(result.error, /protected infrastructure/);
@@ -902,32 +1055,43 @@ test('reviewers start concurrently, persist deterministic artifacts and account 
   }
 });
 
-test('review prompts give each reviewer only its exclusive responsibility', async (t) => {
+test('paired reviewers have identical prompts and models across all aspects', async (t) => {
   const { root, input } = await fixture(t);
-  const controller = new Controller(root, async ({ role, prompt }) => {
+  const prompts = {};
+  const controller = new Controller(root, async ({ role, prompt, model }) => {
+    prompts[role] = prompt;
+    assert.deepEqual(model, reviewerModel);
     assert.ok(prompt.includes(reviewerScopes[role]));
-    for (const other of reviewers.filter((axis) => axis !== role)) assert.ok(!prompt.includes(reviewerScopes[other]));
     assert.match(prompt, /Never inspect build\/test results/);
     assert.match(prompt, /not-applicable areas in coverage, NEVER in gaps/);
-    assert.match(prompt, /other reviewers' responsibilities are not gaps/);
     return answer(report);
   });
   assert.equal((await controller.review(input)).status, 'passed');
+  assert.equal(prompts['review-1'], prompts['review-2']);
+  assert.equal(prompts['compliance-1'], prompts['compliance-2']);
+  for (const aspect of ['functional', 'authentication', 'repository patterns', 'UX', 'accessibility']) {
+    assert.ok(prompts['review-1'].includes(aspect));
+  }
 });
 
-test('explicit role model overrides never inherit the calling model', async (t) => {
+test('paired model overrides are rejected and caller models never override review configuration', async (t) => {
   const override = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'low' };
-  const { root, input } = await fixture(t, { models: { security: override } });
-  const controller = new Controller(root, async ({ role, model }) => {
-    assert.deepEqual(model, role === 'security' ? override : reviewerModel);
+  const { root, input } = await fixture(t);
+  const controller = new Controller(root, async ({ model }) => {
+    assert.deepEqual(model, reviewerModel);
     return answer(report);
   });
   assert.equal((await controller.review({ ...input, defaultModel: override })).status, 'passed');
+  for (const role of reviewers) {
+    const fixtureResult = await fixture(t, { models: { [role]: override } });
+    await assert.rejects(new Controller(fixtureResult.root, async () => { throw new Error('Must not launch'); })
+      .review(fixtureResult.input), /same reviewerModel/);
+  }
 });
 
 test('unknown, repeated or missing reviewers and absent configured models fail closed', async (t) => {
   for (const overrides of [{ reviewers: ['functional', 'security'] }, { reviewers: [...reviewers, 'quality'] },
-    { reviewers: [...reviewers, 'code'] }, { reviewerModel: undefined }, { reviewerModel: { id: 'gpt-5.6-terra' } }]) {
+    { reviewers: [...reviewers, 'code'] }, { reviewerModel: undefined }, { reviewerModel: { id: 'gpt-6.1-sol' } }]) {
     const { root, input } = await fixture(t, overrides);
     const controller = new Controller(root, async () => { throw new Error('Invalid policy must not launch workers'); });
     await assert.rejects(controller.review(input), /Invalid controller policy|Invalid worker model/);
@@ -937,13 +1101,13 @@ test('unknown, repeated or missing reviewers and absent configured models fail c
 test('unaccounted concurrent worker failure preserves completed artifacts and blocks resume', async (t) => {
   const { root, input } = await fixture(t);
   const controller = new Controller(root, async ({ role }) => {
-    if (role === 'security') throw new Error('Unknown Leela session cost');
+    if (role === 'review-2') throw new Error('Unknown Leela session cost');
     return answer(report, 0.25);
   });
   const result = await controller.review(input);
   assert.equal(result.status, 'blocked'); assert.equal(result.cost, 0.75);
   const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
-  assert.deepEqual(state.pendingAgents, ['security']); assert.equal(state.artifacts.length, 4);
+  assert.deepEqual(state.pendingAgents, ['review-2']); assert.equal(state.artifacts.length, 4);
   await assert.rejects(controller.review({ ...input, runId: result.runId }), /Unreconciled interrupted agent/);
 });
 
@@ -951,9 +1115,13 @@ test('delivery requires explicit primary-agent validation after controller repai
   const skill = await readFile(new URL('../../.agents/skills/sa-delivery/SKILL.md', import.meta.url), 'utf8');
   const postReview = skill.indexOf('4. After `sa_review` returns');
   const handover = skill.indexOf('5. Hand over');
-  assert.ok(postReview > skill.indexOf('3. Call `sa_review`') && handover > postReview);
+  const preReview = skill.indexOf('3. Before EVERY review round');
+  assert.ok(preReview >= 0 && postReview > preReview && handover > postReview);
+  assert.match(skill.slice(preReview, postReview), /wait for ALL relevant tests to complete/);
   const step = skill.slice(postReview, handover);
   assert.match(step, /fixes > 0/);
-  assert.match(step, /primary implementation agent must rerun the selected Gradle validation and check its results before handover/);
+  assert.match(step, /repeat orchestrator self-review, rerun the selected Gradle validation after repairs/);
+  assert.match(step, /wait for all relevant tests, check results and finish every own verification before resuming/);
+  assert.match(step, /SAME run ID and fresh preflight attestations/);
   assert.match(step, /rendering reports/);
 });

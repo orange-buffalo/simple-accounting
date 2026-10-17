@@ -54,7 +54,7 @@ export async function createWorkers(ctx, directory = root) {
         const allowed = work.blind ? [] : work.fixer ? ['read', 'glob', 'patch', 'edit', 'write'] : ['read', 'glob'];
         for (const id of Object.keys(event.tools)) if (!allowed.includes(id)) delete event.tools[id];
       }
-      if (work) event.system.push({ type: 'text', text: 'You are a delegated review/fix/learning worker, not the primary implementation agent. Never run builds/tests or inspect their results, logs, pass/fail status or CI status. Inspect source-level behavior and assertions only. Visual artifacts may be inspected for usability, never for test-pass verification. Follow only your assigned responsibility; do not repeat other reviewers\' checks.' });
+      if (work) event.system.push({ type: 'text', text: 'You are a delegated review/fix/learning worker, not the primary implementation agent. Never run builds/tests or inspect their results, logs, pass/fail status or CI status. Inspect source-level behavior and assertions only. Visual artifacts may be inspected for usability, never for test-pass verification. Perform your assigned responsibility independently; paired reviews intentionally overlap.' });
       const bundle = frozen.get(event.sessionID) ?? await knowledge(directory);
       event.system.push({ type: 'text', text: `Approved repository lessons: apply relevant constraints BEFORE implementation, not only during review. The complete active catalog follows; preserve its scopes and exceptions.\n${bundle}` });
     });
@@ -110,8 +110,9 @@ export default {
     };
     await ctx.tool.transform((editor) => {
       editor.add({
-        name: 'sa_review', description: 'Run parallel, exclusively scoped source reviews and bounded finding verification/fix cycles. Never runs builds/tests or checks their results. Original requirements and pre-edit base SHA are required. Never commits or publishes.',
-        input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'targeted', 'full'] }, testClasses: { type: 'array', items: string }, runId: string, clarification: string }, ['requirements', 'base', 'profile']),
+        name: 'sa_review', description: 'After orchestrator self-review, all relevant tests completion and own verifications, run two identical full reviews and two prevention compliance reviews in parallel. Repairs return awaiting-verification; complete preflight again before resuming the same run. At most two rounds per turn. Never runs tests, commits or publishes.',
+        input: schema({ requirements: string, base: string, profile: { type: 'string', enum: ['harness', 'frontend', 'backend', 'targeted', 'full'] }, testClasses: { type: 'array', items: string }, runId: string, clarification: string,
+          preflight: schema({ selfReviewCompleted: { type: 'boolean' }, testsCompleted: { type: 'boolean' }, verificationsCompleted: { type: 'boolean' } }, ['selfReviewCompleted', 'testsCompleted', 'verificationsCompleted']) }, ['requirements', 'base', 'profile']),
         execute: async (input, context) => run('review', input, context),
       });
       editor.add({

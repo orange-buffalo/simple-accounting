@@ -23,8 +23,26 @@ repository configuration is not a sandbox against the host or the primary implem
 ## Everyday use
 
 Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md` routes implementation work
-through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before handover,
-the agent calls `sa_review(requirements, base, profile)`.
+through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before EACH review round,
+finish self-review, wait for all relevant tests to complete, check their results, and finish all own verifications.
+Only then call the tool with an object containing all three completed preflight attestations:
+
+```js
+sa_review({
+  requirements,
+  base,
+  profile,
+  preflight: {
+    selfReviewCompleted: true,
+    testsCompleted: true,
+    verificationsCompleted: true,
+  },
+})
+```
+
+After controller repairs, repeat self-review and all applicable validation and verification, then resume with
+the returned `runId` and fresh preflight attestations on the SAME run; do not start a new run or review while checks
+are pending.
 When the user steers an active task, preserve the original contract and add their change through the optional
 `clarification` field on the same run. Distinct new human review feedback starts a fresh review turn, resetting its
 round, repair, elapsed-time and cost limits while retaining total usage, original base and all evidence. Whitespace-equivalent
@@ -36,26 +54,36 @@ The controller:
 1. Preserves original requirements and base, freezes policy and the changed-file snapshot (including untracked files),
    and refreshes approved knowledge for each new feedback turn. Review cumulative changes, not only the latest delta:
     apply learned instructions to analogous issues in relevant code from earlier turns of the session.
-    On feedback turns, code review must record a source-grounded per-file feedback audit for every cumulative
+    On feedback turns, both full reviewers must record a source-grounded per-file feedback audit for every cumulative
     non-generated code file, including earlier-turn changes. Missing or duplicate file dispositions block a clean
     receipt. Reviewers must justify exceptional mocks and other deviations rather than stopping at the commented file.
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
     aggregate full-file contents stored privately on disk. Individual-file safety limits still apply.
-3. Launches four read-only reviewers **in parallel** as native subagents of the calling session, each with an exclusive scope:
-   - **Functional**: every functional requirement implemented and covered by test assertions, including branches,
-     conditions, boundaries, failures and regressions. Excludes security/access-rule coverage.
-   - **Security**: authentication, authorization, workspace ownership/isolation and other data-access/security rules,
-     with positive and negative test coverage. Excludes non-security functional behavior.
-   - **Code**: repository patterns, standards, guidelines and consistency with surrounding code, including test conventions.
-     Excludes behavior/test-coverage, security and usability checks.
-   - **UX**: user-friendly, convenient, accessible UI, interaction flow, i18n and loading/error/empty feedback, when applicable.
-     Excludes business-rule/test-coverage, security and code-convention checks; explicitly reports N/A for non-UI changes.
+3. Requires the primary implementation agent (orchestrator) to finish self-review, wait for ALL relevant tests to
+   complete, check results, and finish all own verifications before EVERY round. Resolve failures first; never launch
+   reviews alongside pending tests or verification. Call with `preflight: { selfReviewCompleted: true,
+   testsCompleted: true, verificationsCompleted: true }` only after completion. Missing/false attestations return
+   `awaiting-verification` without consuming a round or launching workers. These attestations are an agent-owned gate,
+   not independent proof of execution; the controller does not inspect results or logs.
+   Then launches four read-only reviewers **in parallel** as native subagents of the calling session:
+   - **review-1 / review-2**: two independent full reviews with identical prompts, model and permissions. Each covers
+     functional requirements and source-level assertions (branches, boundaries, failures, regressions), security/access
+     rules and positive/negative coverage, repository conventions, and applicable UX/accessibility/i18n/feedback.
+     Non-UI changes explicitly justify UX N/A. Neither reviewer excludes aspects assigned to the other.
+   - **compliance-1 / compliance-2**: two independent compliance reviews of ALL cumulative changes against EVERY rule
+     in the frozen prevention.json bundle, preserving scopes and exceptions. Each returns source-grounded compliance
+     or justified N/A evidence for every rule ID, with fileAudit groups disposing of every cumulative changed file
+     exactly once per rule. Group files only when they share the same source-grounded disposition. Missing, duplicate,
+     unknown or unevidenced rule/file dispositions block a clean receipt.
    Fixers and learning workers are also children, not standalone top-level sessions.
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
     prevent a clean review receipt. The validator is not another general reviewer.
-5. Applies validated findings through a restricted fixer, then re-reviews all axes in parallel.
+5. Applies validated findings through a restricted fixer, then returns `awaiting-verification` with
+   `nextAction: self-review-and-complete-verifications-then-resume`. It NEVER launches the next review batch automatically.
+   The orchestrator repeats self-review, completes validation and all own checks, then resumes the SAME run with fresh
+   preflight attestations. All four reviewers run again against the updated cumulative snapshot.
 6. Stops at a clean receipt, a blocker, or the configured repair budget, with at most two review rounds per turn
     (initial review and one re-review), including resumed attempts in that turn. Distinct human feedback starts a fresh
     turn on the same run; it does not erase prior rounds, repairs, receipts, knowledge bundles or usage.
@@ -68,14 +96,23 @@ The controller:
      Genuine ambiguity and external blockers still require user direction. Never start another run to evade a turn's cap.
 
 Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
-the per-turn two-round limit), elapsed minutes, USD cost, the four required reviewers, and
-`reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
-Optional `models` entries override individual roles with the same model-reference shape. All read-only workers,
+the per-turn two-round limit), elapsed minutes, USD cost, the four required `reviewTopology` roles (`review-1`, `review-2`,
+`compliance-1`, `compliance-2`), and
+`reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-6.1-sol", "variant": "medium" }`.
+Optional `models` entries override other worker roles with the same model-reference shape; overrides for the four
+review roles are rejected to keep paired configurations identical. All read-only workers,
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
 Fixers may inherit it unless overridden. Time and cost limits are checked **between operations**; an in-flight parallel
 batch may exceed them. These are not hard spend caps. The controller awaits every worker in a batch, accounts for all
 reported costs and saves separate artifacts before proceeding or blocking. Interrupted/unaccounted workers prevent resume.
 The worktree lock serializes controller invocations, not reviewers within a run. Review detects snapshot drift.
+The stored `reviewers` list remains a legacy compatibility bridge; updated consumers use `reviewTopology` instead.
+When `reviewTopology` is present, both lists are validated independently; an invalid legacy bridge fails closed.
+Old loaded consumers can still read policy without rejecting the new role names, but cannot implement the new gate.
+Reload the project location to activate updated plugin code before reviewing. Keep the bridge until all old consumers
+have reloaded. On resumption, legacy four-specialist runs adopt the paired topology while retaining prior evidence,
+the frozen model, knowledge, usage and per-turn limits. Conflicting frozen per-role model overrides fail closed with
+explicit reconciliation required; migration never silently discards them or resets budgets.
 
 Profiles: `frontend`, `backend`, `targeted`, `full`; `harness` only for agent-workflow/docs changes, not application/build changes.
 Profiles describe review scope, not validation tasks. Prefer `targeted` with fully qualified `testClasses` (up to 10)

@@ -56,7 +56,7 @@ test('worker binding preserves repository secret-read and protected-edit denials
     workers.contexts.set('ses_fry', { sessionID: 'ses_fry' });
     await workers.execute({ role, prompt: 'Review Slurm', knowledge: '[]', fixer,
       artifactRoots: [path.join(repository, '.harness/runtime/review-fry', folder)],
-      model: fixer ? undefined : { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' }, parentSessionID: 'ses_fry' });
+      model: fixer ? undefined : { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' }, parentSessionID: 'ses_fry' });
     assert.deepEqual(actualRules.slice(0, originalRules.length), originalRules);
     assert.equal(canRead(actualRules, `${repository}/.harness/runtime/review-fry/${folder}/1.txt`), true);
     assert.equal(canRead(actualRules, `${repository}/.harness/runtime/review-leela/${folder}/1.txt`), false);
@@ -82,7 +82,7 @@ test('workers use native child sessions, freeze knowledge and deny blind tools',
   let workerPrompt;
   let calls = 0;
   const context = { sessionID: 'ses_fry', id: 'call_leela' };
-  const model = { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' };
+  const model = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
   const ctx = {
     agent: { get: async () => ({ location: { directory: '/tmp/opencode' }, data: { permissions: [{ action: 'edit', resource: '*', effect: 'deny' }] } }) },
     session: {
@@ -96,7 +96,7 @@ test('workers use native child sessions, freeze knowledge and deny blind tools',
     tool: { list: async () => [{ id: 'subagent', execute: async (input, actualContext) => {
       workerPrompt = `You are a subagent spawned by another session.\n${input.prompt}`;
       calls++; assert.equal(actualContext, context); assert.equal(input.background, false);
-      assert.equal(input.agent, 'sa-reviewer'); assert.equal(input.model, 'openai/gpt-5.6-terra#medium');
+      assert.equal(input.agent, 'sa-reviewer'); assert.equal(input.model, 'openai/gpt-6.1-sol#medium');
       const event = { sessionID: 'ses_leela', system: [], tools: { read: {}, shell: {} } };
       await hooks.get('context')(event);
       assert.ok(event.system.some(({ text }) => text.includes('Frozen Fry lesson')));
@@ -118,7 +118,7 @@ test('concurrent native workers bind separate child sessions and restrict result
   const permissions = new Map();
   const sessions = new Map();
   const releases = [];
-  const model = { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' };
+  const model = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
   const ctx = {
     agent: { get: async () => ({ permissions: [{ action: '*', resource: '*', effect: 'deny' }, { action: 'read', resource: '*', effect: 'allow' }] }) },
     session: {
@@ -138,7 +138,7 @@ test('concurrent native workers bind separate child sessions and restrict result
       await hooks.get('context')(event);
       assert.deepEqual(Object.keys(event.tools), ['read', 'glob']);
       assert.ok(event.system.some(({ text }) => text.includes(`${input.description} lesson`)));
-      assert.equal(input.model, 'openai/gpt-5.6-terra#medium');
+      assert.equal(input.model, 'openai/gpt-6.1-sol#medium');
       return { content: 'done' };
     } }] },
   };
@@ -164,7 +164,7 @@ test('concurrent native workers bind separate child sessions and restrict result
 test('artifact grants reject runtime state, wildcard runs, path escapes and unrelated learning evidence', async () => {
   const workers = await createWorkers({ session: { hook: async () => {} } });
   const input = { role: 'security', prompt: 'Review Slurm', knowledge: '[]',
-    model: { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' }, parentSessionID: 'ses_fry' };
+    model: { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' }, parentSessionID: 'ses_fry' };
   for (const folder of ['.harness/runtime/review-fry', '.harness/runtime/*/sources', '../sources',
     '.harness/runtime/review-fry/original-evidence']) {
     await assert.rejects(workers.execute({ ...input, artifactRoots: [path.join(repository, folder)] }), /Invalid delegated artifact root/);
@@ -201,7 +201,7 @@ test('matching child titles cannot acquire worker grants and tokens cannot rebin
   const workers = await createWorkers(ctx);
   workers.contexts.set('ses_fry', { sessionID: 'ses_fry' });
   const result = await workers.execute({ role: 'security', prompt: 'Review Slurm', knowledge: '[]', parentSessionID: 'ses_fry',
-    model: { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' },
+    model: { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' },
     artifactRoots: [path.join(repository, '.harness/runtime/review-fry/sources')] });
   assert.equal(result.failed, false);
   assert.equal(result.sessionId, 'ses_leela');
