@@ -1163,7 +1163,7 @@ type Mutation {
   ): Workspace! @auth(type : REGULAR_USER) @businessError(errorCode : "INCOMPATIBLE_CURRENCY", errorCodeDescription : "The currency is not supported for the residency country.")
   "Revokes the refresh token and clears its cookie, effectively logging out the current user."
   invalidateRefreshToken: Boolean! @auth(type : ANONYMOUS)
-  "Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential."
+  "Lists STANDARD currency balances with profile details, saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential."
   listWiseAccounts(
     "A supplied non-blank token is used without saving it. Null or omission uses the saved token; if none exists, INVALID_TOKEN is returned. Empty or whitespace-only tokens return INVALID_TOKEN."
     token: String @size(max : 2000, min : 0),
@@ -1554,15 +1554,19 @@ type ValidationErrorParam {
   value: String!
 }
 
-"A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values."
+"A STANDARD currency balance belonging to a Wise profile, or an unavailable saved account. Identifiers are opaque values."
 type WiseAccountGqlDto {
   accountId: String!
+  "The current balance in the account currency's minor units, as used for monetary amounts throughout the application. Null for unavailable saved accounts."
+  amountInCents: Long
   currency: String!
   "Whether the saved account is no longer available with this credential and cannot be selected."
   deleted: Boolean!
   name: String
   profileId: String!
   profileName: String!
+  "The Wise profile type: PERSONAL or BUSINESS. Null if the saved profile is unavailable."
+  profileType: String
   type: String!
   "Whether this account is part of the saved configuration."
   usedByIntegration: Boolean!

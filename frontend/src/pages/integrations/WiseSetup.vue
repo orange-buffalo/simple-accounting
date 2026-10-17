@@ -46,18 +46,22 @@
             <SaStatusLabel v-if="accounts.length === 0" status="regular" role="status" aria-live="polite">
               {{ $t.integrations.wise.noAccounts() }}
             </SaStatusLabel>
-            <div class="integration-cards">
-              <button v-for="account in accounts" :key="accountKey(account)" type="button" class="integration-card integration-card--selectable"
-                      :aria-pressed="selected.has(accountKey(account))" :disabled="account.deleted" @click="toggle(account)">
-                <strong>{{ account.profileName || $t.integrations.wise.profileId(account.profileId) }}</strong>
-                <span>{{ account.currency }}</span>
-                <span>{{ account.name ?? $t.integrations.wise.balance() }}</span>
-                <small>{{ $t.integrations.wise.accountId(account.accountId) }}</small>
-                <span v-if="selected.has(accountKey(account))">✓ {{ $t.integrations.selected() }}</span>
-                <ElTag v-if="account.deleted" type="danger">{{ $t.integrations.wise.deleted() }}</ElTag>
-                <span v-if="account.deleted" class="integration-card__hint">{{ $t.integrations.wise.deletedHint() }}</span>
-              </button>
-            </div>
+            <section v-for="profile in profiles" :key="profile.id" class="wise-profile" :aria-labelledby="`wise-profile-${profile.id}`">
+              <h2 :id="`wise-profile-${profile.id}`" class="wise-profile__header">
+                <span>{{ profile.name || $t.integrations.wise.profileId(profile.id) }}</span>
+                <small v-if="profile.type">{{ profile.type === 'BUSINESS' ? $t.integrations.wise.businessAccount() : $t.integrations.wise.personalAccount() }}</small>
+              </h2>
+              <div class="integration-cards">
+                <button v-for="account in profile.accounts" :key="accountKey(account)" type="button" class="integration-card integration-card--selectable"
+                        :aria-pressed="selected.has(accountKey(account))" :disabled="account.deleted" @click="toggle(account)">
+                  <strong>{{ account.currency }}</strong>
+                  <SaMoneyOutput v-if="account.amountInCents !== null" class="integration-card__amount" :amount-in-cents="account.amountInCents" :currency="account.currency" />
+                  <span v-if="selected.has(accountKey(account))">✓ {{ $t.integrations.selected() }}</span>
+                  <ElTag v-if="account.deleted" type="danger">{{ $t.integrations.wise.deleted() }}</ElTag>
+                  <span v-if="account.deleted" class="integration-card__hint">{{ $t.integrations.wise.deletedHint() }}</span>
+                </button>
+              </div>
+            </section>
             <div class="integration-wizard__actions">
               <ElButton link @click="back">{{ $t.integrations.back() }}</ElButton>
               <ElButton type="primary" :disabled="selected.size === 0" @click="save">{{ $t.integrations.next() }}</ElButton>
@@ -90,6 +94,7 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { graphql } from '@/services/api/gql';
   import { useQuery, useMutation } from '@/services/api/use-gql-api';
   import {
@@ -103,7 +108,7 @@
   const listAccounts = useMutation(graphql(/* GraphQL */ `
     mutation listWiseAccounts($workspaceId: String!, $token: String) {
       listWiseAccounts(workspaceId: $workspaceId, token: $token) {
-        accounts { profileId profileName accountId currency name type usedByIntegration deleted }
+        accounts { profileId profileName profileType accountId currency amountInCents usedByIntegration deleted }
       }
     }
   `), 'listWiseAccounts');
@@ -129,6 +134,18 @@
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const saveError = ref(false);
   const accounts = ref<Account[]>([]);
+  const profiles = computed(() => {
+    const groups = new Map<string, { id: string; name: string; type: string | null; accounts: Account[] }>();
+    accounts.value.forEach((account) => {
+      let profile = groups.get(account.profileId);
+      if (!profile) {
+        profile = { id: account.profileId, name: account.profileName, type: account.profileType, accounts: [] };
+        groups.set(account.profileId, profile);
+      }
+      profile.accounts.push(account);
+    });
+    return [...groups.values()];
+  });
   const selected = ref(new Set<string>());
   const wizardSteps = computed(() => [
     {
@@ -254,6 +271,21 @@
 
 <style scoped lang="scss">
   @use "@/styles/vars.scss" as *;
+
+  .wise-profile {
+    max-width: 840px;
+    margin: 24px auto;
+
+    &__header {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 20px;
+
+      small { color: $secondary-text-color; font-size: 14px; font-weight: normal; }
+    }
+  }
 
   .integration-cards {
     display: grid;

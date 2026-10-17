@@ -949,7 +949,7 @@ export type Mutation = {
   editWorkspace: Workspace;
   /** Revokes the refresh token and clears its cookie, effectively logging out the current user. */
   invalidateRefreshToken: Scalars['Boolean']['output'];
-  /** Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential. */
+  /** Lists STANDARD currency balances with profile details, saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential. */
   listWiseAccounts: WiseAccountsResult;
   /** Refreshes the access token using the refresh token from cookies or current transient authentication. Returns a response with either a valid access token or null if authentication fails. */
   refreshAccessToken: RefreshAccessTokenResponse;
@@ -1799,16 +1799,20 @@ export type ValidationErrorParam = {
   value: Scalars['String']['output'];
 };
 
-/** A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values. */
+/** A STANDARD currency balance belonging to a Wise profile, or an unavailable saved account. Identifiers are opaque values. */
 export type WiseAccountGqlDto = {
   __typename?: 'WiseAccountGqlDto';
   accountId: Scalars['String']['output'];
+  /** The current balance in the account currency's minor units, as used for monetary amounts throughout the application. Null for unavailable saved accounts. */
+  amountInCents?: Maybe<Scalars['Long']['output']>;
   currency: Scalars['String']['output'];
   /** Whether the saved account is no longer available with this credential and cannot be selected. */
   deleted: Scalars['Boolean']['output'];
   name?: Maybe<Scalars['String']['output']>;
   profileId: Scalars['String']['output'];
   profileName: Scalars['String']['output'];
+  /** The Wise profile type: PERSONAL or BUSINESS. Null if the saved profile is unavailable. */
+  profileType?: Maybe<Scalars['String']['output']>;
   type: Scalars['String']['output'];
   /** Whether this account is part of the saved configuration. */
   usedByIntegration: Scalars['Boolean']['output'];

@@ -36,13 +36,45 @@ class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegration
         ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles"))
             .withHeader("Authorization", equalTo("Bearer $token"))
             .willReturn(okJson("""[{"id":9007199254740993,"fullName":"Bender","type":"PERSONAL"}]""")))
-        ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/9007199254740993/balances?types=STANDARD,SAVINGS"))
+        ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/9007199254740993/balances?types=STANDARD"))
             .withHeader("Authorization", equalTo("Bearer $token"))
             .willReturn(okJson("""[{"id":9007199254740995,"currency":"USD","type":"STANDARD","amount":{"value":42}}]""")))
 
         verifyToken().shouldBe(listOf(
-            WiseAccount(9007199254740993, "Bender", 9007199254740995, "USD", null, "STANDARD"),
+            WiseAccount(profileId = 9007199254740993, profileName = "Bender", profileType = "PERSONAL", accountId = 9007199254740995, currency = "USD", name = null, type = "STANDARD", amountInCents = 4200),
         ))
+    }
+
+    @Test
+    fun `should convert provider balances to currency minor units`() {
+        ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles"))
+            .willReturn(okJson("""[{"id":101,"fullName":"Philip J. Fry","type":"PERSONAL"}]""")))
+        for ((currency, value, expected) in listOf(
+            Triple(first = "JPY", second = "1234", third = 1234L),
+            Triple(first = "KWD", second = "12.345", third = 12345L),
+            Triple(first = "USD", second = "-12.34", third = -1234L),
+        )) {
+            ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/101/balances?types=STANDARD"))
+                .willReturn(okJson("""[{"id":301,"currency":"$currency","type":"STANDARD","amount":{"value":$value}}]""")))
+            verifyToken().single().amountInCents.shouldBe(expected)
+        }
+    }
+
+    @Test
+    fun `should reject invalid or unrepresentable balances without retaining provider data`() {
+        WiseApiMocks.setupAccounts()
+        for ((currency, value) in listOf(
+            "USD" to "\"$token\"",
+            "USD" to "0.001",
+            "USD" to "9223372036854775808",
+            "SLURM" to "42",
+        )) {
+            ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/101/balances?types=STANDARD"))
+                .willReturn(okJson("""[{"id":301,"currency":"$currency","type":"STANDARD","amount":{"value":$value}}]""")))
+            val exception = shouldThrow<WiseUnavailableException> { verifyToken() }
+            exception.message.shouldBe("Wise accounts could not be loaded")
+            exception.cause.shouldBe(null)
+        }
     }
 
     @Test

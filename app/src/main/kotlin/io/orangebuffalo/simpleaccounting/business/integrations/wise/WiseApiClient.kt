@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
 import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.JdkClientHttpRequestFactory
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import java.net.http.HttpClient
 import java.time.Duration
+import java.util.Currency
 
 @Component
 internal class WiseApiClient(
@@ -25,11 +27,27 @@ internal class WiseApiClient(
     private val json = Json { ignoreUnknownKeys = true }
 
     fun getAccounts(token: String): List<WiseAccount> =
-        get<List<WiseProfile>>("/2026Q4/profiles", token).flatMap { profile ->
-            get<List<WiseBalance>>("/2026Q4/profiles/${profile.id}/balances?types=STANDARD,SAVINGS", token).map { balance ->
-                WiseAccount(profile.id, profile.fullName, balance.id, balance.currency, balance.name, balance.type)
-            }
+        get<List<WiseProfile>>(path = "/2026Q4/profiles", token = token).flatMap { profile ->
+            get<List<WiseBalance>>(path = "/2026Q4/profiles/${profile.id}/balances?types=STANDARD", token = token)
+                .filter { it.type == "STANDARD" }.map { balance ->
+                    WiseAccount(
+                        profileId = profile.id, profileName = profile.fullName, profileType = profile.type,
+                        accountId = balance.id, currency = balance.currency, name = balance.name, type = balance.type,
+                        amountInCents = balanceAmount(balance = balance, profileId = profile.id, token = token),
+                    )
+                }
         }
+
+    private fun balanceAmount(balance: WiseBalance, profileId: Long, token: String): Long = try {
+        balance.amount.value.content.toBigDecimal()
+            .movePointRight(Currency.getInstance(balance.currency).defaultFractionDigits).longValueExact()
+    } catch (_: IllegalArgumentException) {
+        logFailure(endpoint = "/2026Q4/profiles/$profileId/balances?types=STANDARD", token = token, detail = "Invalid balance amount or currency")
+        throw WiseUnavailableException()
+    } catch (_: ArithmeticException) {
+        logFailure(endpoint = "/2026Q4/profiles/$profileId/balances?types=STANDARD", token = token, detail = "Unrepresentable balance amount")
+        throw WiseUnavailableException()
+    }
 
     private inline fun <reified T> get(path: String, token: String): T {
         var body: String? = null
@@ -71,7 +89,10 @@ internal class WiseApiClient(
 }
 
 @Serializable
-private data class WiseProfile(val id: Long, val fullName: String)
+private data class WiseProfile(val id: Long, val fullName: String, val type: String)
 
 @Serializable
-private data class WiseBalance(val id: Long, val currency: String, val name: String? = null, val type: String)
+private data class WiseBalance(val id: Long, val currency: String, val name: String? = null, val type: String, val amount: WiseAmount)
+
+@Serializable
+private data class WiseAmount(val value: JsonPrimitive)

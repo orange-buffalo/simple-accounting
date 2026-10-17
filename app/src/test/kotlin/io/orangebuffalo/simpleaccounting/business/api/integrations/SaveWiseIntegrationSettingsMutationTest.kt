@@ -179,7 +179,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 )
             }
             WiseApiMocks.setupAccounts()
-            WiseApiMocks.removeJar()
+            WiseApiMocks.removeEuroBalance()
             client.graphqlMutation { setup(token = null) }.from(preconditions.fry)
                 .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_ACCOUNTS", path = "saveWiseIntegrationSettings")
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBe(original)
@@ -206,6 +206,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             listOf(
                 listOf(WiseAccountInput(profileId = "202", accountId = "302", currency = "EUR")),
                 listOf(WiseAccountInput(profileId = "101", accountId = "999", currency = "USD")),
+                listOf(WiseAccountInput(profileId = "101", accountId = "303", currency = "CAD")),
                 listOf(WiseAccountInput(profileId = "101", accountId = "302", currency = "GBP")),
                 listOf(
                     WiseAccountInput(profileId = "101", accountId = "302", currency = "EUR"),

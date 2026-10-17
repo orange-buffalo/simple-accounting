@@ -47,7 +47,7 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class AccountCards(private val components: ComponentsAccessors) {
-        private val container = components.page.locator(".integration-cards")
+        private val container = components.page.locator(".integration-wizard__content")
 
         fun shouldHaveExactData(vararg expected: AccountData) {
             shouldSatisfy("Wise accounts should exactly match the expected data") {
@@ -57,11 +57,11 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
 
         private fun data(): List<AccountData> {
             val json = container.evaluate("""
-                container => JSON.stringify(Array.from(container.querySelectorAll('button')).map(card => ({
-                    profile: card.querySelector('strong').textContent,
-                    currency: card.querySelectorAll('span')[0].textContent,
-                    name: card.querySelectorAll('span')[1].textContent,
-                    accountLabel: card.querySelector('small').textContent,
+                container => JSON.stringify(Array.from(container.querySelectorAll('.integration-card')).map(card => ({
+                    profile: card.closest('section').querySelector('h2 span').textContent,
+                    profileType: card.closest('section').querySelector('h2 small')?.textContent ?? null,
+                    currency: card.querySelector('strong').textContent,
+                    amount: card.querySelector('.integration-card__amount')?.textContent ?? null,
                     selected: card.getAttribute('aria-pressed') === 'true',
                     selectionLabel: Array.from(card.children).find(child => child.tagName === 'SPAN' && child.textContent.startsWith('✓'))?.textContent ?? null,
                     deleted: card.disabled
@@ -84,9 +84,9 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     @Serializable
     data class AccountData(
         val profile: String,
+        val profileType: String?,
         val currency: String,
-        val name: String,
-        val accountLabel: String,
+        val amount: String?,
         val selected: Boolean = false,
         val selectionLabel: String? = null,
         val deleted: Boolean = false,
