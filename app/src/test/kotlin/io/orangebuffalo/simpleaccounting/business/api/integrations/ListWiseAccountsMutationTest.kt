@@ -110,7 +110,7 @@ class ListWiseAccountsMutationTest(@Autowired private val client: ApiTestClient)
             }
             val original = aggregateTemplate.findAll<WiseIntegrationSettings>()
             WiseApiMocks.setupAccounts()
-            WiseApiMocks.removeJar()
+            WiseApiMocks.removeEuroBalance()
             client.graphqlMutation {
                 listWiseAccounts(workspaceId = preconditions.workspace.id!!, token = null) {
                     accounts { profileId; accountId; currency; usedByIntegration; deleted }
@@ -134,14 +134,14 @@ class ListWiseAccountsMutationTest(@Autowired private val client: ApiTestClient)
         }
 
         @Test
-        fun `should verify all profiles and both balance types without saving the token`() {
+        fun `should verify standard balances across profiles without saving the token`() {
             WiseApiMocks.setupAccounts()
             client.graphqlMutation { verifyToken() }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("listWiseAccounts" to (Json.parseToJsonElement("""{
                   "accounts":[
-                    {"profileId":"101","profileName":"Philip J. Fry","accountId":"301","currency":"USD","name":null,"type":"STANDARD"},
-                    {"profileId":"101","profileName":"Philip J. Fry","accountId":"302","currency":"EUR","name":"Slurm fund","type":"SAVINGS"},
-                    {"profileId":"202","profileName":"Planet Express","accountId":"401","currency":"GBP","name":null,"type":"STANDARD"}
+                     {"profileId":"101","profileName":"Philip J. Fry","profileType":"PERSONAL","accountId":"301","currency":"USD","amountInCents":123456,"name":null,"type":"STANDARD"},
+                     {"profileId":"101","profileName":"Philip J. Fry","profileType":"PERSONAL","accountId":"302","currency":"EUR","amountInCents":0,"name":null,"type":"STANDARD"},
+                     {"profileId":"202","profileName":"Planet Express","profileType":"BUSINESS","accountId":"401","currency":"GBP","amountInCents":-1234,"name":null,"type":"STANDARD"}
                   ]
                 }""") as JsonObject))
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
@@ -170,6 +170,6 @@ class ListWiseAccountsMutationTest(@Autowired private val client: ApiTestClient)
 
     private fun MutationProjection.verifyToken(token: String? = WiseApiMocks.TOKEN) =
         listWiseAccounts(workspaceId = preconditions.workspace.id!!, token = token) {
-            accounts { profileId; profileName; accountId; currency; name; type }
+            accounts { profileId; profileName; profileType; accountId; currency; amountInCents; name; type }
         }
 }

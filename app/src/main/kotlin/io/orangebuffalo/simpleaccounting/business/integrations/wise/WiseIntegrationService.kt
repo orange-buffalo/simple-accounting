@@ -36,7 +36,11 @@ class WiseIntegrationService internal constructor(
             available.none { it.profileId == saved.profileId && it.accountId == saved.accountId && it.currency == saved.currency }
         }.map { saved ->
             WiseSelectableAccount(
-                account = WiseAccount(profileId = saved.profileId, profileName = "", accountId = saved.accountId, currency = saved.currency, name = null, type = ""),
+                account = WiseAccount(
+                    profileId = saved.profileId, profileName = available.firstOrNull { it.profileId == saved.profileId }?.profileName.orEmpty(),
+                    profileType = available.firstOrNull { it.profileId == saved.profileId }?.profileType,
+                    accountId = saved.accountId, currency = saved.currency, name = null, type = "", amountInCents = null,
+                ),
                 selected = true,
                 deleted = true,
             )
@@ -72,10 +76,12 @@ data class WiseAccountSelection(val profileId: String, val accountId: String, va
 data class WiseAccount(
     val profileId: Long,
     val profileName: String,
+    val profileType: String?,
     val accountId: Long,
     val currency: String,
     val name: String?,
     val type: String,
+    val amountInCents: Long?,
 )
 
 class WiseInvalidTokenException : RuntimeException("Wise rejected the token")

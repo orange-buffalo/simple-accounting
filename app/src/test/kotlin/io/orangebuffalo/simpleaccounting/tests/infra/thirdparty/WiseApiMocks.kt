@@ -12,12 +12,13 @@ object WiseApiMocks {
             {"id":101,"type":"PERSONAL","fullName":"Philip J. Fry","extra":"ignored"},
             {"id":202,"type":"BUSINESS","fullName":"Planet Express"}
         ]""", token = token)
-        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
-            {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":42}},
-            {"id":302,"currency":"EUR","type":"SAVINGS","name":"Slurm fund"}
+        stub(path = "/profiles/101/balances?types=STANDARD", response = """[
+            {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":1234.56}},
+            {"id":302,"currency":"EUR","type":"STANDARD","amount":{"value":0}},
+            {"id":303,"currency":"CAD","type":"SAVINGS","name":"Slurm fund","amount":{"value":42}}
         ]""", token = token)
-        stub(path = "/profiles/202/balances?types=STANDARD,SAVINGS", response = """[
-            {"id":401,"currency":"GBP","type":"STANDARD","name":null}
+        stub(path = "/profiles/202/balances?types=STANDARD", response = """[
+            {"id":401,"currency":"GBP","type":"STANDARD","name":null,"amount":{"value":-12.34}}
         ]""", token = token)
     }
 
@@ -28,25 +29,25 @@ object WiseApiMocks {
 
     fun setupAccountsWithSharedIds() {
         setupAccounts()
-        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
-            {"id":301,"currency":"USD","type":"STANDARD"},
-            {"id":301,"currency":"EUR","type":"STANDARD"}
+        stub(path = "/profiles/101/balances?types=STANDARD", response = """[
+            {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":1234.56}},
+            {"id":301,"currency":"EUR","type":"STANDARD","amount":{"value":0}}
         ]""")
     }
 
     fun failBalances(status: Int = 503) {
-        ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/202/balances?types=STANDARD,SAVINGS"))
+        ThirdPartyApisMocks.server.stubFor(get(urlEqualTo("/wise/2026Q4/profiles/202/balances?types=STANDARD"))
             .willReturn(aResponse().withStatus(status)))
     }
 
     fun noAccounts() {
-        stub(path = "/profiles", response = """[{"id":101,"fullName":"Philip J. Fry"}]""")
-        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = "[]")
+        stub(path = "/profiles", response = """[{"id":101,"fullName":"Philip J. Fry","type":"PERSONAL"}]""")
+        stub(path = "/profiles/101/balances?types=STANDARD", response = "[]")
     }
 
-    fun removeJar(token: String = TOKEN) {
-        stub(path = "/profiles/101/balances?types=STANDARD,SAVINGS", response = """[
-            {"id":301,"currency":"USD","type":"STANDARD"}
+    fun removeEuroBalance(token: String = TOKEN) {
+        stub(path = "/profiles/101/balances?types=STANDARD", response = """[
+            {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":1234.56}}
         ]""", token = token)
     }
 

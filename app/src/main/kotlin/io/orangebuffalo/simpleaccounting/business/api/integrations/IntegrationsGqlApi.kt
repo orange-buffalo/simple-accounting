@@ -23,7 +23,7 @@ class IntegrationsGqlApi {
     class ListWiseAccountsMutation(
         private val wise: WiseIntegrationService,
     ) : Mutation {
-        @GraphQLDescription("Lists balances and Jars with saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential.")
+        @GraphQLDescription("Lists STANDARD currency balances with profile details, saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         @BusinessError(
             exceptionClass = WiseInvalidTokenException::class,
@@ -46,6 +46,8 @@ class IntegrationsGqlApi {
                 WiseAccountGqlDto(
                     profileId = account.profileId.toString(),
                     profileName = account.profileName,
+                    profileType = account.profileType,
+                    amountInCents = account.amountInCents,
                     accountId = account.accountId.toString(),
                     currency = account.currency,
                     name = account.name,
@@ -104,10 +106,14 @@ data class WiseAccountInput(
     @field:Size(min = 3, max = 3) val currency: String,
 )
 
-@GraphQLDescription("A currency balance or Jar belonging to a Wise profile. Identifiers are opaque values.")
+@GraphQLDescription("A STANDARD currency balance belonging to a Wise profile, or an unavailable saved account. Identifiers are opaque values.")
 data class WiseAccountGqlDto(
     val profileId: String,
     val profileName: String,
+    @GraphQLDescription("The Wise profile type: PERSONAL or BUSINESS. Null if the saved profile is unavailable.")
+    val profileType: String?,
+    @GraphQLDescription("The current balance in the account currency's minor units, as used for monetary amounts throughout the application. Null for unavailable saved accounts.")
+    val amountInCents: Long?,
     val accountId: String,
     val currency: String,
     val name: String?,
