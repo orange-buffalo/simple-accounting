@@ -12,7 +12,7 @@ const report = { findings: [], coverage: ['workspace isolation'], gaps: [], rule
 const finding = { id: 'slurm', severity: 'medium', file: 'AGENTS.md', line: 1, evidence: 'Original requirement missing', remedy: 'Add required guidance' };
 const answer = (value, cost = 0) => ({ text: JSON.stringify(value), cost, sessionId: 'ses_fry' });
 const reviewers = ['review-1', 'review-2', 'compliance-1', 'compliance-2'];
-const reviewerModel = { providerID: 'openai', id: 'gpt-5.6-terra', variant: 'medium' };
+const reviewerModel = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
 const auditedRules = (rules, files) => rules.map(({ id }) => ({ id, evidence: 'Checked cumulative changes against this rule',
   fileAudit: [{ files, evidence: 'Checked changed sources; justified N/A for documentation-only changes' }] }));
 
@@ -112,6 +112,7 @@ test('compliance requires complete unique evidenced file dispositions for every 
 
 test('policy bridge remains readable by old consumers while new consumers select the paired topology', async (t) => {
   const bridge = JSON.parse(await readFile(new URL('../policy.json', import.meta.url)));
+  assert.deepEqual(bridge.reviewerModel, reviewerModel);
   assert.deepEqual(bridge.reviewers, ['functional', 'security', 'code', 'ux']);
   assert.deepEqual(bridge.reviewTopology, reviewers);
   const { root, input } = await fixture(t, bridge);
@@ -1090,7 +1091,7 @@ test('paired model overrides are rejected and caller models never override revie
 
 test('unknown, repeated or missing reviewers and absent configured models fail closed', async (t) => {
   for (const overrides of [{ reviewers: ['functional', 'security'] }, { reviewers: [...reviewers, 'quality'] },
-    { reviewers: [...reviewers, 'code'] }, { reviewerModel: undefined }, { reviewerModel: { id: 'gpt-5.6-terra' } }]) {
+    { reviewers: [...reviewers, 'code'] }, { reviewerModel: undefined }, { reviewerModel: { id: 'gpt-6.1-sol' } }]) {
     const { root, input } = await fixture(t, overrides);
     const controller = new Controller(root, async () => { throw new Error('Invalid policy must not launch workers'); });
     await assert.rejects(controller.review(input), /Invalid controller policy|Invalid worker model/);

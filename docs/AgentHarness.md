@@ -98,7 +98,7 @@ The controller:
 Configure `.harness/policy.json`: `maxReviewRounds` (1–2, default 2), `maxFixCycles` (0–5, default 1, still bounded by
 the per-turn two-round limit), elapsed minutes, USD cost, the four required `reviewTopology` roles (`review-1`, `review-2`,
 `compliance-1`, `compliance-2`), and
-`reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-5.6-terra", "variant": "medium" }`.
+`reviewerModel`, defaulting to `{ "providerID": "openai", "id": "gpt-6.1-sol", "variant": "medium" }`.
 Optional `models` entries override other worker roles with the same model-reference shape; overrides for the four
 review roles are rejected to keep paired configurations identical. All read-only workers,
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
