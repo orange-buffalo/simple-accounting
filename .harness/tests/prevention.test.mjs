@@ -20,7 +20,7 @@ async function fixture() {
   await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify(catalog));
   await writeFile(path.join(root, '.harness/policy.json'), JSON.stringify({ version: 1, maxFixCycles: 1,
     maxElapsedMinutes: 10, maxCostUsd: 10, maxKnowledgeChars: 30000,
-    reviewers: ['functional', 'security', 'code', 'ux'], reviewerModel: { providerID: 'openai', id: 'gpt-5.6-terra' }, models: {} }));
+    reviewers: ['review-1', 'review-2', 'compliance-1', 'compliance-2'], reviewerModel: { providerID: 'openai', id: 'gpt-5.6-terra' }, models: {} }));
   return root;
 }
 
