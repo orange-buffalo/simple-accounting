@@ -45,6 +45,18 @@ object WiseApiMocks {
         stub(path = "/profiles/101/balances?types=STANDARD", response = "[]")
     }
 
+    fun setupStatement(profileId: Long = 101, accountId: Long = 301, transactions: String = "[]", token: String = TOKEN) {
+        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo("/wise/2026Q4/profiles/$profileId/balance-statements/$accountId/statement.json"))
+            .withHeader("Authorization", equalTo("Bearer $token"))
+            .withQueryParam("type", equalTo("COMPACT"))
+            .willReturn(okJson("""{"transactions":$transactions}""")))
+    }
+
+    fun failStatement(profileId: Long = 101, accountId: Long = 301, status: Int = 503) {
+        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo("/wise/2026Q4/profiles/$profileId/balance-statements/$accountId/statement.json"))
+            .willReturn(aResponse().withStatus(status)))
+    }
+
     fun removeEuroBalance(token: String = TOKEN) {
         stub(path = "/profiles/101/balances?types=STANDARD", response = """[
             {"id":301,"currency":"USD","type":"STANDARD","amount":{"value":1234.56}}

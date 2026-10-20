@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
 
 class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Setup Wise integration")
@@ -29,6 +30,13 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     val status = components.statusLabel()
     val tokenStep = components.wizardStep("Personal token")
     val accountsStep = components.wizardStep("Select accounts")
+    val configuration = Configuration(components)
+
+    @UiComponentMarker
+    class Configuration(components: ComponentsAccessors) {
+        val fetchTransactions = components.switchByContainer(components.page.getByRole(AriaRole.REGION,
+            Page.GetByRoleOptions().setName("Configuration").setExact(true)))
+    }
 
     companion object {
         fun Page.shouldBeWiseSetupPage(spec: WiseSetupPage.() -> Unit = {}) {

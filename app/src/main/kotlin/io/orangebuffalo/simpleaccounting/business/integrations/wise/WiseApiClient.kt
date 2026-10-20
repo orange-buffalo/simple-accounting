@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.integrations.StatementDirection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -13,6 +15,8 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import java.net.http.HttpClient
 import java.time.Duration
+import java.time.Instant
+import java.time.DateTimeException
 import java.util.Currency
 
 @Component
@@ -38,6 +42,48 @@ internal class WiseApiClient(
                 }
         }
 
+    fun getStatement(settings: WiseIntegrationSettings, account: WiseIntegrationAccount, start: Instant, end: Instant): List<AccountStatementRecord> {
+        val path = "/2026Q4/profiles/${account.profileId}/balance-statements/${account.accountId}/statement.json" +
+            "?currency=${account.currency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
+        val statement = get<WiseStatement>(path = path, token = settings.token)
+        try {
+            return statement.transactions.map { transaction ->
+                require(transaction.referenceNumber.isNotBlank())
+                require(transaction.amount.currency == account.currency)
+                val direction = StatementDirection.valueOf(transaction.type)
+                val amount = transaction.amount.minorUnits()
+                require(if (direction == StatementDirection.DEBIT) amount <= 0 else amount >= 0)
+                val details = transaction.details
+                val original = transaction.exchangeDetails?.forAmount ?: details?.amount
+                AccountStatementRecord(
+                    workspaceId = settings.workspaceId, provider = "WISE", integrationId = settings.id!!,
+                    profileId = account.profileId.toString(), accountId = account.accountId.toString(), accountCurrency = account.currency,
+                    externalId = transaction.referenceNumber, direction = direction, occurredAt = Instant.parse(transaction.date),
+                    amountInCents = amount, currency = transaction.amount.currency,
+                    feesInCents = transaction.totalFees?.minorUnits(), feesCurrency = transaction.totalFees?.currency,
+                    runningBalanceInCents = transaction.runningBalance?.minorUnits(), runningBalanceCurrency = transaction.runningBalance?.currency,
+                    transactionType = details?.type, description = details?.description, paymentReference = details?.paymentReference,
+                    counterpartyName = details?.senderName ?: details?.merchant?.name, counterpartyAccount = details?.senderAccount,
+                    merchantCategory = details?.category ?: details?.merchant?.category,
+                    merchantAddress = details?.merchant?.let { listOfNotNull(it.firstLine, it.city, it.state, it.postCode, it.country).filter(String::isNotBlank).joinToString(", ").ifBlank { null } },
+                    originalAmountInCents = original?.minorUnits(), originalCurrency = original?.currency,
+                    sourceAmountInCents = details?.sourceAmount?.minorUnits(), sourceCurrency = details?.sourceAmount?.currency,
+                    targetAmountInCents = details?.targetAmount?.minorUnits(), targetCurrency = details?.targetAmount?.currency,
+                    exchangeRate = (transaction.exchangeDetails?.rate ?: details?.rate)?.content?.toBigDecimal(),
+                )
+            }
+        } catch (_: IllegalArgumentException) {
+            logFailure(endpoint = path, token = settings.token, detail = "Invalid statement data")
+            throw WiseUnavailableException()
+        } catch (_: ArithmeticException) {
+            logFailure(endpoint = path, token = settings.token, detail = "Unrepresentable statement amount")
+            throw WiseUnavailableException()
+        } catch (_: DateTimeException) {
+            logFailure(endpoint = path, token = settings.token, detail = "Invalid statement date")
+            throw WiseUnavailableException()
+        }
+    }
+
     private fun balanceAmount(balance: WiseBalance, profileId: Long, token: String): Long = try {
         balance.amount.value.content.toBigDecimal()
             .movePointRight(Currency.getInstance(balance.currency).defaultFractionDigits).longValueExact()
@@ -61,21 +107,21 @@ internal class WiseApiClient(
             status = response.statusCode.value()
             body = response.body
             if (body.isNullOrBlank()) {
-                logFailure(endpoint, token, "HTTP $status; empty response body")
+                logFailure(endpoint = endpoint, token = token, detail = "HTTP $status; empty response body")
                 throw WiseUnavailableException()
             }
             return json.decodeFromString<T>(body)
         } catch (e: RestClientResponseException) {
-            logFailure(endpoint, token, "HTTP ${e.statusCode.value()}; response body: ${e.responseBodyAsString.ifBlank { "<empty>" }}")
+            logFailure(endpoint = endpoint, token = token, detail = "HTTP ${e.statusCode.value()}; response body: ${e.responseBodyAsString.ifBlank { "<empty>" }}")
             if (e.statusCode.value() in listOf(401, 403)) throw WiseInvalidTokenException()
             throw WiseUnavailableException()
         } catch (e: RestClientException) {
             val causes = generateSequence<Throwable>(e) { it.cause }.take(8)
                 .joinToString("; ") { "${it.javaClass.simpleName}: ${it.message}" }
-            logFailure(endpoint, token, "No usable response received; $causes")
+            logFailure(endpoint = endpoint, token = token, detail = "No usable response received; $causes")
             throw WiseUnavailableException()
         } catch (_: SerializationException) {
-            logFailure(endpoint, token, "HTTP $status; invalid response body: $body")
+            logFailure(endpoint = endpoint, token = token, detail = "HTTP $status; invalid response body: $body")
             throw WiseUnavailableException()
         }
     }
@@ -96,3 +142,53 @@ private data class WiseBalance(val id: Long, val currency: String, val name: Str
 
 @Serializable
 private data class WiseAmount(val value: JsonPrimitive)
+
+@Serializable
+private data class WiseStatement(val transactions: List<WiseStatementTransaction>)
+
+@Serializable
+private data class WiseStatementAmount(val value: JsonPrimitive, val currency: String) {
+    fun minorUnits(): Long = value.content.toBigDecimal()
+        .movePointRight(Currency.getInstance(currency).defaultFractionDigits.also { require(it >= 0) }).longValueExact()
+}
+
+@Serializable
+private data class WiseStatementTransaction(
+    val type: String,
+    val date: String,
+    val amount: WiseStatementAmount,
+    val referenceNumber: String,
+    val totalFees: WiseStatementAmount? = null,
+    val runningBalance: WiseStatementAmount? = null,
+    val details: WiseStatementDetails? = null,
+    val exchangeDetails: WiseExchangeDetails? = null,
+)
+
+@Serializable
+private data class WiseStatementDetails(
+    val type: String? = null,
+    val description: String? = null,
+    val amount: WiseStatementAmount? = null,
+    val senderName: String? = null,
+    val senderAccount: String? = null,
+    val paymentReference: String? = null,
+    val category: String? = null,
+    val merchant: WiseMerchant? = null,
+    val sourceAmount: WiseStatementAmount? = null,
+    val targetAmount: WiseStatementAmount? = null,
+    val rate: JsonPrimitive? = null,
+)
+
+@Serializable
+private data class WiseMerchant(
+    val name: String? = null,
+    val firstLine: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val postCode: String? = null,
+    val country: String? = null,
+    val category: String? = null,
+)
+
+@Serializable
+private data class WiseExchangeDetails(val forAmount: WiseStatementAmount? = null, val rate: JsonPrimitive? = null)

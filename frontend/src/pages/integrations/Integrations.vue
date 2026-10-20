@@ -6,7 +6,8 @@
     <div v-else-if="integrations" class="integration-cards">
       <article v-for="provider in providers" :key="provider.id" class="integration-card">
         <component :is="provider.logo" class="integration-card__logo" :aria-label="provider.name" role="img" />
-        <SaStatusLabel v-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
+        <SaStatusLabel v-if="provider.authenticationRequired" status="failure" role="alert">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
+        <SaStatusLabel v-else-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
         <p>{{ provider.description }}</p>
         <RouterLink :to="{ name: provider.setup }">
           {{ provider.active ? $t.integrations.update() : $t.integrations.setup() }} →
@@ -29,7 +30,7 @@
   const workspaceId = useCurrentWorkspace().currentWorkspace.id;
   const [loading, workspace] = useQuery(graphql(/* GraphQL */ `
     query integrationProviders($workspaceId: String!) {
-      workspace(id: $workspaceId) { integrations { wise { active } } }
+      workspace(id: $workspaceId) { integrations { wise { active authenticationRequired } } }
     }
   `), 'workspace', { variables: { workspaceId } });
   const integrations = computed(() => workspace.value?.integrations ?? null);
@@ -37,6 +38,7 @@
     id: 'wise', name: $t.value.integrations.wise.name(), logo: WiseLogo,
     description: $t.value.integrations.wise.description(),
     active: integrations.value?.wise.active === true, setup: 'wise-setup',
+    authenticationRequired: integrations.value?.wise.authenticationRequired === true,
   }]);
 </script>
 

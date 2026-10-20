@@ -62,6 +62,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             accounts.shouldHaveExactData(
                 *normalAccounts,
             )
+            configuration.fetchTransactions.shouldBeSwitchedOn()
             val dollars = accounts.account("USD")
             val euros = accounts.account("EUR")
             dollars.shouldBeUnselected()
@@ -86,6 +87,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                 normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
             )
             reportRendering("integrations.wise-accounts")
+            configuration.fetchTransactions.toggle()
+            configuration.fetchTransactions.shouldBeSwitchedOff()
             next.click()
             status.shouldBeSuccess("Wise integration saved successfully.")
             reportRendering("integrations.wise-success")
@@ -93,6 +96,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         settings.workspaceId.shouldBe(preconditions.workspace.id)
         settings.token.shouldBe(WiseApiMocks.TOKEN)
+        settings.fetchTransactionsPeriodically.shouldBe(false)
+        settings.authenticationRequired.shouldBe(false)
+        settings.lastSuccessfulFetchTime.shouldBe(null)
         settings.accounts.shouldContainExactly(
             WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
             WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
@@ -111,6 +117,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                     WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
                     WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
                 ),
+                fetchTransactionsPeriodically = false,
+                authenticationRequired = true,
             )
         }
         WiseApiMocks.setupAccountsWithSharedIds()
@@ -123,6 +131,10 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             )
             accountsStep.shouldBeOpen()
             tokenStep.shouldBeCompleted()
+            configuration.fetchTransactions.shouldBeSwitchedOff()
+            configuration.fetchTransactions.toggle()
+            configuration.fetchTransactions.shouldBeSwitchedOn()
+            reportRendering("integrations.wise-configuration")
             accounts.account("USD").click()
             next.click()
             status.shouldBeSuccess("Wise integration saved successfully.")
@@ -130,6 +142,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         updated.id.shouldBe(settings.id)
         updated.token.shouldBe(WiseApiMocks.TOKEN)
+        updated.fetchTransactionsPeriodically.shouldBe(true)
+        updated.authenticationRequired.shouldBe(false)
         updated.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
     }
 
@@ -163,6 +177,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         settings.token.shouldBe(WiseApiMocks.TOKEN)
         settings.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
+        settings.fetchTransactionsPeriodically.shouldBe(true)
+        settings.authenticationRequired.shouldBe(false)
     }
 
     @Test
@@ -234,6 +250,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
         settings.token.shouldBe("bender-replacement-token")
         settings.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
+        settings.fetchTransactionsPeriodically.shouldBe(true)
+        settings.authenticationRequired.shouldBe(false)
     }
 
     @Test

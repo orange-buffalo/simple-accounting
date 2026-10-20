@@ -16,6 +16,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
+import java.time.Instant
 
 class IntegrationsGqlApi {
     @Component
@@ -88,11 +89,14 @@ class IntegrationsGqlApi {
             @Size(max = 2000) token: String? = null,
             @GraphQLDescription("The complete non-empty set of accounts to use. Replaces the saved set; every account must be available with the effective token.")
             @Valid @Size(min = 1) accounts: List<WiseAccountInput>,
+            @GraphQLDescription("Whether selected accounts should be fetched automatically every four hours. A supplied value is saved; null or omission saves true.")
+            fetchTransactionsPeriodically: Boolean? = null,
         ): WiseSettingsSaveResult {
             wise.setup(
                 workspaceId = workspaceId,
                 token = token,
                 accounts = accounts.map { WiseAccountSelection(profileId = it.profileId, accountId = it.accountId, currency = it.currency) },
+                fetchTransactionsPeriodically = fetchTransactionsPeriodically ?: true,
             )
             return WiseSettingsSaveResult(success = true)
         }
@@ -135,6 +139,21 @@ class WiseIntegrationGqlDto(private val workspaceId: String) {
     @GraphQLDescription("Whether Wise is active for this workspace.")
     fun active(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
         env.graphQlContext.getBean<WiseIntegrationService>().isActive(workspaceId)
+    }
+
+    @GraphQLDescription("Whether automatic transaction fetching is enabled. True by default before setup.")
+    fun fetchTransactionsPeriodically(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
+        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.fetchTransactionsPeriodically ?: true
+    }
+
+    @GraphQLDescription("Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again.")
+    fun authenticationRequired(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
+        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.authenticationRequired ?: false
+    }
+
+    @GraphQLDescription("The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch.")
+    fun lastSuccessfulFetchTime(env: DataFetchingEnvironment): Instant? = env.withRequestAuthentication {
+        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.lastSuccessfulFetchTime
     }
 }
 
