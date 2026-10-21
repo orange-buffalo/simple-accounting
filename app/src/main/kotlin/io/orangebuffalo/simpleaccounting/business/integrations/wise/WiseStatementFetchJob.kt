@@ -19,8 +19,7 @@ class WiseStatementFetchJob(
             } catch (_: WiseUnavailableException) {
                 logger.warn { "Wise statement fetch failed for integration ${integration.id}; will retry on the next run" }
             } catch (e: Exception) {
-                // Do not include exception messages or causes: they may contain credentials or statement data.
-                logger.error { "Unexpected Wise statement fetch failure for integration ${integration.id} (${e.javaClass.name}); continuing with other integrations" }
+                logger.error(e) { "Unexpected Wise statement fetch failure for integration ${integration.id}; continuing with other integrations" }
             }
         }
     }

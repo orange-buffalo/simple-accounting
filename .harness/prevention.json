@@ -152,8 +152,8 @@
       "id": "business-error-mapping",
       "category": "backend",
       "appliesWhen": "Mapping expected business failures or isolating scheduled batch items",
-      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with safe identifiers and exception class, omit credential-bearing messages/causes, and preserve failed-item rollback. Do not catch JVM Errors or wrap the entire batch as a substitute for item isolation.",
-      "reason": "Broad business catches hide defects, but an uncaught item failure can prevent unrelated scheduled work."
+      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with the complete caught throwable and integration/item context, preserving failed-item rollback and continuation. Do not replace the throwable with its message or class alone, catch JVM Errors, or wrap the entire batch instead of individual items. Provider-boundary diagnostics remain bounded and credential-redacted; public business errors remain sanitized.",
+      "reason": "Per-item isolation protects unrelated work; complete throwable logging preserves troubleshooting evidence without changing provider-boundary or public-error contracts."
     },
     {
       "id": "review-exhaustion-delivery",
