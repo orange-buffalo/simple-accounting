@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
@@ -24,7 +23,6 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
-import org.springframework.dao.DataAccessResourceFailureException
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
@@ -35,7 +33,6 @@ import java.util.Random
 @TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class WiseStatementFetchServiceTest(
     @Autowired private val fetcher: WiseStatementFetchService,
-    @Autowired private val job: WiseStatementFetchJob,
     @Autowired private val service: WiseIntegrationService,
     @Autowired private val time: TimeService,
 ) : SaIntegrationTestBase() {
@@ -165,7 +162,7 @@ class WiseStatementFetchServiceTest(
         ) }
         setupStatementWithOversizedReference()
 
-        shouldThrow<DataAccessResourceFailureException> { fetcher.fetch(integration.id!!) }
+        fetcher.fetch(integration.id!!)
 
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(integration)
@@ -178,7 +175,7 @@ class WiseStatementFetchServiceTest(
         setupStatementWithOversizedReference()
         WiseApiMocks.setupStatement(accountId = 302, transactions = "[${transaction().replace(oldValue = "USD", newValue = "EUR")}]")
 
-        job.fetchStatements()
+        fetcher.fetchStatements()
 
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().integrationId.shouldBe(valid.id)
         aggregateTemplate.findAll<WiseIntegrationSettings>().single { it.id == valid.id }.lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
@@ -247,7 +244,7 @@ class WiseStatementFetchServiceTest(
             .withQueryParam("intervalStart", equalTo("1998-03-21T23:01:02.042Z"))
             .willReturn(aResponse().withStatus(503)))
 
-        shouldThrow<WiseUnavailableException> { fetcher.fetch(integration.id!!) }
+        fetcher.fetch(integration.id!!)
 
         assertInterval(start = "1997-03-21T23:01:02.042Z", end = "1998-03-21T23:01:02.042Z")
         assertInterval(start = "1998-03-21T23:01:02.042Z", end = "1999-03-21T23:01:02.042Z")
@@ -264,7 +261,7 @@ class WiseStatementFetchServiceTest(
         WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
         WiseApiMocks.failStatement(accountId = 302)
 
-        shouldThrow<WiseUnavailableException> { fetcher.fetch(integration.id!!) }
+        fetcher.fetch(integration.id!!)
 
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
         val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
@@ -291,8 +288,7 @@ class WiseStatementFetchServiceTest(
             WiseApiMocks.setupStatement(transactions = "[${transaction()},${transaction(reference = "TRANSFER-42")}]")
             WiseApiMocks.failStatement(accountId = 302, status = status)
 
-            if (status == 503) shouldThrow<WiseUnavailableException> { fetcher.fetch(integration.id) }
-            else fetcher.fetch(integration.id)
+            fetcher.fetch(integration.id)
 
             val savedRecords = aggregateTemplate.findAll<AccountStatementRecord>().filter { it.integrationId == integration.id }
             savedRecords.size.shouldBe(1)
@@ -321,8 +317,25 @@ class WiseStatementFetchServiceTest(
         }
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
         ThirdPartyApisMocks.server.resetRequests()
-        job.fetchStatements()
+        fetcher.fetchStatements()
         WiseApiMocks.shouldHaveNoRequests()
+    }
+
+    @Test
+    fun `should ignore ineligible and missing integrations when fetching a single integration`() {
+        val integrations = preconditions { listOf(
+            wiseIntegrationSettings(fetchTransactionsPeriodically = false, accounts = setOf(dollars)),
+            wiseIntegrationSettings(authenticationRequired = true, accounts = setOf(dollars)),
+            wiseIntegrationSettings(accounts = emptySet()),
+        ) }
+
+        integrations.forEach { fetcher.fetch(it.id!!) }
+        fetcher.fetch("bender")
+
+        WiseApiMocks.shouldHaveNoRequests()
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
+        val saved = aggregateTemplate.findAll<WiseIntegrationSettings>()
+        integrations.forEach { expected -> saved.single { it.id == expected.id }.shouldBeEntityWithFields(expected) }
     }
 
     @Test
@@ -336,7 +349,7 @@ class WiseStatementFetchServiceTest(
         WiseApiMocks.failStatement(accountId = 302)
         WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
 
-        job.fetchStatements()
+        fetcher.fetchStatements()
 
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().amountInCents.shouldBe(125)
         aggregateTemplate.findAll<WiseIntegrationSettings>().count { it.lastSuccessfulFetchTime == MOCK_TIME }.shouldBe(1)
@@ -352,7 +365,7 @@ class WiseStatementFetchServiceTest(
             transaction().replace(oldValue = "USD", newValue = "EUR"),
         )) {
             WiseApiMocks.setupStatement(transactions = "[$invalid]")
-            shouldThrow<WiseUnavailableException> { fetcher.fetch(integration.id!!) }
+            fetcher.fetch(integration.id!!)
             aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().lastSuccessfulFetchTime.shouldBe(null)
         }

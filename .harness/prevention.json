@@ -151,9 +151,9 @@
     {
       "id": "business-error-mapping",
       "category": "backend",
-      "appliesWhen": "Mapping expected business failures or isolating scheduled batch items",
-      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with the complete caught throwable and integration/item context, preserving failed-item rollback and continuation. Do not replace the throwable with its message or class alone, catch JVM Errors, or wrap the entire batch instead of individual items. Provider-boundary diagnostics remain bounded and credential-redacted; public business errors remain sanitized.",
-      "reason": "Per-item isolation protects unrelated work; complete throwable logging preserves troubleshooting evidence without changing provider-boundary or public-error contracts."
+      "appliesWhen": "Mapping expected business failures, isolating scheduled batch items, or sharing integration fetching across scheduled and async entry points",
+      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with the complete caught throwable and integration/item context, preserving failed-item rollback and continuation. Do not replace the throwable with its message or class alone, catch JVM Errors, or wrap the entire batch instead of individual items. Provider-boundary diagnostics remain bounded and credential-redacted; public business errors remain sanitized. For integration fetching shared by scheduled and async callers, put this isolation in the common single-integration service operation, outside its transaction, so both entry points receive rollback and diagnostics.",
+      "reason": "Per-item isolation protects unrelated work; a shared service boundary also protects async callers while retaining complete troubleshooting evidence."
     },
     {
       "id": "review-exhaustion-delivery",
@@ -371,6 +371,13 @@
       "appliesWhen": "Asserting complete persisted-entity mappings",
       "instruction": "Use shouldBeEntityWithFields with an independently specified expected entity, including meaningful default-valued fields, instead of fragmented property assertions. Keep focused assertions for tests whose contract concerns only selected fields.",
       "reason": "Full-entity expectations expose missing or unexpectedly populated mapped fields."
+    },
+    {
+      "id": "integration-fetch-orchestration",
+      "category": "backend",
+      "appliesWhen": "Implementing Spring integration fetching shared by periodic scheduling and enabled-save background dispatch",
+      "instruction": "Keep batch scheduling, single-integration async dispatch and guarded fetching in the owning fetch service; do not introduce pass-through job/trigger components or route single-item dispatch through a batch job. Invoke enabled-save fetching directly after transaction commit through the service's proxied @Async method, with async support enabled, rather than manual executor submission or a single-consumer event bridge. Preserve no dispatch for disabled, rejected or rolled-back saves and independent fetch transactions.",
+      "reason": "One owner avoids redundant orchestration while preserving real asynchronous execution and commit ordering."
     }
   ]
 }

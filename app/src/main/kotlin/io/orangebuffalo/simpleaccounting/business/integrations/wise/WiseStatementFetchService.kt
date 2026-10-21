@@ -3,8 +3,13 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import mu.KotlinLogging
+import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionDefinition
+import org.springframework.transaction.support.TransactionTemplate
 import java.time.Duration
 import java.time.ZoneOffset
 
@@ -14,9 +19,36 @@ class WiseStatementFetchService internal constructor(
     private val client: WiseApiClient,
     private val records: AccountStatementRecordsRepository,
     private val time: TimeService,
+    transactionManager: PlatformTransactionManager,
 ) {
-    @Transactional
+    private val logger = KotlinLogging.logger {}
+    private val fetchTransaction = TransactionTemplate(transactionManager).apply {
+        propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
+    }
+
+    @Scheduled(cron = "0 0 */4 * * *", zone = "UTC")
+    fun fetchStatements() {
+        settings.findAllByFetchTransactionsPeriodicallyTrueAndAuthenticationRequiredFalse().forEach { integration ->
+            fetch(integration.id!!)
+        }
+    }
+
+    @Async
+    fun fetchAsync(integrationId: String) {
+        fetch(integrationId)
+    }
+
     fun fetch(integrationId: String) {
+        try {
+            fetchTransaction.executeWithoutResult { fetchInTransaction(integrationId) }
+        } catch (_: WiseUnavailableException) {
+            logger.warn { "Wise statement fetch failed for integration $integrationId; will retry on the next run" }
+        } catch (e: Exception) {
+            logger.error(e) { "Unexpected Wise statement fetch failure for integration $integrationId" }
+        }
+    }
+
+    private fun fetchInTransaction(integrationId: String) {
         // Serializes fetches and setup changes across application instances, including their checkpoints.
         val integration = settings.lockById(integrationId) ?: return
         if (!integration.fetchTransactionsPeriodically || integration.authenticationRequired || integration.accounts.isEmpty()) return
