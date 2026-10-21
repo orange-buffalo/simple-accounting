@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -10,6 +11,7 @@ class WiseIntegrationService internal constructor(
     private val workspaces: WorkspacesService,
     private val settings: WiseIntegrationSettingsRepository,
     private val client: WiseApiClient,
+    private val events: ApplicationEventPublisher,
 ) {
     fun isActive(workspaceId: String): Boolean {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
@@ -69,10 +71,11 @@ class WiseIntegrationService internal constructor(
             existing?.accounts?.find { saved -> saved.profileId.toString() == it.profileId && saved.accountId.toString() == it.accountId && saved.currency == it.currency }
                 ?: WiseIntegrationAccount(profileId = it.profileId.toLong(), accountId = it.accountId.toLong(), currency = it.currency)
         }.toSet()
-        settings.save(existing?.copy(token = resolvedToken, accounts = selected,
+        val saved = settings.save(existing?.copy(token = resolvedToken, accounts = selected,
             fetchTransactionsPeriodically = fetchTransactionsPeriodically, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically))
+        if (saved.fetchTransactionsPeriodically) events.publishEvent(WiseIntegrationSaved(saved.id!!))
     }
 
     private fun resolveToken(token: String?, existing: WiseIntegrationSettings?): String =

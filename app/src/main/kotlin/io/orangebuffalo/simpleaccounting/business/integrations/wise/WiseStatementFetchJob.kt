@@ -14,13 +14,17 @@ class WiseStatementFetchJob(
     @Scheduled(cron = "0 0 */4 * * *", zone = "UTC")
     fun fetchStatements() {
         settings.findAllByFetchTransactionsPeriodicallyTrueAndAuthenticationRequiredFalse().forEach { integration ->
-            try {
-                fetcher.fetch(integration.id!!)
-            } catch (_: WiseUnavailableException) {
-                logger.warn { "Wise statement fetch failed for integration ${integration.id}; will retry on the next run" }
-            } catch (e: Exception) {
-                logger.error(e) { "Unexpected Wise statement fetch failure for integration ${integration.id}; continuing with other integrations" }
-            }
+            fetchIntegration(integration.id!!)
+        }
+    }
+
+    fun fetchIntegration(integrationId: String) {
+        try {
+            fetcher.fetch(integrationId)
+        } catch (_: WiseUnavailableException) {
+            logger.warn { "Wise statement fetch failed for integration $integrationId; will retry on the next run" }
+        } catch (e: Exception) {
+            logger.error(e) { "Unexpected Wise statement fetch failure for integration $integrationId; continuing with other integrations" }
         }
     }
 }

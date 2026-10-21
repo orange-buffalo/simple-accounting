@@ -11,14 +11,22 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMo
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 import org.junit.jupiter.api.Test
+import org.springframework.transaction.support.TransactionTemplate
 
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 @TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegrationService) : SaIntegrationTestBase() {
+class WiseIntegrationServiceTest(
+    @Autowired private val service: WiseIntegrationService,
+    @Autowired private val transactions: TransactionTemplate,
+) : SaIntegrationTestBase() {
     private val token = WiseApiMocks.TOKEN
     private val preconditions by lazyPreconditions {
         object {
@@ -29,6 +37,38 @@ class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegration
 
     private fun verifyToken() = runAs(preconditions.fry.toSecurityPrincipal()) {
         service.verifyToken(workspaceId = preconditions.workspace.id!!, token = token)
+    }
+
+    @Test
+    fun `should defer fetching until the enclosing save transaction commits`() {
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatement()
+        runAs(preconditions.fry.toSecurityPrincipal()) {
+            transactions.executeWithoutResult {
+                service.setup(workspaceId = preconditions.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")))
+                WiseApiMocks.shouldHaveNoStatementRequests()
+            }
+        }
+        shouldEventually {
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
+        }
+    }
+
+    @Test
+    fun `should not fetch when an enclosing save transaction rolls back`() {
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatement()
+        runAs(preconditions.fry.toSecurityPrincipal()) {
+            transactions.executeWithoutResult { status ->
+                service.setup(workspaceId = preconditions.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")))
+                WiseApiMocks.shouldHaveNoStatementRequests()
+                status.setRollbackOnly()
+            }
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+        WiseApiMocks.shouldHaveNoStatementRequests()
     }
 
     @Test

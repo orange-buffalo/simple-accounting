@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
@@ -15,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -91,8 +93,117 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
     @DisplayName("Business Flow")
     inner class BusinessFlow {
         @Test
+        fun `should fetch statements after creating an enabled integration`() {
+            val other = preconditions { wiseIntegrationSettings(
+                token = WiseApiMocks.TOKEN,
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")),
+            ) }
+            WiseApiMocks.setupAccounts()
+            WiseApiMocks.blockStatementResponse(transactions = """[{
+                "type":"DEBIT","date":"1999-03-27T12:00:00Z","referenceNumber":"CARD-1",
+                "amount":{"value":-1.25,"currency":"USD"}
+            }]""").use { blocked ->
+                client.graphqlMutation {
+                    setup(selected = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD")))
+                }.from(preconditions.fry)
+                    .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+                blocked.shouldBePending()
+                aggregateTemplate.findAll<WiseIntegrationSettings>().single { it.workspaceId == preconditions.workspace.id }
+                    .lastSuccessfulFetchTime.shouldBe(null)
+            }
+
+            shouldEventually {
+                val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().single { it.workspaceId == preconditions.workspace.id }
+                saved.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                    accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
+                ))
+                val record = aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle()
+                record.integrationId.shouldBe(saved.id)
+                record.accountId.shouldBe("301")
+                record.amountInCents.shouldBe(125)
+            }
+            aggregateTemplate.findAll<WiseIntegrationSettings>().single { it.id == other.id }.shouldBeEntityWithFields(other)
+            WiseApiMocks.shouldHaveStatementRequests(accountId = 302, count = 0)
+        }
+
+        @Test
+        fun `should fetch after every save of an already enabled integration`() {
+            preconditions { wiseIntegrationSettings(
+                workspace = preconditions.workspace, token = WiseApiMocks.TOKEN,
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
+            ) }
+            WiseApiMocks.setupAccounts()
+            for (reference in listOf("CARD-1", "CARD-2")) {
+                WiseApiMocks.setupStatement(transactions = """[{
+                    "type":"DEBIT","date":"1999-03-27T12:00:00Z","referenceNumber":"$reference",
+                    "amount":{"value":-1.25,"currency":"USD"}
+                }]""")
+                client.graphqlMutation {
+                    setup(selected = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD")), token = null)
+                }.from(preconditions.fry)
+                    .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+                shouldEventually {
+                    aggregateTemplate.findAll<AccountStatementRecord>().map { it.externalId }.toSet().shouldBe(
+                        if (reference == "CARD-1") setOf("[\"101\",\"USD\",\"DEBIT\",\"CARD-1\"]")
+                        else setOf("[\"101\",\"USD\",\"DEBIT\",\"CARD-1\"]", "[\"101\",\"USD\",\"DEBIT\",\"CARD-2\"]"),
+                    )
+                }
+            }
+            WiseApiMocks.shouldHaveStatementRequests(count = 2)
+        }
+
+        @Test
+        fun `should fetch statements after enabling and resuming an existing integration`() {
+            val original = preconditions { wiseIntegrationSettings(
+                workspace = preconditions.workspace, token = WiseApiMocks.TOKEN,
+                fetchTransactionsPeriodically = false, authenticationRequired = true,
+            ) }
+            WiseApiMocks.setupAccounts()
+            WiseApiMocks.setupStatement()
+
+            client.graphqlMutation {
+                setup(selected = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD")),
+                    token = null, fetchTransactionsPeriodically = true)
+            }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+
+            shouldEventually {
+                val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                saved.id.shouldBe(original.id)
+                saved.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                    accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
+                ))
+            }
+        }
+
+        @Test
+        fun `should retain saved settings and suspend integration when the asynchronous fetch is unauthorized`() {
+            WiseApiMocks.setupAccounts()
+            WiseApiMocks.failStatement(status = 403)
+
+            client.graphqlMutation {
+                setup(selected = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD")))
+            }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+
+            shouldEventually {
+                val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                saved.token.shouldBe(WiseApiMocks.TOKEN)
+                saved.authenticationRequired.shouldBe(true)
+                saved.lastSuccessfulFetchTime.shouldBe(null)
+                saved.accounts.single().lastSuccessfulFetchTime.shouldBe(null)
+                aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
+            }
+        }
+
+        @Test
         fun `should persist selected account tuples that differ only by currency`() {
             WiseApiMocks.setupAccountsWithSharedIds()
+            WiseApiMocks.setupStatement()
             client.graphqlMutation {
                 setup(listOf(
                     WiseAccountInput(profileId = "101", accountId = "301", currency = "USD"),
@@ -100,14 +211,16 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 ))
             }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
-            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
-                workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
-                fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = null,
-                accounts = setOf(
-                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
-                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
-                ),
-            ))
+            shouldEventually {
+                aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+                    workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                    accounts = setOf(
+                        WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME),
+                        WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR", lastSuccessfulFetchTime = MOCK_TIME),
+                    ),
+                ))
+            }
         }
 
         @Test
@@ -119,6 +232,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             saved.fetchTransactionsPeriodically.shouldBe(false)
             saved.token.shouldBe(WiseApiMocks.TOKEN)
             saved.accounts.shouldBe(setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")))
+            WiseApiMocks.shouldHaveNoStatementRequests()
         }
 
         @Test
@@ -177,14 +291,18 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             }
             WiseApiMocks.setupAccounts()
             val selection = listOf(WiseAccountInput(profileId = "101", accountId = "301", currency = "USD"))
+            WiseApiMocks.setupStatement()
             client.graphqlMutation { setup(selected = selection, token = null) }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
-            val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            updated.id.shouldBe(persisted.id)
-            updated.token.shouldBe(WiseApiMocks.TOKEN)
-            updated.accounts.shouldBe(setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")))
-            updated.fetchTransactionsPeriodically.shouldBe(true)
-            updated.authenticationRequired.shouldBe(false)
+            shouldEventually {
+                val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                updated.id.shouldBe(persisted.id)
+                updated.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                    accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                ))
+            }
         }
 
         @Test
@@ -198,12 +316,22 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             }
             val replacementToken = "bender-replacement-token"
             WiseApiMocks.setupAccounts(token = replacementToken)
+            WiseApiMocks.setupStatement(accountId = 302, token = replacementToken)
+            WiseApiMocks.setupStatement(profileId = 202, accountId = 401, token = replacementToken)
             client.graphqlMutation { setup(token = replacementToken) }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
-            val replaced = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            replaced.id.shouldBe(persisted.id)
-            replaced.token.shouldBe(replacementToken)
-            replaced.accounts.shouldBe(setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")))
+            shouldEventually {
+                val replaced = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                replaced.id.shouldBe(persisted.id)
+                replaced.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    workspaceId = preconditions.workspace.id!!, token = replacementToken,
+                    accounts = setOf(
+                        WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR", lastSuccessfulFetchTime = MOCK_TIME),
+                        WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP", lastSuccessfulFetchTime = MOCK_TIME),
+                    ),
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                ))
+            }
         }
 
         @Test
@@ -219,7 +347,8 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             WiseApiMocks.removeEuroBalance()
             client.graphqlMutation { setup(token = null) }.from(preconditions.fry)
                 .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_ACCOUNTS", path = "saveWiseIntegrationSettings")
-            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBe(original)
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(original)
+            WiseApiMocks.shouldHaveNoStatementRequests()
         }
 
         @Test
@@ -244,6 +373,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             saved.authenticationRequired.shouldBe(true)
             saved.fetchTransactionsPeriodically.shouldBe(false)
             saved.lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
+            WiseApiMocks.shouldHaveNoStatementRequests()
         }
 
         @Test
@@ -262,6 +392,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 client.graphqlMutation { setup(selection) }.from(preconditions.fry)
                     .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_ACCOUNTS", path = "saveWiseIntegrationSettings")
                 aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+                WiseApiMocks.shouldHaveNoStatementRequests()
             }
         }
 
@@ -273,6 +404,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 client.graphqlMutation { setup() }.from(preconditions.fry)
                     .executeAndVerifyBusinessErrorCode(errorCode = expected, path = "saveWiseIntegrationSettings")
                 aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+                WiseApiMocks.shouldHaveNoStatementRequests()
             }
         }
 
@@ -283,6 +415,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             client.graphqlMutation { setup() }.from(preconditions.fry)
                 .executeAndVerifyBusinessErrorCode(errorCode = "UNAVAILABLE", path = "saveWiseIntegrationSettings")
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+            WiseApiMocks.shouldHaveNoStatementRequests()
         }
     }
 
