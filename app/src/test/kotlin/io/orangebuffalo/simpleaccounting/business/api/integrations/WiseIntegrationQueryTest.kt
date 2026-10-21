@@ -57,7 +57,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
                 .from(preconditions.leela)
                 .executeAndVerifySuccessResponse("saveSharedWorkspace" to json("""{"id":"${preconditions.workspace.id}"}"""))
             client.graphql { integrationStatus() }.from(preconditions.leela)
-                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 9, locationLine = 5)
+                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 7, locationLine = 4)
         }
     }
 

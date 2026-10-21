@@ -1,7 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
-import io.orangebuffalo.simpleaccounting.business.integrations.StatementDirection
+import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -50,22 +52,30 @@ internal class WiseApiClient(
             return statement.transactions.map { transaction ->
                 require(transaction.referenceNumber.isNotBlank())
                 require(transaction.amount.currency == account.currency)
-                val direction = StatementDirection.valueOf(transaction.type)
+                val type = when {
+                    transaction.details?.type == "CONVERSION" -> StatementType.CONVERSION
+                    transaction.type == "DEBIT" -> StatementType.DEBIT
+                    transaction.type == "CREDIT" -> StatementType.CREDIT
+                    else -> StatementType.OTHER
+                }
                 val amount = transaction.amount.minorUnits()
-                require(if (direction == StatementDirection.DEBIT) amount <= 0 else amount >= 0)
+                require(when (transaction.type) {
+                    "DEBIT" -> amount <= 0
+                    "CREDIT" -> amount >= 0
+                    else -> true
+                })
                 val details = transaction.details
                 val original = transaction.exchangeDetails?.forAmount ?: details?.amount
                 AccountStatementRecord(
-                    workspaceId = settings.workspaceId, provider = "WISE", integrationId = settings.id!!,
-                    profileId = account.profileId.toString(), accountId = account.accountId.toString(), accountCurrency = account.currency,
-                    externalId = transaction.referenceNumber, direction = direction, occurredAt = Instant.parse(transaction.date),
-                    amountInCents = amount, currency = transaction.amount.currency,
+                    workspaceId = settings.workspaceId, provider = IntegrationProvider.WISE, integrationId = settings.id!!,
+                    accountId = account.accountId.toString(), accountCurrency = account.currency,
+                    // Wise references can be shared by a refund and across currency statements.
+                    externalId = json.encodeToString(listOf(account.profileId.toString(), account.currency, transaction.type, transaction.referenceNumber)),
+                    type = type, occurredAt = Instant.parse(transaction.date),
+                    amountInCents = if (amount < 0) Math.negateExact(amount) else amount, currency = transaction.amount.currency,
                     feesInCents = transaction.totalFees?.minorUnits(), feesCurrency = transaction.totalFees?.currency,
                     runningBalanceInCents = transaction.runningBalance?.minorUnits(), runningBalanceCurrency = transaction.runningBalance?.currency,
-                    transactionType = details?.type, description = details?.description, paymentReference = details?.paymentReference,
-                    counterpartyName = details?.senderName ?: details?.merchant?.name, counterpartyAccount = details?.senderAccount,
-                    merchantCategory = details?.category ?: details?.merchant?.category,
-                    merchantAddress = details?.merchant?.let { listOfNotNull(it.firstLine, it.city, it.state, it.postCode, it.country).filter(String::isNotBlank).joinToString(", ").ifBlank { null } },
+                    additionalData = details?.additionalData(),
                     originalAmountInCents = original?.minorUnits(), originalCurrency = original?.currency,
                     sourceAmountInCents = details?.sourceAmount?.minorUnits(), sourceCurrency = details?.sourceAmount?.currency,
                     targetAmountInCents = details?.targetAmount?.minorUnits(), targetCurrency = details?.targetAmount?.currency,
@@ -177,7 +187,16 @@ private data class WiseStatementDetails(
     val sourceAmount: WiseStatementAmount? = null,
     val targetAmount: WiseStatementAmount? = null,
     val rate: JsonPrimitive? = null,
-)
+) {
+    fun additionalData(): String? = listOfNotNull(
+        type?.let { "Type: $it" }, description?.let { "Description: $it" },
+        paymentReference?.let { "Payment reference: $it" }, senderName?.let { "Sender: $it" },
+        senderAccount?.let { "Sender account: $it" }, category?.let { "Category: $it" },
+        merchant?.name?.let { "Merchant: $it" }, merchant?.category?.let { "Merchant category: $it" },
+        merchant?.let { listOfNotNull(it.firstLine, it.city, it.state, it.postCode, it.country)
+            .filter(String::isNotBlank).joinToString(", ").ifBlank { null } }?.let { "Merchant address: $it" },
+    ).joinToString("\n").ifBlank { null }
+}
 
 @Serializable
 private data class WiseMerchant(

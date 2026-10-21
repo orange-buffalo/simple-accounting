@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetup
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
 
@@ -93,17 +94,15 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             status.shouldBeSuccess("Wise integration saved successfully.")
             reportRendering("integrations.wise-success")
         }
-        val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-        settings.workspaceId.shouldBe(preconditions.workspace.id)
-        settings.token.shouldBe(WiseApiMocks.TOKEN)
-        settings.fetchTransactionsPeriodically.shouldBe(false)
-        settings.authenticationRequired.shouldBe(false)
-        settings.lastSuccessfulFetchTime.shouldBe(null)
-        settings.accounts.shouldContainExactly(
-            WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
-            WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
-            WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
-        )
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+            workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+            fetchTransactionsPeriodically = false, authenticationRequired = false, lastSuccessfulFetchTime = null,
+            accounts = setOf(
+                WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
+                WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
+                WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
+            ),
+        ))
     }
 
     @Test

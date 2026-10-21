@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMo
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
@@ -99,15 +100,13 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 ))
             }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
-            val persisted = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            persisted.workspaceId.shouldBe(preconditions.workspace.id)
-            persisted.token.shouldBe(WiseApiMocks.TOKEN)
-            persisted.fetchTransactionsPeriodically.shouldBe(true)
-            persisted.authenticationRequired.shouldBe(false)
-            persisted.lastSuccessfulFetchTime.shouldBe(null)
-            persisted.accounts.shouldBe(setOf(
-                WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
-                WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+                workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = null,
+                accounts = setOf(
+                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
+                    WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
+                ),
             ))
         }
 

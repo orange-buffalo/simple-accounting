@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountSelection
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidAccountsException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
@@ -131,30 +132,24 @@ data class WiseAccountGqlDto(
 @GraphQLDescription("Workspace-scoped integration providers.")
 class IntegrationsGqlDto(private val workspaceId: String) {
     @GraphQLDescription("Wise integration metadata for this workspace.")
-    fun wise() = WiseIntegrationGqlDto(workspaceId)
+    fun wise(env: DataFetchingEnvironment): WiseIntegrationGqlDto = env.withRequestAuthentication {
+        WiseIntegrationGqlDto(env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId))
+    }
 }
 
 @GraphQLDescription("Wise integration metadata. Credentials are never returned.")
-class WiseIntegrationGqlDto(private val workspaceId: String) {
+class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
     @GraphQLDescription("Whether Wise is active for this workspace.")
-    fun active(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
-        env.graphQlContext.getBean<WiseIntegrationService>().isActive(workspaceId)
-    }
+    val active: Boolean = settings != null
 
     @GraphQLDescription("Whether automatic transaction fetching is enabled. True by default before setup.")
-    fun fetchTransactionsPeriodically(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
-        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.fetchTransactionsPeriodically ?: true
-    }
+    val fetchTransactionsPeriodically: Boolean = settings?.fetchTransactionsPeriodically ?: true
 
     @GraphQLDescription("Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again.")
-    fun authenticationRequired(env: DataFetchingEnvironment): Boolean = env.withRequestAuthentication {
-        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.authenticationRequired ?: false
-    }
+    val authenticationRequired: Boolean = settings?.authenticationRequired ?: false
 
     @GraphQLDescription("The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch.")
-    fun lastSuccessfulFetchTime(env: DataFetchingEnvironment): Instant? = env.withRequestAuthentication {
-        env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId)?.lastSuccessfulFetchTime
-    }
+    val lastSuccessfulFetchTime: Instant? = settings?.lastSuccessfulFetchTime
 }
 
 @GraphQLDescription("Verified balances across all Wise profiles.")

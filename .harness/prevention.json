@@ -151,9 +151,9 @@
     {
       "id": "business-error-mapping",
       "category": "backend",
-      "appliesWhen": "Mapping expected business failures",
-      "instruction": "Map expected business failures declaratively with `@BusinessError` and dedicated exceptions; reserve catches for specific infrastructure failures that require local handling such as credential-safe sanitization.",
-      "reason": "Broad catches hide unexpected defects."
+      "appliesWhen": "Mapping expected business failures or isolating scheduled batch items",
+      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with safe identifiers and exception class, omit credential-bearing messages/causes, and preserve failed-item rollback. Do not catch JVM Errors or wrap the entire batch as a substitute for item isolation.",
+      "reason": "Broad business catches hide defects, but an uncaught item failure can prevent unrelated scheduled work."
     },
     {
       "id": "review-exhaustion-delivery",
@@ -221,9 +221,9 @@
     {
       "id": "lazy-graphql-fields",
       "category": "backend",
-      "appliesWhen": "GraphQL fields requiring extra computation or database access",
-      "instruction": "For GraphQL properties requiring additional computation or database access, defer that work to the selected field resolver; namespace DTO construction must remain lightweight.",
-      "reason": "Eager namespace construction spends resources for unselected fields."
+      "appliesWhen": "GraphQL fields requiring additional computation or database access",
+      "instruction": "Defer work to the selected resolver boundary. When sibling metadata fields share one backing record, load it once with authorization in their nearest selected parent resolver and derive siblings from that object. Keep outer namespace construction lightweight and independently expensive children lazy.",
+      "reason": "Field laziness must not multiply shared reads or eagerly resolve unselected providers."
     },
     {
       "id": "workspace-page-lifecycle",
@@ -336,6 +336,41 @@
       "appliesWhen": "A test contains independently meaningful create, update, replacement, deletion, or rejection workflows",
       "instruction": "Split independent workflows into separate tests with their own relevant preconditions and outcome assertions. Retain a compact parameterized or table-driven test for variants sharing one setup boundary and observable outcome.",
       "reason": "Independent workflows need isolated failure signals; identical boundary variants do not."
+    },
+    {
+      "id": "generic-statement-model",
+      "category": "backend",
+      "appliesWhen": "Defining or mapping the provider-neutral AccountStatementRecord model",
+      "instruction": "Use IntegrationProvider for supported providers and one StatementType enum containing DEBIT, CREDIT, CONVERSION and OTHER, with unsupported activities mapped to OTHER. Preserve structured monetary conversion data, consolidate supplementary text into labeled additionalData, and keep provider-specific profile context and parsing inside adapters.",
+      "reason": "Copying provider fields into generic persistence leaks provider concepts and duplicates classification."
+    },
+    {
+      "id": "statement-amount-magnitude",
+      "category": "backend",
+      "appliesWhen": "Mapping and persisting the primary statement transaction amount",
+      "instruction": "Document and store an absolute, nonnegative minor-unit magnitude; normalize negative provider amounts with checked arithmetic and reject unrepresentable magnitudes. Enforce the invariant in the entity and database and cover debit, credit, conversion, unknown activity and minimum-long input. Do not apply this magnitude rule to signed running balances.",
+      "reason": "Unchecked absolute-value conversion can overflow and signed amounts contradict the model contract."
+    },
+    {
+      "id": "statement-external-identity",
+      "category": "backend",
+      "appliesWhen": "Statement-record deduplication and provider-reference normalization",
+      "instruction": "Use integrationId, accountId and externalId consistently for lookup and database uniqueness. Adapters must produce opaque external IDs unique within that integration/account, encoding provider-specific distinctions when needed to preserve refunds or separate statement entries; do not add currency, direction or provider profile columns to the generic identity.",
+      "reason": "Raw provider references may collide, while provider-specific lookup columns undermine the generic identity contract."
+    },
+    {
+      "id": "explicit-application-defaults",
+      "category": "backend",
+      "appliesWhen": "Adding or changing database migrations",
+      "instruction": "Keep application defaults explicit rather than retaining database column defaults. For existing records, either use a temporary default and drop it after backfill or add nullable, update, then set not null. Check cumulative migration changes for retained defaults and respect released-migration immutability.",
+      "reason": "Persistent database defaults hide write behavior from application code."
+    },
+    {
+      "id": "entity-mapping-assertions",
+      "category": "testing",
+      "appliesWhen": "Asserting complete persisted-entity mappings",
+      "instruction": "Use shouldBeEntityWithFields with an independently specified expected entity, including meaningful default-valued fields, instead of fragmented property assertions. Keep focused assertions for tests whose contract concerns only selected fields.",
+      "reason": "Full-entity expectations expose missing or unexpectedly populated mapped fields."
     }
   ]
 }

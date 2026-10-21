@@ -39,9 +39,8 @@ class WiseStatementFetchService internal constructor(
             return
         }
         fetched.forEach { record ->
-            val existing = records.findByProviderAndIntegrationIdAndProfileIdAndAccountIdAndAccountCurrencyAndExternalIdAndDirection(
-                provider = record.provider, integrationId = record.integrationId, profileId = record.profileId,
-                accountId = record.accountId, accountCurrency = record.accountCurrency, externalId = record.externalId, direction = record.direction,
+            val existing = records.findByIntegrationIdAndAccountIdAndExternalId(
+                integrationId = record.integrationId, accountId = record.accountId, externalId = record.externalId,
             )
             if (existing == null) records.save(record)
         }

@@ -9,27 +9,21 @@ import java.time.Instant
 @Table
 data class AccountStatementRecord(
     val workspaceId: String,
-    val provider: String,
+    val provider: IntegrationProvider,
     val integrationId: String,
-    val profileId: String,
     val accountId: String,
     val accountCurrency: String,
     val externalId: String,
-    val direction: StatementDirection,
+    val type: StatementType,
     val occurredAt: Instant,
+    /** Absolute transaction amount in the currency's minor units; never negative. */
     val amountInCents: Long,
     val currency: String,
     val feesInCents: Long? = null,
     val feesCurrency: String? = null,
     val runningBalanceInCents: Long? = null,
     val runningBalanceCurrency: String? = null,
-    val transactionType: String? = null,
-    val description: String? = null,
-    val paymentReference: String? = null,
-    val counterpartyName: String? = null,
-    val counterpartyAccount: String? = null,
-    val merchantCategory: String? = null,
-    val merchantAddress: String? = null,
+    val additionalData: String? = null,
     val originalAmountInCents: Long? = null,
     val originalCurrency: String? = null,
     val sourceAmountInCents: Long? = null,
@@ -40,18 +34,20 @@ data class AccountStatementRecord(
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
-) : AbstractEntity()
+) : AbstractEntity() {
+    init {
+        require(amountInCents >= 0) { "Statement amounts must not be negative" }
+    }
+}
 
-enum class StatementDirection { DEBIT, CREDIT }
+enum class IntegrationProvider { WISE }
+
+enum class StatementType { DEBIT, CREDIT, CONVERSION, OTHER }
 
 interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountStatementRecord> {
-    fun findByProviderAndIntegrationIdAndProfileIdAndAccountIdAndAccountCurrencyAndExternalIdAndDirection(
-        provider: String,
+    fun findByIntegrationIdAndAccountIdAndExternalId(
         integrationId: String,
-        profileId: String,
         accountId: String,
-        accountCurrency: String,
         externalId: String,
-        direction: StatementDirection,
     ): AccountStatementRecord?
 }
