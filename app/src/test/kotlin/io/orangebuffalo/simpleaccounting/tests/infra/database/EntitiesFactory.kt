@@ -491,11 +491,17 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         workspace: Workspace? = null,
         token: String = "fry-personal-token",
         accounts: Set<WiseIntegrationAccount> = emptySet(),
+        fetchTransactionsPeriodically: Boolean = true,
+        authenticationRequired: Boolean = false,
+        lastSuccessfulFetchTime: Instant? = null,
         createdAt: Instant = MOCK_TIME,
     ): WiseIntegrationSettings = WiseIntegrationSettings(
         workspaceId = (workspace ?: workspace()).id!!,
         token = token,
         accounts = accounts,
+        fetchTransactionsPeriodically = fetchTransactionsPeriodically,
+        authenticationRequired = authenticationRequired,
+        lastSuccessfulFetchTime = lastSuccessfulFetchTime,
         createdAt = createdAt,
     ).save()
 

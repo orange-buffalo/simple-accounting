@@ -3,6 +3,7 @@
     <div class="sa-form-switch-section">
       <ElSwitch
         v-model="switchValue"
+        :aria-label="props.label"
         @change="onChange"
       />
       <h4>{{ props.label }}</h4>

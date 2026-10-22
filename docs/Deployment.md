@@ -86,6 +86,26 @@ The feature is disabled by default. Enable it and set the base directory with th
 * `SA_DOCUMENTS_STORAGE_LOCAL_FS_BASE_DIRECTORY` — absolute path to the directory where documents will
   be stored (default: `/data/documents-storage/local`).
 
+### Wise statement access and troubleshooting
+
+Wise can allow profile/account listing while rejecting statement fetching. A `403` with
+`scaApprovalResult=REJECTED` and `scaChallengePresent=true` in the diagnostic log means Wise requires
+strong customer authentication (SCA), even if the response body is empty. Replacing a valid token or
+retrying the same request does not satisfy that challenge.
+
+According to [Wise's personal-token limitations](https://docs.wise.com/guides/developer/auth-and-security/personal-api-token),
+personal tokens support balance statements only for accounts based in the US, Canada, Australia, New Zealand,
+Singapore or Malaysia. Other access requires an appropriate Wise-supported authorization arrangement;
+Simple Accounting does not currently implement the [interactive SCA flow](https://docs.wise.com/guides/developer/auth-and-security/sca-and-2fa).
+
+Rejected integrations are marked authentication-required and skipped. After resolving statement access with
+Wise, verify and save the integration again to resume fetching. Saving alone does not resolve an SCA challenge.
+
+Fetching logs at INFO include scheduled-run and integration start/end, outcomes and durations, account intervals,
+record counts, and committed import/duplicate counts. DEBUG adds per-window fetch counts. Account fetch summaries
+describe retrieved data, not committed imports; only the integration's committed summary confirms persistence.
+SCA diagnostics include only the approval result and challenge presence, never the challenge value or API token.
+
 ### Backups
 
 Use `pg_dump` and your PostgreSQL server's backup/restore procedures.

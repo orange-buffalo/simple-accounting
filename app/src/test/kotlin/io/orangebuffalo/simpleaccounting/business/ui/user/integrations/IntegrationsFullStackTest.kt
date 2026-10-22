@@ -9,6 +9,23 @@ import org.junit.jupiter.api.Test
 
 class IntegrationsFullStackTest : SaFullStackTestBase() {
     @Test
+    fun `should show authentication failures instead of active status and allow updating Wise`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                wiseIntegrationSettings(workspace = workspace(owner = user), token = WiseApiMocks.TOKEN, authenticationRequired = true)
+            }
+        }
+        WiseApiMocks.setupAccounts()
+        page.authenticateViaCookie(fry)
+        page.openIntegrationsPage {
+            status.shouldBeError("Authentication required. Verify your Wise access and save the integration again to resume transaction fetching.")
+            reportRendering("integrations.authentication-required")
+            providers.updateWise()
+        }
+        page.shouldBeWiseSetupPage { accountsStep.shouldBeOpen() }
+    }
+
+    @Test
     fun `should open Wise setup from the provider card`(page: Page) {
         val fry = preconditions { fry().withWorkspace() }
         page.authenticateViaCookie(fry)

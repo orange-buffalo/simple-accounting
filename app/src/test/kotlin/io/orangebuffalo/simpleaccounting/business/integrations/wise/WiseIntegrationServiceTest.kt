@@ -11,14 +11,28 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMo
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 import org.junit.jupiter.api.Test
+import org.springframework.transaction.support.TransactionTemplate
+import org.springframework.jdbc.core.JdbcTemplate
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
 @TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegrationService) : SaIntegrationTestBase() {
+class WiseIntegrationServiceTest(
+    @Autowired private val service: WiseIntegrationService,
+    @Autowired private val transactions: TransactionTemplate,
+    @Autowired private val fetcher: WiseStatementFetchService,
+    @Autowired private val jdbc: JdbcTemplate,
+) : SaIntegrationTestBase() {
     private val token = WiseApiMocks.TOKEN
     private val preconditions by lazyPreconditions {
         object {
@@ -29,6 +43,89 @@ class WiseIntegrationServiceTest(@Autowired private val service: WiseIntegration
 
     private fun verifyToken() = runAs(preconditions.fry.toSecurityPrincipal()) {
         service.verifyToken(workspaceId = preconditions.workspace.id!!, token = token)
+    }
+
+    @Test
+    fun `should defer fetching until the enclosing save transaction commits`() {
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatement()
+        runAs(preconditions.fry.toSecurityPrincipal()) {
+            transactions.executeWithoutResult {
+                service.setup(workspaceId = preconditions.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")))
+                WiseApiMocks.shouldHaveNoStatementRequests()
+            }
+        }
+        shouldEventually {
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
+        }
+    }
+
+    @Test
+    fun `should not fetch when an enclosing save transaction rolls back`() {
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatement()
+        runAs(preconditions.fry.toSecurityPrincipal()) {
+            transactions.executeWithoutResult { status ->
+                service.setup(workspaceId = preconditions.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")))
+                WiseApiMocks.shouldHaveNoStatementRequests()
+                status.setRollbackOnly()
+            }
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+        WiseApiMocks.shouldHaveNoStatementRequests()
+    }
+
+    @Test
+    fun `should serialize settings changes after an in-flight fetch and retain its checkpoint`() {
+        val data = preconditions {
+            object {
+                val fry = fry()
+                val integration = wiseIntegrationSettings(
+                    workspace = workspace(owner = fry), token = token,
+                    accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
+                )
+            }
+        }
+        WiseApiMocks.setupAccounts()
+        Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            val (fetching, saving) = WiseApiMocks.blockStatementResponse().use { blocked ->
+                val fetching = executor.submit { fetcher.fetch(data.integration.id!!) }
+                blocked.shouldBePending()
+                val saving = executor.submit {
+                    runAs(data.fry.toSecurityPrincipal()) {
+                        service.setup(workspaceId = data.integration.workspaceId, token = null,
+                            accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "302", currency = "EUR")),
+                            fetchTransactionsPeriodically = false)
+                    }
+                }
+                shouldEventually {
+                    jdbc.queryForObject("""
+                        select exists (
+                            select 1 from pg_stat_activity
+                            where datname = current_database()
+                              and cardinality(pg_blocking_pids(pid)) > 0
+                              and query like '%wise_integration_settings%'
+                        )
+                    """.trimIndent(), Boolean::class.java).shouldBe(true)
+                }
+                saving.isDone.shouldBe(false)
+                fetching to saving
+            }
+            fetching.get(10, TimeUnit.SECONDS)
+            saving.get(10, TimeUnit.SECONDS)
+        }
+
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(
+            WiseIntegrationSettings(
+                workspaceId = data.integration.workspaceId, token = token,
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")),
+                fetchTransactionsPeriodically = false, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+            ),
+        )
+        WiseApiMocks.shouldHaveStatementRequests(count = 1)
+        WiseApiMocks.shouldHaveStatementRequests(accountId = 302, count = 0)
     }
 
     @Test

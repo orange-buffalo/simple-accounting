@@ -22,6 +22,7 @@ object ThirdPartyApisMocks {
         WireMockServer(
             WireMockConfiguration.options()
                 .dynamicPort()
+                .extensions(WiseApiMocks.blockingStatementTransformer)
                 .notifier(Slf4jNotifier(true))
         ).apply {
             addMockServiceRequestListener { request: Request, _ ->

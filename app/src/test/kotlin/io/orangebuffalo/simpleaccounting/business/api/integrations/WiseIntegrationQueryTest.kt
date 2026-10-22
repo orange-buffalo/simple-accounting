@@ -57,7 +57,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
                 .from(preconditions.leela)
                 .executeAndVerifySuccessResponse("saveSharedWorkspace" to json("""{"id":"${preconditions.workspace.id}"}"""))
             client.graphql { integrationStatus() }.from(preconditions.leela)
-                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 9, locationLine = 5)
+                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 7, locationLine = 4)
         }
     }
 
@@ -67,7 +67,7 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         @Test
         fun `should report inactive Wise integration`() {
             client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false}}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"lastSuccessfulFetchTime":null}}}"""))
         }
 
         @Test
@@ -76,15 +76,30 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
                 wiseIntegrationSettings(workspace = preconditions.workspace)
             }
             client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true}}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"lastSuccessfulFetchTime":null}}}"""))
             val other = preconditions { workspace(owner = preconditions.fry) }
             client.graphql { integrationStatus(other.id!!) }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false}}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"lastSuccessfulFetchTime":null}}}"""))
+        }
+
+        @Test
+        fun `should expose suspended integration settings and last successful interval`() {
+            preconditions {
+                wiseIntegrationSettings(workspace = preconditions.workspace, fetchTransactionsPeriodically = false,
+                    authenticationRequired = true, lastSuccessfulFetchTime = MOCK_TIME)
+            }
+            client.graphql { integrationStatus() }.from(preconditions.fry)
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true,"authenticationRequired":true,"fetchTransactionsPeriodically":false,"lastSuccessfulFetchTime":"$MOCK_TIME"}}}"""))
         }
     }
 
     private fun QueryProjection.integrationStatus(workspaceId: String = preconditions.workspace.id!!) =
-        workspace(id = workspaceId) { integrations { wise { active } } }
+        workspace(id = workspaceId) { integrations { wise {
+            active
+            authenticationRequired
+            fetchTransactionsPeriodically
+            lastSuccessfulFetchTime
+        } } }
 
     private fun json(value: String) = Json.parseToJsonElement(value) as JsonObject
 }

@@ -11,6 +11,9 @@ data class WiseIntegrationSettings(
     val token: String,
     @field:MappedCollection(idColumn = "settings_id")
     val accounts: Set<WiseIntegrationAccount>,
+    val fetchTransactionsPeriodically: Boolean = true,
+    val lastSuccessfulFetchTime: Instant? = null,
+    val authenticationRequired: Boolean = false,
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
@@ -21,4 +24,5 @@ data class WiseIntegrationAccount(
     val profileId: Long,
     val accountId: Long,
     val currency: String,
+    val lastSuccessfulFetchTime: Instant? = null,
 )

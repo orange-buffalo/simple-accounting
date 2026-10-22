@@ -3,16 +3,25 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 class WiseIntegrationService internal constructor(
     private val workspaces: WorkspacesService,
     private val settings: WiseIntegrationSettingsRepository,
     private val client: WiseApiClient,
+    private val statementFetchService: WiseStatementFetchService,
 ) {
     fun isActive(workspaceId: String): Boolean {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         return settings.existsByWorkspaceId(workspaceId)
+    }
+
+    fun getSettings(workspaceId: String): WiseIntegrationSettings? {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
+        return settings.findByWorkspaceId(workspaceId)
     }
 
     fun verifyToken(workspaceId: String, token: String?): List<WiseAccount> {
@@ -28,7 +37,7 @@ class WiseIntegrationService internal constructor(
         val current = available.map { account ->
             WiseSelectableAccount(
                 account = account,
-                selected = selected.contains(WiseIntegrationAccount(profileId = account.profileId, accountId = account.accountId, currency = account.currency)),
+                selected = selected.any { it.profileId == account.profileId && it.accountId == account.accountId && it.currency == account.currency },
                 deleted = false,
             )
         }
@@ -48,9 +57,10 @@ class WiseIntegrationService internal constructor(
         return current + missing
     }
 
-    fun setup(workspaceId: String, token: String?, accounts: List<WiseAccountSelection>) {
+    @Transactional
+    fun setup(workspaceId: String, token: String?, accounts: List<WiseAccountSelection>, fetchTransactionsPeriodically: Boolean = true) {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
-        val existing = settings.findByWorkspaceId(workspaceId)
+        val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
         val resolvedToken = resolveToken(token = token, existing = existing)
         val available = client.getAccounts(resolvedToken).map {
             WiseAccountSelection(profileId = it.profileId.toString(), accountId = it.accountId.toString(), currency = it.currency)
@@ -59,10 +69,20 @@ class WiseIntegrationService internal constructor(
             throw WiseInvalidAccountsException()
         }
         val selected = accounts.map {
-            WiseIntegrationAccount(profileId = it.profileId.toLong(), accountId = it.accountId.toLong(), currency = it.currency)
+            existing?.accounts?.find { saved -> saved.profileId.toString() == it.profileId && saved.accountId.toString() == it.accountId && saved.currency == it.currency }
+                ?: WiseIntegrationAccount(profileId = it.profileId.toLong(), accountId = it.accountId.toLong(), currency = it.currency)
         }.toSet()
-        settings.save(existing?.copy(token = resolvedToken, accounts = selected)
-            ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected))
+        val saved = settings.save(existing?.copy(token = resolvedToken, accounts = selected,
+            fetchTransactionsPeriodically = fetchTransactionsPeriodically, authenticationRequired = false)
+            ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
+                fetchTransactionsPeriodically = fetchTransactionsPeriodically))
+        if (saved.fetchTransactionsPeriodically) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    statementFetchService.fetchAsync(saved.id!!)
+                }
+            })
+        }
     }
 
     private fun resolveToken(token: String?, existing: WiseIntegrationSettings?): String =

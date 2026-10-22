@@ -62,6 +62,13 @@
                 </button>
               </div>
             </section>
+            <section class="wise-configuration" aria-labelledby="wise-configuration-header">
+              <h2 id="wise-configuration-header">{{ $t.integrations.wise.configurationHeader() }}</h2>
+              <SaForm v-model="preferences" :on-submit="save" hide-buttons>
+                <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
+              </SaForm>
+              <p>{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
+            </section>
             <div class="integration-wizard__actions">
               <ElButton link @click="back">{{ $t.integrations.back() }}</ElButton>
               <ElButton type="primary" :disabled="selected.size === 0" @click="save">{{ $t.integrations.next() }}</ElButton>
@@ -93,6 +100,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
+  import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { graphql } from '@/services/api/gql';
@@ -113,17 +121,23 @@
     }
   `), 'listWiseAccounts');
   const saveSettings = useMutation(graphql(/* GraphQL */ `
-    mutation saveWiseIntegrationSettings($workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!) {
-      saveWiseIntegrationSettings(workspaceId: $workspaceId, token: $token, accounts: $accounts) { success }
+    mutation saveWiseIntegrationSettings(
+      $workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!, $fetchTransactionsPeriodically: Boolean!
+    ) {
+      saveWiseIntegrationSettings(
+        workspaceId: $workspaceId, token: $token, accounts: $accounts,
+        fetchTransactionsPeriodically: $fetchTransactionsPeriodically
+      ) { success }
     }
   `), 'saveWiseIntegrationSettings');
   const [initializing, configuration] = useQuery(graphql(/* GraphQL */ `
     query wiseConfiguration($workspaceId: String!) {
-      workspace(id: $workspaceId) { integrations { wise { active } } }
+      workspace(id: $workspaceId) { integrations { wise { active fetchTransactionsPeriodically } } }
     }
   `), 'workspace', { variables: { workspaceId } });
   type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
+  const preferences = ref({ fetchTransactionsPeriodically: true });
   const steps = { TOKEN_INPUT: 0, ACCOUNT_SELECTION: 1, ACTIVATION: 2 };
   const step = ref(steps.TOKEN_INPUT);
   const configured = ref(false);
@@ -131,6 +145,7 @@
   const verifiedToken = ref<string | null>(null);
   const busy = ref(false);
   const saved = ref(false);
+  watch(() => preferences.value.fetchTransactionsPeriodically, () => { saved.value = false; });
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const saveError = ref(false);
   const accounts = ref<Account[]>([]);
@@ -241,6 +256,7 @@
     try {
       const result = await saveSettings({
         workspaceId, token: verifiedToken.value,
+        fetchTransactionsPeriodically: preferences.value.fetchTransactionsPeriodically,
         accounts: accounts.value.filter(account => !account.deleted && selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
       });
@@ -265,6 +281,7 @@
   watch(configuration, async (workspace) => {
     if (!workspace) return;
     configured.value = workspace.integrations.wise.active;
+    preferences.value.fetchTransactionsPeriodically = workspace.integrations.wise.fetchTransactionsPeriodically;
     if (configured.value) await verify();
   });
 </script>
@@ -285,6 +302,13 @@
 
       small { color: $secondary-text-color; font-size: 14px; font-weight: normal; }
     }
+  }
+
+  .wise-configuration {
+    max-width: 840px;
+    margin: 32px auto;
+    h2 { font-size: 20px; }
+    p { color: $secondary-text-color; }
   }
 
   .integration-cards {

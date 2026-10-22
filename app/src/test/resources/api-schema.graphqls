@@ -1195,6 +1195,8 @@ type Mutation {
   saveWiseIntegrationSettings(
     "The complete non-empty set of accounts to use. Replaces the saved set; every account must be available with the effective token."
     accounts: [WiseAccountInput!]! @size(max : 2147483647, min : 1),
+    "Whether selected accounts should be fetched automatically every four hours. A supplied value is saved; null or omission saves true."
+    fetchTransactionsPeriodically: Boolean,
     "A supplied non-blank token is verified and saved, replacing any existing token. Null or omission retains the saved token; if none exists, INVALID_TOKEN is returned. Empty or whitespace-only tokens return INVALID_TOKEN."
     token: String @size(max : 2000, min : 0),
     "The workspace whose Wise integration settings should be created or updated. Only its owner can save settings."
@@ -1581,6 +1583,12 @@ type WiseAccountsResult {
 type WiseIntegrationGqlDto {
   "Whether Wise is active for this workspace."
   active: Boolean!
+  "Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again."
+  authenticationRequired: Boolean!
+  "Whether automatic transaction fetching is enabled. True by default before setup."
+  fetchTransactionsPeriodically: Boolean!
+  "The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch."
+  lastSuccessfulFetchTime: DateTime
 }
 
 "Whether the integration was saved successfully."

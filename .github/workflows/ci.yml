@@ -13,13 +13,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Workflow Telemetry
-        uses: catchpoint/workflow-telemetry-action@v2
-        with:
-          comment_on_pr: false
-          proc_trace_chart_show: false
-          theme: dark
-
       - name: "Setup Project Environment"
         uses: ./.github/actions/setup-project-environment
 
