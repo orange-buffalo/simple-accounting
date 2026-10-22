@@ -378,6 +378,13 @@
       "appliesWhen": "Implementing Spring integration fetching shared by periodic scheduling and enabled-save background dispatch",
       "instruction": "Keep batch scheduling, single-integration async dispatch and guarded fetching in the owning fetch service; do not introduce pass-through job/trigger components or route single-item dispatch through a batch job. Invoke enabled-save fetching directly after transaction commit through the service's proxied @Async method, with async support enabled, rather than manual executor submission or a single-consumer event bridge. Preserve no dispatch for disabled, rejected or rolled-back saves and independent fetch transactions.",
       "reason": "One owner avoids redundant orchestration while preserving real asynchronous execution and commit ordering."
+    },
+    {
+      "id": "integration-fetch-observability",
+      "category": "backend",
+      "appliesWhen": "Implementing or changing scheduled and asynchronous account-statement fetching",
+      "instruction": "In the owning fetch service, log scheduled-run, integration and account start/end boundaries with safe identifiers, explicit outcomes and durations; include selected/processed integration counts, account intervals, retrieved records and completed windows. Keep per-window counts at DEBUG. Distinguish retrieval from persistence and report successful import/duplicate statistics only after commit; failed or rolled-back work must not claim imported success. Preserve existing credential-redaction, exception-isolation and no-log-assertion policies.",
+      "reason": "Lifecycle gaps obscure stalled work, while precommit success statistics misrepresent rolled-back imports."
     }
   ]
 }

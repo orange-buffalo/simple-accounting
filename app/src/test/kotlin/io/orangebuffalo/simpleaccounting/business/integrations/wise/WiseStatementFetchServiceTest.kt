@@ -322,6 +322,29 @@ class WiseStatementFetchServiceTest(
     }
 
     @Test
+    fun `should suspend an integration challenged for SCA despite an empty response body`() {
+        val previous = MOCK_TIME.minus(Duration.ofDays(1))
+        val integration = preconditions { wiseIntegrationSettings(
+            token = WiseApiMocks.TOKEN, accounts = setOf(dollars.copy(lastSuccessfulFetchTime = previous)),
+            lastSuccessfulFetchTime = previous,
+        ) }
+        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(statementPath()))
+            .willReturn(aResponse().withStatus(403)
+                .withHeader("x-2fa-approval-result", "REJECTED")
+                .withHeader("x-2fa-approval", "bender-sca-challenge")))
+
+        fetcher.fetch(integration.id!!)
+
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+            .shouldBeEntityWithFields(integration.copy(authenticationRequired = true))
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
+        ThirdPartyApisMocks.server.resetRequests()
+        fetcher.fetch(integration.id)
+        fetcher.fetchStatements()
+        WiseApiMocks.shouldHaveNoRequests()
+    }
+
+    @Test
     fun `should ignore ineligible and missing integrations when fetching a single integration`() {
         val integrations = preconditions { listOf(
             wiseIntegrationSettings(fetchTransactionsPeriodically = false, accounts = setOf(dollars)),

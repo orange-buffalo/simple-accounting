@@ -122,7 +122,19 @@ internal class WiseApiClient(
             }
             return json.decodeFromString<T>(body)
         } catch (e: RestClientResponseException) {
-            logFailure(endpoint = endpoint, token = token, detail = "HTTP ${e.statusCode.value()}; response body: ${e.responseBodyAsString.ifBlank { "<empty>" }}")
+            val approvalResult = when (e.responseHeaders?.getFirst("x-2fa-approval-result")) {
+                "APPROVED" -> "APPROVED"
+                "REJECTED" -> "REJECTED"
+                null -> "absent"
+                else -> "unrecognized"
+            }
+            val challenge = e.responseHeaders?.getFirst("x-2fa-approval")
+            val challengePresent = !challenge.isNullOrBlank()
+            val responseBody = e.responseBodyAsString.let {
+                if (!challenge.isNullOrBlank()) it.replace(oldValue = challenge, newValue = "[REDACTED]") else it
+            }.ifBlank { "<empty>" }
+            logFailure(endpoint = endpoint, token = token, detail = "HTTP ${e.statusCode.value()}; scaApprovalResult=$approvalResult; " +
+                "scaChallengePresent=$challengePresent; response body: $responseBody")
             if (e.statusCode.value() in listOf(401, 403)) throw WiseInvalidTokenException()
             throw WiseUnavailableException()
         } catch (e: RestClientException) {
