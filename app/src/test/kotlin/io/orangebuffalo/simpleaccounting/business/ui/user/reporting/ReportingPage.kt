@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Steps.Companion.stepsByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.WizardStep.Companion.wizardStep
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import java.util.regex.Pattern
 
@@ -21,6 +22,10 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Reporting")
     private val reportingPanel = page.locator(".reporting-panel")
     val nextButton = components.buttonByText("Next")
+    val backButton = components.buttonByText("Back")
+    val selectReportStep = components.wizardStep("Select a report")
+    val selectDatesStep = components.wizardStep("Select reporting dates")
+    val viewReportStep = components.wizardStep("View the report")
     val inlineCalendar = components.reportingInlineCalendarByContainer(reportingPanel)
     val steps = components.stepsByContainer(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)

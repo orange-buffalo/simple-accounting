@@ -1,21 +1,11 @@
 <template>
   <SaPage :header="$t.integrations.wise.setupHeader()">
-    <div class="integration-wizard">
-      <div v-if="initializing" class="integration-wizard__result" role="status" aria-live="polite">
-        <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.loading() }}</SaStatusLabel>
-      </div>
-      <template v-else>
-        <ElSteps :active="step" align-center finish-status="success">
-          <ElStep v-for="item in wizardSteps" :key="item.value" :status="item.status">
-            <template #title>
-              <button type="button" class="integration-wizard__step" :disabled="item.disabled"
-                      :aria-current="step === item.value ? 'step' : undefined" @click="navigateStep(item.value)">
-                {{ item.title }}
-              </button>
-            </template>
-          </ElStep>
-        </ElSteps>
-        <div v-if="step === steps.TOKEN_INPUT" class="integration-wizard__content">
+    <div v-if="initializing" class="integration-wizard__result" role="status" aria-live="polite">
+      <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.loading() }}</SaStatusLabel>
+    </div>
+    <SaWizard v-else v-model="step" :steps="wizardSteps">
+      <template #token>
+        <div class="integration-wizard__content">
           <ol>
             <li>{{ $t.integrations.wise.instructions.login() }}</li>
             <li>{{ $t.integrations.wise.instructions.navigate() }}</li>
@@ -29,53 +19,50 @@
           </p>
           <p>{{ $t.integrations.wise.instructions.security() }}</p>
           <p v-if="configured">{{ $t.integrations.wise.savedToken() }}</p>
-          <SaForm v-model="form" :on-submit="verify" :submit-button-label="$t.integrations.next()" :submit-button-disabled="!configured && !form.token?.trim()">
+          <SaForm v-model="form" :on-submit="verify" hide-buttons>
             <SaFormInput prop="token" type="password" :label="$t.integrations.wise.tokenLabel()" />
           </SaForm>
         </div>
-        <template v-else-if="step === steps.ACCOUNT_SELECTION">
-          <div v-if="busy" class="integration-wizard__result" role="status" aria-live="polite">
-            <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.wise.verifying() }}</SaStatusLabel>
-          </div>
-          <div v-else-if="error" role="alert" class="integration-wizard__result">
-            <SaStatusLabel status="failure">{{ errorMessage }}</SaStatusLabel>
-            <ElButton @click="back">{{ $t.integrations.back() }}</ElButton>
-          </div>
-          <div v-else class="integration-wizard__content">
-            <p role="status" aria-live="polite">{{ $t.integrations.wise.selectAccounts() }}</p>
-            <SaStatusLabel v-if="accounts.length === 0" status="regular" role="status" aria-live="polite">
-              {{ $t.integrations.wise.noAccounts() }}
-            </SaStatusLabel>
-            <section v-for="profile in profiles" :key="profile.id" class="wise-profile" :aria-labelledby="`wise-profile-${profile.id}`">
-              <h2 :id="`wise-profile-${profile.id}`" class="wise-profile__header">
-                <span>{{ profile.name || $t.integrations.wise.profileId(profile.id) }}</span>
-                <small v-if="profile.type">{{ profile.type === 'BUSINESS' ? $t.integrations.wise.businessAccount() : $t.integrations.wise.personalAccount() }}</small>
-              </h2>
-              <div class="integration-cards">
-                <button v-for="account in profile.accounts" :key="accountKey(account)" type="button" class="integration-card integration-card--selectable"
-                        :aria-pressed="selected.has(accountKey(account))" :disabled="account.deleted" @click="toggle(account)">
-                  <strong>{{ account.currency }}</strong>
-                  <SaMoneyOutput v-if="account.amountInCents !== null" class="integration-card__amount" :amount-in-cents="account.amountInCents" :currency="account.currency" />
-                  <span v-if="selected.has(accountKey(account))">✓ {{ $t.integrations.selected() }}</span>
-                  <ElTag v-if="account.deleted" type="danger">{{ $t.integrations.wise.deleted() }}</ElTag>
-                  <span v-if="account.deleted" class="integration-card__hint">{{ $t.integrations.wise.deletedHint() }}</span>
-                </button>
-              </div>
-            </section>
-            <section class="wise-configuration" aria-labelledby="wise-configuration-header">
-              <h2 id="wise-configuration-header">{{ $t.integrations.wise.configurationHeader() }}</h2>
-              <SaForm v-model="preferences" :on-submit="save" hide-buttons>
-                <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
-              </SaForm>
-              <p>{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
-            </section>
-            <div class="integration-wizard__actions">
-              <ElButton link @click="back">{{ $t.integrations.back() }}</ElButton>
-              <ElButton type="primary" :disabled="selected.size === 0" @click="save">{{ $t.integrations.next() }}</ElButton>
+      </template>
+      <template #accounts>
+        <div v-if="busy" class="integration-wizard__result" role="status" aria-live="polite">
+          <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.wise.verifying() }}</SaStatusLabel>
+        </div>
+        <div v-else-if="error" role="alert" class="integration-wizard__result">
+          <SaStatusLabel status="failure">{{ errorMessage }}</SaStatusLabel>
+        </div>
+        <div v-else class="integration-wizard__content">
+          <p role="status" aria-live="polite">{{ $t.integrations.wise.selectAccounts() }}</p>
+          <SaStatusLabel v-if="accounts.length === 0" status="regular" role="status" aria-live="polite">
+            {{ $t.integrations.wise.noAccounts() }}
+          </SaStatusLabel>
+          <section v-for="profile in profiles" :key="profile.id" class="wise-profile" :aria-labelledby="`wise-profile-${profile.id}`">
+            <h2 :id="`wise-profile-${profile.id}`" class="wise-profile__header">
+              <span>{{ profile.name || $t.integrations.wise.profileId(profile.id) }}</span>
+              <small v-if="profile.type">{{ profile.type === 'BUSINESS' ? $t.integrations.wise.businessAccount() : $t.integrations.wise.personalAccount() }}</small>
+            </h2>
+            <div class="integration-cards">
+              <button v-for="account in profile.accounts" :key="accountKey(account)" type="button" class="integration-card integration-card--selectable"
+                      :aria-pressed="selected.has(accountKey(account))" :disabled="account.deleted" @click="toggle(account)">
+                <strong>{{ account.currency }}</strong>
+                <SaMoneyOutput v-if="account.amountInCents !== null" class="integration-card__amount" :amount-in-cents="account.amountInCents" :currency="account.currency" />
+                <span v-if="selected.has(accountKey(account))">✓ {{ $t.integrations.selected() }}</span>
+                <ElTag v-if="account.deleted" type="danger">{{ $t.integrations.wise.deleted() }}</ElTag>
+                <span v-if="account.deleted" class="integration-card__hint">{{ $t.integrations.wise.deletedHint() }}</span>
+              </button>
             </div>
-          </div>
-        </template>
-        <div v-else class="integration-wizard__result" aria-live="polite">
+          </section>
+          <section class="wise-configuration" aria-labelledby="wise-configuration-header">
+            <h2 id="wise-configuration-header">{{ $t.integrations.wise.configurationHeader() }}</h2>
+            <SaForm v-model="preferences" :on-submit="save" hide-buttons>
+              <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
+            </SaForm>
+            <p>{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
+          </section>
+        </div>
+      </template>
+      <template #activation>
+        <div class="integration-wizard__result" aria-live="polite">
           <SaStatusLabel v-if="busy" status="regular" custom-icon="loading" role="status">
             {{ $t.integrations.wise.saving() }}
           </SaStatusLabel>
@@ -85,17 +72,18 @@
           </template>
           <template v-else-if="error">
             <SaStatusLabel status="failure" role="alert">{{ errorMessage }}</SaStatusLabel>
-            <ElButton @click="recover">{{ $t.integrations.back() }}</ElButton>
           </template>
         </div>
       </template>
-    </div>
+    </SaWizard>
   </SaPage>
 </template>
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
-  import { ElStep, ElSteps, ElTag } from 'element-plus';
+  import { ElTag } from 'element-plus';
+  import SaWizard from '@/components/wizard/SaWizard.vue';
+  import type { WizardStep } from '@/components/wizard/sa-wizard';
   import SaPage from '@/components/SaPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import SaForm from '@/components/form/SaForm.vue';
@@ -138,8 +126,9 @@
   type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
   const preferences = ref({ fetchTransactionsPeriodically: true });
-  const steps = { TOKEN_INPUT: 0, ACCOUNT_SELECTION: 1, ACTIVATION: 2 };
-  const step = ref(steps.TOKEN_INPUT);
+  const steps = { TOKEN_INPUT: 'token', ACCOUNT_SELECTION: 'accounts', ACTIVATION: 'activation' } as const;
+  type WiseStep = typeof steps[keyof typeof steps];
+  const step = ref<WiseStep>(steps.TOKEN_INPUT);
   const configured = ref(false);
   const verified = ref(false);
   const verifiedToken = ref<string | null>(null);
@@ -162,28 +151,6 @@
     return [...groups.values()];
   });
   const selected = ref(new Set<string>());
-  const wizardSteps = computed(() => [
-    {
-      value: steps.TOKEN_INPUT,
-      title: $t.value.integrations.wise.tokenStep(),
-      status: verified.value ? 'success' as const
-        : step.value === steps.TOKEN_INPUT ? 'process' as const : 'wait' as const,
-      disabled: busy.value,
-    },
-    {
-      value: steps.ACCOUNT_SELECTION,
-      title: $t.value.integrations.wise.accountsStep(),
-      status: saved.value || step.value === steps.ACTIVATION ? 'success' as const
-        : step.value === steps.ACCOUNT_SELECTION ? 'process' as const : 'wait' as const,
-      disabled: busy.value || !verified.value,
-    },
-    {
-      value: steps.ACTIVATION,
-      title: $t.value.integrations.wise.finishStep(),
-      status: saved.value ? 'success' as const : 'wait' as const,
-      disabled: busy.value || (!saved.value && !saveError.value),
-    },
-  ]);
   const errorMessage = computed(() => {
     switch (error.value) {
     case SaveWiseIntegrationSettingsErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
@@ -198,16 +165,15 @@
     if (selected.value.has(key)) selected.value.delete(key);
     else selected.value.add(key);
   };
-  const back = () => {
-    step.value = steps.TOKEN_INPUT;
+  const clearError = () => {
     error.value = null;
     saveError.value = false;
   };
-  let revision = 0;
-  const navigateStep = (target: number) => {
-    if (target === steps.TOKEN_INPUT) back();
-    else step.value = target;
+  const back = () => {
+    clearError();
+    step.value = steps.TOKEN_INPUT;
   };
+  let revision = 0;
   watch(() => form.value.token, () => {
     revision += 1;
     verified.value = false;
@@ -278,6 +244,38 @@
       saveError.value = true;
     } finally { busy.value = false; }
   };
+  const wizardSteps = computed<WizardStep<WiseStep>[]>(() => [
+    {
+      id: steps.TOKEN_INPUT,
+      title: $t.value.integrations.wise.tokenStep(),
+      status: verified.value ? 'success' : step.value === steps.TOKEN_INPUT ? 'process' : 'wait',
+      navigationDisabled: busy.value,
+      onEnter: clearError,
+      next: {
+        label: $t.value.integrations.next(), action: verify,
+        disabled: busy.value || (!configured.value && !form.value.token.trim()),
+      },
+    },
+    {
+      id: steps.ACCOUNT_SELECTION,
+      title: $t.value.integrations.wise.accountsStep(),
+      status: saved.value || step.value === steps.ACTIVATION ? 'success'
+        : step.value === steps.ACCOUNT_SELECTION ? 'process' : 'wait',
+      navigationDisabled: busy.value || !verified.value,
+      back: { label: $t.value.integrations.back(), target: steps.TOKEN_INPUT, disabled: busy.value },
+      next: error.value ? undefined : {
+        label: $t.value.integrations.next(), action: save,
+        disabled: busy.value || selected.value.size === 0,
+      },
+    },
+    {
+      id: steps.ACTIVATION,
+      title: $t.value.integrations.wise.finishStep(),
+      status: saved.value ? 'success' : 'wait',
+      navigationDisabled: busy.value || (!saved.value && !saveError.value),
+      back: error.value ? { label: $t.value.integrations.back(), action: recover, disabled: busy.value } : undefined,
+    },
+  ]);
   watch(configuration, async (workspace) => {
     if (!workspace) return;
     configured.value = workspace.integrations.wise.active;
@@ -346,24 +344,9 @@
   }
 
   .integration-wizard {
-    padding: 20px;
-    border: 1px solid $secondary-grey;
-    border-radius: 2px;
-    background: $white;
-    &__content { margin-top: 24px; }
     &__content li { margin-bottom: 12px; }
-    &__actions, &__result { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
+    &__result { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
     &__result { flex-direction: column; align-items: center; text-align: center; }
   }
 
-  .integration-wizard__step {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    &:disabled { cursor: default; }
-    &:focus-visible { outline: 2px solid $accent-primary-color; outline-offset: 3px; }
-  }
 </style>

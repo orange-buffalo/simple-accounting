@@ -50,6 +50,7 @@ export default {
     },
   },
   common: {
+    back: () => 'Back',
     date: {
       medium: (date?: Date | string) => format('{0, date, medium}', [date]),
     },

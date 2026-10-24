@@ -1,133 +1,76 @@
 <template>
   <SaPage :header="$t.reporting.header()">
 
-    <div class="reporting-panel">
-      <ElSteps
-        :active="activeWizardStep"
-        align-center
-        finish-status="success"
-      >
-        <ElStep
-          :description="reportSelectionStepDescription"
-        >
-          <template #title>
+    <SaWizard v-model="activeWizardStep" :steps="wizardSteps" class="reporting-panel">
+      <template #select-report="{ navigate }">
+        <div class="reporting-panel--content reporting-panel--selection">
+          <p class="reporting-panel--selection-intro">
+            {{ $t.reporting.wizard.selectionIntro() }}
+          </p>
+          <div class="reporting-panel--report-selectors">
             <button
-              v-if="!reportSelectionActive"
               type="button"
-              class="reporting-panel--step-link"
-              @click="navigateToSelectReportStep"
+              class="reporting-panel--report-selector"
+              @click="selectReport(GENERAL_TAX_REPORT); navigate(SELECT_DATES_STEP)"
             >
-              {{ $t.reporting.wizard.steps.selectReport.title() }}
+              <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="tax" :size="42" /></span>
+              <span class="reporting-panel--report-copy">
+                <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.generalTax.title() }}</span>
+                <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
+              </span>
+              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
             </button>
-            <span v-else>{{ $t.reporting.wizard.steps.selectReport.title() }}</span>
-          </template>
-        </ElStep>
-        <ElStep
-          :description="datesSelectionStepDescription"
-        >
-          <template #title>
             <button
-              v-if="viewReportActive"
               type="button"
-              class="reporting-panel--step-link"
-              @click="navigateToSelectDatesStep"
+              class="reporting-panel--report-selector"
+              @click="selectReport(INCOME_TAX_REPORT); navigate(SELECT_DATES_STEP)"
             >
-              {{ $t.reporting.wizard.steps.selectDates.title() }}
+              <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="reporting" :size="42" /></span>
+              <span class="reporting-panel--report-copy">
+                <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.incomeTax.title() }}</span>
+                <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
+              </span>
+              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
             </button>
-            <span v-else>{{ $t.reporting.wizard.steps.selectDates.title() }}</span>
-          </template>
-        </ElStep>
-        <ElStep
-          :title="$t.reporting.wizard.steps.viewReport.title()"
-          :description="viewReportStepDescription"
-          :status="viewReportStepStatus"
-        />
-      </ElSteps>
-
-      <div
-        v-if="reportSelectionActive"
-        class="reporting-panel--content reporting-panel--selection"
-      >
-        <p class="reporting-panel--selection-intro">
-          {{ $t.reporting.wizard.selectionIntro() }}
-        </p>
-        <div class="reporting-panel--report-selectors">
-          <button
-            type="button"
-            class="reporting-panel--report-selector"
-            @click="selectReport(GENERAL_TAX_REPORT)"
-          >
-            <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="tax" :size="42" /></span>
-            <span class="reporting-panel--report-copy">
-              <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.generalTax.title() }}</span>
-              <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
-            </span>
-            <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
-          </button>
-          <button
-            type="button"
-            class="reporting-panel--report-selector"
-            @click="selectReport(INCOME_TAX_REPORT)"
-          >
-            <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="reporting" :size="42" /></span>
-            <span class="reporting-panel--report-copy">
-              <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.incomeTax.title() }}</span>
-              <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
-            </span>
-            <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
-          </button>
+          </div>
         </div>
-      </div>
-
-      <div
-        v-if="datesSelectionActive"
-        class="reporting-panel--content reporting-panel--dates"
-      >
-        <div class="reporting-panel--selected-range" aria-live="polite">
-          <span>{{ displayedDateRange[0] ? $t.common.date.medium(displayedDateRange[0]) : $t.reporting.wizard.dateRange.startPlaceholder() }}</span>
-          <span aria-hidden="true">—</span>
-          <span>{{ displayedDateRange[1] ? $t.common.date.medium(displayedDateRange[1]) : $t.reporting.wizard.dateRange.endPlaceholder() }}</span>
+      </template>
+      <template #select-dates>
+        <div class="reporting-panel--content reporting-panel--dates">
+          <div class="reporting-panel--selected-range" aria-live="polite">
+            <span>{{ displayedDateRange[0] ? $t.common.date.medium(displayedDateRange[0]) : $t.reporting.wizard.dateRange.startPlaceholder() }}</span>
+            <span aria-hidden="true">—</span>
+            <span>{{ displayedDateRange[1] ? $t.common.date.medium(displayedDateRange[1]) : $t.reporting.wizard.dateRange.endPlaceholder() }}</span>
+          </div>
+          <div class="reporting-panel--calendar-container">
+            <ElDatePickerPanel
+              v-model="selectedDateRange"
+              type="daterange"
+              :default-value="selectedDateRange[0]"
+              :border="false"
+              :clearable="false"
+              class="reporting-panel--calendar"
+              @calendar-change="onCalendarChange"
+              @update:model-value="onRangeSelected"
+            />
+          </div>
         </div>
-        <div class="reporting-panel--calendar-container">
-          <ElDatePickerPanel
-            v-model="selectedDateRange"
-            type="daterange"
-            :default-value="selectedDateRange[0]"
-            :border="false"
-            :clearable="false"
-            class="reporting-panel--calendar"
-            @calendar-change="onCalendarChange"
-            @update:model-value="onRangeSelected"
+      </template>
+      <template #view-report>
+        <div class="reporting-panel--content">
+          <GeneralTaxReport
+            v-if="selectedReport === GENERAL_TAX_REPORT"
+            :date-range="selectedDateRange"
+            @report-loaded="reportGenerationInProgress = false"
+          />
+          <IncomeTaxReport
+            v-if="selectedReport === INCOME_TAX_REPORT"
+            :date-range="selectedDateRange"
+            @report-loaded="reportGenerationInProgress = false"
           />
         </div>
-        <div class="reporting-panel--actions">
-          <ElButton
-            link
-            :disabled="selectedDateRange?.length !== 2 || rangeSelectionInProgress"
-            @click="navigateToViewReportStep"
-          >
-            {{ $t.reporting.wizard.buttons.next() }}
-            <ArrowRight class="reporting-panel--next-icon" aria-hidden="true" />
-          </ElButton>
-        </div>
-      </div>
-
-      <div
-        v-if="viewReportActive"
-        class="reporting-panel--content"
-      >
-        <GeneralTaxReport
-          v-if="selectedReport === GENERAL_TAX_REPORT"
-          :date-range="selectedDateRange"
-          @report-loaded="reportGenerationInProgress = false"
-        />
-        <IncomeTaxReport
-          v-if="selectedReport === INCOME_TAX_REPORT"
-          :date-range="selectedDateRange"
-          @report-loaded="reportGenerationInProgress = false"
-        />
-      </div>
-    </div>
+      </template>
+    </SaWizard>
   </SaPage>
 </template>
 
@@ -141,17 +84,19 @@
   import { $t } from '@/services/i18n';
   import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
   import { ElDatePickerPanel } from 'element-plus';
-  import { ArrowRight } from '@element-plus/icons-vue';
+  import SaWizard from '@/components/wizard/SaWizard.vue';
+  import type { WizardStep } from '@/components/wizard/sa-wizard';
 
-  const SELECT_REPORT_STEP = 0;
-  const SELECT_DATES_STEP = 1;
-  const VIEW_REPORT_STEP = 2;
+  const SELECT_REPORT_STEP = 'select-report';
+  const SELECT_DATES_STEP = 'select-dates';
+  const VIEW_REPORT_STEP = 'view-report';
+  type ReportStep = typeof SELECT_REPORT_STEP | typeof SELECT_DATES_STEP | typeof VIEW_REPORT_STEP;
 
   const GENERAL_TAX_REPORT = 'generalTaxReport';
   const INCOME_TAX_REPORT = 'incomeTaxReport';
   type Report = typeof GENERAL_TAX_REPORT | typeof INCOME_TAX_REPORT;
 
-  const activeWizardStep = ref(SELECT_REPORT_STEP);
+  const activeWizardStep = ref<ReportStep>(SELECT_REPORT_STEP);
   const selectedDateRange = ref<Array<Date>>([]);
   const rangeSelectionInProgress = ref(false);
   const pendingDateRange = ref<Array<Date | null> | null>(null);
@@ -198,7 +143,7 @@
     if (activeWizardStep.value === VIEW_REPORT_STEP) {
       return 'success';
     }
-    return null;
+    return undefined;
   });
 
   const viewReportStepDescription = computed(() => {
@@ -211,9 +156,35 @@
     return null;
   });
 
-  const navigateToSelectDatesStep = () => {
-    activeWizardStep.value = SELECT_DATES_STEP;
-  };
+  const wizardSteps = computed<WizardStep<ReportStep>[]>(() => [
+    {
+      id: SELECT_REPORT_STEP,
+      title: $t.value.reporting.wizard.steps.selectReport.title(),
+      description: reportSelectionStepDescription.value,
+    },
+    {
+      id: SELECT_DATES_STEP,
+      title: $t.value.reporting.wizard.steps.selectDates.title(),
+      description: datesSelectionStepDescription.value,
+      navigationDisabled: !selectedReport.value,
+      back: { label: $t.value.common.back(), target: SELECT_REPORT_STEP },
+      next: {
+        label: $t.value.reporting.wizard.buttons.next(),
+        target: VIEW_REPORT_STEP,
+        disabled: selectedDateRange.value.length !== 2 || rangeSelectionInProgress.value,
+      },
+    },
+    {
+      id: VIEW_REPORT_STEP,
+      title: $t.value.reporting.wizard.steps.viewReport.title(),
+      description: viewReportStepDescription.value,
+      status: viewReportStepStatus.value,
+      navigationDisabled: !selectedReport.value || selectedDateRange.value.length !== 2
+        || rangeSelectionInProgress.value,
+      onEnter: () => { reportGenerationInProgress.value = true; },
+      back: { label: $t.value.common.back(), target: SELECT_DATES_STEP },
+    },
+  ]);
 
   const onCalendarChange = (dates: Array<Date | null>) => {
     rangeSelectionInProgress.value = dates.length !== 2 || dates.some((date) => date == null);
@@ -225,10 +196,6 @@
     pendingDateRange.value = null;
   };
 
-  const navigateToSelectReportStep = () => {
-    activeWizardStep.value = SELECT_REPORT_STEP;
-  };
-
   const selectReport = (report: Report) => {
     selectedReport.value = report;
     rangeSelectionInProgress.value = false;
@@ -236,12 +203,6 @@
     selectedDateRange.value = report === INCOME_TAX_REPORT
       ? getAustralianFinancialYearDateRange()
       : [];
-    navigateToSelectDatesStep();
-  };
-
-  const navigateToViewReportStep = () => {
-    activeWizardStep.value = VIEW_REPORT_STEP;
-    reportGenerationInProgress.value = true;
   };
 </script>
 
@@ -249,12 +210,6 @@
   @use "@/styles/vars.scss" as *;
 
   .reporting-panel {
-    padding: 20px;
-    border: 1px solid $secondary-grey;
-    background-color: $white;
-    border-radius: 2px;
-    overflow: hidden;
-
     &--dates {
       display: flex;
       flex-direction: column;
@@ -270,45 +225,12 @@
       color: $primary-text-color;
     }
 
-    &--step-link {
-      padding: 0;
-      border: 0;
-      background: none;
-      color: inherit;
-      font: inherit;
-      cursor: pointer;
-
-      &:hover {
-        text-decoration: underline;
-      }
-
-      &:focus-visible {
-        outline: 2px solid $accent-primary-color;
-        outline-offset: 3px;
-      }
-    }
-
-    &--next-icon {
-      width: 1em;
-      height: 1em;
-      margin-left: 6px;
-    }
-
     &--calendar-container {
       max-width: 100%;
       overflow-x: auto;
     }
 
-    &--actions {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
     &--content {
-      margin-top: 20px;
-
       h4 {
         margin: 0;
       }
