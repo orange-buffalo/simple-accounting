@@ -84,8 +84,11 @@ export default {
   },
 
   loginPage: {
-    announcement: () => 'Вперше тут? Ми запускаємо публічний доступ скоро.',
+    welcome: () => 'З поверненням',
+    introduction: () => 'Введіть ім’я користувача, щоб продовжити.',
+    existingAccountHint: () => 'Увійдіть за допомогою наявного облікового запису.',
     userName: {
+      label: () => 'Ім’я користувача',
       placeholder: () => 'Логін',
     },
     password: {
@@ -192,6 +195,7 @@ export default {
         profit: () => 'Прибуток',
       },
       invoice: {
+        header: () => 'Інвойс',
         to: () => 'Кому',
         issueDate: () => 'Дата Випуску',
         dateSent: () => 'Дата Відправки',

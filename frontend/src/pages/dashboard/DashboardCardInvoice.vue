@@ -1,6 +1,8 @@
 <template>
   <DashboardCard
     header-icon="invoices-overview"
+    class="sa-dashboard__card--invoice"
+    :title="$t.dashboard.cards.invoice.header()"
     :loaded="true"
   >
     <template #header>
@@ -11,8 +13,10 @@
       />
 
       <span class="sa-dashboard__card__header__finalized">{{ invoice.title }}</span>
-      <span class="sa-dashboard__card__header__finalized">{{ invoiceStatus }}</span>
-      <span class="sa-dashboard__card__header__pending">&nbsp;</span>
+      <span
+        class="sa-dashboard__card__header__finalized sa-dashboard__invoice-status"
+        :class="{ 'sa-dashboard__invoice-status--overdue': invoice.status === 'OVERDUE' }"
+      >{{ invoiceStatus }}</span>
     </template>
 
     <template #content>
@@ -59,3 +63,44 @@
     return $t.value.dashboard.cards.invoice.status.pending();
   });
 </script>
+
+<style lang="scss">
+  @use "@/styles/vars.scss" as *;
+
+  .sa-dashboard__card--invoice {
+    .sa-dashboard__card__header {
+      position: relative;
+    }
+
+    .sa-dashboard__card__header__title {
+      padding-right: 100px;
+    }
+
+    .sa-dashboard__card__header__icon {
+      display: none;
+    }
+
+    .sa-dashboard__card__header__finalized:not(.sa-dashboard__invoice-status) {
+      color: $primary-text-color;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .sa-dashboard__invoice-status {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 20px;
+    color: #985008;
+    background: $warning-color-bg;
+    font-size: 12px;
+
+    &--overdue {
+      color: #a82f48;
+      background: $danger-color-bg;
+    }
+  }
+</style>

@@ -1,6 +1,7 @@
 <template>
   <DashboardCard
     header-icon="income"
+    :title="$t.navigationMenu.incomes()"
     :loaded="!loading"
   >
     <template #header>
@@ -18,7 +19,7 @@
       >{{ $t.dashboard.cards.incomes.pendingHeader(incomes.pendingCount ?? 0) }}</span>
       <span
         v-if="!incomes.pendingCount"
-        class="sa-dashboard__card__header__pending"
+        class="sa-dashboard__card__header__pending sa-dashboard__card__header__pending--empty"
       >&nbsp;</span>
     </template>
 

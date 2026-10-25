@@ -1,10 +1,10 @@
 <template>
-  <div class="side-menu__link" @click="doLogout">
+  <button type="button" class="side-menu__link side-menu__logout" :title="$t.navigationMenu.user.logout()" @click="doLogout">
     <SaIcon icon="logout" :size="27" variant="detailed" />
     {{
       $t.navigationMenu.user.logout()
     }}
-  </div>
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -21,3 +21,13 @@
     await router.push('/login');
   };
 </script>
+
+<style scoped>
+  .side-menu__logout {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
+  }
+</style>

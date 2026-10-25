@@ -42,31 +42,37 @@
   $menu-breakpoint: lg;
 
   .side-menu {
-    @include gradient-background;
+    background: $primary-color;
     color: $white;
     width: 70px !important;
     align-self: stretch;
+    padding: 16px 8px;
+    overflow-y: auto;
+    flex-shrink: 0;
 
     @include respond-above($menu-breakpoint) {
-      width: 300px !important;
+      width: 252px !important;
+      padding: 20px 14px;
     }
 
     &__logo {
-      height: 70px;
-      margin: 10px 0 10px 0;
+      height: 54px;
+      margin: 0 0 16px;
       display: inline-block;
       width: 100%;
-      color: $accent-contrast-color;
+      color: $white;
 
       @include respond-above($menu-breakpoint) {
-        height: 120px;
+        height: 68px;
       }
     }
 
     &__workspace-name {
       text-align: center;
       margin-bottom: 20px;
-      color: $accent-contrast-color;
+      color: #c2d1df;
+      font-size: 13px;
+      overflow-wrap: anywhere;
       display: none;
 
       @include respond-above($menu-breakpoint) {
@@ -80,48 +86,51 @@
       text-decoration: none;
       color: inherit;
       align-items: center;
-      border-left: 3px solid transparent;
+      border-radius: 8px;
+      margin-bottom: 3px;
       transition: all 0.1s ease-out;
       font-size: 0;
       cursor: pointer;
 
       @include respond-above($menu-breakpoint) {
-        border-left: 5px solid transparent;
-        font-size: inherit;
-        padding: 10px;
+        font-size: 14px;
+        padding: 10px 12px;
       }
 
       &:hover {
-        background-color: $accent-primary-color;
+        background-color: rgba(255, 255, 255, 0.08);
       }
 
       &.side-menu__link--active {
-        border-left: 3px solid $accent-contrast-color;
+        background: $secondary-color;
+        color: $white;
+      }
 
-        @include respond-above($menu-breakpoint) {
-          border-left: 5px solid $accent-contrast-color;
-        }
+      &:focus-visible {
+        outline: 2px solid $accent-contrast-color;
+        outline-offset: -2px;
       }
 
       .sa-icon {
         margin-right: 0;
-        margin-left: 17px;
+        margin-left: 13px;
+        flex-shrink: 0;
+        height: 22px !important;
+        width: 22px !important;
 
         @include respond-above($menu-breakpoint) {
           margin-right: 10px;
           margin-left: 0;
-          height: 25px;
-          width: 25px;
         }
       }
     }
 
     &__category {
       display: block;
-      margin: 10px 0;
+      margin: 18px 0 8px;
       text-transform: uppercase;
       font-weight: bold;
-      opacity: 0.2;
+      color: #a9bdce;
       font-size: 0;
 
       &:after {
@@ -131,9 +140,9 @@
       }
 
       @include respond-above($menu-breakpoint) {
-        font-size: 80%;
-        padding: 10px;
-        opacity: 0.7;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        padding: 0 12px;
 
         &:after {
           display: none;

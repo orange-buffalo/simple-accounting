@@ -35,6 +35,9 @@ class LoginFullStackTest : SaFullStackTestBase() {
     fun `should login as regular user and verify remember me cookie`(page: Page) {
         page.openLoginPage {
             reportRendering("login.initial-state")
+            page.setViewportSize(390, 844)
+            reportRendering("login.initial-state-narrow")
+            page.setViewportSize(1920, 1080)
             continueButton {
                 shouldBeDisabled()
                 shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Continue") }
@@ -63,6 +66,9 @@ class LoginFullStackTest : SaFullStackTestBase() {
             }
             loginButton { shouldBeEnabled() }
             reportRendering("login.filled-state")
+            page.setViewportSize(390, 844)
+            reportRendering("login.filled-state-narrow")
+            page.setViewportSize(1920, 1080)
 
             page.withBlockedApiResponse(
                 "**",

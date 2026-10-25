@@ -32,6 +32,10 @@
 @use 'sass:color';
 
 :root {
+  @each $level in 3, 5, 7, 8, 9 {
+    --el-color-primary-light-#{$level}: #{color.mix($white, $components-color, $level * 10%)};
+  }
+  --el-color-primary-dark-2: #{color.mix(#000, $components-color, 20%)};
   --el-component-size: #{$sa-input-height};
   --el-color-danger: #{$danger-color};
   --el-color-error: #{$danger-color};

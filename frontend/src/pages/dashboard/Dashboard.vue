@@ -1,8 +1,6 @@
 <template>
-  <SaPage :header="$t.dashboard.header()">
+  <SaPage class="sa-dashboard" :header="$t.dashboard.header()">
     <template #header-options>
-      <span>&nbsp;</span>
-
       <!--suppress HtmlDeprecatedAttribute -->
       <ElDatePicker
         v-model="selectedDateRange"
@@ -220,14 +218,49 @@
 <style lang="scss">
   @use "@/styles/vars.scss" as *;
 
-  .el-date-editor {
-    max-width: 250px;
+  .sa-dashboard {
+    .sa-page__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: -0.5px;
+      }
+
+      &:after {
+        display: none;
+      }
+    }
+
+    .sa-page__header-options {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .el-date-editor {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
   }
 
   .sa-dashboard__row {
-    display: flex;
-    justify-content: space-evenly;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
     align-items: stretch;
-    flex-wrap: wrap;
+
+    @media (max-width: 1050px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 700px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

@@ -84,8 +84,11 @@ export default {
   },
 
   loginPage: {
-    announcement: () => 'New here? We are launching public access soon.',
+    welcome: () => 'Welcome back',
+    introduction: () => 'Enter your username to continue.',
+    existingAccountHint: () => 'Sign in with your existing account.',
     userName: {
+      label: () => 'Username',
       placeholder: () => 'Login',
     },
     password: {
@@ -192,6 +195,7 @@ export default {
         profit: () => 'Profit',
       },
       invoice: {
+        header: () => 'Invoice',
         to: () => 'To',
         issueDate: () => 'Issue Date',
         dateSent: () => 'Date Sent',
