@@ -1,52 +1,56 @@
 <template>
   <div class="sa-wizard">
     <ElSteps :active="activeIndex" align-center finish-status="success">
-      <ElStep v-for="step in steps" :key="step.id" :description="step.description ?? undefined" :status="step.status">
+      <ElStep v-for="step in steps" :key="step.id" :description="step.description ?? undefined"
+              :status="step.complete ? 'success' : step.id === model ? 'process' : 'wait'">
         <template #title>
-          <button type="button" class="sa-wizard__step" :disabled="actionPending || step.navigationDisabled || step.id === model"
-                  :aria-current="step.id === model ? 'step' : undefined" @click="navigate(step.id)">
+          <span :aria-current="step.id === model ? 'step' : undefined">
             {{ step.title }}
-          </button>
+          </span>
         </template>
       </ElStep>
     </ElSteps>
     <div class="sa-wizard__content">
-      <slot :name="model" :navigate="navigate" />
+      <slot :name="model" />
     </div>
-    <div v-if="activeStep?.back || activeStep?.next" class="sa-wizard__navigation">
-      <ElButton v-if="activeStep.back" link :disabled="isActionDisabled(activeStep.back)" @click="runAction(activeStep.back)">
-        {{ activeStep.back.label }}
+    <div class="sa-wizard__navigation">
+      <ElButton v-if="back" link :disabled="isActionDisabled(back)" @click="runAction(back)">
+        {{ back.label ?? $t.common.back() }}
       </ElButton>
-      <ElButton v-if="activeStep.next" type="primary" :disabled="isActionDisabled(activeStep.next)" @click="runAction(activeStep.next)">
-        {{ activeStep.next.label }}
+      <ElButton v-if="next" type="primary" :disabled="isActionDisabled(next)" @click="runAction(next)">
+        {{ next.label ?? $t.common.next() }}
       </ElButton>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup generic="StepId extends string">
-  import { computed, nextTick, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { ElButton, ElStep, ElSteps } from 'element-plus';
   import type { WizardAction, WizardStep } from './sa-wizard';
+  import { $t } from '@/services/i18n';
 
-  const props = defineProps<{ steps: WizardStep<StepId>[] }>();
+  const props = defineProps<{ steps: WizardStep<StepId>[]; loading?: boolean }>();
   const model = defineModel<StepId>({ required: true });
   const actionPending = ref(false);
   const activeIndex = computed(() => props.steps.findIndex(step => step.id === model.value));
   const activeStep = computed(() => props.steps[activeIndex.value]);
-  const navigate = async (id: StepId) => {
-    await nextTick();
+  const back = computed<WizardAction<StepId> | undefined>(() => activeIndex.value > 0
+    ? activeStep.value.back ?? { target: props.steps[activeIndex.value - 1].id } : undefined);
+  const next = computed<WizardAction<StepId> | undefined>(() => (
+    activeIndex.value >= 0 && activeIndex.value < props.steps.length - 1
+      ? activeStep.value.next ?? { target: props.steps[activeIndex.value + 1].id } : undefined
+  ));
+  const navigate = (id: StepId) => {
     const target = props.steps.find(step => step.id === id);
-    if (actionPending.value || !target || target.navigationDisabled || id === model.value) return;
+    if (props.loading || actionPending.value || !target || id === model.value) return;
     target.onEnter?.();
     model.value = id;
   };
-  const isActionDisabled = (action: WizardAction<StepId>) => actionPending.value || action.disabled
-    || (action.target !== undefined
-      && !props.steps.some(step => step.id === action.target && !step.navigationDisabled));
+  const isActionDisabled = (action: WizardAction<StepId>) => props.loading || actionPending.value || action.disabled;
   const runAction = async (action: WizardAction<StepId>) => {
     if (isActionDisabled(action)) return;
-    if (action.target !== undefined) await navigate(action.target);
+    if (action.target !== undefined) navigate(action.target);
     else if (action.action) {
       actionPending.value = true;
       try {
@@ -70,16 +74,5 @@
 
     &__content { margin-top: 24px; }
     &__navigation { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
-    &__step {
-      padding: 0;
-      border: 0;
-      background: none;
-      color: inherit;
-      font: inherit;
-      cursor: pointer;
-      &:disabled { cursor: default; }
-      &:enabled:hover { text-decoration: underline; }
-      &:focus-visible { outline: 2px solid $accent-primary-color; outline-offset: 3px; }
-    }
   }
 </style>

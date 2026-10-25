@@ -3,7 +3,7 @@
     <div v-if="initializing" class="integration-wizard__result" role="status" aria-live="polite">
       <SaStatusLabel status="regular" custom-icon="loading">{{ $t.integrations.loading() }}</SaStatusLabel>
     </div>
-    <SaWizard v-else v-model="step" :steps="wizardSteps">
+    <SaWizard v-else v-model="step" :steps="wizardSteps" :loading="busy">
       <template #token>
         <div class="integration-wizard__content">
           <ol>
@@ -136,7 +136,6 @@
   const saved = ref(false);
   watch(() => preferences.value.fetchTransactionsPeriodically, () => { saved.value = false; });
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
-  const saveError = ref(false);
   const accounts = ref<Account[]>([]);
   const profiles = computed(() => {
     const groups = new Map<string, { id: string; name: string; type: string | null; accounts: Account[] }>();
@@ -167,7 +166,6 @@
   };
   const clearError = () => {
     error.value = null;
-    saveError.value = false;
   };
   const back = () => {
     clearError();
@@ -179,7 +177,6 @@
     verified.value = false;
     saved.value = false;
     error.value = null;
-    saveError.value = false;
     accounts.value = [];
     selected.value.clear();
   }, { flush: 'sync' });
@@ -190,7 +187,6 @@
     step.value = steps.ACCOUNT_SELECTION;
     busy.value = true;
     error.value = null;
-    saveError.value = false;
     saved.value = false;
     verified.value = false;
     accounts.value = [];
@@ -218,7 +214,6 @@
     step.value = steps.ACTIVATION;
     busy.value = true;
     error.value = null;
-    saveError.value = false;
     try {
       const result = await saveSettings({
         workspaceId, token: verifiedToken.value,
@@ -241,39 +236,33 @@
     } catch (e: unknown) {
       const code = handleGqlApiBusinessError<SaveWiseIntegrationSettingsErrorCodes>(e);
       error.value = code;
-      saveError.value = true;
     } finally { busy.value = false; }
   };
   const wizardSteps = computed<WizardStep<WiseStep>[]>(() => [
     {
       id: steps.TOKEN_INPUT,
       title: $t.value.integrations.wise.tokenStep(),
-      status: verified.value ? 'success' : step.value === steps.TOKEN_INPUT ? 'process' : 'wait',
-      navigationDisabled: busy.value,
+      complete: verified.value,
       onEnter: clearError,
       next: {
-        label: $t.value.integrations.next(), action: verify,
-        disabled: busy.value || (!configured.value && !form.value.token.trim()),
+        action: verify,
+        disabled: !configured.value && !form.value.token.trim(),
       },
     },
     {
       id: steps.ACCOUNT_SELECTION,
       title: $t.value.integrations.wise.accountsStep(),
-      status: saved.value || step.value === steps.ACTIVATION ? 'success'
-        : step.value === steps.ACCOUNT_SELECTION ? 'process' : 'wait',
-      navigationDisabled: busy.value || !verified.value,
-      back: { label: $t.value.integrations.back(), target: steps.TOKEN_INPUT, disabled: busy.value },
-      next: error.value ? undefined : {
-        label: $t.value.integrations.next(), action: save,
-        disabled: busy.value || selected.value.size === 0,
+      complete: verified.value && selected.value.size > 0,
+      next: {
+        action: save,
+        disabled: !!error.value || !verified.value || selected.value.size === 0,
       },
     },
     {
       id: steps.ACTIVATION,
       title: $t.value.integrations.wise.finishStep(),
-      status: saved.value ? 'success' : 'wait',
-      navigationDisabled: busy.value || (!saved.value && !saveError.value),
-      back: error.value ? { label: $t.value.integrations.back(), action: recover, disabled: busy.value } : undefined,
+      complete: saved.value,
+      back: error.value ? { action: recover } : undefined,
     },
   ]);
   watch(configuration, async (workspace) => {

@@ -51,6 +51,7 @@ export default {
   },
   common: {
     back: () => 'Back',
+    next: () => 'Next',
     date: {
       medium: (date?: Date | string) => format('{0, date, medium}', [date]),
     },

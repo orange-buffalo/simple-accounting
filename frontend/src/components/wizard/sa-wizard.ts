@@ -1,14 +1,25 @@
-export type WizardAction<StepId extends string> = {
-  label: string;
+type WizardActionOptions = {
+  label?: string;
   disabled?: boolean;
-} & ({ target: StepId; action?: never } | { action: () => unknown; target?: never });
+};
+
+type WizardNavigationAction<StepId extends string> = WizardActionOptions & {
+  target: StepId;
+  action?: never;
+};
+
+type WizardCallbackAction = WizardActionOptions & {
+  action: () => unknown;
+  target?: never;
+};
+
+export type WizardAction<StepId extends string> = WizardNavigationAction<StepId> | WizardCallbackAction;
 
 export type WizardStep<StepId extends string> = {
   id: StepId;
   title: string;
   description?: string | null;
-  status?: 'wait' | 'process' | 'finish' | 'error' | 'success';
-  navigationDisabled?: boolean;
+  complete?: boolean;
   onEnter?: () => void;
   back?: WizardAction<StepId>;
   next?: WizardAction<StepId>;

@@ -1,8 +1,8 @@
 <template>
   <SaPage :header="$t.reporting.header()">
 
-    <SaWizard v-model="activeWizardStep" :steps="wizardSteps" class="reporting-panel">
-      <template #select-report="{ navigate }">
+    <SaWizard v-model="activeWizardStep" :steps="wizardSteps" :loading="reportGenerationInProgress" class="reporting-panel">
+      <template #select-report>
         <div class="reporting-panel--content reporting-panel--selection">
           <p class="reporting-panel--selection-intro">
             {{ $t.reporting.wizard.selectionIntro() }}
@@ -11,26 +11,28 @@
             <button
               type="button"
               class="reporting-panel--report-selector"
-              @click="selectReport(GENERAL_TAX_REPORT); navigate(SELECT_DATES_STEP)"
+              :aria-pressed="selectedReport === GENERAL_TAX_REPORT"
+              @click="selectReport(GENERAL_TAX_REPORT)"
             >
               <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="tax" :size="42" /></span>
               <span class="reporting-panel--report-copy">
                 <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.generalTax.title() }}</span>
                 <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
               </span>
-              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
+              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }}</span>
             </button>
             <button
               type="button"
               class="reporting-panel--report-selector"
-              @click="selectReport(INCOME_TAX_REPORT); navigate(SELECT_DATES_STEP)"
+              :aria-pressed="selectedReport === INCOME_TAX_REPORT"
+              @click="selectReport(INCOME_TAX_REPORT)"
             >
               <span class="reporting-panel--report-icon" aria-hidden="true"><SaIcon icon="reporting" :size="42" /></span>
               <span class="reporting-panel--report-copy">
                 <span class="reporting-panel--report-title">{{ $t.reporting.wizard.reports.incomeTax.title() }}</span>
                 <span class="reporting-panel--report-description">{{ $t.reporting.wizard.reports.incomeTax.description() }}</span>
               </span>
-              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }} <span>→</span></span>
+              <span class="reporting-panel--report-action" aria-hidden="true">{{ $t.reporting.wizard.buttons.select() }}</span>
             </button>
           </div>
         </div>
@@ -61,12 +63,14 @@
           <GeneralTaxReport
             v-if="selectedReport === GENERAL_TAX_REPORT"
             :date-range="selectedDateRange"
-            @report-loaded="reportGenerationInProgress = false"
+            @report-loaded="reportGenerated = true"
+            @report-settled="reportGenerationInProgress = false"
           />
           <IncomeTaxReport
             v-if="selectedReport === INCOME_TAX_REPORT"
             :date-range="selectedDateRange"
-            @report-loaded="reportGenerationInProgress = false"
+            @report-loaded="reportGenerated = true"
+            @report-settled="reportGenerationInProgress = false"
           />
         </div>
       </template>
@@ -87,28 +91,27 @@
   import SaWizard from '@/components/wizard/SaWizard.vue';
   import type { WizardStep } from '@/components/wizard/sa-wizard';
 
-  const SELECT_REPORT_STEP = 'select-report';
-  const SELECT_DATES_STEP = 'select-dates';
-  const VIEW_REPORT_STEP = 'view-report';
-  type ReportStep = typeof SELECT_REPORT_STEP | typeof SELECT_DATES_STEP | typeof VIEW_REPORT_STEP;
+  const steps = { SELECT_REPORT: 'select-report', SELECT_DATES: 'select-dates', VIEW_REPORT: 'view-report' } as const;
+  type ReportStep = typeof steps[keyof typeof steps];
 
   const GENERAL_TAX_REPORT = 'generalTaxReport';
   const INCOME_TAX_REPORT = 'incomeTaxReport';
   type Report = typeof GENERAL_TAX_REPORT | typeof INCOME_TAX_REPORT;
 
-  const activeWizardStep = ref<ReportStep>(SELECT_REPORT_STEP);
+  const activeWizardStep = ref<ReportStep>(steps.SELECT_REPORT);
   const selectedDateRange = ref<Array<Date>>([]);
   const rangeSelectionInProgress = ref(false);
   const pendingDateRange = ref<Array<Date | null> | null>(null);
   const displayedDateRange = computed(() => pendingDateRange.value ?? selectedDateRange.value);
   const selectedReport = ref<Report>();
   const reportGenerationInProgress = ref(false);
+  const reportGenerated = ref(false);
 
-  const reportSelectionActive = computed(() => activeWizardStep.value === SELECT_REPORT_STEP);
+  const reportSelectionActive = computed(() => activeWizardStep.value === steps.SELECT_REPORT);
 
-  const datesSelectionActive = computed(() => activeWizardStep.value === SELECT_DATES_STEP);
+  const datesSelectionActive = computed(() => activeWizardStep.value === steps.SELECT_DATES);
 
-  const viewReportActive = computed(() => activeWizardStep.value === VIEW_REPORT_STEP);
+  const viewReportActive = computed(() => activeWizardStep.value === steps.VIEW_REPORT);
 
   const reportSelectionStepDescription = computed(() => {
     if (reportSelectionActive.value) {
@@ -136,21 +139,11 @@
     return null;
   });
 
-  const viewReportStepStatus = computed(() => {
-    if (activeWizardStep.value === VIEW_REPORT_STEP && reportGenerationInProgress.value) {
-      return 'process';
-    }
-    if (activeWizardStep.value === VIEW_REPORT_STEP) {
-      return 'success';
-    }
-    return undefined;
-  });
-
   const viewReportStepDescription = computed(() => {
-    if (activeWizardStep.value === VIEW_REPORT_STEP && reportGenerationInProgress.value) {
+    if (viewReportActive.value && reportGenerationInProgress.value) {
       return $t.value.reporting.wizard.steps.viewReport.description.loading();
     }
-    if (activeWizardStep.value === VIEW_REPORT_STEP) {
+    if (viewReportActive.value && reportGenerated.value) {
       return $t.value.reporting.wizard.steps.viewReport.description.ready();
     }
     return null;
@@ -158,35 +151,36 @@
 
   const wizardSteps = computed<WizardStep<ReportStep>[]>(() => [
     {
-      id: SELECT_REPORT_STEP,
+      id: steps.SELECT_REPORT,
       title: $t.value.reporting.wizard.steps.selectReport.title(),
       description: reportSelectionStepDescription.value,
+      complete: !!selectedReport.value,
+      next: { target: steps.SELECT_DATES, disabled: !selectedReport.value },
     },
     {
-      id: SELECT_DATES_STEP,
+      id: steps.SELECT_DATES,
       title: $t.value.reporting.wizard.steps.selectDates.title(),
       description: datesSelectionStepDescription.value,
-      navigationDisabled: !selectedReport.value,
-      back: { label: $t.value.common.back(), target: SELECT_REPORT_STEP },
+      complete: selectedDateRange.value.length === 2 && !rangeSelectionInProgress.value,
       next: {
-        label: $t.value.reporting.wizard.buttons.next(),
-        target: VIEW_REPORT_STEP,
+        target: steps.VIEW_REPORT,
         disabled: selectedDateRange.value.length !== 2 || rangeSelectionInProgress.value,
       },
     },
     {
-      id: VIEW_REPORT_STEP,
+      id: steps.VIEW_REPORT,
       title: $t.value.reporting.wizard.steps.viewReport.title(),
       description: viewReportStepDescription.value,
-      status: viewReportStepStatus.value,
-      navigationDisabled: !selectedReport.value || selectedDateRange.value.length !== 2
-        || rangeSelectionInProgress.value,
-      onEnter: () => { reportGenerationInProgress.value = true; },
-      back: { label: $t.value.common.back(), target: SELECT_DATES_STEP },
+      complete: reportGenerated.value,
+      onEnter: () => {
+        reportGenerated.value = false;
+        reportGenerationInProgress.value = true;
+      },
     },
   ]);
 
   const onCalendarChange = (dates: Array<Date | null>) => {
+    reportGenerated.value = false;
     rangeSelectionInProgress.value = dates.length !== 2 || dates.some((date) => date == null);
     pendingDateRange.value = rangeSelectionInProgress.value ? dates : null;
   };
@@ -197,6 +191,7 @@
   };
 
   const selectReport = (report: Report) => {
+    reportGenerated.value = false;
     selectedReport.value = report;
     rangeSelectionInProgress.value = false;
     pendingDateRange.value = null;
@@ -273,6 +268,7 @@
       transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 
       &:hover,
+      &[aria-pressed="true"],
       &:focus-visible {
         border-color: $accent-primary-color;
         background-color: $primary-grey;
