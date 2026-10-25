@@ -53,7 +53,10 @@
   }
 
   const props = defineProps<{ dateRange: Date[] }>();
-  const emit = defineEmits<{(e: 'report-loaded'): void }>();
+  const emit = defineEmits<{
+    (e: 'report-loaded'): void;
+    (e: 'report-settled'): void;
+  }>();
 
   const getIncomeTaxReportQuery = useLazyQuery(graphql(`
     query getIncomeTaxReport($workspaceId: String!, $fromDate: LocalDate!, $toDate: LocalDate!) {
@@ -86,13 +89,17 @@
   const { currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
 
   const reloadReport = async () => {
-    const workspace = await getIncomeTaxReportQuery({
-      workspaceId: currentWorkspaceId,
-      fromDate: formatDateToLocalISOString(props.dateRange[0]),
-      toDate: formatDateToLocalISOString(props.dateRange[1]),
-    });
-    report.value = workspace?.analytics ?? null;
-    emit('report-loaded');
+    try {
+      const workspace = await getIncomeTaxReportQuery({
+        workspaceId: currentWorkspaceId,
+        fromDate: formatDateToLocalISOString(props.dateRange[0]),
+        toDate: formatDateToLocalISOString(props.dateRange[1]),
+      });
+      report.value = workspace?.analytics ?? null;
+      emit('report-loaded');
+    } finally {
+      emit('report-settled');
+    }
   };
 
   const transformSummary = (summary: Summary | undefined): IncomeTaxReportItem[] => {

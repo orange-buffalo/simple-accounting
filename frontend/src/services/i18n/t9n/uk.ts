@@ -50,6 +50,8 @@ export default {
     },
   },
   common: {
+    back: () => 'Назад',
+    next: () => 'Далі',
     date: {
       medium: (date?: Date | string) => format('{0, date, medium}', [date]),
     },

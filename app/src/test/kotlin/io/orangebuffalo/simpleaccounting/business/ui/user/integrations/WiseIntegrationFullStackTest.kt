@@ -53,16 +53,33 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         WiseApiMocks.setupAccountsWithSharedIds()
         page.authenticateViaCookie(preconditions.fry)
         page.openWiseSetupPage {
+            tokenStep.shouldBeOpen()
+            tokenStep.shouldBeNonInteractive()
+            accountsStep.shouldBeNonInteractive()
+            finishStep.shouldBeNonInteractive()
+            back.shouldBeHidden()
             next.shouldBeDisabled()
             token { input { fill(WiseApiMocks.TOKEN); shouldHaveAttribute(name = "type", value = "password") } }
             reportRendering("integrations.wise-token")
-            page.withBlockedGqlApiResponse("listWiseAccounts", initiator = { next.click() }, blockedRequestSpec = {
+            page.withBlockedGqlApiResponse(queryOrMutationName = "listWiseAccounts", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Verifying token and loading accounts…")
+                accountsStep.shouldBeOpen()
+                back.shouldBeDisabled()
+                next.shouldBeDisabled()
                 reportRendering("integrations.wise-loading-accounts")
             })
             accounts.shouldHaveExactData(
                 *normalAccounts,
             )
+            accountsStep.shouldBeOpen()
+            tokenStep.shouldBeCompleted()
+            back.shouldBeEnabled()
+            back.click()
+            tokenStep.shouldBeOpen()
+            back.shouldBeHidden()
+            token { input.shouldHaveValue(WiseApiMocks.TOKEN) }
+            next.click()
+            accounts.shouldHaveExactData(*normalAccounts)
             configuration.fetchTransactions.shouldBeSwitchedOn()
             val dollars = accounts.account("USD")
             val euros = accounts.account("EUR")
@@ -92,6 +109,10 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             configuration.fetchTransactions.shouldBeSwitchedOff()
             next.click()
             status.shouldBeSuccess("Wise integration saved successfully.")
+            finishStep.shouldBeOpen()
+            finishStep.shouldBeCompleted()
+            back.shouldBeEnabled()
+            next.shouldBeHidden()
             reportRendering("integrations.wise-success")
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
@@ -170,7 +191,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             reportRendering("integrations.wise-update-deleted")
             next.click()
             status.shouldBeSuccess("Wise integration saved successfully.")
-            accountsStep.click()
+            back.click()
             accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
         }
         val settings = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
@@ -215,30 +236,31 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openWiseSetupPage {
             accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
-            tokenStep.click()
+            back.click()
             tokenStep.shouldBeOpen()
             token { input.shouldHaveValue("") }
             reportRendering("integrations.wise-update-token")
-            accountsStep.click()
+            next.click()
             accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
-            tokenStep.click()
+            back.click()
             val replacementToken = "bender-replacement-token"
             WiseApiMocks.setupAccounts(token = replacementToken)
             token { input.fill(replacementToken) }
             tokenStep.shouldBePending()
-            accountsStep.shouldBeDisabled()
+            back.shouldBeHidden()
             next.click()
             accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[1], normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"))
             tokenStep.shouldBeCompleted()
             accounts.account("USD").click()
-            page.withBlockedGqlApiResponse("saveWiseIntegrationSettings", initiator = { next.click() }, blockedRequestSpec = {
+            page.withBlockedGqlApiResponse(queryOrMutationName = "saveWiseIntegrationSettings", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Saving Wise integration…")
-                tokenStep.shouldBeDisabled()
-                accountsStep.shouldBeDisabled()
+                finishStep.shouldBeOpen()
+                back.shouldBeDisabled()
+                next.shouldBeHidden()
                 reportRendering("integrations.wise-saving")
             })
             status.shouldBeSuccess("Wise integration saved successfully.")
-            accountsStep.click()
+            back.click()
             accounts.shouldHaveExactData(
                 normalAccounts[0].copy(selected = true, selectionLabel = "✓ Selected"),
                 normalAccounts[1],
@@ -266,6 +288,56 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             accounts.shouldHaveExactData(*normalAccounts)
             next.shouldBeDisabled()
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+    }
+
+    @Test
+    fun `should recover when the token is rejected during save without persisting`(page: Page) {
+        WiseApiMocks.setupAccounts()
+        page.authenticateViaCookie(preconditions.fry)
+        page.openWiseSetupPage {
+            token { input.fill(WiseApiMocks.TOKEN) }
+            next.click()
+            accounts.shouldHaveExactData(*normalAccounts)
+            accounts.account("EUR").click()
+            WiseApiMocks.rejectToken()
+            next.click()
+            status.shouldBeError("Wise rejected this token. Check the token and try again.")
+            finishStep.shouldBeOpen()
+            next.shouldBeHidden()
+            back.click()
+            tokenStep.shouldBeOpen()
+            back.shouldBeHidden()
+            token { input.shouldHaveValue(WiseApiMocks.TOKEN) }
+            WiseApiMocks.setupAccounts()
+            next.click()
+            accounts.shouldHaveExactData(*normalAccounts)
+            next.shouldBeDisabled()
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
+    }
+
+    @Test
+    fun `should recover when selected accounts disappear during save without persisting`(page: Page) {
+        WiseApiMocks.setupAccounts()
+        page.authenticateViaCookie(preconditions.fry)
+        page.openWiseSetupPage {
+            token { input.fill(WiseApiMocks.TOKEN) }
+            next.click()
+            accounts.shouldHaveExactData(*normalAccounts)
+            accounts.account("EUR").click()
+            WiseApiMocks.removeEuroBalance()
+            next.click()
+            status.shouldBeError("The selected accounts have changed. Go back and select your accounts again.")
+            finishStep.shouldBeOpen()
+            next.shouldBeHidden()
+            back.click()
+            accountsStep.shouldBeOpen()
+            accounts.shouldHaveExactData(normalAccounts[0], normalAccounts[2])
+            next.shouldBeDisabled()
+            accounts.account("USD").click()
+            next.shouldBeEnabled()
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
     }

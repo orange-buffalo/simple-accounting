@@ -30,6 +30,7 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     val status = components.statusLabel()
     val tokenStep = components.wizardStep("Personal token")
     val accountsStep = components.wizardStep("Select accounts")
+    val finishStep = components.wizardStep("Save integration")
     val configuration = Configuration(components)
 
     @UiComponentMarker

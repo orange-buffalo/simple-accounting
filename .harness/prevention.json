@@ -53,9 +53,9 @@
     {
       "id": "component-test-ownership",
       "category": "testing",
-      "appliesWhen": "Testing reusable component behavior",
-      "instruction": "Keep reusable interaction-state coverage in the component-specific Kotlin full-stack test and page happy paths focused on workflow and persistence. A direction to move one component's coverage is not a repository-wide prohibition on other test frameworks.",
-      "reason": "Duplicated component cases make consuming page tests expensive and brittle."
+      "appliesWhen": "Assigning reusable component and consuming-page interaction coverage",
+      "instruction": "Keep genuinely reusable interaction-state coverage in the component-specific Kotlin full-stack test. Keep page-driven business conditions, validation and loading workflows in existing page tests without parallel component-test duplication. A direction to move one component's coverage is not a repository-wide prohibition on other test frameworks.",
+      "reason": "Coverage should follow behavior ownership without duplicating expensive workflows."
     },
     {
       "id": "transient-notifications",
@@ -284,9 +284,9 @@
     {
       "id": "semantic-wizard-steps",
       "category": "frontend",
-      "appliesWhen": "Representing multi-step UI state",
-      "instruction": "Represent multi-step UI state with semantic named constants rather than raw numeric indices, while preserving the component library's required index convention.",
-      "reason": "Named steps improve readability without changing library behavior."
+      "appliesWhen": "Representing multi-step UI state, especially object-defined wizard consumers",
+      "instruction": "Use semantic named constants rather than raw numeric indices, preserving library index conventions. For object-defined wizard pages, group step IDs in one semantic steps object and derive the ID type from it.",
+      "reason": "A consistent semantic step model improves readability and prevents separately maintained ID types."
     },
     {
       "id": "credential-safe-diagnostics",
@@ -385,6 +385,20 @@
       "appliesWhen": "Implementing or changing scheduled and asynchronous account-statement fetching",
       "instruction": "In the owning fetch service, log scheduled-run, integration and account start/end boundaries with safe identifiers, explicit outcomes and durations; include selected/processed integration counts, account intervals, retrieved records and completed windows. Keep per-window counts at DEBUG. Distinguish retrieval from persistence and report successful import/duplicate statistics only after commit; failed or rolled-back work must not claim imported success. Preserve existing credential-redaction, exception-isolation and no-log-assertion policies.",
       "reason": "Lifecycle gaps obscure stalled work, while precommit success statistics misrepresent rolled-back imports."
+    },
+    {
+      "id": "semantic-type-alternatives",
+      "category": "frontend",
+      "appliesWhen": "Complex inline TypeScript union/intersection types with semantically distinct alternatives",
+      "instruction": "Extract meaningful named alternatives and shared options so the composite type reads in domain terms. Do not extract every simple inline type.",
+      "reason": "Anonymous compound alternatives obscure the contract."
+    },
+    {
+      "id": "shared-wizard-contract",
+      "category": "frontend",
+      "appliesWhen": "Implementing or consuming the shared object-defined wizard",
+      "instruction": "Keep navigation exclusively in the bottom button bar with noninteractive titles and selection-only content controls. Derive default adjacent actions from step order; omit only first Back and last Next, and disable blocked actions. Pages provide completion facts and one top-level loading value; the wizard derives presentation statuses and locks actions during loading or pending callbacks. Preserve page-specific validity and service re-entry guards.",
+      "reason": "Central ownership prevents inconsistent navigation and repeated presentation or busy-state logic."
     }
   ]
 }

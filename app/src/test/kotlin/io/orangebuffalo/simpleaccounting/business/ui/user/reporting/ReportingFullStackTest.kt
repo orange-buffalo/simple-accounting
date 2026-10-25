@@ -5,10 +5,53 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.reporting.ReportingPage.Companion.openReportingPage
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 
 class ReportingFullStackTest : SaFullStackTestBase() {
+
+    @ParameterizedTest
+    @ValueSource(strings = ["getGeneralTaxReport", "getIncomeTaxReport"])
+    fun `should unlock report navigation after a failed request and allow retry`(operation: String, page: Page) {
+        val fry = preconditions { fry().withWorkspace() }
+        page.authenticateViaCookie(fry)
+        page.openReportingPage {
+            if (operation == "getIncomeTaxReport") selectIncomeTaxReport() else selectGeneralTaxReport()
+            nextButton.click()
+            inlineCalendar {
+                selectRange(start = LocalDate.of(1999, 1, 1), end = LocalDate.of(1999, 12, 31))
+            }
+            page.withFailedGqlApiResponse(operationName = operation, spec = {
+                nextButton.click()
+                page.shouldHaveNotifications { error() }
+                viewReportStep.shouldBeOpen()
+                viewReportStep.shouldBePending()
+                backButton.shouldBeEnabled()
+                nextButton.shouldBeHidden()
+            })
+            backButton.click()
+            selectDatesStep.shouldBeOpen()
+            page.withBlockedGqlApiResponse(
+                queryOrMutationName = operation,
+                initiator = { nextButton.click() },
+                blockedRequestSpec = {
+                    viewReportStep.shouldBeOpen()
+                    backButton.shouldBeDisabled()
+                    nextButton.shouldBeHidden()
+                    reportRendering("reporting.$operation-loading")
+                },
+            )
+            backButton.shouldBeEnabled()
+            viewReportStep.shouldBeCompleted()
+            backButton.click()
+            selectDatesStep.shouldBeOpen()
+        }
+    }
 
     @Test
     fun `should generate income tax report for the current Australian financial year`(page: Page) {
@@ -66,8 +109,20 @@ class ReportingFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
 
         page.openReportingPage {
+            selectReportStep.shouldBeOpen()
+            selectReportStep.shouldBeNonInteractive()
+            selectDatesStep.shouldBeNonInteractive()
+            viewReportStep.shouldBeNonInteractive()
+            backButton.shouldBeHidden()
+            nextButton.shouldBeDisabled()
             reportRendering("reporting.select-report")
             selectIncomeTaxReport()
+            selectReportStep.shouldBeOpen()
+            nextButton.shouldBeEnabled()
+            reportRendering("reporting.selected-report")
+            nextButton.click()
+            selectDatesStep.shouldBeOpen()
+            selectReportStep.shouldBeCompleted()
             inlineCalendar {
                 shouldBeVisible()
                 shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
@@ -96,19 +151,27 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveNetTaxableIncome("USD 900.00")
             }
             reportRendering("reporting.income-tax")
-            steps { navigateToPreviousStep("Select reporting dates") }
+            viewReportStep.shouldBeOpen()
+            viewReportStep.shouldBeCompleted()
+            nextButton.shouldBeHidden()
+            backButton.click()
+            selectDatesStep.shouldBeOpen()
             inlineCalendar {
                 shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
                 selectDay(0, 2)
             }
             nextButton.shouldBeDisabled()
+            reportRendering("reporting.partial-dates")
             inlineCalendar {
                 selectDay(1, 10)
                 shouldHaveSelectedRange(LocalDate.of(1998, 7, 2), LocalDate.of(1998, 8, 10))
             }
             nextButton.shouldBeEnabled()
-            steps { navigateToPreviousStep("Select a report") }
+            backButton.click()
+            selectReportStep.shouldBeOpen()
+            backButton.shouldBeHidden()
             selectIncomeTaxReport()
+            nextButton.click()
             inlineCalendar {
                 shouldHaveSelectedRange(LocalDate.of(1998, 7, 1), LocalDate.of(1999, 6, 30))
             }
@@ -121,6 +184,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
+            nextButton.click()
             steps {
                 shouldHaveStepDescriptions("Tax Report", "Please select reporting date range", "")
             }
@@ -186,6 +250,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
+            nextButton.click()
             inlineCalendar {
                 selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
@@ -220,6 +285,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
+            nextButton.click()
             inlineCalendar {
                 selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }
@@ -254,6 +320,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
 
         page.openReportingPage {
             selectGeneralTaxReport()
+            nextButton.click()
             inlineCalendar {
                 selectRange(LocalDate.of(1999, 1, 1), LocalDate.of(1999, 12, 31))
             }

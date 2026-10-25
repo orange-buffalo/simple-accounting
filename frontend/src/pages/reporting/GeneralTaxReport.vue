@@ -87,7 +87,10 @@
     dateRange: Date[],
   }>();
 
-  const emit = defineEmits<{(e: 'report-loaded'): void }>();
+  const emit = defineEmits<{
+    (e: 'report-loaded'): void;
+    (e: 'report-settled'): void;
+  }>();
 
   const getGeneralTaxReportQuery = useLazyQuery(graphql(`
     query getGeneralTaxReport($workspaceId: String!, $fromDate: LocalDate!, $toDate: LocalDate!) {
@@ -135,13 +138,17 @@
   } = useCurrentWorkspace();
 
   const reloadReport = async () => {
-    const workspace = await getGeneralTaxReportQuery({
-      workspaceId: currentWorkspaceId,
-      fromDate: formatDateToLocalISOString(props.dateRange[0]),
-      toDate: formatDateToLocalISOString(props.dateRange[1]),
-    });
-    report.value = workspace?.analytics?.generalTaxesSummary ?? null;
-    emit('report-loaded');
+    try {
+      const workspace = await getGeneralTaxReportQuery({
+        workspaceId: currentWorkspaceId,
+        fromDate: formatDateToLocalISOString(props.dateRange[0]),
+        toDate: formatDateToLocalISOString(props.dateRange[1]),
+      });
+      report.value = workspace?.analytics?.generalTaxesSummary ?? null;
+      emit('report-loaded');
+    } finally {
+      emit('report-settled');
+    }
   };
 
   onMounted(reloadReport);
