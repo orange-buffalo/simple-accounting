@@ -84,7 +84,7 @@ export default {
   },
 
   loginPage: {
-    welcome: () => 'З поверненням',
+    title: () => 'Вхід',
     introduction: () => 'Введіть ім’я користувача, щоб продовжити.',
     existingAccountHint: () => 'Увійдіть за допомогою наявного облікового запису.',
     userName: {

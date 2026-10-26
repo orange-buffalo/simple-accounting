@@ -110,7 +110,7 @@
       "id": "precise-evidence",
       "category": "workflow",
       "appliesWhen": "Explaining behavior or learning from corrections",
-      "instruction": "State behavioral evidence precisely, distinguish source documentation from reported rationale and null from omitted wire input, and retain workflow defaults while honoring explicit user overrides.",
+      "instruction": "State evidence precisely; distinguish documentation from reported rationale and null from omitted input. Keep defaults subject to explicit overrides. Use neutral anonymous-login copy.",
       "reason": "Unsupported diagnoses produce unreliable prevention."
     },
     {
@@ -194,7 +194,7 @@
       "id": "remove-unnecessary-tests",
       "category": "testing",
       "appliesWhen": "User-directed removal of unnecessary tests",
-      "instruction": "Remove tests explicitly deemed unnecessary while preserving the independently required production safety behavior.",
+      "instruction": "Remove user-rejected tests, not required production safety. Mobile support and mobile-only code/tests are out of scope unless requested.",
       "reason": "Removing redundant coverage does not revoke production requirements."
     },
     {

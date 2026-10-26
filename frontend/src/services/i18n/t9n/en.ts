@@ -84,7 +84,7 @@ export default {
   },
 
   loginPage: {
-    welcome: () => 'Welcome back',
+    title: () => 'Sign in',
     introduction: () => 'Enter your username to continue.',
     existingAccountHint: () => 'Sign in with your existing account.',
     userName: {

@@ -43,9 +43,10 @@ class DashboardPage private constructor(page: Page, headerText: String = "Dashbo
     }
 
     fun shouldHaveExactInvoiceCards(vararg expected: DashboardInvoiceCardData) {
-        shouldSatisfy("Dashboard invoices should exactly match the expected data") {
-            components.dashboardInvoiceCardsData().shouldContainExactly(*expected)
-        }
+        shouldSatisfy(
+            message = "Dashboard invoices should exactly match the expected data",
+            spec = { components.dashboardInvoiceCardsData().shouldContainExactly(*expected) },
+        )
     }
 
     fun invoiceCard(index: Int, spec: DashboardInvoiceCard.() -> Unit) {

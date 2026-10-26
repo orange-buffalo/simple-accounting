@@ -236,9 +236,6 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             )
 
             reportRendering("dashboard.with-invoices")
-            page.setViewportSize(390, 2400)
-            reportRendering("dashboard.with-invoices-narrow")
-            page.setViewportSize(1920, 1080)
         }
     }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <main class="login-page__login" aria-labelledby="login-heading">
-      <h1 id="login-heading">{{ $t.loginPage.welcome() }}</h1>
+      <h1 id="login-heading">{{ $t.loginPage.title() }}</h1>
       <p class="login-page__intro">{{ $t.loginPage.introduction() }}</p>
 
       <ElForm
