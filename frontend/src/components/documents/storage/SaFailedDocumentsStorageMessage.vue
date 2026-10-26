@@ -37,13 +37,14 @@
 <style lang="scss">
   .sa-failed-documents-storage-message {
     .el-alert__title {
-      align-items: flex-start;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      align-items: start;
+      column-gap: 8px;
       line-height: 1.5;
 
       .sa-icon {
-        flex-shrink: 0;
-        margin: calc((1.5em - 20px) / 2) 0 0;
+        margin: 0;
       }
     }
 
