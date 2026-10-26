@@ -5,6 +5,11 @@
 ## Automatic Implementation Review and Learning
 
 For implementation requests, load the repository skill `sa-delivery` and follow `docs/AgentHarness.md`.
+Trivial, behavior-preserving removals (for example, deleting test-local viewport overrides while retaining assertions
+and shared defaults) do not require `sa_review`. Self-review the diff, check analogous occurrences, and run the smallest
+relevant validation instead. This exception does not cover production behavior, access/security, API/schema, persistence,
+test assertion changes, or executable harness changes; uncertainty uses the normal review workflow. Human-feedback
+learning still applies. Explicit user review instructions take precedence.
 Before each of at most two review rounds, finish orchestrator self-review, wait for all relevant tests to complete,
 check results and finish all own verifications. Only then invoke `sa_review` with completed preflight attestations;
 it launches two identically configured full reviewers and two prevention.json compliance reviewers in parallel,

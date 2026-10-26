@@ -22,6 +22,15 @@ repository configuration is not a sandbox against the host or the primary implem
 
 ## Everyday use
 
+### Trivial-removal exception
+
+Trivial, behavior-preserving removals do not launch `sa_review`. For example, remove test-local viewport overrides
+while retaining shared defaults, rendering captures and business assertions. Self-review the diff, check analogous
+occurrences, and run the smallest relevant validation instead; report that full review was intentionally skipped.
+Human-feedback learning and normal commit requirements still apply. This exception does not cover production behavior,
+access/security, API/schema, persistence, test assertion changes, or executable harness changes. When uncertain, use the
+normal review workflow. Explicit user instructions about review take precedence.
+
 Ask for an implementation normally, or use `/sa-implement <request>`. `AGENTS.md` routes implementation work
 through `sa-delivery`. Save the pre-edit base commit and explicit acceptance criteria. Before EACH review round,
 finish self-review, wait for all relevant tests to complete, check their results, and finish all own verifications.
