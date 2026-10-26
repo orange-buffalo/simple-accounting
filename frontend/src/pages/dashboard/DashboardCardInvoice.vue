@@ -93,13 +93,13 @@
     right: 24px;
     display: inline-block;
     padding: 4px 9px;
-    border-radius: 20px;
-    color: #985008;
+    border-radius: $status-border-radius;
+    color: $warning-color;
     background: $warning-color-bg;
     font-size: 12px;
 
     &--overdue {
-      color: #a82f48;
+      color: $danger-color;
       background: $danger-color-bg;
     }
   }

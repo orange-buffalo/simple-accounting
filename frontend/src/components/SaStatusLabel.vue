@@ -68,12 +68,16 @@
     display: inline-flex;
     align-items: center;
     padding: 4px 10px;
-    border-radius: 3px;
+    border-radius: $status-border-radius;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
 
     .sa-status-label__icon {
       margin-right: 4px;
       height: 16px;
       width: 14px;
+      flex-shrink: 0;
     }
 
     &_pending {

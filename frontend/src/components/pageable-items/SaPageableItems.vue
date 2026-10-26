@@ -275,7 +275,7 @@
     &__loader-item {
       height: 120px;
       margin-bottom: 20px;
-      border-radius: 5px;
+      border-radius: $panel-border-radius;
       border: $secondary-grey solid 1px;
       animation: sa-pageable-items-animation 1.4s linear infinite;
       background: $white;

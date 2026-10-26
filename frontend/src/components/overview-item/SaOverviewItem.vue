@@ -85,7 +85,7 @@
       padding: 20px;
       border: 1px solid $secondary-grey;
       background-color: $white;
-      border-radius: 2px;
+      border-radius: $panel-border-radius;
       position: relative;
       transition: all 250ms;
 
@@ -142,6 +142,7 @@
 
     &__details {
       border: 1px solid $secondary-grey;
+      border-radius: 0 0 $panel-border-radius $panel-border-radius;
       background-color: $white;
       padding: 10px 20px 0 20px;
       max-height: 1000px;

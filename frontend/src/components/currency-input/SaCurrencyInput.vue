@@ -96,6 +96,7 @@
 </script>
 
 <style lang="scss">
+  @use "@/styles/vars.scss" as *;
   .sa-currency-input {
     &__currency-code {
       font-size: 110%;
@@ -106,7 +107,7 @@
     &__currency-name {
       display: inline-block;
       margin-left: 5px;
-      color: #6e716f;
+      color: $secondary-text-color;
       font-size: 90%;
     }
   }

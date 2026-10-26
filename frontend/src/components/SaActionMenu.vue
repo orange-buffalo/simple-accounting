@@ -80,6 +80,7 @@
       }
 
       .el-button--danger,
+      .el-button--danger .sa-icon,
       .el-button--danger .el-icon {
         color: var(--el-color-danger);
       }

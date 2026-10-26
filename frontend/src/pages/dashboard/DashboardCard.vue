@@ -40,7 +40,7 @@
   .sa-dashboard__card {
     border: 1px solid $secondary-grey;
     background-color: $white;
-    border-radius: 14px;
+    border-radius: $panel-border-radius;
     min-width: 0;
     overflow: hidden;
     box-shadow: 0 3px 12px rgba(20, 43, 64, 0.025);
@@ -89,9 +89,9 @@
 
       &__pending {
         display: inline-block;
-        color: #985008;
+        color: $warning-color;
         background: $warning-color-bg;
-        border-radius: 20px;
+        border-radius: $status-border-radius;
         padding: 4px 9px;
         margin-top: 10px;
         font-size: 12px;

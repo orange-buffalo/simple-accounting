@@ -61,12 +61,18 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.shouldBeDisabled()
             token { input { fill(WiseApiMocks.TOKEN); shouldHaveAttribute(name = "type", value = "password") } }
             reportRendering("integrations.wise-token")
+            page.setViewportSize(390, 1800)
+            reportRendering("integrations.wise-token-narrow")
+            page.setViewportSize(1920, 1080)
             page.withBlockedGqlApiResponse(queryOrMutationName = "listWiseAccounts", initiator = { next.click() }, blockedRequestSpec = {
                 status.shouldBeRegular("Verifying token and loading accounts…")
                 accountsStep.shouldBeOpen()
                 back.shouldBeDisabled()
                 next.shouldBeDisabled()
                 reportRendering("integrations.wise-loading-accounts")
+                page.setViewportSize(390, 1800)
+                reportRendering("integrations.wise-loading-accounts-narrow")
+                page.setViewportSize(1920, 1080)
             })
             accounts.shouldHaveExactData(
                 *normalAccounts,
@@ -105,6 +111,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                 normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
             )
             reportRendering("integrations.wise-accounts")
+            page.setViewportSize(390, 1800)
+            reportRendering("integrations.wise-accounts-narrow")
+            page.setViewportSize(1920, 1080)
             configuration.fetchTransactions.toggle()
             configuration.fetchTransactions.shouldBeSwitchedOff()
             next.click()
@@ -114,6 +123,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             back.shouldBeEnabled()
             next.shouldBeHidden()
             reportRendering("integrations.wise-success")
+            page.setViewportSize(390, 1800)
+            reportRendering("integrations.wise-success-narrow")
+            page.setViewportSize(1920, 1080)
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
             workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,

@@ -32,15 +32,30 @@
 @use 'sass:color';
 
 :root {
-  @each $level in 3, 5, 7, 8, 9 {
-    --el-color-primary-light-#{$level}: #{color.mix($white, $components-color, $level * 10%)};
+  @each $name, $value in (primary: $components-color, success: $success-color, warning: $warning-color,
+    danger: $danger-color, error: $danger-color, info: $secondary-text-color) {
+    --el-color-#{$name}: #{$value};
+    @each $level in 3, 5, 7, 8, 9 {
+      --el-color-#{$name}-light-#{$level}: #{color.mix($white, $value, $level * 10%)};
+    }
+    --el-color-#{$name}-dark-2: #{color.mix(#000, $value, 20%)};
   }
-  --el-color-primary-dark-2: #{color.mix(#000, $components-color, 20%)};
   --el-component-size: #{$sa-input-height};
-  --el-color-danger: #{$danger-color};
-  --el-color-error: #{$danger-color};
   --el-border-radius-base: #{$components-border-radius};
-  --el-color-primary: #{$components-color};
+  --el-border-radius-small: #{$components-border-radius};
+  --el-border-color: #{$components-border-color};
+  --el-border-color-light: #{$secondary-grey};
+  --el-border-color-lighter: #{$secondary-grey};
+  --el-fill-color: #{$primary-grey};
+  --el-fill-color-light: #{$primary-grey};
+  --el-fill-color-lighter: #{$primary-grey};
+  --el-fill-color-blank: #{$white};
+  --el-bg-color: #{$white};
+  --el-bg-color-page: #{$primary-grey};
+  --el-text-color-secondary: #{$secondary-text-color};
+  --el-disabled-bg-color: #{$primary-grey};
+  --el-disabled-text-color: #{$primary-color-lighter-iii};
+  --el-disabled-border-color: #{$secondary-grey};
   --el-border-color-hover: #{$primary-color-lighter-iii};
   --el-text-color-regular: #{$primary-color-lighter-i};
   --el-text-color-primary: #{$primary-color};
@@ -93,15 +108,18 @@
   height: $sa-input-height;
 
   &.is-link {
-    color: $components-color;
     padding: 0;
 
-    &:hover {
-      color: color.adjust($components-color, $lightness: 7%);
-    }
+    &:not(.is-disabled):not(.el-button--danger):not(.el-button--success):not(.el-button--warning):not(.el-button--info) {
+      color: $components-color;
 
-    &:focus, &:active, &:visited, &:focus:active {
-      color: color.adjust($components-color, $lightness: -7%);
+      &:hover {
+        color: color.adjust($components-color, $lightness: 7%);
+      }
+
+      &:focus, &:active, &:visited, &:focus:active {
+        color: color.adjust($components-color, $lightness: -7%);
+      }
     }
   }
 }

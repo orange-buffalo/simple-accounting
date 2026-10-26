@@ -187,7 +187,7 @@
     &__loading-placeholder {
       height: 40px;
       @include loading-placeholder;
-      border-radius: 5px;
+      border-radius: $components-border-radius;
     }
 
     &__provider {
