@@ -314,7 +314,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Report rendering with all panels expanded
+            page.setViewportSize(1920, 8000)
             reportRendering("invoices-overview.loaded-expanded")
+            page.setViewportSize(1920, 1080)
         }
     }
 

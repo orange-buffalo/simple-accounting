@@ -52,6 +52,9 @@ class SaDocumentsUploadFullStackTest : SaFullStackTestBase() {
             documentsUpload {
                 shouldHaveStorageErrorMessage("Configuration is missing to process documents")
                 this@shouldBeEditExpensePage.reportRendering("documents-upload.storage-not-configured")
+                page.setViewportSize(390, 1800)
+                this@shouldBeEditExpensePage.reportRendering("documents-upload.storage-not-configured-narrow")
+                page.setViewportSize(1920, 1080)
             }
         }
     }

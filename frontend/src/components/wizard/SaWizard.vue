@@ -87,7 +87,7 @@
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 40px;
       margin-top: 32px;
       padding-top: 24px;
       border-top: 1px solid $secondary-grey;

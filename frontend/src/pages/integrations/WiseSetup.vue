@@ -19,7 +19,7 @@
           </p>
           <p>{{ $t.integrations.wise.instructions.security() }}</p>
           <p v-if="configured">{{ $t.integrations.wise.savedToken() }}</p>
-          <SaForm v-model="form" :on-submit="verify" hide-buttons>
+          <SaForm v-model="form" :on-submit="verify" hide-buttons class="integration-wizard__form">
             <SaFormInput prop="token" type="password" :label="$t.integrations.wise.tokenLabel()" />
           </SaForm>
         </div>
@@ -54,10 +54,10 @@
           </section>
           <section class="wise-configuration" aria-labelledby="wise-configuration-header">
             <h2 id="wise-configuration-header">{{ $t.integrations.wise.configurationHeader() }}</h2>
-            <SaForm v-model="preferences" :on-submit="save" hide-buttons>
+            <SaForm v-model="preferences" :on-submit="save" hide-buttons class="integration-wizard__form">
               <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
+              <p class="wise-configuration__hint">{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
             </SaForm>
-            <p>{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
           </section>
         </div>
       </template>
@@ -277,8 +277,7 @@
   @use "@/styles/vars.scss" as *;
 
   .wise-profile {
-    max-width: 840px;
-    margin: 24px auto;
+    margin: 32px 0;
 
     &__header {
       display: flex;
@@ -286,24 +285,30 @@
       flex-wrap: wrap;
       gap: 12px;
       font-size: 20px;
+      margin: 0;
 
       small { color: $secondary-text-color; font-size: 14px; font-weight: normal; }
     }
   }
 
   .wise-configuration {
-    max-width: 840px;
-    margin: 32px auto;
+    margin-top: 32px;
     h2 { font-size: 20px; }
-    p { color: $secondary-text-color; }
+    :deep(.el-form-item) { margin-bottom: 0; }
+    &__hint {
+      color: $secondary-text-color;
+      margin: 8px 0 0 50px;
+      line-height: 1.5;
+    }
   }
 
   .integration-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 20px;
-    max-width: 840px;
-    margin: 24px auto;
+    max-width: 856px;
+    padding-inline-start: 16px;
+    margin-top: 20px;
   }
 
   .integration-card {
@@ -333,7 +338,15 @@
   }
 
   .integration-wizard {
+    &__content ol { padding: 0; list-style-position: inside; }
     &__content li { margin-bottom: 12px; }
+    &__form.sa-form {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+      margin-bottom: 0;
+    }
     &__result { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
     &__result { flex-direction: column; align-items: center; text-align: center; }
   }

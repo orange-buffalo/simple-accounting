@@ -334,7 +334,9 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Report rendering with all panels expanded
+            page.setViewportSize(1920, 8000)
             reportRendering("incomes-overview.loaded-expanded")
+            page.setViewportSize(1920, 1080)
         }
     }
 
