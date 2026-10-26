@@ -434,6 +434,10 @@ export default {
     header: () => 'Документи',
     create: () => 'Завантажити',
     filters: {
+      search: () => 'Пошук',
+      any: () => 'Будь-які',
+      clear: (label: string) => format('Очистити: {0}', [label]),
+      closeEditor: () => 'Закрити',
       freeSearchText: {
         label: () => 'Назва файлу або використання',
       },

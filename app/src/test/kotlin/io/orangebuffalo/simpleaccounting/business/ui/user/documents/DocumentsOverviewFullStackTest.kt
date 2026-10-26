@@ -779,6 +779,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         workspace = workspace,
                         name = "Delivery attachment.pdf",
                         createdAt = MOCK_TIME.plusSeconds(2),
+                        storageId = "local-fs",
                     )
                     expense(
                         workspace = workspace,
@@ -790,6 +791,24 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         name = "Planet Express permit.pdf",
                         createdAt = MOCK_TIME.plusSeconds(3),
                     )
+                    expense(
+                        workspace = workspace,
+                        attachments = setOf(document(
+                            workspace = workspace,
+                            name = "Robot oil archived.pdf",
+                            storageId = "google-drive",
+                            createdAt = MOCK_TIME.plusSeconds(4),
+                        )),
+                    )
+                    income(
+                        workspace = workspace,
+                        attachments = setOf(document(
+                            workspace = workspace,
+                            name = "Robot oil payment.pdf",
+                            storageId = "local-fs",
+                            createdAt = MOCK_TIME.plusSeconds(5),
+                        )),
+                    )
                 }
             }
         }
@@ -797,16 +816,68 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             pageItems.shouldHaveTitles(
+                "Robot oil payment.pdf",
+                "Robot oil archived.pdf",
                 "Planet Express permit.pdf",
                 "Delivery attachment.pdf",
                 "Slurm delivery manifest.pdf",
             )
 
-            filters.addTextFilter("File name or usage title", "slurm")
+            filters.openWithKeyboard("Search")
+            filters.addTextFilter(label = "File name or usage title", value = "slurm")
             pageItems.shouldHaveTitles("Slurm delivery manifest.pdf")
+            filters.closeWithEscape()
 
-            filters.addTextFilter("File name or usage title", "robot")
+            filters.addTextFilter(label = "File name or usage title", value = "robot")
+            pageItems.shouldHaveTitles("Robot oil payment.pdf", "Robot oil archived.pdf", "Delivery attachment.pdf")
+
+            filters.addSelectFilter(label = "Usage", value = "Expense")
+            pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
+            filters.addSelectFilter(label = "Storage", value = "Internal System")
             pageItems.shouldHaveTitles("Delivery attachment.pdf")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
+                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
+                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+            )
+            reportRendering("documents-overview.filter-chips-combined")
+
+            filters.clear("Search")
+            pageItems.shouldHaveTitles("Delivery attachment.pdf")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
+                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+            )
+            filters.clear("Storage")
+            pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
+            filters.clear("Usage")
+            pageItems.shouldHaveTitles(
+                "Robot oil payment.pdf",
+                "Robot oil archived.pdf",
+                "Planet Express permit.pdf",
+                "Delivery attachment.pdf",
+                "Slurm delivery manifest.pdf",
+            )
+            filters.addTextFilter(label = "Search", value = "robot")
+            pageItems.shouldHaveTitles("Robot oil payment.pdf", "Robot oil archived.pdf", "Delivery attachment.pdf")
+            filters.addSelectFilter(label = "Usage", value = "Expense")
+            pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
+            filters.addSelectFilter(label = "Storage", value = "Internal System")
+            pageItems.shouldHaveTitles("Delivery attachment.pdf")
+            filters.clearAll()
+            pageItems.shouldHaveTitles(
+                "Robot oil payment.pdf",
+                "Robot oil archived.pdf",
+                "Planet Express permit.pdf",
+                "Delivery attachment.pdf",
+                "Slurm delivery manifest.pdf",
+            )
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
         }
     }
 
@@ -816,10 +887,18 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry().also {
                     val workspace = workspace(owner = it)
-                    val expenseDocument = document(workspace = workspace, name = "Expense usage.pdf")
+                    val expenseDocument = document(
+                        workspace = workspace,
+                        name = "Expense usage.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(1),
+                    )
                     expense(workspace = workspace, title = "Slurm supplies", attachments = setOf(expenseDocument))
 
-                    val incomeDocument = document(workspace = workspace, name = "Income usage.pdf")
+                    val incomeDocument = document(
+                        workspace = workspace,
+                        name = "Income usage.pdf",
+                        createdAt = MOCK_TIME.plusSeconds(2),
+                    )
                     income(workspace = workspace, title = "Delivery commission", attachments = setOf(incomeDocument))
 
                     val invoiceDocument = document(workspace = workspace, name = "Invoice usage.pdf")
@@ -856,22 +935,34 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 "Unused",
             )
 
-            filters.addSelectFilter("Usage", "Expense")
+            filters.addSelectFilter(label = "Usage", value = "Expense")
             pageItems.shouldHaveTitles("Expense usage.pdf")
+            reportRendering("documents-overview.filter-chips-usage")
 
-            filters.clearAll().addSelectFilter("Usage", "Income")
+            filters.addSelectFilter(label = "Usage", value = "Income")
+            pageItems.shouldHaveTitles("Income usage.pdf", "Expense usage.pdf")
+            filters.addSelectFilter(label = "Usage", value = "Income")
+            pageItems.shouldHaveTitles("Expense usage.pdf")
+            filters.addSelectFilter(label = "Usage", value = "Expense")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
+
+            filters.addSelectFilter(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Income usage.pdf")
 
-            filters.clearAll().addSelectFilter("Usage", "Invoice")
+            filters.clearAll().addSelectFilter(label = "Usage", value = "Invoice")
             pageItems.shouldHaveTitles("Invoice usage.pdf")
 
-            filters.clearAll().addSelectFilter("Usage", "Income Tax Payment")
+            filters.clearAll().addSelectFilter(label = "Usage", value = "Income Tax Payment")
             pageItems.shouldHaveTitles("Tax usage.pdf")
 
-            filters.clearAll().addSelectFilter("Usage", "Standalone Document")
+            filters.clearAll().addSelectFilter(label = "Usage", value = "Standalone Document")
             pageItems.shouldHaveTitles("Standalone usage.pdf")
 
-            filters.clearAll().addSelectFilter("Usage", "Unused")
+            filters.clearAll().addSelectFilter(label = "Usage", value = "Unused")
             pageItems.shouldHaveTitles("Unused document.pdf")
         }
     }
@@ -886,11 +977,13 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                         workspace = workspace,
                         name = "Google Drive storage.pdf",
                         storageId = "google-drive",
+                        createdAt = MOCK_TIME.plusSeconds(1),
                     )
                     document(
                         workspace = workspace,
                         name = "Internal System storage.pdf",
                         storageId = "local-fs",
+                        createdAt = MOCK_TIME.plusSeconds(2),
                     )
                     document(
                         workspace = workspace,
@@ -905,13 +998,19 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             filters.shouldHaveSelectOptions("Storage", "Google Drive", "Internal System", "Unknown")
 
-            filters.addSelectFilter("Storage", "Google Drive")
+            filters.addSelectFilter(label = "Storage", value = "Google Drive")
             pageItems.shouldHaveTitles("Google Drive storage.pdf")
-
-            filters.clearAll().addSelectFilter("Storage", "Internal System")
+            filters.toggleOptionWithKeyboard(label = "Storage", value = "Internal System")
+            pageItems.shouldHaveTitles("Internal System storage.pdf", "Google Drive storage.pdf")
+            filters.toggleOptionWithKeyboard(label = "Storage", value = "Google Drive")
             pageItems.shouldHaveTitles("Internal System storage.pdf")
-
-            filters.clearAll().addSelectFilter("Storage", "Unknown")
+            filters.clearWithKeyboard("Storage")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
+            filters.addSelectFilter(label = "Storage", value = "Unknown")
             pageItems.shouldHaveTitles("Unknown storage.pdf")
         }
     }
@@ -957,6 +1056,20 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
+            }
+            pageItems.paginator { next() }
+            pageItems.shouldHaveTitles(secondPageDocuments)
+            filters.addTextFilter(label = "Search", value = "Document 15")
+            pageItems.shouldHaveTitles("Document 15.pdf")
+            pageItems.paginator {
+                shouldHaveActivePage(1)
+                shouldHaveTotalPages(1)
+            }
+            filters.clear("Search")
+            pageItems.shouldHaveTitles(firstPageDocuments)
+            pageItems.paginator {
+                shouldHaveActivePage(1)
+                shouldHaveTotalPages(2)
             }
         }
     }

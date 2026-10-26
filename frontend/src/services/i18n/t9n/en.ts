@@ -435,6 +435,10 @@ export default {
     header: () => 'Documents',
     create: () => 'Upload',
     filters: {
+      search: () => 'Search',
+      any: () => 'Any',
+      clear: (label: string) => format('Clear {0}', [label]),
+      closeEditor: () => 'Close',
       freeSearchText: {
         label: () => 'File name or usage title',
       },

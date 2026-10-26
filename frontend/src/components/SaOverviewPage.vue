@@ -18,6 +18,7 @@
     </template>
 
     <div v-if="configuredFilters.length > 0" class="sa-overview-page__content-options">
+      <slot name="filters">
       <div class="sa-overview-page__filters">
         <div
           v-if="activeFilterTags.length > 0"
@@ -103,6 +104,7 @@
           </div>
         </ElPopover>
       </div>
+      </slot>
 
       <div class="sa-overview-page__actions">
         <slot name="actions" />
