@@ -84,7 +84,6 @@ export default {
 
   loginPage: {
     title: () => 'Вхід',
-    introduction: () => 'Введіть ім’я користувача, щоб продовжити.',
     existingAccountHint: () => 'Увійдіть за допомогою наявного облікового запису.',
     userName: {
       label: () => 'Ім’я користувача',

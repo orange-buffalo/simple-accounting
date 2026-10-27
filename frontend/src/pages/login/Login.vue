@@ -1,8 +1,8 @@
 <template>
   <div class="login-page">
     <main class="login-page__login" aria-labelledby="login-heading">
-      <h1 id="login-heading">{{ $t.loginPage.title() }}</h1>
-      <p class="login-page__intro">{{ $t.loginPage.introduction() }}</p>
+      <h1 id="login-heading" class="login-page__heading">{{ $t.loginPage.title() }}</h1>
+      <LogoLogin class="login-page__logo" role="img" aria-label="Simple Accounting" />
 
       <ElForm
         class="login-page__login-form"
@@ -115,6 +115,7 @@
 
   import { $t } from '@/services/i18n';
   import SaIcon from '@/components/SaIcon.vue';
+  import LogoLogin from '@/assets/logo-login.svg';
   import { useAuth, handleGqlApiBusinessError } from '@/services/api';
   import type { UserAuthenticationMethodsQuery } from '@/services/api/gql/graphql.ts';
   import {
@@ -347,6 +348,7 @@
 
 <style lang="scss">
   @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .login-page {
     display: flex;
@@ -354,7 +356,7 @@
     min-height: 100dvh;
     align-items: center;
     justify-content: center;
-    background: $primary-grey;
+    @include gradient-background;
     padding: 24px;
     box-sizing: border-box;
 
@@ -366,19 +368,26 @@
       background: $white;
       border: 1px solid $secondary-grey;
       border-radius: 18px;
-      box-shadow: 0 16px 48px rgba(20, 43, 64, 0.06);
-
-      h1 {
-        font-size: 30px;
-        letter-spacing: -0.6px;
-        margin: 0 0 12px;
-      }
+      box-shadow: 0 24px 64px rgba($primary-color, 0.24);
     }
 
-    &__intro {
-      color: $secondary-text-color;
-      line-height: 1.6;
-      margin: 0 0 32px;
+    &__heading {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    &__logo {
+      display: block;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 32px;
     }
 
     &__hint {
