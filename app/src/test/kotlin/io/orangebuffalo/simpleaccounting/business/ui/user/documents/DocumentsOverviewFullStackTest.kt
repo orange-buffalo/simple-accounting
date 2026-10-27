@@ -827,9 +827,23 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             filters.addTextFilter(label = "File name or usage title", value = "slurm")
             pageItems.shouldHaveTitles("Slurm delivery manifest.pdf")
             filters.closeWithEscape()
+            filters.closeWithButton("Search")
+
+            filters.addTextFilter(label = "Search", value = "Omicron Persei 8")
+            shouldHaveNoMatchingDocuments()
+            filters.clear("Search")
+            pageItems.shouldHaveTitles(
+                "Robot oil payment.pdf",
+                "Robot oil archived.pdf",
+                "Planet Express permit.pdf",
+                "Delivery attachment.pdf",
+                "Slurm delivery manifest.pdf",
+            )
 
             filters.addTextFilter(label = "File name or usage title", value = "robot")
             pageItems.shouldHaveTitles("Robot oil payment.pdf", "Robot oil archived.pdf", "Delivery attachment.pdf")
+            reportRenderingWithPopovers("documents-overview.filter-chips-search")
+            filters.closeByOutsideClick()
 
             filters.addSelectFilter(label = "Usage", value = "Expense")
             pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
@@ -840,7 +854,22 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
                 DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
             )
-            reportRendering("documents-overview.filter-chips-combined")
+            reportRenderingWithPopovers("documents-overview.filter-chips-combined")
+
+            filters.addSelectFilter(label = "Usage", value = "Income")
+            pageItems.shouldHaveTitles("Robot oil payment.pdf", "Delivery attachment.pdf")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
+                DocumentFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
+                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+            )
+            filters.removeValue(label = "Usage", value = "Income")
+            pageItems.shouldHaveTitles("Delivery attachment.pdf")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
+                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
+                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+            )
 
             filters.clear("Search")
             pageItems.shouldHaveTitles("Delivery attachment.pdf")
@@ -901,24 +930,40 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     )
                     income(workspace = workspace, title = "Delivery commission", attachments = setOf(incomeDocument))
 
-                    val invoiceDocument = document(workspace = workspace, name = "Invoice usage.pdf")
+                    val invoiceDocument = document(
+                        workspace = workspace,
+                        name = "Invoice usage.pdf",
+                        createdAt = MOCK_TIME.minusSeconds(4),
+                    )
                     invoice(
                         customer = customer(workspace = workspace),
                         title = "Delivery to Mars",
                         attachments = setOf(invoiceDocument),
                     )
 
-                    val taxDocument = document(workspace = workspace, name = "Tax usage.pdf")
+                    val taxDocument = document(
+                        workspace = workspace,
+                        name = "Tax usage.pdf",
+                        createdAt = MOCK_TIME.minusSeconds(3),
+                    )
                     incomeTaxPayment(workspace = workspace, title = "Q1 Corporate Tax", attachments = setOf(taxDocument))
 
-                    val standaloneDocumentFile = document(workspace = workspace, name = "Standalone usage.pdf")
+                    val standaloneDocumentFile = document(
+                        workspace = workspace,
+                        name = "Standalone usage.pdf",
+                        createdAt = MOCK_TIME.minusSeconds(2),
+                    )
                     standaloneDocument(
                         workspace = workspace,
                         document = standaloneDocumentFile,
                         title = "Planet Express license",
                     )
 
-                    document(workspace = workspace, name = "Unused document.pdf")
+                    document(
+                        workspace = workspace,
+                        name = "Unused document.pdf",
+                        createdAt = MOCK_TIME.minusSeconds(1),
+                    )
                 }
             }
         }
@@ -937,17 +982,31 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
             filters.addSelectFilter(label = "Usage", value = "Expense")
             pageItems.shouldHaveTitles("Expense usage.pdf")
-            reportRendering("documents-overview.filter-chips-usage")
+            reportRenderingWithPopovers("documents-overview.filter-chips-usage")
 
             filters.addSelectFilter(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Income usage.pdf", "Expense usage.pdf")
-            filters.addSelectFilter(label = "Usage", value = "Income")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
+                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
+            reportRenderingWithPopovers("documents-overview.filter-chips-multiple-values")
+            filters.removeValue(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Expense usage.pdf")
             filters.addSelectFilter(label = "Usage", value = "Expense")
             filters.shouldHaveChips(
                 DocumentFilterChipData(label = "Search", summary = "Any", active = false),
                 DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
                 DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
+            pageItems.shouldHaveTitles(
+                "Income usage.pdf",
+                "Expense usage.pdf",
+                "Unused document.pdf",
+                "Standalone usage.pdf",
+                "Tax usage.pdf",
+                "Invoice usage.pdf",
             )
 
             filters.addSelectFilter(label = "Usage", value = "Income")
@@ -1002,7 +1061,12 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             pageItems.shouldHaveTitles("Google Drive storage.pdf")
             filters.toggleOptionWithKeyboard(label = "Storage", value = "Internal System")
             pageItems.shouldHaveTitles("Internal System storage.pdf", "Google Drive storage.pdf")
-            filters.toggleOptionWithKeyboard(label = "Storage", value = "Google Drive")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Storage", summary = "Google Drive, Internal System", active = true),
+            )
+            filters.removeValue(label = "Storage", value = "Google Drive")
             pageItems.shouldHaveTitles("Internal System storage.pdf")
             filters.clearWithKeyboard("Storage")
             filters.shouldHaveChips(

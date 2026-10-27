@@ -437,7 +437,7 @@ export default {
     filters: {
       search: () => 'Search',
       any: () => 'Any',
-      clear: (label: string) => format('Clear {0}', [label]),
+      clearValue: (label: string, value: string) => format('Remove {0}: {1}', [label, value]),
       closeEditor: () => 'Close',
       freeSearchText: {
         label: () => 'File name or usage title',

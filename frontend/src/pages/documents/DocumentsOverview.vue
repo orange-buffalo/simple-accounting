@@ -14,64 +14,86 @@
           <div
             v-for="filter in filterChips"
             :key="filter.key"
+            v-click-outside="(event: MouseEvent) => closeOutsideEditor(filter.key, event)"
             class="document-filters__chip"
             :class="{ 'document-filters__chip--active': filter.active }"
           >
-            <button
-              type="button"
-              :aria-expanded="editingFilter === filter.key"
-              aria-controls="document-filter-editor"
-              @click="editingFilter = editingFilter === filter.key ? null : filter.key"
+            <ElPopover
+              :visible="editingFilter === filter.key"
+              trigger="click"
+              role="dialog"
+              :title="filter.label"
+              placement="bottom-start"
+              :width="300"
+              :persistent="false"
+              :show-arrow="false"
+              :show-after="0"
+              :hide-after="0"
+              transition=""
+              popper-class="document-filter-popover"
+              @after-enter="focusEditor(filter.key)"
             >
-              <span>{{ filter.label }}:</span>
-              <strong>{{ filter.summary }}</strong>
-              <ArrowDown aria-hidden="true" />
-            </button>
-            <button
-              v-if="filter.active"
-              type="button"
-              :aria-label="$t.documentsOverview.filters.clear(filter.label)"
-              @click="clearFilter(filter.key)"
-            >
-              <Close aria-hidden="true" />
-            </button>
+              <template #reference>
+                <button
+                  :id="`document-filter-trigger-${filter.key}`"
+                  type="button"
+                  :aria-expanded="editingFilter === filter.key"
+                  :aria-controls="`document-filter-editor-${filter.key}`"
+                  @click="editingFilter = editingFilter === filter.key ? null : filter.key"
+                >
+                  <span>{{ filter.label }}:</span>
+                  <strong v-if="!filter.active">{{ $t.documentsOverview.filters.any() }}</strong>
+                  <ArrowDown aria-hidden="true" />
+                </button>
+              </template>
+              <div
+                v-if="editingFilter === filter.key"
+                :id="`document-filter-editor-${filter.key}`"
+                class="document-filters__editor"
+                @keydown.esc.prevent.stop="closeEditor(filter.key)"
+              >
+                <label v-if="filter.key === 'freeSearchText'" for="document-filter-search">
+                  {{ documentFilters.freeSearchText.label }}
+                </label>
+                <ElInput
+                  v-if="filter.key === 'freeSearchText'"
+                  id="document-filter-search"
+                  :model-value="overviewFilters.freeSearchText ?? ''"
+                  clearable
+                  @update:model-value="overviewFilters.freeSearchText = $event || null"
+                />
+                <ElCheckboxGroup
+                  v-else
+                  :model-value="overviewFilters[filter.key] ?? []"
+                  :aria-label="documentFilters[filter.key].label"
+                  @update:model-value="setSelectedValues(filter.key, $event)"
+                >
+                  <ElCheckbox
+                    v-for="option in documentFilters[filter.key].options"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </ElCheckbox>
+                </ElCheckboxGroup>
+                <ElButton link @click="closeEditor(filter.key)">
+                  {{ $t.documentsOverview.filters.closeEditor() }}
+                </ElButton>
+              </div>
+            </ElPopover>
+            <span v-for="value in filter.values" :key="value.value" class="document-filters__value">
+              <strong :title="value.label">{{ value.label }}</strong>
+              <button
+                type="button"
+                :aria-label="$t.documentsOverview.filters.clearValue(filter.label, value.label)"
+                @click.stop="removeValue(filter.key, value.value)"
+              >
+                <Close aria-hidden="true" />
+              </button>
+            </span>
           </div>
           <ElButton v-if="hasActiveFilters" link @click="clearFilters">
             {{ $t.overviewPage.filters.clearAll() }}
-          </ElButton>
-        </div>
-        <div
-          v-if="editingFilter"
-          id="document-filter-editor"
-          class="document-filters__editor"
-          @keydown.esc="editingFilter = null"
-        >
-          <label v-if="editingFilter === 'freeSearchText'" for="document-filter-search">
-            {{ documentFilters.freeSearchText.label }}
-          </label>
-          <ElInput
-            v-if="editingFilter === 'freeSearchText'"
-            id="document-filter-search"
-            :model-value="overviewFilters.freeSearchText ?? ''"
-            clearable
-            @update:model-value="overviewFilters.freeSearchText = $event || null"
-          />
-          <ElCheckboxGroup
-            v-else
-            :model-value="overviewFilters[editingFilter] ?? []"
-            :aria-label="documentFilters[editingFilter].label"
-            @update:model-value="setSelectedValues(editingFilter, $event)"
-          >
-            <ElCheckbox
-              v-for="option in documentFilters[editingFilter].options"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </ElCheckbox>
-          </ElCheckboxGroup>
-          <ElButton link @click="editingFilter = null">
-            {{ $t.documentsOverview.filters.closeEditor() }}
           </ElButton>
         </div>
       </div>
@@ -97,8 +119,8 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import { ElCheckboxGroup } from 'element-plus';
+  import { computed, nextTick, ref } from 'vue';
+  import { ClickOutside as vClickOutside, ElCheckboxGroup, ElPopover } from 'element-plus';
   import { ArrowDown, Close } from '@element-plus/icons-vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
@@ -188,23 +210,46 @@
 
   type FilterKey = keyof DocumentsOverviewFilters;
   const editingFilter = ref<FilterKey | null>(null);
+  const closeOutsideEditor = (key: FilterKey, event: MouseEvent) => {
+    if (editingFilter.value === key
+      && event.target instanceof Node
+      && !document.getElementById(`document-filter-editor-${key}`)?.contains(event.target)) {
+      editingFilter.value = null;
+    }
+  };
   const filterChips = computed(() => Object.entries(documentFilters).map(([key, config]) => {
     const filterKey = key as FilterKey;
     const value = overviewFilters.value[filterKey];
-    const summary = config.type === 'text'
-      ? overviewFilters.value.freeSearchText
+    const search = overviewFilters.value.freeSearchText;
+    const values = config.type === 'text'
+      ? (search ? [{ value: search, label: search }] : [])
       : config.options.filter((option) => Array.isArray(value) && value.some((item) => item === option.value))
-        .map((option) => option.label).join(', ');
+        .map((option) => ({ value: option.value, label: option.label }));
     return {
       key: filterKey,
       label: config.type === 'text' ? $t.value.documentsOverview.filters.search() : config.label,
-      summary: summary || $t.value.documentsOverview.filters.any(),
-      active: Boolean(summary),
+      values,
+      active: values.length > 0,
     };
   }));
   const hasActiveFilters = computed(() => filterChips.value.some((filter) => filter.active));
-  const clearFilter = (key: FilterKey) => {
-    overviewFilters.value = { ...overviewFilters.value, [key]: null };
+  const setSelectedValues = (key: FilterKey, values: unknown[]) => {
+    overviewFilters.value = { ...overviewFilters.value, [key]: values.length ? values : null };
+  };
+  const removeValue = (key: FilterKey, value: string) => {
+    if (key === 'freeSearchText') {
+      overviewFilters.value.freeSearchText = null;
+    } else {
+      setSelectedValues(key, (overviewFilters.value[key] ?? []).filter((item) => item !== value));
+    }
+  };
+  const focusEditor = async (key: FilterKey) => {
+    await nextTick();
+    document.getElementById(`document-filter-editor-${key}`)?.querySelector('input')?.focus();
+  };
+  const closeEditor = (key: FilterKey) => {
+    editingFilter.value = null;
+    document.getElementById(`document-filter-trigger-${key}`)?.focus();
   };
   const clearFilters = () => {
     overviewFilters.value = createOverviewFilters<DocumentsOverviewFilters>({
@@ -212,9 +257,6 @@
       storageIdsIn: null,
       usageTypeIn: null,
     });
-  };
-  const setSelectedValues = (key: FilterKey, values: unknown[]) => {
-    overviewFilters.value = { ...overviewFilters.value, [key]: values.length ? values : null };
   };
 
   const documentsPageQuery = graphql(`
@@ -263,64 +305,88 @@
 
   .document-filters {
     width: 100%;
+    padding-inline: 16px;
+    box-sizing: border-box;
+    font-size: 11px;
 
     &__chips {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px;
+      > .el-button { font-size: inherit; }
     }
 
     &__chip {
       display: inline-flex;
+      position: relative;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 3px;
+      min-height: 24px;
+      padding-right: 20px;
       border: 1px solid $components-border-color;
       border-radius: $status-border-radius;
       background: $white;
       color: $secondary-text-color;
-      overflow: hidden;
 
       &--active {
         color: $components-color;
-        background: $success-color-bg;
-        border-color: $success-color-lighter-iii;
+        background: $primary-grey;
       }
 
       button {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
+        gap: 4px;
+        padding: 4px 7px;
         border: 0;
         background: transparent;
         color: inherit;
         font: inherit;
+        line-height: 14px;
         cursor: pointer;
 
         &:hover { background: rgba($components-color, 0.06); }
         &:focus-visible { outline: 2px solid $components-color; outline-offset: -3px; }
-        & + button { padding-inline: 10px; border-left: 1px solid $success-color-lighter-iii; }
       }
 
-      strong { font-weight: 600; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      svg { width: 14px; height: 14px; flex-shrink: 0; }
+      > button svg { position: absolute; right: 6px; top: 7px; }
+      strong { font-weight: 600; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      svg { width: 10px; height: 10px; flex-shrink: 0; }
+    }
+
+    &__value {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      button { padding: 2px; }
+      & + & { border-left: 1px solid $components-border-color; padding-left: 4px; }
     }
 
     &__editor {
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-top: 16px;
-      padding: 16px 20px;
-      background: $white;
-      border: 1px solid $components-border-color;
-      border-radius: $components-border-radius;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 11px;
+      --el-font-size-base: 11px;
 
       label { color: $secondary-text-color; }
-      .el-input { width: 360px; }
-      .el-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 24px; }
-      :deep(.el-checkbox) { margin-right: 0; }
+      .el-input { width: 100%; font-size: inherit; }
+      .el-button { font-size: inherit; }
+      .el-checkbox-group { display: flex; flex-direction: column; gap: 2px; }
+      :deep(.el-checkbox) { margin-right: 0; height: 22px; --el-checkbox-font-size: 11px; }
+      :deep(.el-checkbox__inner) { width: 12px; height: 12px; }
+      :deep(.el-checkbox__inner::after) { left: 3px; top: 0; }
     }
+  }
+</style>
+
+<style lang="scss">
+  .document-filter-popover.el-popover {
+    padding: 10px;
+    font-size: 11px;
+    .el-popover__title { font-size: inherit; margin-bottom: 8px; }
   }
 </style>
