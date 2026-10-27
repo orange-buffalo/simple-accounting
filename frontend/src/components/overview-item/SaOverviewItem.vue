@@ -85,7 +85,7 @@
       padding: 20px;
       border: 1px solid $secondary-grey;
       background-color: $white;
-      border-radius: 2px;
+      border-radius: $panel-border-radius;
       position: relative;
       transition: all 250ms;
 
@@ -95,6 +95,7 @@
 
       &_with-details {
         transform: scale(1.01);
+        z-index: 1;
         @include overlay-shadow;
       }
     }
@@ -142,8 +143,10 @@
 
     &__details {
       border: 1px solid $secondary-grey;
+      border-radius: 0 0 $panel-border-radius $panel-border-radius;
       background-color: $white;
-      padding: 10px 20px 0 20px;
+      margin-top: -$panel-border-radius;
+      padding: calc(10px + $panel-border-radius) 20px 0;
       max-height: 1000px;
       overflow: hidden;
     }

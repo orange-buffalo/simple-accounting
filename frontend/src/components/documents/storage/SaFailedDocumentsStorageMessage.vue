@@ -6,7 +6,7 @@
   >
     <template #title>
       <SaIcon icon="error" />
-      {{ $t.saFailedDocumentsStorageMessage.title() }}
+      <span>{{ $t.saFailedDocumentsStorageMessage.title() }}</span>
     </template>
     <template #default>
       <SaI18n :message="$t.saFailedDocumentsStorageMessage.message()">
@@ -36,6 +36,23 @@
 
 <style lang="scss">
   .sa-failed-documents-storage-message {
+    .el-alert__title {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      align-items: start;
+      column-gap: 8px;
+      line-height: 1.5;
+
+      .sa-icon {
+        margin: 0;
+      }
+    }
+
+    .el-alert__description {
+      padding-inline-start: 28px;
+      line-height: 1.5;
+    }
+
     .el-alert__description .el-button.is-link {
       vertical-align: middle;
       padding: 0;

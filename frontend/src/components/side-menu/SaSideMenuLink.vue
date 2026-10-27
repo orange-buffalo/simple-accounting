@@ -2,6 +2,7 @@
   <RouterLink
     :to="to"
     :class="styleClass"
+    :title="title"
   >
     <SaIcon :icon="icon" :size="27" variant="detailed" />
     {{ title }}

@@ -5,6 +5,10 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardCard.Companion.dashboardCardByIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceCard
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceCard.Companion.dashboardInvoiceCardByIndex
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceCard.Companion.dashboardInvoiceCardsData
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceCardData
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DateRangePicker.Companion.dateRangePicker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
@@ -36,6 +40,13 @@ class DashboardPage private constructor(page: Page, headerText: String = "Dashbo
 
     fun shouldHaveInvoiceCards(count: Int) {
         invoiceCardsLocator.shouldHaveCount(count)
+    }
+
+    fun shouldHaveExactInvoiceCards(vararg expected: DashboardInvoiceCardData) {
+        shouldSatisfy(
+            message = "Dashboard invoices should exactly match the expected data",
+            spec = { components.dashboardInvoiceCardsData().shouldContainExactly(*expected) },
+        )
     }
 
     fun invoiceCard(index: Int, spec: DashboardInvoiceCard.() -> Unit) {

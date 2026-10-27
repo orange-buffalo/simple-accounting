@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.ui.shared.components
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.categories.CategoriesOverviewPage.Companion.openCategoriesOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.OverviewFilterChipData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import org.junit.jupiter.api.Test
 
@@ -23,28 +24,74 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openCategoriesOverviewPage {
-            filters.shouldHaveNoActiveValues()
-            filters.reportPopoverRendering("overview-filters.popover")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Type", summary = "Any", active = false),
+            )
+            filters.openWithKeyboard("Search")
+            filters.addTextFilter(label = "Search", value = "Slurm")
+            pageItems.shouldHaveTitles("Slurm supplies")
+            filters.closeWithEscape()
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Slurm", active = true),
+                OverviewFilterChipData(label = "Type", summary = "Any", active = false),
+            )
+            filters.clearWithKeyboard("Search")
+            pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
+            filters.applySearchWithEnter("Robot")
+            pageItems.shouldHaveTitles("Robot maintenance")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Robot", active = true),
+                OverviewFilterChipData(label = "Type", summary = "Any", active = false),
+            )
+            filters.addTextFilter(label = "Search", value = "Robot")
+            filters.closeByOutsideClick()
+            filters.clear("Search")
+            pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
 
-            filters.addSelectFilter("Type", "Income")
-            filters.shouldHaveActiveValues("Type: Income")
+            filters.shouldHaveSelectOptions(label = "Type", "Income", "Expense")
+            filters.reportPopoverRendering(label = "Type", name = "overview-filters.popover")
+            filters.closeOptionWithEscape(label = "Type", value = "Income")
+            filters.addSelectFilter(label = "Type", value = "Income")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Type", summary = "Income", active = true),
+            )
             pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
             reportRendering("overview-filters.active-value")
 
-            filters.addSelectFilterAndCancel("Type", "Expense")
-            filters.shouldHaveActiveValues("Type: Income")
-            pageItems.shouldHaveTitles("Slurm supplies", "Delivery")
-
-            filters.addSelectFilter("Type", "Expense")
-            filters.shouldHaveActiveValues("Type: Income", "Type: Expense")
+            filters.toggleOptionWithKeyboard(label = "Type", value = "Expense")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Type", summary = "Income, Expense", active = true),
+            )
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
 
-            filters.removeActiveValue("Type: Income")
-            filters.shouldHaveActiveValues("Type: Expense")
-            pageItems.shouldHaveTitles("Robot maintenance", "Delivery")
+            filters.addTextFilter(label = "Search", value = "Delivery")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Delivery", active = true),
+                OverviewFilterChipData(label = "Type", summary = "Income, Expense", active = true),
+            )
+            pageItems.shouldHaveTitles("Delivery")
+            filters.removeValue(label = "Type", value = "Income")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Delivery", active = true),
+                OverviewFilterChipData(label = "Type", summary = "Expense", active = true),
+            )
+            pageItems.shouldHaveTitles("Delivery")
+            filters.addSelectFilter(label = "Type", value = "Expense")
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Delivery", active = true),
+                OverviewFilterChipData(label = "Type", summary = "Any", active = false),
+            )
+            pageItems.shouldHaveTitles("Delivery")
 
+            filters.addSelectFilter(label = "Type", value = "Income")
             filters.clearAll()
-            filters.shouldHaveNoActiveValues()
+            filters.shouldHaveChips(
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Type", summary = "Any", active = false),
+            )
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
         }
     }

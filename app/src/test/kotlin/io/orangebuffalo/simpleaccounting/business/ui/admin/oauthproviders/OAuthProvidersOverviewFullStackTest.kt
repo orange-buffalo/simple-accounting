@@ -84,7 +84,7 @@ class OAuthProvidersOverviewFullStackTest : SaFullStackTestBase() {
             pageItems {
                 shouldHaveTitles("Globetrotters SSO", "MomCorp ID", "Nimbus Auth")
             }
-            filters.addTextFilter("Provider name", "mom")
+            filters.addTextFilter(label = "Search", value = "mom")
             pageItems {
                 shouldHaveTitles("MomCorp ID")
             }

@@ -182,7 +182,7 @@
       padding: 20px;
       border: 1px solid $secondary-grey;
       background-color: $white;
-      border-radius: 2px;
+      border-radius: $panel-border-radius;
     }
 
     &__loading {
@@ -194,7 +194,7 @@
     &__loading-placeholder {
       height: 40px;
       @include loading-placeholder;
-      border-radius: 5px;
+      border-radius: $components-border-radius;
     }
 
     &__message {
@@ -221,7 +221,7 @@
       padding: 24px;
       border: 1px solid $secondary-grey;
       background-color: $white;
-      border-radius: 2px;
+      border-radius: $panel-border-radius;
     }
   }
 </style>

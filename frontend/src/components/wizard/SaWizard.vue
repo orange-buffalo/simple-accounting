@@ -66,13 +66,32 @@
   @use "@/styles/vars.scss" as *;
 
   .sa-wizard {
-    padding: 20px;
+    padding: clamp(16px, 3vw, 32px);
     border: 1px solid $secondary-grey;
-    border-radius: 2px;
+    border-radius: $panel-border-radius;
     background: $white;
     overflow: hidden;
 
-    &__content { margin-top: 24px; }
-    &__navigation { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
+    :deep(.el-step__head.is-process),
+    :deep(.el-step__title.is-process) { color: $components-color; border-color: $components-color; }
+    :deep(.el-step__head.is-wait) { color: $secondary-text-color; border-color: $components-border-color; }
+    :deep(.el-step__title.is-wait),
+    :deep(.el-step__description) { color: $secondary-text-color; }
+    :deep(.el-step__icon) { background: $white; }
+    :deep(.el-step__line) { background: $secondary-grey; }
+    :deep(.el-step__title) { font-size: 14px; line-height: 1.5; padding-top: 8px; }
+    :deep(.el-step__description) { line-height: 1.5; }
+
+    &__content { margin-top: 32px; }
+    &__navigation {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid $secondary-grey;
+      :deep(.el-button + .el-button) { margin-left: 0; }
+    }
   }
 </style>

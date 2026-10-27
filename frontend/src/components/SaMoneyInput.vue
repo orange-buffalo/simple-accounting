@@ -110,8 +110,8 @@
     }
 
     &__currency {
-      background-color: #F5F7FA;
-      color: #909399;
+      background-color: $primary-grey;
+      color: $secondary-text-color;
       display: inline-flex;
       flex-direction: column;
       justify-content: center;

@@ -136,7 +136,7 @@ class GeneralTaxesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTitles("Slurm Tax (10%)", "Robot Oil Duty (15%)", "Space VAT (20%)")
             }
 
-            filters.addTextFilter("Title, description", "robot")
+            filters.addTextFilter(label = "Search", value = "robot")
             pageItems {
                 shouldHaveTitles("Robot Oil Duty (15%)")
             }

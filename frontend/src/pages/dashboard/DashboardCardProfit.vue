@@ -1,6 +1,8 @@
 <template>
   <DashboardCard
     header-icon="profit"
+    class="sa-dashboard__card--profit"
+    :title="$t.dashboard.cards.profit.taxableAmount()"
     :loaded="!loading"
   >
     <template #header>
@@ -9,9 +11,6 @@
         :currency="defaultCurrency"
         :amount-in-cents="Math.max(incomeTaxableAmount, 0)"
       />
-
-      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.profit.taxableAmount() }}</span>
-      <span class="sa-dashboard__card__header__pending">&nbsp;</span>
     </template>
 
     <template #content>

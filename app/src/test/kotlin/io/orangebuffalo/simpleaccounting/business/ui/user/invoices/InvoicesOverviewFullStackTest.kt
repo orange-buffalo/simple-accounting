@@ -391,7 +391,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by title
-            filters.addTextFilter("Title, customer, notes", "office")
+            filters.addTextFilter(label = "Search", value = "office")
             pageItems {
                 shouldHaveTitles("Office Invoice")
                 // ensure paginator updated
@@ -402,13 +402,13 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by customer name
-            filters.addTextFilter("Title, customer, notes", "travel")
+            filters.addTextFilter(label = "Search", value = "travel")
             pageItems {
                 shouldHaveTitles("Travel Invoice")
             }
 
             // Filter by notes
-            filters.addTextFilter("Title, customer, notes", "Zoidberg")
+            filters.addTextFilter(label = "Search", value = "Zoidberg")
             pageItems {
                 shouldHaveTitles("Meals Invoice")
             }

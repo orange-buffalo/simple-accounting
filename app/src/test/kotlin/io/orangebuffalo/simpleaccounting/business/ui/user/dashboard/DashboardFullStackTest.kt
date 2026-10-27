@@ -9,6 +9,8 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.business.ui.user.dashboard.DashboardPage.Companion.shouldBeDashboardPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_BROWSER_TIMEZONE
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceCardData
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DashboardInvoiceDetailData
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
@@ -208,21 +210,30 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldHaveAmount("USD 0.00")
             }
 
-            shouldHaveInvoiceCards(2)
-
-            invoiceCard(0) {
-                shouldHaveTitle("Invoice 1")
-                shouldHaveAmount("USD 100.00")
-                shouldHaveStatus("Pending")
-                shouldHaveDetailsItem(0, "To", "Customer A")
-            }
-
-            invoiceCard(1) {
-                shouldHaveTitle("Invoice 2")
-                shouldHaveAmount("USD 150.00")
-                shouldHaveStatus("Overdue")
-                shouldHaveDetailsItem(0, "To", "Customer B")
-            }
+            shouldHaveExactInvoiceCards(
+                DashboardInvoiceCardData(
+                    amount = "USD 100.00",
+                    title = "Invoice 1",
+                    status = "Pending",
+                    details = listOf(
+                        DashboardInvoiceDetailData(label = "To", value = "Customer A"),
+                        DashboardInvoiceDetailData(label = "Issue Date", value = "11 Jan 1999"),
+                        DashboardInvoiceDetailData(label = "Date Sent", value = "12 Jan 1999"),
+                        DashboardInvoiceDetailData(label = "Due Date", value = "10 Feb 1999"),
+                    ),
+                ),
+                DashboardInvoiceCardData(
+                    amount = "EUR 150.00",
+                    title = "Invoice 2",
+                    status = "Overdue",
+                    details = listOf(
+                        DashboardInvoiceDetailData(label = "To", value = "Customer B"),
+                        DashboardInvoiceDetailData(label = "Issue Date", value = "6 Jan 1999"),
+                        DashboardInvoiceDetailData(label = "Date Sent", value = "7 Jan 1999"),
+                        DashboardInvoiceDetailData(label = "Due Date", value = "31 Dec 1998"),
+                    ),
+                ),
+            )
 
             reportRendering("dashboard.with-invoices")
         }
@@ -574,6 +585,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                     dateIssued = startOfYear.plusDays(5),
                     dateSent = startOfYear.plusDays(6),
                     dueDate = startOfYear.minusDays(1),
+                    currency = "EUR",
                     amount = 15000,
                     status = InvoiceStatus.OVERDUE
                 )

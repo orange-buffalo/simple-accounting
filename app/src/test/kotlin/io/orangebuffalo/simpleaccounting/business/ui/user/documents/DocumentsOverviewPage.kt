@@ -1,12 +1,15 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationDialog.Companion.confirmationDialog
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewFilters.Companion.overviewFilters
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 class DocumentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
@@ -19,10 +22,16 @@ class DocumentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
         header.shouldBeVisible()
     }
 
+    fun shouldHaveNoMatchingDocuments() {
+        pageItems.shouldHaveTitles()
+        page.locator(".sa-pageable-items__empty-results").also {
+            it.shouldBeVisible()
+            it.shouldHaveText("No results here")
+        }
+    }
+
     fun confirmDocumentDeletion() {
-        components.confirmationDialog()
-            .shouldBeVisible()
-            .clickButton("Delete")
+        components.confirmationDialog().shouldBeVisible().clickButton("Delete")
     }
 
     fun reportRenderingWithPopovers(name: String) {

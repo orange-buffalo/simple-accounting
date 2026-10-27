@@ -239,7 +239,7 @@
       align-items: center;
       justify-content: center;
       border: dashed 1px $components-border-color;
-      border-radius: 2px;
+      border-radius: $components-border-radius;
       min-height: 80px;
       transition: all 250ms ease-out;
       color: $primary-color-lighter-iii;

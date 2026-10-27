@@ -75,17 +75,18 @@ export default {
 
   overviewPage: {
     filters: {
-      button: () => 'Додати фільтри',
-      header: (activeFiltersCount: number) => format('Фільтри ({0})', [activeFiltersCount]),
+      search: () => 'Пошук',
+      any: () => 'Будь-які',
+      clearValue: (label: string, value: string) => format('Видалити {0}: {1}', [label, value]),
       clearAll: () => 'Очистити все',
-      apply: () => 'Застосувати',
-      selectPlaceholder: () => 'Обрати',
     },
   },
 
   loginPage: {
-    announcement: () => 'Вперше тут? Ми запускаємо публічний доступ скоро.',
+    title: () => 'Вхід',
+    existingAccountHint: () => 'Увійдіть за допомогою наявного облікового запису.',
     userName: {
+      label: () => 'Ім’я користувача',
       placeholder: () => 'Логін',
     },
     password: {
@@ -192,6 +193,7 @@ export default {
         profit: () => 'Прибуток',
       },
       invoice: {
+        header: () => 'Інвойс',
         to: () => 'Кому',
         issueDate: () => 'Дата Випуску',
         dateSent: () => 'Дата Відправки',

@@ -39,6 +39,8 @@
 
   .el-main {
     background-color: $primary-grey;
+    padding: clamp(16px, 3vw, 40px);
+    min-width: 0;
 
     .content-panel {
       max-width: 1500px;

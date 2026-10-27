@@ -12,12 +12,7 @@
       ref="pageItems"
       :page-query="documentsPageQuery"
       path="workspace.documents"
-      :page-query-arguments="{
-        workspaceId: currentWorkspaceId,
-        freeSearchText: overviewFilters.freeSearchText,
-        storageIdsIn: overviewFilters.storageIdsIn,
-        usageTypeIn: overviewFilters.usageTypeIn,
-      }"
+      :page-query-arguments="documentPageArguments"
       #default="{ item }"
     >
       <DocumentsOverviewPanel
@@ -29,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
@@ -60,8 +55,14 @@
     storageIdsIn: null,
     usageTypeIn: null,
   }));
+  const documentPageArguments = computed(() => ({
+    workspaceId: currentWorkspaceId,
+    freeSearchText: overviewFilters.value.freeSearchText,
+    storageIdsIn: overviewFilters.value.storageIdsIn,
+    usageTypeIn: overviewFilters.value.usageTypeIn,
+  }));
 
-  const documentFilters: SaOverviewFilterConfigs<DocumentsOverviewFilters> = {
+  const documentFilters = {
     freeSearchText: {
       type: 'text',
       label: $t.value.documentsOverview.filters.freeSearchText.label(),
@@ -114,7 +115,7 @@
         },
       ],
     },
-  };
+  } satisfies SaOverviewFilterConfigs<DocumentsOverviewFilters>;
 
   const documentsPageQuery = graphql(`
     query documentsPage(

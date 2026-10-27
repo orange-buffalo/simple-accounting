@@ -111,7 +111,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(2)
                 }
             }
-            filters.addTextFilter("Username", "cd")
+            filters.addTextFilter(label = "Search", value = "cd")
             pageItems {
                 // order is by createdAt desc: ABCDEF (newest), abcdef, aBcDef (oldest)
                 shouldHaveTitles("ABCDEF", "abcdef", "aBcDef")

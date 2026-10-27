@@ -75,17 +75,18 @@ export default {
 
   overviewPage: {
     filters: {
-      button: () => 'Add filters',
-      header: (activeFiltersCount: number) => format('Filters ({0})', [activeFiltersCount]),
+      search: () => 'Search',
+      any: () => 'Any',
+      clearValue: (label: string, value: string) => format('Remove {0}: {1}', [label, value]),
       clearAll: () => 'Clear All',
-      apply: () => 'Apply',
-      selectPlaceholder: () => 'Select',
     },
   },
 
   loginPage: {
-    announcement: () => 'New here? We are launching public access soon.',
+    title: () => 'Sign in',
+    existingAccountHint: () => 'Sign in with your existing account.',
     userName: {
+      label: () => 'Username',
       placeholder: () => 'Login',
     },
     password: {
@@ -192,6 +193,7 @@ export default {
         profit: () => 'Profit',
       },
       invoice: {
+        header: () => 'Invoice',
         to: () => 'To',
         issueDate: () => 'Issue Date',
         dateSent: () => 'Date Sent',

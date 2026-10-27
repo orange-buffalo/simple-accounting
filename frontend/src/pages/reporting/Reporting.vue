@@ -259,7 +259,7 @@
       min-height: 220px;
       padding: 26px;
       border: 1px solid $secondary-grey;
-      border-radius: 6px;
+    border-radius: $panel-border-radius;
       background: $white;
       color: $primary-text-color;
       font: inherit;

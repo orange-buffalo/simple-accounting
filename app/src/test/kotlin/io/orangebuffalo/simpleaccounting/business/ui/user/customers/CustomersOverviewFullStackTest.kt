@@ -132,7 +132,7 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTitles("Slurm Corp", "Mom's Friendly Robot Company", "Planet Express")
             }
 
-            filters.addTextFilter("Name", "robot")
+            filters.addTextFilter(label = "Search", value = "robot")
             pageItems {
                 shouldHaveTitles("Mom's Friendly Robot Company")
             }

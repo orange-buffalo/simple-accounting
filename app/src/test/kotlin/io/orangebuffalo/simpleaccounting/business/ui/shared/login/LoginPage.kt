@@ -34,13 +34,10 @@ class LoginPage private constructor(page: Page) : SaPageBase(page, ".login-page"
 
     private val oauthLoginButtons: Locator = page.locator(".login-page__oauth-action")
 
-    /**
-     * The labels are rendered uppercase by the styles, so they are compared ignoring case.
-     */
     fun shouldHaveOAuthProviders(vararg expectedLabels: String) {
         oauthLoginButtons.shouldSatisfy {
-            allInnerTexts().map { it.trim().lowercase() }
-                .shouldContainExactly(expectedLabels.map { it.lowercase() })
+            allInnerTexts().map { it.trim() }
+                .shouldContainExactly(expectedLabels.toList())
         }
     }
 

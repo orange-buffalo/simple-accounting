@@ -1,21 +1,20 @@
 <template>
   <div class="login-page">
-    <div class="login-page__signup">
-      {{ $t.loginPage.announcement() }}
-    </div>
-    <div class="login-page__login">
-      <LogoLogin class="login-page__login__logo" />
+    <main class="login-page__login" aria-labelledby="login-heading">
+      <h1 id="login-heading" class="login-page__heading">{{ $t.loginPage.title() }}</h1>
+      <LogoLogin class="login-page__logo" role="img" aria-label="Simple Accounting" />
 
       <ElForm
         class="login-page__login-form"
         :model="form"
-        label-width="0px"
+        label-position="top"
         :disabled="uiState.requestInProgress"
         @keyup.enter="onEnterPressed"
         @submit.prevent
       >
-        <ElFormItem>
+        <ElFormItem :label="$t.loginPage.userName.label()" for="login-username">
           <ElInput
+            id="login-username"
             v-model="form.userName"
             name="username"
             autocomplete="username"
@@ -40,8 +39,9 @@
         </ElButton>
 
         <template v-else>
-          <ElFormItem v-if="passwordLoginAvailable">
+          <ElFormItem v-if="passwordLoginAvailable" :label="$t.loginPage.password.placeholder()" for="login-password">
             <ElInput
+              id="login-password"
               v-model="form.password"
               type="password"
               name="password"
@@ -94,11 +94,12 @@
           </ElButton>
         </template>
 
-        <div class="login-page__login-error">
+        <div v-if="uiState.loginError" class="login-page__login-error" role="alert">
           {{ uiState.loginError }}
         </div>
       </ElForm>
-    </div>
+      <p class="login-page__hint">{{ $t.loginPage.existingAccountHint() }}</p>
+    </main>
   </div>
 </template>
 
@@ -113,8 +114,8 @@
   } from 'vue';
 
   import { $t } from '@/services/i18n';
-  import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
+  import LogoLogin from '@/assets/logo-login.svg';
   import { useAuth, handleGqlApiBusinessError } from '@/services/api';
   import type { UserAuthenticationMethodsQuery } from '@/services/api/gql/graphql.ts';
   import {
@@ -351,100 +352,67 @@
 
   .login-page {
     display: flex;
-    height: 100vh;
-
-    &__signup {
-      @include gradient-background;
-      width: 30%;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      color: white;
-      font-size: 110%;
-      padding: 10px;
-      box-sizing: border-box;
-    }
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: center;
+    justify-content: center;
+    @include gradient-background;
+    padding: 24px;
+    box-sizing: border-box;
 
     &__login {
-      width: 70%;
-      background-color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: 100%;
+      max-width: 570px;
+      padding: clamp(24px, 5vw, 56px);
+      box-sizing: border-box;
+      background: $white;
+      border: 1px solid $secondary-grey;
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba($primary-color, 0.24);
+    }
 
-      &__logo {
-        height: 150px;
-        width: 150px;
-        margin-bottom: 40px;
-      }
+    &__heading {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    &__logo {
+      display: block;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 32px;
+    }
+
+    &__hint {
+      color: $secondary-text-color;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 28px 0 0;
     }
 
     &__login-form {
-      width: 80%;
-
-      @include respond-above-starting-with(lg) {
-        width: 40%;
-      }
+      width: 100%;
 
       .el-button--primary {
-        background: $primary-color-lighter-iii;
-        border-color: $primary-color-lighter-iii;
-        transition: all 0.25s;
         width: 100%;
-        padding: 15px;
-        text-transform: uppercase;
+        min-height: 46px;
         font-weight: bold;
-
-        &:hover, &:focus {
-          background: $primary-color-lighter-ii;
-          border-color: $primary-color-lighter-ii;
-        }
-
-        &.is-disabled {
-          background: white !important;
-          color: $primary-color-lighter-iii !important;
-          border-color: $primary-color-lighter-iii !important;
-          cursor: inherit !important;
-        }
       }
 
-      .el-checkbox {
-        &__label {
-          color: $primary-color-lighter-ii !important;
-        }
-
-        &__inner {
-          background-color: white !important;
-          border-color: $primary-color-lighter-ii !important;
-
-          &:after {
-            border-color: $primary-color-lighter-ii !important;
-          }
-
-          &::after {
-            border-color: $primary-color-lighter-ii;
-          }
-        }
+      .el-form-item__label {
+        font-weight: 600;
       }
 
       .el-input {
-        &__inner {
-          border-color: $primary-color-lighter-iii;
-
-          &:focus {
-            border-color: $primary-color-lighter-iii;
-          }
-        }
-
-        &__prefix {
-          display: inline-flex;
-          align-items: center;
-        }
-
-        .sa-icon {
-          margin-left: 5px;
-        }
+        --el-input-height: 46px;
       }
     }
 
@@ -457,14 +425,14 @@
       width: 100%;
       margin-top: 15px;
       margin-left: 0 !important;
-      color: $primary-color-lighter-ii !important;
     }
 
     &__login-error {
-      height: 3pt;
       color: $danger-color;
       text-align: center;
       margin-top: 20px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
     }
   }
 </style>

@@ -5,14 +5,14 @@
       "id": "diagnose-before-learning",
       "category": "learning",
       "appliesWhen": "Investigating an incorrect implementation or human correction",
-      "instruction": "Diagnose missing knowledge, failure to apply existing guidance, ambiguous or new requirements, or execution/tooling failure. Reuse or clarify existing rules or improve the workflow/automated safeguard instead of appending a paraphrase for every correction.",
+      "instruction": "Diagnose missing knowledge, unapplied guidance, ambiguous/new requirements or tooling failure. Reuse/clarify rules or improve workflow/automation rather than append a paraphrase per correction.",
       "reason": "More instructions do not cure failures to apply existing knowledge."
     },
     {
       "id": "curate-scoped-rules",
       "category": "learning",
       "appliesWhen": "Updating accumulated implementation experience",
-      "instruction": "Keep actionable scoped rules with brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and preserve exceptions and still-applicable experience. Check analogous and non-applicable cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
+      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
       "reason": "A coherent current guide prevents mistakes better than an accumulating history."
     },
     {
@@ -54,7 +54,7 @@
       "id": "component-test-ownership",
       "category": "testing",
       "appliesWhen": "Assigning reusable component and consuming-page interaction coverage",
-      "instruction": "Keep genuinely reusable interaction-state coverage in the component-specific Kotlin full-stack test. Keep page-driven business conditions, validation and loading workflows in existing page tests without parallel component-test duplication. A direction to move one component's coverage is not a repository-wide prohibition on other test frameworks.",
+      "instruction": "Keep reusable interaction-state coverage in component-specific Kotlin full-stack tests, including overview-filter helpers rather than new frontend helper unit tests. Keep page business conditions, validation and loading in existing page tests without component-test duplication. Moving one component's coverage does not ban unrelated tests/frameworks.",
       "reason": "Coverage should follow behavior ownership without duplicating expensive workflows."
     },
     {
@@ -110,14 +110,14 @@
       "id": "precise-evidence",
       "category": "workflow",
       "appliesWhen": "Explaining behavior or learning from corrections",
-      "instruction": "State behavioral evidence precisely, distinguish source documentation from reported rationale and null from omitted wire input, and retain workflow defaults while honoring explicit user overrides.",
+      "instruction": "State evidence precisely; distinguish documentation from reported rationale and null from omitted input. Keep defaults subject to explicit overrides. Use neutral anonymous-login copy.",
       "reason": "Unsupported diagnoses produce unreliable prevention."
     },
     {
       "id": "active-prevention",
       "category": "learning",
       "appliesWhen": "Starting implementation or publishing learned guidance",
-      "instruction": "Apply the complete active catalog before coding and identify relevant constraints in the implementation approach. Inject all distilled rules; never silently truncate or leave accepted preventive instructions undeployed. Use the same active projection for validation and size checks. Feedback reports identify active rule IDs and the catalog path; verification is not measured improvement.",
+      "instruction": "Apply the complete active catalog before coding; identify relevant approach constraints. Inject every distilled rule: never silently truncate or leave accepted guidance undeployed. Validate and size-check the same active projection. Feedback reports identify active rule IDs and catalog path; verification is not measured improvement.",
       "reason": "Prevention before coding is stronger than catching the same defect during review."
     },
     {
@@ -152,7 +152,7 @@
       "id": "business-error-mapping",
       "category": "backend",
       "appliesWhen": "Mapping expected business failures, isolating scheduled batch items, or sharing integration fetching across scheduled and async entry points",
-      "instruction": "Map expected business failures declaratively with @BusinessError and dedicated exceptions. In business operations, catch only specific failures requiring local handling. A scheduled per-item orchestration boundary may catch Exception after specific handlers to isolate independent items; log unexpected failures at ERROR with the complete caught throwable and integration/item context, preserving failed-item rollback and continuation. Do not replace the throwable with its message or class alone, catch JVM Errors, or wrap the entire batch instead of individual items. Provider-boundary diagnostics remain bounded and credential-redacted; public business errors remain sanitized. For integration fetching shared by scheduled and async callers, put this isolation in the common single-integration service operation, outside its transaction, so both entry points receive rollback and diagnostics.",
+      "instruction": "Use @BusinessError and dedicated exceptions for expected failures; business operations catch only specific locally actionable failures. Scheduled per-item orchestration may catch Exception after specific handlers, never JVM Errors or the whole batch. Preserve failed-item rollback and continuation; log unexpected failures at ERROR with the complete throwable and integration/item context, not just its message/class. Keep provider diagnostics bounded and credential-redacted and public errors sanitized. For fetching shared by scheduled/async callers, isolate in the common single-integration service operation outside its transaction, giving both callers rollback and diagnostics.",
       "reason": "Per-item isolation protects unrelated work; a shared service boundary also protects async callers while retaining complete troubleshooting evidence."
     },
     {
@@ -194,7 +194,7 @@
       "id": "remove-unnecessary-tests",
       "category": "testing",
       "appliesWhen": "User-directed removal of unnecessary tests",
-      "instruction": "Remove tests explicitly deemed unnecessary while preserving the independently required production safety behavior.",
+      "instruction": "Remove user-rejected tests, not required production safety. Mobile support and mobile-only code/tests are out of scope unless requested.",
       "reason": "Removing redundant coverage does not revoke production requirements."
     },
     {
@@ -243,7 +243,7 @@
       "id": "real-preconditions",
       "category": "testing",
       "appliesWhen": "Setting up backend and full-stack tests",
-      "instruction": "Use real services and persistence-backed preconditions/lazyPreconditions factories; never access aggregateTemplate directly for setup. Use named arguments when supplying multiple parameters and defaults for unrelated values. Mock only unavoidable external boundaries; prefer persistence to repository mocks/spies. On distinct feedback turns audit cumulative branch changes for analogous issues; missing audit prevents a clean receipt.",
+      "instruction": "Set up through real services and persistence-backed preconditions/lazyPreconditions factories, never aggregateTemplate. Name multiple arguments; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative branch changes for analogous issues; without this audit no clean receipt.",
       "reason": "Realistic setup exercises application boundaries instead of implementation details."
     },
     {
@@ -376,14 +376,14 @@
       "id": "integration-fetch-orchestration",
       "category": "backend",
       "appliesWhen": "Implementing Spring integration fetching shared by periodic scheduling and enabled-save background dispatch",
-      "instruction": "Keep batch scheduling, single-integration async dispatch and guarded fetching in the owning fetch service; do not introduce pass-through job/trigger components or route single-item dispatch through a batch job. Invoke enabled-save fetching directly after transaction commit through the service's proxied @Async method, with async support enabled, rather than manual executor submission or a single-consumer event bridge. Preserve no dispatch for disabled, rejected or rolled-back saves and independent fetch transactions.",
+      "instruction": "Own batch scheduling, single-integration async dispatch and guarded fetching in the fetch service: no pass-through jobs/triggers or single-item dispatch through batch jobs. After enabled-save commit, invoke its proxied @Async method directly with async support enabled; no manual executor or single-consumer event bridge. Never dispatch disabled, rejected or rolled-back saves; keep fetch transactions independent.",
       "reason": "One owner avoids redundant orchestration while preserving real asynchronous execution and commit ordering."
     },
     {
       "id": "integration-fetch-observability",
       "category": "backend",
       "appliesWhen": "Implementing or changing scheduled and asynchronous account-statement fetching",
-      "instruction": "In the owning fetch service, log scheduled-run, integration and account start/end boundaries with safe identifiers, explicit outcomes and durations; include selected/processed integration counts, account intervals, retrieved records and completed windows. Keep per-window counts at DEBUG. Distinguish retrieval from persistence and report successful import/duplicate statistics only after commit; failed or rolled-back work must not claim imported success. Preserve existing credential-redaction, exception-isolation and no-log-assertion policies.",
+      "instruction": "In the owning fetch service, log scheduled-run, integration and account starts/ends with safe IDs, explicit outcomes and durations; include selected/processed integration counts, account intervals, retrieved records and completed windows. Per-window counts belong at DEBUG. Distinguish retrieval from persistence: report import/duplicate success only after commit, never for failed/rolled-back work. Preserve credential redaction, exception isolation and no-log-assertion policies.",
       "reason": "Lifecycle gaps obscure stalled work, while precommit success statistics misrepresent rolled-back imports."
     },
     {
@@ -397,8 +397,15 @@
       "id": "shared-wizard-contract",
       "category": "frontend",
       "appliesWhen": "Implementing or consuming the shared object-defined wizard",
-      "instruction": "Keep navigation exclusively in the bottom button bar with noninteractive titles and selection-only content controls. Derive default adjacent actions from step order; omit only first Back and last Next, and disable blocked actions. Pages provide completion facts and one top-level loading value; the wizard derives presentation statuses and locks actions during loading or pending callbacks. Preserve page-specific validity and service re-entry guards.",
+      "instruction": "Navigate only through bottom-bar buttons; titles are noninteractive and content controls selection-only. Derive adjacent actions from step order; omit only first Back/last Next and disable blocked actions. Pages supply completion facts and one top-level loading value; the wizard derives statuses and locks actions during loading/pending callbacks. Retain page validity and service re-entry guards.",
       "reason": "Central ownership prevents inconsistent navigation and repeated presentation or busy-state logic."
+    },
+    {
+      "id": "shared-theme-inventory",
+      "category": "frontend",
+      "appliesWhen": "Applying an application-wide visual theme",
+      "instruction": "Inventory all shared component styles, library semantic palettes and page overrides; use centralized tokens across surfaces and interaction states, not only showcase pages. Preserve behavior, semantic distinctions, simplified variants, disabled actions and third-party brands.",
+      "reason": "Global token changes alone leave local overrides and library states visually inconsistent."
     }
   ]
 }

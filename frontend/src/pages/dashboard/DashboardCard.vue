@@ -4,6 +4,7 @@
       <span class="sa-dashboard__card__header__icon">
         <SaIcon :icon="headerIcon" variant="detailed" />
       </span>
+      <span v-if="title" class="sa-dashboard__card__header__title">{{ title }}</span>
 
       <slot v-if="loaded" name="header" />
 
@@ -29,43 +30,40 @@
 
   defineProps<{
     loaded: boolean,
-    headerIcon: string
+    headerIcon: string,
+    title?: string,
   }>();
 </script>
 
 <style lang="scss">
   @use "@/styles/vars.scss" as * ;
-  @use "sass:math";
-
-  $header-icon-container-size: 20%;
-  $header-icon-size: 60%;
-  $header-icon-position: math.div(100% - $header-icon-size, 2);
-
   .sa-dashboard__card {
-    padding: 20px;
     border: 1px solid $secondary-grey;
     background-color: $white;
-    border-radius: 2px;
-    width: 27%;
-    margin-bottom: 20px;
+    border-radius: $panel-border-radius;
+    min-width: 0;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(20, 43, 64, 0.025);
 
     &__header {
-      text-align: center;
+      padding: 24px;
+      min-height: 170px;
+      box-sizing: border-box;
+
+      &__title {
+        display: block;
+        font-size: 14px;
+        font-weight: bold;
+        padding-right: 36px;
+      }
 
       &__icon {
-        display: inline-block;
-        width: $header-icon-container-size;
-        padding-top: $header-icon-container-size;
-        border: 1px solid $secondary-grey;
-        border-radius: 50%;
-        position: relative;
+        float: right;
+        color: $accent-primary-color;
 
         .sa-icon {
-          position: absolute;
-          width: $header-icon-size !important;
-          height: $header-icon-size !important;
-          top: $header-icon-position;
-          left: $header-icon-position;
+          width: 26px !important;
+          height: 26px !important;
         }
       }
 
@@ -76,35 +74,80 @@
 
       &__amount {
         display: block;
-        margin: 10px 0;
-        font-size: 130%;
+        margin: 16px 0 10px;
+        font-size: clamp(20px, 2vw, 28px);
         font-weight: bold;
+        overflow-wrap: anywhere;
+        font-variant-numeric: tabular-nums;
       }
 
       &__finalized {
         display: block;
-        font-size: 90%;
+        font-size: 13px;
         color: $secondary-text-color;
       }
 
       &__pending {
-        display: block;
+        display: inline-block;
         color: $warning-color;
-        font-size: 90%;
+        background: $warning-color-bg;
+        border-radius: $status-border-radius;
+        padding: 4px 9px;
+        margin-top: 10px;
+        font-size: 12px;
+        &--empty {
+          visibility: hidden;
+        }
       }
     }
 
     &__details {
-      margin-top: 20px;
-      padding-top: 10px;
+      margin: 0 24px;
+      padding: 16px 0 20px;
       border-top: 1px solid $secondary-grey;
 
       &__item {
         display: flex;
         justify-content: space-between;
-        padding: 5px 0 0;
-        font-size: 80%;
+        gap: 16px;
+        padding: 7px 0;
+        font-size: 13px;
         color: $secondary-text-color;
+
+        > :first-child {
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+
+        > :last-child {
+          text-align: right;
+          color: $primary-text-color;
+          font-weight: 600;
+          overflow-wrap: anywhere;
+          min-width: 0;
+        }
+      }
+    }
+
+    &--profit {
+      .sa-dashboard__card__header {
+        background: $secondary-color;
+        color: $white;
+      }
+
+      .sa-dashboard__card__header__icon {
+        color: $accent-contrast-color;
+      }
+
+      .sa-dashboard__card__details {
+        border-top: 0;
+      }
+
+      .sa-dashboard__card__details__item:last-child {
+        margin-top: 8px;
+        padding-top: 16px;
+        border-top: 1px solid $secondary-grey;
+        font-weight: bold;
       }
     }
   }

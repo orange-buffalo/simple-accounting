@@ -61,7 +61,7 @@
     &_preview {
       padding: 10px;
       border: 1px solid $components-border-color;
-      border-radius: 3px;
+      border-radius: $components-border-radius;
     }
 
     &__preview-label {
