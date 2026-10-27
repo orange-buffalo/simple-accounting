@@ -1,5 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
@@ -13,6 +16,7 @@ class WiseIntegrationService internal constructor(
     private val settings: WiseIntegrationSettingsRepository,
     private val client: WiseApiClient,
     private val statementFetchService: WiseStatementFetchService,
+    private val records: AccountStatementRecordsRepository,
 ) {
     fun isActive(workspaceId: String): Boolean {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
@@ -76,7 +80,28 @@ class WiseIntegrationService internal constructor(
             fetchTransactionsPeriodically = fetchTransactionsPeriodically, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically))
-        if (saved.fetchTransactionsPeriodically) {
+        dispatchFetchAfterCommit(saved)
+    }
+
+    @Transactional
+    fun setAutomaticFetching(workspaceId: String, enabled: Boolean) {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
+        val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
+            ?: throw EntityNotFoundException("Wise integration for workspace $workspaceId is not found")
+        val saved = settings.save(existing.copy(fetchTransactionsPeriodically = enabled))
+        dispatchFetchAfterCommit(saved)
+    }
+
+    @Transactional
+    fun remove(workspaceId: String) {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
+        val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) } ?: return
+        records.deleteByIntegrationIdAndProvider(integrationId = existing.id!!, provider = IntegrationProvider.WISE.name)
+        settings.delete(existing)
+    }
+
+    private fun dispatchFetchAfterCommit(saved: WiseIntegrationSettings) {
+        if (saved.fetchTransactionsPeriodically && !saved.authenticationRequired) {
             TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
                 override fun afterCommit() {
                     statementFetchService.fetchAsync(saved.id!!)

@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.integrations
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.jdbc.repository.query.Modifying
+import org.springframework.data.jdbc.repository.query.Query
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -45,6 +47,10 @@ enum class IntegrationProvider { WISE }
 enum class StatementType { DEBIT, CREDIT, CONVERSION, OTHER }
 
 interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountStatementRecord> {
+    @Modifying
+    @Query("delete from account_statement_record where integration_id = :integrationId and provider = :provider")
+    fun deleteByIntegrationIdAndProvider(integrationId: String, provider: String)
+
     fun findByIntegrationIdAndAccountIdAndExternalId(
         integrationId: String,
         accountId: String,

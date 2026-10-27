@@ -9,11 +9,22 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationDialog.Companion.confirmationDialog
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Integrations")
     val providers = ProviderCards(components)
     val status = components.statusLabel()
+    val disable = components.buttonByText("Disable automatic imports")
+    val enable = components.buttonByText("Enable automatic imports")
+    val remove = components.buttonByText("Remove integration")
+    val confirmation = components.confirmationDialog()
+
+    fun reportRenderingWithPopovers(name: String) {
+        page.locator("body").reportRendering(name)
+    }
 
     companion object {
         fun Page.openIntegrationsPage(spec: IntegrationsPage.() -> Unit = {}) {

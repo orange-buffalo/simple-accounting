@@ -6,23 +6,35 @@
     <div v-else-if="integrations" class="integration-cards">
       <article v-for="provider in providers" :key="provider.id" class="integration-card">
         <component :is="provider.logo" class="integration-card__logo" :aria-label="provider.name" role="img" />
-        <SaStatusLabel v-if="provider.authenticationRequired" status="failure" role="alert">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
+        <SaStatusLabel v-if="provider.active && !provider.fetchTransactionsPeriodically" status="regular" role="status">{{ $t.integrations.disabled() }}</SaStatusLabel>
+        <SaStatusLabel v-else-if="provider.authenticationRequired" status="failure" role="alert">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
         <SaStatusLabel v-else-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
         <p>{{ provider.description }}</p>
         <RouterLink :to="{ name: provider.setup }">
           {{ provider.active ? $t.integrations.update() : $t.integrations.setup() }} →
         </RouterLink>
+        <template v-if="provider.active">
+          <ElButton :disabled="busy" @click="setAutomaticFetching(!provider.fetchTransactionsPeriodically)">
+            {{ provider.fetchTransactionsPeriodically ? $t.integrations.disable() : $t.integrations.enable() }}
+          </ElButton>
+          <ElButton type="danger" plain :disabled="busy" @click="removeIntegration">
+            {{ $t.integrations.wise.remove() }}
+          </ElButton>
+        </template>
+        <SaStatusLabel v-if="busy" status="regular" custom-icon="loading" role="status" aria-live="polite">{{ $t.integrations.updating() }}</SaStatusLabel>
       </article>
     </div>
   </SaPage>
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
+  import { ElButton } from 'element-plus';
+  import { useConfirmation } from '@/components/confirmation/use-confirmation';
   import SaPage from '@/components/SaPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { graphql } from '@/services/api/gql';
-  import { useQuery } from '@/services/api/use-gql-api';
+  import { useQuery, useMutation } from '@/services/api/use-gql-api';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import WiseLogo from '@/icons/svg/wise-simple.svg?component';
   import { $t } from '@/services/i18n';
@@ -30,15 +42,60 @@
   const workspaceId = useCurrentWorkspace().currentWorkspace.id;
   const [loading, workspace] = useQuery(graphql(/* GraphQL */ `
     query integrationProviders($workspaceId: String!) {
-      workspace(id: $workspaceId) { integrations { wise { active authenticationRequired } } }
+      workspace(id: $workspaceId) {
+        integrations { wise { active authenticationRequired fetchTransactionsPeriodically } }
+      }
     }
   `), 'workspace', { variables: { workspaceId } });
   const integrations = computed(() => workspace.value?.integrations ?? null);
+  const busy = ref(false);
+  const changeFetching = useMutation(graphql(/* GraphQL */ `
+    mutation setWiseAutomaticFetching($workspaceId: String!, $enabled: Boolean!) {
+      setWiseAutomaticFetching(workspaceId: $workspaceId, enabled: $enabled) { success }
+    }
+  `), 'setWiseAutomaticFetching');
+  const removeWise = useMutation(graphql(/* GraphQL */ `
+    mutation removeWiseIntegration($workspaceId: String!) {
+      removeWiseIntegration(workspaceId: $workspaceId) { success }
+    }
+  `), 'removeWiseIntegration');
+  const setAutomaticFetching = async (enabled: boolean) => {
+    if (busy.value || !workspace.value) return;
+    busy.value = true;
+    try {
+      await changeFetching({ workspaceId, enabled });
+      workspace.value.integrations.wise.fetchTransactionsPeriodically = enabled;
+    } finally {
+      busy.value = false;
+    }
+  };
+  const confirmRemoval = useConfirmation($t.value.integrations.wise.removeMessage(), {
+    title: $t.value.integrations.wise.remove(),
+    confirmButtonText: $t.value.integrations.wise.remove(),
+    cancelButtonText: $t.value.integrations.wise.keep(),
+    type: 'warning',
+  }, async () => {
+    await removeWise({ workspaceId });
+    if (workspace.value) {
+      workspace.value.integrations.wise.active = false;
+      workspace.value.integrations.wise.authenticationRequired = false;
+    }
+  });
+  const removeIntegration = async () => {
+    if (busy.value) return;
+    busy.value = true;
+    try {
+      await confirmRemoval();
+    } finally {
+      busy.value = false;
+    }
+  };
   const providers = computed(() => [{
     id: 'wise', name: $t.value.integrations.wise.name(), logo: WiseLogo,
     description: $t.value.integrations.wise.description(),
     active: integrations.value?.wise.active === true, setup: 'wise-setup',
     authenticationRequired: integrations.value?.wise.authenticationRequired === true,
+    fetchTransactionsPeriodically: integrations.value?.wise.fetchTransactionsPeriodically === true,
   }]);
 </script>
 
@@ -70,6 +127,7 @@
 
     p { color: $secondary-text-color; line-height: 1.5; }
     a { color: $secondary-color; font-weight: 600; }
+    .el-button + .el-button { margin-left: 0; }
     &__logo { width: 144px; height: 36px; color: $secondary-color; }
   }
 </style>

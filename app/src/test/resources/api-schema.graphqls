@@ -1181,6 +1181,11 @@ type Mutation {
     "ID of the workspace the standalone document belongs to."
     workspaceId: String!
   ): Boolean! @auth(type : REGULAR_USER)
+  "Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed."
+  removeWiseIntegration(
+    "The workspace whose integration and imported statements should be removed. Only its owner can remove them."
+    workspaceId: String!
+  ): WiseIntegrationChangeResult! @auth(type : REGULAR_USER)
   "Revokes and removes a workspace access token."
   revokeWorkspaceAccessToken(
     "ID of the workspace access token to revoke."
@@ -1202,6 +1207,13 @@ type Mutation {
     "The workspace whose Wise integration settings should be created or updated. Only its owner can save settings."
     workspaceId: String!
   ): WiseSettingsSaveResult! @auth(type : REGULAR_USER) @businessError(errorCode : "INVALID_TOKEN", errorCodeDescription : "Wise rejected the personal token.") @businessError(errorCode : "UNAVAILABLE", errorCodeDescription : "Wise accounts could not be loaded.") @businessError(errorCode : "INVALID_ACCOUNTS", errorCodeDescription : "The selected Wise accounts are invalid or have changed.")
+  "Enables or disables automatic Wise imports without contacting Wise or changing credentials, accounts, authentication status or fetch checkpoints. Enabling starts a background fetch unless authentication is required."
+  setWiseAutomaticFetching(
+    "Whether automatic imports should run. Disabling preserves all settings and imported statements."
+    enabled: Boolean!,
+    "The workspace whose integration should be updated. Only its owner can change it."
+    workspaceId: String!
+  ): WiseIntegrationChangeResult! @auth(type : REGULAR_USER)
   "Starts migration of documents that are not stored in the current upload storage."
   startDocumentsMigration: DocumentsMigration! @auth(type : REGULAR_USER) @businessError(errorCode : "DOCUMENTS_STORAGE_NOT_CONFIGURED", errorCodeDescription : "Documents storage is not configured for the current user.") @businessError(errorCode : "DOCUMENTS_UPLOAD_STORAGE_NOT_ACTIVE", errorCodeDescription : "Current upload storage is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_SOURCE_STORAGE_NOT_ACTIVE", errorCodeDescription : "At least one source storage required for migration is not active for the current user.") @businessError(errorCode : "DOCUMENTS_MIGRATION_ALREADY_IN_PROGRESS", errorCodeDescription : "The current user already has an incomplete documents migration.")
   "Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow."
@@ -1579,9 +1591,14 @@ type WiseAccountsResult {
   accounts: [WiseAccountGqlDto!]!
 }
 
+"Whether the requested Wise integration change completed successfully."
+type WiseIntegrationChangeResult {
+  success: Boolean!
+}
+
 "Wise integration metadata. Credentials are never returned."
 type WiseIntegrationGqlDto {
-  "Whether Wise is active for this workspace."
+  "Whether Wise is configured for this workspace, including when automatic fetching is disabled or authentication is required."
   active: Boolean!
   "Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again."
   authenticationRequired: Boolean!

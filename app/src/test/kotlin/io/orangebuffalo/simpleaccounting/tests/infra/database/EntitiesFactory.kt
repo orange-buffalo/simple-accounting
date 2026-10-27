@@ -23,6 +23,9 @@ import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
+import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationPurpose
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthAuthenticationRequest
 import io.orangebuffalo.simpleaccounting.business.oauthproviders.OAuthProvider
@@ -503,6 +506,23 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         authenticationRequired = authenticationRequired,
         lastSuccessfulFetchTime = lastSuccessfulFetchTime,
         createdAt = createdAt,
+    ).save()
+
+    fun accountStatementRecord(
+        integration: WiseIntegrationSettings = wiseIntegrationSettings(),
+        accountId: String = "301",
+        externalId: String = "Slurm-${sequenceValue++}",
+    ): AccountStatementRecord = AccountStatementRecord(
+        workspaceId = integration.workspaceId,
+        provider = IntegrationProvider.WISE,
+        integrationId = integration.id!!,
+        accountId = accountId,
+        accountCurrency = "USD",
+        externalId = externalId,
+        type = StatementType.DEBIT,
+        occurredAt = MOCK_TIME,
+        amountInCents = 125,
+        currency = "USD",
     ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
