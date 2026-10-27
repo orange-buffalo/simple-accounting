@@ -118,11 +118,11 @@ class DocumentFilterChips(private val container: Locator, private val page: Page
         return this
     }
 
-    fun closeWithButton(label: String): DocumentFilterChips {
-        open(label)
-        editor.getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName("Close").setExact(true)).click()
+    fun applySearchWithEnter(value: String): DocumentFilterChips {
+        addTextFilter(label = "Search", value = value)
+        editor.getByRole(AriaRole.TEXTBOX).press("Enter")
         editor.shouldHaveCount(0)
-        chipButton(label).shouldSatisfy {
+        chipButton("Search").shouldSatisfy {
             evaluate("element => element === document.activeElement").shouldBe(true)
         }
         return this

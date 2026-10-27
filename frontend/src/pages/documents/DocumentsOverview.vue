@@ -43,7 +43,6 @@
                 >
                   <span>{{ filter.label }}:</span>
                   <strong v-if="!filter.active">{{ $t.documentsOverview.filters.any() }}</strong>
-                  <ArrowDown aria-hidden="true" />
                 </button>
               </template>
               <div
@@ -61,6 +60,7 @@
                   :model-value="overviewFilters.freeSearchText ?? ''"
                   clearable
                   @update:model-value="overviewFilters.freeSearchText = $event || null"
+                  @keydown.enter.prevent="closeEditor(filter.key)"
                 />
                 <ElCheckboxGroup
                   v-else
@@ -76,9 +76,6 @@
                     {{ option.label }}
                   </ElCheckbox>
                 </ElCheckboxGroup>
-                <ElButton link @click="closeEditor(filter.key)">
-                  {{ $t.documentsOverview.filters.closeEditor() }}
-                </ElButton>
               </div>
             </ElPopover>
             <span v-for="value in filter.values" :key="value.value" class="document-filters__value">
@@ -102,12 +99,7 @@
       ref="pageItems"
       :page-query="documentsPageQuery"
       path="workspace.documents"
-      :page-query-arguments="{
-        workspaceId: currentWorkspaceId,
-        freeSearchText: overviewFilters.freeSearchText,
-        storageIdsIn: overviewFilters.storageIdsIn,
-        usageTypeIn: overviewFilters.usageTypeIn,
-      }"
+      :page-query-arguments="documentPageArguments"
       #default="{ item }"
     >
       <DocumentsOverviewPanel
@@ -121,7 +113,7 @@
 <script lang="ts" setup>
   import { computed, nextTick, ref } from 'vue';
   import { ClickOutside as vClickOutside, ElCheckboxGroup, ElPopover } from 'element-plus';
-  import { ArrowDown, Close } from '@element-plus/icons-vue';
+  import { Close } from '@element-plus/icons-vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import DocumentsOverviewPanel from '@/pages/documents/DocumentsOverviewPanel.vue';
@@ -151,6 +143,12 @@
     freeSearchText: null,
     storageIdsIn: null,
     usageTypeIn: null,
+  }));
+  const documentPageArguments = computed(() => ({
+    workspaceId: currentWorkspaceId,
+    freeSearchText: overviewFilters.value.freeSearchText,
+    storageIdsIn: overviewFilters.value.storageIdsIn,
+    usageTypeIn: overviewFilters.value.usageTypeIn,
   }));
 
   const documentFilters = {
@@ -324,7 +322,7 @@
       flex-wrap: wrap;
       gap: 3px;
       min-height: 24px;
-      padding-right: 20px;
+      overflow: hidden;
       border: 1px solid $components-border-color;
       border-radius: $status-border-radius;
       background: $white;
@@ -351,7 +349,6 @@
         &:focus-visible { outline: 2px solid $components-color; outline-offset: -3px; }
       }
 
-      > button svg { position: absolute; right: 6px; top: 7px; }
       strong { font-weight: 600; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       svg { width: 10px; height: 10px; flex-shrink: 0; }
     }
@@ -361,6 +358,7 @@
       align-items: center;
       gap: 2px;
       button { padding: 2px; }
+      &:last-child { padding-right: 4px; }
       & + & { border-left: 1px solid $components-border-color; padding-left: 4px; }
     }
 
@@ -376,9 +374,15 @@
       .el-input { width: 100%; font-size: inherit; }
       .el-button { font-size: inherit; }
       .el-checkbox-group { display: flex; flex-direction: column; gap: 2px; }
-      :deep(.el-checkbox) { margin-right: 0; height: 22px; --el-checkbox-font-size: 11px; }
-      :deep(.el-checkbox__inner) { width: 12px; height: 12px; }
-      :deep(.el-checkbox__inner::after) { left: 3px; top: 0; }
+      :deep(.el-checkbox) {
+        margin-right: 0;
+        height: 22px;
+        --el-checkbox-font-size: 11px;
+        --el-checkbox-border-radius: 3px;
+        --el-checkbox-input-width: 12px;
+        --el-checkbox-input-height: 12px;
+      }
+      :deep(.el-checkbox__inner::after) { width: 2px; height: 6px; }
     }
   }
 </style>

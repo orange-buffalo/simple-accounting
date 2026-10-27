@@ -437,7 +437,6 @@ export default {
       search: () => 'Пошук',
       any: () => 'Будь-які',
       clearValue: (label: string, value: string) => format('Видалити {0}: {1}', [label, value]),
-      closeEditor: () => 'Закрити',
       freeSearchText: {
         label: () => 'Назва файлу або використання',
       },

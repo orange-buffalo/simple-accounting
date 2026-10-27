@@ -438,7 +438,6 @@ export default {
       search: () => 'Search',
       any: () => 'Any',
       clearValue: (label: string, value: string) => format('Remove {0}: {1}', [label, value]),
-      closeEditor: () => 'Close',
       freeSearchText: {
         label: () => 'File name or usage title',
       },

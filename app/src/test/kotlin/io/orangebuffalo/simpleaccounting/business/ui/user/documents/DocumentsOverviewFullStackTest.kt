@@ -827,7 +827,13 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             filters.addTextFilter(label = "File name or usage title", value = "slurm")
             pageItems.shouldHaveTitles("Slurm delivery manifest.pdf")
             filters.closeWithEscape()
-            filters.closeWithButton("Search")
+            filters.applySearchWithEnter("permit")
+            pageItems.shouldHaveTitles("Planet Express permit.pdf")
+            filters.shouldHaveChips(
+                DocumentFilterChipData(label = "Search", summary = "permit", active = true),
+                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
+                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+            )
 
             filters.addTextFilter(label = "Search", value = "Omicron Persei 8")
             shouldHaveNoMatchingDocuments()
