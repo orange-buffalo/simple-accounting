@@ -5,14 +5,14 @@
       "id": "diagnose-before-learning",
       "category": "learning",
       "appliesWhen": "Investigating an incorrect implementation or human correction",
-      "instruction": "Diagnose missing knowledge, failure to apply existing guidance, ambiguous or new requirements, or execution/tooling failure. Reuse or clarify existing rules or improve the workflow/automated safeguard instead of appending a paraphrase for every correction.",
+      "instruction": "Diagnose missing knowledge, unapplied guidance, ambiguous/new requirements or tooling failure. Reuse/clarify rules or improve workflow/automation rather than append a paraphrase per correction.",
       "reason": "More instructions do not cure failures to apply existing knowledge."
     },
     {
       "id": "curate-scoped-rules",
       "category": "learning",
       "appliesWhen": "Updating accumulated implementation experience",
-      "instruction": "Keep actionable scoped rules with brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and preserve exceptions and still-applicable experience. Check analogous and non-applicable cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
+      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
       "reason": "A coherent current guide prevents mistakes better than an accumulating history."
     },
     {
@@ -54,7 +54,7 @@
       "id": "component-test-ownership",
       "category": "testing",
       "appliesWhen": "Assigning reusable component and consuming-page interaction coverage",
-      "instruction": "Keep genuinely reusable interaction-state coverage in the component-specific Kotlin full-stack test. Keep page-driven business conditions, validation and loading workflows in existing page tests without parallel component-test duplication. A direction to move one component's coverage is not a repository-wide prohibition on other test frameworks.",
+      "instruction": "Keep reusable interaction-state coverage in component-specific Kotlin full-stack tests, including overview-filter helpers rather than new frontend helper unit tests. Keep page business conditions, validation and loading in existing page tests without component-test duplication. Moving one component's coverage does not ban unrelated tests/frameworks.",
       "reason": "Coverage should follow behavior ownership without duplicating expensive workflows."
     },
     {
@@ -117,7 +117,7 @@
       "id": "active-prevention",
       "category": "learning",
       "appliesWhen": "Starting implementation or publishing learned guidance",
-      "instruction": "Apply the complete active catalog before coding and identify relevant constraints in the implementation approach. Inject all distilled rules; never silently truncate or leave accepted preventive instructions undeployed. Use the same active projection for validation and size checks. Feedback reports identify active rule IDs and the catalog path; verification is not measured improvement.",
+      "instruction": "Apply the complete active catalog before coding; identify relevant approach constraints. Inject every distilled rule: never silently truncate or leave accepted guidance undeployed. Validate and size-check the same active projection. Feedback reports identify active rule IDs and catalog path; verification is not measured improvement.",
       "reason": "Prevention before coding is stronger than catching the same defect during review."
     },
     {
