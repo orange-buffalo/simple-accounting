@@ -75,11 +75,10 @@ export default {
 
   overviewPage: {
     filters: {
-      button: () => 'Add filters',
-      header: (activeFiltersCount: number) => format('Filters ({0})', [activeFiltersCount]),
+      search: () => 'Search',
+      any: () => 'Any',
+      clearValue: (label: string, value: string) => format('Remove {0}: {1}', [label, value]),
       clearAll: () => 'Clear All',
-      apply: () => 'Apply',
-      selectPlaceholder: () => 'Select',
     },
   },
 
@@ -435,9 +434,6 @@ export default {
     header: () => 'Documents',
     create: () => 'Upload',
     filters: {
-      search: () => 'Search',
-      any: () => 'Any',
-      clearValue: (label: string, value: string) => format('Remove {0}: {1}', [label, value]),
       freeSearchText: {
         label: () => 'File name or usage title',
       },

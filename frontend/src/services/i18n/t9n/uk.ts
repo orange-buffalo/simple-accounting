@@ -75,11 +75,10 @@ export default {
 
   overviewPage: {
     filters: {
-      button: () => 'Додати фільтри',
-      header: (activeFiltersCount: number) => format('Фільтри ({0})', [activeFiltersCount]),
+      search: () => 'Пошук',
+      any: () => 'Будь-які',
+      clearValue: (label: string, value: string) => format('Видалити {0}: {1}', [label, value]),
       clearAll: () => 'Очистити все',
-      apply: () => 'Застосувати',
-      selectPlaceholder: () => 'Обрати',
     },
   },
 
@@ -434,9 +433,6 @@ export default {
     header: () => 'Документи',
     create: () => 'Завантажити',
     filters: {
-      search: () => 'Пошук',
-      any: () => 'Будь-які',
-      clearValue: (label: string, value: string) => format('Видалити {0}: {1}', [label, value]),
       freeSearchText: {
         label: () => 'Назва файлу або використання',
       },

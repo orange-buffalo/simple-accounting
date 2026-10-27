@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.OverviewFilterChipData
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.nulls.shouldBeNull
@@ -823,16 +824,14 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 "Slurm delivery manifest.pdf",
             )
 
-            filters.openWithKeyboard("Search")
-            filters.addTextFilter(label = "File name or usage title", value = "slurm")
+            filters.addTextFilter(label = "Search", value = "slurm")
             pageItems.shouldHaveTitles("Slurm delivery manifest.pdf")
-            filters.closeWithEscape()
             filters.applySearchWithEnter("permit")
             pageItems.shouldHaveTitles("Planet Express permit.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "permit", active = true),
-                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Search", summary = "permit", active = true),
+                OverviewFilterChipData(label = "Usage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Storage", summary = "Any", active = false),
             )
 
             filters.addTextFilter(label = "Search", value = "Omicron Persei 8")
@@ -846,43 +845,42 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 "Slurm delivery manifest.pdf",
             )
 
-            filters.addTextFilter(label = "File name or usage title", value = "robot")
+            filters.addTextFilter(label = "Search", value = "robot")
             pageItems.shouldHaveTitles("Robot oil payment.pdf", "Robot oil archived.pdf", "Delivery attachment.pdf")
             reportRenderingWithPopovers("documents-overview.filter-chips-search")
-            filters.closeByOutsideClick()
 
             filters.addSelectFilter(label = "Usage", value = "Expense")
             pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
             filters.addSelectFilter(label = "Storage", value = "Internal System")
             pageItems.shouldHaveTitles("Delivery attachment.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
-                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
-                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+                OverviewFilterChipData(label = "Search", summary = "robot", active = true),
+                OverviewFilterChipData(label = "Usage", summary = "Expense", active = true),
+                OverviewFilterChipData(label = "Storage", summary = "Internal System", active = true),
             )
             reportRenderingWithPopovers("documents-overview.filter-chips-combined")
 
             filters.addSelectFilter(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Robot oil payment.pdf", "Delivery attachment.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
-                DocumentFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
-                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+                OverviewFilterChipData(label = "Search", summary = "robot", active = true),
+                OverviewFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
+                OverviewFilterChipData(label = "Storage", summary = "Internal System", active = true),
             )
             filters.removeValue(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Delivery attachment.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "robot", active = true),
-                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
-                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+                OverviewFilterChipData(label = "Search", summary = "robot", active = true),
+                OverviewFilterChipData(label = "Usage", summary = "Expense", active = true),
+                OverviewFilterChipData(label = "Storage", summary = "Internal System", active = true),
             )
 
             filters.clear("Search")
             pageItems.shouldHaveTitles("Delivery attachment.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Expense", active = true),
-                DocumentFilterChipData(label = "Storage", summary = "Internal System", active = true),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Expense", active = true),
+                OverviewFilterChipData(label = "Storage", summary = "Internal System", active = true),
             )
             filters.clear("Storage")
             pageItems.shouldHaveTitles("Robot oil archived.pdf", "Delivery attachment.pdf")
@@ -909,9 +907,9 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                 "Slurm delivery manifest.pdf",
             )
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Storage", summary = "Any", active = false),
             )
         }
     }
@@ -977,7 +975,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
             filters.shouldHaveSelectOptions(
-                "Usage",
+                label = "Usage",
                 "Expense",
                 "Income",
                 "Invoice",
@@ -993,18 +991,18 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             filters.addSelectFilter(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Income usage.pdf", "Expense usage.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
-                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Expense, Income", active = true),
+                OverviewFilterChipData(label = "Storage", summary = "Any", active = false),
             )
             reportRenderingWithPopovers("documents-overview.filter-chips-multiple-values")
             filters.removeValue(label = "Usage", value = "Income")
             pageItems.shouldHaveTitles("Expense usage.pdf")
             filters.addSelectFilter(label = "Usage", value = "Expense")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Storage", summary = "Any", active = false),
             )
             pageItems.shouldHaveTitles(
                 "Income usage.pdf",
@@ -1061,24 +1059,24 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openDocumentsOverviewPage {
-            filters.shouldHaveSelectOptions("Storage", "Google Drive", "Internal System", "Unknown")
+            filters.shouldHaveSelectOptions(label = "Storage", "Google Drive", "Internal System", "Unknown")
 
             filters.addSelectFilter(label = "Storage", value = "Google Drive")
             pageItems.shouldHaveTitles("Google Drive storage.pdf")
-            filters.toggleOptionWithKeyboard(label = "Storage", value = "Internal System")
+            filters.addSelectFilter(label = "Storage", value = "Internal System")
             pageItems.shouldHaveTitles("Internal System storage.pdf", "Google Drive storage.pdf")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Storage", summary = "Google Drive, Internal System", active = true),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Storage", summary = "Google Drive, Internal System", active = true),
             )
             filters.removeValue(label = "Storage", value = "Google Drive")
             pageItems.shouldHaveTitles("Internal System storage.pdf")
-            filters.clearWithKeyboard("Storage")
+            filters.clear("Storage")
             filters.shouldHaveChips(
-                DocumentFilterChipData(label = "Search", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Usage", summary = "Any", active = false),
-                DocumentFilterChipData(label = "Storage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Search", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Usage", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Storage", summary = "Any", active = false),
             )
             filters.addSelectFilter(label = "Storage", value = "Unknown")
             pageItems.shouldHaveTitles("Unknown storage.pdf")
