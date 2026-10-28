@@ -4,22 +4,23 @@ import com.microsoft.playwright.Page
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationDialog.Companion.confirmationDialog
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Tooltip
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Integrations")
     val providers = ProviderCards(components)
     val status = components.statusLabel()
-    val disable = components.buttonByText("Disable automatic imports")
-    val enable = components.buttonByText("Enable automatic imports")
-    val remove = components.buttonByText("Remove integration")
+    val authenticationTooltip = Tooltip.byTrigger(page.locator(".integration-card .sa-status-label_failure"))
+    val remove = components.buttonByContainer(page.locator(".integration-card"))
     val confirmation = components.confirmationDialog()
 
     fun reportRenderingWithPopovers(name: String) {
@@ -46,5 +47,9 @@ class IntegrationsPage private constructor(page: Page) : SaPageBase(page) {
 
         fun setupWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Setup →").setExact(true)).click()
         fun updateWise() = container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Update →").setExact(true)).click()
+        fun shouldHaveUpdateDisabled() {
+            container.getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName("Update →").setExact(true)).shouldHaveCount(0)
+            container.locator("span[aria-disabled=true]").shouldBeVisible()
+        }
     }
 }

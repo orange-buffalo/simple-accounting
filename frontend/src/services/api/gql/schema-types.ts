@@ -963,8 +963,6 @@ export type Mutation = {
   saveSharedWorkspace: Workspace;
   /** Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential. */
   saveWiseIntegrationSettings: WiseSettingsSaveResult;
-  /** Enables or disables automatic Wise imports without contacting Wise or changing credentials, accounts, authentication status or fetch checkpoints. Enabling starts a background fetch unless authentication is required. */
-  setWiseAutomaticFetching: WiseIntegrationChangeResult;
   /** Starts migration of documents that are not stored in the current upload storage. */
   startDocumentsMigration: DocumentsMigration;
   /** Starts the OAuth2 flow that links an identity at the provided provider to the current user profile. The browser must be redirected to the returned URL; the provider will then redirect the user back to the application, where the flow is finished by completeOAuthAuthentication. A cookie binding the flow to this browser is issued, and is required to finish the flow. */
@@ -1334,12 +1332,6 @@ export type MutationSaveWiseIntegrationSettingsArgs = {
   accounts: Array<WiseAccountInput>;
   fetchTransactionsPeriodically?: InputMaybe<Scalars['Boolean']['input']>;
   token?: InputMaybe<Scalars['String']['input']>;
-  workspaceId: Scalars['String']['input'];
-};
-
-
-export type MutationSetWiseAutomaticFetchingArgs = {
-  enabled: Scalars['Boolean']['input'];
   workspaceId: Scalars['String']['input'];
 };
 

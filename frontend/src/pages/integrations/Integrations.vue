@@ -6,21 +6,24 @@
     <div v-else-if="integrations" class="integration-cards">
       <article v-for="provider in providers" :key="provider.id" class="integration-card">
         <component :is="provider.logo" class="integration-card__logo" :aria-label="provider.name" role="img" />
-        <SaStatusLabel v-if="provider.active && !provider.fetchTransactionsPeriodically" status="regular" role="status">{{ $t.integrations.disabled() }}</SaStatusLabel>
-        <SaStatusLabel v-else-if="provider.authenticationRequired" status="failure" role="alert">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
+        <ElTooltip
+          v-if="provider.active && provider.authenticationRequired"
+          :content="$t.integrations.wise.authenticationRequiredHint()"
+          :trigger="['hover', 'focus']"
+          :popper-style="{ maxWidth: '360px' }"
+        >
+          <SaStatusLabel status="failure" role="status" tabindex="0">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
+        </ElTooltip>
+        <SaStatusLabel v-else-if="provider.active && !provider.fetchTransactionsPeriodically" status="regular" role="status">{{ $t.integrations.inactive() }}</SaStatusLabel>
         <SaStatusLabel v-else-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
         <p>{{ provider.description }}</p>
-        <RouterLink :to="{ name: provider.setup }">
+        <span v-if="busy" aria-disabled="true">{{ provider.active ? $t.integrations.update() : $t.integrations.setup() }} →</span>
+        <RouterLink v-else :to="{ name: provider.setup }">
           {{ provider.active ? $t.integrations.update() : $t.integrations.setup() }} →
         </RouterLink>
-        <template v-if="provider.active">
-          <ElButton :disabled="busy" @click="setAutomaticFetching(!provider.fetchTransactionsPeriodically)">
-            {{ provider.fetchTransactionsPeriodically ? $t.integrations.disable() : $t.integrations.enable() }}
-          </ElButton>
-          <ElButton type="danger" plain :disabled="busy" @click="removeIntegration">
-            {{ $t.integrations.wise.remove() }}
-          </ElButton>
-        </template>
+        <ElButton v-if="provider.active" type="danger" plain :disabled="busy" @click="removeIntegration">
+          {{ $t.integrations.wise.remove() }}
+        </ElButton>
         <SaStatusLabel v-if="busy" status="regular" custom-icon="loading" role="status" aria-live="polite">{{ $t.integrations.updating() }}</SaStatusLabel>
       </article>
     </div>
@@ -29,7 +32,7 @@
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
-  import { ElButton } from 'element-plus';
+  import { ElButton, ElTooltip } from 'element-plus';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
   import SaPage from '@/components/SaPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
@@ -49,26 +52,11 @@
   `), 'workspace', { variables: { workspaceId } });
   const integrations = computed(() => workspace.value?.integrations ?? null);
   const busy = ref(false);
-  const changeFetching = useMutation(graphql(/* GraphQL */ `
-    mutation setWiseAutomaticFetching($workspaceId: String!, $enabled: Boolean!) {
-      setWiseAutomaticFetching(workspaceId: $workspaceId, enabled: $enabled) { success }
-    }
-  `), 'setWiseAutomaticFetching');
   const removeWise = useMutation(graphql(/* GraphQL */ `
     mutation removeWiseIntegration($workspaceId: String!) {
       removeWiseIntegration(workspaceId: $workspaceId) { success }
     }
   `), 'removeWiseIntegration');
-  const setAutomaticFetching = async (enabled: boolean) => {
-    if (busy.value || !workspace.value) return;
-    busy.value = true;
-    try {
-      await changeFetching({ workspaceId, enabled });
-      workspace.value.integrations.wise.fetchTransactionsPeriodically = enabled;
-    } finally {
-      busy.value = false;
-    }
-  };
   const confirmRemoval = useConfirmation($t.value.integrations.wise.removeMessage(), {
     title: $t.value.integrations.wise.remove(),
     confirmButtonText: $t.value.integrations.wise.remove(),
@@ -127,7 +115,6 @@
 
     p { color: $secondary-text-color; line-height: 1.5; }
     a { color: $secondary-color; font-weight: 600; }
-    .el-button + .el-button { margin-left: 0; }
     &__logo { width: 144px; height: 36px; color: $secondary-color; }
   }
 </style>

@@ -4,8 +4,6 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
-import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationAccount
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.IntegrationsPage.Companion.openIntegrationsPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.integrations.WiseSetupPage.Companion.shouldBeWiseSetupPage
@@ -14,51 +12,22 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class IntegrationsFullStackTest : SaFullStackTestBase() {
     @Test
-    fun `should disable automatic imports without verifying the saved token`(page: Page) {
-        val data = preconditions { object {
-            val fry = fry()
-            val settings = wiseIntegrationSettings(
-                workspace = workspace(owner = fry), authenticationRequired = true, lastSuccessfulFetchTime = MOCK_TIME,
-                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
-            )
-            val statement = accountStatementRecord(integration = settings)
+    fun `should show inactive status when automatic imports are disabled`(page: Page) {
+        val fry = preconditions { fry().also {
+            wiseIntegrationSettings(workspace = workspace(owner = it), fetchTransactionsPeriodically = false)
         } }
-        page.authenticateViaCookie(data.fry)
+        page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
-            page.withBlockedGqlApiResponse(queryOrMutationName = "setWiseAutomaticFetching", initiator = { disable.click() }, blockedRequestSpec = {
-                disable.shouldBeDisabled()
-                remove.shouldBeDisabled()
-                reportRendering("integrations.disabling")
-            })
-            enable.shouldBeEnabled()
-            status.shouldBeRegular("Automatic imports disabled")
-            reportRendering("integrations.disabled")
+            status.shouldBeRegular("inactive — no automatic sync")
+            reportRendering("integrations.inactive")
         }
-        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            .shouldBeEntityWithFields(data.settings.copy(fetchTransactionsPeriodically = false))
-        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
-        WiseApiMocks.shouldHaveNoRequests()
-    }
-
-    @Test
-    fun `should enable imports without clearing authentication required`(page: Page) {
-        val data = preconditions { object {
-            val fry = fry()
-            val settings = wiseIntegrationSettings(workspace = workspace(owner = fry), fetchTransactionsPeriodically = false, authenticationRequired = true)
-        } }
-        page.authenticateViaCookie(data.fry)
-        page.openIntegrationsPage {
-            status.shouldBeRegular("Automatic imports disabled")
-            enable.click()
-            disable.shouldBeEnabled()
-            status.shouldBeError("Authentication required. Verify your Wise access and save the integration again to resume transaction fetching.")
-        }
-        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-            .shouldBeEntityWithFields(data.settings.copy(fetchTransactionsPeriodically = true))
         WiseApiMocks.shouldHaveNoRequests()
     }
 
@@ -75,7 +44,7 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
             confirmation.shouldBeVisible()
             reportRenderingWithPopovers("integrations.remove-confirmation")
             confirmation.clickButton("Keep integration")
-            disable.shouldBeEnabled()
+            remove.shouldBeEnabled()
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(data.settings)
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
@@ -91,7 +60,16 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
             remove.click()
-            confirmation.shouldBeVisible().clickButton("Remove integration")
+            confirmation.shouldBeVisible()
+            page.withBlockedGqlApiResponse(
+                queryOrMutationName = "removeWiseIntegration",
+                initiator = { confirmation.clickButton("Remove integration") },
+                blockedRequestSpec = {
+                    remove.shouldBeDisabled()
+                    providers.shouldHaveUpdateDisabled()
+                    reportRendering("integrations.removing")
+                },
+            )
             providers.setupWise()
         }
         page.shouldBeWiseSetupPage { tokenStep.shouldBeOpen() }
@@ -101,17 +79,45 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show authentication failures instead of active status and allow updating Wise`(page: Page) {
+    fun `should retain integration data and permit retry after removal fails`(page: Page) {
+        val data = preconditions { object {
+            val fry = fry()
+            val settings = wiseIntegrationSettings(workspace = workspace(owner = fry))
+            val statement = accountStatementRecord(integration = settings)
+        } }
+        page.authenticateViaCookie(data.fry)
+        page.openIntegrationsPage {
+            page.withFailedGqlApiResponse(operationName = "removeWiseIntegration") {
+                remove.click()
+                confirmation.shouldBeVisible().clickButton("Remove integration")
+                shouldHaveNotifications { error() }
+                remove.shouldBeEnabled()
+                status.shouldBeSuccess("active")
+            }
+            remove.click()
+            confirmation.shouldBeVisible().clickButton("Keep integration")
+            remove.shouldBeEnabled()
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(data.settings)
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
+        WiseApiMocks.shouldHaveNoRequests()
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `should prioritize authentication failures and allow updating Wise`(automaticImportsEnabled: Boolean, page: Page) {
         val fry = preconditions {
             fry().also { user ->
-                wiseIntegrationSettings(workspace = workspace(owner = user), token = WiseApiMocks.TOKEN, authenticationRequired = true)
+                wiseIntegrationSettings(workspace = workspace(owner = user), token = WiseApiMocks.TOKEN,
+                    authenticationRequired = true, fetchTransactionsPeriodically = automaticImportsEnabled)
             }
         }
         WiseApiMocks.setupAccounts()
         page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
-            status.shouldBeError("Authentication required. Verify your Wise access and save the integration again to resume transaction fetching.")
-            reportRendering("integrations.authentication-required")
+            status.shouldBeError("Requires auth")
+            authenticationTooltip.shouldHaveTextOnFocus("The latest automatic import encountered authorization issues. Verify your Wise access and save the integration again to resume automatic imports.")
+            reportRenderingWithPopovers("integrations.authentication-required-$automaticImportsEnabled")
             providers.updateWise()
         }
         page.shouldBeWiseSetupPage {

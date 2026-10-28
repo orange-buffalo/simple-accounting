@@ -10,10 +10,13 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMo
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.WiseApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
+import org.springframework.transaction.support.TransactionTemplate
 import java.util.concurrent.Executors
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
@@ -25,7 +28,26 @@ import java.util.concurrent.TimeoutException
 class WiseIntegrationRemovalTest(
     @Autowired private val service: WiseIntegrationService,
     @Autowired private val fetcher: WiseStatementFetchService,
+    @Autowired private val transactions: TransactionTemplate,
 ) : SaIntegrationTestBase() {
+    @Test
+    fun `should restore integration settings and statements when removal is rolled back`() {
+        val data = preconditions { object {
+            val fry = fry()
+            val settings = wiseIntegrationSettings(workspace = workspace(owner = fry))
+            val statement = accountStatementRecord(integration = settings)
+        } }
+        shouldThrow<IllegalStateException> {
+            transactions.executeWithoutResult {
+                runAs(data.fry.toSecurityPrincipal()) { service.remove(data.settings.workspaceId) }
+                throw IllegalStateException("Planet Express delivery cancelled")
+            }
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(data.settings)
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
+        WiseApiMocks.shouldHaveNoRequests()
+    }
+
     @Test
     fun `should remove statements produced by an in-flight fetch and ignore queued fetches after removal`() {
         val data = preconditions { object {

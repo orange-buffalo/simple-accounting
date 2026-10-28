@@ -21,21 +21,6 @@ import java.time.Instant
 
 class IntegrationsGqlApi {
     @Component
-    class SetWiseAutomaticFetchingMutation(private val wise: WiseIntegrationService) : Mutation {
-        @GraphQLDescription("Enables or disables automatic Wise imports without contacting Wise or changing credentials, accounts, authentication status or fetch checkpoints. Enabling starts a background fetch unless authentication is required.")
-        @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
-        fun setWiseAutomaticFetching(
-            @GraphQLDescription("The workspace whose integration should be updated. Only its owner can change it.")
-            workspaceId: String,
-            @GraphQLDescription("Whether automatic imports should run. Disabling preserves all settings and imported statements.")
-            enabled: Boolean,
-        ): WiseIntegrationChangeResult {
-            wise.setAutomaticFetching(workspaceId = workspaceId, enabled = enabled)
-            return WiseIntegrationChangeResult(success = true)
-        }
-    }
-
-    @Component
     class RemoveWiseIntegrationMutation(private val wise: WiseIntegrationService) : Mutation {
         @GraphQLDescription("Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)

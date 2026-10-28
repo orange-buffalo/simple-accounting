@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
-import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -80,16 +79,13 @@ class WiseIntegrationService internal constructor(
             fetchTransactionsPeriodically = fetchTransactionsPeriodically, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically))
-        dispatchFetchAfterCommit(saved)
-    }
-
-    @Transactional
-    fun setAutomaticFetching(workspaceId: String, enabled: Boolean) {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
-        val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
-            ?: throw EntityNotFoundException("Wise integration for workspace $workspaceId is not found")
-        val saved = settings.save(existing.copy(fetchTransactionsPeriodically = enabled))
-        dispatchFetchAfterCommit(saved)
+        if (saved.fetchTransactionsPeriodically) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    statementFetchService.fetchAsync(saved.id!!)
+                }
+            })
+        }
     }
 
     @Transactional
@@ -98,16 +94,6 @@ class WiseIntegrationService internal constructor(
         val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) } ?: return
         records.deleteByIntegrationIdAndProvider(integrationId = existing.id!!, provider = IntegrationProvider.WISE.name)
         settings.delete(existing)
-    }
-
-    private fun dispatchFetchAfterCommit(saved: WiseIntegrationSettings) {
-        if (saved.fetchTransactionsPeriodically && !saved.authenticationRequired) {
-            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-                override fun afterCommit() {
-                    statementFetchService.fetchAsync(saved.id!!)
-                }
-            })
-        }
     }
 
     private fun resolveToken(token: String?, existing: WiseIntegrationSettings?): String =
