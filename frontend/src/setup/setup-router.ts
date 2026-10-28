@@ -18,6 +18,7 @@ import Reporting from '@/pages/reporting/Reporting.vue';
 import Integrations from '@/pages/integrations/Integrations.vue';
 import WiseSetup from '@/pages/integrations/WiseSetup.vue';
 import DocumentsOverview from '@/pages/documents/DocumentsOverview.vue';
+import AccountStatementsOverview from '@/pages/account-statements/AccountStatementsOverview.vue';
 import DocumentsMigration from '@/pages/documents/DocumentsMigration.vue';
 import EditStandaloneDocument from '@/pages/documents/EditStandaloneDocument.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
@@ -316,6 +317,11 @@ export default function setupRouter() {
             path: 'documents',
             name: 'documents-overview',
             component: DocumentsOverview,
+          },
+          {
+            path: 'account-statements',
+            name: 'account-statements-overview',
+            component: AccountStatementsOverview,
           },
           {
             path: 'documents/migration',

@@ -2,6 +2,31 @@
 import { format } from './formatter';
 
 export default {
+  accountStatements: {
+    header: () => 'Account statements',
+    search: () => 'Search all transaction text',
+    dateRange: () => 'Transaction dates (UTC)',
+    provider: () => 'Source integration',
+    party: () => 'Party',
+    amount: () => 'Amount',
+    type: () => 'Transaction type',
+    date: () => 'Transaction date',
+    details: () => 'Transaction details',
+    accountId: () => 'Account ID',
+    accountCurrency: () => 'Account currency',
+    externalId: () => 'External transaction ID',
+    fees: () => 'Fees',
+    runningBalance: () => 'Running balance',
+    originalAmount: () => 'Original amount',
+    sourceAmount: () => 'Conversion source amount',
+    targetAmount: () => 'Conversion target amount',
+    exchangeRate: () => 'Exchange rate',
+    importedAt: () => 'Imported at',
+    integrationId: () => 'Integration ID',
+    recordId: () => 'Record ID',
+    additionalData: () => 'Additional information',
+    types: { DEBIT: () => 'Debit', CREDIT: () => 'Credit', CONVERSION: () => 'Conversion', OTHER: () => 'Other' },
+  },
   integrations: {
     header: () => 'Integrations',
     loading: () => 'Loading integrations…',

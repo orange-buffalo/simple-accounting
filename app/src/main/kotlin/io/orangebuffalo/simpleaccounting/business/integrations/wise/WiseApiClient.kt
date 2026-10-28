@@ -76,6 +76,7 @@ internal class WiseApiClient(
                     feesInCents = transaction.totalFees?.minorUnits(), feesCurrency = transaction.totalFees?.currency,
                     runningBalanceInCents = transaction.runningBalance?.minorUnits(), runningBalanceCurrency = transaction.runningBalance?.currency,
                     additionalData = details?.additionalData(),
+                    partyName = details?.partyName(),
                     originalAmountInCents = original?.minorUnits(), originalCurrency = original?.currency,
                     sourceAmountInCents = details?.sourceAmount?.minorUnits(), sourceCurrency = details?.sourceAmount?.currency,
                     targetAmountInCents = details?.targetAmount?.minorUnits(), targetCurrency = details?.targetAmount?.currency,
@@ -200,6 +201,9 @@ private data class WiseStatementDetails(
     val targetAmount: WiseStatementAmount? = null,
     val rate: JsonPrimitive? = null,
 ) {
+    fun partyName(): String? = senderName?.takeIf(String::isNotBlank)
+        ?: merchant?.name?.takeIf(String::isNotBlank)
+
     fun additionalData(): String? = listOfNotNull(
         type?.let { "Type: $it" }, description?.let { "Description: $it" },
         paymentReference?.let { "Payment reference: $it" }, senderName?.let { "Sender: $it" },

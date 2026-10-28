@@ -60,6 +60,7 @@ class WiseStatementFetchServiceTest(
             type = StatementType.DEBIT, occurredAt = Instant.parse("1999-03-27T12:00:00Z"), amountInCents = 776, currency = "USD",
             feesInCents = 4, feesCurrency = "USD", runningBalanceInCents = -1601, runningBalanceCurrency = "USD",
             additionalData = "Type: CARD\nDescription: Slurm supplies\nPayment reference: Planet Express\nMerchant: Slurm factory\nMerchant category: Slurm\nMerchant address: Robot street, New New York, US",
+            partyName = "Slurm factory",
             originalAmountInCents = 680, originalCurrency = "GBP", exchangeRate = BigDecimal("1.147806"),
         ))
         val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
@@ -133,6 +134,7 @@ class WiseStatementFetchServiceTest(
             workspaceId = integration.workspaceId, provider = IntegrationProvider.WISE, integrationId = integration.id!!,
             accountId = "301", accountCurrency = "USD", externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
             type = StatementType.CONVERSION, occurredAt = Instant.parse("1999-03-27T12:00:00Z"), amountInCents = 4200, currency = "USD",
+            partyName = "Philip J. Fry",
             additionalData = "Type: CONVERSION\nSender: Philip J. Fry\nSender account: Planet Express account",
             sourceAmountInCents = 1234, sourceCurrency = "JPY", targetAmountInCents = 12345, targetCurrency = "KWD",
             exchangeRate = BigDecimal("0.010004"),

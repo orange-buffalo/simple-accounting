@@ -1,0 +1,74 @@
+<template>
+  <SaOverviewPage v-model="overviewFilters" :header="$t.accountStatements.header()" :filters="filters">
+    <SaPageableItems
+      :page-query="statementsQuery"
+      path="workspace.accountStatements"
+      :page-query-arguments="queryArguments"
+      #default="{ item }"
+    >
+      <AccountStatementPanel :statement="item" />
+    </SaPageableItems>
+  </SaOverviewPage>
+</template>
+
+<script lang="ts" setup>
+  import { computed, ref } from 'vue';
+  import SaOverviewPage from '@/components/SaOverviewPage.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+  import AccountStatementPanel from './AccountStatementPanel.vue';
+  import {
+    createOverviewFilters, type SaOverviewFilterConfigs,
+  } from '@/components/overview-page/overview-page-filters';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { graphql } from '@/services/api/gql';
+  import type { IntegrationProvider } from '@/services/api/gql/graphql';
+  import { $t } from '@/services/i18n';
+
+  type StatementFilters = {
+    freeSearchText: string | null,
+    providerIn: IntegrationProvider[] | null,
+    dateRange: [string, string] | null,
+  };
+  const { currentWorkspaceId } = useCurrentWorkspace();
+  const overviewFilters = ref(createOverviewFilters<StatementFilters>({
+    freeSearchText: null, providerIn: null, dateRange: null,
+  }));
+  const filters = computed(() => ({
+    freeSearchText: { type: 'text', label: $t.value.accountStatements.search() },
+    providerIn: {
+      type: 'multi-select', label: $t.value.accountStatements.provider(),
+      options: [{ value: 'WISE', label: $t.value.integrations.wise.name() }],
+    },
+    dateRange: { type: 'date-range', label: $t.value.accountStatements.dateRange() },
+  } satisfies SaOverviewFilterConfigs<StatementFilters>));
+  const queryArguments = computed(() => ({
+    workspaceId: currentWorkspaceId,
+    freeSearchText: overviewFilters.value.freeSearchText,
+    providerIn: overviewFilters.value.providerIn,
+    fromDate: overviewFilters.value.dateRange?.[0] ?? null,
+    toDate: overviewFilters.value.dateRange?.[1] ?? null,
+  }));
+  const statementsQuery = graphql(`
+    query accountStatementsPage(
+      $workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String,
+      $providerIn: [IntegrationProvider!], $fromDate: LocalDate, $toDate: LocalDate
+    ) {
+      workspace(id: $workspaceId) {
+        accountStatements(first: $first, after: $after, freeSearchText: $freeSearchText,
+          providerIn: $providerIn, fromDate: $fromDate, toDate: $toDate) {
+          edges {
+            cursor
+            node {
+              id provider integrationId accountId accountCurrency externalId type occurredAt
+              amountInCents currency partyName feesInCents feesCurrency runningBalanceInCents
+              runningBalanceCurrency additionalData originalAmountInCents originalCurrency
+              sourceAmountInCents sourceCurrency targetAmountInCents targetCurrency exchangeRate createdAt
+            }
+          }
+          pageInfo { ...PaginationPageInfo }
+          totalCount
+        }
+      }
+    }
+  `);
+</script>

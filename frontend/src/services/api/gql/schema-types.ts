@@ -23,6 +23,79 @@ export type AccountLockedErrorExtensions = {
   lockExpiresInSec: Scalars['Int']['output'];
 };
 
+/** An imported account statement transaction. Provider identifiers are opaque. */
+export type AccountStatement = {
+  __typename?: 'AccountStatement';
+  /** Currency of the source account. */
+  accountCurrency: Scalars['String']['output'];
+  /** Opaque provider account ID. */
+  accountId: Scalars['String']['output'];
+  /** Additional labeled transaction information supplied by the provider. */
+  additionalData?: Maybe<Scalars['String']['output']>;
+  /** Absolute nonnegative transaction amount in currency minor units. */
+  amountInCents: Scalars['Long']['output'];
+  /** Time this record was imported. */
+  createdAt: Scalars['DateTime']['output'];
+  /** Transaction currency. */
+  currency: Scalars['String']['output'];
+  /** Exact decimal provider exchange rate, represented as a string. */
+  exchangeRate?: Maybe<Scalars['String']['output']>;
+  /** Opaque external transaction ID. */
+  externalId: Scalars['String']['output'];
+  /** Fee currency. */
+  feesCurrency?: Maybe<Scalars['String']['output']>;
+  /** Fees in minor units. */
+  feesInCents?: Maybe<Scalars['Long']['output']>;
+  /** Internal statement record ID. */
+  id: Scalars['String']['output'];
+  /** Source integration ID. */
+  integrationId: Scalars['String']['output'];
+  /** Time of the transaction. */
+  occurredAt: Scalars['DateTime']['output'];
+  /** Original amount in minor units. */
+  originalAmountInCents?: Maybe<Scalars['Long']['output']>;
+  /** Original currency. */
+  originalCurrency?: Maybe<Scalars['String']['output']>;
+  /** Other party's name, when supplied by the provider. */
+  partyName?: Maybe<Scalars['String']['output']>;
+  /** Source integration provider. */
+  provider: IntegrationProvider;
+  /** Running balance currency. */
+  runningBalanceCurrency?: Maybe<Scalars['String']['output']>;
+  /** Signed running balance in minor units. */
+  runningBalanceInCents?: Maybe<Scalars['Long']['output']>;
+  /** Conversion source amount in minor units. */
+  sourceAmountInCents?: Maybe<Scalars['Long']['output']>;
+  /** Conversion source currency. */
+  sourceCurrency?: Maybe<Scalars['String']['output']>;
+  /** Conversion target amount in minor units. */
+  targetAmountInCents?: Maybe<Scalars['Long']['output']>;
+  /** Conversion target currency. */
+  targetCurrency?: Maybe<Scalars['String']['output']>;
+  /** Transaction classification. */
+  type: StatementType;
+};
+
+/** An edge in a account statements connection. */
+export type AccountStatementEdge = {
+  __typename?: 'AccountStatementEdge';
+  /** The cursor of this edge, which can be used for pagination. */
+  cursor: Scalars['String']['output'];
+  /** The account statement at the end of this edge. */
+  node: AccountStatement;
+};
+
+/** A paginated connection of account statements following the GraphQL Cursor Connections Specification. */
+export type AccountStatementsConnection = {
+  __typename?: 'AccountStatementsConnection';
+  /** The list of edges in the current page. */
+  edges: Array<AccountStatementEdge>;
+  /** Pagination information about the current page. */
+  pageInfo: PageInfo;
+  /** The total number of items in the connection across all pages. */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Possible business error codes for the activateUser operation. */
 export enum ActivateUserErrorCodes {
   /** The provided activation token has expired. */
@@ -796,6 +869,10 @@ export type IncomesSummaryItem = {
   /** Total amount for this category. */
   totalAmount: Scalars['Long']['output'];
 };
+
+export enum IntegrationProvider {
+  Wise = 'WISE'
+}
 
 /** Workspace-scoped integration providers. */
 export type IntegrationsGqlDto = {
@@ -1714,6 +1791,13 @@ export type StartOAuthLoginResponse = {
   authorizationUrl: Scalars['String']['output'];
 };
 
+export enum StatementType {
+  Conversion = 'CONVERSION',
+  Credit = 'CREDIT',
+  Debit = 'DEBIT',
+  Other = 'OTHER'
+}
+
 export type Subscription = {
   __typename?: 'Subscription';
   /** Subscribes to push notifications for the current user. Returns a stream of push notification messages targeted at the authenticated user or broadcast to all users. Uses the `graphql-transport-ws` WebSocket subprotocol. Clients must provide a JWT token in the `connection_init` payload: `{ "type": "connection_init", "payload": { "token": "<JWT>" } }`. Once `connection_ack` is received, subscribe with a standard `subscribe` message. */
@@ -1867,6 +1951,8 @@ export type WiseSettingsSaveResult = {
 /** Workspace of a user. */
 export type Workspace = {
   __typename?: 'Workspace';
+  /** Imported account statement transactions, newest first with stable cursor pagination. */
+  accountStatements: AccountStatementsConnection;
   /** Analytics data for this workspace. */
   analytics: WorkspaceAnalytics;
   /** Categories in this workspace with cursor-based pagination. */
@@ -1917,6 +2003,17 @@ export type Workspace = {
   version: Scalars['Int']['output'];
   /** Workspace access tokens in this workspace with cursor-based pagination. */
   workspaceAccessTokens: WorkspaceAccessTokensConnection;
+};
+
+
+/** Workspace of a user. */
+export type WorkspaceAccountStatementsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first: Scalars['Int']['input'];
+  freeSearchText?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['LocalDate']['input']>;
+  providerIn?: InputMaybe<Array<IntegrationProvider>>;
+  toDate?: InputMaybe<Scalars['LocalDate']['input']>;
 };
 
 

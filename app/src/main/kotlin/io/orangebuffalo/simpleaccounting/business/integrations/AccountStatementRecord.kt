@@ -21,6 +21,7 @@ data class AccountStatementRecord(
     /** Absolute transaction amount in the currency's minor units; never negative. */
     val amountInCents: Long,
     val currency: String,
+    val partyName: String? = null,
     val feesInCents: Long? = null,
     val feesCurrency: String? = null,
     val runningBalanceInCents: Long? = null,

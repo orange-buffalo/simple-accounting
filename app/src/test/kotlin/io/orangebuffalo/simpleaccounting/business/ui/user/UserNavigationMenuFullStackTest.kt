@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.shouldBeAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.shared.login.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.business.ui.shared.pages.MyProfilePage.Companion.shouldBeMyProfilePage
@@ -46,6 +47,7 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
                 MenuItem("Income Tax Payments", false),
                 MenuItem("Reporting", false),
                 MenuItem("Documents", false),
+                MenuItem(label = "Account statements", isSectionHeader = false),
                 MenuItem("SETTINGS", true),
                 MenuItem("Customers", false),
                 MenuItem("Categories", false),
@@ -76,6 +78,9 @@ class UserNavigationMenuFullStackTest : SaFullStackTestBase() {
 
         page.shouldHaveSideMenu().clickDocuments()
         page.shouldBeDocumentsOverviewPage()
+
+        page.shouldHaveSideMenu().clickAccountStatements()
+        page.shouldBeAccountStatementsOverviewPage()
 
         page.shouldHaveSideMenu().clickCustomers()
         page.shouldBeCustomersOverviewPage()

@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.util.regex.Pattern
 
 @UiComponentMarker
 class SaOverviewFilters private constructor(
@@ -22,8 +21,7 @@ class SaOverviewFilters private constructor(
 
     private fun chipButton(label: String): Locator {
         container.shouldSatisfy { snapshot().filter { it.label == label }.shouldHaveSize(1) }
-        val button = container.locator(".sa-overview-filters__chip > button:first-child > span")
-            .filter(Locator.FilterOptions().setHasText(Pattern.compile("^$label:$")))
+        val button = container.getByText("$label:", Locator.GetByTextOptions().setExact(true))
             .locator("..")
         button.shouldHaveCount(1)
         return button
@@ -94,6 +92,24 @@ class SaOverviewFilters private constructor(
     fun addSelectFilter(label: String, value: String): SaOverviewFilters {
         open(label)
         Checkbox.checkboxByOwnLabel(container = editor, label = value).click()
+        return this
+    }
+
+    fun setDateRange(label: String, from: String, to: String): SaOverviewFilters {
+        open(label)
+        val inputs = editor.locator(".el-range-input")
+        inputs.shouldHaveCount(2)
+        inputs.nth(0).fill(from)
+        inputs.nth(1).fill(to)
+        inputs.nth(1).press("Enter")
+        return this
+    }
+
+    fun openDateRangeCalendar(label: String): SaOverviewFilters {
+        open(label)
+        val inputs = editor.locator(".el-range-input")
+        inputs.shouldHaveCount(2)
+        inputs.nth(0).click()
         return this
     }
 

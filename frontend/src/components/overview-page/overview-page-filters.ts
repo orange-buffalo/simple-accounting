@@ -25,8 +25,16 @@ export type SaOverviewTextFilterConfig<TValue> = TValue extends string | null | 
   }
   : never;
 
+export type SaOverviewDateRangeFilterConfig<TValue> = TValue extends [string, string] | null
+  ? {
+    type: 'date-range',
+    label: string,
+  }
+  : never;
+
 export type SaOverviewFilterConfig<TValue> = SaOverviewMultiSelectFilterConfig<TValue>
-  | SaOverviewTextFilterConfig<TValue>;
+  | SaOverviewTextFilterConfig<TValue>
+  | SaOverviewDateRangeFilterConfig<TValue>;
 
 export type SaOverviewFilterConfigs<TFilters extends SaOverviewFilters> = {
   [TKey in keyof TFilters]-?: SaOverviewFilterConfig<TFilters[TKey]>

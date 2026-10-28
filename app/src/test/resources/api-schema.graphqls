@@ -82,6 +82,76 @@ type AccountLockedErrorExtensions {
   lockExpiresInSec: Int!
 }
 
+"An imported account statement transaction. Provider identifiers are opaque."
+type AccountStatement {
+  "Currency of the source account."
+  accountCurrency: String!
+  "Opaque provider account ID."
+  accountId: String!
+  "Additional labeled transaction information supplied by the provider."
+  additionalData: String
+  "Absolute nonnegative transaction amount in currency minor units."
+  amountInCents: Long!
+  "Time this record was imported."
+  createdAt: DateTime!
+  "Transaction currency."
+  currency: String!
+  "Exact decimal provider exchange rate, represented as a string."
+  exchangeRate: String
+  "Opaque external transaction ID."
+  externalId: String!
+  "Fee currency."
+  feesCurrency: String
+  "Fees in minor units."
+  feesInCents: Long
+  "Internal statement record ID."
+  id: String!
+  "Source integration ID."
+  integrationId: String!
+  "Time of the transaction."
+  occurredAt: DateTime!
+  "Original amount in minor units."
+  originalAmountInCents: Long
+  "Original currency."
+  originalCurrency: String
+  "Other party's name, when supplied by the provider."
+  partyName: String
+  "Source integration provider."
+  provider: IntegrationProvider!
+  "Running balance currency."
+  runningBalanceCurrency: String
+  "Signed running balance in minor units."
+  runningBalanceInCents: Long
+  "Conversion source amount in minor units."
+  sourceAmountInCents: Long
+  "Conversion source currency."
+  sourceCurrency: String
+  "Conversion target amount in minor units."
+  targetAmountInCents: Long
+  "Conversion target currency."
+  targetCurrency: String
+  "Transaction classification."
+  type: StatementType!
+}
+
+"An edge in a account statements connection."
+type AccountStatementEdge {
+  "The cursor of this edge, which can be used for pagination."
+  cursor: String!
+  "The account statement at the end of this edge."
+  node: AccountStatement!
+}
+
+"A paginated connection of account statements following the GraphQL Cursor Connections Specification."
+type AccountStatementsConnection {
+  "The list of edges in the current page."
+  edges: [AccountStatementEdge!]!
+  "Pagination information about the current page."
+  pageInfo: PageInfo!
+  "The total number of items in the connection across all pages."
+  totalCount: Int!
+}
+
 "Response for the activateUser mutation. Always succeeds if no error is returned by the standard GraphQL error response structure."
 type ActivateUserResponse {
   success: Boolean!
@@ -1608,6 +1678,21 @@ type WiseSettingsSaveResult {
 
 "Workspace of a user."
 type Workspace {
+  "Imported account statement transactions, newest first with stable cursor pagination."
+  accountStatements(
+    "Cursor after which to return items."
+    after: String,
+    "Maximum number of items to return."
+    first: Int!,
+    "Case-insensitive search across all transaction text fields. Null or blank means no search."
+    freeSearchText: String,
+    "Inclusive UTC transaction date lower bound. Null means unbounded."
+    fromDate: LocalDate,
+    "Include any of these source providers. Null or empty means all providers."
+    providerIn: [IntegrationProvider!],
+    "Inclusive UTC transaction date upper bound. Null means unbounded."
+    toDate: LocalDate
+  ): AccountStatementsConnection!
   "Analytics data for this workspace."
   analytics: WorkspaceAnalytics!
   "Categories in this workspace with cursor-based pagination."
@@ -2033,6 +2118,10 @@ enum IncomeTaxEstimateUnavailableReason {
   PARTIAL_YEAR
 }
 
+enum IntegrationProvider {
+  WISE
+}
+
 enum InvoiceStatus {
   CANCELLED
   DRAFT
@@ -2111,6 +2200,13 @@ enum StartOAuthLoginErrorCodes {
   LOGIN_NOT_AVAILABLE
   "The user account has not been activated yet."
   USER_NOT_ACTIVATED
+}
+
+enum StatementType {
+  CONVERSION
+  CREDIT
+  DEBIT
+  OTHER
 }
 
 "Error codes for validation failures, matching REST API constraint violation error keys."
