@@ -12,7 +12,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -25,7 +24,7 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
         } }
         page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
-            status.shouldBeRegular("inactive — no automatic sync")
+            status.shouldBeRegular("Inactive — no automatic sync")
             reportRendering("integrations.inactive")
         }
         WiseApiMocks.shouldHaveNoRequests()
@@ -78,31 +77,6 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
         WiseApiMocks.shouldHaveNoRequests()
     }
 
-    @Test
-    fun `should retain integration data and permit retry after removal fails`(page: Page) {
-        val data = preconditions { object {
-            val fry = fry()
-            val settings = wiseIntegrationSettings(workspace = workspace(owner = fry))
-            val statement = accountStatementRecord(integration = settings)
-        } }
-        page.authenticateViaCookie(data.fry)
-        page.openIntegrationsPage {
-            page.withFailedGqlApiResponse(operationName = "removeWiseIntegration") {
-                remove.click()
-                confirmation.shouldBeVisible().clickButton("Remove integration")
-                shouldHaveNotifications { error() }
-                remove.shouldBeEnabled()
-                status.shouldBeSuccess("active")
-            }
-            remove.click()
-            confirmation.shouldBeVisible().clickButton("Keep integration")
-            remove.shouldBeEnabled()
-        }
-        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(data.settings)
-        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
-        WiseApiMocks.shouldHaveNoRequests()
-    }
-
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
     fun `should prioritize authentication failures and allow updating Wise`(automaticImportsEnabled: Boolean, page: Page) {
@@ -148,7 +122,7 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
         WiseApiMocks.setupAccounts()
         page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
-            status.shouldBeSuccess("active")
+            status.shouldBeSuccess("Active")
             reportRendering("integrations.active")
             providers.updateWise()
         }

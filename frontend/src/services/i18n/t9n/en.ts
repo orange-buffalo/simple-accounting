@@ -5,8 +5,8 @@ export default {
   integrations: {
     header: () => 'Integrations',
     loading: () => 'Loading integrations…',
-    active: () => 'active',
-    inactive: () => 'inactive — no automatic sync',
+    active: () => 'Active',
+    inactive: () => 'Inactive — no automatic sync',
     updating: () => 'Updating integration…',
     setup: () => 'Setup',
     update: () => 'Update',
