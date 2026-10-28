@@ -44,7 +44,7 @@
   <SaSideMenuLink
     to="/account-statements"
     :title="$t.accountStatements.header()"
-    icon="reporting"
+    icon="account-statements"
   />
 
   <template v-if="isCurrentUserRegular()">

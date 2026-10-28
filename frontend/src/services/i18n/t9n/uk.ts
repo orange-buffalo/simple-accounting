@@ -5,7 +5,7 @@ export default {
   accountStatements: {
     header: () => 'Виписки з рахунків',
     search: () => 'Пошук у всіх текстових полях транзакції',
-    dateRange: () => 'Дати транзакцій (UTC)',
+    dateRange: () => 'Дати транзакцій',
     provider: () => 'Інтеграція-джерело',
     party: () => 'Контрагент',
     amount: () => 'Сума',
@@ -22,8 +22,6 @@ export default {
     targetAmount: () => 'Сума зарахування при конвертації',
     exchangeRate: () => 'Обмінний курс',
     importedAt: () => 'Час імпорту',
-    integrationId: () => 'ID інтеграції',
-    recordId: () => 'ID запису',
     additionalData: () => 'Додаткова інформація',
     types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
   },

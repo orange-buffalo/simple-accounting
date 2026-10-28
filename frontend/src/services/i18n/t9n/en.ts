@@ -5,7 +5,7 @@ export default {
   accountStatements: {
     header: () => 'Account statements',
     search: () => 'Search all transaction text',
-    dateRange: () => 'Transaction dates (UTC)',
+    dateRange: () => 'Transaction dates',
     provider: () => 'Source integration',
     party: () => 'Party',
     amount: () => 'Amount',
@@ -22,8 +22,6 @@ export default {
     targetAmount: () => 'Conversion target amount',
     exchangeRate: () => 'Exchange rate',
     importedAt: () => 'Imported at',
-    integrationId: () => 'Integration ID',
-    recordId: () => 'Record ID',
     additionalData: () => 'Additional information',
     types: { DEBIT: () => 'Debit', CREDIT: () => 'Credit', CONVERSION: () => 'Conversion', OTHER: () => 'Other' },
   },

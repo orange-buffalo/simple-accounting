@@ -158,18 +158,18 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
         }
 
         @Test
-        fun `should combine search provider and inclusive UTC dates and ignore cleared filters`() {
+        fun `should combine search provider and timestamp bounds and ignore cleared filters`() {
             preconditions {
-                accountStatementRecord(integration = data.integration, externalId = "Slurm-start", occurredAt = Instant.parse("1999-03-28T00:00:00Z"))
-                accountStatementRecord(integration = data.integration, externalId = "Slurm-end", occurredAt = Instant.parse("1999-03-28T23:59:59.999999Z"))
-                accountStatementRecord(integration = data.integration, externalId = "Slurm-before", occurredAt = Instant.parse("1999-03-27T23:59:59Z"))
-                accountStatementRecord(integration = data.integration, externalId = "Slurm-after", occurredAt = Instant.parse("1999-03-29T00:00:00Z"))
+                accountStatementRecord(integration = data.integration, externalId = "Slurm-start", occurredAt = Instant.parse("1999-03-27T13:00:00Z"))
+                accountStatementRecord(integration = data.integration, externalId = "Slurm-end", occurredAt = Instant.parse("1999-03-28T13:59:59.999999Z"))
+                accountStatementRecord(integration = data.integration, externalId = "Slurm-before", occurredAt = Instant.parse("1999-03-27T12:59:59.999999Z"))
+                accountStatementRecord(integration = data.integration, externalId = "Slurm-after", occurredAt = Instant.parse("1999-03-28T14:00:00Z"))
                 accountStatementRecord(integration = data.integration, externalId = "Robot-oil")
             }
-            query(arguments = """, freeSearchText: "slurm", providerIn: [WISE], fromDate: "1999-03-28", toDate: "1999-03-28"""")
+            query(arguments = """, freeSearchText: "slurm", providerIn: [WISE], occurredAtFrom: "1999-03-27T13:00:00Z", occurredAtBefore: "1999-03-28T14:00:00Z"""")
                 .from(data.fry).executeAndVerifyResponse(expected("Slurm-end", "Slurm-start"))
-            query(arguments = ", freeSearchText: \"  \", providerIn: [], fromDate: null, toDate: null")
-                .from(data.fry).executeAndVerifyResponse(expected("Slurm-after", "Slurm-end", "Robot-oil", "Slurm-start", "Slurm-before"))
+            query(arguments = ", freeSearchText: \"  \", providerIn: [], occurredAtFrom: null, occurredAtBefore: null")
+                .from(data.fry).executeAndVerifyResponse(expected("Robot-oil", "Slurm-after", "Slurm-end", "Slurm-start", "Slurm-before"))
         }
     }
 }

@@ -71,8 +71,6 @@
       { label: t.targetAmount(), value: money(s.targetAmountInCents, s.targetCurrency) },
       { label: t.exchangeRate(), value: s.exchangeRate == null ? null : String(s.exchangeRate) },
       { label: t.importedAt(), value: $t.value.common.dateTime.medium(s.createdAt) },
-      { label: t.integrationId(), value: s.integrationId },
-      { label: t.recordId(), value: s.id },
     ].filter((attribute) => attribute.value != null);
   });
 </script>

@@ -10,8 +10,6 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 @Component
 class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationService) {
@@ -23,8 +21,8 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
         after: String?,
         freeSearchText: String?,
         providerIn: List<IntegrationProvider>?,
-        fromDate: LocalDate?,
-        toDate: LocalDate?,
+        occurredAtFrom: Instant?,
+        occurredAtBefore: Instant?,
     ): ConnectionGqlDto<AccountStatementGqlDto> = paginationService.forTable(statement)
         .addPredicate(statement.workspaceId.eq(workspaceId))
         .also { query ->
@@ -37,8 +35,8 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
                 ).map { it.containsIgnoreCase(freeSearchText) }))
             }
             if (!providerIn.isNullOrEmpty()) query.addPredicate(statement.provider.`in`(providerIn.map { it.name }))
-            if (fromDate != null) query.addPredicate(statement.occurredAt.ge(fromDate.atStartOfDay().toInstant(ZoneOffset.UTC)))
-            if (toDate != null) query.addPredicate(statement.occurredAt.lt(toDate.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)))
+            if (occurredAtFrom != null) query.addPredicate(statement.occurredAt.ge(occurredAtFrom))
+            if (occurredAtBefore != null) query.addPredicate(statement.occurredAt.lt(occurredAtBefore))
         }
         .page(first = first, after = after, sortFields = listOf(statement.occurredAt.desc(), statement.id.desc())) { record ->
             AccountStatementGqlDto(

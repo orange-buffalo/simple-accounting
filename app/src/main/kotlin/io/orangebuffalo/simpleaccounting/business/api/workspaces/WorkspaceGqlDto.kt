@@ -42,7 +42,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.jooq.DSLContext
-import java.time.LocalDate
+import java.time.Instant
 import org.jooq.impl.DSL
 import java.util.concurrent.CompletableFuture
 
@@ -75,15 +75,15 @@ data class WorkspaceGqlDto(
         freeSearchText: String? = null,
         @GraphQLDescription("Include any of these source providers. Null or empty means all providers.")
         providerIn: List<IntegrationProvider>? = null,
-        @GraphQLDescription("Inclusive UTC transaction date lower bound. Null means unbounded.")
-        fromDate: LocalDate? = null,
-        @GraphQLDescription("Inclusive UTC transaction date upper bound. Null means unbounded.")
-        toDate: LocalDate? = null,
+        @GraphQLDescription("Inclusive transaction timestamp lower bound. Null or omitted means unbounded.")
+        occurredAtFrom: Instant? = null,
+        @GraphQLDescription("Exclusive transaction timestamp upper bound. Null or omitted means unbounded.")
+        occurredAtBefore: Instant? = null,
         env: DataFetchingEnvironment,
     ): ConnectionGqlDto<AccountStatementGqlDto> = env.graphQlContext.getBean<AccountStatementsGqlApi>()
         .loadStatements(
             workspaceId = id, first = first, after = after, freeSearchText = freeSearchText,
-            providerIn = providerIn, fromDate = fromDate, toDate = toDate,
+            providerIn = providerIn, occurredAtFrom = occurredAtFrom, occurredAtBefore = occurredAtBefore,
         )
 
     @GraphQLDescription("Integration providers configurable for this owned workspace.")

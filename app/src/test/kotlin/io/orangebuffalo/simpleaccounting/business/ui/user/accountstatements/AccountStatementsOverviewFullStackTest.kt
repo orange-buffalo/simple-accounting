@@ -9,6 +9,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -16,10 +18,9 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should display transactions and expand all available information`(page: Page) {
         val data = preconditions {
-            object {
-                val fry = fry()
+            fry().also { fry ->
                 val integration = wiseIntegrationSettings(workspace = workspace(owner = fry))
-                val conversion = accountStatementRecord(
+                accountStatementRecord(
                     integration = integration, externalId = "Slurm-conversion", partyName = "Philip J. Fry",
                     type = StatementType.CONVERSION, occurredAt = Instant.parse("3025-01-15T12:00:00Z"),
                     amountInCents = 1200, currency = "USD", feesInCents = 0, feesCurrency = "USD",
@@ -28,15 +29,13 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                     sourceCurrency = "EUR", targetAmountInCents = 1200, targetCurrency = "USD",
                     exchangeRate = BigDecimal("1.234567"), additionalData = "Description: Slurm supplies\nReference: Planet Express",
                 )
-                val credit = accountStatementRecord(integration = integration, externalId = "Moon-delivery", type = StatementType.CREDIT, occurredAt = Instant.parse("3025-01-13T12:00:00Z"))
-                init {
-                    accountStatementRecord(integration = integration, externalId = "Robot-oil", partyName = "Bender", occurredAt = Instant.parse("3025-01-14T12:00:00Z"))
-                    accountStatementRecord(integration = integration, externalId = "Unknown-Slurm", type = StatementType.OTHER, occurredAt = Instant.parse("3025-01-12T12:00:00Z"))
-                    accountStatementRecord()
-                }
+                accountStatementRecord(integration = integration, externalId = "Moon-delivery", type = StatementType.CREDIT, occurredAt = Instant.parse("3025-01-13T12:00:00Z"))
+                accountStatementRecord(integration = integration, externalId = "Robot-oil", partyName = "Bender", occurredAt = Instant.parse("3025-01-14T12:00:00Z"))
+                accountStatementRecord(integration = integration, externalId = "Unknown-Slurm", type = StatementType.OTHER, occurredAt = Instant.parse("3025-01-12T12:00:00Z"))
+                accountStatementRecord()
             }
         }
-        page.authenticateViaCookie(data.fry)
+        page.authenticateViaCookie(data)
         page.withBlockedGqlApiResponse(
             "accountStatementsPage",
             initiator = { page.openAccountStatementsOverviewPage() },
@@ -64,7 +63,6 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                         "Fees" to "USD 0.00", "Running balance" to "-USD 1.25", "Original amount" to "EUR 10.00",
                         "Conversion source amount" to "EUR 10.00", "Conversion target amount" to "USD 12.00",
                         "Exchange rate" to "1.234567", "Imported at" to "29 Mar 1999, 9:01 am",
-                        "Integration ID" to data.integration.id!!, "Record ID" to data.conversion.id!!,
                     )),
                     DetailsSectionSpec(title = "Additional information", content = "Description: Slurm supplies\nReference: Planet Express"),
                 ),
@@ -75,8 +73,6 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                     "Amount" to "USD 1.25", "Transaction type" to "Credit", "Transaction date" to "13 Jan 3025, 11:00 pm",
                     "Source integration" to "Wise", "Account ID" to "301", "Account currency" to "USD",
                     "External transaction ID" to "Moon-delivery", "Imported at" to "29 Mar 1999, 9:01 am",
-                    "Integration ID" to data.integration.id!!,
-                    "Record ID" to data.credit.id!!,
                 ))),
             )
         }
@@ -95,7 +91,7 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         page.openAccountStatementsOverviewPage {
             pageItems.shouldHaveTitles("Fry", "Bender")
             filters.addSelectFilter(label = "Source integration", value = "Wise").closeByOutsideClick()
-            filters.setDateRange(label = "Transaction dates (UTC)", from = "3025-01-15", to = "3025-01-15").closeByOutsideClick()
+            filters.setDateRange(label = "Transaction dates", from = "3025-01-15", to = "3025-01-15").closeByOutsideClick()
             filters.applySearchWithEnter("mars")
             pageItems.shouldHaveTitles("Fry")
             reportRendering("account-statements.filtered")
@@ -104,6 +100,38 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
             reportRendering("account-statements.empty")
             filters.clearAll()
             pageItems.shouldHaveTitles("Fry", "Bender")
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "1999-03-28, 1999-03-27T13:00:00Z, 1999-03-28T14:00:00Z",
+        "1999-10-31, 1999-10-30T14:00:00Z, 1999-10-31T13:00:00Z",
+    )
+    fun `should filter whole browser-local days across daylight saving transitions`(
+        date: String,
+        start: String,
+        end: String,
+        page: Page,
+    ) {
+        val startInstant = Instant.parse(start)
+        val endInstant = Instant.parse(end)
+        val fry = preconditions {
+            fry().also { user ->
+                val integration = wiseIntegrationSettings(workspace = workspace(owner = user))
+                accountStatementRecord(integration = integration, externalId = "Slurm-before", occurredAt = startInstant.minusNanos(1000))
+                accountStatementRecord(integration = integration, externalId = "Slurm-start", occurredAt = startInstant)
+                accountStatementRecord(integration = integration, externalId = "Slurm-end", occurredAt = endInstant.minusNanos(1000))
+                accountStatementRecord(integration = integration, externalId = "Slurm-after", occurredAt = endInstant)
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openAccountStatementsOverviewPage {
+            pageItems.shouldHaveTitles("Slurm-after", "Slurm-end", "Slurm-start", "Slurm-before")
+            filters.setDateRange(label = "Transaction dates", from = date, to = date).closeByOutsideClick()
+            pageItems.shouldHaveTitles("Slurm-end", "Slurm-start")
+            filters.clearAll()
+            pageItems.shouldHaveTitles("Slurm-after", "Slurm-end", "Slurm-start", "Slurm-before")
         }
     }
 

@@ -15,20 +15,20 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
         val fry = preconditions { fry().also { workspace(owner = it) } }
         page.authenticateViaCookie(fry)
         page.openAccountStatementsOverviewPage {
-            filters.setDateRange(label = "Transaction dates (UTC)", from = "1999-03-01", to = "1999-03-28")
+            filters.setDateRange(label = "Transaction dates", from = "1999-03-01", to = "1999-03-28")
             filters.shouldHaveChips(
                 OverviewFilterChipData(label = "Search", summary = "Any", active = false),
                 OverviewFilterChipData(label = "Source integration", summary = "Any", active = false),
-                OverviewFilterChipData(label = "Transaction dates (UTC)", summary = "1 Mar 1999 – 28 Mar 1999", active = true),
+                OverviewFilterChipData(label = "Transaction dates", summary = "1 Mar 1999 – 28 Mar 1999", active = true),
             )
-            filters.openDateRangeCalendar("Transaction dates (UTC)")
-            filters.reportPopoverRendering(label = "Transaction dates (UTC)", name = "overview-filters.date-range")
+            filters.openDateRangeCalendar("Transaction dates")
+            filters.reportPopoverRendering(label = "Transaction dates", name = "overview-filters.date-range")
             filters.closeByOutsideClick()
-            filters.clearWithKeyboard("Transaction dates (UTC)")
+            filters.clearWithKeyboard("Transaction dates")
             filters.shouldHaveChips(
                 OverviewFilterChipData(label = "Search", summary = "Any", active = false),
                 OverviewFilterChipData(label = "Source integration", summary = "Any", active = false),
-                OverviewFilterChipData(label = "Transaction dates (UTC)", summary = "Any", active = false),
+                OverviewFilterChipData(label = "Transaction dates", summary = "Any", active = false),
             )
         }
     }

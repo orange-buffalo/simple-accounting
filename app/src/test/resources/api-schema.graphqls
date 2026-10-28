@@ -1686,12 +1686,12 @@ type Workspace {
     first: Int!,
     "Case-insensitive search across all transaction text fields. Null or blank means no search."
     freeSearchText: String,
-    "Inclusive UTC transaction date lower bound. Null means unbounded."
-    fromDate: LocalDate,
+    "Exclusive transaction timestamp upper bound. Null or omitted means unbounded."
+    occurredAtBefore: DateTime,
+    "Inclusive transaction timestamp lower bound. Null or omitted means unbounded."
+    occurredAtFrom: DateTime,
     "Include any of these source providers. Null or empty means all providers."
-    providerIn: [IntegrationProvider!],
-    "Inclusive UTC transaction date upper bound. Null means unbounded."
-    toDate: LocalDate
+    providerIn: [IntegrationProvider!]
   ): AccountStatementsConnection!
   "Analytics data for this workspace."
   analytics: WorkspaceAnalytics!

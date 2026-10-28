@@ -2011,9 +2011,9 @@ export type WorkspaceAccountStatementsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first: Scalars['Int']['input'];
   freeSearchText?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['LocalDate']['input']>;
+  occurredAtBefore?: InputMaybe<Scalars['DateTime']['input']>;
+  occurredAtFrom?: InputMaybe<Scalars['DateTime']['input']>;
   providerIn?: InputMaybe<Array<IntegrationProvider>>;
-  toDate?: InputMaybe<Scalars['LocalDate']['input']>;
 };
 
 

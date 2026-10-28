@@ -41,25 +41,29 @@
     },
     dateRange: { type: 'date-range', label: $t.value.accountStatements.dateRange() },
   } satisfies SaOverviewFilterConfigs<StatementFilters>));
+  const localDayStart = (date: string, dayOffset = 0) => {
+    const [year, month, day] = date.split('-').map(Number);
+    return new Date(year, month - 1, day + dayOffset).toISOString();
+  };
   const queryArguments = computed(() => ({
     workspaceId: currentWorkspaceId,
     freeSearchText: overviewFilters.value.freeSearchText,
     providerIn: overviewFilters.value.providerIn,
-    fromDate: overviewFilters.value.dateRange?.[0] ?? null,
-    toDate: overviewFilters.value.dateRange?.[1] ?? null,
+    occurredAtFrom: overviewFilters.value.dateRange ? localDayStart(overviewFilters.value.dateRange[0]) : null,
+    occurredAtBefore: overviewFilters.value.dateRange ? localDayStart(overviewFilters.value.dateRange[1], 1) : null,
   }));
   const statementsQuery = graphql(`
     query accountStatementsPage(
       $workspaceId: String!, $first: Int!, $after: String, $freeSearchText: String,
-      $providerIn: [IntegrationProvider!], $fromDate: LocalDate, $toDate: LocalDate
+      $providerIn: [IntegrationProvider!], $occurredAtFrom: DateTime, $occurredAtBefore: DateTime
     ) {
       workspace(id: $workspaceId) {
         accountStatements(first: $first, after: $after, freeSearchText: $freeSearchText,
-          providerIn: $providerIn, fromDate: $fromDate, toDate: $toDate) {
+          providerIn: $providerIn, occurredAtFrom: $occurredAtFrom, occurredAtBefore: $occurredAtBefore) {
           edges {
             cursor
             node {
-              id provider integrationId accountId accountCurrency externalId type occurredAt
+              id provider accountId accountCurrency externalId type occurredAt
               amountInCents currency partyName feesInCents feesCurrency runningBalanceInCents
               runningBalanceCurrency additionalData originalAmountInCents originalCurrency
               sourceAmountInCents sourceCurrency targetAmountInCents targetCurrency exchangeRate createdAt
