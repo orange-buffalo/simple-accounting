@@ -21,6 +21,19 @@ import java.time.Instant
 
 class IntegrationsGqlApi {
     @Component
+    class RemoveWiseIntegrationMutation(private val wise: WiseIntegrationService) : Mutation {
+        @GraphQLDescription("Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed.")
+        @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
+        fun removeWiseIntegration(
+            @GraphQLDescription("The workspace whose integration and imported statements should be removed. Only its owner can remove them.")
+            workspaceId: String,
+        ): WiseIntegrationChangeResult {
+            wise.remove(workspaceId)
+            return WiseIntegrationChangeResult(success = true)
+        }
+    }
+
+    @Component
     @Validated
     class ListWiseAccountsMutation(
         private val wise: WiseIntegrationService,
@@ -139,7 +152,7 @@ class IntegrationsGqlDto(private val workspaceId: String) {
 
 @GraphQLDescription("Wise integration metadata. Credentials are never returned.")
 class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
-    @GraphQLDescription("Whether Wise is active for this workspace.")
+    @GraphQLDescription("Whether Wise is configured for this workspace, including when automatic fetching is disabled or authentication is required.")
     val active: Boolean = settings != null
 
     @GraphQLDescription("Whether automatic transaction fetching is enabled. True by default before setup.")
@@ -157,3 +170,6 @@ data class WiseAccountsResult(val accounts: List<WiseAccountGqlDto>)
 
 @GraphQLDescription("Whether the integration was saved successfully.")
 data class WiseSettingsSaveResult(val success: Boolean)
+
+@GraphQLDescription("Whether the requested Wise integration change completed successfully.")
+data class WiseIntegrationChangeResult(val success: Boolean)

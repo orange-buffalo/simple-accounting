@@ -955,6 +955,8 @@ export type Mutation = {
   refreshAccessToken: RefreshAccessTokenResponse;
   /** Removes a standalone document from the specified workspace. */
   removeStandaloneDocument: Scalars['Boolean']['output'];
+  /** Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed. */
+  removeWiseIntegration: WiseIntegrationChangeResult;
   /** Revokes and removes a workspace access token. */
   revokeWorkspaceAccessToken: Scalars['Boolean']['output'];
   /** Saves a shared workspace to the current user's list using an access token. */
@@ -1307,6 +1309,11 @@ export type MutationListWiseAccountsArgs = {
 export type MutationRemoveStandaloneDocumentArgs = {
   removeDocumentIfUnused?: InputMaybe<Scalars['Boolean']['input']>;
   standaloneDocumentId: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveWiseIntegrationArgs = {
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1832,10 +1839,16 @@ export type WiseAccountsResult = {
   accounts: Array<WiseAccountGqlDto>;
 };
 
+/** Whether the requested Wise integration change completed successfully. */
+export type WiseIntegrationChangeResult = {
+  __typename?: 'WiseIntegrationChangeResult';
+  success: Scalars['Boolean']['output'];
+};
+
 /** Wise integration metadata. Credentials are never returned. */
 export type WiseIntegrationGqlDto = {
   __typename?: 'WiseIntegrationGqlDto';
-  /** Whether Wise is active for this workspace. */
+  /** Whether Wise is configured for this workspace, including when automatic fetching is disabled or authentication is required. */
   active: Scalars['Boolean']['output'];
   /** Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again. */
   authenticationRequired: Scalars['Boolean']['output'];

@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
@@ -13,6 +15,7 @@ class WiseIntegrationService internal constructor(
     private val settings: WiseIntegrationSettingsRepository,
     private val client: WiseApiClient,
     private val statementFetchService: WiseStatementFetchService,
+    private val records: AccountStatementRecordsRepository,
 ) {
     fun isActive(workspaceId: String): Boolean {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
@@ -83,6 +86,14 @@ class WiseIntegrationService internal constructor(
                 }
             })
         }
+    }
+
+    @Transactional
+    fun remove(workspaceId: String) {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
+        val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) } ?: return
+        records.deleteByIntegrationIdAndProvider(integrationId = existing.id!!, provider = IntegrationProvider.WISE.name)
+        settings.delete(existing)
     }
 
     private fun resolveToken(token: String?, existing: WiseIntegrationSettings?): String =

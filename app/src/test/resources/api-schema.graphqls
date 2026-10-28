@@ -1181,6 +1181,11 @@ type Mutation {
     "ID of the workspace the standalone document belongs to."
     workspaceId: String!
   ): Boolean! @auth(type : REGULAR_USER)
+  "Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed."
+  removeWiseIntegration(
+    "The workspace whose integration and imported statements should be removed. Only its owner can remove them."
+    workspaceId: String!
+  ): WiseIntegrationChangeResult! @auth(type : REGULAR_USER)
   "Revokes and removes a workspace access token."
   revokeWorkspaceAccessToken(
     "ID of the workspace access token to revoke."
@@ -1579,9 +1584,14 @@ type WiseAccountsResult {
   accounts: [WiseAccountGqlDto!]!
 }
 
+"Whether the requested Wise integration change completed successfully."
+type WiseIntegrationChangeResult {
+  success: Boolean!
+}
+
 "Wise integration metadata. Credentials are never returned."
 type WiseIntegrationGqlDto {
-  "Whether Wise is active for this workspace."
+  "Whether Wise is configured for this workspace, including when automatic fetching is disabled or authentication is required."
   active: Boolean!
   "Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again."
   authenticationRequired: Boolean!
