@@ -8,7 +8,9 @@
         {{ provider }} · {{ statement.accountCurrency }}
       </SaOverviewItemPrimaryAttribute>
     </template>
-    <template #middle-column>{{ type }}</template>
+    <template #middle-column>
+      <SaStatusLabel :status="status" simplified hide-icon>{{ type }}</SaStatusLabel>
+    </template>
     <template #last-column>
       <SaOverviewItemAmountPanel :amount="statement.amountInCents" :currency="statement.currency" />
     </template>
@@ -36,6 +38,8 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+  import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import type { StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
@@ -49,6 +53,21 @@
   const props = defineProps<{ statement: Statement }>();
   const provider = computed(() => ({ WISE: $t.value.integrations.wise.name() }[props.statement.provider]));
   const type = computed(() => $t.value.accountStatements.types[props.statement.type]());
+  const status = computed<StatusLabelStatus>(() => {
+    const s = props.statement;
+    switch (s.type) {
+    case 'CREDIT':
+      return 'success';
+    case 'DEBIT':
+      return 'failure';
+    case 'CONVERSION':
+      if (s.sourceCurrency === s.accountCurrency) return 'failure';
+      if (s.targetCurrency === s.accountCurrency) return 'success';
+      return 'regular';
+    default:
+      return 'regular';
+    }
+  });
   const attributes = computed(() => {
     const s = props.statement;
     const t = $t.value.accountStatements;

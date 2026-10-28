@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.openAccountStatementsOverviewPage
@@ -8,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.Acco
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -48,11 +50,15 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         )
         page.shouldBeAccountStatementsOverviewPage {
             pageItems.shouldHaveExactData(
-                summary(title = "Philip J. Fry", day = 15, type = "Conversion", amount = "USD 12.00"),
-                summary(title = "Bender", day = 14, type = "Debit", amount = "USD 1.25"),
-                summary(title = "Moon-delivery", day = 13, type = "Credit", amount = "USD 1.25"),
-                summary(title = "Unknown-Slurm", day = 12, type = "Other", amount = "USD 1.25"),
+                summary(title = "Philip J. Fry", day = 15, type = dataValues(SaStatusLabel.successStatusValue(), "Conversion"), amount = "USD 12.00"),
+                summary(title = "Bender", day = 14, type = dataValues(SaStatusLabel.errorStatusValue(), "Debit"), amount = "USD 1.25"),
+                summary(title = "Moon-delivery", day = 13, type = dataValues(SaStatusLabel.successStatusValue(), "Credit"), amount = "USD 1.25"),
+                summary(title = "Unknown-Slurm", day = 12, type = dataValues(SaStatusLabel.regularStatusValue(), "Other"), amount = "USD 1.25"),
             )
+            shouldHaveSimpleTypeBadge(title = "Philip J. Fry", status = "success")
+            shouldHaveSimpleTypeBadge(title = "Bender", status = "failure")
+            shouldHaveSimpleTypeBadge(title = "Moon-delivery", status = "success")
+            shouldHaveSimpleTypeBadge(title = "Unknown-Slurm", status = "regular")
             reportRendering("account-statements.collapsed")
             statement("Philip J. Fry").shouldHaveDetails(
                 sections = arrayOf(
@@ -75,6 +81,43 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                     "External transaction ID" to "Moon-delivery", "Imported at" to "29 Mar 1999, 9:01 am",
                 ))),
             )
+        }
+    }
+
+    @Test
+    fun `should distinguish incoming outgoing and unknown conversion directions`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                val integration = wiseIntegrationSettings(workspace = workspace(owner = user))
+                accountStatementRecord(
+                    integration = integration, externalId = "Slurm-incoming", type = StatementType.CONVERSION,
+                    occurredAt = Instant.parse("3025-01-13T12:00:00Z"),
+                    sourceCurrency = "EUR", targetCurrency = "USD",
+                )
+                accountStatementRecord(
+                    integration = integration, externalId = "Slurm-outgoing", type = StatementType.CONVERSION,
+                    occurredAt = Instant.parse("3025-01-14T12:00:00Z"),
+                    sourceCurrency = "USD", targetCurrency = "EUR",
+                )
+                accountStatementRecord(
+                    integration = integration, externalId = "Slurm-unknown", type = StatementType.CONVERSION,
+                    occurredAt = Instant.parse("3025-01-15T12:00:00Z"),
+                )
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openAccountStatementsOverviewPage {
+            pageItems.shouldHaveDataSatisfying { items ->
+                items.map { it.title to it.middleColumnContent }.shouldContainExactly(
+                    "Slurm-unknown" to dataValues(SaStatusLabel.regularStatusValue(), "Conversion"),
+                    "Slurm-outgoing" to dataValues(SaStatusLabel.errorStatusValue(), "Conversion"),
+                    "Slurm-incoming" to dataValues(SaStatusLabel.successStatusValue(), "Conversion"),
+                )
+            }
+            shouldHaveSimpleTypeBadge(title = "Slurm-incoming", status = "success")
+            shouldHaveSimpleTypeBadge(title = "Slurm-outgoing", status = "failure")
+            shouldHaveSimpleTypeBadge(title = "Slurm-unknown", status = "regular")
+            reportRendering("account-statements.conversion-directions")
         }
     }
 
