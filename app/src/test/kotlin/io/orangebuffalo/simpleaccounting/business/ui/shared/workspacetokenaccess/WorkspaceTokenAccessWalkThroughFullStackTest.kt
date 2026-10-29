@@ -36,6 +36,7 @@ class WorkspaceTokenAccessWalkThroughFullStackTest : SaFullStackTestBase() {
                 MenuItem("Income Tax Payments", false),
                 MenuItem("Reporting", false),
                 MenuItem("Documents", false),
+                MenuItem(label = "Account statements", isSectionHeader = false),
                 MenuItem("USER", true),
                 MenuItem("Logout", false),
             )
