@@ -69,7 +69,9 @@ The controller:
 2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
-    aggregate full-file contents stored privately on disk. Individual-file safety limits still apply.
+    aggregate full-file contents stored privately on disk. Knowledge catalogs, registries and legacy lesson files are
+    exempt from file-byte, diff-buffer and source-index size caps; secret-path, binary and regular-file checks still apply.
+    Individual-file safety limits remain for other source files.
 3. Requires the primary implementation agent (orchestrator) to finish self-review, wait for ALL relevant tests to
    complete, check results, and finish all own verifications before EVERY round. Resolve failures first; never launch
    reviews alongside pending tests or verification. Call with `preflight: { selfReviewCompleted: true,
@@ -157,8 +159,11 @@ do not paste build/test results into worker inputs.
 `.harness/prevention.json` is the active, curated experience catalog. Each rule has a stable `id`, `category`,
 `appliesWhen`, actionable `instruction`, a brief `reason`, and an optional useful `example`. Apply its relevant
 constraints **before coding**. The plugin injects every rule before model calls; review workers freeze that complete
-bundle for their turn. There is no heuristic relevance filter and no silent truncation. Validation and publication
-use exactly the same projection and size limit as injection.
+bundle for their turn. There is no lesson-count or knowledge-size cap, heuristic relevance filter, eviction or silent
+truncation. Validation, publication and injection use exactly the same complete projection. The obsolete
+`maxKnowledgeChars` setting in older policies or frozen runs is ignored; existing catalogs and private evidence are
+preserved without migration. Model context capacity remains an external constraint, not permission to discard lessons.
+Reload the project location to activate this behavior in already-loaded tools and hooks before retrying blocked learning.
 
 The initial migration accounts for all 67 original feedback instructions (F1–F68, with no F47).
 `.harness/migrate-knowledge.mjs` records their explicit destinations. Forty scoped rules consolidate repeated guidance;

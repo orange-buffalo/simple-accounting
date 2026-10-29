@@ -406,6 +406,27 @@
       "appliesWhen": "Applying an application-wide visual theme",
       "instruction": "Inventory all shared component styles, library semantic palettes and page overrides; use centralized tokens across surfaces and interaction states, not only showcase pages. Preserve behavior, semantic distinctions, simplified variants, disabled actions and third-party brands.",
       "reason": "Global token changes alone leave local overrides and library states visually inconsistent."
+    },
+    {
+      "id": "account-statements-navigation-icon",
+      "category": "frontend",
+      "appliesWhen": "Choosing the account-statements navigation icon",
+      "instruction": "Use the dedicated account-statements icon, not the reporting icon.",
+      "reason": "Account statements and reporting are distinct navigation destinations."
+    },
+    {
+      "id": "browser-local-timestamp-filters",
+      "category": "frontend",
+      "appliesWhen": "Filtering timestamped records by browser-local calendar dates; excludes date-only domain fields and explicitly specified non-browser timezone contracts",
+      "instruction": "Send timestamp bounds to the API: inclusive browser-local midnight at the selected start and exclusive local midnight after the selected end. Advance by calendar date, not a fixed 24-hour duration, and cover boundary inclusion/exclusion on both 23-hour and 25-hour DST days.",
+      "reason": "UTC date boundaries and fixed-day durations select the wrong records around timezone offsets and DST."
+    },
+    {
+      "id": "account-statement-user-details",
+      "category": "frontend",
+      "appliesWhen": "Presenting account-statement transaction details",
+      "instruction": "Do not display internal integration IDs or internal statement-record IDs in the details list. Retain identifiers internally where needed, and preserve meaningful provider account and external transaction references.",
+      "reason": "Internal persistence identifiers add noise without helping users interpret transactions."
     }
   ]
 }

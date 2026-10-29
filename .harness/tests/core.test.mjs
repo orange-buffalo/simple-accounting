@@ -51,6 +51,60 @@ test('passes only after every configured reviewer without running validation', a
   assert.equal(result.fingerprint, (await snapshot(root, input.base)).fingerprint);
 });
 
+test('review freezes every rule beyond the former cap, including when resuming an older policy', async (t) => {
+  const { root, input } = await fixture(t, { maxKnowledgeChars: 1 });
+  const rules = Array.from({ length: 200 }, (_, index) => ({ id: `cargo-${index}`, category: 'backend',
+    appliesWhen: `Reading cargo ${index}`, instruction: 'Check workspace ownership. '.repeat(10), reason: 'Preserve isolation.' }));
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+  const roles = [];
+  const controller = new Controller(root, async ({ role, knowledge: bundle }) => {
+    roles.push(role);
+    assert.ok(bundle.length > 30000);
+    assert.deepEqual(JSON.parse(bundle), rules);
+    return answer({ ...report, ruleAudit: auditedRules(rules, ['AGENTS.md', '.harness/prevention.json']) });
+  });
+  const pending = await controller.review({ ...input, preflight: undefined });
+  assert.equal(pending.status, 'awaiting-verification');
+  const result = await controller.review({ ...input, runId: pending.runId });
+  assert.equal(result.status, 'passed');
+  assert.deepEqual(roles, reviewers);
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  assert.equal(state.policy.maxKnowledgeChars, 1);
+  assert.deepEqual(JSON.parse(state.knowledge), rules);
+});
+
+test('large knowledge files retain complete snapshots and source packets beyond file and diff buffer limits', async (t) => {
+  const { root, input } = await fixture(t);
+  const file = '.harness/lessons/slurm.json';
+  await mkdir(path.join(root, '.harness/lessons'));
+  await writeFile(path.join(root, file), '{}');
+  await exec('git', ['add', file], { cwd: root });
+  await exec('git', ['commit', '-qm', 'feat: Add Slurm lesson'], { cwd: root });
+  input.base = (await exec('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
+  const lesson = JSON.stringify({ status: 'verified', guidance: 'Check Slurm ownership. '.repeat(400000),
+    scope: 'Cargo', evidence: { verified: true } });
+  assert.ok(Buffer.byteLength(lesson) > 8 * 1024 * 1024);
+  await writeFile(path.join(root, file), lesson);
+  const rules = [{ id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo',
+    instruction: 'Check workspace ownership. '.repeat(12000), reason: 'Preserve isolation.' }];
+  const catalog = JSON.stringify({ version: 2, rules });
+  assert.ok(Buffer.byteLength(catalog) > 256000);
+  await writeFile(path.join(root, '.harness/prevention.json'), catalog);
+  const captured = await snapshot(root, input.base);
+  assert.equal(captured.contents[file], lesson);
+  assert.equal(captured.contents['.harness/prevention.json'], catalog);
+  assert.ok(captured.diff.includes(lesson));
+  const controller = new Controller(root, async ({ role, knowledge: bundle }) => {
+    assert.deepEqual(JSON.parse(bundle), rules);
+    return answer({ ...report, ruleAudit: auditedRules(rules, captured.files) });
+  });
+  const result = await controller.review(input);
+  assert.equal(result.status, 'passed');
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  const source = state.rounds[0].sources.find((entry) => entry.file === file);
+  assert.ok((await readFile(source.artifact, 'utf8')).includes(lesson));
+});
+
 test('missing or incomplete orchestrator preflight never launches workers or consumes rounds', async (t) => {
   const { root, input } = await fixture(t);
   let calls = 0;
@@ -575,14 +629,14 @@ test('harness profile refuses application changes', async (t) => {
   assert.match((await controller.review(input)).error, /Harness profile/);
 });
 
-test('knowledge integrity, promotion status and limits fail closed', async (t) => {
+test('knowledge integrity and promotion status fail closed without a size cap', async (t) => {
   const { root } = await fixture(t);
   await mkdir(path.join(root, '.harness/lessons'));
   const lesson = JSON.stringify({ status: 'verified', guidance: 'Check Slurm authorization', scope: 'deliveries', evidence: { replay: true } });
   await writeFile(path.join(root, '.harness/lessons/slurm.json'), lesson);
   await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1, lessons: [{ id: 'slurm', sha256: hash(lesson) }] }));
   assert.match(await knowledge(root), /Slurm authorization/);
-  await assert.rejects(knowledge(root, 1), /exceeds/);
+  assert.equal(await knowledge(root, 1), await knowledge(root));
   await writeFile(path.join(root, '.harness/lessons/slurm.json'), lesson + ' ');
   await assert.rejects(knowledge(root), /integrity/);
 });
@@ -689,7 +743,12 @@ test('every human preference is investigated, independently verified and reporte
     { ref: 'F2', instruction: 'Follow policy F2' },
   ]);
   const withoutInstructions = JSON.stringify([{ id: result.lessonId, guidance: lesson.guidance, scope: lesson.scope }], null, 2);
-  await assert.rejects(knowledge(root, withoutInstructions.length + 1), /exceeds/);
+  const complete = await knowledge(root, withoutInstructions.length + 1);
+  assert.ok(complete.length > withoutInstructions.length + 1);
+  assert.deepEqual(JSON.parse(complete)[0].instructions, [
+    { ref: 'F1', instruction: 'Follow policy F1' },
+    { ref: 'F2', instruction: 'Follow policy F2' },
+  ]);
 });
 
 test('omitted, dismissed, disputed or unverified human feedback requires user decision without promotion', async (t) => {
@@ -968,7 +1027,7 @@ test('publication accounts for instructions and never deploys private dispositio
       path.relative(root, path.join(original.evidence, 'sources')), path.relative(root, path.join(original.evidence, 'sources/round-1'))]) {
       assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);
     }
-    const instruction = oversized ? 'Check independent country expectations. '.repeat(100) : 'Check independent country expectations';
+    const instruction = oversized ? 'Check independent country expectations. '.repeat(2000) : 'Check independent country expectations';
     controller.agent = async ({ role }) => role === 'feedback-analysis'
       ? answer({ questions: [], scope: 'API tests', guidance: 'Use independent assertions', dispositions: [{
         ref: 'F1', feedback: 'Private Fry feedback', classification: 'new requirement/preference',
@@ -977,17 +1036,10 @@ test('publication accounts for instructions and never deploys private dispositio
       : answer({ valid: true, evidence: ['Source checked'], issues: [] });
     const result = await controller.learn({ runId: original.runId, feedback: JSON.stringify({ kind: 'user-confirmed-policy',
       items: [{ ref: 'F1', file: 'app/SlurmTest.kt', line: 1, comment: 'Private Fry feedback' }] }) });
-    if (oversized) {
-      assert.equal(result.status, 'candidate');
-      assert.match(result.error, /New knowledge exceeds budget/);
-      assert.equal(await knowledge(root), '[]');
-      await assert.rejects(readFile(path.join(root, '.harness/lessons', `${result.lessonId}.json`)), { code: 'ENOENT' });
-    } else {
-      assert.equal(result.status, 'verified');
-      const bundle = await knowledge(root);
-      assert.ok(bundle.includes(instruction));
-      assert.doesNotMatch(bundle, /PRIVATE_|Private Fry feedback/);
-    }
+    assert.equal(result.status, 'verified');
+    const bundle = await knowledge(root);
+    assert.ok(bundle.includes(instruction));
+    assert.doesNotMatch(bundle, /PRIVATE_|Private Fry feedback/);
     for (const directory of ['.harness/runtime', path.relative(root, result.evidence),
       path.relative(root, path.join(result.evidence, 'original-evidence'))]) {
       assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);

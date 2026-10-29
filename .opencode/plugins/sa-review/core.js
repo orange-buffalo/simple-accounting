@@ -47,6 +47,7 @@ const safeId = (id) => {
   return id;
 };
 const privateFile = (file) => /(^|\/)(\.env[^/]*|\.test-config\.yaml|[^/]*\.(pem|key))$/.test(file);
+const knowledgeFile = (file) => /^\.harness\/(prevention\.json|knowledge\.json|lessons\/[a-z0-9-]{1,80}\.json)$/.test(file);
 export const harnessFile = (file) => /^(\.harness\/|\.opencode\/|\.agents\/|\.compound-engineering\/|docs\/AgentHarness\.md$|AGENTS\.md$|\.gitignore$)/.test(file);
 export const protectedFile = (file) => harnessFile(file) || /^(\.git(?:\/|$)|\.github\/|gradle\/|buildSrc\/|gradlew(?:\.bat)?$|frontend\/build-config\/)/.test(file)
   || /(^|\/)(AGENTS\.md|build\.gradle\.kts|settings\.gradle\.kts|gradle\.properties|package\.json|bun\.lock|\.gitignore|vite\.config\.ts|codegen\.ts|tsconfig[^/]*\.json|\.eslint[^/]*)$/.test(file);
@@ -82,9 +83,9 @@ export function deployedLesson(lesson) {
   return { id: lesson.id, guidance: lesson.guidance, scope: lesson.scope, instructions };
 }
 
-export async function knowledge(root, limit = 30000) {
+export async function knowledge(root) {
   try {
-    return catalogText(JSON.parse(await readFile(path.join(root, '.harness/prevention.json'), 'utf8')), limit);
+    return catalogText(JSON.parse(await readFile(path.join(root, '.harness/prevention.json'), 'utf8')));
   } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const registry = JSON.parse(await readFile(path.join(root, '.harness/knowledge.json'), 'utf8'));
   if (registry.version !== 1 || !Array.isArray(registry.lessons)) throw new Error('Invalid knowledge registry');
@@ -98,12 +99,10 @@ export async function knowledge(root, limit = 30000) {
     if (lesson.status !== 'verified' || !lesson.guidance || !lesson.evidence) throw new Error('Unverified lesson');
     lessons.push(deployedLesson({ ...lesson, id: entry.id }));
   }
-  const text = json(lessons);
-  if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
-  return text;
+  return json(lessons);
 }
 
-export function catalogText(catalog, limit = 30000) {
+export function catalogText(catalog) {
   if (catalog?.version !== 2 || !Array.isArray(catalog.rules)) throw new Error('Invalid prevention catalog');
   const ids = new Set();
   for (const rule of catalog.rules) {
@@ -113,18 +112,16 @@ export function catalogText(catalog, limit = 30000) {
       || (rule.example !== undefined && (typeof rule.example !== 'string' || !rule.example.trim()))) throw new Error('Invalid prevention rule');
     ids.add(rule.id);
   }
-  const text = json(catalog.rules);
-  if (text.length > limit) throw new Error('Knowledge bundle exceeds policy limit; curate it before continuing');
-  return text;
+  return json(catalog.rules);
 }
 
-export function curate(catalog, proposal, items, limit = 30000) {
-  catalogText(catalog, limit);
+export function curate(catalog, proposal, items) {
+  catalogText(catalog);
   if (!Array.isArray(proposal.upsert) || !Array.isArray(proposal.retire)
     || !Array.isArray(proposal.dispositions) || proposal.dispositions.length !== items.length
     || new Set(proposal.dispositions.map((entry) => entry.ref)).size !== items.length) throw new Error('Incomplete learning proposal');
   const rules = new Map(catalog.rules.map((rule) => [rule.id, rule]));
-  catalogText({ version: 2, rules: proposal.upsert }, limit);
+  catalogText({ version: 2, rules: proposal.upsert });
   for (const rule of proposal.upsert) rules.set(rule.id, rule);
   const retired = new Set();
   for (const entry of proposal.retire) {
@@ -143,7 +140,7 @@ export function curate(catalog, proposal, items, limit = 30000) {
       || !Array.isArray(entry.ruleIds) || entry.ruleIds.some((id) => !rules.has(id))) throw new Error('Missing, changed or incomplete human feedback disposition');
   }
   const result = { version: 2, rules: [...rules.values()] };
-  catalogText(result, limit);
+  catalogText(result);
   return result;
 }
 
@@ -167,7 +164,7 @@ export function validateBlindReport(report) {
 
 export async function snapshot(root, base) {
   if (!/^[a-f0-9]{40}$/.test(base)) throw new Error('Base must be a full commit SHA');
-  const git = async (...args) => (await exec('git', args, { cwd: root, maxBuffer: 8 * 1024 * 1024 })).stdout;
+  const git = async (...args) => (await exec('git', args, { cwd: root, maxBuffer: Infinity })).stdout;
   await git('cat-file', '-e', `${base}^{commit}`);
   const changed = (await git('diff', '--name-only', '-z', base)).split('\0').filter(Boolean);
   const untracked = (await git('ls-files', '--others', '--exclude-standard', '-z')).split('\0').filter(Boolean);
@@ -179,7 +176,7 @@ export async function snapshot(root, base) {
     let stat;
     try { stat = await lstat(target); } catch (error) { if (error.code !== 'ENOENT') throw error; }
     if (!stat) { contents[file] = null; continue; }
-    if (!stat.isFile() || stat.size > 256000) throw new Error(`Unsupported review file: ${file}`);
+    if (!stat.isFile() || (!knowledgeFile(file) && stat.size > 256000)) throw new Error(`Unsupported review file: ${file}`);
     const data = await readFile(target);
     if (data.includes(0)) throw new Error(`Binary review file: ${file}`);
     contents[file] = data.toString('utf8');
@@ -279,13 +276,13 @@ export class Controller {
     const sources = [];
     for (const [index, file] of snapshot.files.entries()) {
       const diff = (await exec('git', ['diff', '--no-ext-diff', '--no-textconv', '--no-color', snapshot.base, '--', file],
-        { cwd: this.root, maxBuffer: 8 * 1024 * 1024 })).stdout;
+        { cwd: this.root, maxBuffer: knowledgeFile(file) ? Infinity : 8 * 1024 * 1024 })).stdout;
       const artifact = path.join(state.dir, 'sources', `round-${state.rounds.length}`, `${index + 1}.txt`);
       await privateDirectory(path.dirname(artifact));
       await writeFile(artifact, `Source: ${file}\n${diff || snapshot.contents[file] || '(deleted or empty file)'}`, { mode: 0o600 });
       sources.push({ file, artifact });
     }
-    if (json(sources).length > 600000) throw new Error('Review source index exceeds context limit; split the task');
+    if (json(sources.filter(({ file }) => !knowledgeFile(file))).length > 600000) throw new Error('Review source index exceeds context limit; split the task');
     return sources;
   }
 
@@ -322,7 +319,7 @@ export class Controller {
       } else {
         const policy = await this.policy();
         state = { id, dir, started: Date.now(), policy, requirements: input.requirements, base: input.base, testClasses: input.testClasses ?? [],
-          profile: input.profile, parentSessionID: input.parentSessionID, knowledge: await knowledge(this.root, policy.maxKnowledgeChars), cost: 0, fixes: 0, artifacts: [], rounds: [], status: 'running' };
+          profile: input.profile, parentSessionID: input.parentSessionID, knowledge: await knowledge(this.root), cost: 0, fixes: 0, artifacts: [], rounds: [], status: 'running' };
       }
       state.reviewTurns ??= [{ started: state.started, roundStart: 0, fixBaseline: 0, knowledge: state.knowledge }];
       if (feedback) {
@@ -337,7 +334,7 @@ export class Controller {
             previous.status = state.status;
             previous.fingerprint = state.fingerprint;
             state.reviewTurns.push({ started: time, roundStart: state.rounds.length, fixBaseline: state.fixes,
-              feedback: text, knowledge: await knowledge(this.root, state.policy.maxKnowledgeChars) });
+              feedback: text, knowledge: await knowledge(this.root) });
             state.knowledge = state.reviewTurns.at(-1).knowledge;
             state.status = 'running';
             delete state.fingerprint;
@@ -482,7 +479,7 @@ export class Controller {
         const catalog = JSON.parse(catalogRaw);
         state.catalog = catalog;
         state.policy = await this.policy();
-        state.knowledge = catalogText(catalog, state.policy.maxKnowledgeChars);
+        state.knowledge = catalogText(catalog);
         const originalFile = path.join(this.runtime, safeId(input.runId), 'state.json');
         let original;
         try { original = JSON.parse(await readFile(originalFile, 'utf8')); }
@@ -499,10 +496,10 @@ export class Controller {
         const context = `Human feedback: ${json(state.feedbackBatch)}\nOriginal source packets: ${json(sources)}. ${original ? 'Read relevant source packets and current source.' : 'Original run unavailable; do not infer historic intent or a reviewer miss. Explicit preferences can still be verified against current source.'}`;
         state.proposal = await this.ask(state, 'feedback-analysis', `Investigate EVERY exact indexed comment. Never dismiss human feedback. Diagnose missing-knowledge, not-applied (an existing rule was ignored), ambiguity (including a new preference), or execution-tooling. State unknown historical causes as unknown. Prefer reusing/clarifying existing rules or improving application/workflow/automation over adding paraphrases. Propose only compact operational rules, never audit history. Preserve scope and exceptions; consolidate duplicates and explicitly replace obsolete guidance. For nontrivial generalization supply an analogous case and a non-applicable case; simple explicit preferences can explain why cases are unnecessary. Ask the user about genuine conflicts with evidence and options. Return ONLY JSON {"questions":[],"dispositions":[{"ref":"input ref","feedback":"exact comment","diagnosis":"not-applied","evidence":"source or explicit preference","action":"correction","prevention":"concrete reusable remedy","ruleIds":["existing-or-upsert-id"]}],"upsert":[{"id":"stable-id","category":"testing","appliesWhen":"scope and exceptions","instruction":"actionable rule","reason":"short failure mechanism"}],"retire":[{"id":"obsolete-id","replacements":["active-id"],"reason":"why replaced"}],"caseCheck":{"analogous":"case and expected application or justified N/A","nonApplicable":"case and expected exclusion or justified N/A"}}. Empty upsert/retire is valid when existing rules suffice. All ruleIds must exist after curation. Never claim measured improvement.\n${context}`);
         if (state.proposal.questions?.length) throw new Error(`User clarification required: ${json(state.proposal.questions)}`);
-        const next = curate(catalog, state.proposal, state.feedbackBatch.items, state.policy.maxKnowledgeChars);
+        const next = curate(catalog, state.proposal, state.feedbackBatch.items);
         if (['analogous', 'nonApplicable'].some((key) => typeof state.proposal.caseCheck?.[key] !== 'string'
           || !state.proposal.caseCheck[key].trim())) throw new Error('Missing scoped case checks or justification');
-        state.verification = await this.ask(state, 'learning-validator', `Independently verify every exact comment and the proposed remedy against relevant source and user intent. Never dismiss feedback. Check diagnosis, reuse of existing guidance, faithful preservation of all still-applicable rules/exceptions, replacements, duplicate prevention and caseCheck expectations. A preference does not require a historic miss or blind evaluation. Check the complete resulting active catalog, not only additions. Return ONLY JSON {"valid":true,"evidence":["source-grounded checks"],"issues":[]}; unresolved conflicts need evidence and options, not autonomous dismissal.\n${context}\nProposal: ${json(state.proposal)}\nResulting catalog: ${catalogText(next, state.policy.maxKnowledgeChars)}`);
+        state.verification = await this.ask(state, 'learning-validator', `Independently verify every exact comment and the proposed remedy against relevant source and user intent. Never dismiss feedback. Check diagnosis, reuse of existing guidance, faithful preservation of all still-applicable rules/exceptions, replacements, duplicate prevention and caseCheck expectations. A preference does not require a historic miss or blind evaluation. Check the complete resulting active catalog, not only additions. Return ONLY JSON {"valid":true,"evidence":["source-grounded checks"],"issues":[]}; unresolved conflicts need evidence and options, not autonomous dismissal.\n${context}\nProposal: ${json(state.proposal)}\nResulting catalog: ${catalogText(next)}`);
         const verification = state.verification;
         if (verification.valid !== true || !Array.isArray(verification.evidence) || !verification.evidence.length
           || verification.evidence.some((entry) => typeof entry !== 'string' || !entry.trim())
@@ -539,7 +536,7 @@ export class Controller {
         const original = JSON.parse(await readFile(path.join(this.runtime, safeId(runId), 'state.json'), 'utf8'));
         const policy = await this.policy();
         state.policy = policy;
-        state.knowledge = await knowledge(this.root, policy.maxKnowledgeChars);
+        state.knowledge = await knowledge(this.root);
         if (!original.rounds.some((round) => round.reports.length)) throw new Error('Original reviewer evidence unavailable');
         const evidenceDir = path.join(state.dir, 'original-evidence');
         await privateDirectory(evidenceDir);
@@ -653,7 +650,6 @@ export class Controller {
         const file = path.join(this.root, '.harness/lessons', `${id}.json`);
         const registryFile = path.join(this.root, '.harness/knowledge.json');
         const registry = JSON.parse(await readFile(registryFile, 'utf8'));
-        if (json([...JSON.parse(state.knowledge), deployedLesson(lesson)]).length > policy.maxKnowledgeChars) throw new Error('New knowledge exceeds budget; curate registry');
         await save(file, lesson);
         registry.lessons.push({ id, sha256: hash(await readFile(file, 'utf8')) });
         await save(registryFile, registry);
