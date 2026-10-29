@@ -23,10 +23,11 @@ class AccountStatementsOverviewPage private constructor(page: Page) : SaPageBase
         }
     }
 
-    fun shouldHaveSimpleTypeBadge(title: String, status: String) {
+    fun shouldHaveTypeBadge(title: String, status: String) {
         val badge = statement(title).locator(".overview-item__middle-column .sa-status-label")
         badge.shouldHaveCount(1)
-        badge.shouldContainClass("sa-status-label_${status}-simplified")
+        badge.shouldContainClass("sa-status-label_${status}")
+        badge.locator(":scope[class*='-simplified']").shouldHaveCount(0)
         badge.locator(".sa-icon").shouldHaveCount(0)
     }
 

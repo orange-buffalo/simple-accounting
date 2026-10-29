@@ -9,7 +9,7 @@
       </SaOverviewItemPrimaryAttribute>
     </template>
     <template #middle-column>
-      <SaStatusLabel :status="status" simplified hide-icon>{{ type }}</SaStatusLabel>
+      <SaStatusLabel :status="status" hide-icon>{{ type }}</SaStatusLabel>
     </template>
     <template #last-column>
       <SaOverviewItemAmountPanel :amount="statement.amountInCents" :currency="statement.currency" />

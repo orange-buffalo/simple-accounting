@@ -55,10 +55,10 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                 summary(title = "Moon-delivery", day = 13, type = dataValues(SaStatusLabel.successStatusValue(), "Credit"), amount = "USD 1.25"),
                 summary(title = "Unknown-Slurm", day = 12, type = dataValues(SaStatusLabel.regularStatusValue(), "Other"), amount = "USD 1.25"),
             )
-            shouldHaveSimpleTypeBadge(title = "Philip J. Fry", status = "success")
-            shouldHaveSimpleTypeBadge(title = "Bender", status = "failure")
-            shouldHaveSimpleTypeBadge(title = "Moon-delivery", status = "success")
-            shouldHaveSimpleTypeBadge(title = "Unknown-Slurm", status = "regular")
+            shouldHaveTypeBadge(title = "Philip J. Fry", status = "success")
+            shouldHaveTypeBadge(title = "Bender", status = "failure")
+            shouldHaveTypeBadge(title = "Moon-delivery", status = "success")
+            shouldHaveTypeBadge(title = "Unknown-Slurm", status = "regular")
             reportRendering("account-statements.collapsed")
             statement("Philip J. Fry").shouldHaveDetails(
                 sections = arrayOf(
@@ -114,9 +114,9 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                     "Slurm-incoming" to dataValues(SaStatusLabel.successStatusValue(), "Conversion"),
                 )
             }
-            shouldHaveSimpleTypeBadge(title = "Slurm-incoming", status = "success")
-            shouldHaveSimpleTypeBadge(title = "Slurm-outgoing", status = "failure")
-            shouldHaveSimpleTypeBadge(title = "Slurm-unknown", status = "regular")
+            shouldHaveTypeBadge(title = "Slurm-incoming", status = "success")
+            shouldHaveTypeBadge(title = "Slurm-outgoing", status = "failure")
+            shouldHaveTypeBadge(title = "Slurm-unknown", status = "regular")
             reportRendering("account-statements.conversion-directions")
         }
     }

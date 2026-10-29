@@ -427,6 +427,13 @@
       "appliesWhen": "Presenting account-statement transaction details",
       "instruction": "Do not display internal integration IDs or internal statement-record IDs in the details list. Retain identifiers internally where needed, and preserve meaningful provider account and external transaction references.",
       "reason": "Internal persistence identifiers add noise without helping users interpret transactions."
+    },
+    {
+      "id": "status-label-badge-variants",
+      "category": "frontend",
+      "appliesWhen": "Rendering account-statement transaction types or implementing an explicitly requested iconless status badge; excludes intentionally simplified text labels",
+      "instruction": "Use SaStatusLabel with hide-icon and without simplified for iconless badges. Preserve semantic status mappings and shared component behavior rather than introducing custom badge styles.",
+      "reason": "Icon visibility and badge styling are independent props; simplified removes the badge background."
     }
   ]
 }
