@@ -709,7 +709,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     val customer = customer(workspace = workspace)
                     invoice(
                         customer = customer,
-                        title = "Delivery to Omicron Persei 8",
+                        invoiceNumber = "Delivery to Omicron Persei 8",
                         attachments = setOf(doc),
                     )
                 }
@@ -725,7 +725,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeEditInvoicePage {
-            title {
+            invoiceNumber {
                 input.shouldHaveValue("Delivery to Omicron Persei 8")
             }
         }
@@ -941,7 +941,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
                     )
                     invoice(
                         customer = customer(workspace = workspace),
-                        title = "Delivery to Mars",
+                        invoiceNumber = "Delivery to Mars",
                         attachments = setOf(invoiceDocument),
                     )
 

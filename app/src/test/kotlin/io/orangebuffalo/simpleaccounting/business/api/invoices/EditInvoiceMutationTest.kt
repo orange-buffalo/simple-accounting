@@ -92,18 +92,18 @@ class EditInvoiceMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
-            mustNotBeBlankTestCases("title") { value ->
+            mustNotBeBlankTestCases("invoiceNumber") { value ->
                 editInvoiceMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryInvoice.id!!,
-                    title = value,
+                    invoiceNumber = value,
                 )
             },
-            sizeConstraintTestCases("title", maxLength = 255) { value ->
+            sizeConstraintTestCases("invoiceNumber", maxLength = 255) { value ->
                 editInvoiceMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryInvoice.id!!,
-                    title = value,
+                    invoiceNumber = value,
                 )
             },
             mustNotBeBlankTestCases("currency") { value ->
@@ -208,7 +208,7 @@ class EditInvoiceMutationTest(
                         id = invoice.id!!,
                         version = invoice.version!!,
                         customerId = newCustomer.id!!,
-                        title = "Updated Slurm delivery",
+                        invoiceNumber = "Updated Slurm delivery",
                         dateIssued = LocalDate.of(3025, 3, 10),
                         dateSent = LocalDate.of(3025, 3, 11),
                         datePaid = LocalDate.of(3025, 4, 1),
@@ -222,7 +222,7 @@ class EditInvoiceMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditInvoice to buildJsonObject {
                         put("id", invoice.id!!)
-                        put("title", "Updated Slurm delivery")
+                        put("invoiceNumber", "Updated Slurm delivery")
                         put("dateIssued", "3025-03-10")
                         put("dateSent", "3025-03-11")
                         put("datePaid", "3025-04-01")
@@ -238,7 +238,7 @@ class EditInvoiceMutationTest(
                 .shouldBeEntityWithFields(
                     Invoice(
                         customerId = newCustomer.id!!,
-                        title = "Updated Slurm delivery",
+                        invoiceNumber = "Updated Slurm delivery",
                         dateIssued = LocalDate.of(3025, 3, 10),
                         dateSent = LocalDate.of(3025, 3, 11),
                         datePaid = LocalDate.of(3025, 4, 1),
@@ -273,7 +273,7 @@ class EditInvoiceMutationTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.EditInvoice to buildJsonObject {
                         put("id", invoice.id!!)
-                        put("title", "Spaceship parts")
+                        put("invoiceNumber", "Spaceship parts")
                         put("dateIssued", MOCK_DATE.toString())
                         put("dateSent", JsonNull)
                         put("datePaid", JsonNull)
@@ -289,7 +289,7 @@ class EditInvoiceMutationTest(
                 .shouldBeEntityWithFields(
                     Invoice(
                         customerId = preconditions.fryCustomer.id!!,
-                        title = "Spaceship parts",
+                        invoiceNumber = "Spaceship parts",
                         dateIssued = MOCK_DATE,
                         dateSent = null,
                         datePaid = null,
@@ -358,7 +358,7 @@ class EditInvoiceMutationTest(
         id: String,
         version: Int = preconditions.fryInvoice.version!!,
         customerId: String = preconditions.fryCustomer.id!!,
-        title: String = "Spaceship parts",
+        invoiceNumber: String = "Spaceship parts",
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
         datePaid: LocalDate? = null,
@@ -373,7 +373,7 @@ class EditInvoiceMutationTest(
         id = id,
         version = version,
         customerId = customerId,
-        title = title,
+        invoiceNumber = invoiceNumber,
         dateIssued = dateIssued,
         dateSent = dateSent,
         datePaid = datePaid,
@@ -385,7 +385,7 @@ class EditInvoiceMutationTest(
         generalTaxId = generalTaxId,
     ) {
         this.id
-        this.title
+        this.invoiceNumber
         this.dateIssued
         this.dateSent
         this.datePaid

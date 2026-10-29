@@ -45,7 +45,7 @@
             node {
               id
               version
-              title
+              invoiceNumber
               dateIssued
               dateSent
               datePaid

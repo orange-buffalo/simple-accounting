@@ -35,7 +35,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with basic fields`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Delivery services") }
+            invoiceNumber { input.fill("Delivery services") }
             amount { input.fill("150.00") }
             dateIssued { input.fill("15/01/3025") }
             dueDate { input.fill("15/02/3025") }
@@ -48,7 +48,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Invoice>()
             .shouldBeEntityWithFields(
                 Invoice(
-                    title = "Delivery services",
+                    invoiceNumber = "Delivery services",
                     customerId = preconditions.customer.id!!,
                     dateIssued = LocalDate.of(3025, 1, 15),
                     dueDate = LocalDate.of(3025, 2, 15),
@@ -69,7 +69,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with general tax`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Taxable delivery") }
+            invoiceNumber { input.fill("Taxable delivery") }
             amount { input.fill("100.00") }
             dateIssued { input.fill("15/01/3025") }
             dueDate { input.fill("15/02/3025") }
@@ -90,7 +90,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with notes`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Delivery to Omicron Persei 8") }
+            invoiceNumber { input.fill("Delivery to Omicron Persei 8") }
             amount { input.fill("75.00") }
             dateIssued { input.fill("15/01/3025") }
             dueDate { input.fill("15/02/3025") }
@@ -132,7 +132,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateInvoicePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Moon cargo delivery") }
+            invoiceNumber { input.fill("Moon cargo delivery") }
             amount { input.fill("200.00") }
             dateIssued { input.fill("15/01/3025") }
             dueDate { input.fill("15/02/3025") }
@@ -201,7 +201,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with sent and paid dates`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Robot repair service") }
+            invoiceNumber { input.fill("Robot repair service") }
             amount { input.fill("300.00") }
             dateIssued { input.fill("10/01/3025") }
             dueDate { input.fill("10/02/3025") }
@@ -232,10 +232,11 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             customer {
                 shouldHaveValidationError("This value is required")
             }
-            title {
+            invoiceNumber {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
             dueDate {
@@ -244,7 +245,6 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             amount {
                 shouldHaveValidationError("This value is required")
             }
-            shouldHaveNotifications { validationFailed() }
 
             reportRendering("create-invoice.validation-errors")
 
@@ -256,26 +256,26 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             saveButton.click()
 
-            title {
+            shouldHaveNotifications { validationFailed() }
+            invoiceNumber {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
-            shouldHaveNotifications { validationFailed() }
 
-            title { input.fill("Delivery to Mars") }
+            invoiceNumber { input.fill("Delivery to Mars") }
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             dueDate {
                 shouldHaveValidationError("This value is required")
             }
-            shouldHaveNotifications { validationFailed() }
 
             dueDate { input.fill("15/02/3025") }
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             amount {
                 shouldHaveValidationError("This value is required")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -286,20 +286,20 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             amount { input.fill("123.45") }
             dueDate { input.fill("15/02/3025") }
 
-            title { input.fill("x".repeat(256)) }
+            invoiceNumber { input.fill("x".repeat(256)) }
             saveButton.click()
-            title {
+            shouldHaveNotifications { validationFailed() }
+            invoiceNumber {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
 
-            title { input.fill("Robot oil refill") }
+            invoiceNumber { input.fill("Robot oil refill") }
             notes { input.fill("x".repeat(1025)) }
             saveButton.click()
+            shouldHaveNotifications { validationFailed() }
             notes {
                 shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -307,7 +307,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should navigate to overview on cancel`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Cancelled Mars trip") }
+            invoiceNumber { input.fill("Cancelled Mars trip") }
 
             cancelButton.click()
         }
@@ -324,7 +324,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should handle all UI states correctly`(page: Page) {
         data class ExpectedFieldsVisibility(
             val customer: Boolean = true,
-            val title: Boolean = true,
+            val invoiceNumber: Boolean = true,
             val currency: Boolean = true,
             val amount: Boolean = true,
             val dateIssued: Boolean = true,
@@ -340,7 +340,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         fun CreateInvoicePage.verifyFieldsVisibility(expected: ExpectedFieldsVisibility) {
             // Always visible basic fields
             if (expected.customer) customer.shouldBeVisible() else customer.shouldBeHidden()
-            if (expected.title) title.shouldBeVisible() else title.shouldBeHidden()
+            if (expected.invoiceNumber) invoiceNumber.shouldBeVisible() else invoiceNumber.shouldBeHidden()
             if (expected.currency) currency.shouldBeVisible() else currency.shouldBeHidden()
             if (expected.amount) amount.shouldBeVisible() else amount.shouldBeHidden()
             if (expected.dateIssued) dateIssued.shouldBeVisible() else dateIssued.shouldBeHidden()

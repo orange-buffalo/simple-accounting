@@ -1,5 +1,5 @@
 <template>
-  <SaOverviewItem :title="invoice.title">
+  <SaOverviewItem :title="invoice.invoiceNumber">
     <template #primary-attributes>
       <SaOverviewItemPrimaryAttribute
         :tooltip="$t.invoicesOverviewPanel.customer.tooltip()"
@@ -254,7 +254,7 @@
       $id: String!,
       $version: Int!,
       $customerId: String!,
-      $title: String!,
+      $invoiceNumber: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
       $datePaid: LocalDate,
@@ -270,7 +270,7 @@
         id: $id,
         version: $version,
         customerId: $customerId,
-        title: $title,
+        invoiceNumber: $invoiceNumber,
         dateIssued: $dateIssued,
         dateSent: $dateSent,
         datePaid: $datePaid,
@@ -292,7 +292,7 @@
       id: props.invoice.id,
       version: props.invoice.version,
       customerId: props.invoice.customer!.id,
-      title: props.invoice.title,
+      invoiceNumber: props.invoice.invoiceNumber,
       dateIssued: props.invoice.dateIssued,
       dateSent: formatDateToLocalISOString(new Date()),
       datePaid: props.invoice.datePaid ?? null,

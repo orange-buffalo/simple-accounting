@@ -13,7 +13,7 @@
   >
     <div class="sa-invoice-select__option">
       <div class="sa-invoice-select__option__title">
-        {{ invoice(entity).title }}
+        {{ invoice(entity).invoiceNumber }}
       </div>
       <div class="sa-invoice-select__option__date">
         <SaIcon icon="calendar" />
@@ -45,14 +45,14 @@
   const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
 
   type InvoiceItem = HasOptionalId & {
-    title: string,
+    invoiceNumber: string,
     dateIssued: string,
     amount: number,
     currency: string,
   };
 
   const invoice = (entity: HasOptionalId) => entity as InvoiceItem;
-  const invoiceLabelProvider = (entity: HasOptionalId) => invoice(entity).title;
+  const invoiceLabelProvider = (entity: HasOptionalId) => invoice(entity).invoiceNumber;
 
   const { currentWorkspaceId } = useCurrentWorkspace();
 
@@ -63,7 +63,7 @@
           edges {
             node {
               id
-              title
+              invoiceNumber
               dateIssued
               amount
               currency
@@ -80,7 +80,7 @@
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
           id
-          title
+          invoiceNumber
           dateIssued
           amount
           currency
@@ -124,7 +124,7 @@
     if (!inv) throw new Error(`Invoice ${id} not found`);
     return {
       id: inv.id,
-      title: inv.title,
+      invoiceNumber: inv.invoiceNumber,
       dateIssued: inv.dateIssued,
       amount: inv.amount,
       currency: inv.currency,

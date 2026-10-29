@@ -722,14 +722,14 @@ type Invoice {
   generalTax: GeneralTax
   "ID of the invoice."
   id: String!
+  "Invoice number."
+  invoiceNumber: String!
   "Optional notes for the invoice."
   notes: String
   "Status of the invoice."
   status: InvoiceStatus!
   "Time when the invoice was cancelled, as ISO 8601 timestamp."
   timeCancelled: DateTime
-  "Title of the invoice."
-  title: String!
   "Version of the invoice for optimistic locking."
   version: Int!
 }
@@ -944,10 +944,10 @@ type Mutation {
     dueDate: LocalDate!,
     "ID of the general tax applied to this invoice."
     generalTaxId: String,
+    "Invoice number."
+    invoiceNumber: String! @notBlank @size(max : 255, min : 0),
     "Optional notes for the invoice."
     notes: String @size(max : 1024, min : 0),
-    "Title of the invoice."
-    title: String! @notBlank @size(max : 255, min : 0),
     "ID of the workspace to create the invoice in."
     workspaceId: String!
   ): Invoice! @auth(type : REGULAR_USER)
@@ -1166,10 +1166,10 @@ type Mutation {
     generalTaxId: String,
     "ID of the invoice to update."
     id: String!,
+    "New invoice number."
+    invoiceNumber: String! @notBlank @size(max : 255, min : 0),
     "New optional notes for the invoice."
     notes: String @size(max : 1024, min : 0),
-    "New title of the invoice."
-    title: String! @notBlank @size(max : 255, min : 0),
     "Version of the invoice state used for editing."
     version: Int!,
     "ID of the workspace the invoice belongs to."
@@ -1809,7 +1809,7 @@ type Workspace {
     after: String,
     "The maximum number of items to return."
     first: Int!,
-    "Optional free text search to filter invoices by title, notes, or customer name."
+    "Optional free text search to filter invoices by invoice number, notes, or customer name."
     freeSearchText: String,
     "Optional filter to include only invoices with the specified statuses."
     statusIn: [InvoiceStatus!]

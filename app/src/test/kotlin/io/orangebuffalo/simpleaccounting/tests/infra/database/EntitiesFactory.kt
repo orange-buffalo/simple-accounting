@@ -441,7 +441,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
 
     fun invoice(
         customer: Customer? = null,
-        title: String = "invoice",
+        invoiceNumber: String = "invoice",
         createdAt: Instant = MOCK_TIME,
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
@@ -458,7 +458,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         val customerId = if (customer == null) customer().id else customer.id
         return Invoice(
             customerId = customerId!!,
-            title = title,
+            invoiceNumber = invoiceNumber,
             dateIssued = dateIssued,
             dateSent = dateSent,
             datePaid = datePaid,

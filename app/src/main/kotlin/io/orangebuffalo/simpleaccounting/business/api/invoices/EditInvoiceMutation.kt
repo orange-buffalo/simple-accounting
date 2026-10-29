@@ -30,10 +30,10 @@ class EditInvoiceMutation(
         version: Int,
         @GraphQLDescription("ID of the customer for this invoice.")
         customerId: String,
-        @GraphQLDescription("New title of the invoice.")
+        @GraphQLDescription("New invoice number.")
         @NotBlank
         @Size(max = 255)
-        title: String,
+        invoiceNumber: String,
         @GraphQLDescription("New date when the invoice was issued.")
         dateIssued: LocalDate,
         @GraphQLDescription("New date when the invoice was sent.")
@@ -62,7 +62,7 @@ class EditInvoiceMutation(
         return invoicesService.saveInvoice(
             invoice.copy(
                 customerId = customerId,
-                title = title,
+                invoiceNumber = invoiceNumber,
                 dateIssued = dateIssued,
                 dateSent = dateSent,
                 datePaid = datePaid,

@@ -64,7 +64,7 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
                 dateIssued = LocalDate.of(3000, 2, 10),
                 generalTaxId = null,
                 notes = null,
-                title = "Stuffed Toys"
+                invoiceNumber = "Stuffed Toys"
             )
         )
     }

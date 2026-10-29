@@ -34,9 +34,9 @@
             />
 
             <SaFormInput
-              prop="title"
-              :label="$t.editInvoice.generalInformation.title.label()"
-              :placeholder="$t.editInvoice.generalInformation.title.placeholder()"
+              prop="invoiceNumber"
+              :label="$t.editInvoice.generalInformation.invoiceNumber.label()"
+              :placeholder="$t.editInvoice.generalInformation.invoiceNumber.placeholder()"
             />
 
             <SaFormCurrencyInput
@@ -189,7 +189,7 @@
         invoice(id: $invoiceId) {
           id
           version
-          title
+          invoiceNumber
           dateIssued
           dateSent
           datePaid
@@ -235,7 +235,7 @@
     mutation createInvoiceMutation(
       $workspaceId: String!,
       $customerId: String!,
-      $title: String!,
+      $invoiceNumber: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
       $datePaid: LocalDate,
@@ -249,7 +249,7 @@
       createInvoice(
         workspaceId: $workspaceId,
         customerId: $customerId,
-        title: $title,
+        invoiceNumber: $invoiceNumber,
         dateIssued: $dateIssued,
         dateSent: $dateSent,
         datePaid: $datePaid,
@@ -271,7 +271,7 @@
       $id: String!,
       $version: Int!,
       $customerId: String!,
-      $title: String!,
+      $invoiceNumber: String!,
       $dateIssued: LocalDate!,
       $dateSent: LocalDate,
       $datePaid: LocalDate,
@@ -287,7 +287,7 @@
         id: $id,
         version: $version,
         customerId: $customerId,
-        title: $title,
+        invoiceNumber: $invoiceNumber,
         dateIssued: $dateIssued,
         dateSent: $dateSent,
         datePaid: $datePaid,

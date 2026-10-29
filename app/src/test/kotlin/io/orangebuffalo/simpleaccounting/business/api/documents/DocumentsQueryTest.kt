@@ -360,7 +360,7 @@ class DocumentsQueryTest(
 
             expense(workspace = it.workspace, title = "Robot oil delivery", attachments = setOf(robotOilReceipt))
             income(workspace = it.workspace, title = "Moon cargo payment", attachments = setOf(moonCargoReceipt))
-            invoice(title = "Mars invoice", attachments = setOf(marsInvoiceReceipt))
+            invoice(invoiceNumber = "Mars invoice", attachments = setOf(marsInvoiceReceipt))
             incomeTaxPayment(workspace = it.workspace, title = "Central Bureaucracy tax", attachments = setOf(bureaucracyTaxReceipt))
             standaloneDocument(title = "Good news archive", document = goodNewsArchive)
 
@@ -723,7 +723,7 @@ class DocumentsQueryTest(
         @Test
         fun `should return usages for document attached to an invoice`() {
             executeAndVerifyUsages { workspace, doc ->
-                val invoice = invoice(title = "Planet Express invoice", attachments = setOf(doc))
+                val invoice = invoice(invoiceNumber = "Planet Express invoice", attachments = setOf(doc))
                 listOf(Triple("INVOICE", invoice.id!!, "Planet Express invoice"))
             }
         }

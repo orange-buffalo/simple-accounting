@@ -206,7 +206,7 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
-        @GraphQLDescription("Optional free text search to filter invoices by title, notes, or customer name.")
+        @GraphQLDescription("Optional free text search to filter invoices by invoice number, notes, or customer name.")
         freeSearchText: String? = null,
         @GraphQLDescription("Optional filter to include only invoices with the specified statuses.")
         statusIn: List<InvoiceStatus>? = null,

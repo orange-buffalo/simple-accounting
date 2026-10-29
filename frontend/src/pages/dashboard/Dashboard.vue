@@ -121,7 +121,7 @@
           edges {
             node {
               id
-              title
+              invoiceNumber
               amount
               currency
               dateIssued

@@ -24,8 +24,8 @@ data class InvoiceGqlDto(
     @GraphQLDescription("Version of the invoice for optimistic locking.")
     val version: Int,
 
-    @GraphQLDescription("Title of the invoice.")
-    val title: String,
+    @GraphQLDescription("Invoice number.")
+    val invoiceNumber: String,
 
     @GraphQLDescription("Date when the invoice was issued.")
     val dateIssued: LocalDate,
@@ -85,7 +85,7 @@ data class InvoiceGqlDto(
 fun io.orangebuffalo.simpleaccounting.business.invoices.Invoice.toInvoiceGqlDto(workspaceId: String) = InvoiceGqlDto(
     id = id!!,
     version = version!!,
-    title = title,
+    invoiceNumber = invoiceNumber,
     dateIssued = dateIssued,
     dateSent = dateSent,
     datePaid = datePaid,

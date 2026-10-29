@@ -12,7 +12,7 @@
         :amount-in-cents="invoice.amount"
       />
 
-      <span class="sa-dashboard__card__header__finalized">{{ invoice.title }}</span>
+      <span class="sa-dashboard__card__header__finalized">{{ invoice.invoiceNumber }}</span>
       <span
         class="sa-dashboard__card__header__finalized sa-dashboard__invoice-status"
         :class="{ 'sa-dashboard__invoice-status--overdue': invoice.status === 'OVERDUE' }"

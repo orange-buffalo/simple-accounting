@@ -66,7 +66,7 @@
               generalTaxAmount
               linkedInvoice {
                 id
-                title
+                invoiceNumber
               }
               category {
                 name

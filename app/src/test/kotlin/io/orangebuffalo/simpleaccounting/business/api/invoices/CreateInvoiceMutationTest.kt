@@ -78,11 +78,11 @@ class CreateInvoiceMutationTest(
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
         fun testCases() = listOf(
-            mustNotBeBlankTestCases("title") { value ->
-                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, title = value)
+            mustNotBeBlankTestCases("invoiceNumber") { value ->
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, invoiceNumber = value)
             },
-            sizeConstraintTestCases("title", maxLength = 255) { value ->
-                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, title = value)
+            sizeConstraintTestCases("invoiceNumber", maxLength = 255) { value ->
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, invoiceNumber = value)
             },
             mustNotBeBlankTestCases("currency") { value ->
                 createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, currency = value)
@@ -146,7 +146,7 @@ class CreateInvoiceMutationTest(
                     createInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = preconditions.fryCustomer.id!!,
-                        title = "Slurm delivery invoice",
+                        invoiceNumber = "Slurm delivery invoice",
                         dateIssued = LocalDate.of(3025, 1, 15),
                         dateSent = LocalDate.of(3025, 1, 16),
                         datePaid = LocalDate.of(3025, 2, 1),
@@ -161,7 +161,7 @@ class CreateInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateInvoice to buildJsonObject {
-                        put("title", "Slurm delivery invoice")
+                        put("invoiceNumber", "Slurm delivery invoice")
                         put("dateIssued", "3025-01-15")
                         put("dateSent", "3025-01-16")
                         put("datePaid", "3025-02-01")
@@ -174,12 +174,12 @@ class CreateInvoiceMutationTest(
                 )
 
             aggregateTemplate.findAll<Invoice>()
-                .filter { it.customerId == preconditions.fryCustomer.id && it.title == "Slurm delivery invoice" }
+                .filter { it.customerId == preconditions.fryCustomer.id && it.invoiceNumber == "Slurm delivery invoice" }
                 .shouldBeSingle()
                 .shouldBeEntityWithFields(
                     Invoice(
                         customerId = preconditions.fryCustomer.id!!,
-                        title = "Slurm delivery invoice",
+                        invoiceNumber = "Slurm delivery invoice",
                         dateIssued = LocalDate.of(3025, 1, 15),
                         dateSent = LocalDate.of(3025, 1, 16),
                         datePaid = LocalDate.of(3025, 2, 1),
@@ -201,7 +201,7 @@ class CreateInvoiceMutationTest(
                     createInvoiceMutation(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = preconditions.fryCustomer.id!!,
-                        title = "Robot maintenance",
+                        invoiceNumber = "Robot maintenance",
                         dateIssued = LocalDate.of(3025, 2, 1),
                         dueDate = LocalDate.of(3025, 2, 28),
                         currency = "USD",
@@ -211,7 +211,7 @@ class CreateInvoiceMutationTest(
                 .from(preconditions.fry)
                 .executeAndVerifySuccessResponse(
                     DgsConstants.MUTATION.CreateInvoice to buildJsonObject {
-                        put("title", "Robot maintenance")
+                        put("invoiceNumber", "Robot maintenance")
                         put("dateIssued", "3025-02-01")
                         put("dateSent", JsonNull)
                         put("datePaid", JsonNull)
@@ -224,12 +224,12 @@ class CreateInvoiceMutationTest(
                 )
 
             aggregateTemplate.findAll<Invoice>()
-                .filter { it.customerId == preconditions.fryCustomer.id && it.title == "Robot maintenance" }
+                .filter { it.customerId == preconditions.fryCustomer.id && it.invoiceNumber == "Robot maintenance" }
                 .shouldBeSingle()
                 .shouldBeEntityWithFields(
                     Invoice(
                         customerId = preconditions.fryCustomer.id!!,
-                        title = "Robot maintenance",
+                        invoiceNumber = "Robot maintenance",
                         dateIssued = LocalDate.of(3025, 2, 1),
                         dateSent = null,
                         datePaid = null,
@@ -257,7 +257,7 @@ class CreateInvoiceMutationTest(
     private fun MutationProjection.createInvoiceMutation(
         workspaceId: String,
         customerId: String = preconditions.fryCustomer.id!!,
-        title: String = "Spaceship parts",
+        invoiceNumber: String = "Spaceship parts",
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
         datePaid: LocalDate? = null,
@@ -270,7 +270,7 @@ class CreateInvoiceMutationTest(
     ): MutationProjection = createInvoice(
         workspaceId = workspaceId,
         customerId = customerId,
-        title = title,
+        invoiceNumber = invoiceNumber,
         dateIssued = dateIssued,
         dateSent = dateSent,
         datePaid = datePaid,
@@ -281,7 +281,7 @@ class CreateInvoiceMutationTest(
         attachments = attachments,
         generalTaxId = generalTaxId,
     ) {
-        this.title
+        this.invoiceNumber
         this.dateIssued
         this.dateSent
         this.datePaid

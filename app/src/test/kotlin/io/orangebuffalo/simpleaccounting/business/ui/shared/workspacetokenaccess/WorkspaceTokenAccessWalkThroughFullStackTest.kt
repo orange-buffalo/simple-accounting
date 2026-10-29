@@ -121,7 +121,7 @@ class WorkspaceTokenAccessWalkThroughFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = customer,
-                    title = "Dark matter shipment",
+                    invoiceNumber = "Dark matter shipment",
                     dateIssued = LocalDate.of(3025, 1, 1),
                     dueDate = LocalDate.of(3025, 2, 1),
                     dateSent = LocalDate.of(3025, 1, 2),

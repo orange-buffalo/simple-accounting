@@ -53,7 +53,7 @@ class SaDocumentsListLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             mimeType = "application/pdf"
                         )
                     ),
-                    title = "Spaceship fuel delivery"
+                    invoiceNumber = "Spaceship fuel delivery"
                 )
             }
         }
@@ -104,7 +104,7 @@ class SaDocumentsListLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             storageLocation = "${workspace.id}/leela-invoice.docx",
                         )
                     ),
-                    title = "Planet Express delivery"
+                    invoiceNumber = "Planet Express delivery"
                 )
             }
         }
@@ -153,7 +153,7 @@ class SaDocumentsListLocalFileSystemFullStackTest : SaFullStackTestBase() {
                             mimeType = "application/pdf"
                         )
                     ),
-                    title = "Omicron Persei 8 delivery"
+                    invoiceNumber = "Omicron Persei 8 delivery"
                 )
             }
         }

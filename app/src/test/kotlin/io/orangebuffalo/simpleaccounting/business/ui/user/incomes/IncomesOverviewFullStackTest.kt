@@ -455,7 +455,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             val document1 = document(workspace = workspace, name = "Receipt 1")
             val document2 = document(workspace = workspace, name = "Receipt 2")
             val customer = customer(workspace = workspace, name = "Customer 1")
-            val invoice1 = invoice(customer = customer, title = "Invoice 1", currency = "USD")
+            val invoice1 = invoice(customer = customer, invoiceNumber = "Invoice 1", currency = "USD")
 
             init {
                 // 1. Finalized income in default currency (USD)

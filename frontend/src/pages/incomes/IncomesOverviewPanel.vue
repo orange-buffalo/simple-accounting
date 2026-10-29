@@ -177,7 +177,7 @@
             :label="$t.incomesOverviewPanel.linkedInvoice.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ income.linkedInvoice?.title }}
+            {{ income.linkedInvoice?.invoiceNumber }}
           </SaOverviewItemDetailsSectionAttribute>
         </div>
       </SaOverviewItemDetailsSection>

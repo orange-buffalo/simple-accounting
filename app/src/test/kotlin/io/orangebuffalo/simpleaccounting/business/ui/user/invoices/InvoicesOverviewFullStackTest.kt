@@ -390,7 +390,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 }
             }
 
-            // Filter by title
+            // Filter by invoice number
             filters.addTextFilter(label = "Search", value = "office")
             pageItems {
                 shouldHaveTitles("Office Invoice")
@@ -443,7 +443,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 init {
                     invoice(
                         customer = customer,
-                        title = "Spaceship parts delivery",
+                        invoiceNumber = "Spaceship parts delivery",
                         currency = "USD",
                         amount = 35000,
                         dateIssued = LocalDate.of(3025, 3, 10),
@@ -469,7 +469,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             customer {
                 input.shouldHaveSelectedValue("Mom's Friendly Robot Company")
             }
-            title {
+            invoiceNumber {
                 input.shouldHaveValue("Spaceship parts delivery")
             }
             currency {
@@ -511,7 +511,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 init {
                     invoice(
                         customer = customer,
-                        title = "Slurm supplies invoice",
+                        invoiceNumber = "Slurm supplies invoice",
                         dateIssued = LocalDate.of(3025, 2, 1),
                         dueDate = LocalDate.of(3025, 3, 1),
                         amount = 5000,
@@ -567,7 +567,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 init {
                     invoice(
                         customer = customer,
-                        title = "Interplanetary cargo delivery",
+                        invoiceNumber = "PE-3025-123",
                         dateIssued = LocalDate.of(3025, 5, 1),
                         dueDate = LocalDate.of(3025, 6, 1),
                         dateSent = LocalDate.of(3025, 5, 5),
@@ -583,14 +583,14 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openInvoicesOverviewPage {
             pageItems {
-                shouldHaveTitles("Interplanetary cargo delivery")
+                shouldHaveTitles("PE-3025-123")
                 staticItems[0].executeMarkAsPaidAction()
             }
         }
 
         page.shouldBeCreateIncomePage {
             title {
-                input.shouldHaveValue("Payment for Interplanetary cargo delivery")
+                input.shouldHaveValue("Payment for Invoice #PE-3025-123")
             }
             currency {
                 input.shouldHaveSelectedValue("EUR - Euro")
@@ -602,7 +602,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("Space Tax")
             }
             linkedInvoice {
-                input.shouldHaveSelectedValue("Interplanetary cargo delivery")
+                input.shouldHaveSelectedValue("PE-3025-123")
             }
         }
     }
@@ -625,7 +625,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 1. Paid invoice
                 invoice(
                     customer = customer,
-                    title = "Paid Invoice",
+                    invoiceNumber = "Paid Invoice",
                     dateIssued = LocalDate.of(3025, 1, 1),
                     dueDate = LocalDate.of(3025, 1, 5),
                     dateSent = LocalDate.of(3025, 1, 3),
@@ -637,7 +637,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 2. Sent invoice
                 invoice(
                     customer = customer,
-                    title = "Sent Invoice",
+                    invoiceNumber = "Sent Invoice",
                     dateIssued = LocalDate.of(3025, 1, 2),
                     dueDate = LocalDate.of(3025, 1, 30),
                     dateSent = LocalDate.of(3025, 1, 5),
@@ -648,7 +648,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 3. Overdue invoice
                 invoice(
                     customer = customer,
-                    title = "Overdue Invoice",
+                    invoiceNumber = "Overdue Invoice",
                     dateIssued = LocalDate.of(3025, 1, 3),
                     dueDate = LocalDate.of(3025, 1, 5),
                     dateSent = LocalDate.of(3025, 1, 4),
@@ -659,7 +659,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 4. Draft invoice
                 invoice(
                     customer = customer,
-                    title = "Draft Invoice",
+                    invoiceNumber = "Draft Invoice",
                     dateIssued = LocalDate.of(3025, 1, 4),
                     dueDate = LocalDate.of(3025, 1, 20),
                     amount = 7500,
@@ -669,7 +669,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 5. Cancelled invoice
                 invoice(
                     customer = customer,
-                    title = "Cancelled Invoice",
+                    invoiceNumber = "Cancelled Invoice",
                     dateIssued = LocalDate.of(3025, 1, 5),
                     dueDate = LocalDate.of(3025, 1, 15),
                     amount = 5000,
@@ -679,7 +679,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 6. Foreign currency invoice
                 invoice(
                     customer = customer,
-                    title = "Foreign Currency Invoice",
+                    invoiceNumber = "Foreign Currency Invoice",
                     dateIssued = LocalDate.of(3025, 1, 6),
                     dueDate = LocalDate.of(3025, 1, 10),
                     dateSent = LocalDate.of(3025, 1, 7),
@@ -692,7 +692,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 7. Invoice with tax
                 invoice(
                     customer = customer,
-                    title = "Invoice With Tax",
+                    invoiceNumber = "Invoice With Tax",
                     dateIssued = LocalDate.of(3025, 1, 7),
                     dueDate = LocalDate.of(3025, 1, 11),
                     dateSent = LocalDate.of(3025, 1, 8),
@@ -705,7 +705,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 8. Invoice with attachments
                 invoice(
                     customer = customer,
-                    title = "Invoice With Attachments",
+                    invoiceNumber = "Invoice With Attachments",
                     dateIssued = LocalDate.of(3025, 1, 8),
                     dueDate = LocalDate.of(3025, 1, 12),
                     dateSent = LocalDate.of(3025, 1, 9),
@@ -718,7 +718,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 9. Invoice with notes
                 invoice(
                     customer = customer,
-                    title = "Invoice With Notes",
+                    invoiceNumber = "Invoice With Notes",
                     dateIssued = LocalDate.of(3025, 1, 9),
                     dueDate = LocalDate.of(3025, 1, 13),
                     dateSent = LocalDate.of(3025, 1, 10),
@@ -731,7 +731,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // 10. Invoice with all attributes
                 invoice(
                     customer = customer,
-                    title = "Invoice With All Attributes",
+                    invoiceNumber = "Invoice With All Attributes",
                     dateIssued = LocalDate.of(3025, 1, 10),
                     dueDate = LocalDate.of(3025, 1, 14),
                     dateSent = LocalDate.of(3025, 1, 11),
@@ -758,7 +758,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 (1..15).forEach { index ->
                     invoice(
                         customer = customer,
-                        title = "Invoice $index",
+                        invoiceNumber = "Invoice $index",
                         dateIssued = baseDate.minusDays((index - 1).toLong()),
                         dueDate = baseDate.plusDays(10),
                         amount = 1000 * index.toLong(),
@@ -782,7 +782,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 val baseDate = LocalDate.of(3025, 1, 1)
                 invoice(
                     customer = officeCustomer,
-                    title = "Office Invoice",
+                    invoiceNumber = "Office Invoice",
                     dateIssued = baseDate.minusDays(1),
                     dueDate = baseDate.plusDays(10),
                     amount = 10000,
@@ -790,7 +790,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = travelCustomer,
-                    title = "Travel Invoice",
+                    invoiceNumber = "Travel Invoice",
                     dateIssued = baseDate.minusDays(2),
                     dueDate = baseDate.plusDays(10),
                     amount = 5000,
@@ -798,7 +798,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = mealsCustomer,
-                    title = "Meals Invoice",
+                    invoiceNumber = "Meals Invoice",
                     dateIssued = baseDate.minusDays(3),
                     dueDate = baseDate.plusDays(10),
                     amount = 3000,
@@ -808,7 +808,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 (1..10).forEach { index ->
                     invoice(
                         customer = otherCustomer,
-                        title = "Other $index",
+                        invoiceNumber = "Other $index",
                         dateIssued = baseDate.minusDays(10L + index),
                         dueDate = baseDate.plusDays(10),
                         amount = 1000,

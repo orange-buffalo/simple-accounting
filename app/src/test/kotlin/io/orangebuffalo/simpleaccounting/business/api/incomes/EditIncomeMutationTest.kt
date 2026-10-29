@@ -325,7 +325,7 @@ class EditIncomeMutationTest(
                 income(workspace = preconditions.fryWorkspace, title = "Slurm payment")
             }
             val fryCustomer = preconditions { customer(workspace = preconditions.fryWorkspace, name = "MomCorp") }
-            val linkedInvoice = preconditions { invoice(customer = fryCustomer, title = "Slurm invoice") }
+            val linkedInvoice = preconditions { invoice(customer = fryCustomer, invoiceNumber = "Slurm invoice") }
 
             client
                 .graphqlMutation {

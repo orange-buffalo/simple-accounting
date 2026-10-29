@@ -593,7 +593,7 @@ class IncomesQueryTest(
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace, name = "MomCorp")
-                    val invoice = invoice(customer = customer, title = "Robot oil invoice")
+                    val invoice = invoice(customer = customer, invoiceNumber = "Robot oil invoice")
                     val income = income(workspace = workspace, title = "Robot oil payment", linkedInvoice = invoice)
                 }
             }
@@ -601,7 +601,7 @@ class IncomesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     incomes(first = 10) {
                         edges {
-                            node { linkedInvoice { id; title } }
+                            node { linkedInvoice { id; invoiceNumber } }
                         }
                     }
                 }
@@ -615,7 +615,7 @@ class IncomesQueryTest(
                                     put("node", buildJsonObject {
                                         put("linkedInvoice", buildJsonObject {
                                             put("id", testData.invoice.id!!)
-                                            put("title", "Robot oil invoice")
+                                            put("invoiceNumber", "Robot oil invoice")
                                         })
                                     })
                                 })

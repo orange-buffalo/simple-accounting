@@ -24,7 +24,7 @@ class SaEntitySelectFullStackTest : SaFullStackTestBase() {
                     (1..15).forEach { idx ->
                         invoice(
                             customer = customer,
-                            title = "Planet Express invoice $idx",
+                            invoiceNumber = "Planet Express invoice $idx",
                             amount = (10000 + idx * 1000).toLong(),
                             dateIssued = LocalDate.of(3025, 1, idx),
                             status = InvoiceStatus.SENT
@@ -51,7 +51,7 @@ class SaEntitySelectFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry, defaultCurrency = "USD").also {
                     invoice(
                         customer = customer(workspace = it, name = "Mom's Friendly Robot Company"),
-                        title = "Delivery to Mars",
+                        invoiceNumber = "Delivery to Mars",
                         amount = 15000,
                         dateIssued = LocalDate.of(3025, 1, 10),
                         status = InvoiceStatus.SENT
@@ -80,14 +80,14 @@ class SaEntitySelectFullStackTest : SaFullStackTestBase() {
                     // that the final typed value, not an earlier prefix, was sent to the API.
                     invoice(
                         customer = customer(workspace = it, name = "Mom's Friendly Robot Company"),
-                        title = "Robot devil opera A",
+                        invoiceNumber = "Robot devil opera A",
                         amount = 66500,
                         dateIssued = LocalDate.of(3025, 6, 5),
                         status = InvoiceStatus.SENT
                     )
                     invoice(
                         customer = customer(workspace = it, name = "Mom's Friendly Robot Company"),
-                        title = searchQuery,
+                        invoiceNumber = searchQuery,
                         amount = 66600,
                         dateIssued = LocalDate.of(3025, 6, 6),
                         status = InvoiceStatus.SENT

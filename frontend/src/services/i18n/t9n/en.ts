@@ -687,7 +687,7 @@ export default {
       originalAmount: () => 'Please provide income amount',
     },
     fromInvoice: {
-      title: (invoiceTitle: string) => format('Payment for {0}', [invoiceTitle]),
+      title: (invoiceNumber: string) => format('Payment for Invoice #{0}', [invoiceNumber]),
     },
   },
 
@@ -805,9 +805,9 @@ export default {
         label: () => 'Customer',
         placeholder: () => 'Select a customer',
       },
-      title: {
-        label: () => 'Description / Title',
-        placeholder: () => 'Provide a short summary',
+      invoiceNumber: {
+        label: () => 'Invoice Number',
+        placeholder: () => 'Enter the invoice number',
       },
       currency: {
         label: () => 'Currency',
