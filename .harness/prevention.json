@@ -455,6 +455,13 @@
       "appliesWhen": "Implementing, documenting or testing account-statement free-text search; excludes unrelated entity search contracts",
       "instruction": "Search only accountId, externalId, type, partyName and additionalData. Exclude id, integrationId, provider and all currency columns, not occurrences of their values inside searchable text. Preserve dedicated providerIn filtering, workspace authorization and persistence/pagination identifiers. Keep schema documentation and generated artifacts aligned. Independently enumerate the five included fields in positive parameterized API cases with contrasting same-workspace records. Do not add regression tests asserting excluded-column membership; manually review the production allowlist instead. Audit cumulative statement query tests/docs for obsolete membership expectations. Preserve unrelated wildcard/escape, unmatched and optional-input tests.",
       "reason": "Explicit search membership keeps results relevant; scoped user-directed test removal must not weaken production exclusions or unrelated coverage."
+    },
+    {
+      "id": "generated-artifact-review-scope",
+      "category": "workflow",
+      "appliesWhen": "Preparing or conducting source reviews, compliance reviews or feedback audits involving generated artifacts",
+      "instruction": "Exclude artifacts marked linguist-generated in Git attributes from review snapshots, diffs, source packets and audits before content/size checks. Review authored sources, generator/verification definitions and attribute changes instead. Generated-output verification remains the primary agent's build/CI responsibility; preserve secret-path safeguards before exclusion.",
+      "reason": "Reviewing generated output duplicates automated verification and can block review of authored changes."
     }
   ]
 }

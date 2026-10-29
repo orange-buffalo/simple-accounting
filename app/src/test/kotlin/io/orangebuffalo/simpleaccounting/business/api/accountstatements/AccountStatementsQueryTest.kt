@@ -34,13 +34,13 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
     )
 
     private fun expected(vararg externalIds: String) = "workspace" to buildJsonObject {
-        put("accountStatements", buildJsonObject {
-            putJsonArray("edges") {
+        put(key = "accountStatements", element = buildJsonObject {
+            putJsonArray(key = "edges", builderAction = {
                 externalIds.forEach { id -> add(buildJsonObject {
-                    put("node", buildJsonObject { put("externalId", id) })
+                    put(key = "node", element = buildJsonObject { put(key = "externalId", value = id) })
                 }) }
-            }
-            put("totalCount", externalIds.size)
+            })
+            put(key = "totalCount", value = externalIds.size)
         })
     }
 
@@ -138,34 +138,34 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                 additionalData originalAmountInCents originalCurrency sourceAmountInCents sourceCurrency
                 targetAmountInCents targetCurrency exchangeRate createdAt""")
                 .from(data.fry).executeAndVerifyResponse("workspace" to buildJsonObject {
-                    put("accountStatements", buildJsonObject {
-                        put("totalCount", 1)
-                        putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
-                            put("id", record.id)
-                            put("provider", "WISE")
-                            put("integrationId", data.integration.id)
-                            put("accountId", "Mars-account")
-                            put("accountCurrency", "EUR")
-                            put("externalId", "Slurm-conversion")
-                            put("type", "CONVERSION")
-                            put("occurredAt", MOCK_TIME.toString())
-                            put("amountInCents", 1200)
-                            put("currency", "USD")
-                            put("partyName", "Fry")
-                            put("feesInCents", 0)
-                            put("feesCurrency", "USD")
-                            put("runningBalanceInCents", -125)
-                            put("runningBalanceCurrency", "USD")
-                            put("additionalData", "Description: Slurm")
-                            put("originalAmountInCents", 1000)
-                            put("originalCurrency", "EUR")
-                            put("sourceAmountInCents", 1000)
-                            put("sourceCurrency", "EUR")
-                            put("targetAmountInCents", 1200)
-                            put("targetCurrency", "USD")
-                            put("exchangeRate", "1.234567")
-                            put("createdAt", record.createdAt.toString())
-                        }) }) }
+                    put(key = "accountStatements", element = buildJsonObject {
+                        put(key = "totalCount", value = 1)
+                        putJsonArray(key = "edges", builderAction = { add(buildJsonObject { put(key = "node", element = buildJsonObject {
+                            put(key = "id", value = record.id)
+                            put(key = "provider", value = "WISE")
+                            put(key = "integrationId", value = data.integration.id)
+                            put(key = "accountId", value = "Mars-account")
+                            put(key = "accountCurrency", value = "EUR")
+                            put(key = "externalId", value = "Slurm-conversion")
+                            put(key = "type", value = "CONVERSION")
+                            put(key = "occurredAt", value = MOCK_TIME.toString())
+                            put(key = "amountInCents", value = 1200)
+                            put(key = "currency", value = "USD")
+                            put(key = "partyName", value = "Fry")
+                            put(key = "feesInCents", value = 0)
+                            put(key = "feesCurrency", value = "USD")
+                            put(key = "runningBalanceInCents", value = -125)
+                            put(key = "runningBalanceCurrency", value = "USD")
+                            put(key = "additionalData", value = "Description: Slurm")
+                            put(key = "originalAmountInCents", value = 1000)
+                            put(key = "originalCurrency", value = "EUR")
+                            put(key = "sourceAmountInCents", value = 1000)
+                            put(key = "sourceCurrency", value = "EUR")
+                            put(key = "targetAmountInCents", value = 1200)
+                            put(key = "targetCurrency", value = "USD")
+                            put(key = "exchangeRate", value = "1.234567")
+                            put(key = "createdAt", value = record.createdAt.toString())
+                        }) }) })
                     })
                 })
         }
@@ -182,22 +182,22 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
             client.graphqlRawQuery("""{ workspace(id: "${data.workspace.id}") {
                 accountStatements(first: 1) { edges { cursor node { externalId } } totalCount pageInfo { hasNextPage } }
             } }""").from(data.fry).executeAndVerifyResponse("workspace" to buildJsonObject {
-                put("accountStatements", buildJsonObject {
-                    put("totalCount", 2)
-                    put("pageInfo", buildJsonObject { put("hasNextPage", true) })
-                    putJsonArray("edges") { add(buildJsonObject {
-                        put("cursor", cursor)
-                        put("node", buildJsonObject { put("externalId", records[0].externalId) })
-                    }) }
+                put(key = "accountStatements", element = buildJsonObject {
+                    put(key = "totalCount", value = 2)
+                    put(key = "pageInfo", element = buildJsonObject { put(key = "hasNextPage", value = true) })
+                    putJsonArray(key = "edges", builderAction = { add(buildJsonObject {
+                        put(key = "cursor", value = cursor)
+                        put(key = "node", element = buildJsonObject { put(key = "externalId", value = records[0].externalId) })
+                    }) })
                 })
             })
             query(arguments = ", after: \"$cursor\"").from(data.fry)
                 .executeAndVerifyResponse("workspace" to buildJsonObject {
-                    put("accountStatements", buildJsonObject {
-                        put("totalCount", 2)
-                        putJsonArray("edges") { add(buildJsonObject {
-                            put("node", buildJsonObject { put("externalId", records[1].externalId) })
-                        }) }
+                    put(key = "accountStatements", element = buildJsonObject {
+                        put(key = "totalCount", value = 2)
+                        putJsonArray(key = "edges", builderAction = { add(buildJsonObject {
+                            put(key = "node", element = buildJsonObject { put(key = "externalId", value = records[1].externalId) })
+                        }) })
                     })
                 })
         }

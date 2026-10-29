@@ -4,7 +4,7 @@ import { format } from './formatter';
 export default {
   accountStatements: {
     header: () => 'Account statements',
-    search: () => 'Search all transaction text',
+    search: () => 'Search transactions',
     dateRange: () => 'Transaction dates',
     provider: () => 'Source integration',
     party: () => 'Party',

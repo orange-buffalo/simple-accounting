@@ -4,7 +4,7 @@ import { format } from '@/services/i18n/t9n/formatter';
 export default {
   accountStatements: {
     header: () => 'Виписки з рахунків',
-    search: () => 'Пошук у всіх текстових полях транзакції',
+    search: () => 'Пошук транзакцій',
     dateRange: () => 'Дати транзакцій',
     provider: () => 'Інтеграція-джерело',
     party: () => 'Контрагент',

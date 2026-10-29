@@ -39,7 +39,7 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         }
         page.authenticateViaCookie(data)
         page.withBlockedGqlApiResponse(
-            "accountStatementsPage",
+            queryOrMutationName = "accountStatementsPage",
             initiator = { page.openAccountStatementsOverviewPage() },
             blockedRequestSpec = {
                 page.shouldBeAccountStatementsOverviewPage {
