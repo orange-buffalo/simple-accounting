@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.visualToData
 
 /**
@@ -11,6 +13,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.visualToData
 class SaStatusLabel private constructor(
     private val container: Locator,
 ) : UiComponent<SaStatusLabel>() {
+
+    fun shouldBeIconlessBadge(status: String) {
+        container.shouldHaveCount(1)
+        assertThat(container).hasClass("sa-status-label sa-status-label_$status")
+        container.locator(".sa-icon").shouldHaveCount(0)
+    }
 
     /**
      * Asserts that this label is of error (failure) state.
@@ -88,6 +96,8 @@ class SaStatusLabel private constructor(
                     page.locator(selector) else container.locator(selector)
             )
         }
+
+        fun byContainer(container: Locator): SaStatusLabel = SaStatusLabel(container.locator(".sa-status-label"))
 
         /**
          * Tests can use this method to produce regular status data value.

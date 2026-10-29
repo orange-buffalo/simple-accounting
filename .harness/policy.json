@@ -4,7 +4,6 @@
   "maxReviewRounds": 2,
   "maxElapsedMinutes": 60,
   "maxCostUsd": 20,
-  "maxKnowledgeChars": 30000,
   "reviewers": ["functional", "security", "code", "ux"],
   "reviewTopology": ["review-1", "review-2", "compliance-1", "compliance-2"],
   "reviewerModel": { "providerID": "openai", "id": "gpt-6.1-sol", "variant": "medium" },

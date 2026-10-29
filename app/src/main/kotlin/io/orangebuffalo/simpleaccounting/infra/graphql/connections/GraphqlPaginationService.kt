@@ -6,6 +6,7 @@ import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.util.Base64
@@ -25,7 +26,10 @@ internal fun encodeCursor(createdAt: Instant): String =
 
 private fun extractCursorPart(field: Field<*>, record: Record): String =
     when (field.type) {
-        Instant::class.java -> (record.get(field) as Instant).toEpochMilli().toString()
+        Instant::class.java -> (record.get(field) as Instant).let {
+            BigDecimal.valueOf(it.epochSecond).movePointRight(3)
+                .add(BigDecimal.valueOf(it.nano.toLong(), 6)).stripTrailingZeros().toPlainString()
+        }
         LocalDate::class.java -> (record.get(field) as LocalDate).toEpochDay().toString()
         String::class.java -> record.get(field) as String
         else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")
@@ -34,7 +38,12 @@ private fun extractCursorPart(field: Field<*>, record: Record): String =
 @Suppress("UNCHECKED_CAST")
 private fun buildCursorCondition(sortFields: List<SortField<*>>, cursorParts: List<String>): Condition {
     fun parseFieldValue(field: Field<*>, part: String): Any = when (field.type) {
-        Instant::class.java -> Instant.ofEpochMilli(part.toLong())
+        Instant::class.java -> part.toBigDecimal().let {
+            Instant.ofEpochSecond(
+                it.movePointLeft(3).toLong(),
+                it.remainder(BigDecimal(1000)).movePointRight(6).longValueExact(),
+            )
+        }
         LocalDate::class.java -> LocalDate.ofEpochDay(part.toLong())
         String::class.java -> part
         else -> error("Unsupported cursor field type: ${field.type.simpleName} for field ${field.name}")

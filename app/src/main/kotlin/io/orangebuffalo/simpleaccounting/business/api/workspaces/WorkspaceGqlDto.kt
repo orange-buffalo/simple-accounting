@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.business.api.workspaces
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.accountstatements.AccountStatementGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.accountstatements.AccountStatementsGqlApi
 import io.orangebuffalo.simpleaccounting.business.api.analytics.AnalyticsGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryTypeGqlDto
@@ -30,6 +32,7 @@ import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.IncomeTa
 import io.orangebuffalo.simpleaccounting.business.api.incometaxpayments.loadIncomeTaxPaymentByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationConstants
@@ -39,6 +42,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.jooq.DSLContext
+import java.time.Instant
 import org.jooq.impl.DSL
 import java.util.concurrent.CompletableFuture
 
@@ -60,6 +64,32 @@ data class WorkspaceGqlDto(
     @GraphQLDescription("Residency country of the workspace (ISO 3166-1 alpha-2).")
     val residency: String,
 ) {
+    @GraphQLDescription("Imported account statement transactions, newest first with stable cursor pagination.")
+    fun accountStatements(
+        @GraphQLDescription("Maximum number of items to return.")
+        @Min(GraphqlPaginationConstants.PAGE_SIZE_MIN)
+        @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
+        first: Int,
+        @GraphQLDescription("Cursor after which to return items.") after: String? = null,
+        @GraphQLDescription(
+            "Case-insensitive search across provider account IDs, external transaction IDs, transaction type, " +
+                "party name and additional data. Internal IDs, provider and currency fields are excluded. " +
+                "Null or blank means no search."
+        )
+        freeSearchText: String? = null,
+        @GraphQLDescription("Include any of these source providers. Null or empty means all providers.")
+        providerIn: List<IntegrationProvider>? = null,
+        @GraphQLDescription("Inclusive transaction timestamp lower bound. Null or omitted means unbounded.")
+        occurredAtFrom: Instant? = null,
+        @GraphQLDescription("Exclusive transaction timestamp upper bound. Null or omitted means unbounded.")
+        occurredAtBefore: Instant? = null,
+        env: DataFetchingEnvironment,
+    ): ConnectionGqlDto<AccountStatementGqlDto> = env.graphQlContext.getBean<AccountStatementsGqlApi>()
+        .loadStatements(
+            workspaceId = id, first = first, after = after, freeSearchText = freeSearchText,
+            providerIn = providerIn, occurredAtFrom = occurredAtFrom, occurredAtBefore = occurredAtBefore,
+        )
+
     @GraphQLDescription("Integration providers configurable for this owned workspace.")
     @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
     fun integrations() = IntegrationsGqlDto(workspaceId = id)

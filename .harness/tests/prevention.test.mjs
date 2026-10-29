@@ -24,10 +24,10 @@ async function fixture() {
   return root;
 }
 
-test('active rules reach knowledge intact and oversized or invalid catalogs fail closed', async () => {
+test('active rules reach knowledge intact and invalid catalogs fail closed', async () => {
   const root = await fixture();
   assert.deepEqual(JSON.parse(await knowledge(root)), [rule]);
-  await assert.rejects(knowledge(root, 10), /exceeds/);
+  assert.deepEqual(JSON.parse(await knowledge(root, 10)), [rule]);
   for (const invalid of [{ ...rule, evidence: 'Private source' }, { ...rule, appliesWhen: '' }, { ...rule, id: '../slurm' }]) {
     assert.throws(() => catalogText({ version: 2, rules: [invalid] }));
   }
@@ -55,6 +55,35 @@ test('curation reuses rules and preserves unrelated experience while replacing o
   assert.throws(() => curate(catalog, changed, items), /feedback disposition/);
 });
 
+test('learning preserves a large catalog and publishes every new rule despite an obsolete policy cap', async () => {
+  const root = await fixture();
+  const existing = Array.from({ length: 200 }, (_, index) => ({ ...rule, id: `cargo-${index}`,
+    instruction: `Preserve cargo ${index}. ${'Inspect workspace ownership. '.repeat(10)}` }));
+  const before = { version: 2, rules: existing };
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify(before));
+  assert.ok(catalogText(before).length > 30000);
+  assert.deepEqual(JSON.parse(await knowledge(root, 1)), existing);
+  const additions = Array.from({ length: 200 }, (_, index) => ({ ...rule, id: `delivery-${index}` }));
+  const candidate = proposal();
+  candidate.upsert = additions;
+  candidate.dispositions[0].ruleIds = [additions[0].id];
+  const expected = [...existing, ...additions];
+  const roles = [];
+  const controller = new Controller(root, async ({ role, knowledge: bundle, prompt }) => {
+    roles.push(role);
+    assert.deepEqual(JSON.parse(bundle), existing);
+    if (role === 'learning-validator') {
+      assert.deepEqual(JSON.parse(prompt.split('Resulting catalog: ')[1]), expected);
+    }
+    return answer(role === 'feedback-analysis' ? candidate : { valid: true, evidence: ['Every rule preserved'], issues: [] });
+  });
+  const result = await controller.learn({ runId: 'review-fry', feedback: JSON.stringify({ kind: 'user-confirmed-policy', items }) });
+  assert.equal(result.status, 'verified');
+  assert.deepEqual(roles, ['feedback-analysis', 'learning-validator']);
+  assert.deepEqual(JSON.parse(await readFile(path.join(root, '.harness/prevention.json'), 'utf8')), { version: 2, rules: expected });
+  assert.deepEqual(JSON.parse(await knowledge(root)), expected);
+});
+
 test('learning existing guidance needs no new rule or blind ceremony and deploys only the operational catalog', async () => {
   const root = await fixture();
   const roles = [];
@@ -75,12 +104,11 @@ test('learning existing guidance needs no new rule or blind ceremony and deploys
   assert.equal(await readFile(result.reportFile, 'utf8'), result.report);
 });
 
-test('unverified, incomplete and oversized prevention never replaces the active catalog', async () => {
-  for (const failure of ['verification', 'omission', 'oversized', 'cases', 'conflict', 'drift']) {
+test('unverified and incomplete prevention never replaces the active catalog', async () => {
+  for (const failure of ['verification', 'omission', 'cases', 'conflict', 'drift']) {
     const root = await fixture();
     const candidate = proposal();
     if (failure === 'omission') candidate.dispositions = [];
-    if (failure === 'oversized') candidate.upsert = [{ ...rule, instruction: 'Slurm '.repeat(10000) }];
     if (failure === 'cases') delete candidate.caseCheck;
     if (failure === 'conflict') candidate.questions = [{ question: 'Which scope?', reasoning: 'Instructions conflict', options: ['Workspace cargo', 'Public cargo'] }];
     const controller = new Controller(root, async ({ role }) => {

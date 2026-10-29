@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.database
 
+import java.math.BigDecimal
+
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
@@ -37,6 +39,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.business.workspaces.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -235,6 +238,12 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             createdAt = createdAt,
         ).save()
     }
+
+    fun savedWorkspaceAccessToken(owner: PlatformUser, workspaceAccessToken: WorkspaceAccessToken) =
+        SavedWorkspaceAccessToken(
+            ownerId = owner.id!!,
+            workspaceAccessTokenId = workspaceAccessToken.id!!,
+        ).save()
 
     fun document(
         name: String = "Slurm Receipt",
@@ -512,17 +521,48 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         integration: WiseIntegrationSettings = wiseIntegrationSettings(),
         accountId: String = "301",
         externalId: String = "Slurm-${sequenceValue++}",
+        partyName: String? = null,
+        occurredAt: Instant = MOCK_TIME,
+        type: StatementType = StatementType.DEBIT,
+        amountInCents: Long = 125,
+        currency: String = "USD",
+        accountCurrency: String = "USD",
+        additionalData: String? = null,
+        feesInCents: Long? = null,
+        feesCurrency: String? = null,
+        runningBalanceInCents: Long? = null,
+        runningBalanceCurrency: String? = null,
+        originalAmountInCents: Long? = null,
+        originalCurrency: String? = null,
+        sourceAmountInCents: Long? = null,
+        sourceCurrency: String? = null,
+        targetAmountInCents: Long? = null,
+        targetCurrency: String? = null,
+        exchangeRate: BigDecimal? = null,
     ): AccountStatementRecord = AccountStatementRecord(
         workspaceId = integration.workspaceId,
         provider = IntegrationProvider.WISE,
         integrationId = integration.id!!,
         accountId = accountId,
-        accountCurrency = "USD",
+        accountCurrency = accountCurrency,
         externalId = externalId,
-        type = StatementType.DEBIT,
-        occurredAt = MOCK_TIME,
-        amountInCents = 125,
-        currency = "USD",
+        type = type,
+        occurredAt = occurredAt,
+        amountInCents = amountInCents,
+        currency = currency,
+        partyName = partyName,
+        additionalData = additionalData,
+        feesInCents = feesInCents,
+        feesCurrency = feesCurrency,
+        runningBalanceInCents = runningBalanceInCents,
+        runningBalanceCurrency = runningBalanceCurrency,
+        originalAmountInCents = originalAmountInCents,
+        originalCurrency = originalCurrency,
+        sourceAmountInCents = sourceAmountInCents,
+        sourceCurrency = sourceCurrency,
+        targetAmountInCents = targetAmountInCents,
+        targetCurrency = targetCurrency,
+        exchangeRate = exchangeRate,
     ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }

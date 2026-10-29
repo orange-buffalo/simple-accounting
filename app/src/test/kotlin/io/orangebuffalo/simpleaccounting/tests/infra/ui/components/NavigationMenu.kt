@@ -61,6 +61,11 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickAccountStatements(): NavigationMenu {
+        container.getByText("Account statements", Locator.GetByTextOptions().setExact(true)).click()
+        return this
+    }
+
     fun clickWorkspaces(): NavigationMenu {
         container.getByText("Workspaces").click()
         return this

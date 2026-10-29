@@ -1,11 +1,11 @@
 import test from 'node:test';
 import './prevention.test.mjs';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, stat, chmod } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, stat, chmod, unlink } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
-import { Controller, hash, knowledge, snapshot, validateFindings, validateBlindReport, reviewerScopes } from '../../.opencode/plugins/sa-review/core.js';
+import { Controller, hash, knowledge, snapshot, historicalSnapshot, validateFindings, validateBlindReport, reviewerScopes } from '../../.opencode/plugins/sa-review/core.js';
 
 const exec = promisify(execFile);
 const report = { findings: [], coverage: ['workspace isolation'], gaps: [], ruleAudit: [] };
@@ -49,6 +49,60 @@ test('passes only after every configured reviewer without running validation', a
   assert.equal(result.status, 'passed');
   assert.deepEqual(roles, reviewers);
   assert.equal(result.fingerprint, (await snapshot(root, input.base)).fingerprint);
+});
+
+test('review freezes every rule beyond the former cap, including when resuming an older policy', async (t) => {
+  const { root, input } = await fixture(t, { maxKnowledgeChars: 1 });
+  const rules = Array.from({ length: 200 }, (_, index) => ({ id: `cargo-${index}`, category: 'backend',
+    appliesWhen: `Reading cargo ${index}`, instruction: 'Check workspace ownership. '.repeat(10), reason: 'Preserve isolation.' }));
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+  const roles = [];
+  const controller = new Controller(root, async ({ role, knowledge: bundle }) => {
+    roles.push(role);
+    assert.ok(bundle.length > 30000);
+    assert.deepEqual(JSON.parse(bundle), rules);
+    return answer({ ...report, ruleAudit: auditedRules(rules, ['AGENTS.md', '.harness/prevention.json']) });
+  });
+  const pending = await controller.review({ ...input, preflight: undefined });
+  assert.equal(pending.status, 'awaiting-verification');
+  const result = await controller.review({ ...input, runId: pending.runId });
+  assert.equal(result.status, 'passed');
+  assert.deepEqual(roles, reviewers);
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  assert.equal(state.policy.maxKnowledgeChars, 1);
+  assert.deepEqual(JSON.parse(state.knowledge), rules);
+});
+
+test('large knowledge files retain complete snapshots and source packets beyond file and diff buffer limits', async (t) => {
+  const { root, input } = await fixture(t);
+  const file = '.harness/lessons/slurm.json';
+  await mkdir(path.join(root, '.harness/lessons'));
+  await writeFile(path.join(root, file), '{}');
+  await exec('git', ['add', file], { cwd: root });
+  await exec('git', ['commit', '-qm', 'feat: Add Slurm lesson'], { cwd: root });
+  input.base = (await exec('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
+  const lesson = JSON.stringify({ status: 'verified', guidance: 'Check Slurm ownership. '.repeat(400000),
+    scope: 'Cargo', evidence: { verified: true } });
+  assert.ok(Buffer.byteLength(lesson) > 8 * 1024 * 1024);
+  await writeFile(path.join(root, file), lesson);
+  const rules = [{ id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo',
+    instruction: 'Check workspace ownership. '.repeat(12000), reason: 'Preserve isolation.' }];
+  const catalog = JSON.stringify({ version: 2, rules });
+  assert.ok(Buffer.byteLength(catalog) > 256000);
+  await writeFile(path.join(root, '.harness/prevention.json'), catalog);
+  const captured = await snapshot(root, input.base);
+  assert.equal(captured.contents[file], lesson);
+  assert.equal(captured.contents['.harness/prevention.json'], catalog);
+  assert.ok(captured.diff.includes(lesson));
+  const controller = new Controller(root, async ({ role, knowledge: bundle }) => {
+    assert.deepEqual(JSON.parse(bundle), rules);
+    return answer({ ...report, ruleAudit: auditedRules(rules, captured.files) });
+  });
+  const result = await controller.review(input);
+  assert.equal(result.status, 'passed');
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  const source = state.rounds[0].sources.find((entry) => entry.file === file);
+  assert.ok((await readFile(source.artifact, 'utf8')).includes(lesson));
 });
 
 test('missing or incomplete orchestrator preflight never launches workers or consumes rounds', async (t) => {
@@ -292,40 +346,88 @@ test('aggregate diffs above the command buffer limit do not block file-backed re
   assert.notEqual((await snapshot(root, base)).fingerprint, result.fingerprint);
 });
 
-test('large generated-source snapshots remain file-backed without expanding reviewer prompts', async (t) => {
+test('generated artifacts are excluded before size checks and from all reviewer packets and audits', async (t) => {
   const { root, input } = await fixture(t);
-  const files = ['graphql.ts', 'gql.ts', 'schema-types.ts', 'schema.graphqls'];
-  const generated = 'Slurm delivery types\n'.repeat(9000);
-  const directory = path.join(root, 'frontend/generated');
-  await mkdir(directory, { recursive: true });
-  for (const file of files) await writeFile(path.join(directory, file), generated);
-  await exec('git', ['add', 'frontend/generated'], { cwd: root });
+  const rules = [{ id: 'slurm-source', category: 'workflow', appliesWhen: 'Reviewing Slurm',
+    instruction: 'Review authored sources rather than generated outputs', reason: 'Build verifies generated outputs' }];
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+  const generatedFiles = [
+    'app/src/test/resources/api-schema.graphqls', 'frontend/bun.lock',
+    ...['graphql.ts', 'gql.ts', 'schema-types.ts', 'index.ts', 'fragment-masking.ts']
+      .map((file) => `frontend/src/services/api/gql/${file}`),
+  ];
+  const authoredFiles = ['frontend/codegen.ts', 'frontend/src/Slurm.vue', 'app/src/SlurmApi.kt', 'app/src/SlurmSchemaTest.kt'];
+  await writeFile(path.join(root, '.gitattributes'), await readFile(new URL('../../.gitattributes', import.meta.url)));
+  for (const file of [...generatedFiles, ...authoredFiles]) {
+    await mkdir(path.dirname(path.join(root, file)), { recursive: true });
+    await writeFile(path.join(root, file), 'Planet Express original\n');
+  }
+  await exec('git', ['add', '.'], { cwd: root });
   await exec('git', ['commit', '-qm', 'tests: add generated delivery types'], { cwd: root });
   const base = (await exec('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
-  for (const file of files) await writeFile(path.join(directory, file), `${generated}New Slurm delivery\n`);
+  for (const file of generatedFiles) await writeFile(path.join(root, file), Buffer.alloc(300000, 'S'));
+  await unlink(path.join(root, generatedFiles[0]));
+  const untracked = 'frontend/src/services/api/gql/Slurm types.ts';
+  await writeFile(path.join(root, untracked), Buffer.alloc(300000));
+  for (const file of authoredFiles) await writeFile(path.join(root, file), 'Planet Express source change\n');
+  await writeFile(path.join(root, '.gitattributes'), `${await readFile(path.join(root, '.gitattributes'), 'utf8')}\n# Authored classification change\n`);
   const before = await snapshot(root, base);
-  assert.ok(JSON.stringify(before).length > 600000);
+  assert.deepEqual(before.generatedFiles, [...generatedFiles, untracked].sort());
+  assert.deepEqual(before.files, ['.gitattributes', ...authoredFiles].sort());
+  assert.deepEqual(Object.keys(before.contents).sort(), before.files);
+  for (const file of before.generatedFiles) assert.ok(!before.diff.includes(`diff --git a/${file} b/${file}`));
   const roles = [];
   const controller = new Controller(root, async ({ role, prompt }) => {
     roles.push(role);
-    assert.ok(prompt.length < 10000);
-    assert.doesNotMatch(prompt, /Slurm delivery types/);
-    return answer(report);
+    assert.match(prompt, /Generated artifacts.*excluded from review/);
+    for (const file of before.generatedFiles) assert.ok(!prompt.includes(file));
+    return answer({ ...report, ruleAudit: auditedRules(rules, before.files),
+      feedbackAudit: authoredFiles.map((file) => ({ file, evidence: 'Checked authored source and generator verification definitions' })) });
   });
-  const result = await controller.review({ ...input, base, profile: 'full' });
+  const request = { ...input, base, profile: 'full' };
+  const waiting = await controller.review({ ...request, preflight: undefined });
+  assert.equal(waiting.status, 'awaiting-verification');
+  const result = await controller.review({ ...request, runId: waiting.runId, clarification: 'Review authored sources, not generated artifacts' });
   assert.equal(result.status, 'passed');
   assert.deepEqual(roles, reviewers);
   assert.equal(result.fingerprint, before.fingerprint);
   const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json')));
-  for (const file of files) {
-    const source = state.rounds[0].sources.find((entry) => entry.file === `frontend/generated/${file}`);
-    const packet = await readFile(source.artifact, 'utf8');
-    assert.match(packet, /\+New Slurm delivery/);
-    assert.ok(packet.length < 1000);
-    assert.equal(state.rounds[0].snapshot.contents[source.file], `${generated}New Slurm delivery\n`);
-  }
-  await writeFile(path.join(directory, files[0]), `${generated}Old Slurm delivery\n`);
+  assert.deepEqual(state.rounds[0].feedbackAuditFiles, [...authoredFiles].sort());
+  assert.deepEqual(state.rounds[0].sources.map(({ file }) => file), before.files);
+  for (const source of state.rounds[0].sources) assert.match(await readFile(source.artifact, 'utf8'), /Planet Express source change|Authored classification change/);
+  await writeFile(path.join(root, generatedFiles[1]), 'Regenerated Slurm data\n');
+  assert.equal((await snapshot(root, base)).fingerprint, result.fingerprint);
+  await writeFile(path.join(root, authoredFiles[0]), 'Changed generator configuration\n');
   assert.notEqual((await snapshot(root, base)).fingerprint, result.fingerprint);
+});
+
+test('generated classification uses Git attributes including true, unset and false, not names or headers', async (t) => {
+  const { root, input } = await fixture(t);
+  await writeFile(path.join(root, '.gitattributes'), '/cargo/* linguist-generated=true\n/cargo/manual.ts -linguist-generated\n/cargo/false.ts linguist-generated=false\n');
+  await mkdir(path.join(root, 'cargo'));
+  for (const file of ['cargo/generated.ts', 'cargo/manual.ts', 'cargo/false.ts', 'graphql.ts']) {
+    await writeFile(path.join(root, file), '// @generated DO NOT EDIT\n');
+  }
+  const captured = await snapshot(root, input.base);
+  assert.deepEqual(captured.generatedFiles, ['cargo/generated.ts']);
+  assert.deepEqual(captured.files, ['.gitattributes', 'AGENTS.md', 'cargo/false.ts', 'cargo/manual.ts', 'graphql.ts']);
+  const result = await new Controller(root, async () => answer(report)).review(input);
+  assert.equal(result.status, 'blocked');
+  assert.match(result.error, /Harness profile cannot validate application\/build changes/);
+});
+
+test('generated declarations remain reviewable harness sources without including their outputs', async (t) => {
+  const { root, input } = await fixture(t);
+  await writeFile(path.join(root, '.gitattributes'), '/Slurm.ts linguist-generated\n');
+  await writeFile(path.join(root, 'Slurm.ts'), Buffer.alloc(300000));
+  const controller = new Controller(root, async ({ prompt }) => {
+    assert.match(prompt, /"file": "\.gitattributes"/);
+    return answer(report);
+  });
+  const result = await controller.review(input);
+  assert.equal(result.status, 'passed');
+  const state = JSON.parse(await readFile(path.join(result.evidence, 'state.json'), 'utf8'));
+  assert.deepEqual(state.rounds[0].snapshot.files, ['.gitattributes', 'AGENTS.md']);
 });
 
 test('repairs return to orchestrator before the next parallel review round', async (t) => {
@@ -552,7 +654,9 @@ test('snapshot includes untracked files, refuses secrets and invalid base', asyn
   assert.equal((await snapshot(root, input.base)).contents['slurm.txt'], 'Slurm cargo');
   await assert.rejects(snapshot(root, '--help'), /full commit SHA/);
   await writeFile(path.join(root, '.env'), 'SLURM_SECRET=secret');
+  await writeFile(path.join(root, '.gitattributes'), '/.env linguist-generated\n');
   await assert.rejects(snapshot(root, input.base), /Secret-like/);
+  await assert.rejects(historicalSnapshot(root, { files: ['.env'], contents: { '.env': 'SLURM_SECRET=secret' }, diff: '' }), /Secret-like/);
 });
 
 test('snapshot still refuses oversized, binary and non-regular individual files', async (t) => {
@@ -575,14 +679,14 @@ test('harness profile refuses application changes', async (t) => {
   assert.match((await controller.review(input)).error, /Harness profile/);
 });
 
-test('knowledge integrity, promotion status and limits fail closed', async (t) => {
+test('knowledge integrity and promotion status fail closed without a size cap', async (t) => {
   const { root } = await fixture(t);
   await mkdir(path.join(root, '.harness/lessons'));
   const lesson = JSON.stringify({ status: 'verified', guidance: 'Check Slurm authorization', scope: 'deliveries', evidence: { replay: true } });
   await writeFile(path.join(root, '.harness/lessons/slurm.json'), lesson);
   await writeFile(path.join(root, '.harness/knowledge.json'), JSON.stringify({ version: 1, lessons: [{ id: 'slurm', sha256: hash(lesson) }] }));
   assert.match(await knowledge(root), /Slurm authorization/);
-  await assert.rejects(knowledge(root, 1), /exceeds/);
+  assert.equal(await knowledge(root, 1), await knowledge(root));
   await writeFile(path.join(root, '.harness/lessons/slurm.json'), lesson + ' ');
   await assert.rejects(knowledge(root), /integrity/);
 });
@@ -689,7 +793,65 @@ test('every human preference is investigated, independently verified and reporte
     { ref: 'F2', instruction: 'Follow policy F2' },
   ]);
   const withoutInstructions = JSON.stringify([{ id: result.lessonId, guidance: lesson.guidance, scope: lesson.scope }], null, 2);
-  await assert.rejects(knowledge(root, withoutInstructions.length + 1), /exceeds/);
+  const complete = await knowledge(root, withoutInstructions.length + 1);
+  assert.ok(complete.length > withoutInstructions.length + 1);
+  assert.deepEqual(JSON.parse(complete)[0].instructions, [
+    { ref: 'F1', instruction: 'Follow policy F1' },
+    { ref: 'F2', instruction: 'Follow policy F2' },
+  ]);
+});
+
+for (const catalog of [false, true]) test(`historical ${catalog ? 'catalog' : 'legacy'} learning packets omit generated sources without changing private history`, async (t) => {
+  const { root, input } = await fixture(t);
+  const generated = 'old-generated.ts';
+  await writeFile(path.join(root, generated), 'PRIVATE_GENERATED_OUTPUT');
+  const oldSnapshot = await snapshot(root, input.base);
+  oldSnapshot.diff += '\nPRIVATE_GENERATED_DIFF';
+  const original = { requirements: input.requirements, knowledge: '[]', artifacts: [{
+    role: 'review-1', prompt: 'PRIVATE_GENERATED_PROMPT', text: 'PRIVATE_GENERATED_RESULT',
+  }], rounds: [{ snapshot: oldSnapshot, reports: [{ axis: 'review-1', ...report }], accepted: [] }] };
+  const originalDir = path.join(root, '.harness/runtime/review-history');
+  await mkdir(originalDir, { recursive: true });
+  const originalFile = path.join(originalDir, 'state.json');
+  const originalRaw = JSON.stringify(original);
+  await writeFile(originalFile, originalRaw);
+  await writeFile(path.join(root, '.gitattributes'), `${generated} linguist-generated\n`);
+  if (catalog) await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules: [] }));
+  const item = { ref: 'F15', file: '.gitattributes', line: 1, comment: 'Exclude generated sources', action: 'Declared generated output' };
+  const controller = new Controller(root, async ({ role, artifactRoots }) => {
+    const evidence = artifactRoots[0];
+    if (catalog) {
+      const packet = JSON.parse(await readFile(path.join(evidence, 'round-1.json'), 'utf8'));
+      assert.deepEqual(packet.snapshot.files, ['AGENTS.md']);
+      assert.deepEqual(packet.snapshot.contents, { 'AGENTS.md': 'Planet Express review\n' });
+      assert.equal(packet.snapshot.diff, '');
+      assert.equal(packet.snapshot.mixedHistoricalDiffOmitted, true);
+      assert.doesNotMatch(JSON.stringify(packet), /PRIVATE_GENERATED/);
+    } else {
+      const index = JSON.parse(await readFile(path.join(evidence, 'index.json'), 'utf8'));
+      assert.equal(index.mixedHistoricalArtifactsOmitted, true);
+      assert.deepEqual(index.artifacts, []);
+      const packet = JSON.parse(await readFile(index.rounds[0].snapshotFile, 'utf8'));
+      assert.deepEqual(packet.files, ['AGENTS.md']);
+      assert.deepEqual(packet.contents, { 'AGENTS.md': 'Planet Express review\n' });
+      assert.equal(await readFile(index.rounds[0].diffFile, 'utf8'), '');
+      const sources = JSON.parse(await readFile(index.rounds[0].sourcesFile, 'utf8'));
+      assert.deepEqual(sources.map(({ file }) => file), ['AGENTS.md']);
+      assert.equal(await readFile(sources[0].contentFile, 'utf8'), 'Planet Express review\n');
+    }
+    if (role === 'learning-validator') return answer({ valid: true, evidence: ['Verified explicit generated-source policy'], issues: [] });
+    const disposition = { ref: item.ref, feedback: item.comment, evidence: 'Explicit user instruction', action: item.action };
+    return answer(catalog ? { questions: [], dispositions: [{ ...disposition, diagnosis: 'ambiguity',
+      prevention: 'Exclude generated artifacts from source review', ruleIds: [] }], upsert: [], retire: [],
+      caseCheck: { analogous: 'Historical generated outputs are also excluded', nonApplicable: 'Authored source remains visible' } }
+      : { questions: [], scope: 'Generated review sources', guidance: 'Review authored source, not generated output',
+        dispositions: [{ ...disposition, classification: 'new requirement/preference', hypothesis: 'Historical cause unknown',
+          lesson: 'Exclude generated artifacts from review' }] });
+  });
+  const result = await controller.learn({ runId: 'review-history', feedback: JSON.stringify({ kind: 'user-confirmed-policy', items: [item] }) });
+  assert.equal(result.status, 'verified', result.error);
+  assert.equal(await readFile(originalFile, 'utf8'), originalRaw);
+  assert.equal(await readFile(path.join(root, generated), 'utf8'), 'PRIVATE_GENERATED_OUTPUT');
 });
 
 test('omitted, dismissed, disputed or unverified human feedback requires user decision without promotion', async (t) => {
@@ -968,7 +1130,7 @@ test('publication accounts for instructions and never deploys private dispositio
       path.relative(root, path.join(original.evidence, 'sources')), path.relative(root, path.join(original.evidence, 'sources/round-1'))]) {
       assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);
     }
-    const instruction = oversized ? 'Check independent country expectations. '.repeat(100) : 'Check independent country expectations';
+    const instruction = oversized ? 'Check independent country expectations. '.repeat(2000) : 'Check independent country expectations';
     controller.agent = async ({ role }) => role === 'feedback-analysis'
       ? answer({ questions: [], scope: 'API tests', guidance: 'Use independent assertions', dispositions: [{
         ref: 'F1', feedback: 'Private Fry feedback', classification: 'new requirement/preference',
@@ -977,17 +1139,10 @@ test('publication accounts for instructions and never deploys private dispositio
       : answer({ valid: true, evidence: ['Source checked'], issues: [] });
     const result = await controller.learn({ runId: original.runId, feedback: JSON.stringify({ kind: 'user-confirmed-policy',
       items: [{ ref: 'F1', file: 'app/SlurmTest.kt', line: 1, comment: 'Private Fry feedback' }] }) });
-    if (oversized) {
-      assert.equal(result.status, 'candidate');
-      assert.match(result.error, /New knowledge exceeds budget/);
-      assert.equal(await knowledge(root), '[]');
-      await assert.rejects(readFile(path.join(root, '.harness/lessons', `${result.lessonId}.json`)), { code: 'ENOENT' });
-    } else {
-      assert.equal(result.status, 'verified');
-      const bundle = await knowledge(root);
-      assert.ok(bundle.includes(instruction));
-      assert.doesNotMatch(bundle, /PRIVATE_|Private Fry feedback/);
-    }
+    assert.equal(result.status, 'verified');
+    const bundle = await knowledge(root);
+    assert.ok(bundle.includes(instruction));
+    assert.doesNotMatch(bundle, /PRIVATE_|Private Fry feedback/);
     for (const directory of ['.harness/runtime', path.relative(root, result.evidence),
       path.relative(root, path.join(result.evidence, 'original-evidence'))]) {
       assert.equal((await stat(path.join(root, directory))).mode & 0o777, 0o700);

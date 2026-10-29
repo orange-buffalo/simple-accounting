@@ -76,6 +76,9 @@ open class SaJooqCodeGenTask : DefaultTask() {
                         incomeStatusForcedType(),
                         expenseStatusForcedType(),
                         invoiceStatusForcedType(),
+                        ForcedType()
+                            .withName("DECIMAL")
+                            .withIncludeExpression("ACCOUNT_STATEMENT_RECORD\\.EXCHANGE_RATE"),
                         timestampForcedType(),
                         dateForcedType()
                     )

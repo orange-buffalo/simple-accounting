@@ -4,6 +4,7 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.Serializable
@@ -76,6 +77,11 @@ class SaOverviewItem private constructor(
      * Returns a locator relative to this overview item panel.
      */
     fun locator(selector: String): Locator = panel.locator(selector)
+
+    fun shouldBeSingle() = panel.shouldHaveCount(1)
+
+    val middleColumnStatusLabel: SaStatusLabel
+        get() = SaStatusLabel.byContainer(panel.locator(".overview-item__middle-column"))
 
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()

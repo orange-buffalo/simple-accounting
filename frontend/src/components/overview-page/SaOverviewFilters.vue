@@ -51,8 +51,18 @@
                 @keydown.enter.prevent="closeEditor(filter.key)"
               />
             </template>
+            <ElDatePicker
+              v-else-if="filter.config.type === 'date-range'"
+              :model-value="dateRangeValue(filter.key)"
+              type="daterange"
+              style="--el-date-editor-width: 100%; min-width: 0; box-sizing: border-box"
+              value-format="YYYY-MM-DD"
+              :teleported="false"
+              :aria-label="filter.config.label"
+              @update:model-value="updateValue(filter.key, $event || null)"
+            />
             <div
-              v-else
+              v-else-if="filter.config.type === 'multi-select'"
               class="sa-overview-filters__options"
               role="group"
               :aria-label="filter.config.label"
@@ -88,7 +98,7 @@
 
 <script lang="ts" setup generic="TFilters extends SaOverviewFilters">
   import { computed, nextTick, shallowRef, useId } from 'vue';
-  import { ClickOutside as vClickOutside, ElPopover } from 'element-plus';
+  import { ClickOutside as vClickOutside, ElDatePicker, ElPopover } from 'element-plus';
   import { Close } from '@element-plus/icons-vue';
   import { $t } from '@/services/i18n';
   import type { SaOverviewFilterConfigs, SaOverviewFilters } from './overview-page-filters';
@@ -123,11 +133,21 @@
     const value = props.modelValue?.[key];
     return Array.isArray(value) ? value : [];
   };
+  const dateRangeValue = (key: FilterKey): [string, string] | null => {
+    const value = props.modelValue?.[key];
+    return Array.isArray(value) && value.length === 2 ? [String(value[0]), String(value[1])] : null;
+  };
   const filterChips = computed(() => configuredFilters.value.map(({ key, config }) => {
     const text = textValue(key);
+    const range = dateRangeValue(key);
     const values = config.type === 'text'
       ? (text ? [{ value: text, label: text }] : [])
-      : config.options.filter((option) => selectedValues(key).some((value) => value === option.value));
+      : config.type === 'date-range'
+        ? (range ? [{
+          value: range.join('/'),
+          label: range.map((date) => $t.value.common.date.medium(date)).join(' – '),
+        }] : [])
+        : config.options.filter((option) => selectedValues(key).some((value) => value === option.value));
     return {
       key,
       config,
@@ -145,7 +165,7 @@
   };
   const removeValue = (key: FilterKey, value: string | number | boolean) => {
     const filter = configuredFilters.value.find((candidate) => candidate.key === key);
-    if (filter?.config.type === 'text') {
+    if (filter?.config.type === 'text' || filter?.config.type === 'date-range') {
       updateValue(key, null);
     } else {
       updateValue(key, toggleOverviewFilterValue(props.modelValue?.[key], value, false));

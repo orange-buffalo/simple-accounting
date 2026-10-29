@@ -66,10 +66,28 @@ The controller:
     On feedback turns, both full reviewers must record a source-grounded per-file feedback audit for every cumulative
     non-generated code file, including earlier-turn changes. Missing or duplicate file dispositions block a clean
     receipt. Reviewers must justify exceptional mocks and other deviations rather than stopping at the commented file.
-2. Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
+2. Excludes generated artifacts declared with `linguist-generated` (or `linguist-generated=true`) in `.gitattributes`
+   before reading file contents or applying source-size limits. The repository declares the frontend GraphQL client/type
+   outputs, generated API schema and Bun lockfile; declare future generator outputs there too. Do not exclude authored
+   sources merely because of a filename or a self-declared generated header. Explicit unset/false attributes remain
+   reviewable. Generated paths are recorded privately in `snapshot.generatedFiles`, but their contents/diffs are omitted
+    from snapshots, source packets, reviewer prompts and all review/compliance/feedback audit requirements.
+    Historical feedback packets apply the current attributes without changing original private evidence. If a historical
+    snapshot mixes generated and authored sources, export authored full contents instead of its mixed diff; legacy raw
+    agent investigations are omitted from that packet because they may embed generated output. Historical causes that
+    cannot be established from the remaining evidence must stay unknown.
+   Reviewers inspect authored definitions, generator configuration, verification definitions and attribute changes instead.
+   Build/CI verifies generated artifacts through schema generation, GraphQL type verification, compilation and frozen-lockfile
+   installation as applicable; generated-only edits still need the relevant primary-agent validation. Working-tree edits to
+   existing generated output contents do not invalidate a source-review receipt. Secret-path checks still apply before exclusions.
+   Reload the project location to activate updated controller code for already-loaded tools; existing run evidence and budgets
+   are retained on resumption.
+   Writes a changed-source index with per-file diff/source artifacts. Workers read only relevant files rather than
     receiving the complete snapshot and duplicated file contents in every prompt.
     Snapshot evidence size is independent of reviewer context: the context limit applies to the source index, not the
-    aggregate full-file contents stored privately on disk. Individual-file safety limits still apply.
+    aggregate full-file contents stored privately on disk. Knowledge catalogs, registries and legacy lesson files are
+    exempt from file-byte, diff-buffer and source-index size caps; secret-path, binary and regular-file checks still apply.
+    Individual-file safety limits remain for other source files.
 3. Requires the primary implementation agent (orchestrator) to finish self-review, wait for ALL relevant tests to
    complete, check results, and finish all own verifications before EVERY round. Resolve failures first; never launch
    reviews alongside pending tests or verification. Call with `preflight: { selfReviewCompleted: true,
@@ -157,8 +175,11 @@ do not paste build/test results into worker inputs.
 `.harness/prevention.json` is the active, curated experience catalog. Each rule has a stable `id`, `category`,
 `appliesWhen`, actionable `instruction`, a brief `reason`, and an optional useful `example`. Apply its relevant
 constraints **before coding**. The plugin injects every rule before model calls; review workers freeze that complete
-bundle for their turn. There is no heuristic relevance filter and no silent truncation. Validation and publication
-use exactly the same projection and size limit as injection.
+bundle for their turn. There is no lesson-count or knowledge-size cap, heuristic relevance filter, eviction or silent
+truncation. Validation, publication and injection use exactly the same complete projection. The obsolete
+`maxKnowledgeChars` setting in older policies or frozen runs is ignored; existing catalogs and private evidence are
+preserved without migration. Model context capacity remains an external constraint, not permission to discard lessons.
+Reload the project location to activate this behavior in already-loaded tools and hooks before retrying blocked learning.
 
 The initial migration accounts for all 67 original feedback instructions (F1–F68, with no F47).
 `.harness/migrate-knowledge.mjs` records their explicit destinations. Forty scoped rules consolidate repeated guidance;
@@ -219,7 +240,7 @@ needed. Smaller files, verified rules and synthetic checks do not establish fewe
 ## Limitations and validation
 
 Automation begins when the delivery skill calls the controller; it is not an unconditional server-side handover gate.
-Host permissions, global plugins, or a primary agent bypass can weaken enforcement. Unsupported binary/large review
+Host permissions, global plugins, or a primary agent bypass can weaken enforcement. Unsupported binary/large non-generated review
 files and secret-like paths block rather than silently disappear. All model output is untrusted and schema-checked.
 The fake-agent regression suite covers controller mechanics, not model quality. `checkAgentHarness` is included in
 Gradle `check`; bootstrap/doctor remain explicit to keep ordinary CI offline and independent of model credentials.

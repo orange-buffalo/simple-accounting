@@ -41,6 +41,12 @@
     icon="attachment"
   />
 
+  <SaSideMenuLink
+    to="/account-statements"
+    :title="$t.accountStatements.header()"
+    icon="account-statements"
+  />
+
   <template v-if="isCurrentUserRegular()">
     <span class="side-menu__category">{{ $t.navigationMenu.settings.header() }}</span>
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import plugin, { createWorkers } from '../../.opencode/plugins/sa-review/index.js';
@@ -25,6 +25,23 @@ test('plugin registers executable tools and injects knowledge before every model
     assert.match(event.system[0].text, /Approved repository lessons/);
     assert.match(event.system[0].text, /BEFORE implementation/);
     assert.match(event.system[0].text, /live-consumer-migration/);
+  }
+});
+
+test('context and generation hooks inject every rule beyond the former knowledge cap', async () => {
+  const directory = await mkdtemp('/tmp/opencode/sa-injection-');
+  await mkdir(path.join(directory, '.harness'));
+  const rules = Array.from({ length: 200 }, (_, index) => ({ id: `cargo-${index}`, category: 'backend',
+    appliesWhen: `Reading cargo ${index}`, instruction: 'Check workspace ownership. '.repeat(10), reason: 'Preserve isolation.' }));
+  await writeFile(path.join(directory, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+  const hooks = new Map();
+  await createWorkers({ session: { hook: async (kind, handler) => hooks.set(kind, handler) } }, directory);
+  for (const kind of ['context', 'generate']) {
+    const event = { sessionID: 'ses_fry', system: [] };
+    await hooks.get(kind)(event);
+    const bundle = event.system[0].text.split('\n').slice(1).join('\n');
+    assert.ok(bundle.length > 30000);
+    assert.deepEqual(JSON.parse(bundle), rules);
   }
 });
 

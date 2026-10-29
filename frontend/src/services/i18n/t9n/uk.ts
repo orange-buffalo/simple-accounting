@@ -2,6 +2,29 @@
 import { format } from '@/services/i18n/t9n/formatter';
 
 export default {
+  accountStatements: {
+    header: () => 'Виписки з рахунків',
+    search: () => 'Пошук транзакцій',
+    dateRange: () => 'Дати транзакцій',
+    provider: () => 'Інтеграція-джерело',
+    party: () => 'Контрагент',
+    amount: () => 'Сума',
+    type: () => 'Тип транзакції',
+    date: () => 'Дата транзакції',
+    details: () => 'Деталі транзакції',
+    accountId: () => 'ID рахунку',
+    accountCurrency: () => 'Валюта рахунку',
+    externalId: () => 'Зовнішній ID транзакції',
+    fees: () => 'Комісії',
+    runningBalance: () => 'Поточний баланс',
+    originalAmount: () => 'Початкова сума',
+    sourceAmount: () => 'Сума списання при конвертації',
+    targetAmount: () => 'Сума зарахування при конвертації',
+    exchangeRate: () => 'Обмінний курс',
+    importedAt: () => 'Час імпорту',
+    additionalData: () => 'Додаткова інформація',
+    types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
+  },
   integrations: {
     header: () => 'Інтеграції',
     loading: () => 'Завантаження інтеграцій…',
