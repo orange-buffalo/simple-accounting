@@ -320,8 +320,8 @@
       "id": "kotlin-named-multiple-arguments",
       "category": "workflow",
       "appliesWhen": "Writing Kotlin calls or constructors with more than one supplied argument",
-      "instruction": "Use named arguments for every supplied argument; exclude Java calls and individual elements of a vararg.",
-      "reason": "Names keep multi-value call sites unambiguous."
+      "instruction": "Use named arguments for every supplied argument, except Java calls, individual vararg elements and genuine DSL builder methods such as JSON put/putJsonArray, which retain idiomatic positional arguments and trailing lambdas. Ordinary service, factory and constructor calls still require named arguments inside DSL receivers.",
+      "reason": "Names clarify ordinary multi-value calls; DSL builders retain their idiomatic structure."
     },
     {
       "id": "graphql-input-documentation",
