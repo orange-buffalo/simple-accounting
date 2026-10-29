@@ -218,50 +218,30 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
         inner class FreeSearch {
             @ParameterizedTest(name = "should search {0} case insensitively")
             @CsvSource(
-                "id,unused", "integrationId,unused", "provider,wIsE", "accountId,mArS",
-                "accountCurrency,eUr", "externalId,sLuRm", "type,dEbIt", "currency,uSd",
-                "partyName,pHiLiP", "feesCurrency,gBp", "runningBalanceCurrency,uAh",
-                "additionalData,pLaNeT", "originalCurrency,cAd", "sourceCurrency,aUd", "targetCurrency,jPy",
+                "accountId,mArS", "externalId,sLuRm", "type,dEbIt",
+                "partyName,pHiLiP", "additionalData,pLaNeT",
             )
             fun `should filter by every supported text field`(field: String, text: String) {
-                val record = preconditions {
+                preconditions {
                     accountStatementRecord(
                         integration = data.integration,
                         accountId = "Mars-account",
                         externalId = "Slurm",
-                        accountCurrency = "EUR",
-                        currency = "USD",
                         type = StatementType.DEBIT,
                         partyName = "Philip Fry",
                         additionalData = "Reference: Planet Express",
-                        feesCurrency = "GBP",
-                        runningBalanceCurrency = "UAH",
-                        originalCurrency = "CAD",
-                        sourceCurrency = "AUD",
-                        targetCurrency = "JPY",
                     ).also {
                         accountStatementRecord(
                             integration = data.integration,
                             externalId = "Robot-oil",
                             accountId = "Moon-account",
-                            accountCurrency = "NZD",
-                            currency = "NZD",
                             type = StatementType.CREDIT,
                             occurredAt = MOCK_TIME.minusSeconds(1),
                         )
                     }
                 }
-                val searchText = when (field) {
-                    "id" -> record.id!!
-                    "integrationId" -> data.integration.id!!
-                    else -> text
-                }
-                val matchingIds = when (field) {
-                    "provider", "integrationId" -> arrayOf("Slurm", "Robot-oil")
-                    else -> arrayOf("Slurm")
-                }
-                query(arguments = ", freeSearchText: ${JsonPrimitive(searchText)}").from(data.fry)
-                    .executeAndVerifyResponse(expected(*matchingIds))
+                query(arguments = ", freeSearchText: ${JsonPrimitive(text)}").from(data.fry)
+                    .executeAndVerifyResponse(expected("Slurm"))
             }
 
             @ParameterizedTest

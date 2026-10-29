@@ -1684,7 +1684,7 @@ type Workspace {
     after: String,
     "Maximum number of items to return."
     first: Int!,
-    "Case-insensitive search across all transaction text fields. Null or blank means no search."
+    "Case-insensitive search across provider account IDs, external transaction IDs, transaction type, party name and additional data. Internal IDs, provider and currency fields are excluded. Null or blank means no search."
     freeSearchText: String,
     "Exclusive transaction timestamp upper bound. Null or omitted means unbounded."
     occurredAtBefore: DateTime,

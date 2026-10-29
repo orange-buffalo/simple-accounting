@@ -71,7 +71,11 @@ data class WorkspaceGqlDto(
         @Max(GraphqlPaginationConstants.PAGE_SIZE_MAX)
         first: Int,
         @GraphQLDescription("Cursor after which to return items.") after: String? = null,
-        @GraphQLDescription("Case-insensitive search across all transaction text fields. Null or blank means no search.")
+        @GraphQLDescription(
+            "Case-insensitive search across provider account IDs, external transaction IDs, transaction type, " +
+                "party name and additional data. Internal IDs, provider and currency fields are excluded. " +
+                "Null or blank means no search."
+        )
         freeSearchText: String? = null,
         @GraphQLDescription("Include any of these source providers. Null or empty means all providers.")
         providerIn: List<IntegrationProvider>? = null,

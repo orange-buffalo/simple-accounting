@@ -28,10 +28,8 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
         .also { query ->
             if (!freeSearchText.isNullOrBlank()) {
                 query.addPredicate(DSL.or(listOf(
-                    statement.id, statement.provider, statement.integrationId, statement.accountId,
-                    statement.accountCurrency, statement.externalId, statement.type, statement.currency,
-                    statement.partyName, statement.feesCurrency, statement.runningBalanceCurrency,
-                    statement.additionalData, statement.originalCurrency, statement.sourceCurrency, statement.targetCurrency,
+                    statement.accountId, statement.externalId, statement.type,
+                    statement.partyName, statement.additionalData,
                 ).map { it.containsIgnoreCase(freeSearchText) }))
             }
             if (!providerIn.isNullOrEmpty()) query.addPredicate(statement.provider.`in`(providerIn.map { it.name }))

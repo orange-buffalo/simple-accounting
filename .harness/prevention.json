@@ -448,6 +448,13 @@
       "appliesWhen": "Testing API search across multiple supported fields",
       "instruction": "Explicitly enumerate every supported field in parameterized cases with independently specified exact expected matches. Use discriminating same-scope records and mixed-case substrings or IDs as applicable; respect domain constraints when fields necessarily match multiple records rather than inventing unsupported values. Cover literal wildcard/escape characters, unmatched input and applicable null/empty/blank contracts separately.",
       "reason": "Sparse or implementation-derived cases can miss omitted fields and accidental matches."
+    },
+    {
+      "id": "account-statement-search-fields",
+      "category": "backend",
+      "appliesWhen": "Implementing, documenting or testing account-statement free-text search; excludes unrelated entity search contracts",
+      "instruction": "Search only accountId, externalId, type, partyName and additionalData. Exclude id, integrationId, provider and all currency columns, not occurrences of their values inside searchable text. Preserve dedicated providerIn filtering, workspace authorization and persistence/pagination identifiers. Keep schema documentation and generated artifacts aligned. Independently enumerate the five included fields in positive parameterized API cases with contrasting same-workspace records. Do not add regression tests asserting excluded-column membership; manually review the production allowlist instead. Audit cumulative statement query tests/docs for obsolete membership expectations. Preserve unrelated wildcard/escape, unmatched and optional-input tests.",
+      "reason": "Explicit search membership keeps results relevant; scoped user-directed test removal must not weaken production exclusions or unrelated coverage."
     }
   ]
 }
