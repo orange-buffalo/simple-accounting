@@ -8,6 +8,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.Instant
@@ -51,6 +55,66 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
         fun `should not expose another users workspace`() {
             val zoidberg = preconditions { zoidberg() }
             query().from(zoidberg).executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 13)
+        }
+
+        @Test
+        fun `should reject administrators`() {
+            val farnsworth = preconditions { farnsworth() }
+            query().from(farnsworth).executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 13)
+        }
+
+        @Test
+        fun `should allow the workspace owner`() {
+            preconditions { accountStatementRecord(integration = data.integration, externalId = "Slurm") }
+            query().from(data.fry).executeAndVerifyResponse(expected("Slurm"))
+        }
+
+        @Test
+        fun `should allow a token for the requested workspace`() {
+            val token = preconditions {
+                accountStatementRecord(integration = data.integration, externalId = "Slurm")
+                workspaceAccessToken(workspace = data.workspace, validTill = MOCK_TIME.plusSeconds(10000))
+            }
+            query().usingSharedWorkspaceToken(token.token).executeAndVerifyResponse(expected("Slurm"))
+        }
+
+        @Test
+        fun `should not allow a token for another workspace`() {
+            val token = preconditions { workspaceAccessToken(validTill = MOCK_TIME.plusSeconds(10000)) }
+            query().usingSharedWorkspaceToken(token.token)
+                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 13)
+        }
+
+        @Test
+        fun `should allow a user with a saved shared workspace`() {
+            val zoidberg = preconditions {
+                accountStatementRecord(integration = data.integration, externalId = "Slurm")
+                zoidberg().also { user ->
+                    savedWorkspaceAccessToken(
+                        owner = user,
+                        workspaceAccessToken = workspaceAccessToken(
+                            workspace = data.workspace,
+                            validTill = MOCK_TIME.plusSeconds(10000),
+                        ),
+                    )
+                }
+            }
+            query().from(zoidberg).executeAndVerifyResponse(expected("Slurm"))
+        }
+
+        @ParameterizedTest(name = "should reject {0} workspace token")
+        @CsvSource("expired,-1,false", "revoked,10000,true")
+        fun `should reject invalid workspace tokens`(state: String, validForSeconds: Long, revoked: Boolean) {
+            val token = preconditions {
+                workspaceAccessToken(
+                    workspace = data.workspace,
+                    token = "Slurm-$state",
+                    validTill = MOCK_TIME.plusSeconds(validForSeconds),
+                    revoked = revoked,
+                )
+            }
+            query().usingSharedWorkspaceToken(token.token)
+                .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 13)
         }
     }
 
@@ -107,12 +171,12 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
         }
 
         @Test
-        fun `should page tied timestamps deterministically and isolate workspaces`() {
+        fun `should page tied timestamps deterministically`() {
             val records = preconditions {
                 listOf(
                     accountStatementRecord(integration = data.integration, externalId = "Slurm", occurredAt = MOCK_TIME.plusNanos(123000)),
                     accountStatementRecord(integration = data.integration, externalId = "Robot-oil", occurredAt = MOCK_TIME.plusNanos(123000)),
-                ).also { accountStatementRecord() }
+                )
             }.sortedByDescending { it.id }
             val cursor = Base64.getEncoder().encodeToString("${MOCK_TIME.toEpochMilli()}.123:${records[0].id}".toByteArray())
             client.graphqlRawQuery("""{ workspace(id: "${data.workspace.id}") {
@@ -137,39 +201,148 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                     })
                 })
         }
+
+        @Test
+        fun `should exclude records from other workspaces`() {
+            preconditions {
+                accountStatementRecord(integration = data.integration, externalId = "Slurm")
+                accountStatementRecord(externalId = "Robot-oil")
+            }
+            query().from(data.fry).executeAndVerifyResponse(expected("Slurm"))
+        }
     }
 
     @Nested
     inner class Filters {
-        @Test
-        fun `should search every text field case insensitively with literal matching`() {
-            val record = preconditions { accountStatementRecord(
-                integration = data.integration, accountId = "Mars-account", externalId = "Slurm_100%",
-                accountCurrency = "EUR", currency = "USD", partyName = "Philip Fry", additionalData = "Reference: Planet Express",
-                feesCurrency = "GBP", runningBalanceCurrency = "UAH", originalCurrency = "CAD",
-                sourceCurrency = "AUD", targetCurrency = "JPY",
-            ).also { accountStatementRecord() } }
-            listOf(record.id!!, data.integration.id!!, "wise", "mars", "eur", "slurm_100%", "debit", "usd",
-                "PHILIP", "gbp", "uah", "planet", "cad", "aud", "jpy").forEach { term ->
-                query(arguments = ", freeSearchText: ${JsonPrimitive(term)}").from(data.fry)
-                    .executeAndVerifyResponse(expected("Slurm_100%"))
+        @Nested
+        inner class FreeSearch {
+            @ParameterizedTest(name = "should search {0} case insensitively")
+            @CsvSource(
+                "id,unused", "integrationId,unused", "provider,wIsE", "accountId,mArS",
+                "accountCurrency,eUr", "externalId,sLuRm", "type,dEbIt", "currency,uSd",
+                "partyName,pHiLiP", "feesCurrency,gBp", "runningBalanceCurrency,uAh",
+                "additionalData,pLaNeT", "originalCurrency,cAd", "sourceCurrency,aUd", "targetCurrency,jPy",
+            )
+            fun `should filter by every supported text field`(field: String, text: String) {
+                val record = preconditions {
+                    accountStatementRecord(
+                        integration = data.integration,
+                        accountId = "Mars-account",
+                        externalId = "Slurm",
+                        accountCurrency = "EUR",
+                        currency = "USD",
+                        type = StatementType.DEBIT,
+                        partyName = "Philip Fry",
+                        additionalData = "Reference: Planet Express",
+                        feesCurrency = "GBP",
+                        runningBalanceCurrency = "UAH",
+                        originalCurrency = "CAD",
+                        sourceCurrency = "AUD",
+                        targetCurrency = "JPY",
+                    ).also {
+                        accountStatementRecord(
+                            integration = data.integration,
+                            externalId = "Robot-oil",
+                            accountId = "Moon-account",
+                            accountCurrency = "NZD",
+                            currency = "NZD",
+                            type = StatementType.CREDIT,
+                            occurredAt = MOCK_TIME.minusSeconds(1),
+                        )
+                    }
+                }
+                val searchText = when (field) {
+                    "id" -> record.id!!
+                    "integrationId" -> data.integration.id!!
+                    else -> text
+                }
+                val matchingIds = when (field) {
+                    "provider", "integrationId" -> arrayOf("Slurm", "Robot-oil")
+                    else -> arrayOf("Slurm")
+                }
+                query(arguments = ", freeSearchText: ${JsonPrimitive(searchText)}").from(data.fry)
+                    .executeAndVerifyResponse(expected(*matchingIds))
             }
-            query(arguments = ", freeSearchText: \"missing\"").from(data.fry).executeAndVerifyResponse(expected())
+
+            @ParameterizedTest
+            @ValueSource(strings = ["_", "%", "\\"])
+            fun `should match SQL wildcard and escape characters literally`(text: String) {
+                preconditions {
+                    accountStatementRecord(integration = data.integration, externalId = "Slurm${text}supplies")
+                    accountStatementRecord(integration = data.integration, externalId = "SlurmXsupplies")
+                }
+                query(arguments = ", freeSearchText: ${JsonPrimitive(text)}").from(data.fry)
+                    .executeAndVerifyResponse(expected("Slurm${text}supplies"))
+            }
+
+            @Test
+            fun `should return no records when text does not match`() {
+                preconditions { accountStatementRecord(integration = data.integration, externalId = "Slurm") }
+                query(arguments = ", freeSearchText: \"Omicron\"").from(data.fry).executeAndVerifyResponse(expected())
+            }
+
+            @ParameterizedTest
+            @NullSource
+            @ValueSource(strings = ["", "  "])
+            fun `should not restrict records for null empty or blank search text`(text: String?) {
+                preconditions { accountStatementRecord(integration = data.integration, externalId = "Slurm") }
+                query(arguments = ", freeSearchText: ${text?.let { JsonPrimitive(it) } ?: JsonNull}")
+                    .from(data.fry).executeAndVerifyResponse(expected("Slurm"))
+            }
         }
 
-        @Test
-        fun `should combine search provider and timestamp bounds and ignore cleared filters`() {
-            preconditions {
+        @Nested
+        inner class Provider {
+            @Test
+            fun `should return records for the selected provider`() {
+                preconditions { accountStatementRecord(integration = data.integration, externalId = "Slurm") }
+                query(arguments = ", providerIn: [WISE]").from(data.fry).executeAndVerifyResponse(expected("Slurm"))
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = ["null", "[]"])
+            fun `should not restrict records for null or empty provider list`(value: String) {
+                preconditions { accountStatementRecord(integration = data.integration, externalId = "Slurm") }
+                query(arguments = ", providerIn: $value").from(data.fry).executeAndVerifyResponse(expected("Slurm"))
+            }
+        }
+
+        @Nested
+        inner class TimestampBounds {
+            private fun createRecords() = preconditions {
+                accountStatementRecord(integration = data.integration, externalId = "Slurm-before", occurredAt = Instant.parse("1999-03-27T12:59:59.999999Z"))
                 accountStatementRecord(integration = data.integration, externalId = "Slurm-start", occurredAt = Instant.parse("1999-03-27T13:00:00Z"))
                 accountStatementRecord(integration = data.integration, externalId = "Slurm-end", occurredAt = Instant.parse("1999-03-28T13:59:59.999999Z"))
-                accountStatementRecord(integration = data.integration, externalId = "Slurm-before", occurredAt = Instant.parse("1999-03-27T12:59:59.999999Z"))
                 accountStatementRecord(integration = data.integration, externalId = "Slurm-after", occurredAt = Instant.parse("1999-03-28T14:00:00Z"))
-                accountStatementRecord(integration = data.integration, externalId = "Robot-oil")
             }
-            query(arguments = """, freeSearchText: "slurm", providerIn: [WISE], occurredAtFrom: "1999-03-27T13:00:00Z", occurredAtBefore: "1999-03-28T14:00:00Z"""")
-                .from(data.fry).executeAndVerifyResponse(expected("Slurm-end", "Slurm-start"))
-            query(arguments = ", freeSearchText: \"  \", providerIn: [], occurredAtFrom: null, occurredAtBefore: null")
-                .from(data.fry).executeAndVerifyResponse(expected("Robot-oil", "Slurm-after", "Slurm-end", "Slurm-start", "Slurm-before"))
+
+            @Test
+            fun `should include the lower bound when only from is provided`() {
+                createRecords()
+                query(arguments = ", occurredAtFrom: \"1999-03-27T13:00:00Z\"").from(data.fry)
+                    .executeAndVerifyResponse(expected("Slurm-after", "Slurm-end", "Slurm-start"))
+            }
+
+            @Test
+            fun `should exclude the upper bound when only before is provided`() {
+                createRecords()
+                query(arguments = ", occurredAtBefore: \"1999-03-28T14:00:00Z\"").from(data.fry)
+                    .executeAndVerifyResponse(expected("Slurm-end", "Slurm-start", "Slurm-before"))
+            }
+
+            @Test
+            fun `should apply both timestamp bounds`() {
+                createRecords()
+                query(arguments = """, occurredAtFrom: "1999-03-27T13:00:00Z", occurredAtBefore: "1999-03-28T14:00:00Z"""")
+                    .from(data.fry).executeAndVerifyResponse(expected("Slurm-end", "Slurm-start"))
+            }
+
+            @Test
+            fun `should not restrict records for explicitly null timestamp bounds`() {
+                createRecords()
+                query(arguments = ", occurredAtFrom: null, occurredAtBefore: null").from(data.fry)
+                    .executeAndVerifyResponse(expected("Slurm-after", "Slurm-end", "Slurm-start", "Slurm-before"))
+            }
         }
     }
 }

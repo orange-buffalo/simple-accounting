@@ -39,6 +39,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.business.workspaces.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -237,6 +238,12 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
             createdAt = createdAt,
         ).save()
     }
+
+    fun savedWorkspaceAccessToken(owner: PlatformUser, workspaceAccessToken: WorkspaceAccessToken) =
+        SavedWorkspaceAccessToken(
+            ownerId = owner.id!!,
+            workspaceAccessTokenId = workspaceAccessToken.id!!,
+        ).save()
 
     fun document(
         name: String = "Slurm Receipt",

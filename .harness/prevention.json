@@ -186,9 +186,9 @@
     {
       "id": "test-helper-placement",
       "category": "testing",
-      "appliesWhen": "Adding stubs, page objects and utilities",
-      "instruction": "Name test stubbing helpers as actions; avoid getter-like names for setup operations. Keep one-page test wrappers in their page object; reserve shared component infrastructure for reusable components. Add test helpers beside equivalent existing utilities rather than creating parallel utility files.",
-      "reason": "Clear ownership prevents parallel utility hierarchies."
+      "appliesWhen": "Adding stubs, page objects, component wrappers and utilities",
+      "instruction": "Name test stubbing helpers as actions; avoid getter-like names for setup operations. Keep one-page wrappers in their page object and shared components in reusable infrastructure. Generic-component DOM structure, locator counts and internal class/icon checks belong to that component's wrapper; page objects delegate through typed methods and composed wrappers. Preserve unrelated generic APIs and callers. Add helpers beside equivalent existing utilities rather than creating parallel utility files.",
+      "reason": "Clear ownership prevents generic DOM leakage and parallel utility hierarchies."
     },
     {
       "id": "remove-unnecessary-tests",
@@ -333,9 +333,9 @@
     {
       "id": "independent-workflow-tests",
       "category": "testing",
-      "appliesWhen": "A test contains independently meaningful create, update, replacement, deletion, or rejection workflows",
-      "instruction": "Split independent workflows into separate tests with their own relevant preconditions and outcome assertions. Retain a compact parameterized or table-driven test for variants sharing one setup boundary and observable outcome.",
-      "reason": "Independent workflows need isolated failure signals; identical boundary variants do not."
+      "appliesWhen": "A test contains independently meaningful create, update, replacement, deletion, rejection or query contracts, including pagination, isolation and optional filter dimensions",
+      "instruction": "Split independent workflows or query contracts into separate tests with their own relevant preconditions and outcome assertions. Retain a compact parameterized or table-driven test for variants sharing one setup boundary and observable outcome.",
+      "reason": "Independent contracts need isolated failure signals; equivalent boundary variants do not."
     },
     {
       "id": "generic-statement-model",
@@ -434,6 +434,20 @@
       "appliesWhen": "Rendering account-statement transaction types or implementing an explicitly requested iconless status badge; excludes intentionally simplified text labels",
       "instruction": "Use SaStatusLabel with hide-icon and without simplified for iconless badges. Preserve semantic status mappings and shared component behavior rather than introducing custom badge styles.",
       "reason": "Icon visibility and badge styling are independent props; simplified removes the badge background."
+    },
+    {
+      "id": "api-authorization-matrix",
+      "category": "testing",
+      "appliesWhen": "Testing API authorization with ownership, shared access or workspace-token boundaries",
+      "instruction": "Enumerate applicable actors from source authorization boundaries: owner, anonymous, administrator, unrelated user, saved-share user, matching/unrelated workspace tokens and expired/revoked tokens where supported. Assert actual returned data for allowed actors and source-derived error contracts for rejected actors; do not assume administrator access or a universal rejection code.",
+      "reason": "Role-only coverage misses sharing and token boundaries and can encode incorrect rejection semantics."
+    },
+    {
+      "id": "api-filter-field-coverage",
+      "category": "testing",
+      "appliesWhen": "Testing API search across multiple supported fields",
+      "instruction": "Explicitly enumerate every supported field in parameterized cases with independently specified exact expected matches. Use discriminating same-scope records and mixed-case substrings or IDs as applicable; respect domain constraints when fields necessarily match multiple records rather than inventing unsupported values. Cover literal wildcard/escape characters, unmatched input and applicable null/empty/blank contracts separately.",
+      "reason": "Sparse or implementation-derived cases can miss omitted fields and accidental matches."
     }
   ]
 }
