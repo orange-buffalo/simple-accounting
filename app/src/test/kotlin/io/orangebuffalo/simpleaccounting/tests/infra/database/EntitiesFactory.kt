@@ -539,6 +539,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetAmountInCents: Long? = null,
         targetCurrency: String? = null,
         exchangeRate: BigDecimal? = null,
+        linkedInvoice: Invoice? = null,
     ): AccountStatementRecord = AccountStatementRecord(
         workspaceId = integration.workspaceId,
         provider = IntegrationProvider.WISE,
@@ -563,6 +564,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetAmountInCents = targetAmountInCents,
         targetCurrency = targetCurrency,
         exchangeRate = exchangeRate,
+        linkedInvoiceId = linkedInvoice?.id,
     ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }

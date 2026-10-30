@@ -89,6 +89,12 @@ class SaOverviewFilters private constructor(
         return this
     }
 
+    fun shouldHaveTextFilterValue(label: String, value: String): SaOverviewFilters {
+        open(label)
+        TextInput.byContainer(editor).shouldHaveValue(value)
+        return this
+    }
+
     fun addSelectFilter(label: String, value: String): SaOverviewFilters {
         open(label)
         Checkbox.checkboxByOwnLabel(container = editor, label = value).click()

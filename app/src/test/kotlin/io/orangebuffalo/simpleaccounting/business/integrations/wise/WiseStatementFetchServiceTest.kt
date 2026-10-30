@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.infra.TimeService
@@ -18,6 +19,11 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.NullSource
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,6 +44,197 @@ class WiseStatementFetchServiceTest(
 ) : SaIntegrationTestBase() {
     private val dollars = WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")
     private val euros = WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")
+
+    @ParameterizedTest
+    @CsvSource(value = ["paymentReference|PE-3025-42", "description|PE-3025-42", "paymentReference|PE%_.*[42]"], delimiter = '|')
+    fun `should link newly imported credits using descriptive fields`(field: String, invoiceNumber: String) {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                private val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = invoiceNumber, amount = 125, currency = "USD")
+                init {
+                    invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-43", amount = 125, currency = "USD")
+                }
+            }
+        }
+        WiseApiMocks.setupStatement(transactions = """[{
+            "type":"CREDIT","date":"1999-03-27T12:00:00Z","referenceNumber":"TRANSFER-42",
+            "amount":{"value":1.25,"currency":"USD"},
+            "details":{"$field":"Payment for ${invoiceNumber.lowercase()}, Planet Express"}
+        }]""")
+
+        fetcher.fetchStatements()
+
+        val record = aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle()
+        record.linkedInvoiceId.shouldBe(data.invoice.id)
+        fetcher.fetchStatements()
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(record)
+    }
+
+    @ParameterizedTest
+    @EnumSource(InvoiceStatus::class)
+    fun `should revisit existing unlinked credits for any invoice status`(status: InvoiceStatus) {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val record = accountStatementRecord(
+                    integration = integration, type = StatementType.CREDIT,
+                    amountInCents = 125, currency = "USD", additionalData = "Payment reference: PE-3025-42",
+                )
+                val invoice = invoice(
+                    customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125, currency = "USD", status = status,
+                )
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle()
+            .shouldBeEntityWithFields(data.record.copy(linkedInvoiceId = data.invoice.id))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["PE-3025-43", "PE-3025-42"])
+    fun `should leave multiple matching invoices ambiguous`(otherNumber: String) {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val record = accountStatementRecord(
+                    integration = integration, type = StatementType.CREDIT,
+                    additionalData = "Description: PE-3025-42 and PE-3025-43",
+                )
+                init {
+                    val customer = customer(workspace = workspace)
+                    invoice(customer = customer, invoiceNumber = "PE-3025-42", amount = 125)
+                    invoice(customer = customer, invoiceNumber = otherNumber, amount = 125)
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.record)
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = ["", "Description: Slurm delivery"])
+    fun `should not match credits without a descriptive invoice number`(description: String?) {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val record = accountStatementRecord(
+                    integration = integration, type = StatementType.CREDIT, additionalData = description,
+                    partyName = "PE-3025-42", externalId = "PE-3025-42",
+                )
+                init {
+                    invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.record)
+    }
+
+    @Test
+    fun `should require matching amount currency workspace and invoice number`() {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val record = accountStatementRecord(
+                    integration = integration, type = StatementType.CREDIT, amountInCents = 125, currency = "USD",
+                    additionalData = "Payment reference: PE-3025-42",
+                )
+                init {
+                    val customer = customer(workspace = workspace)
+                    invoice(customer = customer, invoiceNumber = "PE-3025-42", amount = 126, currency = "USD")
+                    invoice(customer = customer, invoiceNumber = "PE-3025-42", amount = 125, currency = "EUR")
+                    invoice(customer = customer, invoiceNumber = "PE-3025-43", amount = 125, currency = "USD")
+                    invoice(invoiceNumber = "PE-3025-42", amount = 125, currency = "USD")
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.record)
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatementType::class, names = ["DEBIT", "CONVERSION", "OTHER"])
+    fun `should not link non-credit transactions`(type: StatementType) {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val record = accountStatementRecord(integration = integration, type = type, additionalData = "Description: PE-3025-42")
+                init {
+                    invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.record)
+    }
+
+    @Test
+    fun `should preserve existing links and never reuse their invoices`() {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                private val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                val linked = accountStatementRecord(integration = integration, linkedInvoice = invoice, additionalData = "Description: PE-3025-43")
+                val unlinked = accountStatementRecord(integration = integration, type = StatementType.CREDIT, additionalData = "Payment reference: PE-3025-42")
+                init {
+                    invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-43", amount = 125)
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        val records = aggregateTemplate.findAll<AccountStatementRecord>()
+        records.single { it.id == data.linked.id }.shouldBeEntityWithFields(data.linked)
+        records.single { it.id == data.unlinked.id }.shouldBeEntityWithFields(data.unlinked)
+    }
+
+    @Test
+    fun `should link a given invoice to at most one previously unlinked statement`() {
+        val data = preconditions {
+            object {
+                private val workspace = workspace()
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                init {
+                    repeat(2) { accountStatementRecord(integration = integration, type = StatementType.CREDIT, additionalData = "Payment reference: PE-3025-42") }
+                }
+            }
+        }
+        WiseApiMocks.setupStatement()
+
+        fetcher.fetch(data.integration.id!!)
+
+        val records = aggregateTemplate.findAll<AccountStatementRecord>()
+        records.size.shouldBe(2)
+        records.count { it.linkedInvoiceId == data.invoice.id }.shouldBe(1)
+        records.count { it.linkedInvoiceId == null }.shouldBe(1)
+    }
 
     @Test
     fun `should import three calendar months and preserve generic transaction details`() {

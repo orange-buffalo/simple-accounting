@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.openAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.shouldBeAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
@@ -15,8 +16,46 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDate
 
 class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
+    @Test
+    fun `should navigate from linked invoice details to prefiltered invoices`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                val workspace = workspace(owner = user)
+                val integration = wiseIntegrationSettings(workspace = workspace)
+                val customer = customer(workspace = workspace)
+                val invoice = invoice(customer = customer, invoiceNumber = "PE-3025/42 #Mars", amount = 125, dateIssued = LocalDate.of(3025, 1, 15))
+                invoice(customer = customer, invoiceNumber = "PE-3025-43", dateIssued = LocalDate.of(3025, 1, 14))
+                accountStatementRecord(
+                    integration = integration, externalId = "Moon-delivery", type = StatementType.CREDIT,
+                    linkedInvoice = invoice,
+                )
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openAccountStatementsOverviewPage {
+            pageItems.shouldHaveTitles("Moon-delivery")
+            statement("Moon-delivery").shouldHaveDetails(
+                sections = arrayOf(DetailsSectionSpec(title = "Transaction details", attributes = listOf(
+                    "Amount" to "USD 1.25", "Transaction type" to "Credit", "Transaction date" to "29 Mar 1999, 9:01 am",
+                    "Source integration" to "Wise", "Account ID" to "301", "Account currency" to "USD",
+                    "External transaction ID" to "Moon-delivery", "Imported at" to "29 Mar 1999, 9:01 am",
+                    "Invoice" to "PE-3025/42 #Mars",
+                ))),
+            )
+            reportRendering("account-statements.linked-invoice")
+            statement("Moon-delivery").clickDetailsLink("PE-3025/42 #Mars")
+        }
+        page.shouldBeInvoicesOverviewPage {
+            pageItems.shouldHaveTitles("PE-3025/42 #Mars")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "PE-3025/42 #Mars").closeByOutsideClick()
+            filters.clearAll()
+            pageItems.shouldHaveTitles("PE-3025/42 #Mars", "PE-3025-43")
+        }
+    }
+
     @Test
     fun `should display transactions and expand all available information`(page: Page) {
         val data = preconditions {

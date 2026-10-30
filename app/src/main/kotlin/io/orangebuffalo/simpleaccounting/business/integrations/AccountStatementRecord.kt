@@ -34,6 +34,7 @@ data class AccountStatementRecord(
     val targetAmountInCents: Long? = null,
     val targetCurrency: String? = null,
     val exchangeRate: BigDecimal? = null,
+    val linkedInvoiceId: String? = null,
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
@@ -48,6 +49,8 @@ enum class IntegrationProvider { WISE }
 enum class StatementType { DEBIT, CREDIT, CONVERSION, OTHER }
 
 interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountStatementRecord> {
+    fun findByWorkspaceIdAndLinkedInvoiceIdIsNullAndType(workspaceId: String, type: StatementType): List<AccountStatementRecord>
+
     @Modifying
     @Query("delete from account_statement_record where integration_id = :integrationId and provider = :provider")
     fun deleteByIntegrationIdAndProvider(integrationId: String, provider: String)

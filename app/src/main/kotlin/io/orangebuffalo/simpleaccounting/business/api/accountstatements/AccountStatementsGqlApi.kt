@@ -2,6 +2,10 @@ package io.orangebuffalo.simpleaccounting.business.api.accountstatements
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.invoices.loadInvoiceByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
@@ -10,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 @Component
 class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationService) {
@@ -62,6 +67,8 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
                 targetCurrency = record[statement.targetCurrency],
                 exchangeRate = record[statement.exchangeRate]?.toPlainString(),
                 createdAt = record[statement.createdAt]!!,
+                workspaceId = workspaceId,
+                linkedInvoiceId = record[statement.linkedInvoiceId],
             )
         }
 }
@@ -93,4 +100,12 @@ data class AccountStatementGqlDto(
     @GraphQLDescription("Conversion target currency.") val targetCurrency: String?,
     @GraphQLDescription("Exact decimal provider exchange rate, represented as a string.") val exchangeRate: String?,
     @GraphQLDescription("Time this record was imported.") val createdAt: Instant,
-)
+    @GraphQLIgnore val workspaceId: String,
+    @GraphQLIgnore val linkedInvoiceId: String?,
+) {
+    @GraphQLDescription("Invoice linked to this statement, if a unique match was found during synchronization.")
+    fun linkedInvoice(env: DataFetchingEnvironment): CompletableFuture<InvoiceGqlDto?>? {
+        val invoiceId = linkedInvoiceId ?: return null
+        return env.loadInvoiceByWorkspaceAndId(workspaceId = workspaceId, invoiceId = invoiceId)
+    }
+}

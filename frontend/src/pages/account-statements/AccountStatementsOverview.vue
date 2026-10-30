@@ -67,6 +67,7 @@
               amountInCents currency partyName feesInCents feesCurrency runningBalanceInCents
               runningBalanceCurrency additionalData originalAmountInCents originalCurrency
               sourceAmountInCents sourceCurrency targetAmountInCents targetCurrency exchangeRate createdAt
+              linkedInvoice { id invoiceNumber }
             }
           }
           pageInfo { ...PaginationPageInfo }

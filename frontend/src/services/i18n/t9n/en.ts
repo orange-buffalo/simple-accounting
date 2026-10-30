@@ -23,6 +23,7 @@ export default {
     exchangeRate: () => 'Exchange rate',
     importedAt: () => 'Imported at',
     additionalData: () => 'Additional information',
+    invoice: () => 'Invoice',
     types: { DEBIT: () => 'Debit', CREDIT: () => 'Credit', CONVERSION: () => 'Conversion', OTHER: () => 'Other' },
   },
   integrations: {

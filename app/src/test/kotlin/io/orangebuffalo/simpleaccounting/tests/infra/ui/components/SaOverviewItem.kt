@@ -149,6 +149,13 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun clickDetailsLink(linkText: String) {
+        panel.locator("xpath=..").locator(".overview-item__details")
+            .getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName(linkText).setExact(true))
+            .also { it.shouldHaveCount(1) }
+            .click()
+    }
+
     fun clickPrimaryAttributeLink(linkText: String) {
         panel.locator(".overview-item-primary-attribute")
             .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(linkText).setExact(true))

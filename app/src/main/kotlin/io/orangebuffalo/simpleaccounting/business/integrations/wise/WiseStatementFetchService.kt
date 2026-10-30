@@ -2,8 +2,12 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import mu.KotlinLogging
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -20,6 +24,7 @@ class WiseStatementFetchService internal constructor(
     private val client: WiseApiClient,
     private val records: AccountStatementRecordsRepository,
     private val time: TimeService,
+    private val dsl: DSLContext,
     transactionManager: PlatformTransactionManager,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -66,7 +71,12 @@ class WiseStatementFetchService internal constructor(
             if (outcome == FetchOutcome.SUCCESS) {
                 logger.info {
                     "Wise statement import committed: integration=$integrationId, fetchedRecords=${result.fetched}, " +
-                        "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
+                        "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}, " +
+                        "invoiceMatchingChecked=${result.matching.checked}, linkedInvoices=${result.matching.links.size}, " +
+                        "ambiguousInvoiceMatches=${result.matching.ambiguous}"
+                }
+                result.matching.links.forEach { link ->
+                    logger.info { "Wise statement invoice link committed: integration=$integrationId, statement=${link.statementId}, invoice=${link.invoiceId}" }
                 }
             }
         } catch (_: WiseUnavailableException) {
@@ -113,7 +123,43 @@ class WiseStatementFetchService internal constructor(
             lastSuccessfulFetchTime = end,
             accounts = integration.accounts.map { it.copy(lastSuccessfulFetchTime = end) }.toSet(),
         ))
-        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported)
+        val matching = linkInvoices(integration.workspaceId)
+        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported, matching = matching)
+    }
+
+    private fun linkInvoices(workspaceId: String): InvoiceMatchingResult {
+        val workspace = Tables.WORKSPACE
+        // Serialize matching across integrations without blocking foreign-key checks during imports.
+        dsl.select(workspace.id).from(workspace).where(workspace.id.eq(workspaceId)).forNoKeyUpdate().fetchOne()
+        val invoice = Tables.INVOICE
+        val customer = Tables.CUSTOMER
+        val statement = Tables.ACCOUNT_STATEMENT_RECORD
+        val unlinked = records.findByWorkspaceIdAndLinkedInvoiceIdIsNullAndType(workspaceId = workspaceId, type = StatementType.CREDIT)
+            .sortedWith(compareBy<AccountStatementRecord> { it.occurredAt }.thenBy { it.id })
+        val links = mutableListOf<StatementInvoiceLink>()
+        var ambiguous = 0
+        unlinked.forEach { record ->
+            val description = record.additionalData ?: return@forEach
+            val candidates = dsl.select(invoice.id, invoice.invoiceNumber).from(invoice)
+                .join(customer).on(customer.id.eq(invoice.customerId))
+                .where(customer.workspaceId.eq(workspaceId))
+                .and(invoice.currency.eq(record.currency))
+                .and(invoice.amount.eq(record.amountInCents))
+                .andNotExists(DSL.selectOne().from(statement).where(statement.linkedInvoiceId.eq(invoice.id)))
+                .fetch()
+                .filter { candidate ->
+                    val number = candidate[invoice.invoiceNumber]!!
+                    number.isNotBlank() && description.contains(other = number, ignoreCase = true)
+                }
+            if (candidates.size == 1) {
+                val invoiceId = candidates.single()[invoice.id]!!
+                records.save(record.copy(linkedInvoiceId = invoiceId))
+                links.add(StatementInvoiceLink(statementId = record.id!!, invoiceId = invoiceId))
+            } else if (candidates.size > 1) {
+                ambiguous++
+            }
+        }
+        return InvoiceMatchingResult(checked = unlinked.size, links = links, ambiguous = ambiguous)
     }
 
     private fun fetchAccount(integration: WiseIntegrationSettings, account: WiseIntegrationAccount, end: Instant): List<AccountStatementRecord> {
@@ -150,7 +196,16 @@ class WiseStatementFetchService internal constructor(
 
     private fun elapsedMillis(started: Long): Long = (System.nanoTime() - started) / 1_000_000
 
-    private data class FetchResult(val outcome: FetchOutcome, val fetched: Int = 0, val imported: Int = 0)
+    private data class StatementInvoiceLink(val statementId: String, val invoiceId: String)
+
+    private data class InvoiceMatchingResult(val checked: Int = 0, val links: List<StatementInvoiceLink> = emptyList(), val ambiguous: Int = 0)
+
+    private data class FetchResult(
+        val outcome: FetchOutcome,
+        val fetched: Int = 0,
+        val imported: Int = 0,
+        val matching: InvoiceMatchingResult = InvoiceMatchingResult(),
+    )
 
     private enum class FetchOutcome { SUCCESS, MISSING, DISABLED, AUTHENTICATION_REQUIRED, NO_ACCOUNTS, PROVIDER_FAILURE, FAILED }
 }

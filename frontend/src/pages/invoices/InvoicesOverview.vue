@@ -21,6 +21,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
@@ -77,8 +78,9 @@
     }
   `);
 
+  const route = useRoute();
   const overviewFilters = ref(createOverviewFilters<InvoicesOverviewFilters>({
-    freeSearchText: null,
+    freeSearchText: typeof route.query.freeSearchText === 'string' ? route.query.freeSearchText : null,
   }));
   const invoiceFilters: SaOverviewFilterConfigs<InvoicesOverviewFilters> = {
     freeSearchText: {

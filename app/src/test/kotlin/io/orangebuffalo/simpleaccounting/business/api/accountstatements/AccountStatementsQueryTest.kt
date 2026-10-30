@@ -120,6 +120,54 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
 
     @Nested
     inner class Transactions {
+        @ParameterizedTest
+        @ValueSource(strings = ["owner", "workspace-token", "saved-share"])
+        fun `should expose the linked invoice to authorized workspace readers`(actor: String) {
+            val setup = preconditions {
+                object {
+                    val invoice = invoice(customer = customer(workspace = data.workspace), invoiceNumber = "PE-3025-42")
+                    val token = workspaceAccessToken(workspace = data.workspace, validTill = MOCK_TIME.plusSeconds(10000))
+                    val zoidberg = zoidberg().also { savedWorkspaceAccessToken(owner = it, workspaceAccessToken = token) }
+                    init {
+                        accountStatementRecord(integration = data.integration, linkedInvoice = invoice)
+                    }
+                }
+            }
+            val request = query(selection = "linkedInvoice { id invoiceNumber }")
+            when (actor) {
+                "workspace-token" -> request.usingSharedWorkspaceToken(setup.token.token)
+                "saved-share" -> request.from(setup.zoidberg)
+                else -> request.from(data.fry)
+            }.executeAndVerifyResponse("workspace" to buildJsonObject {
+                put("accountStatements", buildJsonObject {
+                    put("totalCount", 1)
+                    putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                        put("linkedInvoice", buildJsonObject {
+                            put("id", setup.invoice.id)
+                            put("invoiceNumber", "PE-3025-42")
+                        })
+                    }) }) }
+                })
+            })
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        fun `should not expose absent or cross-workspace invoice links`(crossWorkspace: Boolean) {
+            preconditions {
+                accountStatementRecord(integration = data.integration, linkedInvoice = if (crossWorkspace) invoice() else null)
+            }
+            query(selection = "linkedInvoice { id invoiceNumber }").from(data.fry)
+                .executeAndVerifyResponse("workspace" to buildJsonObject {
+                    put("accountStatements", buildJsonObject {
+                        put("totalCount", 1)
+                        putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                            put("linkedInvoice", JsonNull)
+                        }) }) }
+                    })
+                })
+        }
+
         @Test
         fun `should expose all transaction information without losing fractional exchange rates`() {
             val record = preconditions {

@@ -23,6 +23,7 @@ export default {
     exchangeRate: () => 'Обмінний курс',
     importedAt: () => 'Час імпорту',
     additionalData: () => 'Додаткова інформація',
+    invoice: () => 'Рахунок',
     types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
   },
   integrations: {

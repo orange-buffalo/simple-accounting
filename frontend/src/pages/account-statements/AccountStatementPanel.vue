@@ -25,6 +25,17 @@
           >
             {{ attribute.value }}
           </SaOverviewItemDetailsSectionAttribute>
+          <SaOverviewItemDetailsSectionAttribute
+            v-if="statement.linkedInvoice"
+            :label="$t.accountStatements.invoice()"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <RouterLink :to="{
+              name: 'invoices-overview', query: { freeSearchText: statement.linkedInvoice.invoiceNumber },
+            }">
+              {{ statement.linkedInvoice.invoiceNumber }}
+            </RouterLink>
+          </SaOverviewItemDetailsSectionAttribute>
         </div>
       </SaOverviewItemDetailsSection>
       <SaOverviewItemDetailsSection v-if="statement.additionalData" :title="$t.accountStatements.additionalData()">

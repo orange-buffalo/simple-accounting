@@ -108,6 +108,8 @@ type AccountStatement {
   id: String!
   "Source integration ID."
   integrationId: String!
+  "Invoice linked to this statement, if a unique match was found during synchronization."
+  linkedInvoice: Invoice
   "Time of the transaction."
   occurredAt: DateTime!
   "Original amount in minor units."
