@@ -242,9 +242,9 @@
     {
       "id": "real-preconditions",
       "category": "testing",
-      "appliesWhen": "Setting up backend and full-stack tests",
-      "instruction": "Set up through real services and persistence-backed preconditions/lazyPreconditions factories, never aggregateTemplate. Name multiple arguments; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative branch changes for analogous issues; without this audit no clean receipt.",
-      "reason": "Realistic setup exercises application boundaries instead of implementation details."
+      "appliesWhen": "Creating backend/full-stack test preconditions or making mid-test infrastructure state updates; excludes business-service operations exercised as the test subject",
+      "instruction": "Use EntitiesFactory through preconditions/lazyPreconditions for setup and infrastructure state updates, never business services or direct test-level persistence writes. Factory-internal transactional JDBC persistence is allowed. Name multiple arguments; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative branch changes for analogous issues; without this audit no clean receipt.",
+      "reason": "Factory-owned setup keeps arrangement independent of business behavior and centralizes persistence infrastructure."
     },
     {
       "id": "graphql-laziness-tests",

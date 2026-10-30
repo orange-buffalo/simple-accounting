@@ -7,9 +7,6 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
-import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
-import io.orangebuffalo.simpleaccounting.business.security.runAs
-import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePage.Companion.shouldBeEditInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
@@ -21,16 +18,13 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFie
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.springframework.beans.factory.annotation.Autowired
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
-class EditInvoiceFullStackTest(
-    @Autowired private val invoicesService: InvoicesService,
-) : SaFullStackTestBase() {
+class EditInvoiceFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
@@ -377,11 +371,8 @@ class EditInvoiceFullStackTest(
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
             invoiceNumber { input.fill("Updated delivery services") }
-            runAs(testData.fry.toSecurityPrincipal()) {
-                invoicesService.saveInvoice(
-                    invoice = testData.invoice.copy(invoiceNumber = "Invoice changed elsewhere"),
-                    workspaceId = testData.workspace.id!!,
-                )
+            preconditions {
+                save(testData.invoice.copy(invoiceNumber = "Invoice changed elsewhere"))
             }
 
             saveButton.click()
