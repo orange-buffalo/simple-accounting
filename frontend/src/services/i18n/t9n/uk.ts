@@ -23,6 +23,8 @@ export default {
     exchangeRate: () => 'Обмінний курс',
     importedAt: () => 'Час імпорту',
     additionalData: () => 'Додаткова інформація',
+    invoice: () => 'Рахунок',
+    invoiceMatched: () => 'Рахунок зіставлено з цією транзакцією',
     types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
   },
   integrations: {
@@ -686,7 +688,7 @@ export default {
       originalAmount: () => 'Будь ласка, вкажіть суму доходу ',
     },
     fromInvoice: {
-      title: (invoiceTitle: string) => format('Платіж за {0}', [invoiceTitle]),
+      title: (invoiceNumber: string) => format('Платіж за рахунком №{0}', [invoiceNumber]),
     },
   },
 
@@ -804,9 +806,9 @@ export default {
         label: () => 'Клієнт',
         placeholder: () => 'Виберіть клієнта',
       },
-      title: {
-        label: () => 'Опис / Назва',
-        placeholder: () => 'Дайте коротке резюме',
+      invoiceNumber: {
+        label: () => 'Номер рахунку',
+        placeholder: () => 'Введіть номер рахунку',
       },
       currency: {
         label: () => 'Валюта',

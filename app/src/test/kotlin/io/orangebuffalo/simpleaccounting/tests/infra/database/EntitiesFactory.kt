@@ -441,7 +441,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
 
     fun invoice(
         customer: Customer? = null,
-        title: String = "invoice",
+        invoiceNumber: String = "invoice",
         createdAt: Instant = MOCK_TIME,
         dateIssued: LocalDate = MOCK_DATE,
         dateSent: LocalDate? = null,
@@ -458,7 +458,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         val customerId = if (customer == null) customer().id else customer.id
         return Invoice(
             customerId = customerId!!,
-            title = title,
+            invoiceNumber = invoiceNumber,
             dateIssued = dateIssued,
             dateSent = dateSent,
             datePaid = datePaid,
@@ -539,6 +539,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetAmountInCents: Long? = null,
         targetCurrency: String? = null,
         exchangeRate: BigDecimal? = null,
+        linkedInvoice: Invoice? = null,
     ): AccountStatementRecord = AccountStatementRecord(
         workspaceId = integration.workspaceId,
         provider = IntegrationProvider.WISE,
@@ -563,6 +564,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetAmountInCents = targetAmountInCents,
         targetCurrency = targetCurrency,
         exchangeRate = exchangeRate,
+        linkedInvoiceId = linkedInvoice?.id,
     ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }

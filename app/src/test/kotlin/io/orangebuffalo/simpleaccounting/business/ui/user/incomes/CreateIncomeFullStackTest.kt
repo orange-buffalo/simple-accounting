@@ -441,7 +441,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Delivery to Mars",
+                    invoiceNumber = "Delivery to Mars",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 1, 10),
                     status = InvoiceStatus.SENT

@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService.InvoiceMatchingResult
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Async
@@ -20,6 +22,7 @@ class WiseStatementFetchService internal constructor(
     private val client: WiseApiClient,
     private val records: AccountStatementRecordsRepository,
     private val time: TimeService,
+    private val invoiceLinking: AccountStatementInvoiceLinkingService,
     transactionManager: PlatformTransactionManager,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -66,7 +69,12 @@ class WiseStatementFetchService internal constructor(
             if (outcome == FetchOutcome.SUCCESS) {
                 logger.info {
                     "Wise statement import committed: integration=$integrationId, fetchedRecords=${result.fetched}, " +
-                        "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
+                        "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}, " +
+                        "invoiceMatchingChecked=${result.matching.checked}, linkedInvoices=${result.matching.links.size}, " +
+                        "ambiguousInvoiceMatches=${result.matching.ambiguous}"
+                }
+                result.matching.links.forEach { link ->
+                    logger.info { "Wise statement invoice link committed: integration=$integrationId, statement=${link.statementId}, invoice=${link.invoiceId}" }
                 }
             }
         } catch (_: WiseUnavailableException) {
@@ -113,7 +121,8 @@ class WiseStatementFetchService internal constructor(
             lastSuccessfulFetchTime = end,
             accounts = integration.accounts.map { it.copy(lastSuccessfulFetchTime = end) }.toSet(),
         ))
-        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported)
+        val matching = invoiceLinking.linkInvoices(integration.workspaceId)
+        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported, matching = matching)
     }
 
     private fun fetchAccount(integration: WiseIntegrationSettings, account: WiseIntegrationAccount, end: Instant): List<AccountStatementRecord> {
@@ -150,7 +159,12 @@ class WiseStatementFetchService internal constructor(
 
     private fun elapsedMillis(started: Long): Long = (System.nanoTime() - started) / 1_000_000
 
-    private data class FetchResult(val outcome: FetchOutcome, val fetched: Int = 0, val imported: Int = 0)
+    private data class FetchResult(
+        val outcome: FetchOutcome,
+        val fetched: Int = 0,
+        val imported: Int = 0,
+        val matching: InvoiceMatchingResult = InvoiceMatchingResult(),
+    )
 
     private enum class FetchOutcome { SUCCESS, MISSING, DISABLED, AUTHENTICATION_REQUIRED, NO_ACCOUNTS, PROVIDER_FAILURE, FAILED }
 }

@@ -26,10 +26,10 @@ class CreateInvoiceMutation(
         workspaceId: String,
         @GraphQLDescription("ID of the customer for this invoice.")
         customerId: String,
-        @GraphQLDescription("Title of the invoice.")
+        @GraphQLDescription("Invoice number.")
         @NotBlank
         @Size(max = 255)
-        title: String,
+        invoiceNumber: String,
         @GraphQLDescription("Date when the invoice was issued.")
         dateIssued: LocalDate,
         @GraphQLDescription("Date when the invoice was sent.")
@@ -54,7 +54,7 @@ class CreateInvoiceMutation(
         val invoice = invoicesService.saveInvoice(
             Invoice(
                 customerId = customerId,
-                title = title,
+                invoiceNumber = invoiceNumber,
                 dateIssued = dateIssued,
                 dateSent = dateSent,
                 datePaid = datePaid,

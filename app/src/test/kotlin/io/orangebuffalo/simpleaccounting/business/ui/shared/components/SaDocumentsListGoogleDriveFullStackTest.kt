@@ -48,7 +48,7 @@ class SaDocumentsListGoogleDriveFullStackTest : SaFullStackTestBase() {
                             mimeType = "application/pdf"
                         )
                     ),
-                    title = "Spaceship fuel delivery"
+                    invoiceNumber = "Spaceship fuel delivery"
                 )
             }
         }
@@ -112,7 +112,7 @@ class SaDocumentsListGoogleDriveFullStackTest : SaFullStackTestBase() {
                             storageLocation = "gdrive-file-id-l",
                         )
                     ),
-                    title = "Planet Express delivery"
+                    invoiceNumber = "Planet Express delivery"
                 )
             }
         }
@@ -172,7 +172,7 @@ class SaDocumentsListGoogleDriveFullStackTest : SaFullStackTestBase() {
                             mimeType = "application/pdf"
                         )
                     ),
-                    title = "Omicron Persei 8 delivery"
+                    invoiceNumber = "Omicron Persei 8 delivery"
                 )
             }
         }

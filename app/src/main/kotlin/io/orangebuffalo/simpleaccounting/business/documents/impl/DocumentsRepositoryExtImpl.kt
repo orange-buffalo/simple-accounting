@@ -98,7 +98,7 @@ class DocumentsRepositoryExtImpl(
                     iva.documentId.`as`("doc_id"),
                     iva.invoiceId.`as`("entity_id"),
                     inline("INVOICE").`as`("usage_type"),
-                    invoice.title.`as`("display_name"),
+                    invoice.invoiceNumber.`as`("display_name"),
                 )
                     .from(iva)
                     .join(invoice).on(invoice.id.eq(iva.invoiceId))

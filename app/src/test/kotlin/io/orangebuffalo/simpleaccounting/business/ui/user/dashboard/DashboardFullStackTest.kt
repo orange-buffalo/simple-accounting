@@ -572,7 +572,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
 
                 invoice(
                     customer = customer1,
-                    title = "Invoice 1",
+                    invoiceNumber = "Invoice 1",
                     dateIssued = startOfYear.plusDays(10),
                     dateSent = startOfYear.plusDays(11),
                     dueDate = startOfYear.plusDays(40),
@@ -581,7 +581,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = customer2,
-                    title = "Invoice 2",
+                    invoiceNumber = "Invoice 2",
                     dateIssued = startOfYear.plusDays(5),
                     dateSent = startOfYear.plusDays(6),
                     dueDate = startOfYear.minusDays(1),
@@ -605,7 +605,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
 
                 invoice(
                     customer = customer,
-                    title = "Draft Invoice",
+                    invoiceNumber = "Draft Invoice",
                     dateIssued = startOfYear.plusDays(10),
                     dueDate = startOfYear.plusDays(40),
                     amount = 10000,
@@ -613,7 +613,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = customer,
-                    title = "Paid Invoice",
+                    invoiceNumber = "Paid Invoice",
                     dateIssued = startOfYear.plusDays(5),
                     dateSent = startOfYear.plusDays(6),
                     datePaid = startOfYear.plusDays(20),
@@ -623,7 +623,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 )
                 invoice(
                     customer = customer,
-                    title = "Cancelled Invoice",
+                    invoiceNumber = "Cancelled Invoice",
                     dateIssued = startOfYear.plusDays(15),
                     dateSent = startOfYear.plusDays(16),
                     dueDate = startOfYear.plusDays(45),

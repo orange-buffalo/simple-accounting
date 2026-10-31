@@ -35,7 +35,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
+                    invoiceNumber = "Slurm delivery invoice"
                 )
             }
         }
@@ -76,7 +76,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
+                    invoiceNumber = "Slurm delivery invoice"
                 )
             }
         }
@@ -118,7 +118,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                             storageLocation = "unsupported-location"
                         )
                     ),
-                    title = "Planet Express mixed delivery"
+                    invoiceNumber = "Planet Express mixed delivery"
                 )
             }
         }
@@ -156,7 +156,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
+                    invoiceNumber = "Slurm delivery invoice"
                 )
             }
         }
@@ -196,7 +196,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
+                    invoiceNumber = "Slurm delivery invoice"
                 )
             }
         }
@@ -246,7 +246,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                             storageLocation = "leela-location"
                         )
                     ),
-                    title = "Planet Express delivery"
+                    invoiceNumber = "Planet Express delivery"
                 )
             }
         }
@@ -302,7 +302,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                             sizeInBytes = 1024L * 1024 * 2,
                         ),
                     ),
-                    title = "Planet Express size test"
+                    invoiceNumber = "Planet Express size test"
                 )
             }
         }
@@ -344,7 +344,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                 val invoice = invoice(
                     customer = customer(workspace = workspace),
                     attachments = setOf(doc),
-                    title = "Slurm delivery invoice"
+                    invoiceNumber = "Slurm delivery invoice"
                 )
             }
         }
@@ -398,7 +398,7 @@ class SaDocumentsListFullStackTest : SaFullStackTestBase() {
                             timeUploaded = MOCK_TIME
                         )
                     ),
-                    title = "Planet Express multi-storage delivery"
+                    invoiceNumber = "Planet Express multi-storage delivery"
                 )
             }
         }

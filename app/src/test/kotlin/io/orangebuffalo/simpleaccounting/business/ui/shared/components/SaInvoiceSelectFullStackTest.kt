@@ -29,14 +29,14 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
                     val slurmCorp = customer(workspace = it, name = "Slurm Corp")
                     invoice(
                         customer = momCorp,
-                        title = "Delivery to Mars",
+                        invoiceNumber = "Delivery to Mars",
                         amount = 15000,
                         dateIssued = LocalDate.of(3025, 1, 10),
                         status = InvoiceStatus.SENT
                     )
                     invoice(
                         customer = slurmCorp,
-                        title = "Slurm supplies",
+                        invoiceNumber = "Slurm supplies",
                         amount = 25000,
                         dateIssued = LocalDate.of(3025, 1, 12),
                         status = InvoiceStatus.SENT
@@ -51,7 +51,7 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
             val customer = customer(workspace = otherWorkspace)
             invoice(
                 customer = customer,
-                title = "Slurm supplies from another workspace",
+                invoiceNumber = "Slurm supplies from another workspace",
                 amount = 99000,
                 dateIssued = LocalDate.of(3025, 1, 13),
                 status = InvoiceStatus.SENT
@@ -83,7 +83,7 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company").also {
                     invoice(
                         customer = it,
-                        title = "Delivery to Omicron Persei 8",
+                        invoiceNumber = "Delivery to Omicron Persei 8",
                         amount = 25000,
                         dateIssued = LocalDate.of(3025, 1, 12),
                         status = InvoiceStatus.SENT
@@ -91,7 +91,7 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
                 }
                 val invoice: Invoice = invoice(
                     customer = customer,
-                    title = "Delivery to Mars",
+                    invoiceNumber = "Delivery to Mars",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 1, 10),
                     status = InvoiceStatus.SENT
@@ -124,7 +124,7 @@ class SaInvoiceSelectFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry, defaultCurrency = "USD")
                 val invoice = invoice(
                     customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company"),
-                    title = "Delivery to Mars",
+                    invoiceNumber = "Delivery to Mars",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 1, 10),
                     status = InvoiceStatus.SENT

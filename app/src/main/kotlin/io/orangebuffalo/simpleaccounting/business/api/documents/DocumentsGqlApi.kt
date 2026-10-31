@@ -153,7 +153,7 @@ class DocumentsGqlApi(
                 select(
                     invoiceAttachments.documentId.`as`(usageDocumentId),
                     inline(DocumentUsageType.INVOICE.name).`as`(usageType),
-                    invoice.title.`as`(usageTitle),
+                    invoice.invoiceNumber.`as`(usageTitle),
                 )
                     .from(invoiceAttachments)
                     .join(invoice).on(invoice.id.eq(invoiceAttachments.invoiceId))

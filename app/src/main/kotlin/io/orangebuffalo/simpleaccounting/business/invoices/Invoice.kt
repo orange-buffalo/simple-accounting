@@ -9,7 +9,7 @@ import java.time.LocalDate
 @Table
 data class Invoice(
     val customerId: String,
-    val title: String,
+    val invoiceNumber: String,
     val dateIssued: LocalDate,
     val dateSent: LocalDate? = null,
     val datePaid: LocalDate? = null,

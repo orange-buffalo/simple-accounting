@@ -146,7 +146,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
 
         Invoice(
             customerId = omicronians.id!!,
-            title = "Delivery to Omicron Persei 8",
+            invoiceNumber = "Delivery to Omicron Persei 8",
             dateIssued = LocalDate.now().plusDays(2),
             dueDate = LocalDate.now().plusDays(30),
             currency = "USD",

@@ -89,6 +89,22 @@ class SaOverviewFilters private constructor(
         return this
     }
 
+    fun shouldHaveTextFilterValue(label: String, value: String): SaOverviewFilters {
+        readEditor(label) { TextInput.byContainer(editor).shouldHaveValue(value) }
+        return this
+    }
+
+    private fun readEditor(label: String, assertion: () -> Unit) {
+        val previouslyOpen = snapshot().singleOrNull { chipButton(it.label).getAttribute("aria-expanded") == "true" }?.label
+        open(label)
+        try {
+            assertion()
+        } finally {
+            if (previouslyOpen == null) closeByOutsideClick()
+            else if (previouslyOpen != label) open(previouslyOpen)
+        }
+    }
+
     fun addSelectFilter(label: String, value: String): SaOverviewFilters {
         open(label)
         Checkbox.checkboxByOwnLabel(container = editor, label = value).click()
@@ -125,9 +141,10 @@ class SaOverviewFilters private constructor(
     }
 
     fun shouldHaveSelectOptions(label: String, vararg values: String): SaOverviewFilters {
-        open(label)
-        editor.locator(".el-checkbox__label").shouldSatisfy {
-            allInnerTexts().shouldContainExactly(*values)
+        readEditor(label) {
+            editor.locator(".el-checkbox__label").shouldSatisfy {
+                allInnerTexts().shouldContainExactly(*values)
+            }
         }
         return this
     }

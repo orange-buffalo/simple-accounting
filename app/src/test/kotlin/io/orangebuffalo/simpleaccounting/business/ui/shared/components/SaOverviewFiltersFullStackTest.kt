@@ -54,8 +54,11 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
             )
             filters.openWithKeyboard("Search")
             filters.addTextFilter(label = "Search", value = "Slurm")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "Slurm")
             pageItems.shouldHaveTitles("Slurm supplies")
             filters.closeWithEscape()
+            filters.shouldHaveTextFilterValue(label = "Search", value = "Slurm")
+            filters.shouldHavePopupClosed()
             filters.shouldHaveChips(
                 OverviewFilterChipData(label = "Search", summary = "Slurm", active = true),
                 OverviewFilterChipData(label = "Type", summary = "Any", active = false),
@@ -74,7 +77,9 @@ class SaOverviewFiltersFullStackTest : SaFullStackTestBase() {
             pageItems.shouldHaveTitles("Slurm supplies", "Robot maintenance", "Delivery")
 
             filters.shouldHaveSelectOptions(label = "Type", "Income", "Expense")
+            filters.shouldHavePopupClosed()
             filters.reportPopoverRendering(label = "Type", name = "overview-filters.popover")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "")
             filters.closeOptionWithEscape(label = "Type", value = "Income")
             filters.addSelectFilter(label = "Type", value = "Income")
             filters.shouldHaveChips(

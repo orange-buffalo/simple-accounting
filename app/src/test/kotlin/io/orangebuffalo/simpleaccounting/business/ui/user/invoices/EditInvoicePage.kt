@@ -21,7 +21,7 @@ abstract class EditInvoicePageBase(page: Page) : SaPageBase(page) {
     val attachmentsHeader = components.sectionHeader("Attachments")
 
     val customer = components.formItemEntitySelectByLabel("Customer")
-    val title = components.formItemTextInputByLabel("Description / Title")
+    val invoiceNumber = components.formItemTextInputByLabel("Invoice Number")
     val currency = components.formItemCurrencyInputByLabel("Currency")
     val amount = components.formItemMoneyInputByLabel("Amount")
     val dateIssued = components.formItemDatePickerByLabel("Date Issued")

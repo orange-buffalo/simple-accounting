@@ -8,6 +8,13 @@
         {{ provider }} · {{ statement.accountCurrency }}
       </SaOverviewItemPrimaryAttribute>
     </template>
+    <template #attributes-preview>
+      <SaOverviewItemAttributePreviewIcon
+        v-if="statement.linkedInvoice"
+        icon="invoice"
+        :tooltip="$t.accountStatements.invoiceMatched()"
+      />
+    </template>
     <template #middle-column>
       <SaStatusLabel :status="status" hide-icon>{{ type }}</SaStatusLabel>
     </template>
@@ -24,6 +31,17 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ attribute.value }}
+          </SaOverviewItemDetailsSectionAttribute>
+          <SaOverviewItemDetailsSectionAttribute
+            v-if="statement.linkedInvoice"
+            :label="$t.accountStatements.invoice()"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <RouterLink :to="{
+              name: 'invoices-overview', query: { freeSearchText: statement.linkedInvoice.invoiceNumber },
+            }">
+              {{ statement.linkedInvoice.invoiceNumber }}
+            </RouterLink>
           </SaOverviewItemDetailsSectionAttribute>
         </div>
       </SaOverviewItemDetailsSection>
@@ -42,6 +60,7 @@
   import type { StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
   import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
   import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
   import SaOverviewItemDetailsSectionAttribute

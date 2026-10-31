@@ -88,7 +88,7 @@ class DocumentDownloadByWorkspaceTokenFullStackTest : SaFullStackTestBase() {
         val workspace = workspace(owner = fry)
         val invoice = invoice(
             customer = customer(workspace = workspace, name = "Mom"),
-            title = INVOICE_TITLE,
+            invoiceNumber = INVOICE_TITLE,
             dateIssued = LocalDate.of(3025, 1, 1),
             dueDate = LocalDate.of(3025, 2, 1),
             currency = "USD",

@@ -142,7 +142,7 @@
     query getSourceInvoiceForIncome($workspaceId: String!, $invoiceId: String!) {
       workspace(id: $workspaceId) {
         invoice(id: $invoiceId) {
-          title
+          invoiceNumber
           currency
           amount
           generalTax {
@@ -306,7 +306,7 @@
       if (sourceInvoice) {
         formValues.value = {
           ...formValues.value,
-          title: $t.value.editIncome.fromInvoice.title(sourceInvoice.title),
+          title: $t.value.editIncome.fromInvoice.title(sourceInvoice.invoiceNumber),
           currency: sourceInvoice.currency,
           originalAmount: sourceInvoice.amount,
           generalTaxId: sourceInvoice.generalTax?.id ?? null,

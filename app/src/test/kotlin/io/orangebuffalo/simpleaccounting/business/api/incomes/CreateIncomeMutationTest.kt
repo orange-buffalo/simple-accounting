@@ -252,7 +252,7 @@ class CreateIncomeMutationTest(
         @Test
         fun `should create an income with linked invoice`() {
             val customer = preconditions { customer(workspace = preconditions.fryWorkspace, name = "MomCorp") }
-            val linkedInvoice = preconditions { invoice(customer = customer, title = "Robot oil invoice") }
+            val linkedInvoice = preconditions { invoice(customer = customer, invoiceNumber = "Robot oil invoice") }
 
             client
                 .graphqlMutation {

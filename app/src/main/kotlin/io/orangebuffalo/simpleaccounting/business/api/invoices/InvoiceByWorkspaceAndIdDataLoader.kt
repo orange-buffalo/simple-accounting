@@ -54,7 +54,7 @@ class InvoiceByWorkspaceAndIdDataLoader(
                 WorkspaceInvoiceKey(workspaceId, invoiceId) to InvoiceGqlDto(
                     id = invoiceId,
                     version = record[invoice.version]!!,
-                    title = record[invoice.title]!!,
+                    invoiceNumber = record[invoice.invoiceNumber]!!,
                     dateIssued = record[invoice.dateIssued]!!,
                     dateSent = record[invoice.dateSent],
                     datePaid = record[invoice.datePaid],

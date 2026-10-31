@@ -35,9 +35,9 @@ class InvoicesQueryTest(
             val fry = fry()
             val workspace = workspace(owner = fry)
             val customer = customer(workspace = workspace, name = "MomCorp")
-            val invoice1 = invoice(customer = customer, title = "Slurm delivery", createdAt = MOCK_TIME.plusSeconds(100))
-            val invoice2 = invoice(customer = customer, title = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
-            val invoice3 = invoice(customer = customer, title = "Spaceship parts", createdAt = MOCK_TIME.plusSeconds(300))
+            val invoice1 = invoice(customer = customer, invoiceNumber = "Slurm delivery", createdAt = MOCK_TIME.plusSeconds(100))
+            val invoice2 = invoice(customer = customer, invoiceNumber = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
+            val invoice3 = invoice(customer = customer, invoiceNumber = "Spaceship parts", createdAt = MOCK_TIME.plusSeconds(300))
         }
 
         @Test
@@ -48,7 +48,7 @@ class InvoicesQueryTest(
                     invoices(first = 2) {
                         edges {
                             cursor
-                            node { title }
+                            node { invoiceNumber }
                         }
                         pageInfo {
                             startCursor
@@ -67,11 +67,11 @@ class InvoicesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("cursor", testData.invoice1.encodeCursor())
-                                    put("node", buildJsonObject { put("title", "Slurm delivery") })
+                                    put("node", buildJsonObject { put("invoiceNumber", "Slurm delivery") })
                                 })
                                 add(buildJsonObject {
                                     put("cursor", testData.invoice2.encodeCursor())
-                                    put("node", buildJsonObject { put("title", "Robot maintenance") })
+                                    put("node", buildJsonObject { put("invoiceNumber", "Robot maintenance") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
@@ -95,7 +95,7 @@ class InvoicesQueryTest(
                     invoices(first = 10, after = afterCursor) {
                         edges {
                             cursor
-                            node { title }
+                            node { invoiceNumber }
                         }
                         pageInfo {
                             startCursor
@@ -114,7 +114,7 @@ class InvoicesQueryTest(
                             putJsonArray("edges") {
                                 add(buildJsonObject {
                                     put("cursor", testData.invoice3.encodeCursor())
-                                    put("node", buildJsonObject { put("title", "Spaceship parts") })
+                                    put("node", buildJsonObject { put("invoiceNumber", "Spaceship parts") })
                                 })
                             }
                             put("pageInfo", buildJsonObject {
@@ -142,7 +142,7 @@ class InvoicesQueryTest(
                     invoices(first = 10) {
                         edges {
                             cursor
-                            node { title }
+                            node { invoiceNumber }
                         }
                         pageInfo {
                             startCursor
@@ -174,7 +174,7 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val invoice = invoice(
                         customer = customer(workspace = workspace),
-                        title = "Slurm delivery",
+                        invoiceNumber = "Slurm delivery",
                         createdAt = MOCK_TIME.plusSeconds(100),
                     )
                 }
@@ -185,7 +185,7 @@ class InvoicesQueryTest(
                     invoices(first = 10, after = afterCursor) {
                         edges {
                             cursor
-                            node { title }
+                            node { invoiceNumber }
                         }
                         pageInfo {
                             startCursor
@@ -217,19 +217,19 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val invoice = invoice(
                         customer = customer(workspace = workspace),
-                        title = "Slurm delivery",
+                        invoiceNumber = "Slurm delivery",
                         createdAt = MOCK_TIME.plusSeconds(100),
                     )
                 }.also {
                     val otherWorkspace = workspace(owner = zoidberg())
-                    invoice(customer = customer(workspace = otherWorkspace), title = "Robot oil")
+                    invoice(customer = customer(workspace = otherWorkspace), invoiceNumber = "Robot oil")
                 }
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -240,7 +240,7 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
                             }
                             put("totalCount", 1)
                         })
@@ -256,11 +256,11 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace)
                 }.also {
-                    invoice(customer = it.customer, title = "Slurm delivery",
+                    invoice(customer = it.customer, invoiceNumber = "Slurm delivery",
                         dateIssued = LocalDate.of(3025, 1, 10), createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.customer, title = "Robot maintenance",
+                    invoice(customer = it.customer, invoiceNumber = "Robot maintenance",
                         dateIssued = LocalDate.of(3025, 1, 20), createdAt = MOCK_TIME.plusSeconds(200))
-                    invoice(customer = it.customer, title = "Spaceship parts",
+                    invoice(customer = it.customer, invoiceNumber = "Spaceship parts",
                         dateIssued = LocalDate.of(3025, 1, 15), createdAt = MOCK_TIME.plusSeconds(300))
                 }
             }
@@ -268,7 +268,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                     }
                 }
@@ -278,9 +278,9 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Robot maintenance")
-                                invoiceEdge(title = "Spaceship parts")
-                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Robot maintenance")
+                                invoiceEdge(invoiceNumber = "Spaceship parts")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
                             }
                         })
                     }
@@ -295,11 +295,11 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace)
                 }.also {
-                    invoice(customer = it.customer, title = "Slurm delivery",
+                    invoice(customer = it.customer, invoiceNumber = "Slurm delivery",
                         dateIssued = MOCK_DATE, createdAt = MOCK_TIME.plusSeconds(300))
-                    invoice(customer = it.customer, title = "Robot maintenance",
+                    invoice(customer = it.customer, invoiceNumber = "Robot maintenance",
                         dateIssued = MOCK_DATE, createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.customer, title = "Spaceship parts",
+                    invoice(customer = it.customer, invoiceNumber = "Spaceship parts",
                         dateIssued = MOCK_DATE, createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
@@ -307,7 +307,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                     }
                 }
@@ -317,9 +317,9 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Robot maintenance")
-                                invoiceEdge(title = "Spaceship parts")
-                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Robot maintenance")
+                                invoiceEdge(invoiceNumber = "Spaceship parts")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
                             }
                         })
                     }
@@ -332,18 +332,18 @@ class InvoicesQueryTest(
     inner class Filtering {
 
         @Test
-        fun `should filter by title`() {
+        fun `should filter by invoice number`() {
             val testData = preconditions {
                 object {
                     val fry = fry()
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace)
                 }.also {
-                    invoice(customer = it.customer, title = "Slurm delivery",
+                    invoice(customer = it.customer, invoiceNumber = "Slurm delivery",
                         dateIssued = LocalDate.of(3025, 1, 10), createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.customer, title = "Robot maintenance",
+                    invoice(customer = it.customer, invoiceNumber = "Robot maintenance",
                         dateIssued = LocalDate.of(3025, 1, 20), createdAt = MOCK_TIME.plusSeconds(200))
-                    invoice(customer = it.customer, title = "Slurm resupply",
+                    invoice(customer = it.customer, invoiceNumber = "Slurm resupply",
                         dateIssued = LocalDate.of(3025, 1, 15), createdAt = MOCK_TIME.plusSeconds(300))
                 }
             }
@@ -351,7 +351,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10, freeSearchText = "slurm") {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -362,8 +362,8 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm resupply")
-                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Slurm resupply")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
                             }
                             put("totalCount", 2)
                         })
@@ -379,9 +379,9 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace)
                 }.also {
-                    invoice(customer = it.customer, title = "Robot maintenance",
+                    invoice(customer = it.customer, invoiceNumber = "Robot maintenance",
                         notes = "Delivery to Omicron Persei 8", createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.customer, title = "Spaceship parts",
+                    invoice(customer = it.customer, invoiceNumber = "Spaceship parts",
                         notes = "Planet Express maintenance", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
@@ -389,7 +389,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10, freeSearchText = "omicron") {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -400,7 +400,7 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Robot maintenance")
+                                invoiceEdge(invoiceNumber = "Robot maintenance")
                             }
                             put("totalCount", 1)
                         })
@@ -417,9 +417,9 @@ class InvoicesQueryTest(
                     val momCorp = customer(workspace = workspace, name = "MomCorp")
                     val planetExpress = customer(workspace = workspace, name = "Planet Express")
                 }.also {
-                    invoice(customer = it.momCorp, title = "Slurm delivery",
+                    invoice(customer = it.momCorp, invoiceNumber = "Slurm delivery",
                         createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.planetExpress, title = "Robot maintenance",
+                    invoice(customer = it.planetExpress, invoiceNumber = "Robot maintenance",
                         createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
@@ -427,7 +427,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10, freeSearchText = "MomCorp") {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -438,7 +438,7 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
                             }
                             put("totalCount", 1)
                         })
@@ -454,15 +454,15 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val customer = customer(workspace = workspace)
                 }.also {
-                    invoice(customer = it.customer, title = "Slurm delivery", createdAt = MOCK_TIME.plusSeconds(100))
-                    invoice(customer = it.customer, title = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
+                    invoice(customer = it.customer, invoiceNumber = "Slurm delivery", createdAt = MOCK_TIME.plusSeconds(100))
+                    invoice(customer = it.customer, invoiceNumber = "Robot maintenance", createdAt = MOCK_TIME.plusSeconds(200))
                 }
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -473,8 +473,8 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm delivery")
-                                invoiceEdge(title = "Robot maintenance")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Robot maintenance")
                             }
                             put("totalCount", 2)
                         })
@@ -491,19 +491,19 @@ class InvoicesQueryTest(
                     val customer = customer(workspace = workspace)
                 }.also {
                     invoice(
-                        customer = it.customer, title = "Slurm delivery",
+                        customer = it.customer, invoiceNumber = "Slurm delivery",
                         status = InvoiceStatus.SENT, createdAt = MOCK_TIME.plusSeconds(100)
                     )
                     invoice(
-                        customer = it.customer, title = "Robot maintenance",
+                        customer = it.customer, invoiceNumber = "Robot maintenance",
                         status = InvoiceStatus.DRAFT, createdAt = MOCK_TIME.plusSeconds(200)
                     )
                     invoice(
-                        customer = it.customer, title = "Spaceship parts",
+                        customer = it.customer, invoiceNumber = "Spaceship parts",
                         status = InvoiceStatus.OVERDUE, createdAt = MOCK_TIME.plusSeconds(300)
                     )
                     invoice(
-                        customer = it.customer, title = "Planet Express equipment",
+                        customer = it.customer, invoiceNumber = "Planet Express equipment",
                         status = InvoiceStatus.PAID, createdAt = MOCK_TIME.plusSeconds(400)
                     )
                 }
@@ -518,7 +518,7 @@ class InvoicesQueryTest(
                         ),
                     ) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -529,8 +529,8 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm delivery")
-                                invoiceEdge(title = "Spaceship parts")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Spaceship parts")
                             }
                             put("totalCount", 2)
                         })
@@ -547,11 +547,11 @@ class InvoicesQueryTest(
                     val customer = customer(workspace = workspace)
                 }.also {
                     invoice(
-                        customer = it.customer, title = "Slurm delivery",
+                        customer = it.customer, invoiceNumber = "Slurm delivery",
                         status = InvoiceStatus.SENT, createdAt = MOCK_TIME.plusSeconds(100)
                     )
                     invoice(
-                        customer = it.customer, title = "Robot maintenance",
+                        customer = it.customer, invoiceNumber = "Robot maintenance",
                         status = InvoiceStatus.DRAFT, createdAt = MOCK_TIME.plusSeconds(200)
                     )
                 }
@@ -560,7 +560,7 @@ class InvoicesQueryTest(
                 workspace(id = testData.workspace.id!!) {
                     invoices(first = 10) {
                         edges {
-                            node { title }
+                            node { invoiceNumber }
                         }
                         totalCount
                     }
@@ -571,8 +571,8 @@ class InvoicesQueryTest(
                     "workspace" to buildJsonObject {
                         put("invoices", buildJsonObject {
                             putJsonArray("edges") {
-                                invoiceEdge(title = "Slurm delivery")
-                                invoiceEdge(title = "Robot maintenance")
+                                invoiceEdge(invoiceNumber = "Slurm delivery")
+                                invoiceEdge(invoiceNumber = "Robot maintenance")
                             }
                             put("totalCount", 2)
                         })
@@ -596,7 +596,7 @@ class InvoicesQueryTest(
                     val document = document(workspace = workspace)
                     val invoice = invoice(
                         customer = customer,
-                        title = "Slurm delivery invoice",
+                        invoiceNumber = "Slurm delivery invoice",
                         dateIssued = LocalDate.of(3025, 1, 15),
                         dateSent = LocalDate.of(3025, 1, 16),
                         datePaid = LocalDate.of(3025, 2, 1),
@@ -617,7 +617,7 @@ class InvoicesQueryTest(
                             node {
                                 id
                                 version
-                                title
+                                invoiceNumber
                                 dateIssued
                                 dateSent
                                 datePaid
@@ -645,7 +645,7 @@ class InvoicesQueryTest(
                                     put("node", buildJsonObject {
                                         put("id", testData.invoice.id!!)
                                         put("version", testData.invoice.version!!)
-                                        put("title", "Slurm delivery invoice")
+                                        put("invoiceNumber", "Slurm delivery invoice")
                                         put("dateIssued", "3025-01-15")
                                         put("dateSent", "3025-01-16")
                                         put("datePaid", "3025-02-01")
@@ -684,7 +684,7 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val invoice = invoice(
                         customer = customer(workspace = workspace),
-                        title = "Planet Express equipment",
+                        invoiceNumber = "Planet Express equipment",
                         notes = null,
                         generalTax = null,
                     )
@@ -738,14 +738,14 @@ class InvoicesQueryTest(
                     val workspace = workspace(owner = fry)
                     val invoice = invoice(
                         customer = customer(workspace = workspace),
-                        title = "Slurm delivery",
+                        invoiceNumber = "Slurm delivery",
                     )
                 }
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     invoice(id = testData.invoice.id!!) {
-                        title
+                        invoiceNumber
                     }
                 }
             }
@@ -753,7 +753,7 @@ class InvoicesQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("invoice", buildJsonObject {
-                            put("title", "Slurm delivery")
+                            put("invoiceNumber", "Slurm delivery")
                         })
                     }
                 )
@@ -770,7 +770,7 @@ class InvoicesQueryTest(
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     invoice(id = "missing-id") {
-                        title
+                        invoiceNumber
                     }
                 }
             }
@@ -791,14 +791,14 @@ class InvoicesQueryTest(
                     val otherWorkspace = workspace(owner = zoidberg())
                     val otherInvoice = invoice(
                         customer = customer(workspace = otherWorkspace),
-                        title = "Robot oil",
+                        invoiceNumber = "Robot oil",
                     )
                 }
             }
             client.graphql {
                 workspace(id = testData.workspace.id!!) {
                     invoice(id = testData.otherInvoice.id!!) {
-                        title
+                        invoiceNumber
                     }
                 }
             }
@@ -812,9 +812,9 @@ class InvoicesQueryTest(
     }
 }
 
-private fun kotlinx.serialization.json.JsonArrayBuilder.invoiceEdge(title: String) {
+private fun kotlinx.serialization.json.JsonArrayBuilder.invoiceEdge(invoiceNumber: String) {
     add(buildJsonObject {
-        put("node", buildJsonObject { put("title", title) })
+        put("node", buildJsonObject { put("invoiceNumber", invoiceNumber) })
     })
 }
 

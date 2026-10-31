@@ -34,7 +34,7 @@ class InvoicesGqlApi(
                     it.addPredicate(
                         DSL.or(
                             invoice.notes.containsIgnoreCase(freeSearchText),
-                            invoice.title.containsIgnoreCase(freeSearchText),
+                            invoice.invoiceNumber.containsIgnoreCase(freeSearchText),
                             customer.name.containsIgnoreCase(freeSearchText),
                         )
                     )
@@ -51,7 +51,7 @@ class InvoicesGqlApi(
                     InvoiceGqlDto(
                         id = record[invoice.id]!!,
                         version = record[invoice.version]!!,
-                        title = record[invoice.title]!!,
+                        invoiceNumber = record[invoice.invoiceNumber]!!,
                         dateIssued = record[invoice.dateIssued]!!,
                         dateSent = record[invoice.dateSent],
                         datePaid = record[invoice.datePaid],

@@ -50,6 +50,8 @@ export type AccountStatement = {
   id: Scalars['String']['output'];
   /** Source integration ID. */
   integrationId: Scalars['String']['output'];
+  /** Invoice linked to this statement, if a unique match was found during synchronization. */
+  linkedInvoice?: Maybe<Invoice>;
   /** Time of the transaction. */
   occurredAt: Scalars['DateTime']['output'];
   /** Original amount in minor units. */
@@ -906,14 +908,14 @@ export type Invoice = {
   generalTax?: Maybe<GeneralTax>;
   /** ID of the invoice. */
   id: Scalars['String']['output'];
+  /** Invoice number. */
+  invoiceNumber: Scalars['String']['output'];
   /** Optional notes for the invoice. */
   notes?: Maybe<Scalars['String']['output']>;
   /** Status of the invoice. */
   status: InvoiceStatus;
   /** Time when the invoice was cancelled, as ISO 8601 timestamp. */
   timeCancelled?: Maybe<Scalars['DateTime']['output']>;
-  /** Title of the invoice. */
-  title: Scalars['String']['output'];
   /** Version of the invoice for optimistic locking. */
   version: Scalars['Int']['output'];
 };
@@ -1186,8 +1188,8 @@ export type MutationCreateInvoiceArgs = {
   dateSent?: InputMaybe<Scalars['LocalDate']['input']>;
   dueDate: Scalars['LocalDate']['input'];
   generalTaxId?: InputMaybe<Scalars['String']['input']>;
+  invoiceNumber: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
-  title: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
 };
 
@@ -1332,8 +1334,8 @@ export type MutationEditInvoiceArgs = {
   dueDate: Scalars['LocalDate']['input'];
   generalTaxId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  invoiceNumber: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
-  title: Scalars['String']['input'];
   version: Scalars['Int']['input'];
   workspaceId: Scalars['String']['input'];
 };

@@ -38,7 +38,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Spaceship Repairs Inc")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Delivery services",
+                    invoiceNumber = "Delivery services",
                     currency = "USD",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 1, 15),
@@ -54,7 +54,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
             customer {
                 input.shouldHaveSelectedValue("Spaceship Repairs Inc")
             }
-            title {
+            invoiceNumber {
                 input.shouldHaveValue("Delivery services")
             }
             currency {
@@ -89,7 +89,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
                     customer = customer,
-                    title = "Video production services",
+                    invoiceNumber = "Video production services",
                     currency = "USD",
                     amount = 50000,
                     dateIssued = LocalDate.of(3025, 3, 10),
@@ -120,7 +120,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Robot maintenance contract",
+                    invoiceNumber = "Robot maintenance contract",
                     currency = "USD",
                     amount = 100000,
                     dateIssued = LocalDate.of(3025, 5, 1),
@@ -152,7 +152,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Slurm Factory")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Slurm delivery",
+                    invoiceNumber = "Slurm delivery",
                     currency = "USD",
                     amount = 25000,
                     dateIssued = LocalDate.of(3025, 6, 15),
@@ -188,7 +188,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Delivery contract",
+                    invoiceNumber = "Delivery contract",
                     currency = "USD",
                     amount = 30000,
                     dateIssued = LocalDate.of(3025, 7, 1),
@@ -240,7 +240,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Tourism marketing campaign",
+                    invoiceNumber = "Tourism marketing campaign",
                     currency = "USD",
                     amount = 75000,
                     dateIssued = LocalDate.of(3025, 8, 1),
@@ -277,7 +277,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Omicron Persei 8 Embassy")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Diplomatic delivery services",
+                    invoiceNumber = "Diplomatic delivery services",
                     currency = "USD",
                     amount = 50000,
                     dateIssued = LocalDate.of(3025, 9, 1),
@@ -314,7 +314,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer2 = customer(workspace = workspace, name = "New Customer")
                 val invoice = invoice(
                     customer = customer1,
-                    title = "Old title",
+                    invoiceNumber = "Old title",
                     currency = "USD",
                     amount = 10000,
                     dateIssued = LocalDate.of(3025, 1, 1),
@@ -328,7 +328,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
             customer { input.selectOption("New Customer") }
-            title { input.fill("Updated delivery services") }
+            invoiceNumber { input.fill("Updated delivery services") }
             amount { input.fill("250.00") }
             dateIssued { input.fill("10/01/3025") }
             dueDate { input.fill("10/02/3025") }
@@ -341,7 +341,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!)
             .shouldBeEntityWithFields(
                 Invoice(
-                    title = "Updated delivery services",
+                    invoiceNumber = "Updated delivery services",
                     customerId = testData.customer2.id!!,
                     dateIssued = LocalDate.of(3025, 1, 10),
                     dueDate = LocalDate.of(3025, 2, 10),
@@ -370,8 +370,10 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            title { input.fill("Updated delivery services") }
-            aggregateTemplate.save(testData.invoice.copy(title = "Invoice changed elsewhere"))
+            invoiceNumber { input.fill("Updated delivery services") }
+            preconditions {
+                save(testData.invoice.copy(invoiceNumber = "Invoice changed elsewhere"))
+            }
 
             saveButton.click()
 
@@ -380,10 +382,10 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
             }
         }
         page.shouldBeEditInvoicePage {
-            title { input.shouldHaveValue("Updated delivery services") }
+            invoiceNumber { input.shouldHaveValue("Updated delivery services") }
         }
 
-        aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!).title.shouldBe("Invoice changed elsewhere")
+        aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!).invoiceNumber.shouldBe("Invoice changed elsewhere")
     }
 
     @Test
@@ -396,7 +398,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
                     customer = customer,
-                    title = "Untaxed service",
+                    invoiceNumber = "Untaxed service",
                     currency = "USD",
                     amount = 20000,
                     dateIssued = LocalDate.of(3025, 3, 1),
@@ -433,7 +435,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val gst = generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
                 val invoice = invoice(
                     customer = customer,
-                    title = "Property management",
+                    invoiceNumber = "Property management",
                     currency = "USD",
                     amount = 30000,
                     dateIssued = LocalDate.of(3025, 5, 1),
@@ -470,7 +472,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
                     customer = customer,
-                    title = "Form processing",
+                    invoiceNumber = "Form processing",
                     currency = "USD",
                     amount = 40000,
                     dateIssued = LocalDate.of(3025, 6, 1),
@@ -510,7 +512,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Luna Park")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Entertainment services",
+                    invoiceNumber = "Entertainment services",
                     currency = "USD",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 7, 1),
@@ -547,7 +549,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Applied Cryogenics")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Freezing services",
+                    invoiceNumber = "Freezing services",
                     currency = "USD",
                     amount = 20000,
                     dateIssued = LocalDate.of(3025, 8, 1),
@@ -585,7 +587,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Amazonians United")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Interplanetary shipping",
+                    invoiceNumber = "Interplanetary shipping",
                     currency = "USD",
                     amount = 35000,
                     dateIssued = LocalDate.of(3025, 9, 1),
@@ -622,7 +624,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Head Museum")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Tour guide services",
+                    invoiceNumber = "Tour guide services",
                     currency = "USD",
                     amount = 12000,
                     dateIssued = LocalDate.of(3025, 10, 1),
@@ -672,7 +674,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Scientific consulting",
+                    invoiceNumber = "Scientific consulting",
                     currency = "USD",
                     amount = 45000,
                     dateIssued = LocalDate.of(3025, 11, 1),
@@ -686,7 +688,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            title { input.fill("Updated scientific consulting") }
+            invoiceNumber { input.fill("Updated scientific consulting") }
 
             saveButton.click()
         }
@@ -696,7 +698,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         val savedInvoice = aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!)
         savedInvoice.shouldBeEntityWithFields(
             Invoice(
-                title = "Updated scientific consulting",
+                invoiceNumber = "Updated scientific consulting",
                 customerId = testData.customer.id!!,
                 dateIssued = LocalDate.of(3025, 11, 1),
                 dueDate = LocalDate.of(3025, 12, 1),
@@ -741,7 +743,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Mutant sewer maintenance",
+                    invoiceNumber = "Mutant sewer maintenance",
                     currency = "USD",
                     amount = 8000,
                     dateIssued = LocalDate.of(3025, 12, 1),
@@ -830,7 +832,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "DOOP supplies delivery",
+                    invoiceNumber = "DOOP supplies delivery",
                     currency = "USD",
                     amount = 55000,
                     dateIssued = LocalDate.of(3026, 1, 1),
@@ -912,7 +914,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Military logistics support",
+                    invoiceNumber = "Military logistics support",
                     currency = "USD",
                     amount = 60000,
                     dateIssued = LocalDate.of(3026, 2, 1),
@@ -965,7 +967,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 )
                 val invoice = invoice(
                     customer = customer,
-                    title = "Bureaucratic filing services",
+                    invoiceNumber = "Bureaucratic filing services",
                     currency = "USD",
                     amount = 5000,
                     dateIssued = LocalDate.of(3026, 3, 1),
@@ -1005,7 +1007,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Validation Test Corp")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Test invoice",
+                    invoiceNumber = "Test invoice",
                     currency = "USD",
                     amount = 10000,
                     dateIssued = LocalDate.of(3025, 1, 1),
@@ -1018,35 +1020,35 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            title { input.fill("") }
+            invoiceNumber { input.fill("") }
             amount { input.fill("") }
             dueDate { input.fill("") }
 
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             // Server-side validation reports one missing required variable at a time before method validation runs.
             dueDate {
                 shouldHaveValidationError("This value is required")
             }
-            shouldHaveNotifications { validationFailed() }
 
             reportRendering("edit-invoice.validation-errors")
 
             dueDate { input.fill("01/02/3025") }
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             amount {
                 shouldHaveValidationError("This value is required")
             }
-            shouldHaveNotifications { validationFailed() }
 
             amount { input.fill("100.00") }
             saveButton.click()
 
-            title {
+            shouldHaveNotifications { validationFailed() }
+            invoiceNumber {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -1059,7 +1061,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Validation Test Corp")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Test invoice",
+                    invoiceNumber = "Test invoice",
                     currency = "USD",
                     amount = 10000,
                     dateIssued = LocalDate.of(3025, 1, 1),
@@ -1072,22 +1074,22 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            title { input.fill("x".repeat(256)) }
+            invoiceNumber { input.fill("x".repeat(256)) }
             saveButton.click()
 
-            title {
+            shouldHaveNotifications { validationFailed() }
+            invoiceNumber {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
-            shouldHaveNotifications { validationFailed() }
 
-            title { input.fill("Interplanetary shipping fee") }
+            invoiceNumber { input.fill("Interplanetary shipping fee") }
             notes { input.fill("x".repeat(1025)) }
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             notes {
                 shouldHaveValidationError("The length of this value should be no longer than 1,024 characters")
             }
-            shouldHaveNotifications { validationFailed() }
         }
     }
 
@@ -1100,7 +1102,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Cancelled Test Inc")
                 val invoice = invoice(
                     customer = customer,
-                    title = "Original title",
+                    invoiceNumber = "Original title",
                     currency = "USD",
                     amount = 10000,
                     dateIssued = LocalDate.of(3025, 5, 1),
@@ -1113,7 +1115,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            title { input.fill("Modified title that should be discarded") }
+            invoiceNumber { input.fill("Modified title that should be discarded") }
             amount { input.fill("999.99") }
 
             cancelButton.click()
@@ -1123,7 +1125,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!)
             .shouldWithClue("Invoice should not be modified") {
-                title.shouldBe("Original title")
+                invoiceNumber.shouldBe("Original title")
                 amount.shouldBe(10000)
             }
     }
@@ -1132,7 +1134,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should handle all UI states correctly`(page: Page) {
         data class ExpectedFieldsVisibility(
             val customer: Boolean = true,
-            val title: Boolean = true,
+            val invoiceNumber: Boolean = true,
             val currency: Boolean = true,
             val amount: Boolean = true,
             val dateIssued: Boolean = true,
@@ -1149,7 +1151,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
             expected: ExpectedFieldsVisibility
         ) {
             if (expected.customer) customer.shouldBeVisible() else customer.shouldBeHidden()
-            if (expected.title) title.shouldBeVisible() else title.shouldBeHidden()
+            if (expected.invoiceNumber) invoiceNumber.shouldBeVisible() else invoiceNumber.shouldBeHidden()
             if (expected.currency) currency.shouldBeVisible() else currency.shouldBeHidden()
             if (expected.amount) amount.shouldBeVisible() else amount.shouldBeHidden()
             if (expected.dateIssued) dateIssued.shouldBeVisible() else dateIssued.shouldBeHidden()
@@ -1179,7 +1181,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "UI States Test Corp")
                 val invoice = invoice(
                     customer = customer,
-                    title = "UI test invoice",
+                    invoiceNumber = "UI test invoice",
                     currency = "USD",
                     amount = 10000,
                     dateIssued = LocalDate.of(3025, 1, 1),
