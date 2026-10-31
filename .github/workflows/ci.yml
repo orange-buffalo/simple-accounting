@@ -1,13 +1,6 @@
 name: "Continuous Integration"
 
-on:
-  push:
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Existing release tag to rebuild and publish (vX.Y.Z)'
-        required: true
-        type: string
+on: [ push ]
 
 jobs:
   build:
@@ -15,28 +8,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: "Validate recovery request"
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: |
-          [[ "$GITHUB_REF" == 'refs/heads/master' ]]
-          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-
       - name: "Checkout"
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.release_tag) || github.sha }}
-
-      - name: "Verify recovery version"
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: |
-          [[ "$(git rev-parse HEAD)" == "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" ]]
-          git merge-base --is-ancestor HEAD refs/remotes/origin/master
-          [[ "$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n 1)" == "$RELEASE_TAG" ]]
 
       - name: "Setup Project Environment"
         uses: ./.github/actions/setup-project-environment
@@ -108,15 +83,8 @@ jobs:
 
       - name: "Publish (Pre-) Release"
         if: ${{ github.ref == 'refs/heads/master' }}
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           version="$(./gradlew -q printVersion | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | tail -n 1)"
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            [[ "v$version" == "$RELEASE_TAG" ]] || { echo "Recovery version mismatch: $version"; exit 1; }
-            git fetch origin master --tags
-            [[ "$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n 1)" == "$RELEASE_TAG" ]]
-          fi
           if [[ "$version" == *-SNAPSHOT ]]; then
             echo "Version $version is not a release version; skipping Docker image publishing."
             exit 0
