@@ -122,10 +122,10 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
     inner class Transactions {
         @ParameterizedTest
         @ValueSource(strings = ["owner", "workspace-token", "saved-share"])
-        fun `should expose the linked invoice to authorized workspace readers`(actor: String) {
+        fun `should resolve requested linked invoice fields for authorized workspace readers`(actor: String) {
             val setup = preconditions {
                 object {
-                    val invoice = invoice(customer = customer(workspace = data.workspace), invoiceNumber = "PE-3025-42")
+                    val invoice = invoice(customer = customer(workspace = data.workspace), invoiceNumber = "PE-3025-42", currency = "EUR", amount = 12345)
                     val token = workspaceAccessToken(workspace = data.workspace, validTill = MOCK_TIME.plusSeconds(10000))
                     val zoidberg = zoidberg().also { savedWorkspaceAccessToken(owner = it, workspaceAccessToken = token) }
                     init {
@@ -133,7 +133,7 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                     }
                 }
             }
-            val request = query(selection = "linkedInvoice { id invoiceNumber }")
+            val request = query(selection = "linkedInvoice { id invoiceNumber currency amount }")
             when (actor) {
                 "workspace-token" -> request.usingSharedWorkspaceToken(setup.token.token)
                 "saved-share" -> request.from(setup.zoidberg)
@@ -145,6 +145,8 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                         put("linkedInvoice", buildJsonObject {
                             put("id", setup.invoice.id)
                             put("invoiceNumber", "PE-3025-42")
+                            put("currency", "EUR")
+                            put("amount", 12345)
                         })
                     }) }) }
                 })

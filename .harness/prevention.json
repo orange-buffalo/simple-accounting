@@ -165,9 +165,9 @@
     {
       "id": "integration-service-boundary",
       "category": "backend",
-      "appliesWhen": "Implementing provider clients and configuration",
-      "instruction": "Keep provider clients internal to their business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning business integration when it is not shared infrastructure.",
-      "reason": "The owning service prevents provider details leaking into APIs."
+      "appliesWhen": "Implementing provider clients, configuration or provider-neutral statement operations",
+      "instruction": "Keep provider clients internal to their owning business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning integration when not shared infrastructure. Put provider-neutral statement operations, such as invoice linking and its concurrency controls, in dedicated services in the integrations package; provider fetch services delegate while preserving transaction boundaries and postcommit reporting.",
+      "reason": "Ownership prevents both provider details leaking outward and shared domain behavior becoming tied to one adapter."
     },
     {
       "id": "page-navigation-tests",
@@ -249,9 +249,9 @@
     {
       "id": "graphql-laziness-tests",
       "category": "testing",
-      "appliesWhen": "Testing GraphQL lazy fields",
-      "instruction": "Do not add tests for GraphQL framework-guaranteed field laziness; test application behavior and retain lazy resolver structure where required.",
-      "reason": "Framework-mechanics tests add coupling without application coverage."
+      "appliesWhen": "Testing GraphQL lazy fields or application relationship resolvers",
+      "instruction": "Do not test framework-guaranteed field laziness. Retain lazy resolver structure where required, and cover application relationship wiring with a compact API request selecting a few meaningful fields and independently asserting returned values; do not duplicate full related-entity coverage or assert loader internals.",
+      "reason": "Observable resolver coverage catches wiring defects without coupling tests to framework mechanics."
     },
     {
       "id": "exact-ui-collections",
@@ -462,6 +462,13 @@
       "appliesWhen": "Preparing or conducting source reviews, compliance reviews or feedback audits involving generated artifacts",
       "instruction": "Exclude artifacts marked linguist-generated in Git attributes from review snapshots, diffs, source packets and audits before content/size checks. Review authored sources, generator/verification definitions and attribute changes instead. Generated-output verification remains the primary agent's build/CI responsibility; preserve secret-path safeguards before exclusion.",
       "reason": "Reviewing generated output duplicates automated verification and can block review of authored changes."
+    },
+    {
+      "id": "observational-ui-state-preservation",
+      "category": "testing",
+      "appliesWhen": "Component-wrapper reads or assertions temporarily open an editor or popup; excludes explicit interaction, mutation and open/close methods",
+      "instruction": "Encapsulate temporary opening, reading and cleanup in the wrapper. Restore the previously open editor or original closed state in finally so callers need no cleanup; apply the contract to analogous read helpers.",
+      "reason": "Observational helpers should not leave incidental UI state changes for callers to repair."
     }
   ]
 }

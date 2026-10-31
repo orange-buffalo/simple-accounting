@@ -50,7 +50,7 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         }
         page.shouldBeInvoicesOverviewPage {
             pageItems.shouldHaveTitles("PE-3025/42 #Mars")
-            filters.shouldHaveTextFilterValue(label = "Search", value = "PE-3025/42 #Mars").closeByOutsideClick()
+            filters.shouldHaveTextFilterValue(label = "Search", value = "PE-3025/42 #Mars")
             filters.clearAll()
             pageItems.shouldHaveTitles("PE-3025/42 #Mars", "PE-3025-43")
         }
