@@ -186,6 +186,12 @@ class SaOverviewItem private constructor(
         actionMenu.shouldHaveTooltip(tooltip)
     }
 
+    fun shouldHaveAttributePreviewTooltip(icon: SaIconType, tooltip: String) {
+        val trigger = panel.locator(".overview-item-attribute-preview-icon[data-icon='${icon.uiValue}']")
+        trigger.shouldHaveCount(1)
+        Tooltip.byTrigger(trigger).shouldHaveText(tooltip)
+    }
+
     fun openActionMenu() {
         actionMenu.open()
     }

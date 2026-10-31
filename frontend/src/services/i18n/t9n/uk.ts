@@ -24,6 +24,7 @@ export default {
     importedAt: () => 'Час імпорту',
     additionalData: () => 'Додаткова інформація',
     invoice: () => 'Рахунок',
+    invoiceMatched: () => 'Рахунок зіставлено з цією транзакцією',
     types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
   },
   integrations: {

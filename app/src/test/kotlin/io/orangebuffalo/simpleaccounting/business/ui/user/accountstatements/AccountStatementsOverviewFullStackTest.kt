@@ -37,6 +37,13 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(fry)
         page.openAccountStatementsOverviewPage {
             pageItems.shouldHaveTitles("Moon-delivery")
+            pageItems.shouldHaveDataSatisfying { items ->
+                items.single().attributePreviewIcons.shouldContainExactly(listOf(SaIcon.iconValue(SaIconType.INVOICE)))
+            }
+            statement("Moon-delivery").shouldHaveAttributePreviewTooltip(
+                icon = SaIconType.INVOICE,
+                tooltip = "An invoice is matched to this transaction",
+            )
             statement("Moon-delivery").shouldHaveDetails(
                 sections = arrayOf(DetailsSectionSpec(title = "Transaction details", attributes = listOf(
                     "Amount" to "USD 1.25", "Transaction type" to "Credit", "Transaction date" to "29 Mar 1999, 9:01 am",

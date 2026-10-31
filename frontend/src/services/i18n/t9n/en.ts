@@ -24,6 +24,7 @@ export default {
     importedAt: () => 'Imported at',
     additionalData: () => 'Additional information',
     invoice: () => 'Invoice',
+    invoiceMatched: () => 'An invoice is matched to this transaction',
     types: { DEBIT: () => 'Debit', CREDIT: () => 'Credit', CONVERSION: () => 'Conversion', OTHER: () => 'Other' },
   },
   integrations: {
