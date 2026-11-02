@@ -120,6 +120,59 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
 
     @Nested
     inner class Transactions {
+        @Test
+        fun `should return empty document collections for an unattached statement`() {
+            preconditions { accountStatementRecord(integration = data.integration) }
+
+            query(selection = "documentIds attachments { id name }").from(data.fry)
+                .executeAndVerifyResponse("workspace" to buildJsonObject {
+                    put("accountStatements", buildJsonObject {
+                        put("totalCount", 1)
+                        putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                            putJsonArray("documentIds") {}
+                            putJsonArray("attachments") {}
+                        }) }) }
+                    })
+                })
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["owner", "workspace-token", "saved-share"])
+        fun `should resolve statement documents for authorized workspace readers`(actor: String) {
+            val setup = preconditions {
+                object {
+                    val document = document(workspace = data.workspace, name = "Slurm conversion.pdf")
+                    val token = workspaceAccessToken(workspace = data.workspace, validTill = MOCK_TIME.plusSeconds(10000))
+                    val zoidberg = zoidberg().also { savedWorkspaceAccessToken(owner = it, workspaceAccessToken = token) }
+                    init {
+                        accountStatementRecord(
+                            integration = data.integration,
+                            title = "Converted 10 EUR to 12 USD",
+                            attachments = setOf(document),
+                        )
+                    }
+                }
+            }
+            val request = query(selection = "title documentIds attachments { id name }")
+            when (actor) {
+                "workspace-token" -> request.usingSharedWorkspaceToken(setup.token.token)
+                "saved-share" -> request.from(setup.zoidberg)
+                else -> request.from(data.fry)
+            }.executeAndVerifyResponse("workspace" to buildJsonObject {
+                put("accountStatements", buildJsonObject {
+                    put("totalCount", 1)
+                    putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                        put("title", "Converted 10 EUR to 12 USD")
+                        putJsonArray("documentIds") { add(JsonPrimitive(setup.document.id)) }
+                        putJsonArray("attachments") { add(buildJsonObject {
+                            put("id", setup.document.id)
+                            put("name", "Slurm conversion.pdf")
+                        }) }
+                    }) }) }
+                })
+            })
+        }
+
         @ParameterizedTest
         @ValueSource(strings = ["owner", "workspace-token", "saved-share"])
         fun `should resolve requested linked invoice fields for authorized workspace readers`(actor: String) {

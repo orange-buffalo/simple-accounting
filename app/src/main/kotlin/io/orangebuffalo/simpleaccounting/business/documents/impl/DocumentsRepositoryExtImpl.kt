@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepositoryE
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.coalesce
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.inline
 import org.jooq.impl.DSL.name
@@ -29,6 +30,8 @@ class DocumentsRepositoryExtImpl(
     private val invoice = Tables.INVOICE
     private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
     private val standaloneDocument = Tables.STANDALONE_DOCUMENT
+    private val statement = Tables.ACCOUNT_STATEMENT_RECORD
+    private val statementAttachments = Tables.ACCOUNT_STATEMENT_ATTACHMENTS
 
     override fun findValidIds(ids: Collection<String>, workspaceId: String): Collection<String> = dslContext
         .select(document.id)
@@ -124,6 +127,17 @@ class DocumentsRepositoryExtImpl(
                 )
                     .from(standaloneDocument)
                     .where(standaloneDocument.documentId.`in`(documentIds))
+            )
+            .unionAll(
+                select(
+                    statementAttachments.documentId.`as`("doc_id"),
+                    statementAttachments.accountStatementId.`as`("entity_id"),
+                    inline("ACCOUNT_STATEMENT").`as`("usage_type"),
+                    coalesce(statement.title, statement.partyName, statement.externalId).`as`("display_name"),
+                )
+                    .from(statementAttachments)
+                    .join(statement).on(statement.id.eq(statementAttachments.accountStatementId))
+                    .where(statementAttachments.documentId.`in`(documentIds))
             )
             .orderBy(docIdField, usageTypeField, entityIdField)
             .fetch()

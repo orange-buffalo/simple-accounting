@@ -16,10 +16,14 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.getAuthenticationOrNull
+import io.orangebuffalo.simpleaccounting.business.security.runWithAuthentication
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 class DocumentsService(
@@ -37,7 +41,21 @@ class DocumentsService(
         validateDocumentMetadata(request)
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
             ?: throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")
+        val authentication = getAuthenticationOrNull()
         val response = documentStorage.saveDocument(request)
+        if (TransactionSynchronizationManager.isActualTransactionActive()
+            && TransactionSynchronizationManager.isSynchronizationActive()
+        ) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCompletion(status: Int) {
+                    if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                        runWithAuthentication(authentication) {
+                            documentStorage.deleteDocument(workspace = request.workspace, storageLocation = response.storageLocation)
+                        }
+                    }
+                }
+            })
+        }
         return documentRepository.save(
             Document(
                 name = request.fileName,

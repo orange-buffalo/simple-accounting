@@ -1,5 +1,5 @@
 <template>
-  <SaOverviewItem :title="statement.partyName || statement.externalId" class="account-statement">
+  <SaOverviewItem :title="statement.title || statement.partyName || statement.externalId" class="account-statement">
     <template #primary-attributes>
       <SaOverviewItemPrimaryAttribute icon="calendar" :tooltip="$t.accountStatements.date()">
         {{ $t.common.dateTime.medium(statement.occurredAt) }}
@@ -9,6 +9,11 @@
       </SaOverviewItemPrimaryAttribute>
     </template>
     <template #attributes-preview>
+      <SaOverviewItemAttributePreviewIcon
+        v-if="statement.attachments.length"
+        icon="attachment"
+        :tooltip="$t.accountStatements.attachments()"
+      />
       <SaOverviewItemAttributePreviewIcon
         v-if="statement.linkedInvoice"
         icon="invoice"
@@ -50,12 +55,18 @@
           <div class="col col-xs-12 account-statement__additional-data">{{ statement.additionalData }}</div>
         </div>
       </SaOverviewItemDetailsSection>
+      <SaOverviewItemDetailsSection v-if="statement.attachments.length" :title="$t.accountStatements.attachments()">
+        <div class="row">
+          <div class="col col-xs-12"><SaDocumentsList :documents="statement.attachments" /></div>
+        </div>
+      </SaOverviewItemDetailsSection>
     </template>
   </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import type { StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';

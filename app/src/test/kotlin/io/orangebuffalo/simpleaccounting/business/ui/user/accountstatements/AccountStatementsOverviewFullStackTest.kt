@@ -67,9 +67,12 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
     fun `should display transactions and expand all available information`(page: Page) {
         val data = preconditions {
             fry().also { fry ->
-                val integration = wiseIntegrationSettings(workspace = workspace(owner = fry))
+                val workspace = workspace(owner = fry)
+                val integration = wiseIntegrationSettings(workspace = workspace)
                 accountStatementRecord(
                     integration = integration, externalId = "Slurm-conversion", partyName = "Philip J. Fry",
+                    title = "Converted 10 EUR to 12 USD",
+                    attachments = setOf(document(workspace = workspace, name = "Slurm conversion.pdf")),
                     type = StatementType.CONVERSION, occurredAt = Instant.parse("3025-01-15T12:00:00Z"),
                     amountInCents = 1200, currency = "USD", feesInCents = 0, feesCurrency = "USD",
                     runningBalanceInCents = -125, runningBalanceCurrency = "USD",
@@ -96,17 +99,17 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         )
         page.shouldBeAccountStatementsOverviewPage {
             pageItems.shouldHaveExactData(
-                summary(title = "Philip J. Fry", day = 15, type = dataValues(SaStatusLabel.successStatusValue(), "Conversion"), amount = "USD 12.00"),
+                summary(title = "Converted 10 EUR to 12 USD", day = 15, type = dataValues(SaStatusLabel.successStatusValue(), "Conversion"), amount = "USD 12.00", attachment = true),
                 summary(title = "Bender", day = 14, type = dataValues(SaStatusLabel.errorStatusValue(), "Debit"), amount = "USD 1.25"),
                 summary(title = "Moon-delivery", day = 13, type = dataValues(SaStatusLabel.successStatusValue(), "Credit"), amount = "USD 1.25"),
                 summary(title = "Unknown-Slurm", day = 12, type = dataValues(SaStatusLabel.regularStatusValue(), "Other"), amount = "USD 1.25"),
             )
-            shouldHaveTypeBadge(title = "Philip J. Fry", status = "success")
+            shouldHaveTypeBadge(title = "Converted 10 EUR to 12 USD", status = "success")
             shouldHaveTypeBadge(title = "Bender", status = "failure")
             shouldHaveTypeBadge(title = "Moon-delivery", status = "success")
             shouldHaveTypeBadge(title = "Unknown-Slurm", status = "regular")
             reportRendering("account-statements.collapsed")
-            statement("Philip J. Fry").shouldHaveDetails(
+            statement("Converted 10 EUR to 12 USD").shouldHaveDetails(
                 sections = arrayOf(
                     DetailsSectionSpec(title = "Transaction details", attributes = listOf(
                         "Party" to "Philip J. Fry", "Amount" to "USD 12.00", "Transaction type" to "Conversion",
@@ -117,6 +120,7 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
                         "Exchange rate" to "1.234567", "Imported at" to "29 Mar 1999, 9:01 am",
                     )),
                     DetailsSectionSpec(title = "Additional information", content = "Description: Slurm supplies\nReference: Planet Express"),
+                    DetailsSectionSpec(title = "Attachments", content = SaDocumentsList.documentsValue("Slurm conversion.pdf")),
                 ),
             )
             reportRendering("account-statements.expanded")
@@ -224,7 +228,7 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         }
     }
 
-    private fun summary(title: String, day: Int, type: String, amount: String) = SaOverviewItemData(
+    private fun summary(title: String, day: Int, type: String, amount: String, attachment: Boolean = false) = SaOverviewItemData(
         title = title,
         primaryAttributes = listOf(
             primaryAttribute(icon = SaIconType.CALENDAR, text = "$day Jan 3025, 11:00 pm"),
@@ -232,5 +236,6 @@ class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
         ),
         middleColumnContent = type,
         lastColumnContent = amount,
+        attributePreviewIcons = if (attachment) listOf(SaIcon.iconValue(SaIconType.ATTACHMENT)) else emptyList(),
     )
 }

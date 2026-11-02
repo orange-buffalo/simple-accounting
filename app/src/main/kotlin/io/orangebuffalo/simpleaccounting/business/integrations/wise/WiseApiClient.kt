@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.JdkClientHttpRequestFactory
@@ -77,6 +79,7 @@ internal class WiseApiClient(
                     runningBalanceInCents = transaction.runningBalance?.minorUnits(), runningBalanceCurrency = transaction.runningBalance?.currency,
                     additionalData = details?.additionalData(),
                     partyName = details?.partyName(),
+                    title = if (type == StatementType.CONVERSION) details?.description?.takeIf(String::isNotBlank) else null,
                     originalAmountInCents = original?.minorUnits(), originalCurrency = original?.currency,
                     sourceAmountInCents = details?.sourceAmount?.minorUnits(), sourceCurrency = details?.sourceAmount?.currency,
                     targetAmountInCents = details?.targetAmount?.minorUnits(), targetCurrency = details?.targetAmount?.currency,
@@ -106,22 +109,56 @@ internal class WiseApiClient(
         throw WiseUnavailableException()
     }
 
+    fun getStatementPdf(settings: WiseIntegrationSettings, record: AccountStatementRecord): ByteArray {
+        val identity = try {
+            json.parseToJsonElement(record.externalId).jsonArray.map { it.jsonPrimitive.content }
+                .also { require(it.size == 4 && it[1] == record.accountCurrency) }
+        } catch (_: IllegalArgumentException) {
+            logFailure(endpoint = "statement.pdf", token = settings.token, detail = "Invalid stored Wise statement identity")
+            throw WiseUnavailableException()
+        }
+        val profileId = identity[0].toLongOrNull() ?: throw WiseUnavailableException()
+        val accountId = record.accountId.toLongOrNull() ?: throw WiseUnavailableException()
+        val start = record.occurredAt.minus(Duration.ofHours(1))
+        val end = record.occurredAt.plus(Duration.ofHours(1))
+        val path = "/v1/profiles/$profileId/balance-statements/$accountId/statement.pdf" +
+            "?currency=${record.accountCurrency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
+        return request(path = path, token = settings.token) {
+            val response = it.toEntity(ByteArray::class.java)
+            val body = response.body
+            if (body == null || body.size < 5 || !body.copyOfRange(fromIndex = 0, toIndex = 5).contentEquals("%PDF-".toByteArray())) {
+                logFailure(endpoint = path, token = settings.token, detail = "HTTP ${response.statusCode.value()}; empty or invalid PDF response")
+                throw WiseUnavailableException()
+            }
+            body
+        }
+    }
+
     private inline fun <reified T> get(path: String, token: String): T {
         var body: String? = null
         var status: Int? = null
-        var endpoint = path
         try {
-            val response = client.get().uri(path)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                .httpRequest { request -> endpoint = request.uri.toString() }
-                .retrieve().toEntity(String::class.java)
+            val response = request(path = path, token = token) { it.toEntity(String::class.java) }
             status = response.statusCode.value()
             body = response.body
             if (body.isNullOrBlank()) {
-                logFailure(endpoint = endpoint, token = token, detail = "HTTP $status; empty response body")
+                logFailure(endpoint = path, token = token, detail = "HTTP $status; empty response body")
                 throw WiseUnavailableException()
             }
             return json.decodeFromString<T>(body)
+        } catch (_: SerializationException) {
+            logFailure(endpoint = path, token = token, detail = "HTTP $status; invalid response body: $body")
+            throw WiseUnavailableException()
+        }
+    }
+
+    private fun <T> request(path: String, token: String, read: (RestClient.ResponseSpec) -> T): T {
+        var endpoint = path
+        try {
+            return read(client.get().uri(path)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                .httpRequest { request -> endpoint = request.uri.toString() }
+                .retrieve())
         } catch (e: RestClientResponseException) {
             val approvalResult = when (e.responseHeaders?.getFirst("x-2fa-approval-result")) {
                 "APPROVED" -> "APPROVED"
@@ -142,9 +179,6 @@ internal class WiseApiClient(
             val causes = generateSequence<Throwable>(e) { it.cause }.take(8)
                 .joinToString("; ") { "${it.javaClass.simpleName}: ${it.message}" }
             logFailure(endpoint = endpoint, token = token, detail = "No usable response received; $causes")
-            throw WiseUnavailableException()
-        } catch (_: SerializationException) {
-            logFailure(endpoint = endpoint, token = token, detail = "HTTP $status; invalid response body: $body")
             throw WiseUnavailableException()
         }
     }

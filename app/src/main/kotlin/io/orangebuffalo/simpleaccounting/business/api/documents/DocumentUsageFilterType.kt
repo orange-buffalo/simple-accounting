@@ -6,6 +6,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 @GraphQLName("DocumentUsageFilterType")
 @GraphQLDescription("Usage type filter for documents.")
 enum class DocumentUsageFilterType {
+    @GraphQLDescription("Document is used by an account statement.")
+    ACCOUNT_STATEMENT,
+
     @GraphQLDescription("Document is used by an expense.")
     EXPENSE,
 

@@ -1,4 +1,4 @@
-import type { RouteParamsRaw } from 'vue-router';
+import type { LocationQueryRaw, RouteParamsRaw } from 'vue-router';
 import { useRouter } from 'vue-router';
 
 export default function useNavigation() {
@@ -11,9 +11,11 @@ export default function useNavigation() {
   const navigateToView = async ({
     name,
     params,
-  }: { name: string; params: RouteParamsRaw }) => router.push({
+    query,
+  }: { name: string; params?: RouteParamsRaw; query?: LocationQueryRaw }) => router.push({
     name,
     params,
+    query,
   });
 
   return {

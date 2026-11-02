@@ -10,6 +10,13 @@ import java.util.concurrent.TimeUnit
 
 object WiseApiMocks {
     const val TOKEN = "fry-read-only-wise-token"
+    const val STATEMENT_PDF_PATH = "/wise/v1/profiles/101/balance-statements/301/statement.pdf"
+    val STATEMENT_PDF = "%PDF-1.4\nPlanet Express balance statement\n%%EOF".toByteArray()
+
+    fun setupStatementPdf() {
+        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(STATEMENT_PDF_PATH))
+            .willReturn(aResponse().withHeader("Content-Type", "application/pdf").withBody(STATEMENT_PDF)))
+    }
 
     @Volatile private var blockedStatement: BlockedStatementResponse? = null
     val blockingStatementTransformer = object : ResponseDefinitionTransformerV2 {

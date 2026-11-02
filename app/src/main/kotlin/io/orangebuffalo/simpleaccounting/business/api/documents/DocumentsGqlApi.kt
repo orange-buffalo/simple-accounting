@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.Table
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.coalesce
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.inline
 import org.jooq.impl.DSL.name
@@ -29,6 +30,8 @@ class DocumentsGqlApi(
     private val income = Tables.INCOME
     private val invoice = Tables.INVOICE
     private val incomeTaxPayment = Tables.INCOME_TAX_PAYMENT
+    private val statement = Tables.ACCOUNT_STATEMENT_RECORD
+    private val statementAttachments = Tables.ACCOUNT_STATEMENT_ATTACHMENTS
 
     fun loadDocuments(
         workspaceId: String,
@@ -91,6 +94,7 @@ class DocumentsGqlApi(
         private val expenseUsages = field(tableName.append("expense_usages"), Int::class.java)
         private val incomeUsages = field(tableName.append("income_usages"), Int::class.java)
         private val invoiceUsages = field(tableName.append("invoice_usages"), Int::class.java)
+        private val statementUsages = field(tableName.append("statement_usages"), Int::class.java)
         private val incomeTaxPaymentUsages = field(tableName.append("income_tax_payment_usages"), Int::class.java)
         private val standaloneDocumentUsages = field(tableName.append("standalone_document_usages"), Int::class.java)
         val matchingTitleUsages = field(tableName.append("matching_title_usages"), Int::class.java)
@@ -102,6 +106,7 @@ class DocumentsGqlApi(
         val table: Table<*> = buildTable(freeSearchText)
 
         fun matches(type: DocumentUsageFilterType) = when (type) {
+            DocumentUsageFilterType.ACCOUNT_STATEMENT -> statementUsages.greaterThan(0)
             DocumentUsageFilterType.EXPENSE -> expenseUsages.greaterThan(0)
             DocumentUsageFilterType.INCOME -> incomeUsages.greaterThan(0)
             DocumentUsageFilterType.INVOICE -> invoiceUsages.greaterThan(0)
@@ -120,6 +125,7 @@ class DocumentsGqlApi(
 
             return select(
                 usageDocumentId.`as`(documentId),
+                count().filterWhere(usageType.eq(DocumentUsageType.ACCOUNT_STATEMENT.name)).`as`(statementUsages),
                 count().filterWhere(usageType.eq(DocumentUsageType.EXPENSE.name)).`as`(expenseUsages),
                 count().filterWhere(usageType.eq(DocumentUsageType.INCOME.name)).`as`(incomeUsages),
                 count().filterWhere(usageType.eq(DocumentUsageType.INVOICE.name)).`as`(invoiceUsages),
@@ -174,6 +180,15 @@ class DocumentsGqlApi(
                     standaloneDocument.title.`as`(usageTitle),
                 )
                     .from(standaloneDocument)
+            )
+            .unionAll(
+                select(
+                    statementAttachments.documentId.`as`(usageDocumentId),
+                    inline(DocumentUsageType.ACCOUNT_STATEMENT.name).`as`(usageType),
+                    coalesce(statement.title, statement.partyName, statement.externalId).`as`(usageTitle),
+                )
+                    .from(statementAttachments)
+                    .join(statement).on(statement.id.eq(statementAttachments.accountStatementId))
             )
             .asTable(documentUsagesTableName.last())
     }

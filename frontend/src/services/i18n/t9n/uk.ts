@@ -3,6 +3,7 @@ import { format } from '@/services/i18n/t9n/formatter';
 
 export default {
   accountStatements: {
+    attachments: () => 'Вкладення',
     header: () => 'Виписки з рахунків',
     search: () => 'Пошук транзакцій',
     dateRange: () => 'Дати транзакцій',
@@ -472,6 +473,7 @@ export default {
         income: () => 'Доходи',
         invoice: () => 'Рахунок',
         incomeTaxPayment: () => 'Платіж податку на дохід',
+        accountStatement: () => 'Банківська операція',
         standaloneDocument: () => 'Окремий документ',
         unused: () => 'Не використовується',
       },
@@ -518,6 +520,7 @@ export default {
       income: () => 'доходу',
       invoice: () => 'рахунку',
       incomeTaxPayment: () => 'платежу податку на дохід',
+      accountStatement: () => 'банківської операції',
       standaloneDocument: () => 'окремого документа',
       navigateTooltip: (usageType: string) => `Натисніть, щоб перейти до ${usageType}`,
     },

@@ -653,6 +653,54 @@ class DocumentsQueryTest(
     @Nested
     @DisplayName("Document Usages")
     inner class DocumentUsages {
+        @Test
+        fun `should return usages for document attached to an account statement`() {
+            executeAndVerifyUsages { workspace, doc ->
+                val statement = accountStatementRecord(
+                    integration = wiseIntegrationSettings(workspace = workspace),
+                    title = "Converted Slurm funds",
+                    attachments = setOf(doc),
+                )
+                listOf(Triple(first = "ACCOUNT_STATEMENT", second = statement.id!!, third = "Converted Slurm funds"))
+            }
+        }
+
+        @Test
+        fun `should filter documents by account statement usage`() {
+            verifyStatementDocumentFilter(arguments = "usageTypeIn: [ACCOUNT_STATEMENT]", expectedName = "Moon conversion.pdf")
+        }
+
+        @Test
+        fun `should search documents by linked account statement title`() {
+            verifyStatementDocumentFilter(arguments = "freeSearchText: \"sLuRm\"", expectedName = "Moon conversion.pdf")
+        }
+
+        @Test
+        fun `should exclude account statement documents from unused documents`() {
+            verifyStatementDocumentFilter(arguments = "usageTypeIn: [UNUSED]", expectedName = "Robot oil.pdf")
+        }
+
+        private fun verifyStatementDocumentFilter(arguments: String, expectedName: String) {
+            val setup = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    init {
+                        document(workspace = workspace, name = "Robot oil.pdf")
+                        accountStatementRecord(
+                            integration = wiseIntegrationSettings(workspace = workspace),
+                            title = "Converted Slurm funds",
+                            attachments = setOf(document(workspace = workspace, name = "Moon conversion.pdf")),
+                        )
+                    }
+                }
+            }
+            client.documentsRawQuery(workspaceId = setup.workspace.id!!, args = arguments)
+                .from(setup.fry).executeAndVerifyResponse(documentsResponse(
+                    expectedName,
+                    totalCount = 1,
+                ))
+        }
 
         private fun executeAndVerifyUsages(
             preconditionsSpec: EntitiesFactory.(Workspace, Document) -> List<Triple<String, String, String>>,

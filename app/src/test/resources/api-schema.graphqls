@@ -92,10 +92,14 @@ type AccountStatement {
   additionalData: String
   "Absolute nonnegative transaction amount in currency minor units."
   amountInCents: Long!
+  "Documents attached to this statement."
+  attachments: [Document!]!
   "Time this record was imported."
   createdAt: DateTime!
   "Transaction currency."
   currency: String!
+  "IDs of documents attached to this statement."
+  documentIds: [String!]!
   "Exact decimal provider exchange rate, represented as a string."
   exchangeRate: String
   "Opaque external transaction ID."
@@ -132,6 +136,8 @@ type AccountStatement {
   targetAmountInCents: Long
   "Conversion target currency."
   targetCurrency: String
+  "Provider's descriptive transaction title, when available."
+  title: String
   "Transaction classification."
   type: StatementType!
 }
@@ -2052,6 +2058,8 @@ enum DiscoverOidcProviderConfigurationErrorCodes {
 
 "Usage type filter for documents."
 enum DocumentUsageFilterType {
+  "Document is used by an account statement."
+  ACCOUNT_STATEMENT
   "Document is used by an expense."
   EXPENSE
   "Document is used by an income."
@@ -2068,6 +2076,8 @@ enum DocumentUsageFilterType {
 
 "Type of entity that uses a document."
 enum DocumentUsageType {
+  "Document is used by an account statement."
+  ACCOUNT_STATEMENT
   "Document is used by an expense."
   EXPENSE
   "Document is used by an income."

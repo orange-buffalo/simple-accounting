@@ -2,6 +2,15 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementAttachment
+import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService.InvoiceMatchingResult
 import io.orangebuffalo.simpleaccounting.infra.TimeService
@@ -23,6 +32,9 @@ class WiseStatementFetchService internal constructor(
     private val records: AccountStatementRecordsRepository,
     private val time: TimeService,
     private val invoiceLinking: AccountStatementInvoiceLinkingService,
+    private val documents: DocumentsService,
+    private val workspaces: WorkspacesService,
+    private val users: PlatformUsersService,
     transactionManager: PlatformTransactionManager,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -64,7 +76,24 @@ class WiseStatementFetchService internal constructor(
         var outcome = FetchOutcome.FAILED
         logger.info { "Wise statement fetch started: integration=$integrationId" }
         try {
-            val result = fetchTransaction.execute { fetchInTransaction(integrationId) }!!
+            var attemptedVersion: Int? = null
+            val result = try {
+                fetchTransaction.execute {
+                    val integration = settings.lockById(integrationId) ?: return@execute FetchResult(FetchOutcome.MISSING)
+                    attemptedVersion = integration.version
+                    fetchInTransaction(integration)
+                }!!
+            } catch (_: WiseInvalidTokenException) {
+                fetchTransaction.execute {
+                    settings.lockById(integrationId)?.takeIf { it.version == attemptedVersion }
+                        ?.let { settings.save(it.copy(authenticationRequired = true)) }
+                }
+                logger.warn {
+                    "Wise statement access rejected: integration=$integrationId; suspending fetching until access is restored. " +
+                        "Statements may require SCA or additional account permissions; personal-token statement access is limited by account region."
+                }
+                FetchResult(FetchOutcome.AUTHENTICATION_REQUIRED)
+            }
             outcome = result.outcome
             if (outcome == FetchOutcome.SUCCESS) {
                 logger.info {
@@ -87,25 +116,16 @@ class WiseStatementFetchService internal constructor(
         }
     }
 
-    private fun fetchInTransaction(integrationId: String): FetchResult {
+    private fun fetchInTransaction(integration: WiseIntegrationSettings): FetchResult {
         // Serializes fetches and setup changes across application instances, including their checkpoints.
-        val integration = settings.lockById(integrationId) ?: return FetchResult(FetchOutcome.MISSING)
+        val integrationId = integration.id!!
         if (!integration.fetchTransactionsPeriodically) return FetchResult(FetchOutcome.DISABLED)
         if (integration.authenticationRequired) return FetchResult(FetchOutcome.AUTHENTICATION_REQUIRED)
         if (integration.accounts.isEmpty()) return FetchResult(FetchOutcome.NO_ACCOUNTS)
         logger.info { "Wise statement fetch processing integration=$integrationId, selectedAccounts=${integration.accounts.size}" }
         val end = time.currentTime()
-        val fetched = try {
-            integration.accounts.flatMap { account ->
-                fetchAccount(integration = integration, account = account, end = end)
-            }
-        } catch (_: WiseInvalidTokenException) {
-            settings.save(integration.copy(authenticationRequired = true))
-            logger.warn {
-                "Wise statement access rejected: integration=$integrationId; suspending fetching until access is restored. " +
-                    "Statements may require SCA or additional account permissions; personal-token statement access is limited by account region."
-            }
-            return FetchResult(FetchOutcome.AUTHENTICATION_REQUIRED)
+        val fetched = integration.accounts.flatMap { account ->
+            fetchAccount(integration = integration, account = account, end = end)
         }
         var imported = 0
         fetched.forEach { record ->
@@ -121,8 +141,29 @@ class WiseStatementFetchService internal constructor(
             lastSuccessfulFetchTime = end,
             accounts = integration.accounts.map { it.copy(lastSuccessfulFetchTime = end) }.toSet(),
         ))
+        attachMissingDocuments(integration)
         val matching = invoiceLinking.linkInvoices(integration.workspaceId)
         return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported, matching = matching)
+    }
+
+    private fun attachMissingDocuments(integration: WiseIntegrationSettings) {
+        val workspace = workspaces.getWorkspace(integration.workspaceId)
+        val owner = users.getUserByUserId(workspace.ownerId)
+        runAs(owner.toSecurityPrincipal()) {
+            if (!documents.getCurrentUserStorageStatus().active) return@runAs
+            records.findWithoutDocuments(
+                workspaceId = workspace.id!!, provider = IntegrationProvider.WISE.name, integrationId = integration.id!!,
+            ).forEach { record ->
+                val pdf = client.getStatementPdf(settings = integration, record = record)
+                val document = documents.saveDocument(SaveDocumentRequest(
+                    fileName = "Wise statement ${record.id}.pdf",
+                    content = inputStreamProvider { pdf.inputStream() },
+                    workspace = workspace,
+                    contentType = "application/pdf",
+                ))
+                records.save(record.copy(attachments = setOf(AccountStatementAttachment(document.id!!))))
+            }
+        }
     }
 
     private fun fetchAccount(integration: WiseIntegrationSettings, account: WiseIntegrationAccount, end: Instant): List<AccountStatementRecord> {

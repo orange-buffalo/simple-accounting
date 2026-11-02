@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.shouldBeAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.OverviewFilterChipData
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
@@ -629,6 +630,35 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should filter and navigate to account statement from document usage`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                val workspace = workspace(owner = user)
+                val integration = wiseIntegrationSettings(workspace = workspace)
+                accountStatementRecord(
+                    integration = integration,
+                    title = "Converted Slurm funds",
+                    additionalData = "Description: Converted Slurm funds",
+                    attachments = setOf(document(workspace = workspace, name = "Slurm conversion.pdf")),
+                )
+                accountStatementRecord(integration = integration, externalId = "Robot oil")
+                document(workspace = workspace, name = "Moon delivery.pdf")
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openDocumentsOverviewPage {
+            filters.addSelectFilter(label = "Usage", value = "Account statement").closeByOutsideClick()
+            pageItems.shouldHaveTitles("Slurm conversion.pdf")
+            reportRenderingWithPopovers("documents-overview.account-statement-usage")
+            document("Slurm conversion.pdf").clickActionMenuItem("Navigate to Converted Slurm funds")
+        }
+        page.shouldBeAccountStatementsOverviewPage {
+            pageItems.shouldHaveTitles("Converted Slurm funds")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "Converted Slurm funds")
+        }
+    }
+
+    @Test
     fun `should navigate to edit expense page from usage link`(page: Page) {
         val testData = preconditions {
             object {
@@ -976,6 +1006,7 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
         page.openDocumentsOverviewPage {
             filters.shouldHaveSelectOptions(
                 label = "Usage",
+                "Account statement",
                 "Expense",
                 "Income",
                 "Invoice",

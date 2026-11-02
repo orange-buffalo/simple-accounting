@@ -6,6 +6,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.loadInvoiceByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGqlDto
@@ -17,7 +19,9 @@ import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 @Component
-class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationService) {
+class AccountStatementsGqlApi(
+    private val paginationService: GraphqlPaginationService,
+) {
     private val statement = Tables.ACCOUNT_STATEMENT_RECORD
 
     fun loadStatements(
@@ -41,7 +45,7 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
             if (occurredAtFrom != null) query.addPredicate(statement.occurredAt.ge(occurredAtFrom))
             if (occurredAtBefore != null) query.addPredicate(statement.occurredAt.lt(occurredAtBefore))
         }
-        .page(first = first, after = after, sortFields = listOf(statement.occurredAt.desc(), statement.id.desc())) { record ->
+        .page(first = first, after = after, sortFields = listOf(statement.occurredAt.desc(), statement.id.desc()), mapRecord = { record ->
             AccountStatementGqlDto(
                 id = record[statement.id]!!,
                 provider = IntegrationProvider.valueOf(record[statement.provider]!!),
@@ -69,8 +73,9 @@ class AccountStatementsGqlApi(private val paginationService: GraphqlPaginationSe
                 createdAt = record[statement.createdAt]!!,
                 workspaceId = workspaceId,
                 linkedInvoiceId = record[statement.linkedInvoiceId],
+                title = record[statement.title],
             )
-        }
+        })
 }
 
 @GraphQLName("AccountStatement")
@@ -87,6 +92,7 @@ data class AccountStatementGqlDto(
     @GraphQLDescription("Absolute nonnegative transaction amount in currency minor units.") val amountInCents: Long,
     @GraphQLDescription("Transaction currency.") val currency: String,
     @GraphQLDescription("Other party's name, when supplied by the provider.") val partyName: String?,
+    @GraphQLDescription("Provider's descriptive transaction title, when available.") val title: String?,
     @GraphQLDescription("Fees in minor units.") val feesInCents: Long?,
     @GraphQLDescription("Fee currency.") val feesCurrency: String?,
     @GraphQLDescription("Signed running balance in minor units.") val runningBalanceInCents: Long?,
@@ -103,6 +109,16 @@ data class AccountStatementGqlDto(
     @GraphQLIgnore val workspaceId: String,
     @GraphQLIgnore val linkedInvoiceId: String?,
 ) {
+    @GraphQLDescription("IDs of documents attached to this statement.")
+    fun documentIds(env: DataFetchingEnvironment): CompletableFuture<List<String>> =
+        env.loadStatementDocumentIds(workspaceId = workspaceId, statementId = id)
+
+    @GraphQLDescription("Documents attached to this statement.")
+    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> =
+        documentIds(env).thenCompose { ids ->
+            if (ids.isEmpty()) CompletableFuture.completedFuture(emptyList()) else env.loadDocumentsByIds(ids)
+        }
+
     @GraphQLDescription("Invoice linked to this statement, if a unique match was found during synchronization.")
     fun linkedInvoice(env: DataFetchingEnvironment): CompletableFuture<InvoiceGqlDto?>? {
         val invoiceId = linkedInvoiceId ?: return null
