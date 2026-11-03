@@ -98,8 +98,6 @@ type AccountStatement {
   createdAt: DateTime!
   "Transaction currency."
   currency: String!
-  "IDs of documents attached to this statement."
-  documentIds: [String!]!
   "Exact decimal provider exchange rate, represented as a string."
   exchangeRate: String
   "Opaque external transaction ID."

@@ -40,8 +40,6 @@ export type AccountStatement = {
   createdAt: Scalars['DateTime']['output'];
   /** Transaction currency. */
   currency: Scalars['String']['output'];
-  /** IDs of documents attached to this statement. */
-  documentIds: Array<Scalars['String']['output']>;
   /** Exact decimal provider exchange rate, represented as a string. */
   exchangeRate?: Maybe<Scalars['String']['output']>;
   /** Opaque external transaction ID. */

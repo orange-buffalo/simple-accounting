@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
+import java.io.InputStream
+import java.io.PushbackInputStream
 import java.net.http.HttpClient
 import java.time.Duration
 import java.time.Instant
@@ -109,7 +111,11 @@ internal class WiseApiClient(
         throw WiseUnavailableException()
     }
 
-    fun getStatementPdf(settings: WiseIntegrationSettings, record: AccountStatementRecord): ByteArray {
+    fun getStatementPdf(
+        settings: WiseIntegrationSettings,
+        record: AccountStatementRecord,
+        consume: (fileName: String, content: InputStream) -> Unit,
+    ) {
         val identity = try {
             json.parseToJsonElement(record.externalId).jsonArray.map { it.jsonPrimitive.content }
                 .also { require(it.size == 4 && it[1] == record.accountCurrency) }
@@ -123,14 +129,24 @@ internal class WiseApiClient(
         val end = record.occurredAt.plus(Duration.ofHours(1))
         val path = "/v1/profiles/$profileId/balance-statements/$accountId/statement.pdf" +
             "?currency=${record.accountCurrency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
-        return request(path = path, token = settings.token) {
-            val response = it.toEntity(ByteArray::class.java)
-            val body = response.body
-            if (body == null || body.size < 5 || !body.copyOfRange(fromIndex = 0, toIndex = 5).contentEquals("%PDF-".toByteArray())) {
-                logFailure(endpoint = path, token = settings.token, detail = "HTTP ${response.statusCode.value()}; empty or invalid PDF response")
-                throw WiseUnavailableException()
+        val fileName = "Wise statement $profileId $accountId ${record.accountCurrency} ${record.occurredAt}.pdf"
+        request(path = path, token = settings.token) { request ->
+            request.exchange { _, response ->
+                if (!response.statusCode.is2xxSuccessful) {
+                    failResponse(
+                        endpoint = path, token = settings.token, status = response.statusCode.value(),
+                        headers = response.headers, body = response.body.readNBytes(4096).toString(Charsets.UTF_8),
+                    )
+                }
+                val content = PushbackInputStream(response.body, 5)
+                val prefix = content.readNBytes(5)
+                if (!prefix.contentEquals("%PDF-".toByteArray())) {
+                    logFailure(endpoint = path, token = settings.token, detail = "HTTP ${response.statusCode.value()}; empty or invalid PDF response")
+                    throw WiseUnavailableException()
+                }
+                content.unread(prefix)
+                consume(fileName, content)
             }
-            body
         }
     }
 
@@ -138,7 +154,7 @@ internal class WiseApiClient(
         var body: String? = null
         var status: Int? = null
         try {
-            val response = request(path = path, token = token) { it.toEntity(String::class.java) }
+            val response = request(path = path, token = token) { it.retrieve().toEntity(String::class.java) }
             status = response.statusCode.value()
             body = response.body
             if (body.isNullOrBlank()) {
@@ -152,35 +168,38 @@ internal class WiseApiClient(
         }
     }
 
-    private fun <T> request(path: String, token: String, read: (RestClient.ResponseSpec) -> T): T {
+    private fun <T> request(path: String, token: String, read: (RestClient.RequestHeadersSpec<*>) -> T): T {
         var endpoint = path
         try {
             return read(client.get().uri(path)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                .httpRequest { request -> endpoint = request.uri.toString() }
-                .retrieve())
+                .httpRequest { request -> endpoint = request.uri.toString() })
         } catch (e: RestClientResponseException) {
-            val approvalResult = when (e.responseHeaders?.getFirst("x-2fa-approval-result")) {
-                "APPROVED" -> "APPROVED"
-                "REJECTED" -> "REJECTED"
-                null -> "absent"
-                else -> "unrecognized"
-            }
-            val challenge = e.responseHeaders?.getFirst("x-2fa-approval")
-            val challengePresent = !challenge.isNullOrBlank()
-            val responseBody = e.responseBodyAsString.let {
-                if (!challenge.isNullOrBlank()) it.replace(oldValue = challenge, newValue = "[REDACTED]") else it
-            }.ifBlank { "<empty>" }
-            logFailure(endpoint = endpoint, token = token, detail = "HTTP ${e.statusCode.value()}; scaApprovalResult=$approvalResult; " +
-                "scaChallengePresent=$challengePresent; response body: $responseBody")
-            if (e.statusCode.value() in listOf(401, 403)) throw WiseInvalidTokenException()
-            throw WiseUnavailableException()
+            failResponse(endpoint = endpoint, token = token, status = e.statusCode.value(), headers = e.responseHeaders, body = e.responseBodyAsString)
         } catch (e: RestClientException) {
             val causes = generateSequence<Throwable>(e) { it.cause }.take(8)
                 .joinToString("; ") { "${it.javaClass.simpleName}: ${it.message}" }
             logFailure(endpoint = endpoint, token = token, detail = "No usable response received; $causes")
             throw WiseUnavailableException()
         }
+    }
+
+    private fun failResponse(endpoint: String, token: String, status: Int, headers: HttpHeaders?, body: String): Nothing {
+        val approvalResult = when (headers?.getFirst("x-2fa-approval-result")) {
+            "APPROVED" -> "APPROVED"
+            "REJECTED" -> "REJECTED"
+            null -> "absent"
+            else -> "unrecognized"
+        }
+        val challenge = headers?.getFirst("x-2fa-approval")
+        val challengePresent = !challenge.isNullOrBlank()
+        val responseBody = body.let {
+            if (!challenge.isNullOrBlank()) it.replace(oldValue = challenge, newValue = "[REDACTED]") else it
+        }.ifBlank { "<empty>" }
+        logFailure(endpoint = endpoint, token = token, detail = "HTTP $status; scaApprovalResult=$approvalResult; " +
+            "scaChallengePresent=$challengePresent; response body: $responseBody")
+        if (status in listOf(401, 403)) throw WiseInvalidTokenException()
+        throw WiseUnavailableException()
     }
 
     private fun logFailure(endpoint: String, token: String, detail: String) {

@@ -5,8 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
 import io.orangebuffalo.simpleaccounting.business.documents.Document
-import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentStorageException
-import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorageResetListener
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
@@ -31,15 +29,10 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.params.provider.NullSource
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
@@ -52,100 +45,56 @@ class WiseStatementFetchServiceTest(
     @Autowired private val fetcher: WiseStatementFetchService,
     @Autowired private val service: WiseIntegrationService,
     @Autowired private val time: TimeService,
+    @Autowired private val storage: TestDocumentsStorage,
 ) : SaIntegrationTestBase() {
-    @MockitoSpyBean
-    private lateinit var storage: TestDocumentsStorage
 
     private val dollars = WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")
     private val euros = WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")
 
     @Nested
     inner class StatementDocuments {
-        @ParameterizedTest
-        @ValueSource(booleans = [false, true])
-        fun `should clean up earlier uploads when a later statement fails and retry without duplicates`(storageFailure: Boolean) {
-            val setup = preconditions {
-                object {
-                    private val owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
-                    private val workspace = workspace(owner = owner)
-                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
-                    init {
-                        accountStatementRecord(
-                            integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
-                            occurredAt = Instant.parse("1999-03-27T12:00:00Z"),
-                        )
-                        accountStatementRecord(
-                            integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-43"]""",
-                            occurredAt = Instant.parse("1999-03-27T15:00:00Z"),
-                        )
-                    }
+        @Test
+        fun `should retain an earlier statement attachment when a later PDF download fails`() {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                ).also { integration ->
+                    accountStatementRecord(
+                        integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
+                        occurredAt = Instant.parse("1999-03-27T12:00:00Z"),
+                    )
+                    accountStatementRecord(
+                        integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-43"]""",
+                        occurredAt = Instant.parse("1999-03-27T15:00:00Z"),
+                    )
                 }
             }
             WiseApiMocks.setupStatement(transactions = "[]")
             WiseApiMocks.setupStatementPdf()
-            val failedPdf = if (storageFailure) {
-                var uploads = 0
-                doAnswer { invocation ->
-                    if (++uploads == 2) throw DocumentStorageException("Slurm storage unavailable")
-                    invocation.callRealMethod()
-                }.whenever(storage).saveDocument(any<SaveDocumentRequest>())
-                null
-            } else {
-                ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
-                    .atPriority(1)
-                    .withQueryParam("intervalStart", equalTo("1999-03-27T14:00:00Z"))
-                    .willReturn(aResponse().withStatus(503)))
-            }
+            val failedPdf = ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .atPriority(1)
+                .withQueryParam("intervalStart", equalTo("1999-03-27T14:00:00Z"))
+                .willReturn(aResponse().withStatus(503)))
 
-            fetcher.fetch(setup.integration.id!!)
+            fetcher.fetch(integration.id!!)
 
-            storage.getUploadedDocumentsCount().shouldBe(0)
-            aggregateTemplate.findAll<Document>().shouldBe(emptyList())
-            aggregateTemplate.findAll<AccountStatementRecord>().map { it.attachments }.shouldBe(listOf(emptySet(), emptySet()))
-            aggregateTemplate.findById(setup.integration.id, WiseIntegrationSettings::class.java)!!
-                .shouldBeEntityWithFields(setup.integration)
+            val records = aggregateTemplate.findAll<AccountStatementRecord>().sortedBy { it.occurredAt }
+            val earlierDocumentId = records[0].attachments.single().documentId
+            records[1].attachments.shouldBe(emptySet())
+            val document = aggregateTemplate.findAll<Document>().shouldBeSingle()
+            document.id.shouldBe(earlierDocumentId)
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(WiseApiMocks.STATEMENT_PDF)
 
-            if (failedPdf != null) ThirdPartyApisMocks.server.removeStub(failedPdf)
-            fetcher.fetch(setup.integration.id)
-            fetcher.fetch(setup.integration.id)
+            ThirdPartyApisMocks.server.removeStub(failedPdf)
+            fetcher.fetch(integration.id)
 
-            storage.getUploadedDocumentsCount().shouldBe(2)
+            val updated = aggregateTemplate.findAll<AccountStatementRecord>().sortedBy { it.occurredAt }
+            updated[0].attachments.single().documentId.shouldBe(earlierDocumentId)
+            updated[1].attachments.size.shouldBe(1)
             aggregateTemplate.findAll<Document>().size.shouldBe(2)
-            aggregateTemplate.findAll<AccountStatementRecord>().forEach { record ->
-                val document = aggregateTemplate.findById(record.attachments.single().documentId, Document::class.java)!!
-                storage.getUploadedContent(document.storageLocation!!).shouldBe(WiseApiMocks.STATEMENT_PDF)
-            }
-        }
-
-        @Test
-        fun `should not suspend replacement credentials after an earlier PDF authentication failure`() {
-            val setup = preconditions {
-                object {
-                    private val owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
-                    private val workspace = workspace(owner = owner)
-                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
-                    init {
-                        accountStatementRecord(integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""")
-                    }
-                }
-            }
-            WiseApiMocks.setupStatement(transactions = "[]")
-            ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
-                .willReturn(aResponse().withStatus(401)))
-            doAnswer { invocation ->
-                TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-                    override fun afterCompletion(status: Int) {
-                        status.shouldBe(TransactionSynchronization.STATUS_ROLLED_BACK)
-                        preconditions { save(setup.integration.copy(token = "Slurm-replacement-token")) }
-                    }
-                })
-                invocation.callRealMethod()
-            }.whenever(storage).getCurrentUserStorageStatus()
-
-            fetcher.fetch(setup.integration.id!!)
-
-            aggregateTemplate.findById(setup.integration.id, WiseIntegrationSettings::class.java)!!
-                .shouldBeEntityWithFields(setup.integration.copy(token = "Slurm-replacement-token", authenticationRequired = false))
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .withQueryParam("intervalStart", equalTo("1999-03-27T11:00:00Z")))
         }
 
         @ParameterizedTest
@@ -186,7 +135,7 @@ class WiseStatementFetchServiceTest(
             val documentId = record.attachments.single().documentId
             val document = aggregateTemplate.findById(documentId, Document::class.java)!!
             document.shouldBeEntityWithFields(Document(
-                workspaceId = setup.integration.workspaceId, name = "Wise statement ${record.id}.pdf",
+                workspaceId = setup.integration.workspaceId, name = "Wise statement 101 301 USD $date.pdf",
                 timeUploaded = MOCK_TIME, storageId = TestDocumentsStorage.STORAGE_ID,
                 storageLocation = document.storageLocation, sizeInBytes = WiseApiMocks.STATEMENT_PDF.size.toLong(), mimeType = "application/pdf",
             ))
@@ -234,10 +183,14 @@ class WiseStatementFetchServiceTest(
 
             fetcher.fetch(integration.id!!)
 
-            aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.shouldBe(emptySet())
             aggregateTemplate.findAll<Document>().shouldBe(emptyList())
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
-                .shouldBeEntityWithFields(integration.copy(authenticationRequired = status == 401 || status == 403))
+                .shouldBeEntityWithFields(integration.copy(
+                    authenticationRequired = status == 401 || status == 403,
+                    lastSuccessfulFetchTime = MOCK_TIME,
+                    accounts = setOf(dollars.copy(lastSuccessfulFetchTime = MOCK_TIME)),
+                ))
             if (status == 200 || status == 503) {
                 WiseApiMocks.setupStatementPdf()
                 fetcher.fetch(integration.id)

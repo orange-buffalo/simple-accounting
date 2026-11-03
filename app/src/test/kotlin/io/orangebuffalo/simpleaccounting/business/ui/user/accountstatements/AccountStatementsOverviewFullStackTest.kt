@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
@@ -14,11 +16,41 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
-class AccountStatementsOverviewFullStackTest : SaFullStackTestBase() {
+class AccountStatementsOverviewFullStackTest(
+    @Autowired private val storage: TestDocumentsStorage,
+) : SaFullStackTestBase() {
+    @Test
+    fun `should download a statement attachment from document storage`(page: Page) {
+        val content = "%PDF-1.4\nPlanet Express Slurm conversion\n%%EOF".toByteArray()
+        val fry = preconditions {
+            platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID).also { owner ->
+                val workspace = workspace(owner = owner)
+                accountStatementRecord(
+                    integration = wiseIntegrationSettings(workspace = workspace),
+                    title = "Converted Slurm funds",
+                    attachments = setOf(document(
+                        workspace = workspace, name = "Slurm conversion.pdf", storageId = TestDocumentsStorage.STORAGE_ID,
+                        storageLocation = "slurm-conversion", mimeType = "application/pdf", sizeInBytes = content.size.toLong(),
+                    )),
+                )
+            }
+        }
+        storage.mockDocumentContent(storageLocation = "slurm-conversion", content = content)
+        page.authenticateViaCookie(fry)
+        page.openAccountStatementsOverviewPage {
+            pageItems.shouldHaveTitles("Converted Slurm funds")
+            attachments("Converted Slurm funds").apply {
+                shouldHaveDocuments(SaDocumentsList.DocumentItem.Ready(name = "Slurm conversion.pdf", size = "(46 byte)"))
+                downloadDocument("Slurm conversion.pdf").shouldBe(content)
+            }
+        }
+    }
+
     @Test
     fun `should navigate from linked invoice details to prefiltered invoices`(page: Page) {
         val fry = preconditions {

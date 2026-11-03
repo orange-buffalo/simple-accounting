@@ -124,12 +124,11 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
         fun `should return empty document collections for an unattached statement`() {
             preconditions { accountStatementRecord(integration = data.integration) }
 
-            query(selection = "documentIds attachments { id name }").from(data.fry)
+            query(selection = "attachments { id name }").from(data.fry)
                 .executeAndVerifyResponse("workspace" to buildJsonObject {
                     put("accountStatements", buildJsonObject {
                         put("totalCount", 1)
                         putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
-                            putJsonArray("documentIds") {}
                             putJsonArray("attachments") {}
                         }) }) }
                     })
@@ -153,7 +152,7 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                     }
                 }
             }
-            val request = query(selection = "title documentIds attachments { id name }")
+            val request = query(selection = "title attachments { id name }")
             when (actor) {
                 "workspace-token" -> request.usingSharedWorkspaceToken(setup.token.token)
                 "saved-share" -> request.from(setup.zoidberg)
@@ -163,7 +162,6 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
                     put("totalCount", 1)
                     putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
                         put("title", "Converted 10 EUR to 12 USD")
-                        putJsonArray("documentIds") { add(JsonPrimitive(setup.document.id)) }
                         putJsonArray("attachments") { add(buildJsonObject {
                             put("id", setup.document.id)
                             put("name", "Slurm conversion.pdf")

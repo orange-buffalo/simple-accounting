@@ -14,6 +14,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.connections.ConnectionGql
 import io.orangebuffalo.simpleaccounting.infra.graphql.connections.GraphqlPaginationService
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.impl.DSL
+import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
@@ -21,8 +22,10 @@ import java.util.concurrent.CompletableFuture
 @Component
 class AccountStatementsGqlApi(
     private val paginationService: GraphqlPaginationService,
+    private val dslContext: DSLContext,
 ) {
     private val statement = Tables.ACCOUNT_STATEMENT_RECORD
+    private val statementAttachments = Tables.ACCOUNT_STATEMENT_ATTACHMENTS
 
     fun loadStatements(
         workspaceId: String,
@@ -45,7 +48,7 @@ class AccountStatementsGqlApi(
             if (occurredAtFrom != null) query.addPredicate(statement.occurredAt.ge(occurredAtFrom))
             if (occurredAtBefore != null) query.addPredicate(statement.occurredAt.lt(occurredAtBefore))
         }
-        .page(first = first, after = after, sortFields = listOf(statement.occurredAt.desc(), statement.id.desc()), mapRecord = { record ->
+        .page(first = first, after = after, sortFields = listOf(statement.occurredAt.desc(), statement.id.desc()), mapQueryRecord = { record ->
             AccountStatementGqlDto(
                 id = record[statement.id]!!,
                 provider = IntegrationProvider.valueOf(record[statement.provider]!!),
@@ -74,7 +77,20 @@ class AccountStatementsGqlApi(
                 workspaceId = workspaceId,
                 linkedInvoiceId = record[statement.linkedInvoiceId],
                 title = record[statement.title],
+                attachmentIds = emptyList(),
             )
+        }, postProcess = { records ->
+            val attachmentsByStatementId = dslContext
+                .select(statementAttachments.accountStatementId, statementAttachments.documentId)
+                .from(statementAttachments)
+                .where(statementAttachments.accountStatementId.`in`(records.map { it.id }))
+                .orderBy(statementAttachments.documentId)
+                .fetch()
+                .groupBy(
+                    keySelector = { it[statementAttachments.accountStatementId]!! },
+                    valueTransform = { it[statementAttachments.documentId]!! },
+                )
+            records.map { dto -> dto.copy(attachmentIds = attachmentsByStatementId[dto.id].orEmpty()) }
         })
 }
 
@@ -108,16 +124,13 @@ data class AccountStatementGqlDto(
     @GraphQLDescription("Time this record was imported.") val createdAt: Instant,
     @GraphQLIgnore val workspaceId: String,
     @GraphQLIgnore val linkedInvoiceId: String?,
+    @GraphQLIgnore val attachmentIds: List<String>,
 ) {
-    @GraphQLDescription("IDs of documents attached to this statement.")
-    fun documentIds(env: DataFetchingEnvironment): CompletableFuture<List<String>> =
-        env.loadStatementDocumentIds(workspaceId = workspaceId, statementId = id)
-
     @GraphQLDescription("Documents attached to this statement.")
-    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> =
-        documentIds(env).thenCompose { ids ->
-            if (ids.isEmpty()) CompletableFuture.completedFuture(emptyList()) else env.loadDocumentsByIds(ids)
-        }
+    fun attachments(env: DataFetchingEnvironment): CompletableFuture<List<DocumentGqlDto>> {
+        if (attachmentIds.isEmpty()) return CompletableFuture.completedFuture(emptyList())
+        return env.loadDocumentsByIds(attachmentIds)
+    }
 
     @GraphQLDescription("Invoice linked to this statement, if a unique match was found during synchronization.")
     fun linkedInvoice(env: DataFetchingEnvironment): CompletableFuture<InvoiceGqlDto?>? {

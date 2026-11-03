@@ -18,6 +18,7 @@ import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.support.TransactionTemplate
@@ -76,43 +77,56 @@ class WiseStatementFetchService internal constructor(
         var outcome = FetchOutcome.FAILED
         logger.info { "Wise statement fetch started: integration=$integrationId" }
         try {
-            var attemptedVersion: Int? = null
-            val result = try {
-                fetchTransaction.execute {
-                    val integration = settings.lockById(integrationId) ?: return@execute FetchResult(FetchOutcome.MISSING)
-                    attemptedVersion = integration.version
-                    fetchInTransaction(integration)
-                }!!
-            } catch (_: WiseInvalidTokenException) {
-                fetchTransaction.execute {
-                    settings.lockById(integrationId)?.takeIf { it.version == attemptedVersion }
-                        ?.let { settings.save(it.copy(authenticationRequired = true)) }
-                }
-                logger.warn {
-                    "Wise statement access rejected: integration=$integrationId; suspending fetching until access is restored. " +
-                        "Statements may require SCA or additional account permissions; personal-token statement access is limited by account region."
-                }
-                FetchResult(FetchOutcome.AUTHENTICATION_REQUIRED)
-            }
+            val result = inIntegrationTransaction(integrationId = integrationId) { fetchInTransaction(it) }
+                ?: FetchResult(FetchOutcome.MISSING)
             outcome = result.outcome
             if (outcome == FetchOutcome.SUCCESS) {
                 logger.info {
                     "Wise statement import committed: integration=$integrationId, fetchedRecords=${result.fetched}, " +
-                        "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}, " +
-                        "invoiceMatchingChecked=${result.matching.checked}, linkedInvoices=${result.matching.links.size}, " +
-                        "ambiguousInvoiceMatches=${result.matching.ambiguous}"
+                    "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
                 }
-                result.matching.links.forEach { link ->
+                attachMissingDocuments(integrationId)
+                val matching = inIntegrationTransaction(integrationId = integrationId) { invoiceLinking.linkInvoices(it.workspaceId) }
+                    ?: InvoiceMatchingResult()
+                logger.info {
+                    "Wise statement invoice matching committed: integration=$integrationId, checked=${matching.checked}, " +
+                        "linkedInvoices=${matching.links.size}, ambiguousInvoiceMatches=${matching.ambiguous}"
+                }
+                matching.links.forEach { link ->
                     logger.info { "Wise statement invoice link committed: integration=$integrationId, statement=${link.statementId}, invoice=${link.invoiceId}" }
                 }
+            }
+        } catch (_: WiseInvalidTokenException) {
+            outcome = FetchOutcome.AUTHENTICATION_REQUIRED
+            logger.warn {
+                "Wise statement access rejected: integration=$integrationId. " +
+                    "Statements may require SCA or additional account permissions; personal-token statement access is limited by account region."
             }
         } catch (_: WiseUnavailableException) {
             outcome = FetchOutcome.PROVIDER_FAILURE
             logger.warn { "Wise statement fetch failed for integration $integrationId; will retry on the next run" }
         } catch (e: Exception) {
+            outcome = FetchOutcome.FAILED
             logger.error(e) { "Unexpected Wise statement fetch failure for integration $integrationId" }
         } finally {
             logger.info { "Wise statement fetch finished: integration=$integrationId, outcome=$outcome, elapsedMs=${elapsedMillis(started)}" }
+        }
+    }
+
+    private fun <T> inIntegrationTransaction(integrationId: String, operation: (WiseIntegrationSettings) -> T): T? {
+        var attemptedVersion: Int? = null
+        try {
+            return fetchTransaction.execute {
+                val integration = settings.lockById(integrationId) ?: return@execute null
+                attemptedVersion = integration.version
+                operation(integration)
+            }
+        } catch (e: WiseInvalidTokenException) {
+            fetchTransaction.executeWithoutResult {
+                settings.lockById(integrationId)?.takeIf { it.version == attemptedVersion }
+                    ?.let { settings.save(it.copy(authenticationRequired = true)) }
+            }
+            throw e
         }
     }
 
@@ -141,12 +155,11 @@ class WiseStatementFetchService internal constructor(
             lastSuccessfulFetchTime = end,
             accounts = integration.accounts.map { it.copy(lastSuccessfulFetchTime = end) }.toSet(),
         ))
-        attachMissingDocuments(integration)
-        val matching = invoiceLinking.linkInvoices(integration.workspaceId)
-        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported, matching = matching)
+        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported)
     }
 
-    private fun attachMissingDocuments(integration: WiseIntegrationSettings) {
+    private fun attachMissingDocuments(integrationId: String) {
+        val integration = settings.findByIdOrNull(integrationId) ?: return
         val workspace = workspaces.getWorkspace(integration.workspaceId)
         val owner = users.getUserByUserId(workspace.ownerId)
         runAs(owner.toSecurityPrincipal()) {
@@ -154,14 +167,21 @@ class WiseStatementFetchService internal constructor(
             records.findWithoutDocuments(
                 workspaceId = workspace.id!!, provider = IntegrationProvider.WISE.name, integrationId = integration.id!!,
             ).forEach { record ->
-                val pdf = client.getStatementPdf(settings = integration, record = record)
-                val document = documents.saveDocument(SaveDocumentRequest(
-                    fileName = "Wise statement ${record.id}.pdf",
-                    content = inputStreamProvider { pdf.inputStream() },
-                    workspace = workspace,
-                    contentType = "application/pdf",
-                ))
-                records.save(record.copy(attachments = setOf(AccountStatementAttachment(document.id!!))))
+                inIntegrationTransaction(integrationId = integrationId) { currentIntegration ->
+                    if (!currentIntegration.fetchTransactionsPeriodically || currentIntegration.authenticationRequired) return@inIntegrationTransaction
+                    if (!documents.getCurrentUserStorageStatus().active) return@inIntegrationTransaction
+                    val currentRecord = records.findByIdOrNull(record.id!!) ?: return@inIntegrationTransaction
+                    if (currentRecord.attachments.isNotEmpty()) return@inIntegrationTransaction
+                    client.getStatementPdf(settings = currentIntegration, record = currentRecord) { fileName, content ->
+                        val document = documents.saveDocument(SaveDocumentRequest(
+                            fileName = fileName,
+                            content = inputStreamProvider { content },
+                            workspace = workspace,
+                            contentType = "application/pdf",
+                        ))
+                        records.save(currentRecord.copy(attachments = setOf(AccountStatementAttachment(document.id!!))))
+                    }
+                }
             }
         }
     }
@@ -204,7 +224,6 @@ class WiseStatementFetchService internal constructor(
         val outcome: FetchOutcome,
         val fetched: Int = 0,
         val imported: Int = 0,
-        val matching: InvoiceMatchingResult = InvoiceMatchingResult(),
     )
 
     private enum class FetchOutcome { SUCCESS, MISSING, DISABLED, AUTHENTICATION_REQUIRED, NO_ACCOUNTS, PROVIDER_FAILURE, FAILED }

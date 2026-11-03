@@ -650,7 +650,10 @@ class DocumentsOverviewFullStackTest : SaFullStackTestBase() {
             filters.addSelectFilter(label = "Usage", value = "Account statement").closeByOutsideClick()
             pageItems.shouldHaveTitles("Slurm conversion.pdf")
             reportRenderingWithPopovers("documents-overview.account-statement-usage")
-            document("Slurm conversion.pdf").clickActionMenuItem("Navigate to Converted Slurm funds")
+            document("Slurm conversion.pdf").apply {
+                shouldHaveActionMenuItems("Download", "Navigate to Converted Slurm funds")
+                clickActionMenuItem("Navigate to Converted Slurm funds")
+            }
         }
         page.shouldBeAccountStatementsOverviewPage {
             pageItems.shouldHaveTitles("Converted Slurm funds")
