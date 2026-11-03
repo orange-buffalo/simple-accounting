@@ -169,8 +169,8 @@ class WiseStatementFetchServiceTest(
         }
 
         @ParameterizedTest
-        @ValueSource(ints = [401, 403, 503, 200])
-        fun `should not link failed or malformed PDFs and should retry transient failures`(status: Int) {
+        @ValueSource(ints = [401, 403, 503])
+        fun `should not link failed PDF downloads and should retry transient failures`(status: Int) {
             val integration = preconditions {
                 wiseIntegrationSettings(
                     workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
@@ -191,11 +191,32 @@ class WiseStatementFetchServiceTest(
                     lastSuccessfulFetchTime = MOCK_TIME,
                     accounts = setOf(dollars.copy(lastSuccessfulFetchTime = MOCK_TIME)),
                 ))
-            if (status == 200 || status == 503) {
+            if (status == 503) {
                 WiseApiMocks.setupStatementPdf()
                 fetcher.fetch(integration.id)
                 aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.size.shouldBe(1)
             }
+        }
+
+        @Test
+        fun `should store successful statement content without checking its signature`() {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                )
+            }
+            val content = "Planet Express statement\n%PDF-1.4\n%%EOF".toByteArray()
+            WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
+            ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .willReturn(aResponse().withStatus(200).withBody(content)))
+
+            fetcher.fetch(integration.id!!)
+
+            val document = aggregateTemplate.findAll<Document>().shouldBeSingle()
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.single()
+                .documentId.shouldBe(document.id)
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(content)
         }
     }
 

@@ -18,7 +18,6 @@ import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import java.io.InputStream
-import java.io.PushbackInputStream
 import java.net.http.HttpClient
 import java.time.Duration
 import java.time.Instant
@@ -138,14 +137,7 @@ internal class WiseApiClient(
                         headers = response.headers, body = response.body.readNBytes(4096).toString(Charsets.UTF_8),
                     )
                 }
-                val content = PushbackInputStream(response.body, 5)
-                val prefix = content.readNBytes(5)
-                if (!prefix.contentEquals("%PDF-".toByteArray())) {
-                    logFailure(endpoint = path, token = settings.token, detail = "HTTP ${response.statusCode.value()}; empty or invalid PDF response")
-                    throw WiseUnavailableException()
-                }
-                content.unread(prefix)
-                consume(fileName, content)
+                consume(fileName, response.body)
             }
         }
     }

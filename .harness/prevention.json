@@ -481,8 +481,8 @@
       "id": "streaming-download-resource-scope",
       "category": "backend",
       "appliesWhen": "Downloading arbitrary-size files from an HTTP provider; excludes explicitly bounded non-file payloads",
-      "instruction": "Accept a stream consumer, invoke it while the HTTP response remains open, and close HTTP resources on success or failure. Stream successful file content directly to its destination; buffer only bounded signatures or diagnostics, never the complete file.",
-      "reason": "Whole-file buffering risks unbounded memory use; escaped streams outlive their HTTP resources."
+      "instruction": "Accept a stream consumer, invoke it while the HTTP response remains open, and close HTTP resources on success or failure. Stream successful file content directly to its destination; buffer only bounded signatures or diagnostics, never the complete file. For Wise statement PDFs, pass successful HTTP bodies unchanged without PDF-signature inspection; preserve HTTP failure handling. This Wise policy does not prohibit required validation in other file workflows.",
+      "reason": "Whole-file buffering risks unbounded memory use; escaped streams outlive HTTP resources; unnecessary Wise signature checks reject otherwise accepted downloads."
     },
     {
       "id": "wise-statement-document-filename",
