@@ -72,6 +72,10 @@
       label: $t.value.documentsOverview.filters.usage.label(),
       options: [
         {
+          label: $t.value.documentsOverview.filters.usage.accountStatement(),
+          value: DocumentUsageFilterType.AccountStatement,
+        },
+        {
           label: $t.value.documentsOverview.filters.usage.expense(),
           value: DocumentUsageFilterType.Expense,
         },

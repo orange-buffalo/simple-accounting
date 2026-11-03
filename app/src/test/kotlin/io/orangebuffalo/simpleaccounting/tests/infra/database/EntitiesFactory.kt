@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.database
 
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementAttachment
 import java.math.BigDecimal
 
 import io.orangebuffalo.simpleaccounting.business.categories.Category
@@ -540,6 +541,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetCurrency: String? = null,
         exchangeRate: BigDecimal? = null,
         linkedInvoice: Invoice? = null,
+        title: String? = null,
+        attachments: Set<Document> = emptySet(),
     ): AccountStatementRecord = AccountStatementRecord(
         workspaceId = integration.workspaceId,
         provider = IntegrationProvider.WISE,
@@ -565,6 +568,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetCurrency = targetCurrency,
         exchangeRate = exchangeRate,
         linkedInvoiceId = linkedInvoice?.id,
+        title = title,
+        attachments = attachments.map { AccountStatementAttachment(it.id!!) }.toSet(),
     ).save()
 
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }

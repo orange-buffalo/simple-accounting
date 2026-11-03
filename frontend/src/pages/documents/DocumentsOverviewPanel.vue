@@ -233,6 +233,7 @@
   });
 
   const usageTypeToRouteMap: Record<DocumentUsageType, string> = {
+    ACCOUNT_STATEMENT: 'account-statements-overview',
     EXPENSE: 'edit-expense',
     INCOME: 'edit-income',
     INVOICE: 'edit-invoice',
@@ -241,6 +242,7 @@
   };
 
   const usageTypeToIconMap: Record<DocumentUsageType, string> = {
+    ACCOUNT_STATEMENT: 'account-statements',
     EXPENSE: 'expense',
     INCOME: 'income',
     INVOICE: 'invoices-overview',
@@ -252,6 +254,8 @@
 
   const usageLabel = (usageType: DocumentUsageType) => {
     switch (usageType) {
+    case 'ACCOUNT_STATEMENT':
+      return $t.value.documentsOverviewPanel.usage.accountStatement();
     case 'EXPENSE':
       return $t.value.documentsOverviewPanel.usage.expense();
     case 'INCOME':
@@ -269,7 +273,9 @@
     const routeName = usageTypeToRouteMap[usage.type];
     navigateToView({
       name: routeName,
-      params: { id: usage.relatedEntityId },
+      ...(usage.type === 'ACCOUNT_STATEMENT'
+        ? { query: { freeSearchText: usage.displayName } }
+        : { params: { id: usage.relatedEntityId } }),
     });
   };
 

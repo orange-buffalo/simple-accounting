@@ -34,6 +34,8 @@ export type AccountStatement = {
   additionalData?: Maybe<Scalars['String']['output']>;
   /** Absolute nonnegative transaction amount in currency minor units. */
   amountInCents: Scalars['Long']['output'];
+  /** Documents attached to this statement. */
+  attachments: Array<Document>;
   /** Time this record was imported. */
   createdAt: Scalars['DateTime']['output'];
   /** Transaction currency. */
@@ -74,6 +76,8 @@ export type AccountStatement = {
   targetAmountInCents?: Maybe<Scalars['Long']['output']>;
   /** Conversion target currency. */
   targetCurrency?: Maybe<Scalars['String']['output']>;
+  /** Provider's descriptive transaction title, when available. */
+  title?: Maybe<Scalars['String']['output']>;
   /** Transaction classification. */
   type: StatementType;
 };
@@ -387,6 +391,8 @@ export type DocumentUsage = {
 
 /** Usage type filter for documents. */
 export enum DocumentUsageFilterType {
+  /** Document is used by an account statement. */
+  AccountStatement = 'ACCOUNT_STATEMENT',
   /** Document is used by an expense. */
   Expense = 'EXPENSE',
   /** Document is used by an income. */
@@ -403,6 +409,8 @@ export enum DocumentUsageFilterType {
 
 /** Type of entity that uses a document. */
 export enum DocumentUsageType {
+  /** Document is used by an account statement. */
+  AccountStatement = 'ACCOUNT_STATEMENT',
   /** Document is used by an expense. */
   Expense = 'EXPENSE',
   /** Document is used by an income. */

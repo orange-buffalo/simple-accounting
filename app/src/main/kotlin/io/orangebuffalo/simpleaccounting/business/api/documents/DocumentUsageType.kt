@@ -6,6 +6,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 @GraphQLName("DocumentUsageType")
 @GraphQLDescription("Type of entity that uses a document.")
 enum class DocumentUsageType {
+    @GraphQLDescription("Document is used by an account statement.")
+    ACCOUNT_STATEMENT,
+
     @GraphQLDescription("Document is used by an expense.")
     EXPENSE,
 

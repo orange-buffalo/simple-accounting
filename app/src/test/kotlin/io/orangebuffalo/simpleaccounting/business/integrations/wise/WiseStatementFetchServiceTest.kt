@@ -4,6 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.documents.Document
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorageResetListener
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
@@ -37,14 +40,185 @@ import java.util.Base64
 import java.util.Random
 
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
-@TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class, TestDocumentsStorageResetListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class WiseStatementFetchServiceTest(
     @Autowired private val fetcher: WiseStatementFetchService,
     @Autowired private val service: WiseIntegrationService,
     @Autowired private val time: TimeService,
+    @Autowired private val storage: TestDocumentsStorage,
 ) : SaIntegrationTestBase() {
+
     private val dollars = WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")
     private val euros = WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")
+
+    @Nested
+    inner class StatementDocuments {
+        @Test
+        fun `should retain an earlier statement attachment when a later PDF download fails`() {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                ).also { integration ->
+                    accountStatementRecord(
+                        integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
+                        occurredAt = Instant.parse("1999-03-27T12:00:00Z"),
+                    )
+                    accountStatementRecord(
+                        integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-43"]""",
+                        occurredAt = Instant.parse("1999-03-27T15:00:00Z"),
+                    )
+                }
+            }
+            WiseApiMocks.setupStatement(transactions = "[]")
+            WiseApiMocks.setupStatementPdf()
+            val failedPdf = ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .atPriority(1)
+                .withQueryParam("intervalStart", equalTo("1999-03-27T14:00:00Z"))
+                .willReturn(aResponse().withStatus(503)))
+
+            fetcher.fetch(integration.id!!)
+
+            val records = aggregateTemplate.findAll<AccountStatementRecord>().sortedBy { it.occurredAt }
+            val earlierDocumentId = records[0].attachments.single().documentId
+            records[1].attachments.shouldBe(emptySet())
+            val document = aggregateTemplate.findAll<Document>().shouldBeSingle()
+            document.id.shouldBe(earlierDocumentId)
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(WiseApiMocks.STATEMENT_PDF)
+
+            ThirdPartyApisMocks.server.removeStub(failedPdf)
+            fetcher.fetch(integration.id)
+
+            val updated = aggregateTemplate.findAll<AccountStatementRecord>().sortedBy { it.occurredAt }
+            updated[0].attachments.single().documentId.shouldBe(earlierDocumentId)
+            updated[1].attachments.size.shouldBe(1)
+            aggregateTemplate.findAll<Document>().size.shouldBe(2)
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .withQueryParam("intervalStart", equalTo("1999-03-27T11:00:00Z")))
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        fun `should attach legacy PDFs to new and historical statements before invoice matching`(historical: Boolean) {
+            val setup = preconditions {
+                object {
+                    private val owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+                    private val workspace = workspace(owner = owner)
+                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                    val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                    init {
+                        if (historical) accountStatementRecord(
+                            integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
+                            occurredAt = Instant.parse("1990-01-01T00:15:00Z"), type = StatementType.CREDIT,
+                            additionalData = "Description: PE-3025-42",
+                        )
+                        accountStatementRecord(
+                            integration = integration, externalId = """["101","EUR","DEBIT","CARD-2"]""",
+                            attachments = setOf(document(workspace = workspace)),
+                        )
+                        accountStatementRecord()
+                    }
+                }
+            }
+            val date = if (historical) "1990-01-01T00:15:00Z" else "1999-03-27T12:00:00Z"
+            WiseApiMocks.setupStatement(transactions = if (historical) "[]" else """[{
+                "type":"CREDIT","date":"$date","referenceNumber":"TRANSFER-42",
+                "amount":{"value":1.25,"currency":"USD"},"details":{"description":"PE-3025-42"}
+            }]""")
+            WiseApiMocks.setupStatementPdf()
+
+            fetcher.fetch(setup.integration.id!!)
+            fetcher.fetch(setup.integration.id)
+
+            val record = aggregateTemplate.findAll<AccountStatementRecord>().single { it.type == StatementType.CREDIT }
+            record.linkedInvoiceId.shouldBe(setup.invoice.id)
+            val documentId = record.attachments.single().documentId
+            val document = aggregateTemplate.findById(documentId, Document::class.java)!!
+            document.shouldBeEntityWithFields(Document(
+                workspaceId = setup.integration.workspaceId, name = "Wise statement 101 301 USD $date.pdf",
+                timeUploaded = MOCK_TIME, storageId = TestDocumentsStorage.STORAGE_ID,
+                storageLocation = document.storageLocation, sizeInBytes = WiseApiMocks.STATEMENT_PDF.size.toLong(), mimeType = "application/pdf",
+            ))
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(WiseApiMocks.STATEMENT_PDF)
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .withHeader("Authorization", equalTo("Bearer ${WiseApiMocks.TOKEN}"))
+                .withQueryParam("currency", equalTo("USD"))
+                .withQueryParam("type", equalTo("COMPACT"))
+                .withQueryParam("intervalStart", equalTo(if (historical) "1989-12-31T23:15:00Z" else "1999-03-27T11:00:00Z"))
+                .withQueryParam("intervalEnd", equalTo(if (historical) "1990-01-01T01:15:00Z" else "1999-03-27T13:00:00Z")))
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = ["test-storage", "missing-storage"])
+        fun `should skip PDF fetching for absent or inactive configured storage`(storageId: String?) {
+            storage.setStorageStatus(false)
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = storageId)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                )
+            }
+            WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
+
+            fetcher.fetch(integration.id!!)
+
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.shouldBe(emptySet())
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
+            ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/v1/.*")))
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = [401, 403, 503])
+        fun `should not link failed PDF downloads and should retry transient failures`(status: Int) {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                )
+            }
+            WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
+            ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .willReturn(aResponse().withStatus(status).withBody("Slurm is not a PDF")))
+
+            fetcher.fetch(integration.id!!)
+
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.shouldBe(emptySet())
+            aggregateTemplate.findAll<Document>().shouldBe(emptyList())
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                .shouldBeEntityWithFields(integration.copy(
+                    authenticationRequired = status == 401 || status == 403,
+                    lastSuccessfulFetchTime = MOCK_TIME,
+                    accounts = setOf(dollars.copy(lastSuccessfulFetchTime = MOCK_TIME)),
+                ))
+            if (status == 503) {
+                WiseApiMocks.setupStatementPdf()
+                fetcher.fetch(integration.id)
+                aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.size.shouldBe(1)
+            }
+        }
+
+        @Test
+        fun `should store successful statement content without checking its signature`() {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                )
+            }
+            val content = "Planet Express statement\n%PDF-1.4\n%%EOF".toByteArray()
+            WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
+            ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .willReturn(aResponse().withStatus(200).withBody(content)))
+
+            fetcher.fetch(integration.id!!)
+
+            val document = aggregateTemplate.findAll<Document>().shouldBeSingle()
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.single()
+                .documentId.shouldBe(document.id)
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(content)
+        }
+    }
 
     @Nested
     inner class InvoiceLinking {
@@ -370,7 +544,7 @@ class WiseStatementFetchServiceTest(
         WiseApiMocks.setupStatement(transactions = """[{
             "type":"CREDIT","date":"1999-03-27T12:00:00Z","referenceNumber":"TRANSFER-42",
             "amount":{"value":42,"currency":"USD"},
-            "details":{"type":"CONVERSION","senderName":"Philip J. Fry","senderAccount":"Planet Express account",
+            "details":{"type":"CONVERSION","description":"Converted 1234 JPY to 12.345 KWD","senderName":"Philip J. Fry","senderAccount":"Planet Express account",
                 "sourceAmount":{"value":1234,"currency":"JPY"},"targetAmount":{"value":12.345,"currency":"KWD"},"rate":0.010004}
         }]""")
 
@@ -381,10 +555,31 @@ class WiseStatementFetchServiceTest(
             accountId = "301", accountCurrency = "USD", externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
             type = StatementType.CONVERSION, occurredAt = Instant.parse("1999-03-27T12:00:00Z"), amountInCents = 4200, currency = "USD",
             partyName = "Philip J. Fry",
-            additionalData = "Type: CONVERSION\nSender: Philip J. Fry\nSender account: Planet Express account",
+            title = "Converted 1234 JPY to 12.345 KWD",
+            additionalData = "Type: CONVERSION\nDescription: Converted 1234 JPY to 12.345 KWD\nSender: Philip J. Fry\nSender account: Planet Express account",
             sourceAmountInCents = 1234, sourceCurrency = "JPY", targetAmountInCents = 12345, targetCurrency = "KWD",
             exchangeRate = BigDecimal("0.010004"),
         ))
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = ["", "   "])
+    fun `should retain conversion fallback fields when description is blank`(description: String?) {
+        val integration = preconditions { wiseIntegrationSettings(token = WiseApiMocks.TOKEN, accounts = setOf(dollars)) }
+        val wireDescription = if (description == null) "null" else "\"$description\""
+        WiseApiMocks.setupStatement(transactions = """[{
+            "type":"CREDIT","date":"1999-03-27T12:00:00Z","referenceNumber":"CONVERSION_ORDER-42",
+            "amount":{"value":42,"currency":"USD"},
+            "details":{"type":"CONVERSION","description":$wireDescription,"senderName":"Philip J. Fry"}
+        }]""")
+
+        fetcher.fetch(integration.id!!)
+
+        val record = aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle()
+        record.title.shouldBe(null)
+        record.partyName.shouldBe("Philip J. Fry")
+        record.externalId.shouldBe("""["101","USD","CREDIT","CONVERSION_ORDER-42"]""")
     }
 
     @Test

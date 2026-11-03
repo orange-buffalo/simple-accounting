@@ -13,6 +13,7 @@
 
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import AccountStatementPanel from './AccountStatementPanel.vue';
@@ -30,8 +31,10 @@
     dateRange: [string, string] | null,
   };
   const { currentWorkspaceId } = useCurrentWorkspace();
+  const route = useRoute();
   const overviewFilters = ref(createOverviewFilters<StatementFilters>({
-    freeSearchText: null, providerIn: null, dateRange: null,
+    freeSearchText: typeof route.query.freeSearchText === 'string' ? route.query.freeSearchText : null,
+    providerIn: null, dateRange: null,
   }));
   const filters = computed(() => ({
     freeSearchText: { type: 'text', label: $t.value.accountStatements.search() },
@@ -63,11 +66,12 @@
           edges {
             cursor
             node {
-              id provider accountId accountCurrency externalId type occurredAt
+              id title provider accountId accountCurrency externalId type occurredAt
               amountInCents currency partyName feesInCents feesCurrency runningBalanceInCents
               runningBalanceCurrency additionalData originalAmountInCents originalCurrency
               sourceAmountInCents sourceCurrency targetAmountInCents targetCurrency exchangeRate createdAt
               linkedInvoice { id invoiceNumber }
+              attachments { ...DocumentData }
             }
           }
           pageInfo { ...PaginationPageInfo }

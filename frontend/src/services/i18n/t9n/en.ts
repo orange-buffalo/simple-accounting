@@ -3,6 +3,7 @@ import { format } from './formatter';
 
 export default {
   accountStatements: {
+    attachments: () => 'Attachments',
     header: () => 'Account statements',
     search: () => 'Search transactions',
     dateRange: () => 'Transaction dates',
@@ -473,6 +474,7 @@ export default {
         income: () => 'Income',
         invoice: () => 'Invoice',
         incomeTaxPayment: () => 'Income Tax Payment',
+        accountStatement: () => 'Account statement',
         standaloneDocument: () => 'Standalone Document',
         unused: () => 'Unused',
       },
@@ -519,6 +521,7 @@ export default {
       income: () => 'Income',
       invoice: () => 'Invoice',
       incomeTaxPayment: () => 'Income Tax Payment',
+      accountStatement: () => 'Account statement',
       standaloneDocument: () => 'Standalone Document',
       navigateTooltip: (usageType: string) => `Click to navigate to the ${usageType}`,
     },

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.ui.user.documents
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldHaveSize
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
@@ -8,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationD
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewFilters.Companion.overviewFilters
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
@@ -17,6 +19,11 @@ class DocumentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
     val pageItems = components.overviewItems()
     val filters = components.overviewFilters()
     val uploadButton = components.buttonByText("Upload")
+
+    fun document(name: String): SaOverviewItem {
+        pageItems.shouldHaveDataSatisfying { items -> items.filter { it.title == name }.shouldHaveSize(1) }
+        return pageItems.shouldHaveItemSatisfying { it.title == name }.also { it.shouldBeSingle() }
+    }
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()

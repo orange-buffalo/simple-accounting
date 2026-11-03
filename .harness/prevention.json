@@ -222,8 +222,8 @@
       "id": "lazy-graphql-fields",
       "category": "backend",
       "appliesWhen": "GraphQL fields requiring additional computation or database access",
-      "instruction": "Defer work to the selected resolver boundary. When sibling metadata fields share one backing record, load it once with authorization in their nearest selected parent resolver and derive siblings from that object. Keep outer namespace construction lightweight and independently expensive children lazy.",
-      "reason": "Field laziness must not multiply shared reads or eagerly resolve unselected providers."
+      "instruction": "Defer work to the selected resolver boundary. When sibling metadata fields share one backing record, load it once with authorization in their nearest selected parent resolver and derive siblings from that object. Keep outer namespace construction lightweight and independently expensive children lazy. For established attachment DTOs, follow the invoice pattern: ignored attachmentIds populated by batch pagination postProcess and documents resolved through the existing loader; do not introduce a separate attachment-ID resolver/loader merely for laziness.",
+      "reason": "Laziness must not multiply reads or override an established attachment metadata contract."
     },
     {
       "id": "workspace-page-lifecycle",
@@ -469,6 +469,41 @@
       "appliesWhen": "Component-wrapper reads or assertions temporarily open an editor or popup; excludes explicit interaction, mutation and open/close methods",
       "instruction": "Encapsulate temporary opening, reading and cleanup in the wrapper. Restore the previously open editor or original closed state in finally so callers need no cleanup; apply the contract to analogous read helpers.",
       "reason": "Observational helpers should not leave incidental UI state changes for callers to repair."
+    },
+    {
+      "id": "statement-document-transactions",
+      "category": "backend",
+      "appliesWhen": "Downloading and attaching provider statement documents",
+      "instruction": "Commit statement import before document processing. Save each document's database metadata and statement attachment together in an independent transaction so later download failure preserves earlier commits. Keep locks inside explicit transaction boundaries. Do not add external-storage rollback compensation or claim database transactions guarantee cross-system consistency; separately requested reconciliation remains a distinct design.",
+      "reason": "A batch-wide rollback loses completed attachments, while external storage does not share database atomicity."
+    },
+    {
+      "id": "streaming-download-resource-scope",
+      "category": "backend",
+      "appliesWhen": "Downloading arbitrary-size files from an HTTP provider; excludes explicitly bounded non-file payloads",
+      "instruction": "Accept a stream consumer, invoke it while the HTTP response remains open, and close HTTP resources on success or failure. Stream successful file content directly to its destination; buffer only bounded signatures or diagnostics, never the complete file. For Wise statement PDFs, pass successful HTTP bodies unchanged without PDF-signature inspection; preserve HTTP failure handling. This Wise policy does not prohibit required validation in other file workflows.",
+      "reason": "Whole-file buffering risks unbounded memory use; escaped streams outlive HTTP resources; unnecessary Wise signature checks reject otherwise accepted downloads."
+    },
+    {
+      "id": "wise-statement-document-filename",
+      "category": "backend",
+      "appliesWhen": "Naming downloaded Wise statement PDFs",
+      "instruction": "Use Wise statement <profileId> <accountId> <accountCurrency> <occurredAt>.pdf, deriving provider identity inside the Wise adapter and asserting the expected name independently.",
+      "reason": "Stable provider context and transaction time make statement documents identifiable."
+    },
+    {
+      "id": "document-download-workflow-coverage",
+      "category": "testing",
+      "appliesWhen": "Adding document attachments to an owning page",
+      "instruction": "Cover attachment download in the page's Kotlin full-stack tests using factory-owned metadata, existing shared TestDocumentsStorage and component wrappers; assert exact downloaded bytes rather than only rendered attachment metadata.",
+      "reason": "Visible attachment metadata does not prove the download path works."
+    },
+    {
+      "id": "shared-spring-test-context",
+      "category": "testing",
+      "appliesWhen": "Adding or changing Spring integration or full-stack tests",
+      "instruction": "Preserve shared test-context configuration; do not add test-local mock/spy bean overrides. Inject existing shared test implementations and configure external provider stubs through established facilities.",
+      "reason": "Per-test bean overrides fragment Spring context caching and introduce implementation-coupled tests."
     }
   ]
 }

@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewFil
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaDocumentsList
 
 class AccountStatementsOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Account statements")
@@ -24,6 +25,8 @@ class AccountStatementsOverviewPage private constructor(page: Page) : SaPageBase
     fun shouldHaveTypeBadge(title: String, status: String) {
         statement(title).middleColumnStatusLabel.shouldBeIconlessBadge(status)
     }
+
+    fun attachments(title: String): SaDocumentsList = SaDocumentsList.byContainer(statement(title).openDetails())
 
     companion object {
         fun Page.shouldBeAccountStatementsOverviewPage(spec: AccountStatementsOverviewPage.() -> Unit = {}) {

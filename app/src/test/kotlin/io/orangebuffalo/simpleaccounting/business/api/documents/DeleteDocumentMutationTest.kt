@@ -13,6 +13,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 
 private const val DELETE_DOCUMENT_MUTATION = "deleteDocument"
@@ -105,8 +107,9 @@ class DeleteDocumentMutationTest(
             testDocumentsStorage.hasUploadedContent("slurm-supplies-receipt").shouldBe(false)
         }
 
-        @Test
-        fun `should return DOCUMENT_IS_USED error when document is attached`() {
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        fun `should return DOCUMENT_IS_USED error when document is attached`(accountStatement: Boolean) {
             val testData = preconditions {
                 object {
                     val document = document(
@@ -114,7 +117,10 @@ class DeleteDocumentMutationTest(
                         name = "Planet Express equipment receipt",
                         storageLocation = "planet-express-equipment-receipt",
                     ).also { document ->
-                        expense(
+                        if (accountStatement) accountStatementRecord(
+                            integration = wiseIntegrationSettings(workspace = preconditions.fryWorkspace),
+                            attachments = setOf(document),
+                        ) else expense(
                             workspace = preconditions.fryWorkspace,
                             title = "Planet Express equipment",
                             attachments = setOf(document),

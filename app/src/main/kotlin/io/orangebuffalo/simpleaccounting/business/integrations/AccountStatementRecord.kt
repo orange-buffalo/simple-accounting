@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.integrations
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import java.math.BigDecimal
@@ -35,6 +36,9 @@ data class AccountStatementRecord(
     val targetCurrency: String? = null,
     val exchangeRate: BigDecimal? = null,
     val linkedInvoiceId: String? = null,
+    val title: String? = null,
+    @field:MappedCollection(idColumn = "account_statement_id")
+    val attachments: Set<AccountStatementAttachment> = emptySet(),
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
@@ -46,9 +50,21 @@ data class AccountStatementRecord(
 
 enum class IntegrationProvider { WISE }
 
+@Table("account_statement_attachments")
+data class AccountStatementAttachment(val documentId: String)
+
 enum class StatementType { DEBIT, CREDIT, CONVERSION, OTHER }
 
 interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountStatementRecord> {
+    @Query("""
+        select r.* from account_statement_record r
+        where r.workspace_id = :workspaceId and r.provider = :provider
+          and r.integration_id = :integrationId
+          and not exists (select 1 from account_statement_attachments a where a.account_statement_id = r.id)
+        order by r.occurred_at, r.id
+    """)
+    fun findWithoutDocuments(workspaceId: String, provider: String, integrationId: String): List<AccountStatementRecord>
+
     fun findByWorkspaceIdAndLinkedInvoiceIdIsNullAndType(workspaceId: String, type: StatementType): List<AccountStatementRecord>
 
     @Modifying
