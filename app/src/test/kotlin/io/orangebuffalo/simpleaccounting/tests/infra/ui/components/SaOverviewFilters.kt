@@ -116,6 +116,7 @@ class SaOverviewFilters private constructor(
         val inputs = editor.locator(".el-range-input")
         inputs.shouldHaveCount(2)
         inputs.nth(0).fill(from)
+        inputs.nth(0).press("Tab")
         inputs.nth(1).fill(to)
         inputs.nth(1).press("Enter")
         return this
