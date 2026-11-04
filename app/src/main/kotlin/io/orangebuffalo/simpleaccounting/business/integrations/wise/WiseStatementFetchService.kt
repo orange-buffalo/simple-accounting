@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementR
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementAttachment
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocumentsRepository
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
@@ -25,6 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
+import java.time.YearMonth
 
 @Service
 class WiseStatementFetchService internal constructor(
@@ -34,6 +37,7 @@ class WiseStatementFetchService internal constructor(
     private val time: TimeService,
     private val invoiceLinking: AccountStatementInvoiceLinkingService,
     private val documents: DocumentsService,
+    private val standaloneDocuments: StandaloneDocumentsRepository,
     private val workspaces: WorkspacesService,
     private val users: PlatformUsersService,
     transactionManager: PlatformTransactionManager,
@@ -86,6 +90,7 @@ class WiseStatementFetchService internal constructor(
                     "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
                 }
                 attachMissingDocuments(integrationId)
+                fetchMonthlyStatements(integrationId)
                 val matching = inIntegrationTransaction(integrationId = integrationId) { invoiceLinking.linkInvoices(it.workspaceId) }
                     ?: InvoiceMatchingResult()
                 logger.info {
@@ -214,6 +219,38 @@ class WiseStatementFetchService internal constructor(
             logger.info {
                 "Wise account statement fetch finished: $context, outcome=$outcome, completedWindows=$windows, fetchedRecords=$fetched, " +
                     "committed=false, elapsedMs=${elapsedMillis(started)}"
+            }
+        }
+    }
+
+    private fun fetchMonthlyStatements(integrationId: String) {
+        val integration = settings.findByIdOrNull(integrationId) ?: return
+        if (!integration.fetchMonthlyStatements) return
+        val workspace = workspaces.getWorkspace(integration.workspaceId)
+        val owner = users.getUserByUserId(workspace.ownerId)
+        val month = YearMonth.from(time.currentTime().atZone(ZoneOffset.UTC)).minusMonths(1)
+        runAs(owner.toSecurityPrincipal()) {
+            if (!documents.getCurrentUserStorageStatus().active) return@runAs
+            integration.accounts.forEach { account ->
+                val title = "Wise Monthly Statement for account ${account.currency} ${account.accountId} " +
+                    "${month.atDay(1)}_${month.atEndOfMonth()}"
+                val saved = inIntegrationTransaction(integrationId = integrationId) { current ->
+                    if (!current.fetchTransactionsPeriodically || !current.fetchMonthlyStatements || current.authenticationRequired ||
+                        current.accounts.none { it.profileId == account.profileId && it.accountId == account.accountId && it.currency == account.currency } ||
+                        !documents.getCurrentUserStorageStatus().active ||
+                        standaloneDocuments.existsByWorkspaceIdAndTitle(workspaceId = current.workspaceId, title = title)
+                    ) return@inIntegrationTransaction false
+                    client.getMonthlyStatementPdf(settings = current, account = account, month = month) { content ->
+                        val document = documents.saveDocument(SaveDocumentRequest(
+                            fileName = "$title.pdf", content = inputStreamProvider { content }, workspace = workspace, contentType = "application/pdf",
+                        ))
+                        standaloneDocuments.save(StandaloneDocument(title = title, documentId = document.id!!))
+                    }
+                    true
+                }
+                if (saved == true) logger.info {
+                    "Wise monthly statement document committed: integration=$integrationId, account=${account.accountId}, currency=${account.currency}, month=$month"
+                }
             }
         }
     }

@@ -1417,6 +1417,7 @@ export type MutationSaveSharedWorkspaceArgs = {
 
 export type MutationSaveWiseIntegrationSettingsArgs = {
   accounts: Array<WiseAccountInput>;
+  fetchMonthlyStatements: Scalars['Boolean']['input'];
   fetchTransactionsPeriodically?: InputMaybe<Scalars['Boolean']['input']>;
   token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
@@ -1946,6 +1947,8 @@ export type WiseIntegrationGqlDto = {
   active: Scalars['Boolean']['output'];
   /** Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again. */
   authenticationRequired: Scalars['Boolean']['output'];
+  /** Whether previous-month PDF statements are saved as standalone documents. True by default before setup. */
+  fetchMonthlyStatements: Scalars['Boolean']['output'];
   /** Whether automatic transaction fetching is enabled. True by default before setup. */
   fetchTransactionsPeriodically: Scalars['Boolean']['output'];
   /** The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch. */

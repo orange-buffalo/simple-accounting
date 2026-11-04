@@ -19,7 +19,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchSectionByLabel
 
 class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Setup Wise integration")
@@ -35,8 +35,8 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class Configuration(components: ComponentsAccessors) {
-        val fetchTransactions = components.switchByContainer(components.page.getByRole(AriaRole.REGION,
-            Page.GetByRoleOptions().setName("Configuration").setExact(true)))
+        val fetchTransactions = components.switchSectionByLabel("Fetch transactions automatically")
+        val fetchMonthlyStatements = components.switchSectionByLabel("Fetch monthly statements as PDFs")
     }
 
     companion object {

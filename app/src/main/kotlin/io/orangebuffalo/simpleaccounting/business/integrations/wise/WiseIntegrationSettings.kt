@@ -12,6 +12,7 @@ data class WiseIntegrationSettings(
     @field:MappedCollection(idColumn = "settings_id")
     val accounts: Set<WiseIntegrationAccount>,
     val fetchTransactionsPeriodically: Boolean = true,
+    val fetchMonthlyStatements: Boolean = true,
     val lastSuccessfulFetchTime: Instant? = null,
     val authenticationRequired: Boolean = false,
     override val id: String? = null,

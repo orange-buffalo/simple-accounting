@@ -21,6 +21,8 @@ import java.io.InputStream
 import java.net.http.HttpClient
 import java.time.Duration
 import java.time.Instant
+import java.time.YearMonth
+import java.time.ZoneOffset
 import java.time.DateTimeException
 import java.util.Currency
 
@@ -129,15 +131,32 @@ internal class WiseApiClient(
         val path = "/v1/profiles/$profileId/balance-statements/$accountId/statement.pdf" +
             "?currency=${record.accountCurrency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
         val fileName = "Wise statement $profileId $accountId ${record.accountCurrency} ${record.occurredAt}.pdf"
-        request(path = path, token = settings.token) { request ->
+        downloadPdf(path = path, token = settings.token) { consume(fileName, it) }
+    }
+
+    fun getMonthlyStatementPdf(
+        settings: WiseIntegrationSettings,
+        account: WiseIntegrationAccount,
+        month: YearMonth,
+        consume: (InputStream) -> Unit,
+    ) {
+        val start = month.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+        val end = month.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusMillis(1)
+        val path = "/v1/profiles/${account.profileId}/balance-statements/${account.accountId}/statement.pdf" +
+            "?currency=${account.currency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
+        downloadPdf(path = path, token = settings.token, consume = consume)
+    }
+
+    private fun downloadPdf(path: String, token: String, consume: (InputStream) -> Unit) {
+        request(path = path, token = token) { request ->
             request.exchange { _, response ->
                 if (!response.statusCode.is2xxSuccessful) {
                     failResponse(
-                        endpoint = path, token = settings.token, status = response.statusCode.value(),
+                        endpoint = path, token = token, status = response.statusCode.value(),
                         headers = response.headers, body = response.body.readNBytes(4096).toString(Charsets.UTF_8),
                     )
                 }
-                consume(fileName, response.body)
+                consume(response.body)
             }
         }
     }

@@ -57,6 +57,7 @@
             <SaForm v-model="preferences" :on-submit="save" hide-buttons class="integration-wizard__form">
               <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
               <p class="wise-configuration__hint">{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
+              <SaFormSwitchSection prop="fetchMonthlyStatements" :label="$t.integrations.wise.fetchMonthlyStatements()" />
             </SaForm>
           </section>
         </div>
@@ -111,21 +112,25 @@
   const saveSettings = useMutation(graphql(/* GraphQL */ `
     mutation saveWiseIntegrationSettings(
       $workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!, $fetchTransactionsPeriodically: Boolean!
+      $fetchMonthlyStatements: Boolean!
     ) {
       saveWiseIntegrationSettings(
         workspaceId: $workspaceId, token: $token, accounts: $accounts,
         fetchTransactionsPeriodically: $fetchTransactionsPeriodically
+        fetchMonthlyStatements: $fetchMonthlyStatements
       ) { success }
     }
   `), 'saveWiseIntegrationSettings');
   const [initializing, configuration] = useQuery(graphql(/* GraphQL */ `
     query wiseConfiguration($workspaceId: String!) {
-      workspace(id: $workspaceId) { integrations { wise { active fetchTransactionsPeriodically } } }
+      workspace(id: $workspaceId) {
+        integrations { wise { active fetchTransactionsPeriodically fetchMonthlyStatements } }
+      }
     }
   `), 'workspace', { variables: { workspaceId } });
   type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
-  const preferences = ref({ fetchTransactionsPeriodically: true });
+  const preferences = ref({ fetchTransactionsPeriodically: true, fetchMonthlyStatements: true });
   const steps = { TOKEN_INPUT: 'token', ACCOUNT_SELECTION: 'accounts', ACTIVATION: 'activation' } as const;
   type WiseStep = typeof steps[keyof typeof steps];
   const step = ref<WiseStep>(steps.TOKEN_INPUT);
@@ -135,6 +140,7 @@
   const busy = ref(false);
   const saved = ref(false);
   watch(() => preferences.value.fetchTransactionsPeriodically, () => { saved.value = false; });
+  watch(() => preferences.value.fetchMonthlyStatements, () => { saved.value = false; });
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const accounts = ref<Account[]>([]);
   const profiles = computed(() => {
@@ -218,6 +224,7 @@
       const result = await saveSettings({
         workspaceId, token: verifiedToken.value,
         fetchTransactionsPeriodically: preferences.value.fetchTransactionsPeriodically,
+        fetchMonthlyStatements: preferences.value.fetchMonthlyStatements,
         accounts: accounts.value.filter(account => !account.deleted && selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
       });
@@ -269,6 +276,7 @@
     if (!workspace) return;
     configured.value = workspace.integrations.wise.active;
     preferences.value.fetchTransactionsPeriodically = workspace.integrations.wise.fetchTransactionsPeriodically;
+    preferences.value.fetchMonthlyStatements = workspace.integrations.wise.fetchMonthlyStatements;
     if (configured.value) await verify();
   });
 </script>

@@ -14,6 +14,12 @@ class StandaloneDocumentsRepositoryExtImpl(
     private val standaloneDocument = Tables.STANDALONE_DOCUMENT
     private val document = Tables.DOCUMENT
 
+    override fun existsByWorkspaceIdAndTitle(workspaceId: String, title: String): Boolean = dslContext.fetchExists(
+        dslContext.selectOne().from(standaloneDocument)
+            .join(document).on(document.id.eq(standaloneDocument.documentId))
+            .where(document.workspaceId.eq(workspaceId), standaloneDocument.title.eq(title))
+    )
+
     override fun findByIdAndWorkspaceId(id: String, workspaceId: String): StandaloneDocument? = dslContext
         .select(standaloneDocument.fields().toList())
         .from(standaloneDocument)

@@ -105,12 +105,15 @@ class IntegrationsGqlApi {
             @Valid @Size(min = 1) accounts: List<WiseAccountInput>,
             @GraphQLDescription("Whether selected accounts should be fetched automatically every four hours. A supplied value is saved; null or omission saves true.")
             fetchTransactionsPeriodically: Boolean? = null,
+            @GraphQLDescription("Whether to download the previous UTC calendar month's PDF statement for every selected account as a standalone document during automatic fetching. A value is required and saved.")
+            fetchMonthlyStatements: Boolean,
         ): WiseSettingsSaveResult {
             wise.setup(
                 workspaceId = workspaceId,
                 token = token,
                 accounts = accounts.map { WiseAccountSelection(profileId = it.profileId, accountId = it.accountId, currency = it.currency) },
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically ?: true,
+                fetchMonthlyStatements = fetchMonthlyStatements,
             )
             return WiseSettingsSaveResult(success = true)
         }
@@ -157,6 +160,9 @@ class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
 
     @GraphQLDescription("Whether automatic transaction fetching is enabled. True by default before setup.")
     val fetchTransactionsPeriodically: Boolean = settings?.fetchTransactionsPeriodically ?: true
+
+    @GraphQLDescription("Whether previous-month PDF statements are saved as standalone documents. True by default before setup.")
+    val fetchMonthlyStatements: Boolean = settings?.fetchMonthlyStatements ?: true
 
     @GraphQLDescription("Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again.")
     val authenticationRequired: Boolean = settings?.authenticationRequired ?: false
