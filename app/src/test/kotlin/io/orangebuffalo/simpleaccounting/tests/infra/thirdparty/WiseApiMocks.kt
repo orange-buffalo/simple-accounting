@@ -132,6 +132,10 @@ object WiseApiMocks {
         ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/.*/balance-statements/.*")))
     }
 
+    fun shouldHaveNoTransactionStatementRequests() {
+        ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/.*/balance-statements/.*/statement\\.json")))
+    }
+
     fun shouldHaveStatementRequests(accountId: Long = 301, count: Int) {
         ThirdPartyApisMocks.server.verify(count, getRequestedFor(urlPathEqualTo("/wise/2026Q4/profiles/101/balance-statements/$accountId/statement.json")))
     }

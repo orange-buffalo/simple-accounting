@@ -224,6 +224,61 @@ class WiseStatementFetchServiceTest(
     @Nested
     inner class MonthlyStatements {
         @ParameterizedTest
+        @ValueSource(booleans = [true, false])
+        fun `should download monthly statements without fetching or processing transactions`(scheduled: Boolean) {
+            val data = preconditions {
+                val workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID))
+                invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125, currency = "USD")
+                object {
+                    val integration = wiseIntegrationSettings(
+                        workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars), fetchTransactionsPeriodically = false,
+                    )
+                    val statement = accountStatementRecord(
+                        integration = integration, type = StatementType.CREDIT, amountInCents = 125, currency = "USD",
+                        additionalData = "Description: PE-3025-42",
+                    )
+                }
+            }
+            WiseApiMocks.setupStatementPdf()
+
+            repeat(2) {
+                if (scheduled) fetcher.fetchStatements() else fetcher.fetch(data.integration.id!!)
+            }
+
+            aggregateTemplate.findAll<StandaloneDocument>().shouldBeSingle().title
+                .shouldBe("Wise Monthly Statement for account USD 301 1999-02-01_1999-02-28")
+            val document = aggregateTemplate.findAll<Document>().shouldBeSingle()
+            storage.getUploadedContent(document.storageLocation!!).shouldBe(WiseApiMocks.STATEMENT_PDF)
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(data.integration)
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(data.statement)
+            WiseApiMocks.shouldHaveNoTransactionStatementRequests()
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = [401, 403, 503])
+        fun `should handle monthly only failures without changing transaction checkpoints`(status: Int) {
+            val integration = preconditions {
+                wiseIntegrationSettings(
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    token = WiseApiMocks.TOKEN, accounts = setOf(dollars.copy(lastSuccessfulFetchTime = MOCK_TIME)),
+                    fetchTransactionsPeriodically = false, lastSuccessfulFetchTime = MOCK_TIME,
+                )
+            }
+            ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH))
+                .willReturn(aResponse().withStatus(status)))
+
+            fetcher.fetchStatements()
+
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
+                .shouldBeEntityWithFields(integration.copy(authenticationRequired = status != 503))
+            aggregateTemplate.findAll<StandaloneDocument>().shouldBe(emptyList())
+            aggregateTemplate.findAll<Document>().shouldBe(emptyList())
+            WiseApiMocks.shouldHaveNoTransactionStatementRequests()
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
+        }
+
+        @ParameterizedTest
         @CsvSource(
             "1999-03-28T23:01:02.042Z,1999-02-01,1999-02-28",
             "1996-03-01T00:00:00Z,1996-02-01,1996-02-29",
@@ -307,18 +362,25 @@ class WiseStatementFetchServiceTest(
 
             aggregateTemplate.findAll<StandaloneDocument>().shouldBe(emptyList())
             ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/v1/.*")))
+            ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(statementPath())))
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(integration.copy(
+                lastSuccessfulFetchTime = MOCK_TIME, accounts = setOf(dollars.copy(lastSuccessfulFetchTime = MOCK_TIME)),
+            ))
         }
 
         @ParameterizedTest
         @ValueSource(ints = [401, 403, 503])
         fun `should preserve earlier monthly documents and retry failed downloads`(status: Int) {
-            val integration = preconditions {
-                wiseIntegrationSettings(
-                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
-                    token = WiseApiMocks.TOKEN, accounts = linkedSetOf(dollars, euros),
-                )
-            }
-            WiseApiMocks.setupStatement(transactions = "[${transaction()}]")
+            val data = preconditions { object {
+                private val workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID))
+                val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = linkedSetOf(dollars, euros))
+                val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125, currency = "USD")
+            } }
+            val integration = data.integration
+            WiseApiMocks.setupStatement(transactions = """[{
+                "type":"CREDIT","date":"1999-03-27T12:00:00Z","referenceNumber":"TRANSFER-42",
+                "amount":{"value":1.25,"currency":"USD"},"details":{"description":"PE-3025-42"}
+            }]""")
             WiseApiMocks.setupStatement(accountId = 302)
             WiseApiMocks.setupStatementPdf()
             ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo("/wise/v1/profiles/101/balance-statements/302/statement.pdf"))
@@ -330,6 +392,7 @@ class WiseStatementFetchServiceTest(
                 .shouldBe("Wise Monthly Statement for account USD 301 1999-02-01_1999-02-28")
             aggregateTemplate.findAll<Document>().size.shouldBe(2)
             aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().attachments.size.shouldBe(1)
+            aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().linkedInvoiceId.shouldBe(data.invoice.id)
             aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
                 .shouldBeEntityWithFields(integration.copy(
                     authenticationRequired = status != 503,
@@ -918,7 +981,7 @@ class WiseStatementFetchServiceTest(
     @Test
     fun `should ignore ineligible and missing integrations when fetching a single integration`() {
         val integrations = preconditions { listOf(
-            wiseIntegrationSettings(fetchTransactionsPeriodically = false, accounts = setOf(dollars)),
+            wiseIntegrationSettings(fetchTransactionsPeriodically = false, fetchMonthlyStatements = false, accounts = setOf(dollars)),
             wiseIntegrationSettings(authenticationRequired = true, accounts = setOf(dollars)),
             wiseIntegrationSettings(accounts = emptySet()),
         ) }
@@ -935,7 +998,7 @@ class WiseStatementFetchServiceTest(
     @Test
     fun `should skip disabled and authentication required integrations and continue after provider failures`() {
         preconditions {
-            wiseIntegrationSettings(fetchTransactionsPeriodically = false, accounts = setOf(dollars))
+            wiseIntegrationSettings(fetchTransactionsPeriodically = false, fetchMonthlyStatements = false, accounts = setOf(dollars))
             wiseIntegrationSettings(authenticationRequired = true, accounts = setOf(dollars))
             wiseIntegrationSettings(token = WiseApiMocks.TOKEN, accounts = setOf(euros))
             wiseIntegrationSettings(token = WiseApiMocks.TOKEN, accounts = setOf(dollars))

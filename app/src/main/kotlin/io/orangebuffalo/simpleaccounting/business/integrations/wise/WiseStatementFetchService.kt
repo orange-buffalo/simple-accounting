@@ -55,7 +55,7 @@ class WiseStatementFetchService internal constructor(
         var completed = false
         logger.info { "Wise scheduled statement fetching started" }
         try {
-            val integrations = settings.findAllByFetchTransactionsPeriodicallyTrueAndAuthenticationRequiredFalse()
+            val integrations = settings.findAllWithAutomaticFetchingEnabled()
             selected = integrations.size
             logger.info { "Wise scheduled statement fetching selected $selected integrations" }
             integrations.forEach { integration ->
@@ -85,21 +85,25 @@ class WiseStatementFetchService internal constructor(
                 ?: FetchResult(FetchOutcome.MISSING)
             outcome = result.outcome
             if (outcome == FetchOutcome.SUCCESS) {
-                logger.info {
-                    "Wise statement import committed: integration=$integrationId, fetchedRecords=${result.fetched}, " +
-                    "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
+                if (result.transactionsFetched) {
+                    logger.info {
+                        "Wise statement import committed: integration=$integrationId, fetchedRecords=${result.fetched}, " +
+                            "importedRecords=${result.imported}, duplicateRecords=${result.fetched - result.imported}"
+                    }
+                    attachMissingDocuments(integrationId)
                 }
-                attachMissingDocuments(integrationId)
+                if (result.transactionsFetched) {
+                    val matching = inIntegrationTransaction(integrationId = integrationId) { invoiceLinking.linkInvoices(it.workspaceId) }
+                        ?: InvoiceMatchingResult()
+                    logger.info {
+                        "Wise statement invoice matching committed: integration=$integrationId, checked=${matching.checked}, " +
+                            "linkedInvoices=${matching.links.size}, ambiguousInvoiceMatches=${matching.ambiguous}"
+                    }
+                    matching.links.forEach { link ->
+                        logger.info { "Wise statement invoice link committed: integration=$integrationId, statement=${link.statementId}, invoice=${link.invoiceId}" }
+                    }
+                }
                 fetchMonthlyStatements(integrationId)
-                val matching = inIntegrationTransaction(integrationId = integrationId) { invoiceLinking.linkInvoices(it.workspaceId) }
-                    ?: InvoiceMatchingResult()
-                logger.info {
-                    "Wise statement invoice matching committed: integration=$integrationId, checked=${matching.checked}, " +
-                        "linkedInvoices=${matching.links.size}, ambiguousInvoiceMatches=${matching.ambiguous}"
-                }
-                matching.links.forEach { link ->
-                    logger.info { "Wise statement invoice link committed: integration=$integrationId, statement=${link.statementId}, invoice=${link.invoiceId}" }
-                }
             }
         } catch (_: WiseInvalidTokenException) {
             outcome = FetchOutcome.AUTHENTICATION_REQUIRED
@@ -143,9 +147,10 @@ class WiseStatementFetchService internal constructor(
     private fun fetchInTransaction(integration: WiseIntegrationSettings): FetchResult {
         // Serializes fetches and setup changes across application instances, including their checkpoints.
         val integrationId = integration.id!!
-        if (!integration.fetchTransactionsPeriodically) return FetchResult(FetchOutcome.DISABLED)
+        if (!integration.fetchTransactionsPeriodically && !integration.fetchMonthlyStatements) return FetchResult(FetchOutcome.DISABLED)
         if (integration.authenticationRequired) return FetchResult(FetchOutcome.AUTHENTICATION_REQUIRED)
         if (integration.accounts.isEmpty()) return FetchResult(FetchOutcome.NO_ACCOUNTS)
+        if (!integration.fetchTransactionsPeriodically) return FetchResult(FetchOutcome.SUCCESS)
         logger.info { "Wise statement fetch processing integration=$integrationId, selectedAccounts=${integration.accounts.size}" }
         val end = time.currentTime()
         val fetched = integration.accounts.flatMap { account ->
@@ -165,7 +170,7 @@ class WiseStatementFetchService internal constructor(
             lastSuccessfulFetchTime = end,
             accounts = integration.accounts.map { it.copy(lastSuccessfulFetchTime = end) }.toSet(),
         ))
-        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported)
+        return FetchResult(outcome = FetchOutcome.SUCCESS, fetched = fetched.size, imported = imported, transactionsFetched = true)
     }
 
     private fun attachMissingDocuments(integrationId: String) {
@@ -230,7 +235,7 @@ class WiseStatementFetchService internal constructor(
 
     private fun fetchMonthlyStatements(integrationId: String) {
         val integration = settings.findByIdOrNull(integrationId) ?: return
-        if (!integration.fetchTransactionsPeriodically || !integration.fetchMonthlyStatements || integration.authenticationRequired) return
+        if (!integration.fetchMonthlyStatements || integration.authenticationRequired) return
         val workspace = workspaces.getWorkspace(integration.workspaceId)
         val owner = users.getUserByUserId(workspace.ownerId)
         val month = YearMonth.from(time.currentTime().atZone(ZoneOffset.UTC)).minusMonths(1)
@@ -241,23 +246,36 @@ class WiseStatementFetchService internal constructor(
         runAs(owner.toSecurityPrincipal()) {
             if (!documents.getCurrentUserStorageStatus().active) return@runAs
             integration.accounts.forEach { account ->
-                val title = "Wise Monthly Statement for account ${account.currency} ${account.accountId} " +
-                    "${firstDate}_${lastDate}"
-                val saved = inIntegrationTransaction(integrationId = integrationId) { current ->
-                    if (standaloneDocuments.existsByWorkspaceIdAndTitle(workspaceId = current.workspaceId, title = title)) return@inIntegrationTransaction false
-                    client.getStatementPdf(
-                        settings = current, profileId = account.profileId, accountId = account.accountId, currency = account.currency,
-                        start = start, end = end,
-                    ) { content ->
-                        val document = documents.saveDocument(SaveDocumentRequest(
-                            fileName = "$title.pdf", content = inputStreamProvider { content }, workspace = workspace, contentType = "application/pdf",
-                        ))
-                        standaloneDocuments.save(StandaloneDocument(title = title, documentId = document.id!!))
+                val started = System.nanoTime()
+                val context = "integration=$integrationId, profile=${account.profileId}, account=${account.accountId}, currency=${account.currency}"
+                var outcome = "FAILED"
+                logger.info { "Wise monthly statement download started: $context, intervalStart=$start, intervalEnd=$end" }
+                try {
+                    val title = "Wise Monthly Statement for account ${account.currency} ${account.accountId} " +
+                        "${firstDate}_${lastDate}"
+                    val saved = inIntegrationTransaction(integrationId = integrationId) { current ->
+                        if (standaloneDocuments.existsByWorkspaceIdAndTitle(workspaceId = current.workspaceId, title = title)) return@inIntegrationTransaction false
+                        client.getStatementPdf(
+                            settings = current, profileId = account.profileId, accountId = account.accountId, currency = account.currency,
+                            start = start, end = end,
+                        ) { content ->
+                            val document = documents.saveDocument(SaveDocumentRequest(
+                                fileName = "$title.pdf", content = inputStreamProvider { content }, workspace = workspace, contentType = "application/pdf",
+                            ))
+                            standaloneDocuments.save(StandaloneDocument(title = title, documentId = document.id!!))
+                        }
+                        true
                     }
-                    true
-                }
-                if (saved == true) logger.info {
-                    "Wise monthly statement document committed: integration=$integrationId, account=${account.accountId}, currency=${account.currency}, month=$month"
+                    outcome = when (saved) {
+                        true -> "CREATED"
+                        false -> "EXISTING"
+                        null -> "MISSING"
+                    }
+                    if (saved == true) logger.info {
+                        "Wise monthly statement document committed: $context, month=$month"
+                    }
+                } finally {
+                    logger.info { "Wise monthly statement download finished: $context, outcome=$outcome, elapsedMs=${elapsedMillis(started)}" }
                 }
             }
         }
@@ -269,6 +287,7 @@ class WiseStatementFetchService internal constructor(
         val outcome: FetchOutcome,
         val fetched: Int = 0,
         val imported: Int = 0,
+        val transactionsFetched: Boolean = false,
     )
 
     private enum class FetchOutcome { SUCCESS, MISSING, DISABLED, AUTHENTICATION_REQUIRED, NO_ACCOUNTS, PROVIDER_FAILURE, FAILED }

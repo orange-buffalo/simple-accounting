@@ -79,7 +79,7 @@ class WiseIntegrationService internal constructor(
             fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements))
-        if (saved.fetchTransactionsPeriodically) {
+        if (saved.fetchTransactionsPeriodically || saved.fetchMonthlyStatements) {
             TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
                 override fun afterCommit() {
                     statementFetchService.fetchAsync(saved.id!!)

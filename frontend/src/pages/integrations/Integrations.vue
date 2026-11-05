@@ -14,7 +14,14 @@
         >
           <SaStatusLabel status="failure" role="status" tabindex="0">{{ $t.integrations.wise.authenticationRequired() }}</SaStatusLabel>
         </ElTooltip>
-        <SaStatusLabel v-else-if="provider.active && !provider.fetchTransactionsPeriodically" status="regular" role="status">{{ $t.integrations.inactive() }}</SaStatusLabel>
+        <SaStatusLabel
+          v-else-if="provider.active && !provider.fetchTransactionsPeriodically && !provider.fetchMonthlyStatements"
+          status="regular" role="status"
+        >{{ $t.integrations.inactive() }}</SaStatusLabel>
+        <SaStatusLabel
+          v-else-if="provider.active && (!provider.fetchTransactionsPeriodically || !provider.fetchMonthlyStatements)"
+          status="regular" role="status"
+        >{{ $t.integrations.partiallyActive() }}</SaStatusLabel>
         <SaStatusLabel v-else-if="provider.active" status="success">{{ $t.integrations.active() }}</SaStatusLabel>
         <p>{{ provider.description }}</p>
         <span v-if="busy" aria-disabled="true">{{ provider.active ? $t.integrations.update() : $t.integrations.setup() }} →</span>
@@ -46,7 +53,7 @@
   const [loading, workspace] = useQuery(graphql(/* GraphQL */ `
     query integrationProviders($workspaceId: String!) {
       workspace(id: $workspaceId) {
-        integrations { wise { active authenticationRequired fetchTransactionsPeriodically } }
+        integrations { wise { active authenticationRequired fetchTransactionsPeriodically fetchMonthlyStatements } }
       }
     }
   `), 'workspace', { variables: { workspaceId } });
@@ -84,6 +91,7 @@
     active: integrations.value?.wise.active === true, setup: 'wise-setup',
     authenticationRequired: integrations.value?.wise.authenticationRequired === true,
     fetchTransactionsPeriodically: integrations.value?.wise.fetchTransactionsPeriodically === true,
+    fetchMonthlyStatements: integrations.value?.wise.fetchMonthlyStatements === true,
   }]);
 </script>
 

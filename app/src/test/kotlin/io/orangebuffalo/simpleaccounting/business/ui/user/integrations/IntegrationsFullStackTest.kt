@@ -15,17 +15,35 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResp
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.CsvSource
 
 class IntegrationsFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should show inactive status when automatic imports are disabled`(page: Page) {
         val fry = preconditions { fry().also {
-            wiseIntegrationSettings(workspace = workspace(owner = it), fetchTransactionsPeriodically = false)
+            wiseIntegrationSettings(workspace = workspace(owner = it), fetchTransactionsPeriodically = false, fetchMonthlyStatements = false)
         } }
         page.authenticateViaCookie(fry)
         page.openIntegrationsPage {
             status.shouldBeRegular("Inactive — no automatic sync")
             reportRendering("integrations.inactive")
+        }
+        WiseApiMocks.shouldHaveNoRequests()
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `should show partially active status when only one automatic workflow is enabled`(transactionsEnabled: Boolean, page: Page) {
+        val fry = preconditions { fry().also {
+            wiseIntegrationSettings(
+                workspace = workspace(owner = it), fetchTransactionsPeriodically = transactionsEnabled,
+                fetchMonthlyStatements = !transactionsEnabled,
+            )
+        } }
+        page.authenticateViaCookie(fry)
+        page.openIntegrationsPage {
+            status.shouldBeRegular("Partially active")
+            reportRendering("integrations.partially-active-$transactionsEnabled")
         }
         WiseApiMocks.shouldHaveNoRequests()
     }
@@ -78,12 +96,12 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    fun `should prioritize authentication failures and allow updating Wise`(automaticImportsEnabled: Boolean, page: Page) {
+    @CsvSource("true,true", "true,false", "false,true", "false,false")
+    fun `should prioritize authentication failures and allow updating Wise`(automaticImportsEnabled: Boolean, monthlyEnabled: Boolean, page: Page) {
         val fry = preconditions {
             fry().also { user ->
                 wiseIntegrationSettings(workspace = workspace(owner = user), token = WiseApiMocks.TOKEN,
-                    authenticationRequired = true, fetchTransactionsPeriodically = automaticImportsEnabled)
+                    authenticationRequired = true, fetchTransactionsPeriodically = automaticImportsEnabled, fetchMonthlyStatements = monthlyEnabled)
             }
         }
         WiseApiMocks.setupAccounts()
@@ -91,7 +109,7 @@ class IntegrationsFullStackTest : SaFullStackTestBase() {
         page.openIntegrationsPage {
             status.shouldBeError("Requires auth")
             authenticationTooltip.shouldHaveTextOnFocus("The latest automatic import encountered authorization issues. Verify your Wise access and save the integration again to resume automatic imports.")
-            reportRenderingWithPopovers("integrations.authentication-required-$automaticImportsEnabled")
+            reportRenderingWithPopovers("integrations.authentication-required-$automaticImportsEnabled-$monthlyEnabled")
             providers.updateWise()
         }
         page.shouldBeWiseSetupPage {

@@ -7,6 +7,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorageResetListener
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
@@ -20,13 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 @ContextConfiguration(initializers = [ThirdPartyApisMocksContextInitializer::class])
-@TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = [ThirdPartyApisMocksListener::class, TestDocumentsStorageResetListener::class], mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class WiseIntegrationServiceTest(
     @Autowired private val service: WiseIntegrationService,
     @Autowired private val transactions: TransactionTemplate,
@@ -45,6 +51,68 @@ class WiseIntegrationServiceTest(
         service.verifyToken(workspaceId = preconditions.workspace.id!!, token = token)
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `should start monthly only fetching after a settings save commits`(existing: Boolean) {
+        val data = preconditions { object {
+            val fry = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+            val workspace = workspace(owner = fry).also {
+                if (existing) wiseIntegrationSettings(workspace = it, fetchTransactionsPeriodically = false, fetchMonthlyStatements = false)
+            }
+        } }
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatementPdf()
+
+        runAs(data.fry.toSecurityPrincipal()) {
+            transactions.executeWithoutResult {
+                service.setup(
+                    workspaceId = data.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")),
+                    fetchTransactionsPeriodically = false, fetchMonthlyStatements = true,
+                )
+                ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
+            }
+        }
+
+        shouldEventually {
+            aggregateTemplate.findAll<StandaloneDocument>().shouldBeSingle().title
+                .shouldBe("Wise Monthly Statement for account USD 301 1999-02-01_1999-02-28")
+        }
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+            workspaceId = data.workspace.id!!, token = token, fetchTransactionsPeriodically = false, fetchMonthlyStatements = true,
+            accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
+        ))
+        aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
+        WiseApiMocks.shouldHaveNoTransactionStatementRequests()
+        ThirdPartyApisMocks.server.verify(1, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
+    }
+
+    @Test
+    fun `should not dispatch fetching when both preferences are disabled`() {
+        val data = preconditions { object {
+            val fry = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+            val workspace = workspace(owner = fry)
+        } }
+        WiseApiMocks.setupAccounts()
+        WiseApiMocks.setupStatementPdf()
+
+        runAs(data.fry.toSecurityPrincipal()) {
+            service.setup(
+                workspaceId = data.workspace.id!!, token = token,
+                accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")),
+                fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+            )
+        }
+
+        aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+            workspaceId = data.workspace.id!!, token = token, fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+            accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
+        ))
+        aggregateTemplate.findAll<StandaloneDocument>().shouldBe(emptyList())
+        ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
+        WiseApiMocks.shouldHaveNoStatementRequests()
+    }
+
     @Test
     fun `should defer fetching until the enclosing save transaction commits`() {
         WiseApiMocks.setupAccounts()
@@ -61,20 +129,28 @@ class WiseIntegrationServiceTest(
         }
     }
 
-    @Test
-    fun `should not fetch when an enclosing save transaction rolls back`() {
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `should not fetch when an enclosing save transaction rolls back`(transactionsEnabled: Boolean) {
+        val data = preconditions { object {
+            val fry = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
+            val workspace = workspace(owner = fry)
+        } }
         WiseApiMocks.setupAccounts()
         WiseApiMocks.setupStatement()
-        runAs(preconditions.fry.toSecurityPrincipal()) {
+        WiseApiMocks.setupStatementPdf()
+        runAs(data.fry.toSecurityPrincipal()) {
             transactions.executeWithoutResult { status ->
-                service.setup(workspaceId = preconditions.workspace.id!!, token = token,
-                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")))
+                service.setup(workspaceId = data.workspace.id!!, token = token,
+                    accounts = listOf(WiseAccountSelection(profileId = "101", accountId = "301", currency = "USD")),
+                    fetchTransactionsPeriodically = transactionsEnabled)
                 WiseApiMocks.shouldHaveNoStatementRequests()
                 status.setRollbackOnly()
             }
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBe(emptyList())
         WiseApiMocks.shouldHaveNoStatementRequests()
+        ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathEqualTo(WiseApiMocks.STATEMENT_PDF_PATH)))
     }
 
     @Test

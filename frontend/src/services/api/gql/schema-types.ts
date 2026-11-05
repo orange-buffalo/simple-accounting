@@ -1945,9 +1945,9 @@ export type WiseIntegrationGqlDto = {
   __typename?: 'WiseIntegrationGqlDto';
   /** Whether Wise is configured for this workspace, including when automatic fetching is disabled or authentication is required. */
   active: Scalars['Boolean']['output'];
-  /** Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again. */
+  /** Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again. */
   authenticationRequired: Scalars['Boolean']['output'];
-  /** Whether previous-month PDF statements are saved as standalone documents. True by default before setup. */
+  /** Whether previous-month PDF statements are automatically saved as standalone documents, independently of transaction fetching. True by default before setup. */
   fetchMonthlyStatements: Scalars['Boolean']['output'];
   /** Whether automatic transaction fetching is enabled. True by default before setup. */
   fetchTransactionsPeriodically: Scalars['Boolean']['output'];

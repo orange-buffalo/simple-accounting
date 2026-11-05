@@ -7,7 +7,8 @@ interface WiseIntegrationSettingsRepository : AbstractEntityRepository<WiseInteg
     fun existsByWorkspaceId(workspaceId: String): Boolean
     fun findByWorkspaceId(workspaceId: String): WiseIntegrationSettings?
 
-    fun findAllByFetchTransactionsPeriodicallyTrueAndAuthenticationRequiredFalse(): List<WiseIntegrationSettings>
+    @Query("select * from wise_integration_settings where (fetch_transactions_periodically or fetch_monthly_statements) and not authentication_required")
+    fun findAllWithAutomaticFetchingEnabled(): List<WiseIntegrationSettings>
 
     @Query("select * from wise_integration_settings where id = :id for update")
     fun lockById(id: String): WiseIntegrationSettings?

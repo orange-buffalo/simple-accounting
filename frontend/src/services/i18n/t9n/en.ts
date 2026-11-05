@@ -33,6 +33,7 @@ export default {
     loading: () => 'Loading integrations…',
     active: () => 'Active',
     inactive: () => 'Inactive — no automatic sync',
+    partiallyActive: () => 'Partially active',
     updating: () => 'Updating integration…',
     setup: () => 'Setup',
     update: () => 'Update',
