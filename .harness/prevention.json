@@ -511,6 +511,13 @@
       "appliesWhen": "Statement PDF workflows where orchestration already derives calendar dates or download bounds; excludes adapter-owned transaction-specific interval derivation",
       "instruction": "Calculate calendar statement bounds once in orchestration and pass explicit start/end instants to an interval-based client download shared by monthly and transaction workflows. Preserve adapter-owned transaction identity, naming, and streamed response consumption.",
       "reason": "Duplicated interval derivation splits ownership and can make document titles disagree with downloaded periods."
+    },
+    {
+      "id": "helper-text-visual-grouping",
+      "category": "testing",
+      "appliesWhen": "Visually reviewing forms with helper text between adjacent settings; excludes intentionally shared section descriptions",
+      "instruction": "Inspect rendered helper-text grouping: keep it visibly associated with its owning control through proximity and alignment, with greater separation from the next unrelated setting. Correct isolated spacing in the owning page rather than changing shared component defaults.",
+      "reason": "A rendered explanation can appear to label the next control even when its source placement is correct."
     }
   ]
 }

@@ -305,7 +305,7 @@
     :deep(.el-form-item) { margin-bottom: 0; }
     &__hint {
       color: $secondary-text-color;
-      margin: 8px 0 0 50px;
+      margin: 4px 0 24px 50px;
       line-height: 1.5;
     }
   }
