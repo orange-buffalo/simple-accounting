@@ -243,10 +243,11 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                     authenticationRequired = true, lastSuccessfulFetchTime = MOCK_TIME)
             }
             WiseApiMocks.setupAccounts()
-            client.graphqlMutation { setup(token = null, fetchTransactionsPeriodically = false) }.from(preconditions.fry)
+            client.graphqlMutation { setup(token = null, fetchTransactionsPeriodically = false, fetchMonthlyStatements = false) }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
             val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
             saved.id.shouldBe(original.id)
+            saved.fetchMonthlyStatements.shouldBe(false)
             saved.token.shouldBe(WiseApiMocks.TOKEN)
             saved.fetchTransactionsPeriodically.shouldBe(false)
             saved.authenticationRequired.shouldBe(false)
@@ -426,8 +427,9 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
         ),
         token: String? = WiseApiMocks.TOKEN,
         fetchTransactionsPeriodically: Boolean? = null,
+        fetchMonthlyStatements: Boolean = true,
     ) = saveWiseIntegrationSettings(accounts = selected, token = token, workspaceId = preconditions.workspace.id!!,
-        fetchTransactionsPeriodically = fetchTransactionsPeriodically) { success }
+        fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements) { success }
 
     private fun setupResult(success: Boolean) = buildJsonObject {
         put(key = "success", value = success)

@@ -13,8 +13,8 @@ object WiseApiMocks {
     const val STATEMENT_PDF_PATH = "/wise/v1/profiles/101/balance-statements/301/statement.pdf"
     val STATEMENT_PDF = "%PDF-1.4\nPlanet Express balance statement\n%%EOF".toByteArray()
 
-    fun setupStatementPdf() {
-        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo(STATEMENT_PDF_PATH))
+    fun setupStatementPdf(accountId: Long = 301) {
+        ThirdPartyApisMocks.server.stubFor(get(urlPathEqualTo("/wise/v1/profiles/101/balance-statements/$accountId/statement.pdf"))
             .willReturn(aResponse().withHeader("Content-Type", "application/pdf").withBody(STATEMENT_PDF)))
     }
 
@@ -130,6 +130,10 @@ object WiseApiMocks {
 
     fun shouldHaveNoStatementRequests() {
         ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/.*/balance-statements/.*")))
+    }
+
+    fun shouldHaveNoTransactionStatementRequests() {
+        ThirdPartyApisMocks.server.verify(0, getRequestedFor(urlPathMatching("/wise/.*/balance-statements/.*/statement\\.json")))
     }
 
     fun shouldHaveStatementRequests(accountId: Long = 301, count: Int) {

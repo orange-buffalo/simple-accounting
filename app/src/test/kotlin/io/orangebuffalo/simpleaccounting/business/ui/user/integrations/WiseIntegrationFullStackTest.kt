@@ -81,6 +81,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             accounts.shouldHaveExactData(*normalAccounts)
             configuration.fetchTransactions.shouldBeSwitchedOn()
+            configuration.fetchMonthlyStatements.shouldBeSwitchedOn()
             val dollars = accounts.account("USD")
             val euros = accounts.account("EUR")
             dollars.shouldBeUnselected()
@@ -107,6 +108,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             reportRendering("integrations.wise-accounts")
             configuration.fetchTransactions.toggle()
             configuration.fetchTransactions.shouldBeSwitchedOff()
+            configuration.fetchMonthlyStatements.toggle()
+            configuration.fetchMonthlyStatements.shouldBeSwitchedOff()
             next.click()
             status.shouldBeSuccess("Wise integration saved successfully.")
             finishStep.shouldBeOpen()
@@ -117,7 +120,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
             workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
-            fetchTransactionsPeriodically = false, authenticationRequired = false, lastSuccessfulFetchTime = null,
+            fetchTransactionsPeriodically = false, fetchMonthlyStatements = false, authenticationRequired = false, lastSuccessfulFetchTime = null,
             accounts = setOf(
                 WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
                 WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"),
@@ -138,6 +141,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                     WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"),
                 ),
                 fetchTransactionsPeriodically = false,
+                fetchMonthlyStatements = false,
                 authenticationRequired = true,
             )
         }
@@ -152,6 +156,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             accountsStep.shouldBeOpen()
             tokenStep.shouldBeCompleted()
             configuration.fetchTransactions.shouldBeSwitchedOff()
+            configuration.fetchMonthlyStatements.shouldBeSwitchedOff()
+            configuration.fetchMonthlyStatements.toggle()
+            configuration.fetchMonthlyStatements.shouldBeSwitchedOn()
             configuration.fetchTransactions.toggle()
             configuration.fetchTransactions.shouldBeSwitchedOn()
             reportRendering("integrations.wise-configuration")
@@ -163,6 +170,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         updated.id.shouldBe(settings.id)
         updated.token.shouldBe(WiseApiMocks.TOKEN)
         updated.fetchTransactionsPeriodically.shouldBe(true)
+        updated.fetchMonthlyStatements.shouldBe(true)
         updated.authenticationRequired.shouldBe(false)
         updated.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
     }

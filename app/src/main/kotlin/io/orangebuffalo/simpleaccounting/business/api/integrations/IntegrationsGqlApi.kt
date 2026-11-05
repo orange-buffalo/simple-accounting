@@ -105,12 +105,15 @@ class IntegrationsGqlApi {
             @Valid @Size(min = 1) accounts: List<WiseAccountInput>,
             @GraphQLDescription("Whether selected accounts should be fetched automatically every four hours. A supplied value is saved; null or omission saves true.")
             fetchTransactionsPeriodically: Boolean? = null,
+            @GraphQLDescription("Whether to automatically download the previous UTC calendar month's PDF statement for every selected account as a standalone document, independently of transaction fetching. A value is required and saved.")
+            fetchMonthlyStatements: Boolean,
         ): WiseSettingsSaveResult {
             wise.setup(
                 workspaceId = workspaceId,
                 token = token,
                 accounts = accounts.map { WiseAccountSelection(profileId = it.profileId, accountId = it.accountId, currency = it.currency) },
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically ?: true,
+                fetchMonthlyStatements = fetchMonthlyStatements,
             )
             return WiseSettingsSaveResult(success = true)
         }
@@ -158,7 +161,10 @@ class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
     @GraphQLDescription("Whether automatic transaction fetching is enabled. True by default before setup.")
     val fetchTransactionsPeriodically: Boolean = settings?.fetchTransactionsPeriodically ?: true
 
-    @GraphQLDescription("Whether Wise rejected authentication during transaction fetching. Automatic fetching is suspended until settings are successfully verified and saved again.")
+    @GraphQLDescription("Whether previous-month PDF statements are automatically saved as standalone documents, independently of transaction fetching. True by default before setup.")
+    val fetchMonthlyStatements: Boolean = settings?.fetchMonthlyStatements ?: true
+
+    @GraphQLDescription("Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again.")
     val authenticationRequired: Boolean = settings?.authenticationRequired ?: false
 
     @GraphQLDescription("The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch.")

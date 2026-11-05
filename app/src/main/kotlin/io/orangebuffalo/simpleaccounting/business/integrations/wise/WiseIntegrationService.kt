@@ -61,7 +61,7 @@ class WiseIntegrationService internal constructor(
     }
 
     @Transactional
-    fun setup(workspaceId: String, token: String?, accounts: List<WiseAccountSelection>, fetchTransactionsPeriodically: Boolean = true) {
+    fun setup(workspaceId: String, token: String?, accounts: List<WiseAccountSelection>, fetchTransactionsPeriodically: Boolean = true, fetchMonthlyStatements: Boolean = true) {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
         val resolvedToken = resolveToken(token = token, existing = existing)
@@ -76,10 +76,10 @@ class WiseIntegrationService internal constructor(
                 ?: WiseIntegrationAccount(profileId = it.profileId.toLong(), accountId = it.accountId.toLong(), currency = it.currency)
         }.toSet()
         val saved = settings.save(existing?.copy(token = resolvedToken, accounts = selected,
-            fetchTransactionsPeriodically = fetchTransactionsPeriodically, authenticationRequired = false)
+            fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
-                fetchTransactionsPeriodically = fetchTransactionsPeriodically))
-        if (saved.fetchTransactionsPeriodically) {
+                fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements))
+        if (saved.fetchTransactionsPeriodically || saved.fetchMonthlyStatements) {
             TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
                 override fun afterCommit() {
                     statementFetchService.fetchAsync(saved.id!!)
