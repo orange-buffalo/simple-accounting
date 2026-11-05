@@ -504,6 +504,13 @@
       "appliesWhen": "Adding or changing Spring integration or full-stack tests",
       "instruction": "Preserve shared test-context configuration; do not add test-local mock/spy bean overrides. Inject existing shared test implementations and configure external provider stubs through established facilities.",
       "reason": "Per-test bean overrides fragment Spring context caching and introduce implementation-coupled tests."
+    },
+    {
+      "id": "statement-download-interval-ownership",
+      "category": "backend",
+      "appliesWhen": "Statement PDF workflows where orchestration already derives calendar dates or download bounds; excludes adapter-owned transaction-specific interval derivation",
+      "instruction": "Calculate calendar statement bounds once in orchestration and pass explicit start/end instants to an interval-based client download shared by monthly and transaction workflows. Preserve adapter-owned transaction identity, naming, and streamed response consumption.",
+      "reason": "Duplicated interval derivation splits ownership and can make document titles disagree with downloaded periods."
     }
   ]
 }

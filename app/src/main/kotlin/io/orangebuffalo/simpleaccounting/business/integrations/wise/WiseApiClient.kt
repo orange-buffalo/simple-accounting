@@ -21,8 +21,6 @@ import java.io.InputStream
 import java.net.http.HttpClient
 import java.time.Duration
 import java.time.Instant
-import java.time.YearMonth
-import java.time.ZoneOffset
 import java.time.DateTimeException
 import java.util.Currency
 
@@ -128,22 +126,24 @@ internal class WiseApiClient(
         val accountId = record.accountId.toLongOrNull() ?: throw WiseUnavailableException()
         val start = record.occurredAt.minus(Duration.ofHours(1))
         val end = record.occurredAt.plus(Duration.ofHours(1))
-        val path = "/v1/profiles/$profileId/balance-statements/$accountId/statement.pdf" +
-            "?currency=${record.accountCurrency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
         val fileName = "Wise statement $profileId $accountId ${record.accountCurrency} ${record.occurredAt}.pdf"
-        downloadPdf(path = path, token = settings.token) { consume(fileName, it) }
+        getStatementPdf(
+            settings = settings, profileId = profileId, accountId = accountId, currency = record.accountCurrency,
+            start = start, end = end,
+        ) { consume(fileName, it) }
     }
 
-    fun getMonthlyStatementPdf(
+    fun getStatementPdf(
         settings: WiseIntegrationSettings,
-        account: WiseIntegrationAccount,
-        month: YearMonth,
+        profileId: Long,
+        accountId: Long,
+        currency: String,
+        start: Instant,
+        end: Instant,
         consume: (InputStream) -> Unit,
     ) {
-        val start = month.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
-        val end = month.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusMillis(1)
-        val path = "/v1/profiles/${account.profileId}/balance-statements/${account.accountId}/statement.pdf" +
-            "?currency=${account.currency}&intervalStart=$start&intervalEnd=$end&type=COMPACT"
+        val path = "/v1/profiles/$profileId/balance-statements/$accountId/statement.pdf" +
+            "?currency=$currency&intervalStart=$start&intervalEnd=$end&type=COMPACT"
         downloadPdf(path = path, token = settings.token, consume = consume)
     }
 

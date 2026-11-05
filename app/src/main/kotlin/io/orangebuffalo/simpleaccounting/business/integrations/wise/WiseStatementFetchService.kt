@@ -118,6 +118,11 @@ class WiseStatementFetchService internal constructor(
         }
     }
 
+    /**
+     * Runs the operation in an independent transaction under the integration lock, serializing fetches and setup changes.
+     * On rejected credentials, rolls back the operation and marks authentication required in a separate transaction,
+     * but only if the attempted settings version is still current, so newer credentials are not invalidated.
+     */
     private fun <T> inIntegrationTransaction(integrationId: String, operation: (WiseIntegrationSettings) -> T): T? {
         var attemptedVersion: Int? = null
         try {
@@ -225,22 +230,25 @@ class WiseStatementFetchService internal constructor(
 
     private fun fetchMonthlyStatements(integrationId: String) {
         val integration = settings.findByIdOrNull(integrationId) ?: return
-        if (!integration.fetchMonthlyStatements) return
+        if (!integration.fetchTransactionsPeriodically || !integration.fetchMonthlyStatements || integration.authenticationRequired) return
         val workspace = workspaces.getWorkspace(integration.workspaceId)
         val owner = users.getUserByUserId(workspace.ownerId)
         val month = YearMonth.from(time.currentTime().atZone(ZoneOffset.UTC)).minusMonths(1)
+        val firstDate = month.atDay(1)
+        val lastDate = month.atEndOfMonth()
+        val start = firstDate.atStartOfDay(ZoneOffset.UTC).toInstant()
+        val end = lastDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusMillis(1)
         runAs(owner.toSecurityPrincipal()) {
             if (!documents.getCurrentUserStorageStatus().active) return@runAs
             integration.accounts.forEach { account ->
                 val title = "Wise Monthly Statement for account ${account.currency} ${account.accountId} " +
-                    "${month.atDay(1)}_${month.atEndOfMonth()}"
+                    "${firstDate}_${lastDate}"
                 val saved = inIntegrationTransaction(integrationId = integrationId) { current ->
-                    if (!current.fetchTransactionsPeriodically || !current.fetchMonthlyStatements || current.authenticationRequired ||
-                        current.accounts.none { it.profileId == account.profileId && it.accountId == account.accountId && it.currency == account.currency } ||
-                        !documents.getCurrentUserStorageStatus().active ||
-                        standaloneDocuments.existsByWorkspaceIdAndTitle(workspaceId = current.workspaceId, title = title)
-                    ) return@inIntegrationTransaction false
-                    client.getMonthlyStatementPdf(settings = current, account = account, month = month) { content ->
+                    if (standaloneDocuments.existsByWorkspaceIdAndTitle(workspaceId = current.workspaceId, title = title)) return@inIntegrationTransaction false
+                    client.getStatementPdf(
+                        settings = current, profileId = account.profileId, accountId = account.accountId, currency = account.currency,
+                        start = start, end = end,
+                    ) { content ->
                         val document = documents.saveDocument(SaveDocumentRequest(
                             fileName = "$title.pdf", content = inputStreamProvider { content }, workspace = workspace, contentType = "application/pdf",
                         ))
