@@ -672,6 +672,7 @@ class WiseStatementFetchServiceTest(
             feesInCents = 4, feesCurrency = "USD", runningBalanceInCents = -1601, runningBalanceCurrency = "USD",
             additionalData = "Type: CARD\nDescription: Slurm supplies\nPayment reference: Planet Express\nMerchant: Slurm factory\nMerchant category: Slurm\nMerchant address: Robot street, New New York, US",
             partyName = "Slurm factory",
+            title = "Slurm supplies",
             originalAmountInCents = 680, originalCurrency = "GBP", exchangeRate = BigDecimal("1.147806"),
         ))
         val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
@@ -751,6 +752,24 @@ class WiseStatementFetchServiceTest(
             sourceAmountInCents = 1234, sourceCurrency = "JPY", targetAmountInCents = 12345, targetCurrency = "KWD",
             exchangeRate = BigDecimal("0.010004"),
         ))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["DEBIT", "CREDIT", "FUTURE_ACTIVITY"])
+    fun `should prefer description over party name for all transaction activities`(activity: String) {
+        val integration = preconditions { wiseIntegrationSettings(token = WiseApiMocks.TOKEN, accounts = setOf(dollars)) }
+        val amount = if (activity == "DEBIT") "-1.25" else "1.25"
+        WiseApiMocks.setupStatement(transactions = """[{
+            "type":"$activity","date":"1999-03-27T12:00:00Z","referenceNumber":"TRANSFER-42",
+            "amount":{"value":$amount,"currency":"USD"},
+            "details":{"description":"Slurm delivery to Mars","senderName":"Philip J. Fry"}
+        }]""")
+
+        fetcher.fetch(integration.id!!)
+
+        val record = aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle()
+        record.title.shouldBe("Slurm delivery to Mars")
+        record.partyName.shouldBe("Philip J. Fry")
     }
 
     @ParameterizedTest
