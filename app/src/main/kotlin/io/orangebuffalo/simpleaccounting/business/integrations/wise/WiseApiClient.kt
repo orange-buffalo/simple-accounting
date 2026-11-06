@@ -80,7 +80,7 @@ internal class WiseApiClient(
                     runningBalanceInCents = transaction.runningBalance?.minorUnits(), runningBalanceCurrency = transaction.runningBalance?.currency,
                     additionalData = details?.additionalData(),
                     partyName = details?.partyName(),
-                    title = if (type == StatementType.CONVERSION) details?.description?.takeIf(String::isNotBlank) else null,
+                    title = details?.description?.takeIf(String::isNotBlank),
                     originalAmountInCents = original?.minorUnits(), originalCurrency = original?.currency,
                     sourceAmountInCents = details?.sourceAmount?.minorUnits(), sourceCurrency = details?.sourceAmount?.currency,
                     targetAmountInCents = details?.targetAmount?.minorUnits(), targetCurrency = details?.targetAmount?.currency,
