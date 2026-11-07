@@ -63,6 +63,8 @@ export default {
       configurationHeader: () => 'Configuration',
       fetchTransactionsPeriodically: () => 'Fetch transactions automatically',
       fetchMonthlyStatements: () => 'Fetch monthly statements as PDFs',
+      createIncomeFromInvoices: () => 'Create income for matching invoices',
+      populateIncomeConvertedAmounts: () => 'Populate actual income amounts from conversions',
       fetchTransactionsHint: () => 'Fetch transactions for selected accounts every four hours. The first fetch imports the last three months.',
       authenticationRequired: () => 'Requires auth',
       authenticationRequiredHint: () => 'The latest automatic import encountered authorization issues. Verify your Wise access and save the integration again to resume automatic imports.',

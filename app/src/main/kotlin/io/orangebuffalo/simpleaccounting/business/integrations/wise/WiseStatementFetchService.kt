@@ -13,8 +13,8 @@ import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.inputStreamProvider
-import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService
-import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementInvoiceLinkingService.InvoiceMatchingResult
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementProcessingService
+import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementProcessingService.InvoiceMatchingResult
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Async
@@ -35,7 +35,7 @@ class WiseStatementFetchService internal constructor(
     private val client: WiseApiClient,
     private val records: AccountStatementRecordsRepository,
     private val time: TimeService,
-    private val invoiceLinking: AccountStatementInvoiceLinkingService,
+    private val statementProcessing: AccountStatementProcessingService,
     private val documents: DocumentsService,
     private val standaloneDocuments: StandaloneDocumentsRepository,
     private val workspaces: WorkspacesService,
@@ -93,7 +93,14 @@ class WiseStatementFetchService internal constructor(
                     attachMissingDocuments(integrationId)
                 }
                 if (result.transactionsFetched) {
-                    val matching = inIntegrationTransaction(integrationId = integrationId) { invoiceLinking.linkInvoices(it.workspaceId) }
+                    val matching = inIntegrationTransaction(integrationId = integrationId) {
+                        if (!it.fetchTransactionsPeriodically || it.authenticationRequired) return@inIntegrationTransaction InvoiceMatchingResult()
+                        statementProcessing.process(
+                            workspaceId = it.workspaceId, integrationId = it.id!!,
+                            createIncomeFromInvoices = it.createIncomeFromInvoices,
+                            populateIncomeConvertedAmounts = it.populateIncomeConvertedAmounts,
+                        )
+                    }
                         ?: InvoiceMatchingResult()
                     logger.info {
                         "Wise statement invoice matching committed: integration=$integrationId, checked=${matching.checked}, " +

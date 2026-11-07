@@ -4,6 +4,7 @@
       <ElSwitch
         v-model="switchValue"
         :aria-label="props.label"
+        :disabled="props.disabled"
         @change="onChange"
       />
       <h4>{{ props.label }}</h4>
@@ -19,6 +20,7 @@
 
   const props = defineProps<SaFormComponentProps & {
     submitOnChange?: boolean,
+    disabled?: boolean,
   }>();
 
   const switchValue = ref<boolean | null>();

@@ -1417,8 +1417,10 @@ export type MutationSaveSharedWorkspaceArgs = {
 
 export type MutationSaveWiseIntegrationSettingsArgs = {
   accounts: Array<WiseAccountInput>;
+  createIncomeFromInvoices?: InputMaybe<Scalars['Boolean']['input']>;
   fetchMonthlyStatements: Scalars['Boolean']['input'];
   fetchTransactionsPeriodically?: InputMaybe<Scalars['Boolean']['input']>;
+  populateIncomeConvertedAmounts?: InputMaybe<Scalars['Boolean']['input']>;
   token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
 };
@@ -1947,12 +1949,16 @@ export type WiseIntegrationGqlDto = {
   active: Scalars['Boolean']['output'];
   /** Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again. */
   authenticationRequired: Scalars['Boolean']['output'];
+  /** Whether to create incomes for matched unpaid invoices. Effective only with periodic transaction fetching. True by default before setup. */
+  createIncomeFromInvoices: Scalars['Boolean']['output'];
   /** Whether previous-month PDF statements are automatically saved as standalone documents, independently of transaction fetching. True by default before setup. */
   fetchMonthlyStatements: Scalars['Boolean']['output'];
   /** Whether automatic transaction fetching is enabled. True by default before setup. */
   fetchTransactionsPeriodically: Scalars['Boolean']['output'];
   /** The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch. */
   lastSuccessfulFetchTime?: Maybe<Scalars['DateTime']['output']>;
+  /** Whether to populate actual amounts from matching conversions for incomes created by this integration. Effective only with periodic transaction fetching. True by default before setup. */
+  populateIncomeConvertedAmounts: Scalars['Boolean']['output'];
 };
 
 /** Whether the integration was saved successfully. */

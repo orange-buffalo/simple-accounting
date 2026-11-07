@@ -13,6 +13,8 @@ data class WiseIntegrationSettings(
     val accounts: Set<WiseIntegrationAccount>,
     val fetchTransactionsPeriodically: Boolean = true,
     val fetchMonthlyStatements: Boolean = true,
+    val createIncomeFromInvoices: Boolean = true,
+    val populateIncomeConvertedAmounts: Boolean = true,
     val lastSuccessfulFetchTime: Instant? = null,
     val authenticationRequired: Boolean = false,
     override val id: String? = null,

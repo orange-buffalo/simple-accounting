@@ -36,6 +36,8 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     @UiComponentMarker
     class Configuration(components: ComponentsAccessors) {
         val fetchTransactions = components.switchSectionByLabel("Fetch transactions automatically")
+        val createIncome = components.switchSectionByLabel("Create income for matching invoices")
+        val populateConvertedAmounts = components.switchSectionByLabel("Populate actual income amounts from conversions")
         val fetchMonthlyStatements = components.switchSectionByLabel("Fetch monthly statements as PDFs")
     }
 

@@ -4,6 +4,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecord
+import io.orangebuffalo.simpleaccounting.business.incomes.Income
+import io.orangebuffalo.simpleaccounting.business.incomes.IncomeAttachment
+import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
@@ -37,6 +41,7 @@ import org.springframework.test.context.TestExecutionListeners
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.util.Base64
 import java.util.Random
 
@@ -51,6 +56,46 @@ class WiseStatementFetchServiceTest(
 
     private val dollars = WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")
     private val euros = WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `should honor persisted conversion preference during statement fetching`(enabled: Boolean) {
+        val setup = preconditions {
+            object {
+                private val workspace = workspace(defaultCurrency = "EUR")
+                val integration = wiseIntegrationSettings(
+                    workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
+                    fetchMonthlyStatements = false, populateIncomeConvertedAmounts = enabled,
+                )
+                val income = income(
+                    workspace = workspace, currency = "USD", originalAmount = 12000,
+                    dateReceived = LocalDate.parse("1999-03-26"), convertedAmounts = AmountsInDefaultCurrency(null),
+                )
+                init {
+                    accountStatementRecord(integration = integration, type = StatementType.CREDIT, linkedIncome = income)
+                }
+                val conversion = accountStatementRecord(
+                    integration = integration, type = StatementType.CONVERSION,
+                    occurredAt = Instant.parse("1999-03-27T12:00:00Z"),
+                    sourceAmountInCents = 12000, sourceCurrency = "USD", targetAmountInCents = 10800, targetCurrency = "EUR",
+                )
+            }
+        }
+        WiseApiMocks.setupStatement(transactions = "[]")
+
+        fetcher.fetch(setup.integration.id!!)
+
+        val income = aggregateTemplate.findById(setup.income.id!!, Income::class.java)!!
+        if (enabled) {
+            income.convertedAmounts.shouldBe(AmountsInDefaultCurrency(10800))
+            income.notes.shouldBe("Converted on 1999-03-27: 1 USD = 0.9 EUR")
+        } else {
+            income.shouldBeEntityWithFields(setup.income)
+        }
+        aggregateTemplate.findById(setup.conversion.id!!, AccountStatementRecord::class.java)!!.shouldBeEntityWithFields(
+            setup.conversion.copy(linkedIncomeId = if (enabled) income.id else null),
+        )
+    }
 
     @Nested
     inner class StatementDocuments {
@@ -134,6 +179,16 @@ class WiseStatementFetchServiceTest(
             val record = aggregateTemplate.findAll<AccountStatementRecord>().single { it.type == StatementType.CREDIT }
             record.linkedInvoiceId.shouldBe(setup.invoice.id)
             val documentId = record.attachments.single().documentId
+            val income = aggregateTemplate.findAll<Income>().shouldBeSingle()
+            record.linkedIncomeId.shouldBe(income.id)
+            income.shouldBeEntityWithFields(Income(
+                workspaceId = setup.integration.workspaceId, categoryId = null, generalTaxId = null,
+                title = "Payment for Invoice #PE-3025-42", currency = "USD", originalAmount = 125,
+                dateReceived = LocalDate.parse(date.substringBefore('T')),
+                convertedAmounts = AmountsInDefaultCurrency(125), incomeTaxableAmounts = AmountsInDefaultCurrency(125),
+                useDifferentExchangeRateForIncomeTaxPurposes = false, status = IncomeStatus.FINALIZED,
+                linkedInvoiceId = setup.invoice.id, attachments = setOf(IncomeAttachment(documentId)),
+            ))
             val document = aggregateTemplate.findById(documentId, Document::class.java)!!
             document.shouldBeEntityWithFields(Document(
                 workspaceId = setup.integration.workspaceId, name = "Wise statement 101 301 USD $date.pdf",
@@ -443,7 +498,7 @@ class WiseStatementFetchServiceTest(
             val data = preconditions {
                 object {
                     private val workspace = workspace()
-                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars), createIncomeFromInvoices = false)
                     val record = accountStatementRecord(
                         integration = integration, type = StatementType.CREDIT,
                         amountInCents = 125, currency = "USD", additionalData = "Payment reference: PE-3025-42",
@@ -600,7 +655,7 @@ class WiseStatementFetchServiceTest(
             val data = preconditions {
                 object {
                     private val workspace = workspace()
-                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars))
+                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars), createIncomeFromInvoices = false)
                     private val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
                     val record = accountStatementRecord(integration = integration, type = StatementType.CREDIT, linkedInvoice = invoice, additionalData = "Description: PE-3025-43")
                     init {

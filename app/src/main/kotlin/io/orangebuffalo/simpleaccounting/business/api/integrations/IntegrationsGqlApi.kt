@@ -107,6 +107,10 @@ class IntegrationsGqlApi {
             fetchTransactionsPeriodically: Boolean? = null,
             @GraphQLDescription("Whether to automatically download the previous UTC calendar month's PDF statement for every selected account as a standalone document, independently of transaction fetching. A value is required and saved.")
             fetchMonthlyStatements: Boolean,
+            @GraphQLDescription("Whether to create incomes for matched unpaid invoices from credit transactions. Only runs with periodic transaction fetching enabled. A supplied value is saved; null or omission saves true.")
+            createIncomeFromInvoices: Boolean? = null,
+            @GraphQLDescription("Whether to populate actual converted amounts for incomes created by this integration using uniquely matching conversions on or after receipt. Only runs with periodic transaction fetching enabled. A supplied value is saved; null or omission saves true.")
+            populateIncomeConvertedAmounts: Boolean? = null,
         ): WiseSettingsSaveResult {
             wise.setup(
                 workspaceId = workspaceId,
@@ -114,6 +118,8 @@ class IntegrationsGqlApi {
                 accounts = accounts.map { WiseAccountSelection(profileId = it.profileId, accountId = it.accountId, currency = it.currency) },
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically ?: true,
                 fetchMonthlyStatements = fetchMonthlyStatements,
+                createIncomeFromInvoices = createIncomeFromInvoices ?: true,
+                populateIncomeConvertedAmounts = populateIncomeConvertedAmounts ?: true,
             )
             return WiseSettingsSaveResult(success = true)
         }
@@ -163,6 +169,12 @@ class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
 
     @GraphQLDescription("Whether previous-month PDF statements are automatically saved as standalone documents, independently of transaction fetching. True by default before setup.")
     val fetchMonthlyStatements: Boolean = settings?.fetchMonthlyStatements ?: true
+
+    @GraphQLDescription("Whether to create incomes for matched unpaid invoices. Effective only with periodic transaction fetching. True by default before setup.")
+    val createIncomeFromInvoices: Boolean = settings?.createIncomeFromInvoices ?: true
+
+    @GraphQLDescription("Whether to populate actual amounts from matching conversions for incomes created by this integration. Effective only with periodic transaction fetching. True by default before setup.")
+    val populateIncomeConvertedAmounts: Boolean = settings?.populateIncomeConvertedAmounts ?: true
 
     @GraphQLDescription("Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again.")
     val authenticationRequired: Boolean = settings?.authenticationRequired ?: false

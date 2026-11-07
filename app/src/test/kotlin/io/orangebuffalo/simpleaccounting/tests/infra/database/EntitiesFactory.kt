@@ -506,6 +506,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         accounts: Set<WiseIntegrationAccount> = emptySet(),
         fetchTransactionsPeriodically: Boolean = true,
         fetchMonthlyStatements: Boolean = true,
+        createIncomeFromInvoices: Boolean = true,
+        populateIncomeConvertedAmounts: Boolean = true,
         authenticationRequired: Boolean = false,
         lastSuccessfulFetchTime: Instant? = null,
         createdAt: Instant = MOCK_TIME,
@@ -515,6 +517,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         accounts = accounts,
         fetchTransactionsPeriodically = fetchTransactionsPeriodically,
         fetchMonthlyStatements = fetchMonthlyStatements,
+        createIncomeFromInvoices = createIncomeFromInvoices,
+        populateIncomeConvertedAmounts = populateIncomeConvertedAmounts,
         authenticationRequired = authenticationRequired,
         lastSuccessfulFetchTime = lastSuccessfulFetchTime,
         createdAt = createdAt,
@@ -543,6 +547,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetCurrency: String? = null,
         exchangeRate: BigDecimal? = null,
         linkedInvoice: Invoice? = null,
+        linkedIncome: Income? = null,
         title: String? = null,
         attachments: Set<Document> = emptySet(),
     ): AccountStatementRecord = AccountStatementRecord(
@@ -570,6 +575,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         targetCurrency = targetCurrency,
         exchangeRate = exchangeRate,
         linkedInvoiceId = linkedInvoice?.id,
+        linkedIncomeId = linkedIncome?.id,
         title = title,
         attachments = attachments.map { AccountStatementAttachment(it.id!!) }.toSet(),
     ).save()

@@ -22,6 +22,8 @@ import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
@@ -235,6 +237,25 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             WiseApiMocks.shouldHaveNoStatementRequests()
         }
 
+        @ParameterizedTest
+        @CsvSource("true,true", "false,false", "true,false", "false,true", "null,null", nullValues = ["null"])
+        fun `should persist independent income automation preferences`(createIncome: Boolean?, convertIncome: Boolean?) {
+            WiseApiMocks.setupAccounts()
+            client.graphqlMutation {
+                setup(fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+                    createIncomeFromInvoices = createIncome, populateIncomeConvertedAmounts = convertIncome)
+            }.from(preconditions.fry).executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+                workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+                createIncomeFromInvoices = createIncome ?: true, populateIncomeConvertedAmounts = convertIncome ?: true,
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR"),
+                    WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")),
+            ))
+            WiseApiMocks.shouldHaveNoStatementRequests()
+        }
+
         @Test
         fun `should update fetching preferences and resume suspended integrations without losing checkpoints`() {
             val original = preconditions {
@@ -428,8 +449,11 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
         token: String? = WiseApiMocks.TOKEN,
         fetchTransactionsPeriodically: Boolean? = null,
         fetchMonthlyStatements: Boolean = true,
+        createIncomeFromInvoices: Boolean? = null,
+        populateIncomeConvertedAmounts: Boolean? = null,
     ) = saveWiseIntegrationSettings(accounts = selected, token = token, workspaceId = preconditions.workspace.id!!,
-        fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements) { success }
+        fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements,
+        createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts) { success }
 
     private fun setupResult(success: Boolean) = buildJsonObject {
         put(key = "success", value = success)

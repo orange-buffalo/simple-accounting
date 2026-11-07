@@ -57,6 +57,10 @@
             <SaForm v-model="preferences" :on-submit="save" hide-buttons class="integration-wizard__form">
               <SaFormSwitchSection prop="fetchTransactionsPeriodically" :label="$t.integrations.wise.fetchTransactionsPeriodically()" />
               <p class="wise-configuration__hint">{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
+              <div class="wise-configuration__automation">
+                <SaFormSwitchSection prop="createIncomeFromInvoices" :label="$t.integrations.wise.createIncomeFromInvoices()" :disabled="!preferences.fetchTransactionsPeriodically" />
+                <SaFormSwitchSection prop="populateIncomeConvertedAmounts" :label="$t.integrations.wise.populateIncomeConvertedAmounts()" :disabled="!preferences.fetchTransactionsPeriodically" />
+              </div>
               <SaFormSwitchSection prop="fetchMonthlyStatements" :label="$t.integrations.wise.fetchMonthlyStatements()" />
             </SaForm>
           </section>
@@ -113,24 +117,35 @@
     mutation saveWiseIntegrationSettings(
       $workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!, $fetchTransactionsPeriodically: Boolean!
       $fetchMonthlyStatements: Boolean!
+      $createIncomeFromInvoices: Boolean!, $populateIncomeConvertedAmounts: Boolean!
     ) {
       saveWiseIntegrationSettings(
         workspaceId: $workspaceId, token: $token, accounts: $accounts,
         fetchTransactionsPeriodically: $fetchTransactionsPeriodically
         fetchMonthlyStatements: $fetchMonthlyStatements
+        createIncomeFromInvoices: $createIncomeFromInvoices
+        populateIncomeConvertedAmounts: $populateIncomeConvertedAmounts
       ) { success }
     }
   `), 'saveWiseIntegrationSettings');
   const [initializing, configuration] = useQuery(graphql(/* GraphQL */ `
     query wiseConfiguration($workspaceId: String!) {
       workspace(id: $workspaceId) {
-        integrations { wise { active fetchTransactionsPeriodically fetchMonthlyStatements } }
+        integrations { wise {
+          active fetchTransactionsPeriodically fetchMonthlyStatements
+          createIncomeFromInvoices populateIncomeConvertedAmounts
+        } }
       }
     }
   `), 'workspace', { variables: { workspaceId } });
   type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
-  const preferences = ref({ fetchTransactionsPeriodically: true, fetchMonthlyStatements: true });
+  const preferences = ref({
+    fetchTransactionsPeriodically: true,
+    fetchMonthlyStatements: true,
+    createIncomeFromInvoices: true,
+    populateIncomeConvertedAmounts: true,
+  });
   const steps = { TOKEN_INPUT: 'token', ACCOUNT_SELECTION: 'accounts', ACTIVATION: 'activation' } as const;
   type WiseStep = typeof steps[keyof typeof steps];
   const step = ref<WiseStep>(steps.TOKEN_INPUT);
@@ -141,6 +156,8 @@
   const saved = ref(false);
   watch(() => preferences.value.fetchTransactionsPeriodically, () => { saved.value = false; });
   watch(() => preferences.value.fetchMonthlyStatements, () => { saved.value = false; });
+  watch(() => preferences.value.createIncomeFromInvoices, () => { saved.value = false; });
+  watch(() => preferences.value.populateIncomeConvertedAmounts, () => { saved.value = false; });
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const accounts = ref<Account[]>([]);
   const profiles = computed(() => {
@@ -225,6 +242,8 @@
         workspaceId, token: verifiedToken.value,
         fetchTransactionsPeriodically: preferences.value.fetchTransactionsPeriodically,
         fetchMonthlyStatements: preferences.value.fetchMonthlyStatements,
+        createIncomeFromInvoices: preferences.value.createIncomeFromInvoices,
+        populateIncomeConvertedAmounts: preferences.value.populateIncomeConvertedAmounts,
         accounts: accounts.value.filter(account => !account.deleted && selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
       });
@@ -277,6 +296,8 @@
     configured.value = workspace.integrations.wise.active;
     preferences.value.fetchTransactionsPeriodically = workspace.integrations.wise.fetchTransactionsPeriodically;
     preferences.value.fetchMonthlyStatements = workspace.integrations.wise.fetchMonthlyStatements;
+    preferences.value.createIncomeFromInvoices = workspace.integrations.wise.createIncomeFromInvoices;
+    preferences.value.populateIncomeConvertedAmounts = workspace.integrations.wise.populateIncomeConvertedAmounts;
     if (configured.value) await verify();
   });
 </script>
@@ -303,6 +324,12 @@
     margin-top: 32px;
     h2 { font-size: 20px; }
     :deep(.el-form-item) { margin-bottom: 0; }
+    &__automation {
+      margin: 0 0 24px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
     &__hint {
       color: $secondary-text-color;
       margin: 4px 0 24px 50px;
