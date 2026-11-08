@@ -60,7 +60,8 @@
               <div class="wise-configuration__automation">
                 <SaFormSwitchSection prop="createIncomeFromInvoices" :label="$t.integrations.wise.createIncomeFromInvoices()" :disabled="!preferences.fetchTransactionsPeriodically" />
                 <SaFormCategoryInput v-if="preferences.createIncomeFromInvoices" prop="incomeCategoryId"
-                                      :label="$t.integrations.wise.incomeCategory()" :category-type="CategoryType.Income" />
+                                      :label="$t.integrations.wise.incomeCategory()" :category-type="CategoryType.Income"
+                                      :disabled="!preferences.fetchTransactionsPeriodically" />
                 <SaFormSwitchSection prop="populateIncomeConvertedAmounts" :label="$t.integrations.wise.populateIncomeConvertedAmounts()" :disabled="!preferences.fetchTransactionsPeriodically" />
               </div>
               <SaFormSwitchSection prop="fetchMonthlyStatements" :label="$t.integrations.wise.fetchMonthlyStatements()" />

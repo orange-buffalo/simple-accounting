@@ -103,9 +103,18 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             configuration.fetchTransactions.toggle()
             configuration.createIncome.shouldBeDisabled()
             configuration.populateConvertedAmounts.shouldBeDisabled()
+            configuration.incomeCategory { input.shouldBeDisabled() }
+            next.shouldBeDisabled()
+            configuration.fetchTransactions.toggle()
             configuration.incomeCategory {
+                input.shouldBeEnabled()
                 input.shouldHaveOptions("Delivery")
                 input.selectOption("Delivery")
+            }
+            configuration.fetchTransactions.toggle()
+            configuration.incomeCategory {
+                input.shouldBeDisabled()
+                input.shouldHaveSelectedValue("Delivery")
             }
             next.shouldBeEnabled()
             dollars.click()

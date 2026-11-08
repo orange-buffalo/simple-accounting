@@ -4,6 +4,7 @@
       v-model="inputValue"
       :placeholder="props.placeholder"
       :clearable="props.clearable"
+      :disabled="props.disabled"
       :category-type="props.categoryType"
     />
   </SaFormItemInternal>
@@ -19,6 +20,7 @@
   const props = defineProps<SaFormComponentProps & {
     placeholder?: string,
     clearable?: boolean,
+    disabled?: boolean,
     categoryType?: CategoryType,
   }>();
 

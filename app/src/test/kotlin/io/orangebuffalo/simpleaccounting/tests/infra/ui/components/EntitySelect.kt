@@ -6,6 +6,8 @@ import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
@@ -23,6 +25,10 @@ class EntitySelect private constructor(
     fun shouldBeVisible() = input.shouldBeVisible()
 
     fun shouldBeHidden() = input.shouldBeHidden()
+
+    fun shouldBeDisabled() = rootLocator.locator("input.el-select__input").shouldBeDisabled()
+
+    fun shouldBeEnabled() = rootLocator.locator("input.el-select__input").shouldBeEnabled()
 
     /**
      * Types a search query into the remote select field.

@@ -3,6 +3,7 @@
     :model-value="modelValue"
     :placeholder="placeholder"
     :clearable="clearable"
+    :disabled="disabled"
     :options-provider="optionsProvider"
     :option-provider="optionProvider"
     :label-provider="categoryLabelProvider"
@@ -22,6 +23,7 @@
     modelValue?: string,
     placeholder?: string,
     clearable?: boolean,
+    disabled?: boolean,
     categoryType?: CategoryType,
   }>();
 
