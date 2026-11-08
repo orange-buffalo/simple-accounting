@@ -1959,7 +1959,7 @@ export type WiseIntegrationGqlDto = {
   /** Whether automatic transaction fetching is enabled. True by default before setup. */
   fetchTransactionsPeriodically: Scalars['Boolean']['output'];
   /** Category used for automatically created incomes. Null before configuration; required when income creation is enabled. */
-  incomeCategoryId?: Maybe<Scalars['String']['output']>;
+  incomeCategory?: Maybe<Category>;
   /** The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch. */
   lastSuccessfulFetchTime?: Maybe<Scalars['DateTime']['output']>;
   /** Whether to populate actual amounts from matching conversions for incomes whose invoice is linked by a statement of this integration. Effective only with periodic transaction fetching. True by default before setup. */

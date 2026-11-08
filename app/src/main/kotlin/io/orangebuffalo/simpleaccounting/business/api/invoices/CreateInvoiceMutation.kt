@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -16,6 +18,7 @@ import java.time.LocalDate
 @Validated
 class CreateInvoiceMutation(
     private val invoicesService: InvoicesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -51,8 +54,9 @@ class CreateInvoiceMutation(
         @GraphQLDescription("ID of the general tax applied to this invoice.")
         generalTaxId: String? = null,
     ): InvoiceGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val invoice = invoicesService.saveInvoice(
-            Invoice(
+            invoice = Invoice(
                 customerId = customerId,
                 invoiceNumber = invoiceNumber,
                 dateIssued = dateIssued,
@@ -65,7 +69,7 @@ class CreateInvoiceMutation(
                 attachments = mapAttachments(attachments),
                 generalTaxId = generalTaxId,
             ),
-            workspaceId,
+            workspaceId = workspaceId,
         )
         return invoice.toInvoiceGqlDto(workspaceId)
     }

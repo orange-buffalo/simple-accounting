@@ -27,6 +27,9 @@ inline fun <reified T : Any> JdbcAggregateTemplate.findSingle(id: String): T =
  */
 inline fun <reified T : Any> JdbcAggregateTemplate.findAll(): List<T> = this.findAll(T::class.java).toList()
 
+inline fun <reified T : AbstractEntity> JdbcAggregateTemplate.reload(entity: T): T =
+    findSingle(requireNotNull(entity.id) { "Cannot reload an entity without an ID" })
+
 /**
  * Verifies that the specified entity is deeply equal to the provided entity, ignoring generated entity fields.
  */

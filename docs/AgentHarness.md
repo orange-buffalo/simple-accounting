@@ -22,6 +22,13 @@ repository configuration is not a sandbox against the host or the primary implem
 
 ## Everyday use
 
+Only reusable preventive patterns belong in `.harness/prevention.json`. Ungeneralizable feature contracts may be
+recorded in `.harness/specific-cases/` with sanitized, reformulated feedback, a case-specific instruction and a minimal
+representative diff. These notes are not injected, retrieved as guidance or mined during automatic learning/review.
+Changed notes may be checked for faithful recording; cross-case pattern analysis requires a separate explicit user prompt.
+Verified curation can retire an overly specific rule without a replacement by referencing an archived proposal case
+through `caseId` and using `replacements: []`.
+
 ### Trivial-removal exception
 
 Trivial, behavior-preserving removals do not launch `sa_review`. For example, remove test-local viewport overrides

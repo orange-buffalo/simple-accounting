@@ -50,7 +50,6 @@ class EditIncomeMutation(
         @GraphQLDescription("New amount for income tax purposes in the default currency, in cents. Null if not yet converted.")
         incomeTaxableAmountInDefaultCurrency: Long? = null,
         @GraphQLDescription("New optional notes for the income.")
-        @Size(max = 1024)
         notes: String? = null,
         @GraphQLDescription("New IDs of documents attached to this income.")
         attachments: List<String>? = null,

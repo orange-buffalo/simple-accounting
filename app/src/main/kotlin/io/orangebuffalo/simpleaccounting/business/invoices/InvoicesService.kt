@@ -94,7 +94,6 @@ class InvoicesService(
         invoice: Invoice,
         workspaceId: String
     ) {
-        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateGeneralTax(invoice, workspaceId)
         customersService.validateCustomer(invoice.customerId, workspaceId)
         validateAttachments(invoice, workspaceId)

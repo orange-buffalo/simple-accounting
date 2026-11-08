@@ -38,7 +38,8 @@ export function feedbackReport(state) {
       state.status === 'verified' ? `Active rules: ${(disposition?.ruleIds ?? []).join(', ') || 'workflow remedy; no additional rule'}. Catalog: .harness/prevention.json. Verified prevention, not measured improvement.`
         : `Unresolved: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ') : [item.action, disposition?.action, disposition?.lesson, state.status === 'verified'
       ? `Active instruction ${state.id}/${item.ref}: ${disposition?.lesson} Published in .harness/lessons/${state.id}.json and supplied through knowledge(). ${state.feedbackBatch?.kind === 'user-confirmed-policy' ? 'Policy verified; reviewer improvement not measured.' : 'Blind replay, held-out and clean evaluations passed.'}` : `Investigation unresolved; user clarification required: ${state.error ?? 'pending verification'}.`].filter(Boolean).join(' ');
-    return `| ${escape(item.ref)} | ${escape(item.file)}:${item.line} | ${escape(item.comment)} | ${escape(action)} |`;
+    const archived = state.specificCaseFiles?.length ? ` Specific case archive: ${state.specificCaseFiles.join(', ')}; not active guidance.` : '';
+    return `| ${escape(item.ref)} | ${escape(item.file)}:${item.line} | ${escape(item.comment)} | ${escape(action + archived)} |`;
   });
   return ['| Ref index | File:line | Initial user comment | Agent action |', '| --- | --- | --- | --- |', ...rows].join('\n');
 }
@@ -117,6 +118,7 @@ export function catalogText(catalog) {
 
 export function curate(catalog, proposal, items) {
   catalogText(catalog);
+  const cases = specificCases(proposal, items);
   if (!Array.isArray(proposal.upsert) || !Array.isArray(proposal.retire)
     || !Array.isArray(proposal.dispositions) || proposal.dispositions.length !== items.length
     || new Set(proposal.dispositions.map((entry) => entry.ref)).size !== items.length) throw new Error('Incomplete learning proposal');
@@ -127,7 +129,8 @@ export function curate(catalog, proposal, items) {
   for (const entry of proposal.retire) {
     if (!catalog.rules.some((rule) => rule.id === entry.id) || retired.has(entry.id)
       || proposal.upsert.some((rule) => rule.id === entry.id) || typeof entry.reason !== 'string' || !entry.reason.trim()
-      || !Array.isArray(entry.replacements) || !entry.replacements.length) throw new Error('Invalid rule retirement');
+      || !Array.isArray(entry.replacements)
+      || (!entry.replacements.length && !cases.some((note) => note.id === entry.caseId))) throw new Error('Invalid rule retirement');
     retired.add(entry.id);
     rules.delete(entry.id);
   }
@@ -142,6 +145,23 @@ export function curate(catalog, proposal, items) {
   const result = { version: 2, rules: [...rules.values()] };
   catalogText(result);
   return result;
+}
+
+export function specificCases(proposal, items) {
+  const cases = proposal.specificCases ?? [];
+  if (!Array.isArray(cases)) throw new Error('Invalid specific cases');
+  const ids = new Set();
+  for (const note of cases) {
+    safeId(note.id);
+    if (ids.has(note.id) || !Array.isArray(note.refs) || !note.refs.length
+      || note.refs.some((ref) => !items.some((item) => item.ref === ref))
+      || ['feedback', 'instruction', 'diff', 'reason'].some((key) => typeof note[key] !== 'string' || !note[key].trim())
+      || Object.keys(note).some((key) => !['id', 'refs', 'feedback', 'instruction', 'diff', 'reason'].includes(key))) {
+      throw new Error('Invalid specific case');
+    }
+    ids.add(note.id);
+  }
+  return cases;
 }
 
 export function validateFindings(report) {
@@ -519,19 +539,26 @@ export class Controller {
             knowledge: original.reviewTurns?.findLast((turn) => turn.roundStart <= index)?.knowledge ?? original.knowledge });
           sources.push(artifact);
         }
-        const context = `Human feedback: ${json(state.feedbackBatch)}\nOriginal source packets: ${json(sources)}. ${original ? 'Read relevant source packets and current source.' : 'Original run unavailable; do not infer historic intent or a reviewer miss. Explicit preferences can still be verified against current source.'}`;
+        const context = `Human feedback: ${json(state.feedbackBatch)}\nOriginal source packets: ${json(sources)}. ${original ? 'Read relevant source packets and current source.' : 'Original run unavailable; do not infer historic intent or a reviewer miss. Explicit preferences can still be verified against current source.'}
+Only reusable patterns belong in active rules. When a correction cannot be faithfully generalized to similar cases, do not manufacture a rule. Return optional specificCases: [{id, refs, feedback, instruction, diff, reason}]. Reformulate feedback neutrally, sanitize sensitive content, include only the minimum representative code diff, a case-specific instruction and why no reusable pattern is established. Cases are archived separately after verification, never injected or mined by automatic cycles; later pattern analysis requires a separate explicit user prompt. Retirement without a replacement rule requires caseId referencing one of these cases and replacements: []. Do not retrieve archived cases as guidance; changed/new cases may be checked only for faithful sanitized recording.`;
         state.proposal = await this.ask(state, 'feedback-analysis', `Investigate EVERY exact indexed comment. Never dismiss human feedback. Diagnose missing-knowledge, not-applied (an existing rule was ignored), ambiguity (including a new preference), or execution-tooling. State unknown historical causes as unknown. Prefer reusing/clarifying existing rules or improving application/workflow/automation over adding paraphrases. Propose only compact operational rules, never audit history. Preserve scope and exceptions; consolidate duplicates and explicitly replace obsolete guidance. For nontrivial generalization supply an analogous case and a non-applicable case; simple explicit preferences can explain why cases are unnecessary. Ask the user about genuine conflicts with evidence and options. Return ONLY JSON {"questions":[],"dispositions":[{"ref":"input ref","feedback":"exact comment","diagnosis":"not-applied","evidence":"source or explicit preference","action":"correction","prevention":"concrete reusable remedy","ruleIds":["existing-or-upsert-id"]}],"upsert":[{"id":"stable-id","category":"testing","appliesWhen":"scope and exceptions","instruction":"actionable rule","reason":"short failure mechanism"}],"retire":[{"id":"obsolete-id","replacements":["active-id"],"reason":"why replaced"}],"caseCheck":{"analogous":"case and expected application or justified N/A","nonApplicable":"case and expected exclusion or justified N/A"}}. Empty upsert/retire is valid when existing rules suffice. All ruleIds must exist after curation. Never claim measured improvement.\n${context}`);
         if (state.proposal.questions?.length) throw new Error(`User clarification required: ${json(state.proposal.questions)}`);
         const next = curate(catalog, state.proposal, state.feedbackBatch.items);
         if (['analogous', 'nonApplicable'].some((key) => typeof state.proposal.caseCheck?.[key] !== 'string'
           || !state.proposal.caseCheck[key].trim())) throw new Error('Missing scoped case checks or justification');
-        state.verification = await this.ask(state, 'learning-validator', `Independently verify every exact comment and the proposed remedy against relevant source and user intent. Never dismiss feedback. Check diagnosis, reuse of existing guidance, faithful preservation of all still-applicable rules/exceptions, replacements, duplicate prevention and caseCheck expectations. A preference does not require a historic miss or blind evaluation. Check the complete resulting active catalog, not only additions. Return ONLY JSON {"valid":true,"evidence":["source-grounded checks"],"issues":[]}; unresolved conflicts need evidence and options, not autonomous dismissal.\n${context}\nProposal: ${json(state.proposal)}\nResulting catalog: ${catalogText(next)}`);
+        state.verification = await this.ask(state, 'learning-validator', `Independently verify every exact comment and the proposed remedy against relevant source and user intent. Never dismiss feedback. Check diagnosis, reuse of existing guidance, faithful preservation of all still-applicable rules/exceptions, replacements, duplicate prevention and caseCheck expectations. Verify active rules express reusable patterns; verify archived cases preserve neutral sanitized feedback, a faithful minimal representative diff and a case-specific instruction without becoming active guidance. A preference does not require a historic miss or blind evaluation. Check the complete resulting active catalog, not only additions. Return ONLY JSON {"valid":true,"evidence":["source-grounded checks"],"issues":[]}; unresolved conflicts need evidence and options, not autonomous dismissal.\n${context}\nProposal: ${json(state.proposal)}\nResulting catalog: ${catalogText(next)}`);
         const verification = state.verification;
         if (verification.valid !== true || !Array.isArray(verification.evidence) || !verification.evidence.length
           || verification.evidence.some((entry) => typeof entry !== 'string' || !entry.trim())
           || !Array.isArray(verification.issues) || verification.issues.length) throw new Error('Prevention not independently verified');
         const current = JSON.parse(await readFile(path.join(this.root, '.harness/prevention.json'), 'utf8'));
         if (json(current) !== json(catalog)) throw new Error('Catalog changed during learning; retry against current rules');
+        state.specificCaseFiles = [];
+        for (const note of specificCases(state.proposal, state.feedbackBatch.items)) {
+          const file = path.join(this.root, '.harness/specific-cases', `${id}-${note.id}.json`);
+          await save(file, { version: 1, ...note });
+          state.specificCaseFiles.push(file);
+        }
         await save(path.join(this.root, '.harness/prevention.json'), next);
         state.status = 'verified';
       } catch (error) {
@@ -547,7 +574,7 @@ export class Controller {
       await writeFile(reportFile, report, { mode: 0o600 });
       await save(path.join(state.dir, 'state.json'), state);
       return { lessonId: id, status: state.status, error: state.error, evidence: state.dir, cost: state.cost,
-        requiresUser: state.requiresUser ?? false, questions: state.questions ?? [], reportFile, report };
+        requiresUser: state.requiresUser ?? false, questions: state.questions ?? [], specificCaseFiles: state.specificCaseFiles ?? [], reportFile, report };
     });
   }
 

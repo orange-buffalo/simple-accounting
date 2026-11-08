@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Controller, catalogText, curate, knowledge } from '../../.opencode/plugins/sa-review/core.js';
+import { Controller, catalogText, curate, knowledge, specificCases } from '../../.opencode/plugins/sa-review/core.js';
 
 const rule = { id: 'slurm-ownership', category: 'backend', appliesWhen: 'Reading workspace cargo',
   instruction: 'Enforce workspace ownership before reading cargo.', reason: 'A cargo identifier alone does not establish access.' };
@@ -82,6 +82,42 @@ test('learning preserves a large catalog and publishes every new rule despite an
   assert.deepEqual(roles, ['feedback-analysis', 'learning-validator']);
   assert.deepEqual(JSON.parse(await readFile(path.join(root, '.harness/prevention.json'), 'utf8')), { version: 2, rules: expected });
   assert.deepEqual(JSON.parse(await knowledge(root)), expected);
+});
+
+test('specific cases allow verified retirement without becoming active guidance', async () => {
+  const root = await fixture();
+  const candidate = proposal();
+  const note = { id: 'cargo-contract', refs: ['F1'], feedback: 'Cargo provenance follows its delivery.',
+    instruction: 'For this cargo workflow, use the delivery link.', diff: '- cargo.owner\n+ cargo.delivery.owner',
+    reason: 'One domain contract does not establish a reusable pattern.' };
+  candidate.specificCases = [note];
+  candidate.retire = [{ id: rule.id, replacements: [], caseId: note.id, reason: note.reason }];
+  candidate.dispositions[0].ruleIds = [];
+  assert.deepEqual(curate(catalog, candidate, items), { version: 2, rules: [] });
+  for (const invalid of [{ ...note, id: '../cargo' }, { ...note, refs: ['unknown'] }, { ...note, diff: '' }]) {
+    assert.throws(() => specificCases({ specificCases: [invalid] }, items));
+  }
+  const controller = new Controller(root, async ({ role }) => answer(role === 'feedback-analysis' ? candidate
+    : { valid: true, evidence: ['Sanitized case preserves only the specific contract'], issues: [] }));
+  const result = await controller.learn({ runId: 'review-fry', feedback: JSON.stringify({ kind: 'user-confirmed-policy', items }) });
+  assert.equal(result.status, 'verified');
+  assert.equal(result.specificCaseFiles.length, 1);
+  assert.deepEqual(JSON.parse(await readFile(result.specificCaseFiles[0], 'utf8')), { version: 1, ...note });
+  assert.deepEqual(JSON.parse(await knowledge(root)), []);
+  assert.match(result.report, /not active guidance/);
+});
+
+test('unverified specific cases are not published', async () => {
+  const root = await fixture();
+  const candidate = proposal();
+  candidate.specificCases = [{ id: 'cargo-contract', refs: ['F1'], feedback: 'Neutral feedback',
+    instruction: 'Case instruction', diff: '- old\n+ new', reason: 'Specific contract' }];
+  const controller = new Controller(root, async ({ role }) => answer(role === 'feedback-analysis' ? candidate
+    : { valid: false, evidence: ['Case not faithful'], issues: ['Unsupported example'] }));
+  const result = await controller.learn({ runId: 'review-fry', feedback: JSON.stringify({ kind: 'user-confirmed-policy', items }) });
+  assert.equal(result.status, 'candidate');
+  assert.deepEqual(result.specificCaseFiles, []);
+  assert.deepEqual(JSON.parse(await knowledge(root)), [rule]);
 });
 
 test('learning existing guidance needs no new rule or blind ceremony and deploys only the operational catalog', async () => {

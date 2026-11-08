@@ -51,11 +51,9 @@ class EditIncomeMutationTest(
 
         @Test
         fun `should reject income editing through saved shared workspace access`() {
-            client.graphqlMutation { saveSharedWorkspace(token = preconditions.workspaceAccessToken.token) { id } }
-                .from(preconditions.zoidberg)
-                .executeAndVerifySuccessResponse("saveSharedWorkspace" to buildJsonObject {
-                    put("id", preconditions.fryWorkspace.id)
-                })
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
             client.graphqlMutation {
                 editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
             }.from(preconditions.zoidberg)
@@ -127,13 +125,6 @@ class EditIncomeMutationTest(
                     workspaceId = preconditions.fryWorkspace.id!!,
                     id = preconditions.fryIncome.id!!,
                     currency = value,
-                )
-            },
-            sizeConstraintTestCases("notes", maxLength = 1024) { value ->
-                editIncomeMutation(
-                    workspaceId = preconditions.fryWorkspace.id!!,
-                    id = preconditions.fryIncome.id!!,
-                    notes = value,
                 )
             },
             optionalFieldAbsentTestCases("notes") {
@@ -241,7 +232,7 @@ class EditIncomeMutationTest(
                         originalAmount = 8000L,
                         convertedAmountInDefaultCurrency = 9000L,
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
-                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.",
+                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32),
                         categoryId = category.id!!,
                         generalTaxId = generalTax.id!!,
                     )
@@ -255,7 +246,7 @@ class EditIncomeMutationTest(
                         put("currency", "EUR")
                         put("originalAmount", 8000L)
                         put("useDifferentExchangeRateForIncomeTaxPurposes", false)
-                        put("notes", "Good news, everyone! Updated delivery to Omicron Persei 8.")
+                        put("notes", "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32))
                     }
                 )
 
@@ -280,7 +271,7 @@ class EditIncomeMutationTest(
                         generalTaxId = generalTax.id,
                         generalTaxRateInBps = 1500,
                         generalTaxAmount = 1174L,
-                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.",
+                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32),
                         status = IncomeStatus.FINALIZED,
                     )
                 )

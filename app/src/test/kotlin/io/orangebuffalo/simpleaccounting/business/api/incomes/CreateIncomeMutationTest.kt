@@ -51,11 +51,9 @@ class CreateIncomeMutationTest(
 
         @Test
         fun `should reject income creation through saved shared workspace access`() {
-            client.graphqlMutation { saveSharedWorkspace(token = preconditions.workspaceAccessToken.token) { id } }
-                .from(preconditions.zoidberg)
-                .executeAndVerifySuccessResponse("saveSharedWorkspace" to buildJsonObject {
-                    put("id", preconditions.fryWorkspace.id)
-                })
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
             client.graphqlMutation { createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!) }
                 .from(preconditions.zoidberg)
                 .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateIncome)
@@ -100,9 +98,6 @@ class CreateIncomeMutationTest(
             },
             mustNotBeBlankTestCases("currency") { value ->
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, currency = value)
-            },
-            sizeConstraintTestCases("notes", maxLength = 1024) { value ->
-                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
             },
             optionalFieldAbsentTestCases("notes") {
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
@@ -169,7 +164,7 @@ class CreateIncomeMutationTest(
                         originalAmount = 12345L,
                         convertedAmountInDefaultCurrency = 10000L,
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
-                        notes = "Good news, everyone! Delivery payment received.",
+                        notes = "Good news, everyone! Delivery payment received.".repeat(32),
                         attachments = listOf(document.id!!),
                         categoryId = category.id!!,
                         generalTaxId = generalTax.id!!,
@@ -183,7 +178,7 @@ class CreateIncomeMutationTest(
                         put("currency", "EUR")
                         put("originalAmount", 12345L)
                         put("useDifferentExchangeRateForIncomeTaxPurposes", false)
-                        put("notes", "Good news, everyone! Delivery payment received.")
+                        put("notes", "Good news, everyone! Delivery payment received.".repeat(32))
                     }
                 )
 
@@ -211,7 +206,7 @@ class CreateIncomeMutationTest(
                         generalTaxId = generalTax.id,
                         generalTaxRateInBps = 2000,
                         generalTaxAmount = 1667L,
-                        notes = "Good news, everyone! Delivery payment received.",
+                        notes = "Good news, everyone! Delivery payment received.".repeat(32),
                         status = IncomeStatus.FINALIZED,
                     )
                 )

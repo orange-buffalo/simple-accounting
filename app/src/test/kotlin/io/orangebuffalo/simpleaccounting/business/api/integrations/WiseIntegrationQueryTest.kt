@@ -4,7 +4,6 @@ import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
-import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -53,9 +52,9 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
 
         @Test
         fun `should reject integrations for a saved shared workspace`() {
-            client.graphqlMutation { saveSharedWorkspace(token = preconditions.shared.token) { id } }
-                .from(preconditions.leela)
-                .executeAndVerifySuccessResponse("saveSharedWorkspace" to json("""{"id":"${preconditions.workspace.id}"}"""))
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.leela, workspaceAccessToken = preconditions.shared)
+            }
             client.graphql { integrationStatus() }.from(preconditions.leela)
                 .executeAndVerifyEntityNotFoundError(path = "workspace", locationColumn = 7, locationLine = 4)
         }
@@ -67,14 +66,14 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         @Test
         fun `should expose the configured income category`() {
             val category = preconditions {
-                category(workspace = preconditions.workspace, income = true).also {
+                category(workspace = preconditions.workspace, income = true, name = "Delivery").also {
                     wiseIntegrationSettings(workspace = preconditions.workspace, createIncomeFromInvoices = true, incomeCategory = it)
                 }
             }
             client.graphql {
-                workspace(id = preconditions.workspace.id!!) { integrations { wise { incomeCategoryId } } }
+                workspace(id = preconditions.workspace.id!!) { integrations { wise { incomeCategory { id; name } } } }
             }.from(preconditions.fry).executeAndVerifySuccessResponse(
-                "workspace" to json("""{"integrations":{"wise":{"incomeCategoryId":"${category.id}"}}}"""),
+                "workspace" to json("""{"integrations":{"wise":{"incomeCategory":{"id":"${category.id}","name":"Delivery"}}}}"""),
             )
         }
 
@@ -88,7 +87,8 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         fun `should report activation only for the configured workspace`() {
             preconditions {
                 wiseIntegrationSettings(workspace = preconditions.workspace, createIncomeFromInvoices = false,
-                    populateIncomeConvertedAmounts = true)
+                    populateIncomeConvertedAmounts = true, fetchTransactionsPeriodically = true, fetchMonthlyStatements = true,
+                    authenticationRequired = false, lastSuccessfulFetchTime = null)
             }
             client.graphql { integrationStatus() }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"fetchMonthlyStatements":true,"createIncomeFromInvoices":false,"populateIncomeConvertedAmounts":true,"lastSuccessfulFetchTime":null}}}"""))

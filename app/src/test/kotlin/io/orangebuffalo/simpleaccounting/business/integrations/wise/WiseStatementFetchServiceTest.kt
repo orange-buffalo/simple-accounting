@@ -63,7 +63,7 @@ class WiseStatementFetchServiceTest(
     fun `should honor persisted conversion preference during statement fetching`(enabled: Boolean) {
         val setup = preconditions {
             object {
-                private val workspace = workspace(defaultCurrency = "EUR")
+                private val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en")), defaultCurrency = "EUR")
                 val integration = wiseIntegrationSettings(
                     workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
                     fetchMonthlyStatements = false, populateIncomeConvertedAmounts = enabled,

@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
@@ -19,6 +21,7 @@ import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 class IntegrationsGqlApi {
     @Component
@@ -186,7 +189,10 @@ class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
     val populateIncomeConvertedAmounts: Boolean = settings?.populateIncomeConvertedAmounts ?: true
 
     @GraphQLDescription("Category used for automatically created incomes. Null before configuration; required when income creation is enabled.")
-    val incomeCategoryId: String? = settings?.incomeCategoryId
+    fun incomeCategory(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {
+        val categoryId = settings?.incomeCategoryId ?: return null
+        return env.loadCategoryByWorkspaceAndId(workspaceId = settings.workspaceId, categoryId = categoryId)
+    }
 
     @GraphQLDescription("Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again.")
     val authenticationRequired: Boolean = settings?.authenticationRequired ?: false

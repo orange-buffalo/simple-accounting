@@ -14,3 +14,5 @@ alter table wise_integration_settings
 alter table account_statement_record
     add column linked_income_id character varying(10) references income(id) on delete set null;
 create index account_statement_income_idx on account_statement_record(linked_income_id);
+
+alter table income alter column notes type text;

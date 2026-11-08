@@ -139,7 +139,7 @@
       workspace(id: $workspaceId) {
         integrations { wise {
           active fetchTransactionsPeriodically fetchMonthlyStatements
-          createIncomeFromInvoices populateIncomeConvertedAmounts incomeCategoryId
+          createIncomeFromInvoices populateIncomeConvertedAmounts incomeCategory { id name }
         } }
       }
     }
@@ -317,7 +317,7 @@
     preferences.value.fetchMonthlyStatements = workspace.integrations.wise.fetchMonthlyStatements;
     preferences.value.createIncomeFromInvoices = workspace.integrations.wise.createIncomeFromInvoices;
     preferences.value.populateIncomeConvertedAmounts = workspace.integrations.wise.populateIncomeConvertedAmounts;
-    preferences.value.incomeCategoryId = workspace.integrations.wise.incomeCategoryId ?? undefined;
+    preferences.value.incomeCategoryId = workspace.integrations.wise.incomeCategory?.id ?? undefined;
     if (configured.value) await verify();
   });
 </script>

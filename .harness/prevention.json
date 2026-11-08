@@ -12,7 +12,7 @@
       "id": "curate-scoped-rules",
       "category": "learning",
       "appliesWhen": "Updating accumulated implementation experience",
-      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
+      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony. Admit only reusable patterns to active rules. Skip nongeneralizable corrections or archive verified cases separately with sanitized neutral feedback, a case-specific instruction and minimal representative diff. Never inject, retrieve or mine those archives in automatic cycles; later pattern analysis requires a separate explicit user prompt.",
       "reason": "A coherent current guide prevents mistakes better than an accumulating history."
     },
     {
@@ -541,11 +541,32 @@
       "reason": "Parallel localization logic bypasses framework conventions and couples secondary variants to expensive workflows."
     },
     {
-      "id": "statement-income-provenance",
+      "id": "shared-save-authorization-boundary",
       "category": "backend",
-      "appliesWhen": "Determining integration provenance for account-statement income conversion matching",
-      "instruction": "Establish provenance through the income's invoice being linked by any statement from the same integration, independent of that statement's type or income linkage. Preserve separate currency, amount, receipt-date, ambiguity and unpopulated-actual-amount matching requirements.",
-      "reason": "Income-creation mechanics are not the conversion provenance contract."
+      "appliesWhen": "An aggregate save is shared by authenticated API facades and trusted background orchestration; excludes independently exposed operations with their own authorization contract",
+      "instruction": "Enforce caller authorization at API facades rather than impersonating a user for trusted background saves. Before relocating checks, audit all exposed callers and preserve rejection behavior and precedence. Keep aggregate consistency and scope validation in the shared save; retain authorization on separate operations not covered by the migration.",
+      "reason": "Background reuse should not require fabricated caller identity or weaken externally reachable access checks."
+    },
+    {
+      "id": "required-processing-order",
+      "category": "backend",
+      "appliesWhen": "Ordering records within batch processing; excludes required phase sequencing, pagination, locking and other demonstrated ordering contracts",
+      "instruction": "Do not add collection sorting or SQL ordering without a concrete business or correctness requirement. Preserve required workflow-phase order independently.",
+      "reason": "Arbitrary ordering adds complexity and can imply an unsupported selection priority."
+    },
+    {
+      "id": "workflow-query-ownership",
+      "category": "backend",
+      "appliesWhen": "Several specialized selection queries serve one orchestration workflow; excludes genuinely reusable aggregate lookups",
+      "instruction": "Keep workflow-specific selections together in a dedicated workflow repository, not split between service-inline SQL and generic aggregate repositories. Leave orchestration in the service and reusable aggregate operations with their existing owners.",
+      "reason": "Consistent query ownership prevents workflow details from leaking into generic persistence APIs."
+    },
+    {
+      "id": "eligibility-test-isolation",
+      "category": "testing",
+      "appliesWhen": "Testing independent rejection criteria of a conjunctive matching or eligibility contract; excludes deliberately combined-failure or precedence scenarios",
+      "instruction": "Build a fully eligible scenario through a typed factory-owned helper with explicit relevant defaults and named overrides. Exercise its unchanged baseline successfully; rejection cases alter only their subject criterion or add the necessary disqualifying data. Specify expected outcomes independently of production matching logic.",
+      "reason": "A negative result cannot identify the intended rejection condition when unrelated fixture conditions also fail."
     }
   ]
 }

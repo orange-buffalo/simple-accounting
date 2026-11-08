@@ -1,20 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.integrations
 
-import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeAttachment
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.business.incomes.IncomesRepository
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
-import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesRepository
-import io.orangebuffalo.simpleaccounting.business.security.runAs
-import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import org.jooq.DSLContext
-import org.jooq.impl.DSL
 import org.springframework.stereotype.Service
 import org.springframework.context.MessageSource
 import org.springframework.transaction.annotation.Transactional
@@ -26,10 +19,8 @@ import java.util.Locale
 @Service
 class AccountStatementProcessingService(
     private val records: AccountStatementRecordsRepository,
-    private val dsl: DSLContext,
-    private val incomes: IncomesRepository,
+    private val processingRepository: AccountStatementProcessingRepository,
     private val incomesService: IncomesService,
-    private val invoices: InvoicesRepository,
     private val workspaces: WorkspacesService,
     private val users: PlatformUsersService,
     private val messages: MessageSource,
@@ -45,41 +36,40 @@ class AccountStatementProcessingService(
         val matching = linkInvoices(workspaceId)
         val currentWorkspace = workspaces.getWorkspace(workspaceId)
         val owner = users.getUserByUserId(currentWorkspace.ownerId)
-        // Invoice saves nested inside income persistence still require user authorization.
-        runAs(owner.toSecurityPrincipal()) {
-            if (createIncomeFromInvoices) createIncomes(
-                workspaceId = workspaceId, integrationId = integrationId, language = owner.i18nSettings.language,
+        val locale = Locale.forLanguageTag(owner.i18nSettings.language)
+        if (createIncomeFromInvoices) {
+            createIncomes(
+                workspaceId = workspaceId,
+                integrationId = integrationId,
+                locale = locale,
                 categoryId = requireNotNull(incomeCategoryId) { "An income category is required for automatic income creation" },
             )
-            if (populateIncomeConvertedAmounts) convertIncomes(
-                workspaceId = workspaceId, integrationId = integrationId, defaultCurrency = currentWorkspace.defaultCurrency,
+        }
+        if (populateIncomeConvertedAmounts) {
+            convertIncomes(
+                workspaceId = workspaceId,
+                integrationId = integrationId,
+                defaultCurrency = currentWorkspace.defaultCurrency,
+                locale = locale,
             )
         }
         return matching
     }
 
     private fun linkInvoices(workspaceId: String): InvoiceMatchingResult {
-        val invoice = Tables.INVOICE
-        val customer = Tables.CUSTOMER
-        val statement = Tables.ACCOUNT_STATEMENT_RECORD
-        val unlinked = records.findByWorkspaceIdAndLinkedInvoiceIdIsNullAndType(workspaceId = workspaceId, type = StatementType.CREDIT)
-            .sortedWith(compareBy<AccountStatementRecord> { it.occurredAt }.thenBy { it.id })
+        val unlinked = processingRepository.findCreditsWithoutInvoice(workspaceId)
         val links = mutableListOf<StatementInvoiceLink>()
         var ambiguous = 0
-        val availableInvoices = dsl.select(invoice.id, invoice.invoiceNumber, invoice.currency, invoice.amount).from(invoice)
-            .join(customer).on(customer.id.eq(invoice.customerId))
-            .where(customer.workspaceId.eq(workspaceId))
-            .andNotExists(DSL.selectOne().from(statement).where(statement.linkedInvoiceId.eq(invoice.id)))
-            .fetch().associateBy { it[invoice.id]!! }.toMutableMap()
+        val availableInvoices = processingRepository.findUnlinkedInvoices(workspaceId).associateBy { it.id }.toMutableMap()
         unlinked.forEach { record ->
             val description = record.additionalData ?: return@forEach
             val candidates = availableInvoices.values.filter { candidate ->
-                    val number = candidate[invoice.invoiceNumber]!!
-                    candidate[invoice.currency] == record.currency && candidate[invoice.amount] == record.amountInCents &&
-                        number.isNotBlank() && description.contains(other = number, ignoreCase = true)
-                }
+                val number = candidate.invoiceNumber
+                candidate.currency == record.currency && candidate.amount == record.amountInCents &&
+                    number.isNotBlank() && description.contains(other = number, ignoreCase = true)
+            }
             if (candidates.size == 1) {
-                val invoiceId = candidates.single()[invoice.id]!!
+                val invoiceId = candidates.single().id!!
                 records.save(record.copy(linkedInvoiceId = invoiceId))
                 availableInvoices.remove(invoiceId)
                 links.add(StatementInvoiceLink(statementId = record.id!!, invoiceId = invoiceId))
@@ -90,10 +80,10 @@ class AccountStatementProcessingService(
         return InvoiceMatchingResult(checked = unlinked.size, links = links, ambiguous = ambiguous)
     }
 
-    private fun createIncomes(workspaceId: String, integrationId: String, language: String, categoryId: String) {
-        val eligible = records.findForIncomeCreation(workspaceId = workspaceId, integrationId = integrationId)
+    private fun createIncomes(workspaceId: String, integrationId: String, locale: Locale, categoryId: String) {
+        val eligible = processingRepository.findCreditsForIncomeCreation(workspaceId = workspaceId, integrationId = integrationId)
         if (eligible.isEmpty()) return
-        val invoicesById = invoices.findAllByIdsAndWorkspaceId(
+        val invoicesById = processingRepository.findInvoices(
             ids = eligible.map { it.linkedInvoiceId!! }, workspaceId = workspaceId,
         ).associateBy { it.id }
         eligible.forEach { record ->
@@ -102,7 +92,7 @@ class AccountStatementProcessingService(
             val income = incomesService.saveIncome(Income(
                 workspaceId = workspaceId,
                 categoryId = categoryId,
-                title = messages.getMessage("income.invoicePayment.title", arrayOf(invoice.invoiceNumber), Locale.forLanguageTag(language)),
+                title = messages.getMessage("income.invoicePayment.title", arrayOf(invoice.invoiceNumber), locale),
                 dateReceived = record.occurredAt.atZone(ZoneOffset.UTC).toLocalDate(),
                 currency = invoice.currency,
                 originalAmount = invoice.amount,
@@ -118,10 +108,10 @@ class AccountStatementProcessingService(
         }
     }
 
-    private fun convertIncomes(workspaceId: String, integrationId: String, defaultCurrency: String) {
-        val eligibleIncomes = incomes.findForStatementConversion(workspaceId = workspaceId, integrationId = integrationId)
+    private fun convertIncomes(workspaceId: String, integrationId: String, defaultCurrency: String, locale: Locale) {
+        val eligibleIncomes = processingRepository.findIncomesForConversion(workspaceId = workspaceId, integrationId = integrationId)
             .associateBy { it.id }.toMutableMap()
-        records.findForIncomeConversion(workspaceId = workspaceId, integrationId = integrationId, defaultCurrency = defaultCurrency).forEach { record ->
+        processingRepository.findConversions(workspaceId = workspaceId, integrationId = integrationId, defaultCurrency = defaultCurrency).forEach { record ->
             val sourceAmount = record.sourceAmountInCents!!
             val targetAmount = record.targetAmountInCents!!
             val date = record.occurredAt.atZone(ZoneOffset.UTC).toLocalDate()
@@ -133,7 +123,9 @@ class AccountStatementProcessingService(
             val rate = record.exchangeRate ?: targetAmount.toBigDecimal()
                 .movePointLeft(Currency.getInstance(defaultCurrency).defaultFractionDigits)
                 .divide(sourceAmount.toBigDecimal().movePointLeft(Currency.getInstance(matched.currency).defaultFractionDigits), 10, RoundingMode.HALF_UP)
-            val note = "Converted on $date: 1 ${matched.currency} = ${rate.stripTrailingZeros().toPlainString()} $defaultCurrency"
+            val note = messages.getMessage(
+                "income.conversion.note", arrayOf(date.toString(), matched.currency, rate.stripTrailingZeros().toPlainString(), defaultCurrency), locale,
+            )
             incomesService.saveIncome(matched.copy(
                 convertedAmounts = AmountsInDefaultCurrency(targetAmount),
                 attachments = matched.attachments + record.attachments.map { IncomeAttachment(it.documentId) },

@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.reload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
@@ -46,6 +47,18 @@ class EditInvoiceMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject invoice editing through saved shared workspace access`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            client.graphqlMutation {
+                editInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryInvoice.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditInvoice)
+            aggregateTemplate.reload(preconditions.fryInvoice).shouldBeEntityWithFields(preconditions.fryInvoice)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
