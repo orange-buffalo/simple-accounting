@@ -59,6 +59,8 @@
               <p class="wise-configuration__hint">{{ $t.integrations.wise.fetchTransactionsHint() }}</p>
               <div class="wise-configuration__automation">
                 <SaFormSwitchSection prop="createIncomeFromInvoices" :label="$t.integrations.wise.createIncomeFromInvoices()" :disabled="!preferences.fetchTransactionsPeriodically" />
+                <SaFormCategoryInput v-if="preferences.createIncomeFromInvoices" prop="incomeCategoryId"
+                                      :label="$t.integrations.wise.incomeCategory()" :category-type="CategoryType.Income" />
                 <SaFormSwitchSection prop="populateIncomeConvertedAmounts" :label="$t.integrations.wise.populateIncomeConvertedAmounts()" :disabled="!preferences.fetchTransactionsPeriodically" />
               </div>
               <SaFormSwitchSection prop="fetchMonthlyStatements" :label="$t.integrations.wise.fetchMonthlyStatements()" />
@@ -94,6 +96,7 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
+  import SaFormCategoryInput from '@/components/form/SaFormCategoryInput.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { graphql } from '@/services/api/gql';
@@ -102,6 +105,7 @@
     SaveWiseIntegrationSettingsErrorCodes, ListWiseAccountsErrorCodes,
   } from '@/services/api/gql/schema-types';
   import type { ListWiseAccountsMutation } from '@/services/api/gql/graphql';
+  import { CategoryType } from '@/services/api/gql/schema-types';
   import { handleGqlApiBusinessError } from '@/services/api/api-utils';
   import { $t } from '@/services/i18n';
 
@@ -118,6 +122,7 @@
       $workspaceId: String!, $token: String, $accounts: [WiseAccountInput!]!, $fetchTransactionsPeriodically: Boolean!
       $fetchMonthlyStatements: Boolean!
       $createIncomeFromInvoices: Boolean!, $populateIncomeConvertedAmounts: Boolean!
+      $incomeCategoryId: String
     ) {
       saveWiseIntegrationSettings(
         workspaceId: $workspaceId, token: $token, accounts: $accounts,
@@ -125,6 +130,7 @@
         fetchMonthlyStatements: $fetchMonthlyStatements
         createIncomeFromInvoices: $createIncomeFromInvoices
         populateIncomeConvertedAmounts: $populateIncomeConvertedAmounts
+        incomeCategoryId: $incomeCategoryId
       ) { success }
     }
   `), 'saveWiseIntegrationSettings');
@@ -133,18 +139,25 @@
       workspace(id: $workspaceId) {
         integrations { wise {
           active fetchTransactionsPeriodically fetchMonthlyStatements
-          createIncomeFromInvoices populateIncomeConvertedAmounts
+          createIncomeFromInvoices populateIncomeConvertedAmounts incomeCategoryId
         } }
       }
     }
   `), 'workspace', { variables: { workspaceId } });
   type Account = ListWiseAccountsMutation['listWiseAccounts']['accounts'][number];
   const form = ref<{ token: string }>({ token: '' });
-  const preferences = ref({
+  const preferences = ref<{
+    fetchTransactionsPeriodically: boolean,
+    fetchMonthlyStatements: boolean,
+    createIncomeFromInvoices: boolean,
+    populateIncomeConvertedAmounts: boolean,
+    incomeCategoryId: string | undefined,
+  }>({
     fetchTransactionsPeriodically: true,
     fetchMonthlyStatements: true,
     createIncomeFromInvoices: true,
     populateIncomeConvertedAmounts: true,
+    incomeCategoryId: undefined,
   });
   const steps = { TOKEN_INPUT: 'token', ACCOUNT_SELECTION: 'accounts', ACTIVATION: 'activation' } as const;
   type WiseStep = typeof steps[keyof typeof steps];
@@ -158,6 +171,9 @@
   watch(() => preferences.value.fetchMonthlyStatements, () => { saved.value = false; });
   watch(() => preferences.value.createIncomeFromInvoices, () => { saved.value = false; });
   watch(() => preferences.value.populateIncomeConvertedAmounts, () => { saved.value = false; });
+  watch(() => preferences.value.incomeCategoryId, () => { saved.value = false; });
+  const missingIncomeCategory = computed(() => preferences.value.createIncomeFromInvoices
+    && !preferences.value.incomeCategoryId);
   const error = ref<SaveWiseIntegrationSettingsErrorCodes | ListWiseAccountsErrorCodes | null>(null);
   const accounts = ref<Account[]>([]);
   const profiles = computed(() => {
@@ -177,6 +193,8 @@
     switch (error.value) {
     case SaveWiseIntegrationSettingsErrorCodes.InvalidToken: return $t.value.integrations.wise.invalidToken();
     case SaveWiseIntegrationSettingsErrorCodes.InvalidAccounts: return $t.value.integrations.wise.invalidAccounts();
+    case SaveWiseIntegrationSettingsErrorCodes.InvalidIncomeCategory:
+      return $t.value.integrations.wise.invalidIncomeCategory();
     default: return $t.value.integrations.wise.unavailable();
     }
   });
@@ -233,7 +251,7 @@
     else await verify();
   };
   const save = async () => {
-    if (busy.value || !verified.value || selected.value.size === 0) return;
+    if (busy.value || !verified.value || selected.value.size === 0 || missingIncomeCategory.value) return;
     step.value = steps.ACTIVATION;
     busy.value = true;
     error.value = null;
@@ -244,6 +262,7 @@
         fetchMonthlyStatements: preferences.value.fetchMonthlyStatements,
         createIncomeFromInvoices: preferences.value.createIncomeFromInvoices,
         populateIncomeConvertedAmounts: preferences.value.populateIncomeConvertedAmounts,
+        incomeCategoryId: preferences.value.incomeCategoryId ?? null,
         accounts: accounts.value.filter(account => !account.deleted && selected.value.has(accountKey(account)))
           .map(({ profileId, accountId, currency }) => ({ profileId, accountId, currency })),
       });
@@ -278,10 +297,10 @@
     {
       id: steps.ACCOUNT_SELECTION,
       title: $t.value.integrations.wise.accountsStep(),
-      complete: verified.value && selected.value.size > 0,
+      complete: verified.value && selected.value.size > 0 && !missingIncomeCategory.value,
       next: {
         action: save,
-        disabled: !!error.value || !verified.value || selected.value.size === 0,
+        disabled: !!error.value || !verified.value || selected.value.size === 0 || missingIncomeCategory.value,
       },
     },
     {
@@ -298,6 +317,7 @@
     preferences.value.fetchMonthlyStatements = workspace.integrations.wise.fetchMonthlyStatements;
     preferences.value.createIncomeFromInvoices = workspace.integrations.wise.createIncomeFromInvoices;
     preferences.value.populateIncomeConvertedAmounts = workspace.integrations.wise.populateIncomeConvertedAmounts;
+    preferences.value.incomeCategoryId = workspace.integrations.wise.incomeCategoryId ?? undefined;
     if (configured.value) await verify();
   });
 </script>

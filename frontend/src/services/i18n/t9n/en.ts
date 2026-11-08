@@ -64,6 +64,8 @@ export default {
       fetchTransactionsPeriodically: () => 'Fetch transactions automatically',
       fetchMonthlyStatements: () => 'Fetch monthly statements as PDFs',
       createIncomeFromInvoices: () => 'Create income for matching invoices',
+      incomeCategory: () => 'Category for created incomes',
+      invalidIncomeCategory: () => 'Select an income category from this workspace.',
       populateIncomeConvertedAmounts: () => 'Populate actual income amounts from conversions',
       fetchTransactionsHint: () => 'Fetch transactions for selected accounts every four hours. The first fetch imports the last three months.',
       authenticationRequired: () => 'Requires auth',

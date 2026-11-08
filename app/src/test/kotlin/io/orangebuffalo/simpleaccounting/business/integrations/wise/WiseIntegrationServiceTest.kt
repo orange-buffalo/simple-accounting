@@ -80,6 +80,7 @@ class WiseIntegrationServiceTest(
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
             workspaceId = data.workspace.id!!, token = token, fetchTransactionsPeriodically = false, fetchMonthlyStatements = true,
+            createIncomeFromInvoices = false,
             accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
         ))
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
@@ -106,6 +107,7 @@ class WiseIntegrationServiceTest(
 
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
             workspaceId = data.workspace.id!!, token = token, fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+            createIncomeFromInvoices = false,
             accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD")),
         ))
         aggregateTemplate.findAll<StandaloneDocument>().shouldBe(emptyList())
@@ -198,6 +200,7 @@ class WiseIntegrationServiceTest(
                 workspaceId = data.integration.workspaceId, token = token,
                 accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR")),
                 fetchTransactionsPeriodically = false, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
+                createIncomeFromInvoices = false,
             ),
         )
         WiseApiMocks.shouldHaveStatementRequests(count = 1)

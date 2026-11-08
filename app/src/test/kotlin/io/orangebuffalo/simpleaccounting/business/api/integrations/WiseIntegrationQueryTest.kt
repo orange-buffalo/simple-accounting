@@ -65,6 +65,20 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
     @DisplayName("Business Flow")
     inner class BusinessFlow {
         @Test
+        fun `should expose the configured income category`() {
+            val category = preconditions {
+                category(workspace = preconditions.workspace, income = true).also {
+                    wiseIntegrationSettings(workspace = preconditions.workspace, createIncomeFromInvoices = true, incomeCategory = it)
+                }
+            }
+            client.graphql {
+                workspace(id = preconditions.workspace.id!!) { integrations { wise { incomeCategoryId } } }
+            }.from(preconditions.fry).executeAndVerifySuccessResponse(
+                "workspace" to json("""{"integrations":{"wise":{"incomeCategoryId":"${category.id}"}}}"""),
+            )
+        }
+
+        @Test
         fun `should report inactive Wise integration`() {
             client.graphql { integrationStatus() }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"fetchMonthlyStatements":true,"createIncomeFromInvoices":true,"populateIncomeConvertedAmounts":true,"lastSuccessfulFetchTime":null}}}"""))
@@ -73,10 +87,11 @@ class WiseIntegrationQueryTest(@Autowired private val client: ApiTestClient) : S
         @Test
         fun `should report activation only for the configured workspace`() {
             preconditions {
-                wiseIntegrationSettings(workspace = preconditions.workspace)
+                wiseIntegrationSettings(workspace = preconditions.workspace, createIncomeFromInvoices = false,
+                    populateIncomeConvertedAmounts = true)
             }
             client.graphql { integrationStatus() }.from(preconditions.fry)
-                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"fetchMonthlyStatements":true,"createIncomeFromInvoices":true,"populateIncomeConvertedAmounts":true,"lastSuccessfulFetchTime":null}}}"""))
+                .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":true,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"fetchMonthlyStatements":true,"createIncomeFromInvoices":false,"populateIncomeConvertedAmounts":true,"lastSuccessfulFetchTime":null}}}"""))
             val other = preconditions { workspace(owner = preconditions.fry) }
             client.graphql { integrationStatus(other.id!!) }.from(preconditions.fry)
                 .executeAndVerifySuccessResponse("workspace" to json("""{"integrations":{"wise":{"active":false,"authenticationRequired":false,"fetchTransactionsPeriodically":true,"fetchMonthlyStatements":true,"createIncomeFromInvoices":true,"populateIncomeConvertedAmounts":true,"lastSuccessfulFetchTime":null}}}"""))

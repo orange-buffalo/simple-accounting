@@ -15,6 +15,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorageRese
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.infra.TimeService
@@ -66,18 +67,22 @@ class WiseStatementFetchServiceTest(
                 val integration = wiseIntegrationSettings(
                     workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars),
                     fetchMonthlyStatements = false, populateIncomeConvertedAmounts = enabled,
+                    fetchTransactionsPeriodically = true, authenticationRequired = false, createIncomeFromInvoices = false,
                 )
+                private val invoice = invoice(customer = customer(workspace = workspace))
                 val income = income(
                     workspace = workspace, currency = "USD", originalAmount = 12000,
                     dateReceived = LocalDate.parse("1999-03-26"), convertedAmounts = AmountsInDefaultCurrency(null),
+                    linkedInvoice = invoice, notes = null, generalTax = null, useDifferentExchangeRateForIncomeTaxPurposes = false,
                 )
                 init {
-                    accountStatementRecord(integration = integration, type = StatementType.CREDIT, linkedIncome = income)
+                    accountStatementRecord(integration = integration, linkedInvoice = invoice)
                 }
                 val conversion = accountStatementRecord(
                     integration = integration, type = StatementType.CONVERSION,
                     occurredAt = Instant.parse("1999-03-27T12:00:00Z"),
                     sourceAmountInCents = 12000, sourceCurrency = "USD", targetAmountInCents = 10800, targetCurrency = "EUR",
+                    linkedIncome = null, exchangeRate = null,
                 )
             }
         }
@@ -148,15 +153,21 @@ class WiseStatementFetchServiceTest(
         fun `should attach legacy PDFs to new and historical statements before invoice matching`(historical: Boolean) {
             val setup = preconditions {
                 object {
-                    private val owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)
-                    private val workspace = workspace(owner = owner)
-                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN, accounts = setOf(dollars), fetchMonthlyStatements = false)
-                    val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42", amount = 125)
+                    private val owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                        i18nSettings = I18nSettings(locale = "en_AU", language = "en"))
+                    private val workspace = workspace(owner = owner, defaultCurrency = "USD")
+                    val category = category(workspace = workspace, income = true)
+                    val integration = wiseIntegrationSettings(workspace = workspace, token = WiseApiMocks.TOKEN,
+                        accounts = setOf(dollars), fetchMonthlyStatements = false, fetchTransactionsPeriodically = true,
+                        authenticationRequired = false, createIncomeFromInvoices = true, incomeCategory = category)
+                    val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025-42",
+                        amount = 125, currency = "USD", generalTax = null, datePaid = null, status = InvoiceStatus.SENT)
                     init {
                         if (historical) accountStatementRecord(
                             integration = integration, externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
                             occurredAt = Instant.parse("1990-01-01T00:15:00Z"), type = StatementType.CREDIT,
                             additionalData = "Description: PE-3025-42",
+                            currency = "USD", amountInCents = 125, linkedInvoice = null, linkedIncome = null,
                         )
                         accountStatementRecord(
                             integration = integration, externalId = """["101","EUR","DEBIT","CARD-2"]""",
@@ -174,7 +185,6 @@ class WiseStatementFetchServiceTest(
             WiseApiMocks.setupStatementPdf()
 
             fetcher.fetch(setup.integration.id!!)
-            fetcher.fetch(setup.integration.id)
 
             val record = aggregateTemplate.findAll<AccountStatementRecord>().single { it.type == StatementType.CREDIT }
             record.linkedInvoiceId.shouldBe(setup.invoice.id)
@@ -182,7 +192,7 @@ class WiseStatementFetchServiceTest(
             val income = aggregateTemplate.findAll<Income>().shouldBeSingle()
             record.linkedIncomeId.shouldBe(income.id)
             income.shouldBeEntityWithFields(Income(
-                workspaceId = setup.integration.workspaceId, categoryId = null, generalTaxId = null,
+                workspaceId = setup.integration.workspaceId, categoryId = setup.category.id, generalTaxId = null,
                 title = "Payment for Invoice #PE-3025-42", currency = "USD", originalAmount = 125,
                 dateReceived = LocalDate.parse(date.substringBefore('T')),
                 convertedAmounts = AmountsInDefaultCurrency(125), incomeTaxableAmounts = AmountsInDefaultCurrency(125),

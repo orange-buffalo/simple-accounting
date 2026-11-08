@@ -1417,10 +1417,11 @@ export type MutationSaveSharedWorkspaceArgs = {
 
 export type MutationSaveWiseIntegrationSettingsArgs = {
   accounts: Array<WiseAccountInput>;
-  createIncomeFromInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  createIncomeFromInvoices: Scalars['Boolean']['input'];
   fetchMonthlyStatements: Scalars['Boolean']['input'];
   fetchTransactionsPeriodically?: InputMaybe<Scalars['Boolean']['input']>;
-  populateIncomeConvertedAmounts?: InputMaybe<Scalars['Boolean']['input']>;
+  incomeCategoryId?: InputMaybe<Scalars['String']['input']>;
+  populateIncomeConvertedAmounts: Scalars['Boolean']['input'];
   token?: InputMaybe<Scalars['String']['input']>;
   workspaceId: Scalars['String']['input'];
 };
@@ -1725,6 +1726,8 @@ export enum SaveSharedWorkspaceErrorCodes {
 export enum SaveWiseIntegrationSettingsErrorCodes {
   /** The selected Wise accounts are invalid or have changed. */
   InvalidAccounts = 'INVALID_ACCOUNTS',
+  /** Income creation requires an income category belonging to this workspace. */
+  InvalidIncomeCategory = 'INVALID_INCOME_CATEGORY',
   /** Wise rejected the personal token. */
   InvalidToken = 'INVALID_TOKEN',
   /** Wise accounts could not be loaded. */
@@ -1955,9 +1958,11 @@ export type WiseIntegrationGqlDto = {
   fetchMonthlyStatements: Scalars['Boolean']['output'];
   /** Whether automatic transaction fetching is enabled. True by default before setup. */
   fetchTransactionsPeriodically: Scalars['Boolean']['output'];
+  /** Category used for automatically created incomes. Null before configuration; required when income creation is enabled. */
+  incomeCategoryId?: Maybe<Scalars['String']['output']>;
   /** The end of the last successfully imported statement interval across all selected accounts. Null before the first successful fetch. */
   lastSuccessfulFetchTime?: Maybe<Scalars['DateTime']['output']>;
-  /** Whether to populate actual amounts from matching conversions for incomes created by this integration. Effective only with periodic transaction fetching. True by default before setup. */
+  /** Whether to populate actual amounts from matching conversions for incomes whose invoice is linked by a statement of this integration. Effective only with periodic transaction fetching. True by default before setup. */
   populateIncomeConvertedAmounts: Scalars['Boolean']['output'];
 };
 

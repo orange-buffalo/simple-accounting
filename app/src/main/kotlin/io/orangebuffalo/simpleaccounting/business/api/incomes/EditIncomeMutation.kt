@@ -7,6 +7,8 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeAttachment
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -17,6 +19,7 @@ import java.time.LocalDate
 @Validated
 class EditIncomeMutation(
     private val incomesService: IncomesService,
+    private val workspaces: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -58,6 +61,7 @@ class EditIncomeMutation(
         @GraphQLDescription("New ID of the invoice linked to this income.")
         linkedInvoiceId: String? = null,
     ): IncomeGqlDto {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val income = incomesService.getIncomeByIdAndWorkspaceId(id, workspaceId)
             ?: throw EntityNotFoundException("Income $id is not found")
         income.validateVersion(version)

@@ -166,8 +166,8 @@
       "id": "integration-service-boundary",
       "category": "backend",
       "appliesWhen": "Implementing provider clients, configuration or provider-neutral statement operations",
-      "instruction": "Keep provider clients internal to their owning business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning integration when not shared infrastructure. Put provider-neutral statement operations, such as invoice linking and its concurrency controls, in dedicated services in the integrations package; provider fetch services delegate while preserving transaction boundaries and postcommit reporting.",
-      "reason": "Ownership prevents both provider details leaking outward and shared domain behavior becoming tied to one adapter."
+      "instruction": "Keep provider clients internal to their owning business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning integration when not shared infrastructure. Put provider-neutral statement operations, such as invoice linking and its concurrency controls, in dedicated services in the integrations package; provider fetch services delegate while preserving transaction boundaries and postcommit reporting. Scope locks to actual orchestration ownership; do not widen integration-owned serialization to the workspace without a demonstrated cross-integration invariant.",
+      "reason": "Explicit ownership prevents provider leakage, redundant orchestration and unnecessarily broad contention."
     },
     {
       "id": "page-navigation-tests",
@@ -243,8 +243,8 @@
       "id": "real-preconditions",
       "category": "testing",
       "appliesWhen": "Creating backend/full-stack test preconditions or making mid-test infrastructure state updates; excludes business-service operations exercised as the test subject",
-      "instruction": "Use EntitiesFactory through preconditions/lazyPreconditions for setup and infrastructure state updates, never business services or direct test-level persistence writes. Factory-internal transactional JDBC persistence is allowed. Name multiple arguments; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative branch changes for analogous issues; without this audit no clean receipt.",
-      "reason": "Factory-owned setup keeps arrangement independent of business behavior and centralizes persistence infrastructure."
+      "instruction": "Use EntitiesFactory through preconditions/lazyPreconditions for setup and infrastructure state updates, never business services or direct test-level persistence writes. Factory-internal transactional JDBC persistence is allowed. Name multiple arguments. Explicitly supply every value driving the tested behavior or expected result even when it matches a factory default; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative authored branch changes for analogous issues, excluding generated artifacts; without this audit no clean receipt.",
+      "reason": "Factory-owned setup stays independent of business behavior, while explicit relevant values expose each scenario's actual contract."
     },
     {
       "id": "graphql-laziness-tests",
@@ -326,9 +326,9 @@
     {
       "id": "graphql-input-documentation",
       "category": "backend",
-      "appliesWhen": "Documenting optional GraphQL credential or similarly stateful inputs",
-      "instruction": "Document supplied, null, omitted, empty, and blank semantics where applicable, including the effective value and whether it is persisted, replaced, or retained.",
-      "reason": "Generated schema documentation is the client-facing contract for wire-input semantics."
+      "appliesWhen": "Defining or documenting GraphQL inputs, including stateful optional credentials",
+      "instruction": "Choose requiredness from the API contract, not application defaults; do not introduce nullable fallback semantics without a requirement. Document required values and, for optional inputs, supplied, null, omitted, empty and blank semantics where applicable, including effective values and persistence, replacement or retention.",
+      "reason": "Application defaults do not imply optional wire inputs; schema documentation defines client expectations."
     },
     {
       "id": "independent-workflow-tests",
@@ -518,6 +518,34 @@
       "appliesWhen": "Visually reviewing forms with helper text between adjacent settings; excludes intentionally shared section descriptions",
       "instruction": "Inspect rendered helper-text grouping: keep it visibly associated with its owning control through proximity and alignment, with greater separation from the next unrelated setting. Correct isolated spacing in the owning page rather than changing shared component defaults.",
       "reason": "A rendered explanation can appear to label the next control even when its source placement is correct."
+    },
+    {
+      "id": "batch-processing-selection",
+      "category": "backend",
+      "appliesWhen": "Selecting and processing batches of statement records or related domain aggregates; excludes necessary validation inside existing save operations",
+      "instruction": "Put database-expressible eligibility in selection SQL and batch-load candidate aggregates before iteration. Avoid record-by-record orchestration reads; retain per-item persistence and required save-time consistency validation. Update in-memory candidate sets when a successful match consumes a candidate.",
+      "reason": "Post-selection filtering and per-item reads waste work; stale candidate sets allow duplicate matches."
+    },
+    {
+      "id": "required-relationship-consistency",
+      "category": "backend",
+      "appliesWhen": "Processing an existing nonnull relationship whose target must exist in the owning scope; excludes explicitly optional or legitimately deleted relationships",
+      "instruction": "Fail and roll back when a required referenced aggregate cannot be resolved in its owning scope. Do not silently skip it or hide the inconsistency with an eligibility join.",
+      "reason": "Silent omission conceals broken relationships and reports incomplete processing as success."
+    },
+    {
+      "id": "backend-message-localization",
+      "category": "backend",
+      "appliesWhen": "Generating localized backend user-facing text; excludes intentionally fixed-language machine contracts",
+      "instruction": "Use Spring MessageSource and supported-language message bundles, not inline language branches. Resolve locale and fallback through established conventions; ask when those conventions remain unclear. Keep compact localization variants separate from the main business workflow test.",
+      "reason": "Parallel localization logic bypasses framework conventions and couples secondary variants to expensive workflows."
+    },
+    {
+      "id": "statement-income-provenance",
+      "category": "backend",
+      "appliesWhen": "Determining integration provenance for account-statement income conversion matching",
+      "instruction": "Establish provenance through the income's invoice being linked by any statement from the same integration, independent of that statement's type or income linkage. Preserve separate currency, amount, receipt-date, ambiguity and unpopulated-actual-amount matching requirements.",
+      "reason": "Income-creation mechanics are not the conversion provenance contract."
     }
   ]
 }

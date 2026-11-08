@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeAttachment
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -18,6 +20,7 @@ import java.time.LocalDate
 @Validated
 class CreateIncomeMutation(
     private val incomesService: IncomesService,
+    private val workspaces: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -55,6 +58,7 @@ class CreateIncomeMutation(
         @GraphQLDescription("ID of the invoice linked to this income.")
         linkedInvoiceId: String? = null,
     ): IncomeGqlDto {
+        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val income = incomesService.saveIncome(
             Income(
                 workspaceId = workspaceId,

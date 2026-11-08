@@ -64,6 +64,8 @@ export default {
       fetchTransactionsPeriodically: () => 'Автоматично завантажувати транзакції',
       fetchMonthlyStatements: () => 'Завантажувати щомісячні виписки у форматі PDF',
       createIncomeFromInvoices: () => 'Створювати доходи для відповідних рахунків',
+      incomeCategory: () => 'Категорія створених доходів',
+      invalidIncomeCategory: () => 'Виберіть категорію доходів із цього робочого простору.',
       populateIncomeConvertedAmounts: () => 'Заповнювати фактичні суми доходів із конвертацій',
       fetchTransactionsHint: () => 'Завантажувати транзакції вибраних рахунків кожні чотири години. Перше завантаження охоплює останні три місяці.',
       authenticationRequired: () => 'Потрібна автентифікація',

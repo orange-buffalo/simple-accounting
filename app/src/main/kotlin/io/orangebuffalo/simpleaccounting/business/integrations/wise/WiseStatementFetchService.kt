@@ -99,6 +99,7 @@ class WiseStatementFetchService internal constructor(
                             workspaceId = it.workspaceId, integrationId = it.id!!,
                             createIncomeFromInvoices = it.createIncomeFromInvoices,
                             populateIncomeConvertedAmounts = it.populateIncomeConvertedAmounts,
+                            incomeCategoryId = it.incomeCategoryId,
                         )
                     }
                         ?: InvoiceMatchingResult()

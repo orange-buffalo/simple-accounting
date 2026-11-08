@@ -59,6 +59,28 @@ enum class StatementType { DEBIT, CREDIT, CONVERSION, OTHER }
 interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountStatementRecord> {
     @Query("""
         select r.* from account_statement_record r
+        where r.workspace_id = :workspaceId and r.integration_id = :integrationId
+          and r.type = 'CREDIT' and r.linked_income_id is null and r.linked_invoice_id is not null
+          and not exists (select 1 from income i where i.linked_invoice_id = r.linked_invoice_id and i.workspace_id = r.workspace_id)
+          and not exists (select 1 from invoice i join customer c on c.id = i.customer_id
+                          where i.id = r.linked_invoice_id and c.workspace_id = r.workspace_id
+                           and (i.date_paid is not null or i.status in ('PAID', 'CANCELLED')))
+        order by r.occurred_at, r.id
+    """)
+    fun findForIncomeCreation(workspaceId: String, integrationId: String): List<AccountStatementRecord>
+
+    @Query("""
+        select r.* from account_statement_record r
+        where r.workspace_id = :workspaceId and r.integration_id = :integrationId
+          and r.type = 'CONVERSION' and r.linked_income_id is null
+          and r.source_amount_in_cents > 0 and r.target_amount_in_cents >= 0
+          and r.source_currency is not null and r.target_currency = :defaultCurrency
+        order by r.occurred_at, r.id
+    """)
+    fun findForIncomeConversion(workspaceId: String, integrationId: String, defaultCurrency: String): List<AccountStatementRecord>
+
+    @Query("""
+        select r.* from account_statement_record r
         where r.workspace_id = :workspaceId and r.provider = :provider
           and r.integration_id = :integrationId
           and not exists (select 1 from account_statement_attachments a where a.account_statement_id = r.id)

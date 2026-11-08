@@ -15,6 +15,7 @@ data class WiseIntegrationSettings(
     val fetchMonthlyStatements: Boolean = true,
     val createIncomeFromInvoices: Boolean = true,
     val populateIncomeConvertedAmounts: Boolean = true,
+    val incomeCategoryId: String? = null,
     val lastSuccessfulFetchTime: Instant? = null,
     val authenticationRequired: Boolean = false,
     override val id: String? = null,

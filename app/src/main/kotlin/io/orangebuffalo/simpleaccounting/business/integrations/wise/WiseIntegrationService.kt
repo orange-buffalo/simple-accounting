@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
+import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
@@ -16,6 +17,7 @@ class WiseIntegrationService internal constructor(
     private val client: WiseApiClient,
     private val statementFetchService: WiseStatementFetchService,
     private val records: AccountStatementRecordsRepository,
+    private val categories: CategoriesService,
 ) {
     fun isActive(workspaceId: String): Boolean {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
@@ -64,10 +66,16 @@ class WiseIntegrationService internal constructor(
     fun setup(
         workspaceId: String, token: String?, accounts: List<WiseAccountSelection>,
         fetchTransactionsPeriodically: Boolean = true, fetchMonthlyStatements: Boolean = true,
-        createIncomeFromInvoices: Boolean = true, populateIncomeConvertedAmounts: Boolean = true,
+        createIncomeFromInvoices: Boolean = false, populateIncomeConvertedAmounts: Boolean = true,
+        incomeCategoryId: String? = null,
     ) {
         workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
+        if (createIncomeFromInvoices && incomeCategoryId == null) throw WiseInvalidIncomeCategoryException()
+        if (incomeCategoryId != null) {
+            val category = categories.getCategoryByIdAndWorkspace(categoryId = incomeCategoryId, workspaceId = workspaceId)
+            if (category == null || !category.income) throw WiseInvalidIncomeCategoryException()
+        }
         val resolvedToken = resolveToken(token = token, existing = existing)
         val available = client.getAccounts(resolvedToken).map {
             WiseAccountSelection(profileId = it.profileId.toString(), accountId = it.accountId.toString(), currency = it.currency)
@@ -81,10 +89,12 @@ class WiseIntegrationService internal constructor(
         }.toSet()
         val saved = settings.save(existing?.copy(token = resolvedToken, accounts = selected,
             fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements,
-            createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts, authenticationRequired = false)
+            createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts,
+            incomeCategoryId = incomeCategoryId, authenticationRequired = false)
             ?: WiseIntegrationSettings(workspaceId = workspaceId, token = resolvedToken, accounts = selected,
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements,
-                createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts))
+                createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts,
+                incomeCategoryId = incomeCategoryId))
         if (saved.fetchTransactionsPeriodically || saved.fetchMonthlyStatements) {
             TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
                 override fun afterCommit() {
@@ -124,3 +134,4 @@ data class WiseAccount(
 class WiseInvalidTokenException : RuntimeException("Wise rejected the token")
 class WiseUnavailableException : RuntimeException("Wise accounts could not be loaded")
 class WiseInvalidAccountsException : RuntimeException("The selected Wise accounts are invalid or have changed")
+class WiseInvalidIncomeCategoryException : RuntimeException("An income category from this workspace is required")
