@@ -99,6 +99,9 @@ class CreateIncomeMutationTest(
             mustNotBeBlankTestCases("currency") { value ->
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, currency = value)
             },
+            sizeConstraintTestCases("notes", maxLength = 1024) { value ->
+                createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = value)
+            },
             optionalFieldAbsentTestCases("notes") {
                 createIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, notes = "x")
             },
@@ -164,7 +167,7 @@ class CreateIncomeMutationTest(
                         originalAmount = 12345L,
                         convertedAmountInDefaultCurrency = 10000L,
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
-                        notes = "Good news, everyone! Delivery payment received.".repeat(32),
+                        notes = "Good news, everyone! Delivery payment received.",
                         attachments = listOf(document.id!!),
                         categoryId = category.id!!,
                         generalTaxId = generalTax.id!!,
@@ -178,7 +181,7 @@ class CreateIncomeMutationTest(
                         put("currency", "EUR")
                         put("originalAmount", 12345L)
                         put("useDifferentExchangeRateForIncomeTaxPurposes", false)
-                        put("notes", "Good news, everyone! Delivery payment received.".repeat(32))
+                        put("notes", "Good news, everyone! Delivery payment received.")
                     }
                 )
 
@@ -206,7 +209,7 @@ class CreateIncomeMutationTest(
                         generalTaxId = generalTax.id,
                         generalTaxRateInBps = 2000,
                         generalTaxAmount = 1667L,
-                        notes = "Good news, everyone! Delivery payment received.".repeat(32),
+                        notes = "Good news, everyone! Delivery payment received.",
                         status = IncomeStatus.FINALIZED,
                     )
                 )

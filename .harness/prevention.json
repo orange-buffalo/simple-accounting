@@ -39,9 +39,9 @@
     {
       "id": "api-test-structure",
       "category": "testing",
-      "appliesWhen": "Adding GraphQL API tests",
-      "instruction": "When adding API tests, compare neighboring tests and preserve their authorization/business-flow nesting conventions. Organize GraphQL tests by mutation and by reasonable query hierarchy level rather than one broad API test class.",
-      "reason": "Consistent boundaries expose missing business and authorization scenarios."
+      "appliesWhen": "Organizing GraphQL API tests or service test classes covering several distinct functionalities",
+      "instruction": "Compare neighboring tests and preserve their grouping conventions. Organize GraphQL tests by mutation and reasonable query hierarchy, retaining authorization/business-flow nesting. In multi-functionality service tests, use nested classes by functionality and a separate group for cross-phase contracts. Do not require nesting for compact single-functionality tests.",
+      "reason": "Functional boundaries make scenarios discoverable without flattening unrelated contracts into one test class."
     },
     {
       "id": "nullable-wire-input",
@@ -536,9 +536,9 @@
     {
       "id": "backend-message-localization",
       "category": "backend",
-      "appliesWhen": "Generating localized backend user-facing text; excludes intentionally fixed-language machine contracts",
-      "instruction": "Use Spring MessageSource and supported-language message bundles, not inline language branches. Resolve locale and fallback through established conventions; ask when those conventions remain unclear. Keep compact localization variants separate from the main business workflow test.",
-      "reason": "Parallel localization logic bypasses framework conventions and couples secondary variants to expensive workflows."
+      "appliesWhen": "Generating or testing localized backend user-facing text; excludes intentionally fixed-language machine contracts",
+      "instruction": "Use Spring MessageSource and supported-language message bundles, not inline language branches. Resolve locale and fallback through established conventions; ask when unclear. Test compact localization variants through the owning application operation with explicit language inputs and independently expected observable text, not direct MessageSource or bundle assertions. Keep variants separate from the main business workflow test.",
+      "reason": "Application-level assertions verify locale wiring and produced text; bundle-only assertions bypass that behavior."
     },
     {
       "id": "shared-save-authorization-boundary",
@@ -567,6 +567,13 @@
       "appliesWhen": "Testing independent rejection criteria of a conjunctive matching or eligibility contract; excludes deliberately combined-failure or precedence scenarios",
       "instruction": "Build a fully eligible scenario through a typed factory-owned helper with explicit relevant defaults and named overrides. Exercise its unchanged baseline successfully; rejection cases alter only their subject criterion or add the necessary disqualifying data. Specify expected outcomes independently of production matching logic.",
       "reason": "A negative result cannot identify the intended rejection condition when unrelated fixture conditions also fail."
+    },
+    {
+      "id": "contract-change-scope",
+      "category": "workflow",
+      "appliesWhen": "A requested workflow or automated finding appears to require broadening an established schema, API validation or acceptance contract; excludes contract changes explicitly authorized by the user",
+      "instruction": "Preserve established unrelated contracts. Automated findings do not authorize scope expansion; ask the user before broadening contracts to resolve a product-policy choice, and do not weaken existing tests to legitimize that expansion.",
+      "reason": "A local workflow fix can silently change behavior for unrelated callers."
     }
   ]
 }

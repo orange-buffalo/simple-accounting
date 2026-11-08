@@ -126,10 +126,11 @@ class AccountStatementProcessingService(
             val note = messages.getMessage(
                 "income.conversion.note", arrayOf(date.toString(), matched.currency, rate.stripTrailingZeros().toPlainString(), defaultCurrency), locale,
             )
+            val updatedNotes = listOfNotNull(matched.notes?.takeIf { it.isNotEmpty() }, note).joinToString("\n")
             incomesService.saveIncome(matched.copy(
                 convertedAmounts = AmountsInDefaultCurrency(targetAmount),
                 attachments = matched.attachments + record.attachments.map { IncomeAttachment(it.documentId) },
-                notes = listOfNotNull(matched.notes?.takeIf { it.isNotEmpty() }, note).joinToString("\n"),
+                notes = updatedNotes.takeIf { it.length <= 1024 } ?: matched.notes,
             ))
             records.save(record.copy(linkedIncomeId = matched.id))
             eligibleIncomes.remove(matched.id)

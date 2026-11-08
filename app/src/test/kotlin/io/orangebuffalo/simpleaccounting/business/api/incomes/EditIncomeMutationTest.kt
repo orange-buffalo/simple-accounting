@@ -127,6 +127,13 @@ class EditIncomeMutationTest(
                     currency = value,
                 )
             },
+            sizeConstraintTestCases("notes", maxLength = 1024) { value ->
+                editIncomeMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryIncome.id!!,
+                    notes = value,
+                )
+            },
             optionalFieldAbsentTestCases("notes") {
                 editIncomeMutation(
                     workspaceId = preconditions.fryWorkspace.id!!,
@@ -232,7 +239,7 @@ class EditIncomeMutationTest(
                         originalAmount = 8000L,
                         convertedAmountInDefaultCurrency = 9000L,
                         useDifferentExchangeRateForIncomeTaxPurposes = false,
-                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32),
+                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.",
                         categoryId = category.id!!,
                         generalTaxId = generalTax.id!!,
                     )
@@ -246,7 +253,7 @@ class EditIncomeMutationTest(
                         put("currency", "EUR")
                         put("originalAmount", 8000L)
                         put("useDifferentExchangeRateForIncomeTaxPurposes", false)
-                        put("notes", "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32))
+                        put("notes", "Good news, everyone! Updated delivery to Omicron Persei 8.")
                     }
                 )
 
@@ -271,7 +278,7 @@ class EditIncomeMutationTest(
                         generalTaxId = generalTax.id,
                         generalTaxRateInBps = 1500,
                         generalTaxAmount = 1174L,
-                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.".repeat(32),
+                        notes = "Good news, everyone! Updated delivery to Omicron Persei 8.",
                         status = IncomeStatus.FINALIZED,
                     )
                 )
