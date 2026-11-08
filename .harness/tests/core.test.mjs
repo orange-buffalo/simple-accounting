@@ -8,13 +8,11 @@ import path from 'node:path';
 import { Controller, hash, knowledge, snapshot, historicalSnapshot, validateFindings, validateBlindReport, reviewerScopes } from '../../.opencode/plugins/sa-review/core.js';
 
 const exec = promisify(execFile);
-const report = { findings: [], coverage: ['workspace isolation'], gaps: [], ruleAudit: [] };
+const report = { findings: [], coverage: ['workspace isolation'], gaps: [] };
 const finding = { id: 'slurm', severity: 'medium', file: 'AGENTS.md', line: 1, evidence: 'Original requirement missing', remedy: 'Add required guidance' };
 const answer = (value, cost = 0) => ({ text: JSON.stringify(value), cost, sessionId: 'ses_fry' });
 const reviewers = ['review-1', 'review-2', 'compliance-1', 'compliance-2'];
 const reviewerModel = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
-const auditedRules = (rules, files) => rules.map(({ id }) => ({ id, evidence: 'Checked cumulative changes against this rule',
-  fileAudit: [{ files, evidence: 'Checked changed sources; justified N/A for documentation-only changes' }] }));
 
 async function fixture(t, overrides = {}) {
   await mkdir('/tmp/opencode', { recursive: true });
@@ -61,7 +59,7 @@ test('review freezes every rule beyond the former cap, including when resuming a
     roles.push(role);
     assert.ok(bundle.length > 30000);
     assert.deepEqual(JSON.parse(bundle), rules);
-    return answer({ ...report, ruleAudit: auditedRules(rules, ['AGENTS.md', '.harness/prevention.json']) });
+    return answer(report);
   });
   const pending = await controller.review({ ...input, preflight: undefined });
   assert.equal(pending.status, 'awaiting-verification');
@@ -96,7 +94,7 @@ test('large knowledge files retain complete snapshots and source packets beyond 
   assert.ok(captured.diff.includes(lesson));
   const controller = new Controller(root, async ({ role, knowledge: bundle }) => {
     assert.deepEqual(JSON.parse(bundle), rules);
-    return answer({ ...report, ruleAudit: auditedRules(rules, captured.files) });
+    return answer(report);
   });
   const result = await controller.review(input);
   assert.equal(result.status, 'passed');
@@ -122,46 +120,77 @@ test('missing or incomplete orchestrator preflight never launches workers or con
   assert.equal(calls, 4);
 });
 
-test('both compliance reviewers must independently account for every frozen rule', async (t) => {
+test('both compliance reviewers receive the entire catalog for holistic review without rule or file checklists', async (t) => {
   const rules = [
     { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' },
     { id: 'robot-oil', category: 'testing', appliesWhen: 'Oil tests', instruction: 'Use real oil services', reason: 'Exercise behavior' },
   ];
+  const { root, input } = await fixture(t);
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
+  const compliance = [];
+  const result = await new Controller(root, async ({ role, knowledge: bundle, prompt }) => {
+    assert.deepEqual(JSON.parse(bundle), rules);
+    if (role.startsWith('compliance-')) {
+      compliance.push(role);
+      assert.match(prompt, /entire cumulative diff holistically/);
+      assert.match(prompt, /complete frozen prevention.json catalog/);
+      assert.match(prompt, /respecting appliesWhen, scope and exceptions/);
+      assert.match(prompt, /Do not enumerate rules one by one/);
+      assert.ok(!prompt.includes('ruleAudit'));
+      assert.ok(!prompt.includes('fileAudit'));
+    }
+    return answer(report);
+  }).review(input);
+  assert.equal(result.status, 'passed');
+  assert.deepEqual(compliance, ['compliance-1', 'compliance-2']);
+});
+
+test('holistic compliance still blocks genuine gaps missing coverage and malformed reports from either reviewer', async (t) => {
+  const rule = { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' };
   for (const roleToBreak of ['compliance-1', 'compliance-2']) {
-    for (const invalid of [undefined, [], [{ id: 'cargo-access', evidence: 'Inspected' }],
-      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'cargo-access', evidence: 'Duplicate' }],
-      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'unknown', evidence: 'Unknown' }],
-      [{ id: 'cargo-access', evidence: 'Inspected' }, { id: 'robot-oil', evidence: '' }], 'valid']) {
+    for (const invalid of [{ ...report, gaps: ['Missing ownership source'] }, { ...report, coverage: [] },
+      { ...report, coverage: undefined }, { ...report, findings: undefined }]) {
       const { root, input } = await fixture(t);
-      await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules }));
-      const result = await new Controller(root, async ({ role, knowledge: bundle }) => {
-        assert.deepEqual(JSON.parse(bundle), rules);
-        return answer({ ...report, ruleAudit: role === roleToBreak && invalid !== 'valid' ? invalid
-          : auditedRules(rules, ['AGENTS.md', '.harness/prevention.json']) });
-      }).review(input);
-      assert.equal(result.status, invalid === 'valid' ? 'passed' : 'blocked');
-      if (invalid !== 'valid') assert.match(result.error, /Incomplete prevention rule audit/);
+      await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules: [rule] }));
+      const result = await new Controller(root, async ({ role }) => answer(role === roleToBreak ? invalid : report)).review(input);
+      assert.equal(result.status, 'blocked');
     }
   }
 });
 
-test('compliance requires complete unique evidenced file dispositions for every rule and both agents', async (t) => {
-  const rule = { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' };
-  for (const roleToBreak of ['compliance-1', 'compliance-2']) {
-    for (const fileAudit of [undefined, [], [{ files: ['AGENTS.md'], evidence: 'Missed the catalog' }],
-      [{ files: ['AGENTS.md', 'AGENTS.md'], evidence: 'Duplicate' }],
-      [{ files: ['AGENTS.md', '.harness/unknown.json'], evidence: 'Unknown file' }],
-      [{ files: ['AGENTS.md', '.harness/prevention.json'], evidence: '' }],
-      [{ files: [], evidence: 'Empty group' }]]) {
-      const { root, input } = await fixture(t);
-      await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules: [rule] }));
-      const result = await new Controller(root, async ({ role }) => answer({ ...report,
-        ruleAudit: role === roleToBreak ? [{ id: rule.id, evidence: 'Rule checked', fileAudit }]
-          : auditedRules([rule], ['AGENTS.md', '.harness/prevention.json']) })).review(input);
-      assert.equal(result.status, 'blocked');
-      assert.match(result.error, /Incomplete prevention file audit/);
-    }
+test('holistic compliance findings still require independent validation and prevent a clean receipt', async (t) => {
+  for (const roleToFail of ['compliance-1', 'compliance-2']) {
+    const { root, input } = await fixture(t, { maxFixCycles: 0 });
+    const roles = [];
+    const result = await new Controller(root, async ({ role }) => {
+      roles.push(role);
+      if (role === 'finding-validator') return answer({ accepted: [{ ...finding, id: `${roleToFail}-1` }], rejected: [], gaps: [] });
+      return answer(role === roleToFail ? { ...report, findings: [finding] } : report);
+    }).review(input);
+    assert.equal(result.status, 'needs-human');
+    assert.deepEqual(roles, [...reviewers, 'finding-validator']);
+    assert.equal(result.unresolved.length, 1);
   }
+});
+
+test('resuming a legacy compliance run preserves historical audits and budgets without requiring new matrices', async (t) => {
+  const { root, input } = await fixture(t);
+  const rule = { id: 'cargo-access', category: 'backend', appliesWhen: 'Reading cargo', instruction: 'Check cargo ownership', reason: 'Cargo is private' };
+  await writeFile(path.join(root, '.harness/prevention.json'), JSON.stringify({ version: 2, rules: [rule] }));
+  const legacyAudit = [{ id: rule.id, evidence: 'Original source inspection', fileAudit: [] }];
+  const controller = new Controller(root, async ({ role }) => answer(role.startsWith('compliance-')
+    ? { ...report, ruleAudit: legacyAudit, gaps: ['Missing cargo source'] } : report));
+  const blocked = await controller.review(input);
+  assert.equal(blocked.status, 'blocked');
+  controller.agent = async () => answer(report);
+  const resumed = await controller.review({ ...input, runId: blocked.runId });
+  assert.equal(resumed.status, 'passed');
+  assert.equal(resumed.runId, blocked.runId);
+  assert.equal(resumed.totalRounds, 2);
+  assert.equal(resumed.turn, blocked.turn);
+  const state = JSON.parse(await readFile(path.join(resumed.evidence, 'state.json')));
+  assert.deepEqual(state.rounds[0].reports.find(({ axis }) => axis === 'compliance-1').ruleAudit, legacyAudit);
+  assert.equal(state.rounds[1].reports.find(({ axis }) => axis === 'compliance-1').ruleAudit, undefined);
 });
 
 test('policy bridge remains readable by old consumers while new consumers select the paired topology', async (t) => {
@@ -381,7 +410,7 @@ test('generated artifacts are excluded before size checks and from all reviewer 
     roles.push(role);
     assert.match(prompt, /Generated artifacts.*excluded from review/);
     for (const file of before.generatedFiles) assert.ok(!prompt.includes(file));
-    return answer({ ...report, ruleAudit: auditedRules(rules, before.files),
+    return answer({ ...report,
       feedbackAudit: authoredFiles.map((file) => ({ file, evidence: 'Checked authored source and generator verification definitions' })) });
   });
   const request = { ...input, base, profile: 'full' };
@@ -520,8 +549,7 @@ test('new feedback refreshes lessons and reviews committed earlier-turn changes 
     bundles.push(bundle);
     assert.match(prompt, /cumulative changes from the original base/);
     assert.match(prompt, /analogous issues/);
-    return answer({ ...report, ruleAudit: auditedRules(JSON.parse(bundle),
-      ['AGENTS.md', '.harness/knowledge.json', '.harness/lessons/lesson-leela.json']) }, 0.1);
+    return answer(report, 0.1);
   });
   const first = await controller.review(input);
   const original = JSON.parse(await readFile(path.join(first.evidence, 'state.json')));
@@ -783,8 +811,7 @@ test('every human preference is investigated, independently verified and reporte
   const received = [];
   controller.agent = async ({ knowledge: bundle }) => {
     received.push(JSON.parse(bundle)[0].instructions);
-    return answer({ ...report, ruleAudit: auditedRules(JSON.parse(bundle),
-      ['AGENTS.md', '.harness/knowledge.json', `.harness/lessons/${result.lessonId}.json`]) });
+    return answer(report);
   };
   assert.equal((await controller.review(input)).status, 'passed');
   assert.equal(received.length, 4);

@@ -106,11 +106,12 @@ The controller:
      functional requirements and source-level assertions (branches, boundaries, failures, regressions), security/access
      rules and positive/negative coverage, repository conventions, and applicable UX/accessibility/i18n/feedback.
      Non-UI changes explicitly justify UX N/A. Neither reviewer excludes aspects assigned to the other.
-   - **compliance-1 / compliance-2**: two independent compliance reviews of ALL cumulative changes against EVERY rule
-     in the frozen prevention.json bundle, preserving scopes and exceptions. Each returns source-grounded compliance
-     or justified N/A evidence for every rule ID, with fileAudit groups disposing of every cumulative changed file
-     exactly once per rule. Group files only when they share the same source-grounded disposition. Missing, duplicate,
-     unknown or unevidenced rule/file dispositions block a clean receipt.
+   - **compliance-1 / compliance-2**: two independent holistic reviews of the entire cumulative diff using the complete
+     frozen prevention.json bundle, preserving scopes and exceptions. Each takes all rules into account and returns
+     concrete source-grounded violations, concise coverage and genuine missing applicable source evidence as gaps.
+     No per-rule enumeration, per-rule N/A entries or rule-by-file checklist/matrix is requested or required. Both
+     reviewers still receive the full catalog; malformed reports, missing coverage, genuine gaps and failed workers
+     prevent a clean receipt. Existing historical audit artifacts remain unchanged when a run resumes with this contract.
    Fixers and learning workers are also children, not standalone top-level sessions.
 4. Independently validates only submitted findings and deduplicates them; missing source coverage or failed reviewers
     prevent a clean review receipt. The validator is not another general reviewer.
