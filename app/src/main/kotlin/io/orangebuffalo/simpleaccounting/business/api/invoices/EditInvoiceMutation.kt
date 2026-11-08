@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -16,6 +18,7 @@ import java.time.LocalDate
 @Validated
 class EditInvoiceMutation(
     private val invoicesService: InvoicesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -55,12 +58,13 @@ class EditInvoiceMutation(
         @GraphQLDescription("New ID of the general tax applied to this invoice.")
         generalTaxId: String? = null,
     ): InvoiceGqlDto {
-        val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id, workspaceId)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
+        val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id = id, workspaceId = workspaceId)
             ?: throw EntityNotFoundException("Invoice $id is not found")
         invoice.validateVersion(version)
 
         return invoicesService.saveInvoice(
-            invoice.copy(
+            invoice = invoice.copy(
                 customerId = customerId,
                 invoiceNumber = invoiceNumber,
                 dateIssued = dateIssued,
@@ -73,7 +77,7 @@ class EditInvoiceMutation(
                 attachments = mapAttachments(attachments),
                 generalTaxId = generalTaxId,
             ),
-            workspaceId,
+            workspaceId = workspaceId,
         ).toInvoiceGqlDto(workspaceId)
     }
 

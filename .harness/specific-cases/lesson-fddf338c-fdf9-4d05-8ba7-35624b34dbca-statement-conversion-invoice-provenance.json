@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "statement-conversion-invoice-provenance",
+  "refs": [
+    "F15"
+  ],
+  "feedback": "For this conversion workflow, integration provenance is established through the income's invoice being linked by a statement from the same integration, not through a credit statement directly linked to the income.",
+  "instruction": "Select candidate incomes through matching linked_invoice_id within the same integration, without requiring a CREDIT statement or a linked_income_id relationship. Preserve the separate conversion eligibility conditions.",
+  "diff": "- where r.type = 'CREDIT' and r.linked_income_id = i.id and r.integration_id = :integrationId\n+ where r.linked_invoice_id = i.linked_invoice_id and r.integration_id = :integrationId",
+  "reason": "The correction depends on this workflow's specific provenance contract. It does not establish that invoice linkage should replace direct income linkage in other workflows."
+}

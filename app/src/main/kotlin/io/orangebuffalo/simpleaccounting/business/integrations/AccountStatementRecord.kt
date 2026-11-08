@@ -36,6 +36,7 @@ data class AccountStatementRecord(
     val targetCurrency: String? = null,
     val exchangeRate: BigDecimal? = null,
     val linkedInvoiceId: String? = null,
+    val linkedIncomeId: String? = null,
     val title: String? = null,
     @field:MappedCollection(idColumn = "account_statement_id")
     val attachments: Set<AccountStatementAttachment> = emptySet(),
@@ -64,8 +65,6 @@ interface AccountStatementRecordsRepository : AbstractEntityRepository<AccountSt
         order by r.occurred_at, r.id
     """)
     fun findWithoutDocuments(workspaceId: String, provider: String, integrationId: String): List<AccountStatementRecord>
-
-    fun findByWorkspaceIdAndLinkedInvoiceIdIsNullAndType(workspaceId: String, type: StatementType): List<AccountStatementRecord>
 
     @Modifying
     @Query("delete from account_statement_record where integration_id = :integrationId and provider = :provider")

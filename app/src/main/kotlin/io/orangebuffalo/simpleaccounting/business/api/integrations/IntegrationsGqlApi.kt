@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.api.integrations
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.categories.CategoryGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.categories.loadCategoryByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.infra.graphql.getBean
 import io.orangebuffalo.simpleaccounting.infra.graphql.withRequestAuthentication
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
@@ -10,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseAccountS
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationService
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseIntegrationSettings
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidAccountsException
+import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidIncomeCategoryException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
@@ -18,6 +21,7 @@ import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 class IntegrationsGqlApi {
     @Component
@@ -96,6 +100,11 @@ class IntegrationsGqlApi {
             errorCode = "INVALID_ACCOUNTS",
             errorCodeDescription = "The selected Wise accounts are invalid or have changed.",
         )
+        @BusinessError(
+            exceptionClass = WiseInvalidIncomeCategoryException::class,
+            errorCode = "INVALID_INCOME_CATEGORY",
+            errorCodeDescription = "Income creation requires an income category belonging to this workspace.",
+        )
         fun saveWiseIntegrationSettings(
             @GraphQLDescription("The workspace whose Wise integration settings should be created or updated. Only its owner can save settings.")
             workspaceId: String,
@@ -107,6 +116,12 @@ class IntegrationsGqlApi {
             fetchTransactionsPeriodically: Boolean? = null,
             @GraphQLDescription("Whether to automatically download the previous UTC calendar month's PDF statement for every selected account as a standalone document, independently of transaction fetching. A value is required and saved.")
             fetchMonthlyStatements: Boolean,
+            @GraphQLDescription("Whether to create incomes for matched unpaid invoices from credit transactions. Only runs with periodic transaction fetching enabled. A value is required and saved; enabling requires incomeCategoryId.")
+            createIncomeFromInvoices: Boolean,
+            @GraphQLDescription("Whether to populate actual converted amounts for incomes whose invoice is linked by a statement of this integration, using uniquely matching conversions on or after receipt. Only runs with periodic transaction fetching enabled. A value is required and saved.")
+            populateIncomeConvertedAmounts: Boolean,
+            @GraphQLDescription("Category for automatically created incomes. Must belong to this workspace and support incomes. Required when createIncomeFromInvoices is true. A supplied value replaces the category; null or omission clears it and is only allowed when income creation is disabled.")
+            incomeCategoryId: String? = null,
         ): WiseSettingsSaveResult {
             wise.setup(
                 workspaceId = workspaceId,
@@ -114,6 +129,9 @@ class IntegrationsGqlApi {
                 accounts = accounts.map { WiseAccountSelection(profileId = it.profileId, accountId = it.accountId, currency = it.currency) },
                 fetchTransactionsPeriodically = fetchTransactionsPeriodically ?: true,
                 fetchMonthlyStatements = fetchMonthlyStatements,
+                createIncomeFromInvoices = createIncomeFromInvoices,
+                populateIncomeConvertedAmounts = populateIncomeConvertedAmounts,
+                incomeCategoryId = incomeCategoryId,
             )
             return WiseSettingsSaveResult(success = true)
         }
@@ -163,6 +181,18 @@ class WiseIntegrationGqlDto(private val settings: WiseIntegrationSettings?) {
 
     @GraphQLDescription("Whether previous-month PDF statements are automatically saved as standalone documents, independently of transaction fetching. True by default before setup.")
     val fetchMonthlyStatements: Boolean = settings?.fetchMonthlyStatements ?: true
+
+    @GraphQLDescription("Whether to create incomes for matched unpaid invoices. Effective only with periodic transaction fetching. True by default before setup.")
+    val createIncomeFromInvoices: Boolean = settings?.createIncomeFromInvoices ?: true
+
+    @GraphQLDescription("Whether to populate actual amounts from matching conversions for incomes whose invoice is linked by a statement of this integration. Effective only with periodic transaction fetching. True by default before setup.")
+    val populateIncomeConvertedAmounts: Boolean = settings?.populateIncomeConvertedAmounts ?: true
+
+    @GraphQLDescription("Category used for automatically created incomes. Null before configuration; required when income creation is enabled.")
+    fun incomeCategory(env: DataFetchingEnvironment): CompletableFuture<CategoryGqlDto?>? {
+        val categoryId = settings?.incomeCategoryId ?: return null
+        return env.loadCategoryByWorkspaceAndId(workspaceId = settings.workspaceId, categoryId = categoryId)
+    }
 
     @GraphQLDescription("Whether Wise rejected authentication during automatic fetching. Both workflows are suspended until settings are successfully verified and saved again.")
     val authenticationRequired: Boolean = settings?.authenticationRequired ?: false

@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.incomes
 
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
@@ -46,6 +48,18 @@ class EditIncomeMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject income editing through saved shared workspace access`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            client.graphqlMutation {
+                editIncomeMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryIncome.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditIncome)
+            aggregateTemplate.findAll<Income>().shouldBeSingle().shouldBeEntityWithFields(preconditions.fryIncome)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

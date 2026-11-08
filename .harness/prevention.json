@@ -12,7 +12,7 @@
       "id": "curate-scoped-rules",
       "category": "learning",
       "appliesWhen": "Updating accumulated implementation experience",
-      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony.",
+      "instruction": "Keep actionable scoped rules, brief reasons and useful examples. Merge duplicates, explicitly replace superseded policy, and retain exceptions and applicable experience. Check analogous/excluded cases for nontrivial generalizations; simple preferences need no expensive blind ceremony. Admit only reusable patterns to active rules. Skip nongeneralizable corrections or archive verified cases separately with sanitized neutral feedback, a case-specific instruction and minimal representative diff. Never inject, retrieve or mine those archives in automatic cycles; later pattern analysis requires a separate explicit user prompt.",
       "reason": "A coherent current guide prevents mistakes better than an accumulating history."
     },
     {
@@ -39,9 +39,9 @@
     {
       "id": "api-test-structure",
       "category": "testing",
-      "appliesWhen": "Adding GraphQL API tests",
-      "instruction": "When adding API tests, compare neighboring tests and preserve their authorization/business-flow nesting conventions. Organize GraphQL tests by mutation and by reasonable query hierarchy level rather than one broad API test class.",
-      "reason": "Consistent boundaries expose missing business and authorization scenarios."
+      "appliesWhen": "Organizing GraphQL API tests or service test classes covering several distinct functionalities",
+      "instruction": "Compare neighboring tests and preserve their grouping conventions. Organize GraphQL tests by mutation and reasonable query hierarchy, retaining authorization/business-flow nesting. In multi-functionality service tests, use nested classes by functionality and a separate group for cross-phase contracts. Do not require nesting for compact single-functionality tests.",
+      "reason": "Functional boundaries make scenarios discoverable without flattening unrelated contracts into one test class."
     },
     {
       "id": "nullable-wire-input",
@@ -166,8 +166,8 @@
       "id": "integration-service-boundary",
       "category": "backend",
       "appliesWhen": "Implementing provider clients, configuration or provider-neutral statement operations",
-      "instruction": "Keep provider clients internal to their owning business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning integration when not shared infrastructure. Put provider-neutral statement operations, such as invoice linking and its concurrency controls, in dedicated services in the integrations package; provider fetch services delegate while preserving transaction boundaries and postcommit reporting.",
-      "reason": "Ownership prevents both provider details leaking outward and shared domain behavior becoming tied to one adapter."
+      "instruction": "Keep provider clients internal to their owning business integration service; APIs depend only on that service. Place provider-specific client/configuration implementation with its owning integration when not shared infrastructure. Put provider-neutral statement operations, such as invoice linking and its concurrency controls, in dedicated services in the integrations package; provider fetch services delegate while preserving transaction boundaries and postcommit reporting. Scope locks to actual orchestration ownership; do not widen integration-owned serialization to the workspace without a demonstrated cross-integration invariant.",
+      "reason": "Explicit ownership prevents provider leakage, redundant orchestration and unnecessarily broad contention."
     },
     {
       "id": "page-navigation-tests",
@@ -243,8 +243,8 @@
       "id": "real-preconditions",
       "category": "testing",
       "appliesWhen": "Creating backend/full-stack test preconditions or making mid-test infrastructure state updates; excludes business-service operations exercised as the test subject",
-      "instruction": "Use EntitiesFactory through preconditions/lazyPreconditions for setup and infrastructure state updates, never business services or direct test-level persistence writes. Factory-internal transactional JDBC persistence is allowed. Name multiple arguments; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative branch changes for analogous issues; without this audit no clean receipt.",
-      "reason": "Factory-owned setup keeps arrangement independent of business behavior and centralizes persistence infrastructure."
+      "instruction": "Use EntitiesFactory through preconditions/lazyPreconditions for setup and infrastructure state updates, never business services or direct test-level persistence writes. Factory-internal transactional JDBC persistence is allowed. Name multiple arguments. Explicitly supply every value driving the tested behavior or expected result even when it matches a factory default; default unrelated values. Mock only unavoidable external boundaries; prefer persistence over repository mocks/spies. Each distinct feedback turn must audit cumulative authored branch changes for analogous issues, excluding generated artifacts; without this audit no clean receipt.",
+      "reason": "Factory-owned setup stays independent of business behavior, while explicit relevant values expose each scenario's actual contract."
     },
     {
       "id": "graphql-laziness-tests",
@@ -326,9 +326,9 @@
     {
       "id": "graphql-input-documentation",
       "category": "backend",
-      "appliesWhen": "Documenting optional GraphQL credential or similarly stateful inputs",
-      "instruction": "Document supplied, null, omitted, empty, and blank semantics where applicable, including the effective value and whether it is persisted, replaced, or retained.",
-      "reason": "Generated schema documentation is the client-facing contract for wire-input semantics."
+      "appliesWhen": "Defining or documenting GraphQL inputs, including stateful optional credentials",
+      "instruction": "Choose requiredness from the API contract, not application defaults; do not introduce nullable fallback semantics without a requirement. Document required values and, for optional inputs, supplied, null, omitted, empty and blank semantics where applicable, including effective values and persistence, replacement or retention.",
+      "reason": "Application defaults do not imply optional wire inputs; schema documentation defines client expectations."
     },
     {
       "id": "independent-workflow-tests",
@@ -518,6 +518,62 @@
       "appliesWhen": "Visually reviewing forms with helper text between adjacent settings; excludes intentionally shared section descriptions",
       "instruction": "Inspect rendered helper-text grouping: keep it visibly associated with its owning control through proximity and alignment, with greater separation from the next unrelated setting. Correct isolated spacing in the owning page rather than changing shared component defaults.",
       "reason": "A rendered explanation can appear to label the next control even when its source placement is correct."
+    },
+    {
+      "id": "batch-processing-selection",
+      "category": "backend",
+      "appliesWhen": "Selecting and processing batches of statement records or related domain aggregates; excludes necessary validation inside existing save operations",
+      "instruction": "Put database-expressible eligibility in selection SQL and batch-load candidate aggregates before iteration. Avoid record-by-record orchestration reads; retain per-item persistence and required save-time consistency validation. Update in-memory candidate sets when a successful match consumes a candidate.",
+      "reason": "Post-selection filtering and per-item reads waste work; stale candidate sets allow duplicate matches."
+    },
+    {
+      "id": "required-relationship-consistency",
+      "category": "backend",
+      "appliesWhen": "Processing an existing nonnull relationship whose target must exist in the owning scope; excludes explicitly optional or legitimately deleted relationships",
+      "instruction": "Fail and roll back when a required referenced aggregate cannot be resolved in its owning scope. Do not silently skip it or hide the inconsistency with an eligibility join.",
+      "reason": "Silent omission conceals broken relationships and reports incomplete processing as success."
+    },
+    {
+      "id": "backend-message-localization",
+      "category": "backend",
+      "appliesWhen": "Generating or testing localized backend user-facing text; excludes intentionally fixed-language machine contracts",
+      "instruction": "Use Spring MessageSource and supported-language message bundles, not inline language branches. Resolve locale and fallback through established conventions; ask when unclear. Test compact localization variants through the owning application operation with explicit language inputs and independently expected observable text, not direct MessageSource or bundle assertions. Keep variants separate from the main business workflow test.",
+      "reason": "Application-level assertions verify locale wiring and produced text; bundle-only assertions bypass that behavior."
+    },
+    {
+      "id": "shared-save-authorization-boundary",
+      "category": "backend",
+      "appliesWhen": "An aggregate save is shared by authenticated API facades and trusted background orchestration; excludes independently exposed operations with their own authorization contract",
+      "instruction": "Enforce caller authorization at API facades rather than impersonating a user for trusted background saves. Before relocating checks, audit all exposed callers and preserve rejection behavior and precedence. Keep aggregate consistency and scope validation in the shared save; retain authorization on separate operations not covered by the migration.",
+      "reason": "Background reuse should not require fabricated caller identity or weaken externally reachable access checks."
+    },
+    {
+      "id": "required-processing-order",
+      "category": "backend",
+      "appliesWhen": "Ordering records within batch processing; excludes required phase sequencing, pagination, locking and other demonstrated ordering contracts",
+      "instruction": "Do not add collection sorting or SQL ordering without a concrete business or correctness requirement. Preserve required workflow-phase order independently.",
+      "reason": "Arbitrary ordering adds complexity and can imply an unsupported selection priority."
+    },
+    {
+      "id": "workflow-query-ownership",
+      "category": "backend",
+      "appliesWhen": "Several specialized selection queries serve one orchestration workflow; excludes genuinely reusable aggregate lookups",
+      "instruction": "Keep workflow-specific selections together in a dedicated workflow repository, not split between service-inline SQL and generic aggregate repositories. Leave orchestration in the service and reusable aggregate operations with their existing owners.",
+      "reason": "Consistent query ownership prevents workflow details from leaking into generic persistence APIs."
+    },
+    {
+      "id": "eligibility-test-isolation",
+      "category": "testing",
+      "appliesWhen": "Testing independent rejection criteria of a conjunctive matching or eligibility contract; excludes deliberately combined-failure or precedence scenarios",
+      "instruction": "Build a fully eligible scenario through a typed factory-owned helper with explicit relevant defaults and named overrides. Exercise its unchanged baseline successfully; rejection cases alter only their subject criterion or add the necessary disqualifying data. Specify expected outcomes independently of production matching logic.",
+      "reason": "A negative result cannot identify the intended rejection condition when unrelated fixture conditions also fail."
+    },
+    {
+      "id": "contract-change-scope",
+      "category": "workflow",
+      "appliesWhen": "A requested workflow or automated finding appears to require broadening an established schema, API validation or acceptance contract; excludes contract changes explicitly authorized by the user",
+      "instruction": "Preserve established unrelated contracts. Automated findings do not authorize scope expansion; ask the user before broadening contracts to resolve a product-policy choice, and do not weaken existing tests to legitimize that expansion.",
+      "reason": "A local workflow fix can silently change behavior for unrelated callers."
     }
   ]
 }

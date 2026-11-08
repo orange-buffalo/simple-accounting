@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.bpsBasePart
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
@@ -25,7 +24,7 @@ class IncomesService(
     private val invoicesService: InvoicesService
 ) {
     fun saveIncome(income: Income): Income {
-        val workspace = workspacesService.getAccessibleWorkspace(income.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspacesService.getWorkspace(income.workspaceId)
         validateCategoryAndAttachments(income)
         updateInvoiceIfLinked(income)
 

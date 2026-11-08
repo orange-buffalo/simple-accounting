@@ -22,6 +22,8 @@ import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
@@ -115,6 +117,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             shouldEventually {
                 val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().single { it.workspaceId == preconditions.workspace.id }
                 saved.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    createIncomeFromInvoices = false,
                     workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
                     fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
                     accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
@@ -173,6 +176,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 val saved = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
                 saved.id.shouldBe(original.id)
                 saved.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    createIncomeFromInvoices = false,
                     workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
                     fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
                     accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
@@ -213,6 +217,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 .executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
             shouldEventually {
                 aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+                    createIncomeFromInvoices = false,
                     workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
                     fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
                     accounts = setOf(
@@ -235,6 +240,28 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             WiseApiMocks.shouldHaveNoStatementRequests()
         }
 
+        @ParameterizedTest
+        @CsvSource("true,true", "false,false", "true,false", "false,true")
+        fun `should persist independent income automation preferences`(createIncome: Boolean, convertIncome: Boolean) {
+            val category = preconditions { category(workspace = preconditions.workspace, income = true) }
+            WiseApiMocks.setupAccounts()
+            client.graphqlMutation {
+                setup(fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+                    createIncomeFromInvoices = createIncome, populateIncomeConvertedAmounts = convertIncome,
+                    incomeCategoryId = category.id)
+            }.from(preconditions.fry).executeAndVerifySuccessResponse("saveWiseIntegrationSettings" to setupResult(true))
+
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
+                workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+                fetchTransactionsPeriodically = false, fetchMonthlyStatements = false,
+                createIncomeFromInvoices = createIncome, populateIncomeConvertedAmounts = convertIncome,
+                incomeCategoryId = category.id,
+                accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR"),
+                    WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP")),
+            ))
+            WiseApiMocks.shouldHaveNoStatementRequests()
+        }
+
         @Test
         fun `should update fetching preferences and resume suspended integrations without losing checkpoints`() {
             val original = preconditions {
@@ -254,6 +281,31 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
             saved.lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
             saved.accounts.single { it.currency == "EUR" }.lastSuccessfulFetchTime.shouldBe(MOCK_TIME)
             saved.accounts.single { it.currency == "GBP" }.lastSuccessfulFetchTime.shouldBe(null)
+        }
+
+        @ParameterizedTest
+        @CsvSource("false,true,true", "true,false,true", "true,true,false")
+        fun `should reject missing foreign or expense income categories without changing settings`(
+            supplied: Boolean,
+            sameWorkspace: Boolean,
+            incomeCategory: Boolean,
+        ) {
+            val original = preconditions {
+                wiseIntegrationSettings(workspace = preconditions.workspace, createIncomeFromInvoices = false)
+            }
+            val categoryId = preconditions {
+                if (!supplied) null else category(
+                    workspace = if (sameWorkspace) preconditions.workspace else workspace(), income = incomeCategory,
+                ).id
+            }
+
+            client.graphqlMutation {
+                setup(createIncomeFromInvoices = true, incomeCategoryId = categoryId)
+            }.from(preconditions.fry)
+                .executeAndVerifyBusinessErrorCode(errorCode = "INVALID_INCOME_CATEGORY", path = "saveWiseIntegrationSettings")
+
+            aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(original)
+            WiseApiMocks.shouldHaveNoRequests()
         }
 
         @Test
@@ -299,6 +351,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 val updated = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
                 updated.id.shouldBe(persisted.id)
                 updated.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    createIncomeFromInvoices = false,
                     workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
                     accounts = setOf(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD", lastSuccessfulFetchTime = MOCK_TIME)),
                     fetchTransactionsPeriodically = true, authenticationRequired = false, lastSuccessfulFetchTime = MOCK_TIME,
@@ -325,6 +378,7 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
                 val replaced = aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle()
                 replaced.id.shouldBe(persisted.id)
                 replaced.shouldBeEntityWithFields(WiseIntegrationSettings(
+                    createIncomeFromInvoices = false,
                     workspaceId = preconditions.workspace.id!!, token = replacementToken,
                     accounts = setOf(
                         WiseIntegrationAccount(profileId = 101, accountId = 302, currency = "EUR", lastSuccessfulFetchTime = MOCK_TIME),
@@ -428,8 +482,13 @@ class SaveWiseIntegrationSettingsMutationTest(@Autowired private val client: Api
         token: String? = WiseApiMocks.TOKEN,
         fetchTransactionsPeriodically: Boolean? = null,
         fetchMonthlyStatements: Boolean = true,
+        createIncomeFromInvoices: Boolean = false,
+        populateIncomeConvertedAmounts: Boolean = true,
+        incomeCategoryId: String? = null,
     ) = saveWiseIntegrationSettings(accounts = selected, token = token, workspaceId = preconditions.workspace.id!!,
-        fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements) { success }
+        fetchTransactionsPeriodically = fetchTransactionsPeriodically, fetchMonthlyStatements = fetchMonthlyStatements,
+        createIncomeFromInvoices = createIncomeFromInvoices, populateIncomeConvertedAmounts = populateIncomeConvertedAmounts,
+        incomeCategoryId = incomeCategoryId) { success }
 
     private fun setupResult(success: Boolean) = buildJsonObject {
         put(key = "success", value = success)

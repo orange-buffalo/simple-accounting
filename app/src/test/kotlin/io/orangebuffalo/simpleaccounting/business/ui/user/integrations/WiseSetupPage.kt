@@ -14,6 +14,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemCategoryInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
@@ -36,6 +37,9 @@ class WiseSetupPage private constructor(page: Page) : SaPageBase(page) {
     @UiComponentMarker
     class Configuration(components: ComponentsAccessors) {
         val fetchTransactions = components.switchSectionByLabel("Fetch transactions automatically")
+        val createIncome = components.switchSectionByLabel("Create income for matching invoices")
+        val incomeCategory = components.formItemCategoryInputByLabel("Category for created incomes")
+        val populateConvertedAmounts = components.switchSectionByLabel("Populate actual income amounts from conversions")
         val fetchMonthlyStatements = components.switchSectionByLabel("Fetch monthly statements as PDFs")
     }
 

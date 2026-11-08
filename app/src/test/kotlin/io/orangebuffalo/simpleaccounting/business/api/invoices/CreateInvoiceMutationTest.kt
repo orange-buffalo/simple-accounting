@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.api.invoices
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
@@ -47,6 +48,17 @@ class CreateInvoiceMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject invoice creation through saved shared workspace access`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            client.graphqlMutation { createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateInvoice)
+            aggregateTemplate.findAll<Invoice>().shouldBe(emptyList())
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

@@ -50,6 +50,11 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should create integration selecting accounts independently across currencies and profiles`(page: Page) {
+        val category = preconditions {
+            category(workspace = preconditions.workspace, income = true, name = "Delivery").also {
+                category(workspace = preconditions.workspace, income = false, name = "Robot oil")
+            }
+        }
         WiseApiMocks.setupAccountsWithSharedIds()
         page.authenticateViaCookie(preconditions.fry)
         page.openWiseSetupPage {
@@ -82,6 +87,10 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             accounts.shouldHaveExactData(*normalAccounts)
             configuration.fetchTransactions.shouldBeSwitchedOn()
             configuration.fetchMonthlyStatements.shouldBeSwitchedOn()
+            configuration.createIncome.shouldBeSwitchedOn()
+            configuration.populateConvertedAmounts.shouldBeSwitchedOn()
+            configuration.createIncome.shouldBeEnabled()
+            configuration.populateConvertedAmounts.shouldBeEnabled()
             val dollars = accounts.account("USD")
             val euros = accounts.account("EUR")
             dollars.shouldBeUnselected()
@@ -90,6 +99,23 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             dollars.click()
             dollars.shouldBeSelected()
             euros.shouldBeUnselected()
+            next.shouldBeDisabled()
+            configuration.fetchTransactions.toggle()
+            configuration.createIncome.shouldBeDisabled()
+            configuration.populateConvertedAmounts.shouldBeDisabled()
+            configuration.incomeCategory { input.shouldBeDisabled() }
+            next.shouldBeDisabled()
+            configuration.fetchTransactions.toggle()
+            configuration.incomeCategory {
+                input.shouldBeEnabled()
+                input.shouldHaveOptions("Delivery")
+                input.selectOption("Delivery")
+            }
+            configuration.fetchTransactions.toggle()
+            configuration.incomeCategory {
+                input.shouldBeDisabled()
+                input.shouldHaveSelectedValue("Delivery")
+            }
             next.shouldBeEnabled()
             dollars.click()
             next.shouldBeDisabled()
@@ -106,8 +132,12 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                 normalAccounts[2].copy(selected = true, selectionLabel = "✓ Selected"),
             )
             reportRendering("integrations.wise-accounts")
-            configuration.fetchTransactions.toggle()
             configuration.fetchTransactions.shouldBeSwitchedOff()
+            configuration.createIncome.shouldBeDisabled()
+            configuration.populateConvertedAmounts.shouldBeDisabled()
+            configuration.createIncome.shouldBeSwitchedOn()
+            configuration.populateConvertedAmounts.shouldBeSwitchedOn()
+            reportRendering("integrations.wise-automation-disabled")
             configuration.fetchMonthlyStatements.toggle()
             configuration.fetchMonthlyStatements.shouldBeSwitchedOff()
             next.click()
@@ -120,6 +150,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         }
         aggregateTemplate.findAll<WiseIntegrationSettings>().shouldBeSingle().shouldBeEntityWithFields(WiseIntegrationSettings(
             workspaceId = preconditions.workspace.id!!, token = WiseApiMocks.TOKEN,
+            incomeCategoryId = category.id,
             fetchTransactionsPeriodically = false, fetchMonthlyStatements = false, authenticationRequired = false, lastSuccessfulFetchTime = null,
             accounts = setOf(
                 WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "USD"),
@@ -131,6 +162,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should update accounts of the active provider using the saved credential`(page: Page) {
+        val category = preconditions { category(workspace = preconditions.workspace, income = true, name = "Robot maintenance") }
         val settings = preconditions {
             wiseIntegrationSettings(
                 workspace = preconditions.workspace,
@@ -142,6 +174,8 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
                 ),
                 fetchTransactionsPeriodically = false,
                 fetchMonthlyStatements = false,
+                createIncomeFromInvoices = false,
+                populateIncomeConvertedAmounts = false,
                 authenticationRequired = true,
             )
         }
@@ -157,10 +191,20 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             tokenStep.shouldBeCompleted()
             configuration.fetchTransactions.shouldBeSwitchedOff()
             configuration.fetchMonthlyStatements.shouldBeSwitchedOff()
+            configuration.createIncome.shouldBeSwitchedOff()
+            configuration.populateConvertedAmounts.shouldBeSwitchedOff()
+            configuration.createIncome.shouldBeDisabled()
+            configuration.populateConvertedAmounts.shouldBeDisabled()
             configuration.fetchMonthlyStatements.toggle()
             configuration.fetchMonthlyStatements.shouldBeSwitchedOn()
             configuration.fetchTransactions.toggle()
             configuration.fetchTransactions.shouldBeSwitchedOn()
+            configuration.createIncome.shouldBeEnabled()
+            configuration.populateConvertedAmounts.shouldBeEnabled()
+            configuration.createIncome.toggle()
+            configuration.createIncome.shouldBeSwitchedOn()
+            next.shouldBeDisabled()
+            configuration.incomeCategory { input.selectOption("Robot maintenance") }
             reportRendering("integrations.wise-configuration")
             accounts.account("USD").click()
             next.click()
@@ -171,6 +215,9 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
         updated.token.shouldBe(WiseApiMocks.TOKEN)
         updated.fetchTransactionsPeriodically.shouldBe(true)
         updated.fetchMonthlyStatements.shouldBe(true)
+        updated.createIncomeFromInvoices.shouldBe(true)
+        updated.incomeCategoryId.shouldBe(category.id)
+        updated.populateIncomeConvertedAmounts.shouldBe(false)
         updated.authenticationRequired.shouldBe(false)
         updated.accounts.shouldContainExactly(WiseIntegrationAccount(profileId = 101, accountId = 301, currency = "EUR"), WiseIntegrationAccount(profileId = 202, accountId = 401, currency = "GBP"))
     }
@@ -309,6 +356,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             accounts.shouldHaveExactData(*normalAccounts)
             accounts.account("EUR").click()
+            configuration.createIncome.toggle()
             WiseApiMocks.rejectToken()
             next.click()
             status.shouldBeError("Wise rejected this token. Check the token and try again.")
@@ -335,6 +383,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             accounts.shouldHaveExactData(*normalAccounts)
             accounts.account("EUR").click()
+            configuration.createIncome.toggle()
             WiseApiMocks.removeEuroBalance()
             next.click()
             status.shouldBeError("The selected accounts have changed. Go back and select your accounts again.")
@@ -359,6 +408,7 @@ class WiseIntegrationFullStackTest : SaFullStackTestBase() {
             next.click()
             accounts.shouldHaveExactData(*normalAccounts)
             accounts.account("EUR").click()
+            configuration.createIncome.toggle()
             WiseApiMocks.failBalances()
             next.click()
             status.shouldBeError("Wise could not be reached or its accounts could not be loaded. Please try again.")

@@ -17,6 +17,7 @@
       remote-show-suffix
       :teleported="false"
       :clearable="clearable"
+      :disabled="disabled"
     >
       <ElOption
         v-for="availableValue in availableValues"
@@ -73,7 +74,8 @@
                       requestInit: RequestInit) => Promise<ApiConnection<HasOptionalId>>,
     optionProvider: (id: string,
                      requestInit: RequestInit) => Promise<HasOptionalId>,
-    clearable?: boolean
+    clearable?: boolean,
+    disabled?: boolean,
   }>();
 
   const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();

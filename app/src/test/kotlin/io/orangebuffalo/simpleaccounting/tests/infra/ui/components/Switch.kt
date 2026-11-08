@@ -4,6 +4,8 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 
 class Switch private constructor(
@@ -14,6 +16,10 @@ class Switch private constructor(
     fun click() = locator.click()
 
     fun shouldBeVisible() = locator.shouldBeVisible()
+
+    fun shouldBeDisabled() = input.shouldBeDisabled()
+
+    fun shouldBeEnabled() = input.shouldBeEnabled()
 
     fun shouldBeSwitchedOn() {
         input.shouldHaveAttribute("aria-checked", "true")
