@@ -26,6 +26,8 @@ export default {
     additionalData: () => 'Additional information',
     invoice: () => 'Invoice',
     invoiceMatched: () => 'An invoice is matched to this transaction',
+    income: () => 'Income',
+    incomeLinked: () => 'An income is linked to this transaction',
     types: { DEBIT: () => 'Debit', CREDIT: () => 'Credit', CONVERSION: () => 'Conversion', OTHER: () => 'Other' },
   },
   integrations: {

@@ -19,6 +19,11 @@
         icon="invoice"
         :tooltip="$t.accountStatements.invoiceMatched()"
       />
+      <SaOverviewItemAttributePreviewIcon
+        v-if="statement.linkedIncome"
+        icon="income"
+        :tooltip="$t.accountStatements.incomeLinked()"
+      />
     </template>
     <template #middle-column>
       <SaStatusLabel :status="status" hide-icon>{{ type }}</SaStatusLabel>
@@ -46,6 +51,17 @@
               name: 'invoices-overview', query: { freeSearchText: statement.linkedInvoice.invoiceNumber },
             }">
               {{ statement.linkedInvoice.invoiceNumber }}
+            </RouterLink>
+          </SaOverviewItemDetailsSectionAttribute>
+          <SaOverviewItemDetailsSectionAttribute
+            v-if="statement.linkedIncome"
+            :label="$t.accountStatements.income()"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <RouterLink :to="{
+              name: 'incomes-overview', query: { freeSearchText: statement.linkedIncome.title },
+            }">
+              {{ statement.linkedIncome.title }}
             </RouterLink>
           </SaOverviewItemDetailsSectionAttribute>
         </div>

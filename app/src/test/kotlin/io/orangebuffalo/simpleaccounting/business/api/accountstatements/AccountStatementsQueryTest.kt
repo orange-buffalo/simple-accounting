@@ -120,6 +120,56 @@ class AccountStatementsQueryTest(@Autowired private val client: ApiTestClient) :
 
     @Nested
     inner class Transactions {
+        @ParameterizedTest
+        @ValueSource(strings = ["owner", "workspace-token", "saved-share"])
+        fun `should resolve linked income fields for authorized workspace readers`(actor: String) {
+            val setup = preconditions {
+                object {
+                    val income = income(workspace = data.workspace, title = "Moon delivery", currency = "EUR", originalAmount = 12345)
+                    val token = workspaceAccessToken(workspace = data.workspace, validTill = MOCK_TIME.plusSeconds(10000))
+                    val zoidberg = zoidberg().also { savedWorkspaceAccessToken(owner = it, workspaceAccessToken = token) }
+                    init {
+                        accountStatementRecord(integration = data.integration, linkedIncome = income)
+                    }
+                }
+            }
+            val request = query(selection = "linkedIncome { id title currency originalAmount }")
+            when (actor) {
+                "workspace-token" -> request.usingSharedWorkspaceToken(setup.token.token)
+                "saved-share" -> request.from(setup.zoidberg)
+                else -> request.from(data.fry)
+            }.executeAndVerifyResponse("workspace" to buildJsonObject {
+                put("accountStatements", buildJsonObject {
+                    put("totalCount", 1)
+                    putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                        put("linkedIncome", buildJsonObject {
+                            put("id", setup.income.id)
+                            put("title", "Moon delivery")
+                            put("currency", "EUR")
+                            put("originalAmount", 12345)
+                        })
+                    }) }) }
+                })
+            })
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        fun `should not expose absent or cross-workspace income links`(crossWorkspace: Boolean) {
+            preconditions {
+                accountStatementRecord(integration = data.integration, linkedIncome = if (crossWorkspace) income() else null)
+            }
+            query(selection = "linkedIncome { id title }").from(data.fry)
+                .executeAndVerifyResponse("workspace" to buildJsonObject {
+                    put("accountStatements", buildJsonObject {
+                        put("totalCount", 1)
+                        putJsonArray("edges") { add(buildJsonObject { put("node", buildJsonObject {
+                            put("linkedIncome", JsonNull)
+                        }) }) }
+                    })
+                })
+        }
+
         @Test
         fun `should return empty document collections for an unattached statement`() {
             preconditions { accountStatementRecord(integration = data.integration) }

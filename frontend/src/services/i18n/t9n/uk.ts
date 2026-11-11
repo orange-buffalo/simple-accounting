@@ -26,6 +26,8 @@ export default {
     additionalData: () => 'Додаткова інформація',
     invoice: () => 'Рахунок',
     invoiceMatched: () => 'Рахунок зіставлено з цією транзакцією',
+    income: () => 'Дохід',
+    incomeLinked: () => 'Дохід пов’язано з цією транзакцією',
     types: { DEBIT: () => 'Списання', CREDIT: () => 'Зарахування', CONVERSION: () => 'Конвертація', OTHER: () => 'Інше' },
   },
   integrations: {

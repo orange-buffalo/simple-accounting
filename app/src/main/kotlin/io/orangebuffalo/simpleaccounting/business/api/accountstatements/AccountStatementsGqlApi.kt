@@ -4,6 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.schema.DataFetchingEnvironment
+import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomeGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.incomes.loadIncomeByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.invoices.InvoiceGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.invoices.loadInvoiceByWorkspaceAndId
 import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
@@ -76,6 +78,7 @@ class AccountStatementsGqlApi(
                 createdAt = record[statement.createdAt]!!,
                 workspaceId = workspaceId,
                 linkedInvoiceId = record[statement.linkedInvoiceId],
+                linkedIncomeId = record[statement.linkedIncomeId],
                 title = record[statement.title],
                 attachmentIds = emptyList(),
             )
@@ -124,6 +127,7 @@ data class AccountStatementGqlDto(
     @GraphQLDescription("Time this record was imported.") val createdAt: Instant,
     @GraphQLIgnore val workspaceId: String,
     @GraphQLIgnore val linkedInvoiceId: String?,
+    @GraphQLIgnore val linkedIncomeId: String?,
     @GraphQLIgnore val attachmentIds: List<String>,
 ) {
     @GraphQLDescription("Documents attached to this statement.")
@@ -136,5 +140,11 @@ data class AccountStatementGqlDto(
     fun linkedInvoice(env: DataFetchingEnvironment): CompletableFuture<InvoiceGqlDto?>? {
         val invoiceId = linkedInvoiceId ?: return null
         return env.loadInvoiceByWorkspaceAndId(workspaceId = workspaceId, invoiceId = invoiceId)
+    }
+
+    @GraphQLDescription("Income linked to this statement during synchronization.")
+    fun linkedIncome(env: DataFetchingEnvironment): CompletableFuture<IncomeGqlDto?>? {
+        val incomeId = linkedIncomeId ?: return null
+        return env.loadIncomeByWorkspaceAndId(workspaceId = workspaceId, incomeId = incomeId)
     }
 }
