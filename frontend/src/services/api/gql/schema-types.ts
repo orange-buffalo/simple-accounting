@@ -52,6 +52,8 @@ export type AccountStatement = {
   id: Scalars['String']['output'];
   /** Source integration ID. */
   integrationId: Scalars['String']['output'];
+  /** Income linked to this statement during synchronization. */
+  linkedIncome?: Maybe<Income>;
   /** Invoice linked to this statement, if a unique match was found during synchronization. */
   linkedInvoice?: Maybe<Invoice>;
   /** Time of the transaction. */

@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.openAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.accountstatements.AccountStatementsOverviewPage.Companion.shouldBeAccountStatementsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
@@ -92,6 +93,50 @@ class AccountStatementsOverviewFullStackTest(
             filters.shouldHaveTextFilterValue(label = "Search", value = "PE-3025/42 #Mars")
             filters.clearAll()
             pageItems.shouldHaveTitles("PE-3025/42 #Mars", "PE-3025-43")
+        }
+    }
+
+    @Test
+    fun `should navigate from linked income details to prefiltered incomes`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                val workspace = workspace(owner = user)
+                val income = income(workspace = workspace, title = "Moon delivery /42 #Mars", dateReceived = LocalDate.of(3025, 1, 15))
+                income(workspace = workspace, title = "Slurm delivery", dateReceived = LocalDate.of(3025, 1, 14))
+                accountStatementRecord(
+                    integration = wiseIntegrationSettings(workspace = workspace),
+                    externalId = "Moon-delivery", type = StatementType.CREDIT, linkedIncome = income,
+                    amountInCents = 125, currency = "USD", accountId = "301", accountCurrency = "USD",
+                    occurredAt = Instant.parse("3025-01-15T12:00:00Z"),
+                )
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openAccountStatementsOverviewPage {
+            pageItems.shouldHaveTitles("Moon-delivery")
+            pageItems.shouldHaveDataSatisfying { items ->
+                items.single().attributePreviewIcons.shouldContainExactly(listOf(SaIcon.iconValue(SaIconType.INCOME)))
+            }
+            statement("Moon-delivery").shouldHaveAttributePreviewTooltip(
+                icon = SaIconType.INCOME,
+                tooltip = "An income is linked to this transaction",
+            )
+            statement("Moon-delivery").shouldHaveDetails(
+                sections = arrayOf(DetailsSectionSpec(title = "Transaction details", attributes = listOf(
+                    "Amount" to "USD 1.25", "Transaction type" to "Credit", "Transaction date" to "15 Jan 3025, 11:00 pm",
+                    "Source integration" to "Wise", "Account ID" to "301", "Account currency" to "USD",
+                    "External transaction ID" to "Moon-delivery", "Imported at" to "29 Mar 1999, 9:01 am",
+                    "Income" to "Moon delivery /42 #Mars",
+                ))),
+            )
+            reportRendering("account-statements.linked-income")
+            statement("Moon-delivery").clickDetailsLink("Moon delivery /42 #Mars")
+        }
+        page.shouldBeIncomesOverviewPage {
+            pageItems.shouldHaveTitles("Moon delivery /42 #Mars")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "Moon delivery /42 #Mars")
+            filters.clearAll()
+            pageItems.shouldHaveTitles("Moon delivery /42 #Mars", "Slurm delivery")
         }
     }
 

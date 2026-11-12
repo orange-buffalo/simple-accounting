@@ -71,6 +71,7 @@
               runningBalanceCurrency additionalData originalAmountInCents originalCurrency
               sourceAmountInCents sourceCurrency targetAmountInCents targetCurrency exchangeRate createdAt
               linkedInvoice { id invoiceNumber }
+              linkedIncome { id title }
               attachments { ...DocumentData }
             }
           }
