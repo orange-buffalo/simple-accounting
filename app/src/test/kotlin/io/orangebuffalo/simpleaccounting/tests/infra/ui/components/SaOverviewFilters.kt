@@ -112,9 +112,15 @@ class SaOverviewFilters private constructor(
     }
 
     fun setDateRange(label: String, from: String, to: String): SaOverviewFilters {
+        val openingEditor = chipButton(label).getAttribute("aria-expanded") != "true"
         open(label)
         val inputs = editor.locator(".el-range-input")
         inputs.shouldHaveCount(2)
+        if (openingEditor) {
+            inputs.nth(0).shouldSatisfy {
+                evaluate("element => element === document.activeElement").shouldBe(true)
+            }
+        }
         inputs.nth(0).fill(from)
         inputs.nth(0).press("Tab")
         inputs.nth(1).fill(to)
