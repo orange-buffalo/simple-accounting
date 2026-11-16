@@ -66,7 +66,7 @@ class GoogleDriveDocumentsStorage(
         request: SaveDocumentRequest,
         integration: GoogleDriveStorageIntegration
     ): String {
-        val workspaceFolderName = request.workspace.id!!.toString()
+        val workspaceFolderName = request.workspace.id!!
 
         val workspaceFolder = googleDriveApi.findFolderByNameAndParent(
             folderName = workspaceFolderName,
@@ -118,7 +118,7 @@ class GoogleDriveDocumentsStorage(
 
             val user = authSucceededEvent.user
             val integration = repository.findByUserId(user.id!!)
-                ?: GoogleDriveStorageIntegration(userId = user.id!!)
+                ?: GoogleDriveStorageIntegration(userId = user.id)
 
             val (rootFolder, savedIntegration) = ensureRootFolder(integration)
 
@@ -171,7 +171,7 @@ class GoogleDriveDocumentsStorage(
         log.debug { "Getting Google Drive integration status for user ${currentUser.id}" }
 
         val integration = repository.findByUserId(currentUser.id!!)
-            ?: repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
+            ?: repository.save(GoogleDriveStorageIntegration(userId = currentUser.id))
 
         val integrationStatus = GoogleDriveStorageIntegrationStatus(
             folderId = integration.folderId,

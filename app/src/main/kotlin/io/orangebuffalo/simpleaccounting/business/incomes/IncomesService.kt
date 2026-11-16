@@ -78,8 +78,8 @@ class IncomesService(
 
     private fun getGeneralTax(income: Income): GeneralTax? =
         if (income.generalTaxId == null) null else generalTaxesService.getValidGeneralTax(
-            income.generalTaxId!!,
-            income.workspaceId
+            taxId = income.generalTaxId,
+            workspaceId = income.workspaceId
         )
 
     private fun validateCategoryAndAttachments(income: Income) {
@@ -95,7 +95,9 @@ class IncomesService(
     }
 
     private fun validateIncomeCategory(income: Income) {
-        if (income.categoryId != null) categoriesService.validateCategory(income.categoryId!!, income.workspaceId)
+        if (income.categoryId != null) {
+            categoriesService.validateCategory(categoryId = income.categoryId, workspaceId = income.workspaceId)
+        }
     }
 
     private fun calculateAdjustedAmount(

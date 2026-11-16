@@ -142,7 +142,7 @@ class RemoveStandaloneDocumentMutationTest(
                     REMOVE_STANDALONE_DOCUMENT_MUTATION to JsonPrimitive(true)
                 )
 
-            aggregateTemplate.findById(testData.standaloneDocument.id!!, StandaloneDocument::class.java).shouldBe(null)
+            aggregateTemplate.findById(testData.standaloneDocument.id, StandaloneDocument::class.java).shouldBe(null)
             aggregateTemplate.findById(testData.document.id!!, Document::class.java).shouldBe(null)
             testDocumentsStorage.hasUploadedContent("slurm-supplies-receipt").shouldBe(false)
         }
@@ -176,7 +176,7 @@ class RemoveStandaloneDocumentMutationTest(
                     REMOVE_STANDALONE_DOCUMENT_MUTATION to JsonPrimitive(true)
                 )
 
-            aggregateTemplate.findById(testData.standaloneDocument.id!!, StandaloneDocument::class.java).shouldBe(null)
+            aggregateTemplate.findById(testData.standaloneDocument.id, StandaloneDocument::class.java).shouldBe(null)
             aggregateTemplate.findSingle<Document>(testData.document.id!!).id.shouldBe(testData.document.id)
             testDocumentsStorage.hasUploadedContent("robot-oil-receipt").shouldBe(true)
         }
@@ -218,7 +218,7 @@ class RemoveStandaloneDocumentMutationTest(
                     REMOVE_STANDALONE_DOCUMENT_MUTATION to JsonPrimitive(true)
                 )
 
-            aggregateTemplate.findById(testData.standaloneDocument.id!!, StandaloneDocument::class.java).shouldBe(null)
+            aggregateTemplate.findById(testData.standaloneDocument.id, StandaloneDocument::class.java).shouldBe(null)
             aggregateTemplate.findSingle<Document>(testData.document.id!!).id.shouldBe(testData.document.id)
             testDocumentsStorage.hasUploadedContent("planet-express-equipment-receipt").shouldBe(true)
         }

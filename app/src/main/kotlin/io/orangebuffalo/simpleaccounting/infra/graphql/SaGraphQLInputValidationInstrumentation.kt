@@ -141,7 +141,7 @@ class SaGraphQLInputValidationInstrumentation(
         is VariableReference -> variables[value.name]
         is StringValue -> value.value
         is BooleanValue -> value.isValue
-        is IntValue -> value.value?.toLong()
+        is IntValue -> value.value.toLong()
         is FloatValue -> value.value
         is EnumValue -> value.name
         is ArrayValue -> value.values.map { resolveValue(it, variables) }

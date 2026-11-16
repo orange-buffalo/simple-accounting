@@ -1,9 +1,9 @@
 import { fileURLToPath, URL } from 'url';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { vitePlugins } from './build-config/vite-plugins';
-import { resolveProxyPort } from './build-config/proxy-port-resolver';
+import { vitePlugins } from './build-config/vite-plugins.ts';
+import { resolveProxyPort } from './build-config/proxy-port-resolver.ts';
 
 const apiProxyPort = resolveProxyPort();
 
@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', `file://${__filename}`)),
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {

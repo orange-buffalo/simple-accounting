@@ -68,7 +68,7 @@ class SaCategorySelectFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeExpensesOverviewPage()
 
-        aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
+        aggregateTemplate.findSingle<Expense>(testData.expense.id)
             .should {
                 it.categoryId.shouldBe(testData.newCategory.id)
             }

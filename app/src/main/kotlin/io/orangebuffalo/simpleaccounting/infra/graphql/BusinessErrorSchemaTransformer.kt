@@ -39,8 +39,6 @@ class BusinessErrorSchemaTransformer(
                 val enumType = createErrorCodeEnum(enumTypeName, operationName, errors)
                 schemaBuilder.additionalType(enumType)
             }
-
-            schemaBuilder
         }
     }
 

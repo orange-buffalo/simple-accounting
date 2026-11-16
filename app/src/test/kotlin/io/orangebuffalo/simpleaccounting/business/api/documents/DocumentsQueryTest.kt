@@ -114,7 +114,7 @@ class DocumentsQueryTest(
                             }
                             put("pageInfo", buildJsonObject {
                                 put("startCursor", encodeCursor(testData.doc1.createdAt!!))
-                                put("endCursor", encodeCursor(testData.doc1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.doc1.createdAt))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })

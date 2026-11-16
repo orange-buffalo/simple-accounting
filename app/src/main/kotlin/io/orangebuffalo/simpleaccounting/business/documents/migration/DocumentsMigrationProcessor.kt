@@ -160,8 +160,7 @@ class DocumentsMigrationProcessor(
     }
 
     private fun <T> executeInMigrationTransaction(block: () -> T): T {
-        @Suppress("UNCHECKED_CAST")
-        return migrationTransactionTemplate.execute { block() } as T
+        return migrationTransactionTemplate.execute { block() }
     }
 
     @PreDestroy

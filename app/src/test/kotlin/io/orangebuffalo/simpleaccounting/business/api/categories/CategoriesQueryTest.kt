@@ -111,7 +111,7 @@ class CategoriesQueryTest(
                             }
                             put("pageInfo", buildJsonObject {
                                 put("startCursor", encodeCursor(testData.category1.createdAt!!))
-                                put("endCursor", encodeCursor(testData.category1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.category1.createdAt))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })

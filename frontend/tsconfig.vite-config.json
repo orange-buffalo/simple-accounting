@@ -5,6 +5,7 @@
     "types": ["node", "vitest"],
     "skipLibCheck": true,
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "rewriteRelativeImportExtensions": true
   }
 }

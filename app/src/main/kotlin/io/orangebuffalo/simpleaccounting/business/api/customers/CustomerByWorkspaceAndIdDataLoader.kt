@@ -26,7 +26,7 @@ class CustomerByWorkspaceAndIdDataLoader(
             val customers = customersRepository.findAllById(customerIds)
             customers.associate { customer ->
                 WorkspaceCustomerKey(customer.workspaceId, customer.id!!) to CustomerGqlDto(
-                    id = customer.id!!,
+                    id = customer.id,
                     version = customer.version!!,
                     name = customer.name,
                 )

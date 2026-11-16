@@ -96,7 +96,7 @@ class InvoicesService(
         workspaceId: String
     ) {
         if (invoice.generalTaxId != null) {
-            generalTaxesService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
+            generalTaxesService.validateGeneralTax(taxId = invoice.generalTaxId, workspaceId = workspaceId)
         }
     }
 

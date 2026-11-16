@@ -87,7 +87,7 @@ class DocumentsMigrationProcessorTest(
         testDocumentsStorage.getUploadedContent(migratedDocument.storageLocation!!).shouldBe(sourceContent)
         Files.exists(sourceFile).shouldBeFalse()
 
-        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id!!)
+        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id)
         migration.migratedDocumentsCount.shouldBe(1)
         migration.completedAt.shouldBe(MOCK_TIME)
     }
@@ -140,7 +140,7 @@ class DocumentsMigrationProcessorTest(
         )
         testDocumentsStorage.getUploadedContent(migratedDocument.storageLocation!!).shouldBe(sourceContent)
 
-        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id!!)
+        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id)
         migration.migratedDocumentsCount.shouldBe(2)
         migration.completedAt.shouldBe(MOCK_TIME)
     }
@@ -178,7 +178,7 @@ class DocumentsMigrationProcessorTest(
             .shouldBeEntityWithFields(testData.document)
         Files.readAllBytes(sourceFile).shouldBe(sourceContent)
 
-        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id!!)
+        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id)
         migration.migratedDocumentsCount.shouldBe(1)
         migration.completedAt.shouldBe(MOCK_TIME)
     }
@@ -231,7 +231,7 @@ class DocumentsMigrationProcessorTest(
         )
         testDocumentsStorage.getUploadedContent(migratedDocument.storageLocation!!).shouldBe(sourceContent)
 
-        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id!!)
+        val migration = aggregateTemplate.findSingle<DocumentsMigration>(testData.migration.id)
         migration.migratedDocumentsCount.shouldBe(1)
         migration.completedAt.shouldBe(MOCK_TIME)
     }

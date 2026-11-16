@@ -1,9 +1,10 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
-    "bun.lock", "build-config/vite-plugins.ts", "vite.config.ts",
+    "bun.lock", "build-config/vite-plugins.ts", "build-config/proxy-port-resolver.ts", "vite.config.ts",
+    "tsconfig.vite-config.json",
 )
 
-val installFrontendDependencies by tasks.register<SaFrontendTask>("installFrontendDependencies") {
+val installFrontendDependencies = tasks.register<SaFrontendTask>("installFrontendDependencies") {
     args.set("install --frozen-lockfile")
 }
 
@@ -11,7 +12,7 @@ tasks.register<SaFrontendTask>("updateFrontendDependencies") {
     args.set("install")
 }
 
-val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
+val buildFrontend = tasks.register<SaCacheableFrontendTask>("buildFrontend") {
     args.set("run build")
     inputFiles {
         prodConfigs.forEach { include(it) }
@@ -23,7 +24,7 @@ val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
     dependsOn(installFrontendDependencies)
 }
 
-val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
+val testFrontend = tasks.register<SaCacheableFrontendTask>("testFrontend") {
     args.set("run test:unit")
     inputFiles {
         prodConfigs.forEach { include(it) }
@@ -32,7 +33,7 @@ val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
     dependsOn(installFrontendDependencies)
 }
 
-val lint by tasks.register<SaCacheableFrontendTask>("lint") {
+val lint = tasks.register<SaCacheableFrontendTask>("lint") {
     args.set("run lint")
     inputFiles {
         prodConfigs.forEach { include(it) }
@@ -42,7 +43,7 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
 }
 
 val verifyGqlTypesOutput = layout.buildDirectory.dir("verify-gql-types")
-val generateGqlTypes by tasks.register<SaFrontendTask>("generateGqlTypes") {
+val generateGqlTypes = tasks.register<SaFrontendTask>("generateGqlTypes") {
     args.set("run graphql-codegen")
     inputs.files(
         project.fileTree(projectDir) {
@@ -58,7 +59,7 @@ val generateGqlTypes by tasks.register<SaFrontendTask>("generateGqlTypes") {
     dependsOn(installFrontendDependencies)
 }
 
-val verifyGqlTypes by tasks.register<SaFrontendTask>("verifyGqlTypes") {
+val verifyGqlTypes = tasks.register<SaFrontendTask>("verifyGqlTypes") {
     args.set("run verify-gql-types")
     inputs.files(
         project.fileTree(projectDir) {
@@ -89,7 +90,7 @@ tasks.register("check") {
     dependsOn(verifyGqlTypes)
 }
 
-val cleanFrontend by tasks.register("cleanFrontend") {
+val cleanFrontend = tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
         delete(files("dist"))

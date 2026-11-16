@@ -26,7 +26,7 @@ class CategoryByWorkspaceAndIdDataLoader(
             val categories = categoriesRepository.findAllById(categoryIds)
             categories.associate { category ->
                 WorkspaceCategoryKey(category.workspaceId, category.id!!) to CategoryGqlDto(
-                    id = category.id!!,
+                    id = category.id,
                     version = category.version!!,
                     name = category.name,
                     description = category.description,

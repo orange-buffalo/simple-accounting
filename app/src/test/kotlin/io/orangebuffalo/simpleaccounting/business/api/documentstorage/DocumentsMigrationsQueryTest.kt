@@ -183,7 +183,7 @@ class DocumentsMigrationsQueryTest(
                         }
                         put("pageInfo", buildJsonObject {
                             put("startCursor", encodeCursor(testData.lunaParkMigration.createdAt!!))
-                            put("endCursor", encodeCursor(testData.lunaParkMigration.createdAt!!))
+                            put("endCursor", encodeCursor(testData.lunaParkMigration.createdAt))
                             put("hasPreviousPage", true)
                             put("hasNextPage", false)
                         })

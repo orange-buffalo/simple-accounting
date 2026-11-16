@@ -245,7 +245,7 @@ class WorkspacesQueryTest(
                         }
                         put("pageInfo", buildJsonObject {
                             put("startCursor", encodeCursor(testData.ws1.createdAt!!))
-                            put("endCursor", encodeCursor(testData.ws1.createdAt!!))
+                            put("endCursor", encodeCursor(testData.ws1.createdAt))
                             put("hasPreviousPage", true)
                             put("hasNextPage", false)
                         })

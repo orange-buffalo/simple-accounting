@@ -24,7 +24,7 @@ class DocumentsByIdsDataLoader(
             val usagesByDocId = documentsRepository.findUsagesByDocumentIds(documentIds)
             documents.associate { document ->
                 document.id!! to DocumentGqlDto(
-                    id = document.id!!,
+                    id = document.id,
                     version = document.version!!,
                     name = document.name,
                     timeUploaded = document.timeUploaded,

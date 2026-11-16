@@ -110,7 +110,7 @@ class CustomersQueryTest(
                             }
                             put("pageInfo", buildJsonObject {
                                 put("startCursor", encodeCursor(testData.customer1.createdAt!!))
-                                put("endCursor", encodeCursor(testData.customer1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.customer1.createdAt))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })

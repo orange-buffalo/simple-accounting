@@ -218,7 +218,7 @@ class OAuthUserAuthenticationService(
         }
         identitiesRepository.save(
             UserOAuthIdentity(
-                userId = user.id!!,
+                userId = user.id,
                 providerId = provider.id,
                 externalId = externalId,
             )
