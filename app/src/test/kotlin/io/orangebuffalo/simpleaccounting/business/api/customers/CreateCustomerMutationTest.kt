@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.customers
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -41,6 +42,18 @@ class CreateCustomerMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating a customer`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val customers = aggregateTemplate.findAll<Customer>()
+            client.graphqlMutation { createCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateCustomer)
+            aggregateTemplate.findAll<Customer>().shouldBe(customers)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

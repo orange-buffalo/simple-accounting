@@ -1,15 +1,12 @@
 package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class IncomeTaxPaymentService(
     private val taxPaymentRepository: IncomeTaxPaymentsRepository,
-    private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService
 ) {
 
@@ -19,7 +16,6 @@ class IncomeTaxPaymentService(
     }
 
     private fun validateTaxPayment(taxPayment: IncomeTaxPayment) {
-        workspacesService.validateWorkspaceAccess(taxPayment.workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateAttachments(taxPayment)
     }
 

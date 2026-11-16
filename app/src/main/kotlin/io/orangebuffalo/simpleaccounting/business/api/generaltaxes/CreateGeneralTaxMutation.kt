@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -16,6 +18,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class CreateGeneralTaxMutation(
     private val generalTaxesService: GeneralTaxesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -36,6 +39,7 @@ class CreateGeneralTaxMutation(
         @Max(100_00)
         rateInBps: Int,
     ): GeneralTaxGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val tax = generalTaxesService.saveTax(
             GeneralTax(
                 title = title,

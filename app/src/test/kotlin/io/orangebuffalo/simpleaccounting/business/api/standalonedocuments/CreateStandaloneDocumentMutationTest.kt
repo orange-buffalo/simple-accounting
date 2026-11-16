@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.standalonedocuments
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -43,6 +44,18 @@ class CreateStandaloneDocumentMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating a standalone document`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val documents = aggregateTemplate.findAll<StandaloneDocument>()
+            client.graphqlMutation { createStandaloneDocumentMutation() }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateStandaloneDocument)
+            aggregateTemplate.findAll<StandaloneDocument>().shouldBe(documents)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

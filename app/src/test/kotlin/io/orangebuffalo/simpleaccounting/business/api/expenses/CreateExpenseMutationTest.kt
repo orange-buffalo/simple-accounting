@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.expenses
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
@@ -47,6 +48,18 @@ class CreateExpenseMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating an expense`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val expenses = aggregateTemplate.findAll<Expense>()
+            client.graphqlMutation { createExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateExpense)
+            aggregateTemplate.findAll<Expense>().shouldBe(expenses)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

@@ -4,6 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class EditCategoryMutation(
     private val categoriesService: CategoriesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -41,6 +44,7 @@ class EditCategoryMutation(
         val category = categoriesService.getCategoryByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Category $id is not found")
         category.validateVersion(version)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
 
         return categoriesService.saveCategory(
             category.copy(

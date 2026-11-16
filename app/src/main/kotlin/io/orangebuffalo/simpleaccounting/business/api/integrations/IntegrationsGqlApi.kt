@@ -15,6 +15,8 @@ import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidA
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidIncomeCategoryException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseInvalidTokenException
 import io.orangebuffalo.simpleaccounting.business.integrations.wise.WiseUnavailableException
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
@@ -25,13 +27,17 @@ import java.util.concurrent.CompletableFuture
 
 class IntegrationsGqlApi {
     @Component
-    class RemoveWiseIntegrationMutation(private val wise: WiseIntegrationService) : Mutation {
+    class RemoveWiseIntegrationMutation(
+        private val wise: WiseIntegrationService,
+        private val workspaces: WorkspacesService,
+    ) : Mutation {
         @GraphQLDescription("Permanently removes the Wise integration, its saved token, selected accounts and all linked imported statement records atomically. Does not revoke the token at Wise. Succeeds if already removed.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
         fun removeWiseIntegration(
             @GraphQLDescription("The workspace whose integration and imported statements should be removed. Only its owner can remove them.")
             workspaceId: String,
         ): WiseIntegrationChangeResult {
+            workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
             wise.remove(workspaceId)
             return WiseIntegrationChangeResult(success = true)
         }
@@ -41,6 +47,7 @@ class IntegrationsGqlApi {
     @Validated
     class ListWiseAccountsMutation(
         private val wise: WiseIntegrationService,
+        private val workspaces: WorkspacesService,
     ) : Mutation {
         @GraphQLDescription("Lists STANDARD currency balances with profile details, saved selections and deleted accounts. Verifies a supplied token without persisting it; null uses the saved credential.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
@@ -60,6 +67,7 @@ class IntegrationsGqlApi {
             @GraphQLDescription("A supplied non-blank token is used without saving it. Null or omission uses the saved token; if none exists, INVALID_TOKEN is returned. Empty or whitespace-only tokens return INVALID_TOKEN.")
             @Size(max = 2000) token: String? = null,
         ): WiseAccountsResult {
+            workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
             return WiseAccountsResult(accounts = wise.loadAccounts(workspaceId = workspaceId, token = token).map {
                 val account = it.account
                 WiseAccountGqlDto(
@@ -82,6 +90,7 @@ class IntegrationsGqlApi {
     @Validated
     class SaveWiseIntegrationSettingsMutation(
         private val wise: WiseIntegrationService,
+        private val workspaces: WorkspacesService,
     ) : Mutation {
         @GraphQLDescription("Saves Wise settings for an owned workspace, verifying every selection. A null token retains the saved credential.")
         @RequiredAuth(RequiredAuth.AuthType.REGULAR_USER)
@@ -123,6 +132,7 @@ class IntegrationsGqlApi {
             @GraphQLDescription("Category for automatically created incomes. Must belong to this workspace and support incomes. Required when createIncomeFromInvoices is true. A supplied value replaces the category; null or omission clears it and is only allowed when income creation is disabled.")
             incomeCategoryId: String? = null,
         ): WiseSettingsSaveResult {
+            workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
             wise.setup(
                 workspaceId = workspaceId,
                 token = token,
@@ -167,6 +177,8 @@ data class WiseAccountGqlDto(
 class IntegrationsGqlDto(private val workspaceId: String) {
     @GraphQLDescription("Wise integration metadata for this workspace.")
     fun wise(env: DataFetchingEnvironment): WiseIntegrationGqlDto = env.withRequestAuthentication {
+        env.graphQlContext.getBean<WorkspacesService>()
+            .validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         WiseIntegrationGqlDto(env.graphQlContext.getBean<WiseIntegrationService>().getSettings(workspaceId))
     }
 }

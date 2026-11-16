@@ -1,11 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.api.generaltaxes
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.JsonNull
@@ -42,6 +44,32 @@ class EditGeneralTaxMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should preserve version validation before workspace access validation`() {
+            client.graphqlMutation {
+                editGeneralTaxMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryTax.id!!,
+                    version = preconditions.fryTax.version!! + 1,
+                )
+            }.from(preconditions.zoidberg)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditGeneralTax)
+            aggregateTemplate.findSingle<GeneralTax>(preconditions.fryTax.id!!).shouldBe(preconditions.fryTax)
+        }
+
+        @Test
+        fun `should reject saved read only access without updating a tax`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val taxes = aggregateTemplate.findAll<GeneralTax>()
+            client.graphqlMutation {
+                editGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryTax.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditGeneralTax)
+            aggregateTemplate.findAll<GeneralTax>().shouldBe(taxes)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

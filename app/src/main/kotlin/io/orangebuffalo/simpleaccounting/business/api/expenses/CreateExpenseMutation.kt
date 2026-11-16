@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -20,6 +22,7 @@ import java.time.LocalDate
 @Validated
 class CreateExpenseMutation(
     private val expenseService: ExpenseService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -59,6 +62,7 @@ class CreateExpenseMutation(
         @GraphQLDescription("ID of the general tax applied to this expense.")
         generalTaxId: String? = null,
     ): ExpenseGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val expense = expenseService.saveExpense(
             Expense(
                 workspaceId = workspaceId,

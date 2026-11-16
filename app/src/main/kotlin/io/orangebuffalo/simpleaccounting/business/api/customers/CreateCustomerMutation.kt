@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class CreateCustomerMutation(
     private val customersService: CustomersService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -27,6 +30,7 @@ class CreateCustomerMutation(
         @Size(max = 255)
         name: String,
     ): CustomerGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val customer = customersService.saveCustomer(
             Customer(
                 name = name,

@@ -4,6 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingProperties
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
@@ -12,6 +14,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class CreateDocumentUploadUrlMutation(
     private val documentsService: DocumentsService,
+    private val workspacesService: WorkspacesService,
     private val simpleAccountingProperties: SimpleAccountingProperties,
 ) : Mutation {
 
@@ -29,6 +32,7 @@ class CreateDocumentUploadUrlMutation(
         @GraphQLDescription("ID of the workspace to upload the document to.")
         workspaceId: String,
     ): CreateDocumentUploadUrlResponse {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val token = documentsService.getUploadToken(workspaceId)
         val baseUrl = simpleAccountingProperties.publicUrl.trimEnd('/')
         val uploadUrl = "$baseUrl/api/documents/upload/$token"

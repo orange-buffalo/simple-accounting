@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.customers
 
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.infra.toNullable
 import org.springframework.stereotype.Service
@@ -9,11 +7,9 @@ import org.springframework.stereotype.Service
 @Service
 class CustomersService(
     private val customersRepository: CustomersRepository,
-    private val workspacesService: WorkspacesService
 ) {
 
     fun saveCustomer(customer: Customer): Customer {
-        workspacesService.validateWorkspaceAccess(customer.workspaceId, WorkspaceAccessMode.READ_WRITE)
         return customersRepository.save(customer)
     }
 

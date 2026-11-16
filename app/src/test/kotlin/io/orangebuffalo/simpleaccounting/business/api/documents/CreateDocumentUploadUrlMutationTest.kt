@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.api.documents
 
 import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.documents.PersistentUploadRequest
 import io.orangebuffalo.simpleaccounting.business.integration.TokensRepository
@@ -45,6 +47,20 @@ class CreateDocumentUploadUrlMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating an upload token`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "bender-upload-token"
+            client.graphqlMutation { createDocumentUploadUrlMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentUploadUrl)
+            shouldThrow<EntityNotFoundException> {
+                tokensRepository.getRequestByToken<PersistentUploadRequest>("bender-upload-token")
+            }
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

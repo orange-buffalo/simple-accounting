@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocument
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocumentsService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class CreateStandaloneDocumentMutation(
     private val standaloneDocumentsService: StandaloneDocumentsService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -28,11 +31,14 @@ class CreateStandaloneDocumentMutation(
         title: String,
         @GraphQLDescription("ID of the linked document.")
         documentId: String,
-    ): StandaloneDocumentGqlDto = standaloneDocumentsService.createStandaloneDocument(
-        workspaceId = workspaceId,
-        standaloneDocument = StandaloneDocument(
-            title = title,
-            documentId = documentId,
-        ),
-    ).toStandaloneDocumentGqlDto()
+    ): StandaloneDocumentGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
+        return standaloneDocumentsService.createStandaloneDocument(
+            workspaceId = workspaceId,
+            standaloneDocument = StandaloneDocument(
+                title = title,
+                documentId = documentId,
+            ),
+        ).toStandaloneDocumentGqlDto()
+    }
 }

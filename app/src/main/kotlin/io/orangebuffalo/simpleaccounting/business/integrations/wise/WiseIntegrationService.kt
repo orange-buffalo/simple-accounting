@@ -3,8 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.integrations.wise
 import io.orangebuffalo.simpleaccounting.business.integrations.AccountStatementRecordsRepository
 import io.orangebuffalo.simpleaccounting.business.integrations.IntegrationProvider
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -12,7 +10,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 class WiseIntegrationService internal constructor(
-    private val workspaces: WorkspacesService,
     private val settings: WiseIntegrationSettingsRepository,
     private val client: WiseApiClient,
     private val statementFetchService: WiseStatementFetchService,
@@ -20,22 +17,18 @@ class WiseIntegrationService internal constructor(
     private val categories: CategoriesService,
 ) {
     fun isActive(workspaceId: String): Boolean {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         return settings.existsByWorkspaceId(workspaceId)
     }
 
     fun getSettings(workspaceId: String): WiseIntegrationSettings? {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         return settings.findByWorkspaceId(workspaceId)
     }
 
     fun verifyToken(workspaceId: String, token: String?): List<WiseAccount> {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         return client.getAccounts(resolveToken(token = token, existing = settings.findByWorkspaceId(workspaceId)))
     }
 
     fun loadAccounts(workspaceId: String, token: String?): List<WiseSelectableAccount> {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)
         val available = client.getAccounts(resolveToken(token = token, existing = existing))
         val selected = existing?.accounts.orEmpty()
@@ -69,7 +62,6 @@ class WiseIntegrationService internal constructor(
         createIncomeFromInvoices: Boolean = false, populateIncomeConvertedAmounts: Boolean = true,
         incomeCategoryId: String? = null,
     ) {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) }
         if (createIncomeFromInvoices && incomeCategoryId == null) throw WiseInvalidIncomeCategoryException()
         if (incomeCategoryId != null) {
@@ -106,7 +98,6 @@ class WiseIntegrationService internal constructor(
 
     @Transactional
     fun remove(workspaceId: String) {
-        workspaces.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.ADMIN)
         val existing = settings.findByWorkspaceId(workspaceId)?.let { settings.lockById(it.id!!) } ?: return
         records.deleteByIntegrationIdAndProvider(integrationId = existing.id!!, provider = IntegrationProvider.WISE.name)
         settings.delete(existing)

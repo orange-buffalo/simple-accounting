@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -17,6 +19,7 @@ import java.time.LocalDate
 @Validated
 class CreateIncomeTaxPaymentMutation(
     private val incomeTaxPaymentService: IncomeTaxPaymentService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -42,6 +45,7 @@ class CreateIncomeTaxPaymentMutation(
         @GraphQLDescription("IDs of documents attached to this income tax payment.")
         attachments: List<String>? = null,
     ): IncomeTaxPaymentGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val payment = incomeTaxPaymentService.saveTaxPayment(
             IncomeTaxPayment(
                 workspaceId = workspaceId,

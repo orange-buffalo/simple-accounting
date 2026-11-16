@@ -4,8 +4,6 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -13,6 +11,7 @@ import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguratio
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.core.task.AsyncTaskExecutor
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
@@ -23,7 +22,6 @@ class InvoicesService(
     private val invoicesRepository: InvoicesRepository,
     private val customersService: CustomersService,
     private val generalTaxesService: GeneralTaxesService,
-    private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService,
     private val timeService: TimeService,
     @Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
@@ -54,18 +52,12 @@ class InvoicesService(
         return invoicesRepository.save(updateInvoiceStatus(invoice))
     }
 
-    fun cancelInvoice(invoiceId: String, workspaceId: String): Invoice {
-        val invoice = invoicesRepository.findById(invoiceId)
-            .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
+    fun cancelInvoice(invoice: Invoice, workspaceId: String): Invoice {
         val customer = customersService.findById(invoice.customerId)
             ?: throw EntityNotFoundException("Customer ${invoice.customerId} is not found")
-        workspacesService.validateWorkspaceAccess(
-            customer.workspaceId,
-            WorkspaceAccessMode.READ_WRITE
-        )
 
         if (workspaceId != customer.workspaceId) {
-            throw EntityNotFoundException("Invoice $invoiceId is not found")
+            throw EntityNotFoundException("Invoice ${invoice.id} is not found")
         }
 
         return invoicesRepository.save(
@@ -117,4 +109,6 @@ class InvoicesService(
 
     fun getInvoiceByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? =
         invoicesRepository.findByIdAndWorkspaceId(id, workspaceId)
+
+    fun getInvoiceById(id: String): Invoice? = invoicesRepository.findByIdOrNull(id)
 }

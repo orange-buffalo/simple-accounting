@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.generaltaxes
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -42,6 +43,18 @@ class CreateGeneralTaxMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating a tax`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val taxes = aggregateTemplate.findAll<GeneralTax>()
+            client.graphqlMutation { createGeneralTaxMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateGeneralTax)
+            aggregateTemplate.findAll<GeneralTax>().shouldBe(taxes)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

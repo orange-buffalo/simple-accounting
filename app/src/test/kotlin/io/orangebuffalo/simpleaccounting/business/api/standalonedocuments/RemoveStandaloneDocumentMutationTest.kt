@@ -63,6 +63,20 @@ class RemoveStandaloneDocumentMutationTest(
     inner class Authorization {
 
         @Test
+        fun `should reject saved read only access without deleting either document`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            client.removeStandaloneDocumentMutation(
+                workspaceId = preconditions.fryWorkspace.id!!,
+                standaloneDocumentId = preconditions.standaloneDocument.id!!,
+            ).from(preconditions.zoidberg).executeAndVerifyEntityNotFoundError(path = REMOVE_STANDALONE_DOCUMENT_MUTATION)
+            aggregateTemplate.findSingle<StandaloneDocument>(preconditions.standaloneDocument.id!!)
+                .shouldBe(preconditions.standaloneDocument)
+            aggregateTemplate.findSingle<Document>(preconditions.deliveryReceipt.id!!).shouldBe(preconditions.deliveryReceipt)
+        }
+
+        @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client
                 .removeStandaloneDocumentMutation(

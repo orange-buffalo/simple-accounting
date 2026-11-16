@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.standalonedocuments.StandaloneDocumentsService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
@@ -12,6 +14,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class RemoveStandaloneDocumentMutation(
     private val standaloneDocumentsService: StandaloneDocumentsService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -25,6 +28,7 @@ class RemoveStandaloneDocumentMutation(
         @GraphQLDescription("Whether to also delete the linked document when it is no longer used. Defaults to true when omitted.")
         removeDocumentIfUnused: Boolean? = null,
     ): Boolean {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         standaloneDocumentsService.removeStandaloneDocument(
             workspaceId = workspaceId,
             standaloneDocumentId = standaloneDocumentId,
