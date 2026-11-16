@@ -150,17 +150,11 @@ class SaOverviewItem private constructor(
     }
 
     fun clickDetailsLink(linkText: String) {
-        detailsLink(linkText).click()
-    }
-
-    fun scrollDetailsLinkIntoView(linkText: String) {
-        detailsLink(linkText).scrollIntoViewIfNeeded()
-    }
-
-    private fun detailsLink(linkText: String): Locator =
         panel.locator("xpath=..").locator(".overview-item__details")
             .getByRole(AriaRole.LINK, Locator.GetByRoleOptions().setName(linkText).setExact(true))
             .also { it.shouldHaveCount(1) }
+            .click()
+    }
 
     fun shouldHaveDetailsLinksSatisfying(spec: (List<DetailsLink>) -> Unit) {
         shouldSatisfy("Overview item details links should match") {

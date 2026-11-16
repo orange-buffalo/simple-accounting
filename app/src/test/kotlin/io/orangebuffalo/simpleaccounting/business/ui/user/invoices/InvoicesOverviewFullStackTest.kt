@@ -54,8 +54,6 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     links.filter { it.text == "Moon delivery /42 #Mars" }.shouldHaveSize(1)
                 }
                 reportRendering("invoices-overview.linked-income")
-                scrollDetailsLinkIntoView("Moon delivery /42 #Mars")
-                reportRendering("invoices-overview.linked-income-bottom")
                 clickDetailsLink("Moon delivery /42 #Mars")
             }
         }
