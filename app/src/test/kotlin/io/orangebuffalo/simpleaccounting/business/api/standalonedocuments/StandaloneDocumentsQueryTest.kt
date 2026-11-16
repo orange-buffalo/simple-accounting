@@ -242,7 +242,7 @@ class StandaloneDocumentsQueryTest(
                 .executeAndVerifyResponse(
                     "workspace" to buildJsonObject {
                         put("standaloneDocument", buildJsonObject {
-                            put("id", testData.standaloneDocument.id!!)
+                            put("id", testData.standaloneDocument.id)
                             put("title", "Slurm supplies")
                             put("documentId", testData.document.id!!)
                         })

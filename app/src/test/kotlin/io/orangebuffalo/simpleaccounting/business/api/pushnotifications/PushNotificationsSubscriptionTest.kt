@@ -161,7 +161,7 @@ class PushNotificationsSubscriptionTest(
                     val text = messageBuffer.toString()
                     messageBuffer.setLength(0)
                     val json = objectMapper.readTree(text)
-                    when (json.get("type")?.asText()) {
+                    when (json.get("type")?.asString()) {
                         "connection_ack" -> {
                             connectionAcknowledged.set(true)
                             webSocket.sendText(subscribe, true)
@@ -213,11 +213,11 @@ class PushNotificationsSubscriptionTest(
     }
 
     private fun JsonNode.payloadEventName(): String? =
-        this.path("payload").path("data").path("pushNotifications").path("eventName").asText(null)
+        this.path("payload").path("data").path("pushNotifications").path("eventName").asString(null)
 
     private fun JsonNode.payloadData(): String? {
         val dataNode = this.path("payload").path("data").path("pushNotifications").path("data")
-        return if (dataNode.isMissingNode || dataNode.isNull) null else dataNode.asText()
+        return if (dataNode.isMissingNode || dataNode.isNull) null else dataNode.asString()
     }
 
     private val preconditions by lazyPreconditions {

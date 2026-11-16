@@ -4,7 +4,24 @@ repositories {
 
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.kotlin.serialization)
+    kotlin("plugin.serialization") version embeddedKotlinVersion
+}
+
+gradlePlugin {
+    plugins {
+        create("saJooqCodeGen") {
+            id = "sa.jooq-codegen"
+            implementationClass = "SaJooqCodeGenPlugin"
+        }
+        create("saHotReload") {
+            id = "sa.hot-reload"
+            implementationClass = "SaHotReloadPlugin"
+        }
+        create("saDgsCodegen") {
+            id = "sa.dgs-codegen"
+            implementationClass = "SaDgsCodegenPlugin"
+        }
+    }
 }
 
 dependencies {

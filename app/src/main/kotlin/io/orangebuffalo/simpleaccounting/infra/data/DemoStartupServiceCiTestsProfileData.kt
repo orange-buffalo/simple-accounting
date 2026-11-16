@@ -67,22 +67,22 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         ).also { jdbcAggregateTemplate.insert(it) }
         val shipMaintenance = Category(
             name = "Ship Maintenance",
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             income = false,
             expense = true
         ).also { jdbcAggregateTemplate.insert(it) }
 
-        Customer(name = "MomCorp", workspaceId = planetExpressWorkspace.id!!)
+        Customer(name = "MomCorp", workspaceId = planetExpressWorkspace.id)
             .also { jdbcAggregateTemplate.insert(it) }
-        val omicronians = Customer(name = "Omicronians", workspaceId = planetExpressWorkspace.id!!)
+        val omicronians = Customer(name = "Omicronians", workspaceId = planetExpressWorkspace.id)
             .also { jdbcAggregateTemplate.insert(it) }
 
-        val spaceVAT = GeneralTax(title = "Space VAT", rateInBps = 1900, workspaceId = planetExpressWorkspace.id!!)
+        val spaceVAT = GeneralTax(title = "Space VAT", rateInBps = 1900, workspaceId = planetExpressWorkspace.id)
             .also { jdbcAggregateTemplate.insert(it) }
 
         Expense(
             categoryId = shipMaintenance.id,
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             title = "Dark Matter Fuel",
             datePaid = LocalDate.now(),
             currency = "USD",
@@ -96,7 +96,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         ).also { jdbcAggregateTemplate.insert(it) }
         Expense(
             categoryId = shipMaintenance.id,
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             title = "Slurm Beverages for Crew",
             datePaid = LocalDate.now(),
             currency = "USD",
@@ -111,7 +111,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
 
         Income(
             categoryId = delivery.id,
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             title = "Delivery to MomCorp",
             dateReceived = LocalDate.now(),
             currency = "USD",
@@ -124,7 +124,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         ).also { jdbcAggregateTemplate.insert(it) }
         Income(
             categoryId = delivery.id,
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             title = "Ransom from Omicronians",
             dateReceived = LocalDate.now(),
             currency = "USD",
@@ -137,7 +137,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         ).also { jdbcAggregateTemplate.insert(it) }
 
         IncomeTaxPayment(
-            workspaceId = planetExpressWorkspace.id!!,
+            workspaceId = planetExpressWorkspace.id,
             datePaid = LocalDate.now(),
             reportingDate = LocalDate.now(),
             amount = 1200,

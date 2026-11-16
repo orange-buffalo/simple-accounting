@@ -731,7 +731,7 @@ class WiseStatementFetchServiceTest(
 
         assertInterval(start = "1998-12-28T23:01:02.042Z", end = MOCK_TIME.toString())
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(AccountStatementRecord(
-            workspaceId = integration.workspaceId, provider = IntegrationProvider.WISE, integrationId = integration.id!!,
+            workspaceId = integration.workspaceId, provider = IntegrationProvider.WISE, integrationId = integration.id,
             accountId = "301", accountCurrency = "USD", externalId = """["101","USD","DEBIT","CARD-249281"]""",
             type = StatementType.DEBIT, occurredAt = Instant.parse("1999-03-27T12:00:00Z"), amountInCents = 776, currency = "USD",
             feesInCents = 4, feesCurrency = "USD", runningBalanceInCents = -1601, runningBalanceCurrency = "USD",
@@ -808,7 +808,7 @@ class WiseStatementFetchServiceTest(
         fetcher.fetch(integration.id!!)
 
         aggregateTemplate.findAll<AccountStatementRecord>().shouldBeSingle().shouldBeEntityWithFields(AccountStatementRecord(
-            workspaceId = integration.workspaceId, provider = IntegrationProvider.WISE, integrationId = integration.id!!,
+            workspaceId = integration.workspaceId, provider = IntegrationProvider.WISE, integrationId = integration.id,
             accountId = "301", accountCurrency = "USD", externalId = """["101","USD","CREDIT","TRANSFER-42"]""",
             type = StatementType.CONVERSION, occurredAt = Instant.parse("1999-03-27T12:00:00Z"), amountInCents = 4200, currency = "USD",
             partyName = "Philip J. Fry",

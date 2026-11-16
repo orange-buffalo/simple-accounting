@@ -130,7 +130,7 @@ class DeleteDocumentMutationTest(
                     DELETE_DOCUMENT_MUTATION to JsonPrimitive(true)
                 )
 
-            aggregateTemplate.findById(testData.document.id!!, Document::class.java).shouldBe(null)
+            aggregateTemplate.findById(testData.document.id, Document::class.java).shouldBe(null)
             testDocumentsStorage.hasUploadedContent("slurm-supplies-receipt").shouldBe(false)
         }
 
@@ -172,7 +172,7 @@ class DeleteDocumentMutationTest(
                     path = DELETE_DOCUMENT_MUTATION,
                 )
 
-            aggregateTemplate.findSingle<Document>(testData.document.id!!).id.shouldBe(testData.document.id)
+            aggregateTemplate.findSingle<Document>(testData.document.id).id.shouldBe(testData.document.id)
             testDocumentsStorage.hasUploadedContent("planet-express-equipment-receipt").shouldBe(true)
         }
 

@@ -39,8 +39,8 @@ class WorkspacesService(
         if (savedWorkspaceAccessToken == null) {
             savedWorkspaceAccessTokensRepository.save(
                 SavedWorkspaceAccessToken(
-                    workspaceAccessTokenId = accessToken.id!!,
-                    ownerId = currentUser.id!!
+                    workspaceAccessTokenId = accessToken.id,
+                    ownerId = currentUser.id
                 )
             )
         }

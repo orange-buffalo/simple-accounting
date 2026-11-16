@@ -26,7 +26,7 @@ class GeneralTaxByWorkspaceAndIdDataLoader(
             val taxes = generalTaxesRepository.findAllById(taxIds)
             taxes.associate { tax ->
                 WorkspaceGeneralTaxKey(tax.workspaceId, tax.id!!) to GeneralTaxGqlDto(
-                    id = tax.id!!,
+                    id = tax.id,
                     version = tax.version!!,
                     title = tax.title,
                     description = tax.description,

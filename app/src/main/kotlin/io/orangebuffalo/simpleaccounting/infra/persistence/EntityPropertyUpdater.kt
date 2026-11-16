@@ -14,7 +14,6 @@ class EntityPropertyUpdater(
         val accessor = persistentEntity.getPropertyAccessor(entity)
         accessor.setProperty(property, value)
 
-        @Suppress("UNCHECKED_CAST")
-        return accessor.bean as T
+        return accessor.bean
     }
 }

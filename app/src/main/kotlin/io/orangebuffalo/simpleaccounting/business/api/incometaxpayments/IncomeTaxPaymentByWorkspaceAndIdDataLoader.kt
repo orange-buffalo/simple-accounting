@@ -26,7 +26,7 @@ class IncomeTaxPaymentByWorkspaceAndIdDataLoader(
             val payments = incomeTaxPaymentsRepository.findAllById(paymentIds)
             payments.associate { payment ->
                 WorkspaceIncomeTaxPaymentKey(payment.workspaceId, payment.id!!) to IncomeTaxPaymentGqlDto(
-                    id = payment.id!!,
+                    id = payment.id,
                     version = payment.version!!,
                     title = payment.title,
                     datePaid = payment.datePaid,

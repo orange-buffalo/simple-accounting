@@ -110,7 +110,7 @@ class GeneralTaxesQueryTest(
                             }
                             put("pageInfo", buildJsonObject {
                                 put("startCursor", encodeCursor(testData.tax1.createdAt!!))
-                                put("endCursor", encodeCursor(testData.tax1.createdAt!!))
+                                put("endCursor", encodeCursor(testData.tax1.createdAt))
                                 put("hasPreviousPage", true)
                                 put("hasNextPage", false)
                             })

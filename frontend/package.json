@@ -7,7 +7,7 @@
     "build": "bun run typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
-    "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
+    "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false && bun run vue-tsc --noEmit -p tsconfig.vite-config.json --composite false",
     "lint": "bun run --bun eslint . --fix",
     "graphql-codegen": "graphql-codegen",
     "verify-gql-types": "bun build-config/verify-gql-types.js",

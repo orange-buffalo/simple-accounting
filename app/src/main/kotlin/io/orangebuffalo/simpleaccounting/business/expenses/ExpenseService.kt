@@ -70,8 +70,8 @@ class ExpenseService(
 
     private fun getGeneralTax(expense: Expense): GeneralTax? =
         if (expense.generalTaxId == null) null else generalTaxesService.getValidGeneralTax(
-            expense.generalTaxId!!,
-            expense.workspaceId
+            taxId = expense.generalTaxId,
+            workspaceId = expense.workspaceId
         )
 
     private fun validateCategoryAndAttachments(
@@ -93,7 +93,9 @@ class ExpenseService(
         expense: Expense,
         workspaceId: String
     ) {
-        if (expense.categoryId != null) categoriesService.validateCategory(expense.categoryId!!, workspaceId)
+        if (expense.categoryId != null) {
+            categoriesService.validateCategory(categoryId = expense.categoryId, workspaceId = workspaceId)
+        }
     }
 
     private fun calculateAdjustedAmounts(
