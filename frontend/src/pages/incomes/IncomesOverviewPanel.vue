@@ -177,7 +177,13 @@
             :label="$t.incomesOverviewPanel.linkedInvoice.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ income.linkedInvoice?.invoiceNumber }}
+            <RouterLink
+              :to="{
+                name: 'invoices-overview', query: { freeSearchText: income.linkedInvoice.invoiceNumber },
+              }"
+            >
+              {{ income.linkedInvoice.invoiceNumber }}
+            </RouterLink>
           </SaOverviewItemDetailsSectionAttribute>
         </div>
       </SaOverviewItemDetailsSection>

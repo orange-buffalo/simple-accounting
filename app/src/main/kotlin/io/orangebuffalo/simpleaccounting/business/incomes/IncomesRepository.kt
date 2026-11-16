@@ -7,6 +7,8 @@ import java.time.LocalDate
 
 interface IncomesRepository : AbstractEntityRepository<Income>, IncomesRepositoryExt {
     fun findByIdAndWorkspaceId(incomeId: String, workspaceId: String): Income?
+
+    fun findAllByWorkspaceIdAndLinkedInvoiceIdIn(workspaceId: String, invoiceIds: Set<String>): List<Income>
 }
 
 interface IncomesRepositoryExt {

@@ -732,6 +732,8 @@ type Invoice {
   id: String!
   "Invoice number."
   invoiceNumber: String!
+  "Incomes linked to this invoice."
+  linkedIncomes: [Income!]!
   "Optional notes for the invoice."
   notes: String
   "Status of the invoice."

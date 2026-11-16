@@ -55,6 +55,10 @@
               amount
               notes
               status
+              linkedIncomes {
+                id
+                title
+              }
               customer {
                 id
                 name

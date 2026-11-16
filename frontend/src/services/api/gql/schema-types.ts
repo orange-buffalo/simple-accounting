@@ -920,6 +920,8 @@ export type Invoice = {
   id: Scalars['String']['output'];
   /** Invoice number. */
   invoiceNumber: Scalars['String']['output'];
+  /** Incomes linked to this invoice. */
+  linkedIncomes: Array<Income>;
   /** Optional notes for the invoice. */
   notes?: Maybe<Scalars['String']['output']>;
   /** Status of the invoice. */

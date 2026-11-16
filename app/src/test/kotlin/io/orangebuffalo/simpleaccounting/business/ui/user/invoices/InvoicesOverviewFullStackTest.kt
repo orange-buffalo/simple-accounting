@@ -2,9 +2,12 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.invoices
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.shouldBeCreateIncomePage
+import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.CreateInvoicePage.Companion.shouldBeCreateInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.EditInvoicePage.Companion.shouldBeEditInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.openInvoicesOverviewPage
@@ -26,6 +29,41 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
+
+    @Test
+    fun `should navigate to an associated income`(page: Page) {
+        val linkedIncomeTitles = (1..45).map { "Mars delivery $it" } + "Moon delivery /42 #Mars"
+        val fry = preconditions {
+            fry().also { user ->
+                val workspace = workspace(owner = user)
+                val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-3025/42")
+                linkedIncomeTitles.forEach { title ->
+                    income(workspace = workspace, title = title, linkedInvoice = invoice)
+                }
+                income(workspace = workspace, title = "Slurm delivery")
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openInvoicesOverviewPage {
+            pageItems.shouldHaveTitles("PE-3025/42")
+            pageItems.staticItems.single().apply {
+                shouldBeSingle()
+                openDetails()
+                shouldHaveDetailsLinksSatisfying { links ->
+                    links.map { it.text }.shouldContainExactly(linkedIncomeTitles)
+                    links.filter { it.text == "Moon delivery /42 #Mars" }.shouldHaveSize(1)
+                }
+                reportRendering("invoices-overview.linked-income")
+                scrollDetailsLinkIntoView("Moon delivery /42 #Mars")
+                reportRendering("invoices-overview.linked-income-bottom")
+                clickDetailsLink("Moon delivery /42 #Mars")
+            }
+        }
+        page.shouldBeIncomesOverviewPage {
+            pageItems.shouldHaveTitles("Moon delivery /42 #Mars")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "Moon delivery /42 #Mars")
+        }
+    }
 
     @Test
     fun `should display invoices with all possible states and attributes`(page: Page) {

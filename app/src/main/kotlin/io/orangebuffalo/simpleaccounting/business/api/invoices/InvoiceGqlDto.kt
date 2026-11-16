@@ -10,6 +10,8 @@ import io.orangebuffalo.simpleaccounting.business.api.documents.DocumentGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.documents.loadDocumentsByIds
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.GeneralTaxGqlDto
 import io.orangebuffalo.simpleaccounting.business.api.generaltaxes.loadGeneralTaxByWorkspaceAndId
+import io.orangebuffalo.simpleaccounting.business.api.incomes.IncomeGqlDto
+import io.orangebuffalo.simpleaccounting.business.api.incomes.loadIncomesByInvoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import java.time.Instant
 import java.time.LocalDate
@@ -65,6 +67,10 @@ data class InvoiceGqlDto(
 
     @GraphQLIgnore val attachmentIds: List<String>,
 ) {
+    @GraphQLDescription("Incomes linked to this invoice.")
+    fun linkedIncomes(env: DataFetchingEnvironment): CompletableFuture<List<IncomeGqlDto>> =
+        env.loadIncomesByInvoice(workspaceId = workspaceId, invoiceId = id)
+
     @GraphQLDescription("General tax applied to this invoice.")
     fun generalTax(env: DataFetchingEnvironment): CompletableFuture<GeneralTaxGqlDto?>? {
         val taxId = generalTaxId ?: return null

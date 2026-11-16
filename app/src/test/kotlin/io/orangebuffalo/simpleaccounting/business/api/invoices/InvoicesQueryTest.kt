@@ -731,6 +731,69 @@ class InvoicesQueryTest(
     inner class InvoiceById {
 
         @Test
+        fun `should return linked incomes from the invoice workspace`() {
+            val testData = preconditions {
+                object {
+                    val fry = fry()
+                    val workspace = workspace(owner = fry)
+                    val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-Mars")
+                    val income = income(workspace = workspace, linkedInvoice = invoice, title = "Moon delivery")
+                    val secondIncome = income(workspace = workspace, linkedInvoice = invoice, title = "Mars delivery")
+                    val otherInvoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-Venus")
+                    val emptyInvoice = invoice(customer = customer(workspace = workspace))
+
+                    init {
+                        income(workspace = workspace, linkedInvoice = otherInvoice, title = "Venus delivery")
+                        income(workspace = workspace, title = "Slurm delivery")
+                        income(workspace = workspace(owner = zoidberg()), linkedInvoice = invoice, title = "Robot oil")
+                    }
+                }
+            }
+            client.graphql {
+                workspace(id = testData.workspace.id!!) {
+                    invoice(id = testData.invoice.id!!) {
+                        linkedIncomes {
+                            id
+                            title
+                            linkedInvoice { invoiceNumber }
+                        }
+                    }
+                    invoice(id = testData.otherInvoice.id!!, _alias = "otherInvoice") {
+                        linkedIncomes { title }
+                    }
+                    invoice(id = testData.emptyInvoice.id!!, _alias = "emptyInvoice") {
+                        linkedIncomes { title }
+                    }
+                }
+            }
+                .from(testData.fry)
+                .executeAndVerifyResponse(
+                    "workspace" to buildJsonObject {
+                        put("invoice", buildJsonObject {
+                            putJsonArray("linkedIncomes") {
+                                add(buildJsonObject {
+                                    put("id", testData.income.id)
+                                    put("title", "Moon delivery")
+                                    put("linkedInvoice", buildJsonObject { put("invoiceNumber", "PE-Mars") })
+                                })
+                                add(buildJsonObject {
+                                    put("id", testData.secondIncome.id)
+                                    put("title", "Mars delivery")
+                                    put("linkedInvoice", buildJsonObject { put("invoiceNumber", "PE-Mars") })
+                                })
+                            }
+                        })
+                        put("otherInvoice", buildJsonObject {
+                            putJsonArray("linkedIncomes") {
+                                add(buildJsonObject { put("title", "Venus delivery") })
+                            }
+                        })
+                        put("emptyInvoice", buildJsonObject { putJsonArray("linkedIncomes") {} })
+                    }
+                )
+        }
+
+        @Test
         fun `should return invoice by ID`() {
             val testData = preconditions {
                 object {

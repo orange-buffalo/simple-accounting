@@ -890,6 +890,9 @@ export default {
   },
 
   invoicesOverviewPanel: {
+    linkedIncomes: {
+      label: () => 'Associated Incomes',
+    },
     customer: {
       tooltip: () => 'Customer',
       label: () => 'Customer',
