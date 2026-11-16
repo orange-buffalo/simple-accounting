@@ -56,12 +56,16 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
             }
         }
 
-        GoogleOAuthMocks.token("old-token")
-            .persist(
-                user = preconditions.fry,
-                expired = true,
-                refreshToken = "refresh-token-x",
+        val refreshToken = GoogleOAuthMocks.issueRefreshToken()
+        preconditions {
+            save(
+                GoogleOAuthMocks.token("old-token").toPersistentClient(
+                    user = preconditions.fry,
+                    expired = true,
+                    refreshToken = refreshToken,
+                )
             )
+        }
         val refreshedToken = GoogleOAuthMocks.token("refreshed-token").enqueue()
 
         GoogleDriveApiMocks.mockFindFile(
@@ -81,7 +85,7 @@ class SaDocumentsUploadGoogleDriveFullStackTest : SaFullStackTestBase() {
 
         withHint("Should refresh the expired Google Drive token while checking upload readiness") {
             GoogleOAuthMocks.recordedRequests().shouldBe(
-                listOf(OAuthRecordedRequest.TokenByRefreshToken("refresh-token-x"))
+                listOf(OAuthRecordedRequest.TokenByRefreshToken(refreshToken))
             )
         }
     }
