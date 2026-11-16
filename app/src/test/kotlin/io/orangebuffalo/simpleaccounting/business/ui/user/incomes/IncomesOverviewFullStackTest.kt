@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.shouldBeCreateIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.openIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
+import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
@@ -16,6 +17,33 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class IncomesOverviewFullStackTest : SaFullStackTestBase() {
+
+    @Test
+    fun `should navigate to the associated invoice`(page: Page) {
+        val fry = preconditions {
+            fry().also { user ->
+                val workspace = workspace(owner = user)
+                val customer = customer(workspace = workspace)
+                val invoice = invoice(customer = customer, invoiceNumber = "PE-3025/42 #Mars")
+                invoice(customer = customer, invoiceNumber = "Slurm delivery")
+                income(workspace = workspace, title = "Moon delivery", linkedInvoice = invoice)
+            }
+        }
+        page.authenticateViaCookie(fry)
+        page.openIncomesOverviewPage {
+            pageItems.shouldHaveTitles("Moon delivery")
+            pageItems.staticItems.single().apply {
+                shouldBeSingle()
+                openDetails()
+                reportRendering("incomes-overview.linked-invoice")
+                clickDetailsLink("PE-3025/42 #Mars")
+            }
+        }
+        page.shouldBeInvoicesOverviewPage {
+            pageItems.shouldHaveTitles("PE-3025/42 #Mars")
+            filters.shouldHaveTextFilterValue(label = "Search", value = "PE-3025/42 #Mars")
+        }
+    }
 
     @Test
     fun `should display incomes with all possible states and attributes`(page: Page) {

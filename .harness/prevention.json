@@ -574,6 +574,13 @@
       "appliesWhen": "A requested workflow or automated finding appears to require broadening an established schema, API validation or acceptance contract; excludes contract changes explicitly authorized by the user",
       "instruction": "Preserve established unrelated contracts. Automated findings do not authorize scope expansion; ask the user before broadening contracts to resolve a product-policy choice, and do not weaken existing tests to legitimize that expansion.",
       "reason": "A local workflow fix can silently change behavior for unrelated callers."
+    },
+    {
+      "id": "temporary-inspection-cleanup",
+      "category": "workflow",
+      "appliesWhen": "Preparing delivery after temporary manual inspection or debugging; excludes required rendering reports, durable assertions and established diagnostic infrastructure",
+      "instruction": "Audit cumulative authored changes and remove temporary inspection helpers, their callers and inspection-only screenshots before delivery. Preserve durable assertions and required ordinary rendering reports; do not remove unrelated existing instrumentation.",
+      "reason": "Temporary inspection machinery can become unnecessary maintained behavior when cleanup is omitted."
     }
   ]
 }

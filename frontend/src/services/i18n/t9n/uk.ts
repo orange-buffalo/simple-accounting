@@ -889,6 +889,9 @@ export default {
   },
 
   invoicesOverviewPanel: {
+    linkedIncomes: {
+      label: () => 'Пов’язані доходи',
+    },
     customer: {
       tooltip: () => 'Клієнт',
       label: () => 'Клієнт',

@@ -156,6 +156,18 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun shouldHaveDetailsLinksSatisfying(spec: (List<DetailsLink>) -> Unit) {
+        shouldSatisfy("Overview item details links should match") {
+            val linksJson = panel.locator("xpath=..").locator(".overview-item__details")
+                .evaluate("""
+                    (details) => JSON.stringify(Array.from(details.querySelectorAll('a')).map(link => ({
+                        text: link.textContent.trim(), href: link.getAttribute('href')
+                    })))
+                """.trimIndent()) as String
+            spec(Json.decodeFromString<List<DetailsLink>>(linksJson))
+        }
+    }
+
     fun clickPrimaryAttributeLink(linkText: String) {
         panel.locator(".overview-item-primary-attribute")
             .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(linkText).setExact(true))
@@ -220,6 +232,9 @@ class SaOverviewItem private constructor(
         fun previewIcons(vararg icons: SaIconType) = icons.map { SaIcon.iconValue(it) }
     }
 }
+
+@Serializable
+data class DetailsLink(val text: String, val href: String)
 
 @Serializable
 data class SaOverviewItemData(

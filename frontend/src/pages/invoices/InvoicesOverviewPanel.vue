@@ -1,5 +1,8 @@
 <template>
-  <SaOverviewItem :title="invoice.invoiceNumber">
+  <SaOverviewItem
+    :title="invoice.invoiceNumber"
+    class="invoice-overview-item"
+  >
     <template #primary-attributes>
       <SaOverviewItemPrimaryAttribute
         :tooltip="$t.invoicesOverviewPanel.customer.tooltip()"
@@ -163,6 +166,29 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t.common.date.medium(invoice.datePaid) }}
+          </SaOverviewItemDetailsSectionAttribute>
+        </div>
+
+        <div
+          v-if="invoice.linkedIncomes.length"
+          class="row"
+        >
+          <SaOverviewItemDetailsSectionAttribute
+            :label="$t.invoicesOverviewPanel.linkedIncomes.label()"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <div
+              v-for="income in invoice.linkedIncomes"
+              :key="income.id"
+            >
+              <RouterLink
+                :to="{
+                  name: 'incomes-overview', query: { freeSearchText: income.title },
+                }"
+              >
+                {{ income.title }}
+              </RouterLink>
+            </div>
           </SaOverviewItemDetailsSectionAttribute>
         </div>
 
@@ -375,3 +401,10 @@
 
   const generalTaxRate = computed(() => props.invoice.generalTax?.rateInBps ?? 0);
 </script>
+
+<style lang="scss" scoped>
+  .invoice-overview-item :deep(.overview-item__details) {
+    max-height: none;
+    overflow: visible;
+  }
+</style>
