@@ -374,12 +374,16 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         page: Page
     ) {
         // previously created token is expired
-        GoogleOAuthMocks.token("old-token")
-            .persist(
-                user = preconditions.yivo,
-                expired = true,
-                refreshToken = "refresh-token-x",
+        val refreshToken = GoogleOAuthMocks.issueRefreshToken()
+        preconditions {
+            save(
+                GoogleOAuthMocks.token("old-token").toPersistentClient(
+                    user = preconditions.yivo,
+                    expired = true,
+                    refreshToken = refreshToken,
+                )
             )
+        }
         // new token is issued
         val newAccessToken = GoogleOAuthMocks.token("new-token").enqueue()
 
@@ -392,7 +396,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
             assertSuccessStatus("existing-root-folder")
             preconditions.yivo.assertIntegrationFolderId("previously-created-folder-id")
             assertOauthRequests(
-                OAuthRecordedRequest.TokenByRefreshToken("refresh-token-x"),
+                OAuthRecordedRequest.TokenByRefreshToken(refreshToken),
             )
             assertPreviousRootFolderIsRequestedFromGoogleDrive()
         }

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.thirdparty
 
-import io.kotest.assertions.fail
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
+import io.kotest.assertions.fail
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -13,9 +13,15 @@ import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2Autho
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
+import okhttp3.Credentials
+import okhttp3.FormBody
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.net.InetAddress
 import java.time.Instant
 import java.util.*
@@ -23,9 +29,11 @@ import java.util.concurrent.TimeUnit
 
 // spring oauth has clock skew of 1 minute, so expiration must be greater than that
 private const val TOKEN_EXPIRY_SECONDS = 300L
+private const val SETUP_REQUEST_HEADER = "X-Test-OAuth-Setup"
 
 object OAuthMocks {
     private val recordedRequests = mutableListOf<RecordedRequest>()
+    private val setupHttpClient = OkHttpClient.Builder().followRedirects(false).build()
 
     // exists only during a test execution
     private var applicationContext: ApplicationContext? = null
@@ -133,7 +141,7 @@ object OAuthMocks {
                 // mockOAuthServer does not support nullable return result, they throw an exception
                 null
             }
-            if (recordedRequest != null) {
+            if (recordedRequest != null && recordedRequest.getHeader(SETUP_REQUEST_HEADER) == null) {
                 recordedRequests.add(recordedRequest)
             }
         } while (recordedRequest != null)
@@ -146,6 +154,40 @@ object OAuthMocks {
         scopes: List<String>,
         clientRegistrationId: String,
     ): OAuthMocksProvider = object : OAuthMocksProvider {
+        override fun issueRefreshToken(): String {
+            resetCurrentTokensQueue()
+            val redirectUri = "http://localhost/oauth-setup"
+            val authorizationUrl = mockOAuthServer.authorizationEndpointUrl(issuerId).newBuilder()
+                .addQueryParameter("response_type", "code")
+                .addQueryParameter("client_id", clientId)
+                .addQueryParameter("scope", scopes.joinToString(" "))
+                .addQueryParameter("redirect_uri", redirectUri)
+                .build()
+            val code = setupHttpClient.newCall(
+                Request.Builder().url(authorizationUrl).header(SETUP_REQUEST_HEADER, "true").build()
+            ).execute().use { response ->
+                response.code.shouldBe(302)
+                response.header("Location").shouldNotBeNull().toHttpUrl().queryParameter("code").shouldNotBeNull()
+            }
+            return setupHttpClient.newCall(
+                Request.Builder()
+                    .url(mockOAuthServer.tokenEndpointUrl(issuerId))
+                    .header(SETUP_REQUEST_HEADER, "true")
+                    .header("Authorization", Credentials.basic(username = clientId, password = clientSecret))
+                    .post(
+                        FormBody.Builder()
+                            .add("grant_type", "authorization_code")
+                            .add("code", code)
+                            .add("redirect_uri", redirectUri)
+                            .build()
+                    ).build()
+            ).execute().use { response ->
+                response.code.shouldBe(200)
+                jacksonObjectMapper().readTree(response.body.string())
+                    .get("refresh_token").shouldNotBeNull().asString()
+            }
+        }
+
         override fun recordedRequests(): List<OAuthRecordedRequest> = recordedRequests(
             issuerId = issuerId,
             expectedClientId = clientId,
@@ -205,21 +247,29 @@ object OAuthMocks {
                     shouldNotBeNull()
                 }.getBean(JdbcAggregateTemplate::class.java)
 
-            val now = Instant.now()
             aggregateTemplate.insert(
-                PersistentOAuth2AuthorizedClient(
-                    clientRegistrationId = clientRegistrationId,
-                    userName = user.userName,
-                    accessToken = tokenValue,
-                    accessTokenIssuedAt = if (expired) now.minusSeconds(600) else now,
-                    // must be greater than the clock skew of 1 minute
-                    accessTokenExpiresAt = if (expired) now.minusSeconds(100) else now.plusSeconds(TOKEN_EXPIRY_SECONDS),
-                    accessTokenScopes = scopes.map { ClientTokenScope(it) }.toSet(),
-                    refreshToken = refreshToken,
-                    refreshTokenIssuedAt = if (refreshToken != null) now else null,
-                )
+                toPersistentClient(user = user, expired = expired, refreshToken = refreshToken)
             )
             return this
+        }
+
+        override fun toPersistentClient(
+            user: PlatformUser,
+            expired: Boolean,
+            refreshToken: String?,
+        ): PersistentOAuth2AuthorizedClient {
+            val now = Instant.now()
+            return PersistentOAuth2AuthorizedClient(
+                clientRegistrationId = clientRegistrationId,
+                userName = user.userName,
+                accessToken = tokenValue,
+                accessTokenIssuedAt = if (expired) now.minusSeconds(600) else now,
+                // must be greater than the clock skew of 1 minute
+                accessTokenExpiresAt = if (expired) now.minusSeconds(100) else now.plusSeconds(TOKEN_EXPIRY_SECONDS),
+                accessTokenScopes = scopes.map { ClientTokenScope(it) }.toSet(),
+                refreshToken = refreshToken,
+                refreshTokenIssuedAt = if (refreshToken != null) now else null,
+            )
         }
 
         override fun authorizationHeaderMatcher() = JwtIdMatcher(tokenId)
@@ -227,11 +277,19 @@ object OAuthMocks {
 }
 
 interface OAuthMocksProvider {
+    /** Issues a refresh token through the provider's authorization-code flow, excluding setup requests from assertions. */
+    fun issueRefreshToken(): String
     fun recordedRequests(): List<OAuthRecordedRequest>
     fun token(tokenId: String = "test-token"): OAuthMocksToken
 }
 
 interface OAuthMocksToken {
+    fun toPersistentClient(
+        user: PlatformUser,
+        expired: Boolean = false,
+        refreshToken: String? = null,
+    ): PersistentOAuth2AuthorizedClient
+
     /**
      * The value of the JWT access token.
      */
