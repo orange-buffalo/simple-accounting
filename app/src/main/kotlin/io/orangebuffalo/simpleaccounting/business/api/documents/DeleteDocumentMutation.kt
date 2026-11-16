@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentIsUsedException
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
@@ -13,6 +15,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class DeleteDocumentMutation(
     private val documentsService: DocumentsService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -29,6 +32,7 @@ class DeleteDocumentMutation(
         @GraphQLDescription("ID of the document to delete.")
         documentId: String,
     ): Boolean {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         documentsService.deleteDocument(workspaceId, documentId)
         return true
     }

@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.incometaxpayments
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -7,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.JsonNull
@@ -44,6 +46,32 @@ class EditIncomeTaxPaymentMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should preserve version validation before workspace access validation`() {
+            client.graphqlMutation {
+                editIncomeTaxPaymentMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryPayment.id!!,
+                    version = preconditions.fryPayment.version!! + 1,
+                )
+            }.from(preconditions.zoidberg)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditIncomeTaxPayment)
+            aggregateTemplate.findSingle<IncomeTaxPayment>(preconditions.fryPayment.id!!).shouldBe(preconditions.fryPayment)
+        }
+
+        @Test
+        fun `should reject saved read only access without updating a payment`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val payments = aggregateTemplate.findAll<IncomeTaxPayment>()
+            client.graphqlMutation {
+                editIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryPayment.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditIncomeTaxPayment)
+            aggregateTemplate.findAll<IncomeTaxPayment>().shouldBe(payments)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

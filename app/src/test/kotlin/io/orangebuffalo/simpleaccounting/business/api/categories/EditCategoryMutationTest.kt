@@ -1,11 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.api.categories
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.JsonNull
@@ -42,6 +44,32 @@ class EditCategoryMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should preserve version validation before workspace access validation`() {
+            client.graphqlMutation {
+                editCategoryMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryCategory.id!!,
+                    version = preconditions.fryCategory.version!! + 1,
+                )
+            }.from(preconditions.zoidberg)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditCategory)
+            aggregateTemplate.findSingle<Category>(preconditions.fryCategory.id!!).shouldBe(preconditions.fryCategory)
+        }
+
+        @Test
+        fun `should reject saved read only access without updating a category`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val categories = aggregateTemplate.findAll<Category>()
+            client.graphqlMutation {
+                editCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCategory.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditCategory)
+            aggregateTemplate.findAll<Category>().shouldBe(categories)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

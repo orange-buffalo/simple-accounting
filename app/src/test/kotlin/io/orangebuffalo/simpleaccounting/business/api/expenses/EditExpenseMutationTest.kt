@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.expenses
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
@@ -9,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.JsonNull
@@ -46,6 +48,32 @@ class EditExpenseMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should preserve version validation before workspace access validation`() {
+            client.graphqlMutation {
+                editExpenseMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryExpense.id!!,
+                    version = preconditions.fryExpense.version!! + 1,
+                )
+            }.from(preconditions.zoidberg)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditExpense)
+            aggregateTemplate.findSingle<Expense>(preconditions.fryExpense.id!!).shouldBe(preconditions.fryExpense)
+        }
+
+        @Test
+        fun `should reject saved read only access without updating an expense`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val expenses = aggregateTemplate.findAll<Expense>()
+            client.graphqlMutation {
+                editExpenseMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryExpense.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditExpense)
+            aggregateTemplate.findAll<Expense>().shouldBe(expenses)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

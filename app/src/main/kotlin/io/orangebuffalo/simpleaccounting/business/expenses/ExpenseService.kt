@@ -8,7 +8,6 @@ import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import org.springframework.stereotype.Service
@@ -27,7 +26,7 @@ class ExpenseService(
      * Re-calculates the expense state (denormalized presentation).
      */
     fun saveExpense(expense: Expense): Expense {
-        val workspace = workspacesService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspacesService.getWorkspace(expense.workspaceId)
         validateCategoryAndAttachments(expense, workspace.id!!)
 
         val isDefaultCurrency = workspace.defaultCurrency == expense.currency

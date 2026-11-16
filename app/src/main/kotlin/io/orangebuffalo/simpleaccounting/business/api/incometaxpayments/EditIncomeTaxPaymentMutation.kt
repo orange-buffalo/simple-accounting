@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -17,6 +19,7 @@ import java.time.LocalDate
 @Validated
 class EditIncomeTaxPaymentMutation(
     private val incomeTaxPaymentService: IncomeTaxPaymentService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -49,6 +52,7 @@ class EditIncomeTaxPaymentMutation(
         val payment = incomeTaxPaymentService.getTaxPaymentByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("IncomeTaxPayment $id is not found")
         payment.validateVersion(version)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
 
         return incomeTaxPaymentService.saveTaxPayment(
             payment.copy(

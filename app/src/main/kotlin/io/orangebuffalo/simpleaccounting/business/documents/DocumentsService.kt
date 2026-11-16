@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.documents
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadContentResponse
@@ -112,7 +111,6 @@ class DocumentsService(
     }
 
     fun getDownloadToken(workspaceId: String, documentId: String): String {
-        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
         return runAsWorkspaceOwnerIfTransient {
@@ -121,7 +119,7 @@ class DocumentsService(
     }
 
     fun deleteDocument(workspaceId: String, documentId: String) {
-        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspacesService.getWorkspace(workspaceId)
         val document = getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
 
@@ -138,7 +136,6 @@ class DocumentsService(
     }
 
     fun getUploadToken(workspaceId: String): String {
-        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val userName = getCurrentPrincipal().userName
         return tokenGenerator.generateToken(tokenLength = 30)
             .also { token ->

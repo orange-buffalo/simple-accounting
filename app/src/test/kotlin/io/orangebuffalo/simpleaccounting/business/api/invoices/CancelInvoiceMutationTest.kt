@@ -43,6 +43,19 @@ class CancelInvoiceMutationTest(
     inner class Authorization {
 
         @Test
+        fun `should reject saved read only access without cancelling the invoice`() {
+            val invoice = preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+                invoice(customer = preconditions.fryCustomer, status = InvoiceStatus.DRAFT)
+            }
+            client.graphqlMutation {
+                cancelInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, invoiceId = invoice.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CancelInvoice)
+            aggregateTemplate.findSingle<Invoice>(invoice.id!!).shouldBe(invoice)
+        }
+
+        @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client
                 .graphqlMutation {
@@ -85,6 +98,23 @@ class CancelInvoiceMutationTest(
     @Nested
     @DisplayName("Business Flow")
     inner class BusinessFlow {
+
+        @Test
+        fun `should reject a different owned workspace without cancelling the invoice`() {
+            val scenario = preconditions {
+                object {
+                    val otherWorkspace = workspace(owner = preconditions.fry)
+                    val invoice = invoice(customer = preconditions.fryCustomer, status = InvoiceStatus.DRAFT)
+                }
+            }
+
+            client.graphqlMutation {
+                cancelInvoiceMutation(workspaceId = scenario.otherWorkspace.id!!, invoiceId = scenario.invoice.id!!)
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CancelInvoice)
+
+            aggregateTemplate.findSingle<Invoice>(scenario.invoice.id!!).shouldBe(scenario.invoice)
+        }
 
         @Test
         fun `should cancel a draft invoice`() {

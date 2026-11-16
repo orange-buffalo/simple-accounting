@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.categories
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
@@ -42,6 +43,18 @@ class CreateCategoryMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating a category`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val categories = aggregateTemplate.findAll<Category>()
+            client.graphqlMutation { createCategoryMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateCategory)
+            aggregateTemplate.findAll<Category>().shouldBe(categories)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

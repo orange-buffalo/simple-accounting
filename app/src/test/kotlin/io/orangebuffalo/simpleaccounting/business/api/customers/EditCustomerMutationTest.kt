@@ -1,11 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.api.customers
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import kotlinx.serialization.json.buildJsonObject
@@ -41,6 +43,32 @@ class EditCustomerMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should preserve version validation before workspace access validation`() {
+            client.graphqlMutation {
+                editCustomerMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryCustomer.id!!,
+                    version = preconditions.fryCustomer.version!! + 1,
+                )
+            }.from(preconditions.zoidberg)
+                .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditCustomer)
+            aggregateTemplate.findSingle<Customer>(preconditions.fryCustomer.id!!).shouldBe(preconditions.fryCustomer)
+        }
+
+        @Test
+        fun `should reject saved read only access without updating a customer`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val customers = aggregateTemplate.findAll<Customer>()
+            client.graphqlMutation {
+                editCustomerMutation(workspaceId = preconditions.fryWorkspace.id!!, id = preconditions.fryCustomer.id!!)
+            }.from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditCustomer)
+            aggregateTemplate.findAll<Customer>().shouldBe(customers)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

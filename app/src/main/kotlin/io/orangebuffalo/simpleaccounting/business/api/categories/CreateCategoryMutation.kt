@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.categories.Category
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class CreateCategoryMutation(
     private val categoriesService: CategoriesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -34,6 +37,7 @@ class CreateCategoryMutation(
         @GraphQLDescription("Whether this category is used for expenses.")
         expense: Boolean,
     ): CategoryGqlDto {
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val category = categoriesService.createCategory(
             Category(
                 name = name,

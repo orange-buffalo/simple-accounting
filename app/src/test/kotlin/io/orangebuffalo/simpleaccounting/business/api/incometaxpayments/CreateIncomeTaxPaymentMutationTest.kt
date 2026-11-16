@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.api.incometaxpayments
 
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentAttachment
@@ -45,6 +46,18 @@ class CreateIncomeTaxPaymentMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should reject saved read only access without creating a payment`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            val payments = aggregateTemplate.findAll<IncomeTaxPayment>()
+            client.graphqlMutation { createIncomeTaxPaymentMutation(workspaceId = preconditions.fryWorkspace.id!!) }
+                .from(preconditions.zoidberg)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateIncomeTaxPayment)
+            aggregateTemplate.findAll<IncomeTaxPayment>().shouldBe(payments)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

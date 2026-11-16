@@ -22,6 +22,8 @@ import kotlinx.serialization.json.put
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -61,6 +63,57 @@ class CreateDocumentDownloadUrlMutationTest(
     @Nested
     @DisplayName("Authorization")
     inner class Authorization {
+
+        @Test
+        fun `should allow downloads with saved read only access`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            whenever(tokenGenerator.generateToken(argThat<Int> { this == 30 })) doReturn "bender-download-token"
+            client.graphqlMutation {
+                createDocumentDownloadUrlMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    documentId = preconditions.coffeeReceipt.id!!,
+                )
+            }.from(preconditions.zoidberg).executeAndVerifySuccessResponse(
+                DgsConstants.MUTATION.CreateDocumentDownloadUrl to buildJsonObject {
+                    put("url", "http://localhost:$serverPort/api/documents/download/bender-download-token")
+                }
+            )
+            tokensRepository.getRequestByToken<PersistentDownloadRequest>("bender-download-token").metadata
+                .shouldBe(DocumentDownloadMetadata(preconditions.coffeeReceipt.id!!))
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        fun `should reject expired and revoked workspace tokens`(revoked: Boolean) {
+            val token = preconditions {
+                workspaceAccessToken(
+                    workspace = preconditions.fryWorkspace,
+                    validTill = if (revoked) MOCK_TIME.plusSeconds(10000) else MOCK_TIME.minusSeconds(1),
+                    revoked = revoked,
+                    token = "bender-invalid-share",
+                )
+            }
+            client.graphqlMutation {
+                createDocumentDownloadUrlMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    documentId = preconditions.coffeeReceipt.id!!,
+                )
+            }.usingSharedWorkspaceToken(token.token)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+        }
+
+        @Test
+        fun `should reject a token for another workspace`() {
+            client.graphqlMutation {
+                createDocumentDownloadUrlMutation(
+                    workspaceId = preconditions.zoidbergWorkspace.id!!,
+                    documentId = preconditions.zoidbergDocument.id!!,
+                )
+            }.usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateDocumentDownloadUrl)
+        }
 
         @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {

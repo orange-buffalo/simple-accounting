@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class EditCustomerMutation(
     private val customersService: CustomersService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -34,6 +37,7 @@ class EditCustomerMutation(
         val customer = customersService.getCustomerByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Customer $id is not found")
         customer.validateVersion(version)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
 
         return customersService.saveCustomer(customer.copy(name = name)).toCustomerGqlDto()
     }

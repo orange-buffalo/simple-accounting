@@ -7,6 +7,8 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -19,6 +21,7 @@ import java.time.LocalDate
 @Validated
 class EditExpenseMutation(
     private val expenseService: ExpenseService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -65,6 +68,7 @@ class EditExpenseMutation(
         val expense = expenseService.getExpenseByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("Expense $id is not found")
         expense.validateVersion(version)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
 
         return expenseService.saveExpense(
             expense.copy(

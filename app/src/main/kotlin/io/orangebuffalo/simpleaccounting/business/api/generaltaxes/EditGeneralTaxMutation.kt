@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -16,6 +18,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class EditGeneralTaxMutation(
     private val generalTaxesService: GeneralTaxesService,
+    private val workspacesService: WorkspacesService,
 ) : Mutation {
 
     @Suppress("unused")
@@ -43,6 +46,7 @@ class EditGeneralTaxMutation(
         val tax = generalTaxesService.getTaxByIdAndWorkspace(id, workspaceId)
             ?: throw EntityNotFoundException("GeneralTax $id is not found")
         tax.validateVersion(version)
+        workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
 
         return generalTaxesService.saveTax(
             tax.copy(

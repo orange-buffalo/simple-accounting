@@ -54,6 +54,33 @@ class DeleteDocumentMutationTest(
     inner class Authorization {
 
         @Test
+        fun `should reject administrator without deleting the document or stored content`() {
+            testDocumentsStorage.mockDocumentContent(
+                storageLocation = preconditions.deliveryReceipt.storageLocation!!,
+                content = "Delivery to Mars receipt".toByteArray(),
+            )
+            client.deleteDocumentMutation(
+                workspaceId = preconditions.fryWorkspace.id!!,
+                documentId = preconditions.deliveryReceipt.id!!,
+            ).from(preconditions.farnsworth).executeAndVerifyNotAuthorized(path = DELETE_DOCUMENT_MUTATION)
+
+            aggregateTemplate.findSingle<Document>(preconditions.deliveryReceipt.id!!).shouldBe(preconditions.deliveryReceipt)
+            testDocumentsStorage.hasUploadedContent(preconditions.deliveryReceipt.storageLocation!!).shouldBe(true)
+        }
+
+        @Test
+        fun `should reject saved read only access without deleting the document`() {
+            preconditions {
+                savedWorkspaceAccessToken(owner = preconditions.zoidberg, workspaceAccessToken = preconditions.workspaceAccessToken)
+            }
+            client.deleteDocumentMutation(
+                workspaceId = preconditions.fryWorkspace.id!!,
+                documentId = preconditions.deliveryReceipt.id!!,
+            ).from(preconditions.zoidberg).executeAndVerifyEntityNotFoundError(path = DELETE_DOCUMENT_MUTATION)
+            aggregateTemplate.findSingle<Document>(preconditions.deliveryReceipt.id!!).shouldBe(preconditions.deliveryReceipt)
+        }
+
+        @Test
         fun `should return NOT_AUTHORIZED error for anonymous requests`() {
             client
                 .deleteDocumentMutation(
