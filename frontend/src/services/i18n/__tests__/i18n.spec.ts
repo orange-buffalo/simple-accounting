@@ -133,12 +133,15 @@ describe('i18n', () => {
       .toBe('Jan 15, 3025, 2:23 PM');
   });
 
-  test.each(['en', 'uk'])('should support date-time translations in %s', async (language) => {
+  test.each([
+    ['en', 'en', 'Jan 15, 3025, 2:23 PM'],
+    ['uk', 'uk', '15 січ. 3025, 2:23 пп'],
+  ])('should format date-time translations with locale %s and language %s', async (locale, language, expected) => {
     const i18n = await import('@/services/i18n');
-    await i18n.setLocaleFromProfile('en', language);
+    await i18n.setLocaleFromProfile(locale, language);
 
     expect(i18n.$t.value.common.dateTime.medium(new Date(3025, 0, 15, 14, 23)))
-      .toBe('Jan 15, 3025, 2:23 PM');
+      .toBe(expected);
   });
 
   test('should support $t', async () => {
