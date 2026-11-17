@@ -32,9 +32,9 @@
     {
       "id": "independent-expectations",
       "category": "testing",
-      "appliesWhen": "Production mappings and third-party reference data",
-      "instruction": "Use independent representative expected values, including an excluded value for filtered data. Do not reproduce production registry/filtering logic or maintain exhaustive provider lists unless exhaustive membership is the contract.",
-      "reason": "Mirroring implementation can reproduce its defect; exhaustive external fixtures add maintenance."
+      "appliesWhen": "Production mappings, third-party reference data, or parameterized tests intended to demonstrate input-dependent output",
+      "instruction": "Use independently specified representative expected values. Include an excluded value for filtered reference data; do not reproduce production registry/filtering logic or maintain exhaustive provider lists unless exhaustive membership is the contract. For input-dependent output claims, choose fixtures that distinguish the claimed behavior and vary its controlling input; do not require different outputs when identical output is the contract.",
+      "reason": "Mirrored expectations can reproduce defects, nondiscriminating fixtures cannot establish output differences, and exhaustive external fixtures add maintenance."
     },
     {
       "id": "api-test-structure",
