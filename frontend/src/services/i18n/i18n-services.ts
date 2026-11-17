@@ -95,8 +95,7 @@ function initializeFormatter() {
       fileSize: fileSizeFormatter(),
       yesNo: yesNoFormatter(),
       bps: bpsFormatter(),
-      // // todo #206: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
-      saDateTime: dateTimeFormatter(),
+      dateTime: dateTimeFormatter(),
     },
   });
   messageCache = {};

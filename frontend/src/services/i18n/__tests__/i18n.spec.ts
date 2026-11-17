@@ -129,8 +129,16 @@ describe('i18n', () => {
   test('should support date-time format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, saDateTime, medium}', [new Date('2021-10-21 14:23')]))
-      .toBe('Oct 21, 2021, 2:23 PM');
+    expect(formatMessage('{0, dateTime, medium}', [new Date(3025, 0, 15, 14, 23)]))
+      .toBe('Jan 15, 3025, 2:23 PM');
+  });
+
+  test.each(['en', 'uk'])('should support date-time translations in %s', async (language) => {
+    const i18n = await import('@/services/i18n');
+    await i18n.setLocaleFromProfile('en', language);
+
+    expect(i18n.$t.value.common.dateTime.medium(new Date(3025, 0, 15, 14, 23)))
+      .toBe('Jan 15, 3025, 2:23 PM');
   });
 
   test('should support $t', async () => {
