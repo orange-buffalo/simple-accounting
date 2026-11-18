@@ -345,15 +345,20 @@ class WiseStatementFetchServiceTest(
 
         @ParameterizedTest
         @CsvSource(
-            "1999-03-28T23:01:02.042Z,1999-02-01,1999-02-28",
-            "1996-03-01T00:00:00Z,1996-02-01,1996-02-29",
-            "1999-01-01T00:00:00Z,1998-12-01,1998-12-31",
+            "UTC,1999-03-28T23:01:02.042Z,1999-02-01,1999-02-28,1999-02-01T00:00:00Z,1999-02-28T23:59:59.999Z",
+            "UTC,1996-03-01T00:00:00Z,1996-02-01,1996-02-29,1996-02-01T00:00:00Z,1996-02-29T23:59:59.999Z",
+            "UTC,1999-01-01T00:00:00Z,1998-12-01,1998-12-31,1998-12-01T00:00:00Z,1998-12-31T23:59:59.999Z",
+            "Australia/Melbourne,1999-03-31T14:00:00Z,1999-03-01,1999-03-31,1999-02-28T13:00:00Z,1999-03-31T13:59:59.999Z",
+            "America/New_York,1999-11-01T05:00:00Z,1999-10-01,1999-10-31,1999-10-01T04:00:00Z,1999-11-01T04:59:59.999Z",
         )
-        fun `should save the previous calendar month PDF once per selected account`(now: String, first: String, last: String) {
+        fun `should save the previous calendar month PDF once per selected account`(
+            zone: String, now: String, first: String, last: String, start: String, end: String,
+        ) {
             doReturn(Instant.parse(now)).whenever(time).currentTime()
             val integration = preconditions {
                 wiseIntegrationSettings(
-                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID)),
+                    workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID,
+                        i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = zone))),
                     token = WiseApiMocks.TOKEN, accounts = setOf(dollars, euros),
                 )
             }
@@ -386,8 +391,8 @@ class WiseStatementFetchServiceTest(
                     .withHeader("Authorization", equalTo("Bearer ${WiseApiMocks.TOKEN}"))
                     .withQueryParam("currency", equalTo(account.currency))
                     .withQueryParam("type", equalTo("COMPACT"))
-                    .withQueryParam("intervalStart", equalTo("${first}T00:00:00Z"))
-                    .withQueryParam("intervalEnd", equalTo("${last}T23:59:59.999Z")))
+                    .withQueryParam("intervalStart", equalTo(start))
+                    .withQueryParam("intervalEnd", equalTo(end)))
             }
             aggregateTemplate.findAll<AccountStatementRecord>().shouldBe(emptyList())
         }

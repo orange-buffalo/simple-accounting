@@ -104,6 +104,7 @@ async function loadCldrData(locale: string) {
 
 export async function updateLocale(locale: string) {
   Globalize.load(await loadCldrData(locale));
+  Globalize.loadTimeZone({ zoneData: { UTC: { offsets: [0], untils: [null], isdsts: [false] } } });
 
   // @ts-ignore
   globalize = Globalize(locale);

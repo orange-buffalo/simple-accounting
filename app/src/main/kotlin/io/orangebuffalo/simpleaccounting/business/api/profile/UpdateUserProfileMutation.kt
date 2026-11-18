@@ -29,6 +29,9 @@ class UpdateUserProfileMutation(
         @NotBlank
         @Size(max = 36)
         language: String,
+        @GraphQLDescription("Required IANA time zone, e.g. 'Australia/Melbourne'. Null, empty, blank and unknown zones are rejected.")
+        @ValidTimeZone
+        timeZone: String,
     ): UserProfile {
         val user = platformUsersService.getCurrentUser()
         val savedUser = platformUsersService.save(
@@ -37,6 +40,7 @@ class UpdateUserProfileMutation(
                 i18nSettings = user.i18nSettings.copy(
                     locale = locale,
                     language = language,
+                    timeZone = timeZone,
                 )
             )
         )
@@ -46,6 +50,7 @@ class UpdateUserProfileMutation(
             i18n = I18nSettings(
                 locale = savedUser.i18nSettings.locale,
                 language = savedUser.i18nSettings.language,
+                timeZone = savedUser.i18nSettings.timeZone,
             )
         )
     }

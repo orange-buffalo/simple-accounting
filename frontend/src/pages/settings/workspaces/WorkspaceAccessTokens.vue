@@ -3,6 +3,7 @@
     <SaForm
       v-model="formValues"
       :on-submit="shareWorkspace"
+      :submit-button-disabled="!parsedExpiry.isValid()"
       class="workspace-access-tokens__create-section"
     >
       <h2>{{ $t.workspaceAccessTokens.createNewLink() }}</h2>
@@ -11,12 +12,14 @@
         prop="validTill"
         :label="$t.workspaceAccessTokens.validTill()"
       >
-        <ElDatePicker
+        <ElInput
           v-model="formValues.validTill"
-          type="datetime"
-          :format="dateTimePickerFormat"
+          class="workspace-access-tokens__expiry"
           :placeholder="$t.workspaceAccessTokens.validTillPlaceholder()"
         />
+        <ElButton link @click="formValues.validTill = localizedExpiryNow()">
+          {{ t('el.datepicker.now') }}
+        </ElButton>
       </SaFormItemInternal>
     </SaForm>
 
@@ -82,10 +85,13 @@
 </script>
 
 <script lang="ts" setup>
+  import { timestampToCalendarDateTime, calendarDateTimeToInstant, useProfileTimeZone } from '@/services/time-zone';
   import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';
+  import dayjs from 'dayjs';
+  import customParseFormat from 'dayjs/plugin/customParseFormat';
   import { Delete } from '@element-plus/icons-vue';
-  import { ElDatePicker, ElTooltip } from 'element-plus';
+  import { ElInput, ElTooltip, useLocale } from 'element-plus';
   import SaPage from '@/components/SaPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -97,7 +103,12 @@
   import { $t } from '@/services/i18n';
   import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
 
-  const dateTimePickerFormat = computed(() => `${datePickerFormat.value} HH:mm`);
+  dayjs.extend(customParseFormat);
+  useProfileTimeZone();
+  const { t } = useLocale();
+  const dateTimePickerFormat = computed(() => `${datePickerFormat.value} HH:mm:ss`);
+  const localizedExpiryNow = () => dayjs.utc(timestampToCalendarDateTime(new Date()))
+    .format(dateTimePickerFormat.value);
 
   const props = defineProps<{
     id: string,
@@ -145,8 +156,9 @@
   const workspaceName = ref('');
   const accessTokens = ref<AccessTokenRow[]>([]);
   const formValues = ref({
-    validTill: new Date(),
+    validTill: localizedExpiryNow(),
   });
+  const parsedExpiry = computed(() => dayjs.utc(formValues.value.validTill, dateTimePickerFormat.value, true));
 
   const reloadAccessTokens = async () => {
     const result = await loadAccessTokens({
@@ -165,7 +177,7 @@
   const shareWorkspace = async () => {
     await executeCreateToken({
       workspaceId: props.id,
-      validTill: formValues.value.validTill.toISOString(),
+      validTill: calendarDateTimeToInstant(parsedExpiry.value.format('YYYY-MM-DDTHH:mm:ss')),
     });
     await reloadAccessTokens();
     showSuccessNotification($t.value.workspaceAccessTokens.linkCreated());
@@ -207,6 +219,11 @@
   @use "@/styles/mixins.scss" as *;
 
   .workspace-access-tokens {
+    &__expiry {
+      width: 300px;
+      margin-right: 12px;
+    }
+
     &__section {
       @include white-panel;
       margin-bottom: 30px;

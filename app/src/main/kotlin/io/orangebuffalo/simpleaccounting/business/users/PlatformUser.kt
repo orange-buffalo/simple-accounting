@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 import org.springframework.data.relational.core.mapping.Embedded
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
+import java.time.ZoneId
 
 @Table
 data class PlatformUser(
@@ -33,5 +34,17 @@ data class LoginStatistics(
 
 data class I18nSettings(
     val locale: String,
-    val language: String
-)
+    val language: String,
+    val timeZone: String = "Australia/Melbourne",
+) {
+    init {
+        require(isSupportedTimeZone(timeZone)) { "Unsupported time zone" }
+    }
+}
+
+// JVM-only aliases are not portable to browsers and PostgreSQL.
+private val supportedTimeZones = ZoneId.getAvailableZoneIds().filterTo(destination = mutableSetOf("UTC")) {
+    '/' in it && !it.startsWith("SystemV/")
+}
+
+fun isSupportedTimeZone(timeZone: String): Boolean = timeZone in supportedTimeZones

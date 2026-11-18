@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTaxPaymentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomeTaxPaymentPage.Companion.openCreateIncomeTaxPaymentPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incometaxpayments.IncomeTaxPaymentsOverviewPage.Companion.openIncomeTaxPaymentsOverviewPage
@@ -31,6 +32,17 @@ class CreateIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @Test
+    fun `should default payment date to the preferred calendar day`(page: Page) {
+        val fry = preconditions {
+            platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York")).withWorkspace()
+        }
+        page.authenticateViaCookie(fry)
+        page.openCreateIncomeTaxPaymentPage {
+            datePaid { input.shouldHaveValue("28/03/1999") }
+        }
+    }
 
     @Test
     fun `should display saved tax payment dates unchanged after reloading`(page: Page) {

@@ -8,6 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import java.time.LocalDate
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -16,6 +18,8 @@ class InvoicesRepositoryExtImpl(
     private val timeService: TimeService
 ) : InvoicesRepositoryExt {
     private val invoice = Tables.INVOICE
+    private val workspace = Tables.WORKSPACE
+    private val user = Tables.PLATFORM_USER
 
     override fun findByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? = dslContext
         .select(*invoice.fields())
@@ -29,9 +33,15 @@ class InvoicesRepositoryExtImpl(
     override fun findAllOverdue(): List<Invoice> = dslContext
         .select(*invoice.fields())
         .from(invoice)
+        .join(workspace).on(invoice.workspaceId.eq(workspace.id))
+        .join(user).on(workspace.ownerId.eq(user.id))
         .where(
             invoice.status.eq(InvoiceStatus.SENT),
-            invoice.dueDate.lessThan(timeService.currentDate())
+            invoice.dueDate.lessThan(DSL.field(
+                "({0} at time zone {1})::date",
+                LocalDate::class.java,
+                DSL.`val`(timeService.currentTime()), user.timeZone,
+            ))
         )
         .fetchListOf()
 }

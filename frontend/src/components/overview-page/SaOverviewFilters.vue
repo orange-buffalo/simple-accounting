@@ -57,6 +57,7 @@
               type="daterange"
               style="--el-date-editor-width: 100%; min-width: 0; box-sizing: border-box"
               value-format="YYYY-MM-DD"
+              :default-value="currentCalendarDate()"
               :teleported="false"
               :aria-label="filter.config.label"
               @update:model-value="updateValue(filter.key, $event || null)"
@@ -101,6 +102,7 @@
   import { ClickOutside as vClickOutside, ElDatePicker, ElPopover } from 'element-plus';
   import { Close } from '@element-plus/icons-vue';
   import { $t } from '@/services/i18n';
+  import { currentCalendarDate } from '@/services/time-zone';
   import type { SaOverviewFilterConfigs, SaOverviewFilters } from './overview-page-filters';
   import {
     clearOverviewFilterValues, overviewFilterValueKey, toggleOverviewFilterValue, updateOverviewFilterValue,

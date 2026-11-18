@@ -9,6 +9,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 
 class LoginByLinkFullStackTest : SaFullStackTestBase() {
 
@@ -36,7 +38,13 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
             reportRendering("login-by-link.success")
         }
 
-        page.shouldBeDashboardPage()
+        page.shouldBeDashboardPage {
+            dateRangePicker.shouldHaveDateRange(
+                startDate = LocalDate.parse("1999-01-01"),
+                endDate = LocalDate.parse("1999-03-29"),
+                inputPattern = "MM/dd/uuuu",
+            )
+        }
     }
 
     @Test
@@ -69,7 +77,10 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
 
     private val preconditions by lazyPreconditions {
         object {
-            val validToken = fry().let { fry ->
+            val validToken = platformUser(
+                userName = "Fry",
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York"),
+            ).let { fry ->
                 val ws = workspace(owner = fry)
                 workspaceAccessToken(
                     workspace = ws,

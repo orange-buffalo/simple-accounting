@@ -14,11 +14,18 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
+import java.time.Instant
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.infra.TimeService
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
+import org.junit.jupiter.params.provider.CsvSource
 import java.util.stream.Stream
 
 class InvoicesServiceTest(
     @Autowired private val invoicesService: InvoicesService,
     @Autowired private val invoiceRepository: InvoicesRepository,
+    @Autowired private val time: TimeService,
 ) : SaIntegrationTestBase() {
 
     @Test
@@ -42,8 +49,8 @@ class InvoicesServiceTest(
 
     private fun setupOverdueTestPreconditions() = preconditions {
         object {
-            val firstOwner = platformUser()
-            val secondOwner = platformUser()
+            val firstOwner = platformUser(i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "UTC"))
+            val secondOwner = platformUser(i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "UTC"))
             val firstWorkspace = workspace(owner = firstOwner)
             val secondWorkspace = workspace(owner = secondOwner)
             val firstCustomer = customer(workspace = firstWorkspace)
@@ -93,6 +100,34 @@ class InvoicesServiceTest(
                 )
             )
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "Australia/Melbourne,1999-03-28T13:59:59Z,SENT",
+        "Australia/Melbourne,1999-03-28T14:00:00Z,OVERDUE",
+        "America/New_York,1999-03-28T14:00:00Z,SENT",
+    )
+    fun `should move invoices only after the due date in their owner zone`(zone: String, now: String, expected: InvoiceStatus) {
+        doReturn(Instant.parse(now)).whenever(time).currentTime()
+        val invoice = preconditions {
+            val owner = platformUser(i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = zone))
+            invoice(customer = customer(workspace = workspace(owner = owner)), status = InvoiceStatus.SENT,
+                dateSent = LocalDate.parse("1999-03-27"), dueDate = LocalDate.parse("1999-03-28"))
+        }
+        invoicesService.moveInvoicesToOverdue()
+        invoiceRepository.findById(invoice.id!!).get().status.shouldBe(expected)
+    }
+
+    @ParameterizedTest
+    @CsvSource("Australia/Melbourne,OVERDUE", "America/New_York,SENT")
+    fun `should use the owner zone when saving an invoice`(zone: String, expected: InvoiceStatus) {
+        val invoice = preconditions {
+            val owner = platformUser(i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = zone))
+            invoice(customer = customer(workspace = workspace(owner = owner)), status = InvoiceStatus.SENT,
+                dateSent = LocalDate.parse("1999-03-27"), dueDate = LocalDate.parse("1999-03-28"))
+        }
+        invoicesService.saveInvoice(invoice).status.shouldBe(expected)
     }
 
     @ParameterizedTest
@@ -194,7 +229,7 @@ class InvoicesServiceTest(
         val currentStatus: InvoiceStatus = InvoiceStatus.DRAFT,
         val expectedStatus: InvoiceStatus,
     ) {
-        val fry = entitiesFactory.fry()
+        val fry = entitiesFactory.platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "UTC"))
         val workspace = entitiesFactory.workspace(owner = fry)
         val invoice = entitiesFactory.invoice(
             dateSent = dateSent,

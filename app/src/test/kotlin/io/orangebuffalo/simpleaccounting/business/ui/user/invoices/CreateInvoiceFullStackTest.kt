@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.CreateInvoicePage.Companion.openCreateInvoicePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
@@ -30,6 +31,17 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @Test
+    fun `should default issue date to the preferred calendar day`(page: Page) {
+        val fry = preconditions {
+            platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York")).withWorkspace()
+        }
+        page.authenticateViaCookie(fry)
+        page.openCreateInvoicePage {
+            dateIssued { input.shouldHaveValue("28/03/1999") }
+        }
+    }
 
     @Test
     fun `should create invoice with basic fields`(page: Page) {

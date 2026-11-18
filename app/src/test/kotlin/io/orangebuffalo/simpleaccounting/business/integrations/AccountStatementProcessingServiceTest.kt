@@ -50,6 +50,15 @@ class AccountStatementProcessingServiceTest(
 
     @Nested
     inner class IncomeCreation {
+        @ParameterizedTest
+        @CsvSource("Australia/Melbourne,1999-03-28", "America/New_York,1999-03-27")
+        fun `should derive payment dates in the owner zone`(zone: String, expectedDate: LocalDate) {
+            val setup = preconditions { matchingInvoicePayment(timeZone = zone) }
+            process(integration = setup.integration, create = true, convert = false)
+            aggregateTemplate.findSingle<Income>().dateReceived.shouldBe(expectedDate)
+            aggregateTemplate.reload(setup.invoice).datePaid.shouldBe(expectedDate)
+        }
+
         @Test
         fun `should create an invoice payment using the configured category and transaction details`() {
             val setup = preconditions { matchingInvoicePayment() }
@@ -169,6 +178,19 @@ class AccountStatementProcessingServiceTest(
 
     @Nested
     inner class IncomeConversion {
+        @ParameterizedTest
+        @CsvSource("Australia/Melbourne,true", "UTC,false")
+        fun `should compare conversion dates in the owner zone`(zone: String, converted: Boolean) {
+            val setup = preconditions {
+                matchingConversion(timeZone = zone, occurredAt = Instant.parse("1999-03-26T23:59:00Z"))
+            }
+            process(integration = setup.integration, create = false, convert = true)
+            aggregateTemplate.reload(setup.conversion).linkedIncomeId.shouldBe(if (converted) setup.income.id else null)
+            aggregateTemplate.reload(setup.income).notes.shouldBe(
+                if (converted) "Converted on 1999-03-27: 1 USD = 0.9 EUR" else null,
+            )
+        }
+
         @ParameterizedTest
         @CsvSource("false,10800,9000,1800", "true,15000,12500,2500")
         fun `should populate conversion amounts preserving income data and distinct taxation`(
@@ -312,7 +334,7 @@ class AccountStatementProcessingServiceTest(
         @Test
         fun `should create and convert in ordered passes even when conversion occurred before the credit`() {
             val integration = preconditions {
-                val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en")), defaultCurrency = "EUR")
+                val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "UTC")), defaultCurrency = "EUR")
                 wiseIntegrationSettings(workspace = workspace, incomeCategory = category(workspace = workspace, income = true)).also { integration ->
                     val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-42", currency = "USD", amount = 12000, datePaid = null, status = InvoiceStatus.SENT, generalTax = null)
                     accountStatementRecord(integration = integration, type = StatementType.CREDIT, linkedInvoice = invoice, linkedIncome = null, occurredAt = Instant.parse("1999-03-27T23:00:00Z"))
@@ -367,8 +389,9 @@ class AccountStatementProcessingServiceTest(
         notes: String? = null,
         language: String = "en",
         attachDocument: Boolean = false,
+        timeZone: String = "UTC",
     ): MatchingConversion {
-        val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language)), defaultCurrency = "EUR")
+        val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language, timeZone = timeZone)), defaultCurrency = "EUR")
         val integration = wiseIntegrationSettings(workspace = workspace)
         val invoice = invoice(customer = customer(workspace = workspace), datePaid = LocalDate.parse("1999-03-27"), status = InvoiceStatus.PAID)
         val income = income(workspace = workspace, linkedInvoice = invoice, currency = "USD", originalAmount = 12000,
@@ -404,8 +427,9 @@ class AccountStatementProcessingServiceTest(
         description: String? = "Payment PE-42",
         linkInvoice: Boolean = true,
         language: String = "en",
+        timeZone: String = "UTC",
     ): InvoicePayment {
-        val owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language))
+        val owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language, timeZone = timeZone))
         val workspace = workspace(owner = owner, defaultCurrency = "EUR")
         val category = category(workspace = workspace, income = true)
         val integration = wiseIntegrationSettings(workspace = workspace, createIncomeFromInvoices = true, incomeCategory = category)

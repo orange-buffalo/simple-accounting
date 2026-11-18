@@ -5,6 +5,9 @@ import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
+import java.time.ZoneId
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
@@ -24,6 +27,8 @@ class InvoicesService(
     private val generalTaxesService: GeneralTaxesService,
     private val documentsService: DocumentsService,
     private val timeService: TimeService,
+    private val workspacesService: WorkspacesService,
+    private val usersService: PlatformUsersService,
     @Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     private val taskExecutor: AsyncTaskExecutor
 ) {
@@ -36,7 +41,7 @@ class InvoicesService(
         }
     }
 
-    @Scheduled(cron = "0 1 0 * * *")
+    @Scheduled(cron = "0 * * * * *")
     fun moveInvoicesToOverdue() {
         logger.info { "Started moving invoices to overdue" }
         val overdueInvoices = invoicesRepository.findAllOverdue()
@@ -77,7 +82,11 @@ class InvoicesService(
         invoice.copy(status = InvoiceStatus.DRAFT)
     }
 
-    private fun isOverdue(invoice: Invoice) = invoice.dueDate.isBefore(timeService.currentDate())
+    private fun isOverdue(invoice: Invoice): Boolean {
+        val workspace = workspacesService.getWorkspace(invoice.workspaceId)
+        val owner = usersService.getUserByUserId(workspace.ownerId)
+        return invoice.dueDate.isBefore(timeService.currentDate(ZoneId.of(owner.i18nSettings.timeZone)))
+    }
 
     private fun validateInvoice(
         invoice: Invoice,

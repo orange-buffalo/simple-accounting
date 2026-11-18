@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.context.MessageSource
 import org.springframework.transaction.annotation.Transactional
 import java.math.RoundingMode
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.util.Currency
 import java.util.Locale
 
@@ -42,6 +42,7 @@ class AccountStatementProcessingService(
                 workspaceId = workspaceId,
                 integrationId = integrationId,
                 locale = locale,
+                timeZone = ZoneId.of(owner.i18nSettings.timeZone),
                 categoryId = requireNotNull(incomeCategoryId) { "An income category is required for automatic income creation" },
             )
         }
@@ -51,6 +52,7 @@ class AccountStatementProcessingService(
                 integrationId = integrationId,
                 defaultCurrency = currentWorkspace.defaultCurrency,
                 locale = locale,
+                timeZone = ZoneId.of(owner.i18nSettings.timeZone),
             )
         }
         return matching
@@ -80,7 +82,7 @@ class AccountStatementProcessingService(
         return InvoiceMatchingResult(checked = unlinked.size, links = links, ambiguous = ambiguous)
     }
 
-    private fun createIncomes(workspaceId: String, integrationId: String, locale: Locale, categoryId: String) {
+    private fun createIncomes(workspaceId: String, integrationId: String, locale: Locale, timeZone: ZoneId, categoryId: String) {
         val eligible = processingRepository.findCreditsForIncomeCreation(workspaceId = workspaceId, integrationId = integrationId)
         if (eligible.isEmpty()) return
         val invoicesById = processingRepository.findInvoices(
@@ -93,7 +95,7 @@ class AccountStatementProcessingService(
                 workspaceId = workspaceId,
                 categoryId = categoryId,
                 title = messages.getMessage("income.invoicePayment.title", arrayOf(invoice.invoiceNumber), locale),
-                dateReceived = record.occurredAt.atZone(ZoneOffset.UTC).toLocalDate(),
+                dateReceived = record.occurredAt.atZone(timeZone).toLocalDate(),
                 currency = invoice.currency,
                 originalAmount = invoice.amount,
                 convertedAmounts = AmountsInDefaultCurrency(null),
@@ -108,13 +110,13 @@ class AccountStatementProcessingService(
         }
     }
 
-    private fun convertIncomes(workspaceId: String, integrationId: String, defaultCurrency: String, locale: Locale) {
+    private fun convertIncomes(workspaceId: String, integrationId: String, defaultCurrency: String, locale: Locale, timeZone: ZoneId) {
         val eligibleIncomes = processingRepository.findIncomesForConversion(workspaceId = workspaceId, integrationId = integrationId)
             .associateBy { it.id }.toMutableMap()
         processingRepository.findConversions(workspaceId = workspaceId, integrationId = integrationId, defaultCurrency = defaultCurrency).forEach { record ->
             val sourceAmount = record.sourceAmountInCents!!
             val targetAmount = record.targetAmountInCents!!
-            val date = record.occurredAt.atZone(ZoneOffset.UTC).toLocalDate()
+            val date = record.occurredAt.atZone(timeZone).toLocalDate()
             val candidates = eligibleIncomes.values.filter {
                 it.currency == record.sourceCurrency && it.originalAmount == sourceAmount && !it.dateReceived.isAfter(date)
             }

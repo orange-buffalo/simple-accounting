@@ -18,6 +18,7 @@ import {
 
 import { setTranslationsFormatter } from '@/services/i18n/t9n/formatter';
 import { setDatePickerLocale } from '@/components/date-picker/date-picker-localization';
+import { setProfileTimeZone } from '@/services/time-zone';
 
 // just a workaround for Typescript server error on importing json objects
 const supportedLocaleCodes = JSON.parse(supportedLocaleCodesJson);
@@ -129,13 +130,15 @@ export function getSupportedLanguages(): SupportedLanguage[] {
 }
 
 export async function setLocaleFromBrowser(): Promise<void> {
+  setProfileTimeZone(null);
   await setupI18n(
     getValidLocale(navigator.languages),
     getValidLanguage(navigator.languages),
   );
 }
 
-export async function setLocaleFromProfile(locale: string, language: string): Promise<void> {
+export async function setLocaleFromProfile(locale: string, language: string, timeZone: string): Promise<void> {
+  setProfileTimeZone(timeZone);
   await setupI18n(
     getValidLocale([localeIdToLanguageTag(locale)]),
     getValidLanguage([localeIdToLanguageTag(language)]),

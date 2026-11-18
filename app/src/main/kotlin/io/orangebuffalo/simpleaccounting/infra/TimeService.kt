@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.infra
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Central point for getting current time and date and working with them.
@@ -13,5 +14,5 @@ import java.time.LocalDate
 @Service
 class TimeService {
     fun currentTime(): Instant = Instant.now()
-    fun currentDate(): LocalDate = LocalDate.now()
+    fun currentDate(timeZone: ZoneId): LocalDate = currentTime().atZone(timeZone).toLocalDate()
 }

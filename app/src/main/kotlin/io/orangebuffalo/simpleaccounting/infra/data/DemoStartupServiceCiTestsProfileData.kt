@@ -21,7 +21,8 @@ import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
+import java.time.ZoneId
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 
 private val log = KotlinLogging.logger {}
 
@@ -30,7 +31,10 @@ private val log = KotlinLogging.logger {}
  */
 @Component
 @ConditionalOnProperty("sa.demo.enabled", havingValue = "true", matchIfMissing = false)
-class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplate) {
+class DemoStartupServiceCiTestsProfileData(
+    private val jdbcAggregateTemplate: JdbcAggregateTemplate,
+    private val timeService: TimeService,
+) {
 
     @EventListener
     @Transactional
@@ -44,6 +48,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             i18nSettings = I18nSettings(locale = "en", language = "en"),
             activated = true
         ).also { jdbcAggregateTemplate.insert(it) }
+        val today = timeService.currentDate(ZoneId.of(fry.i18nSettings.timeZone))
         PlatformUser(
             userName = "Hermes",
             passwordHash = "{noop}password",
@@ -84,7 +89,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = shipMaintenance.id,
             workspaceId = planetExpressWorkspace.id,
             title = "Dark Matter Fuel",
-            datePaid = LocalDate.now(),
+            datePaid = today,
             currency = "USD",
             originalAmount = 3000,
             convertedAmounts = AmountsInDefaultCurrency(3000, 2850),
@@ -98,7 +103,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = shipMaintenance.id,
             workspaceId = planetExpressWorkspace.id,
             title = "Slurm Beverages for Crew",
-            datePaid = LocalDate.now(),
+            datePaid = today,
             currency = "USD",
             originalAmount = 50,
             convertedAmounts = AmountsInDefaultCurrency(50, 48),
@@ -113,7 +118,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = delivery.id,
             workspaceId = planetExpressWorkspace.id,
             title = "Delivery to MomCorp",
-            dateReceived = LocalDate.now(),
+            dateReceived = today,
             currency = "USD",
             originalAmount = 7000,
             convertedAmounts = AmountsInDefaultCurrency(7000, 6650),
@@ -126,7 +131,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             categoryId = delivery.id,
             workspaceId = planetExpressWorkspace.id,
             title = "Ransom from Omicronians",
-            dateReceived = LocalDate.now(),
+            dateReceived = today,
             currency = "USD",
             originalAmount = 2000,
             convertedAmounts = AmountsInDefaultCurrency(2000, 1900),
@@ -138,8 +143,8 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
 
         IncomeTaxPayment(
             workspaceId = planetExpressWorkspace.id,
-            datePaid = LocalDate.now(),
-            reportingDate = LocalDate.now(),
+            datePaid = today,
+            reportingDate = today,
             amount = 1200,
             title = "Q1 Space Income Tax"
         ).also { jdbcAggregateTemplate.insert(it) }
@@ -148,8 +153,8 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             workspaceId = planetExpressWorkspace.id,
             customerId = omicronians.id!!,
             invoiceNumber = "Delivery to Omicron Persei 8",
-            dateIssued = LocalDate.now().plusDays(2),
-            dueDate = LocalDate.now().plusDays(30),
+            dateIssued = today.plusDays(2),
+            dueDate = today.plusDays(30),
             currency = "USD",
             amount = 3000,
             status = InvoiceStatus.DRAFT

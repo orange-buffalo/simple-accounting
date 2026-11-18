@@ -12,6 +12,7 @@ const userProfileQuery = graphql(/* GraphQL */ `
       i18n {
         language
         locale
+        timeZone
       }
     }
   }
@@ -42,7 +43,8 @@ export async function bootstrapApp() {
     }
   } else if (await tryAutoLogin()) {
     const profileData = await gqlClient.query(userProfileQuery, {});
-    await setLocaleFromProfile(profileData.userProfile.i18n.locale, profileData.userProfile.i18n.language);
+    const { locale, language, timeZone } = profileData.userProfile.i18n;
+    await setLocaleFromProfile(locale, language, timeZone);
 
     if (router().currentRoute.value.path !== targetRoute) {
       await router()

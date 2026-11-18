@@ -28,7 +28,8 @@ class UserProfileQuery(
         documentsStorage = documentsStorage,
         i18n = I18nSettings(
             locale = i18nSettings.locale,
-            language = i18nSettings.language
+            language = i18nSettings.language,
+            timeZone = i18nSettings.timeZone,
         )
     )
 }

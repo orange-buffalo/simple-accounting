@@ -38,6 +38,7 @@ class UserProfileFullStackTest : SaFullStackTestBase() {
             shouldHaveDocumentsStorageSectionVisible()
             shouldHaveLanguagePreferencesSectionVisible()
             shouldHavePasswordChangeSectionVisible()
+            reportRendering("my-profile.regional-preferences")
         }
     }
 

@@ -256,7 +256,7 @@
   import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { currentDate } from '@/services/time-zone';
   import { $t } from '@/services/i18n';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
@@ -323,7 +323,7 @@
       customerId: props.invoice.customer!.id,
       invoiceNumber: props.invoice.invoiceNumber,
       dateIssued: props.invoice.dateIssued,
-      dateSent: formatDateToLocalISOString(new Date()),
+      dateSent: currentDate(),
       datePaid: props.invoice.datePaid ?? null,
       dueDate: props.invoice.dueDate,
       currency: props.invoice.currency,

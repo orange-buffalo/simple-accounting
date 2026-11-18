@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -14,15 +14,10 @@ class DateRangePicker private constructor(
     
     private val formatter = DateTimeFormatter.ofPattern("dd/MM/uuuu")
 
-    fun shouldHaveDateRange(startDate: LocalDate, endDate: LocalDate) {
-        val startValue = startInput.inputValue()
-        val endValue = endInput.inputValue()
-        
-        val actualStart = LocalDate.parse(startValue, formatter)
-        val actualEnd = LocalDate.parse(endValue, formatter)
-        
-        actualStart.shouldBe(startDate)
-        actualEnd.shouldBe(endDate)
+    fun shouldHaveDateRange(startDate: LocalDate, endDate: LocalDate, inputPattern: String = "dd/MM/uuuu") {
+        val inputFormatter = DateTimeFormatter.ofPattern(inputPattern)
+        startInput.shouldHaveValue(startDate.format(inputFormatter))
+        endInput.shouldHaveValue(endDate.format(inputFormatter))
     }
 
     fun fillDateRange(startDate: String, endDate: String) {

@@ -8,7 +8,7 @@
     <h2>{{ $t.myProfile.languagePreferences.header() }}</h2>
 
     <div class="row">
-      <div class="col col-xs-12 col-lg-6">
+      <div class="col col-xs-12 col-lg-4">
         <SaFormSelect
           prop="language"
           :label="$t.myProfile.languagePreferences.language.label()"
@@ -24,7 +24,7 @@
         </SaFormSelect>
       </div>
 
-      <div class="col col-xs-12 col-lg-6">
+      <div class="col col-xs-12 col-lg-4">
         <SaFormSelect
           prop="locale"
           :label="$t.myProfile.languagePreferences.locale.label()"
@@ -38,6 +38,17 @@
             :label="availableLocale.displayName"
             :value="availableLocale.locale"
           />
+        </SaFormSelect>
+      </div>
+      <div class="col col-xs-12 col-lg-4">
+        <SaFormSelect
+          prop="timeZone"
+          :label="$t.myProfile.languagePreferences.timeZone.label()"
+          :placeholder="$t.myProfile.languagePreferences.timeZone.placeholder()"
+          :filterable="true"
+          :submit-on-change="true"
+        >
+          <ElOption v-for="zone in timeZones" :key="zone" :label="zone" :value="zone" />
         </SaFormSelect>
       </div>
     </div>
@@ -57,6 +68,7 @@
   import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
+  import { getSupportedTimeZones } from '@/services/time-zone';
 
   const props = defineProps<{
     profile?: UserProfileQuery["userProfile"],
@@ -71,32 +83,39 @@
 
   const languages = ref<Array<SupportedLanguage>>(getSupportedLanguages());
   const locales = ref<Array<SupportedLocale>>(getSupportedLocales());
+  const timeZones = getSupportedTimeZones();
 
   type LanguagePreferencesFormValues = {
     language: string,
     locale: string,
+    timeZone: string,
   };
 
   const formValues = ref<LanguagePreferencesFormValues>({
     language: '',
     locale: '',
+    timeZone: '',
   });
 
   watch(() => props.profile, () => {
     formValues.value.language = localeIdToLanguageTag(props.profile?.i18n?.language || '');
     formValues.value.locale = localeIdToLanguageTag(props.profile?.i18n?.locale || '');
+    formValues.value.timeZone = props.profile?.i18n.timeZone || '';
   }, {
     deep: true,
     immediate: true,
   });
 
   const updateProfileMutation = useMutation(graphql(/* GraphQL */ `
-    mutation updateProfileLanguage($documentsStorage: String, $locale: String!, $language: String!) {
-      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language) {
+    mutation updateProfileLanguage(
+      $documentsStorage: String, $locale: String!, $language: String!, $timeZone: String!
+    ) {
+      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language, timeZone: $timeZone) {
         documentsStorage
         i18n {
           language
           locale
+          timeZone
         }
         userName
       }
@@ -108,10 +127,12 @@
       documentsStorage: props.profile!.documentsStorage ?? null,
       locale: languageTagToLocaleId(formValues.value.locale),
       language: languageTagToLocaleId(formValues.value.language),
+      timeZone: formValues.value.timeZone,
     });
     await setLocaleFromProfile(
       languageTagToLocaleId(formValues.value.locale),
       languageTagToLocaleId(formValues.value.language),
+      updatedProfile.i18n.timeZone,
     );
     locales.value = getSupportedLocales();
     emit('profile-updated', updatedProfile);

@@ -21,5 +21,7 @@ data class I18nSettings(
     )
     @field:Size(max = 36) val locale: String,
     @GraphQLDescription("The language of the user profile, e.g. 'en'. Used for translations.")
-    @field:Size(max = 36) val language: String
+    @field:Size(max = 36) val language: String,
+    @GraphQLDescription("The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for calendar dates and timestamps.")
+    val timeZone: String,
 )

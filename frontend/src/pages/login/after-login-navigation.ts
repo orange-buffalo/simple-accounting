@@ -8,6 +8,7 @@ import { useAuth } from '@/services/api';
 import { useLastView } from '@/services/use-last-view';
 import { graphql } from '@/services/api/gql';
 import { useLazyQuery } from '@/services/api/use-gql-api';
+import { setSharedWorkspaceTimeZone } from '@/services/time-zone';
 
 /**
  * Applies the profile of the freshly authenticated user and takes them to the landing page.
@@ -23,6 +24,7 @@ export function useAfterLoginNavigation() {
         i18n {
           language
           locale
+          timeZone
         }
       }
     }
@@ -45,7 +47,8 @@ export function useAfterLoginNavigation() {
 
   return async () => {
     const profile = await fetchUserProfile({});
-    await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+    setSharedWorkspaceTimeZone(false);
+    await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language, profile.i18n.timeZone);
 
     if (isAdmin()) {
       await navigateByViewName(USERS_OVERVIEW_ROUTE_NAME);
