@@ -10,7 +10,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_CATEGORY_ROUTE_NAME = 'create-new-category';
+  export const EDIT_CATEGORY_ROUTE_NAME = 'edit-category';
+</script>
+
 <script lang="ts" setup>
+  import { SETTINGS_CATEGORIES_ROUTE_NAME } from '@/pages/settings/categories/Categories.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -32,7 +38,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
+  const navigateToCategoriesOverview = async () => navigateByViewName(SETTINGS_CATEGORIES_ROUTE_NAME);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoryQuery = useLazyQuery(graphql(`

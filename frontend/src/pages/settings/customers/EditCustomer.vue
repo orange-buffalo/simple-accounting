@@ -11,7 +11,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_CUSTOMER_ROUTE_NAME = 'create-new-customer';
+  export const EDIT_CUSTOMER_ROUTE_NAME = 'edit-customer';
+</script>
+
 <script lang="ts" setup>
+  import { CUSTOMERS_OVERVIEW_ROUTE_NAME } from '@/pages/settings/customers/CustomersOverview.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -32,7 +38,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToCustomersOverview = async () => navigateByViewName('customers-overview');
+  const navigateToCustomersOverview = async () => navigateByViewName(CUSTOMERS_OVERVIEW_ROUTE_NAME);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCustomerQuery = useLazyQuery(graphql(`

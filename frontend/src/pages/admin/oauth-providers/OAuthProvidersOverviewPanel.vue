@@ -29,6 +29,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { EDIT_OAUTH_PROVIDER_ROUTE_NAME } from '@/pages/admin/oauth-providers/EditOAuthProvider.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
@@ -42,7 +43,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToProviderEdit = () => navigateToView({
-    name: 'edit-oauth-provider',
+    name: EDIT_OAUTH_PROVIDER_ROUTE_NAME,
     params: { id: props.provider.id },
   });
 </script>

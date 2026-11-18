@@ -44,6 +44,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { EDIT_WORKSPACE_ROUTE_NAME } from '@/pages/settings/workspaces/WorkspaceEditor.vue';
+  import { WORKSPACE_ACCESS_TOKENS_ROUTE_NAME } from '@/pages/settings/workspaces/WorkspaceAccessTokens.vue';
   import { computed } from 'vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
@@ -69,12 +71,12 @@
     navigateByPath,
   } = useNavigation();
   const navigateToWorkspaceEdit = () => navigateToView({
-    name: 'edit-workspace',
+    name: EDIT_WORKSPACE_ROUTE_NAME,
     params: { id: props.workspace.id },
   });
 
   const navigateToWorkspaceAccessTokens = () => navigateToView({
-    name: 'workspace-access-tokens',
+    name: WORKSPACE_ACCESS_TOKENS_ROUTE_NAME,
     params: { id: props.workspace.id },
   });
 

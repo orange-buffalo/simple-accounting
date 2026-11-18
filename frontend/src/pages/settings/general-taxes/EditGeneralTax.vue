@@ -22,7 +22,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_GENERAL_TAX_ROUTE_NAME = 'create-new-general-tax';
+  export const EDIT_GENERAL_TAX_ROUTE_NAME = 'edit-general-tax';
+</script>
+
 <script lang="ts" setup>
+  import { GENERAL_TAXES_OVERVIEW_ROUTE_NAME } from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -44,7 +50,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToTaxesOverview = async () => navigateByViewName('general-taxes-overview');
+  const navigateToTaxesOverview = async () => navigateByViewName(GENERAL_TAXES_OVERVIEW_ROUTE_NAME);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getGeneralTaxQuery = useLazyQuery(graphql(`

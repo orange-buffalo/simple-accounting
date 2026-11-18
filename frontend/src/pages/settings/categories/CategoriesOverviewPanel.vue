@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { EDIT_CATEGORY_ROUTE_NAME } from '@/pages/settings/categories/EditCategory.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
@@ -34,7 +35,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToCategoryEdit = () => navigateToView({
-    name: 'edit-category',
+    name: EDIT_CATEGORY_ROUTE_NAME,
     params: { id: props.category.id },
   });
 </script>

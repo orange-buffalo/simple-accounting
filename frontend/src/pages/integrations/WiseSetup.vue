@@ -76,7 +76,7 @@
           </SaStatusLabel>
           <template v-else-if="saved">
             <SaStatusLabel status="success">{{ $t.integrations.wise.success() }}</SaStatusLabel>
-            <RouterLink :to="{ name: 'integrations' }">{{ $t.integrations.header() }}</RouterLink>
+            <RouterLink :to="{ name: INTEGRATIONS_ROUTE_NAME }">{{ $t.integrations.header() }}</RouterLink>
           </template>
           <template v-else-if="error">
             <SaStatusLabel status="failure" role="alert">{{ errorMessage }}</SaStatusLabel>
@@ -87,7 +87,12 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const WISE_SETUP_ROUTE_NAME = 'wise-setup';
+</script>
+
 <script lang="ts" setup>
+  import { INTEGRATIONS_ROUTE_NAME } from '@/pages/integrations/Integrations.vue';
   import { computed, ref, watch } from 'vue';
   import { ElTag } from 'element-plus';
   import SaWizard from '@/components/wizard/SaWizard.vue';

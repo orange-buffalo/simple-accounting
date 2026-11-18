@@ -78,6 +78,10 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const REPORTING_ROUTE_NAME = 'reporting';
+</script>
+
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';

@@ -4,7 +4,7 @@
     :header="$t.invoicesOverview.header()"
     :filters="invoiceFilters"
     :create-action-label="$t.invoicesOverview.create()"
-    create-action-view-name="create-new-invoice"
+    :create-action-view-name="CREATE_NEW_INVOICE_ROUTE_NAME"
     :create-action-disabled="!currentWorkspace.editable"
   >
     <SaPageableItems
@@ -19,7 +19,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const INVOICES_OVERVIEW_ROUTE_NAME = 'invoices-overview';
+</script>
+
 <script lang="ts" setup>
+  import { CREATE_NEW_INVOICE_ROUTE_NAME } from '@/pages/invoices/EditInvoice.vue';
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';

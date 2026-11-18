@@ -81,7 +81,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_OAUTH_PROVIDER_ROUTE_NAME = 'create-new-oauth-provider';
+  export const EDIT_OAUTH_PROVIDER_ROUTE_NAME = 'edit-oauth-provider';
+</script>
+
 <script lang="ts" setup>
+  import { OAUTH_PROVIDERS_OVERVIEW_ROUTE_NAME } from '@/pages/admin/oauth-providers/OAuthProvidersOverview.vue';
   import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
@@ -112,7 +118,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToProvidersOverview = async () => {
-    await navigateByViewName('oauth-providers-overview');
+    await navigateByViewName(OAUTH_PROVIDERS_OVERVIEW_ROUTE_NAME);
   };
 
   const getProviderQuery = useLazyQuery(graphql(/* GraphQL */ `

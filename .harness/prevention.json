@@ -581,6 +581,13 @@
       "appliesWhen": "Preparing delivery after temporary manual inspection or debugging; excludes required rendering reports, durable assertions and established diagnostic infrastructure",
       "instruction": "Audit cumulative authored changes and remove temporary inspection helpers, their callers and inspection-only screenshots before delivery. Preserve durable assertions and required ordinary rendering reports; do not remove unrelated existing instrumentation.",
       "reason": "Temporary inspection machinery can become unnecessary maintained behavior when cleanup is omitted."
+    },
+    {
+      "id": "page-owned-route-names",
+      "category": "frontend",
+      "appliesWhen": "Defining or deduplicating named Vue page routes; excludes unrelated registries and path-only navigation",
+      "instruction": "Export route-name constants from the owning Vue page's normal script and import them in route registration and named navigation consumers. Shared create/edit pages export both names. Do not introduce a central route-name registry or union solely to collect these exports; retain generic navigation parameter types.",
+      "reason": "Page ownership keeps route identifiers with their destination without maintaining a parallel central catalog."
     }
   ]
 }

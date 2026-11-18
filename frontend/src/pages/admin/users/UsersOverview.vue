@@ -4,7 +4,7 @@
     :header="$t.usersOverview.header()"
     :filters="userFilters"
     :create-action-label="$t.usersOverview.create()"
-    create-action-view-name="create-new-user"
+    :create-action-view-name="CREATE_NEW_USER_ROUTE_NAME"
   >
     <SaPageableItems
       :page-query="usersPageQuery"
@@ -17,7 +17,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const USERS_OVERVIEW_ROUTE_NAME = 'users-overview';
+</script>
+
 <script lang="ts" setup>
+  import { CREATE_NEW_USER_ROUTE_NAME } from '@/pages/admin/users/EditUser.vue';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { $t } from '@/services/i18n';

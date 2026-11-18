@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { EDIT_GENERAL_TAX_ROUTE_NAME } from '@/pages/settings/general-taxes/EditGeneralTax.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
@@ -34,7 +35,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToTaxEdit = () => navigateToView({
-    name: 'edit-general-tax',
+    name: EDIT_GENERAL_TAX_ROUTE_NAME,
     params: { id: props.tax.id },
   });
 </script>

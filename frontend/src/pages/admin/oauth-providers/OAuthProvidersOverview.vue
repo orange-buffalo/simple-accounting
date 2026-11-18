@@ -4,7 +4,7 @@
     :header="$t.oauthProvidersOverview.header()"
     :filters="providerFilters"
     :create-action-label="$t.oauthProvidersOverview.create()"
-    create-action-view-name="create-new-oauth-provider"
+    :create-action-view-name="CREATE_NEW_OAUTH_PROVIDER_ROUTE_NAME"
   >
     <SaPageableItems
       :page-query="oauthProvidersPageQuery"
@@ -17,7 +17,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const OAUTH_PROVIDERS_OVERVIEW_ROUTE_NAME = 'oauth-providers-overview';
+</script>
+
 <script lang="ts" setup>
+  import { CREATE_NEW_OAUTH_PROVIDER_ROUTE_NAME } from '@/pages/admin/oauth-providers/EditOAuthProvider.vue';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { $t } from '@/services/i18n';

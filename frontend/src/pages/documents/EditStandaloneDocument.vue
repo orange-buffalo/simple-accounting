@@ -35,7 +35,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_STANDALONE_DOCUMENT_ROUTE_NAME = 'create-standalone-document';
+  export const EDIT_STANDALONE_DOCUMENT_ROUTE_NAME = 'edit-standalone-document';
+</script>
+
 <script lang="ts" setup>
+  import { DOCUMENTS_OVERVIEW_ROUTE_NAME } from '@/pages/documents/DocumentsOverview.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -71,7 +77,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
   const { navigateByViewName } = useNavigation();
   const navigateToDocumentsOverview = async () => {
-    await navigateByViewName('documents-overview');
+    await navigateByViewName(DOCUMENTS_OVERVIEW_ROUTE_NAME);
   };
 
   const getStandaloneDocumentForEditQuery = useLazyQuery(graphql(`

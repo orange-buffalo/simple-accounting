@@ -37,7 +37,12 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const INTEGRATIONS_ROUTE_NAME = 'integrations';
+</script>
+
 <script lang="ts" setup>
+  import { WISE_SETUP_ROUTE_NAME } from '@/pages/integrations/WiseSetup.vue';
   import { computed, ref } from 'vue';
   import { ElButton, ElTooltip } from 'element-plus';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
@@ -88,7 +93,7 @@
   const providers = computed(() => [{
     id: 'wise', name: $t.value.integrations.wise.name(), logo: WiseLogo,
     description: $t.value.integrations.wise.description(),
-    active: integrations.value?.wise.active === true, setup: 'wise-setup',
+    active: integrations.value?.wise.active === true, setup: WISE_SETUP_ROUTE_NAME,
     authenticationRequired: integrations.value?.wise.authenticationRequired === true,
     fetchTransactionsPeriodically: integrations.value?.wise.fetchTransactionsPeriodically === true,
     fetchMonthlyStatements: integrations.value?.wise.fetchMonthlyStatements === true,

@@ -86,6 +86,12 @@
 </template>
 
 <script lang="ts" setup>
+  import { ACCOUNT_STATEMENTS_OVERVIEW_ROUTE_NAME } from '@/pages/account-statements/AccountStatementsOverview.vue';
+  import { EDIT_EXPENSE_ROUTE_NAME } from '@/pages/expenses/EditExpense.vue';
+  import { EDIT_INCOME_ROUTE_NAME } from '@/pages/incomes/EditIncome.vue';
+  import { EDIT_INVOICE_ROUTE_NAME } from '@/pages/invoices/EditInvoice.vue';
+  import { EDIT_INCOME_TAX_PAYMENT_ROUTE_NAME } from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
+  import { EDIT_STANDALONE_DOCUMENT_ROUTE_NAME } from '@/pages/documents/EditStandaloneDocument.vue';
   import { computed, ref } from 'vue';
   import { ElTooltip } from 'element-plus';
   import { DataLine, Delete, Folder } from '@element-plus/icons-vue';
@@ -233,12 +239,12 @@
   });
 
   const usageTypeToRouteMap: Record<DocumentUsageType, string> = {
-    ACCOUNT_STATEMENT: 'account-statements-overview',
-    EXPENSE: 'edit-expense',
-    INCOME: 'edit-income',
-    INVOICE: 'edit-invoice',
-    INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
-    STANDALONE_DOCUMENT: 'edit-standalone-document',
+    ACCOUNT_STATEMENT: ACCOUNT_STATEMENTS_OVERVIEW_ROUTE_NAME,
+    EXPENSE: EDIT_EXPENSE_ROUTE_NAME,
+    INCOME: EDIT_INCOME_ROUTE_NAME,
+    INVOICE: EDIT_INVOICE_ROUTE_NAME,
+    INCOME_TAX_PAYMENT: EDIT_INCOME_TAX_PAYMENT_ROUTE_NAME,
+    STANDALONE_DOCUMENT: EDIT_STANDALONE_DOCUMENT_ROUTE_NAME,
   };
 
   const usageTypeToIconMap: Record<DocumentUsageType, string> = {

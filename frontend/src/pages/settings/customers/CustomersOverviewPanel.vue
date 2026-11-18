@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { EDIT_CUSTOMER_ROUTE_NAME } from '@/pages/settings/customers/EditCustomer.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
@@ -26,7 +27,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToCustomerEdit = () => navigateToView({
-    name: 'edit-customer',
+    name: EDIT_CUSTOMER_ROUTE_NAME,
     params: { id: props.customer.id },
   });
 </script>

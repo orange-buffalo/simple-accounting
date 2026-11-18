@@ -179,7 +179,7 @@
           >
             <RouterLink
               :to="{
-                name: 'invoices-overview', query: { freeSearchText: income.linkedInvoice.invoiceNumber },
+                name: INVOICES_OVERVIEW_ROUTE_NAME, query: { freeSearchText: income.linkedInvoice.invoiceNumber },
               }"
             >
               {{ income.linkedInvoice.invoiceNumber }}
@@ -261,6 +261,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { INVOICES_OVERVIEW_ROUTE_NAME } from '@/pages/invoices/InvoicesOverview.vue';
+  import { EDIT_INCOME_ROUTE_NAME } from '@/pages/incomes/EditIncome.vue';
   import { computed } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
@@ -349,7 +351,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToIncomeEdit = () => navigateToView({
-    name: 'edit-income',
+    name: EDIT_INCOME_ROUTE_NAME,
     params: { id: props.income.id },
   });
 </script>

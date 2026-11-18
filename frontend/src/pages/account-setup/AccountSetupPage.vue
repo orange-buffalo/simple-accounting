@@ -24,6 +24,10 @@
   </SaPageWithoutSideMenu>
 </template>
 
+<script lang="ts">
+  export const ACCOUNT_SETUP_ROUTE_NAME = 'account-setup';
+</script>
+
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { $t } from '@/services/i18n';

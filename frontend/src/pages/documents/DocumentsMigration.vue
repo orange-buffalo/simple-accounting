@@ -61,6 +61,10 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const DOCUMENTS_MIGRATION_ROUTE_NAME = 'documents-migration';
+</script>
+
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';

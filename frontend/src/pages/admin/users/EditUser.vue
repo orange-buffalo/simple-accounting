@@ -29,7 +29,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_USER_ROUTE_NAME = 'create-new-user';
+  export const EDIT_USER_ROUTE_NAME = 'edit-user';
+</script>
+
 <script lang="ts" setup>
+  import { USERS_OVERVIEW_ROUTE_NAME } from '@/pages/admin/users/UsersOverview.vue';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -60,11 +66,11 @@
 
   const { navigateByViewName, navigateToView } = useNavigation();
   const navigateToUsersOverview = async () => {
-    await navigateByViewName('users-overview');
+    await navigateByViewName(USERS_OVERVIEW_ROUTE_NAME);
   };
   const navigateToEditUser = async (id: string) => {
     await navigateToView({
-      name: 'edit-user',
+      name: EDIT_USER_ROUTE_NAME,
       params: {
         id,
       },

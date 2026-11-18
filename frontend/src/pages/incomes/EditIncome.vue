@@ -96,7 +96,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_INCOME_ROUTE_NAME = 'create-new-income';
+  export const EDIT_INCOME_ROUTE_NAME = 'edit-income';
+</script>
+
 <script lang="ts" setup>
+  import { INCOMES_OVERVIEW_ROUTE_NAME } from '@/pages/incomes/IncomesOverview.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -130,7 +136,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToIncomesOverview = async () => {
-    await navigateByViewName('incomes-overview');
+    await navigateByViewName(INCOMES_OVERVIEW_ROUTE_NAME);
   };
 
   const {
