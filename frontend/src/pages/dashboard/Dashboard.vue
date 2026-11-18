@@ -38,6 +38,10 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const DASHBOARD_ROUTE_NAME = 'dashboard';
+</script>
+
 <script lang="ts" setup>
   import { ref, computed, watch } from 'vue';
   import SaPage from '@/components/SaPage.vue';

@@ -4,7 +4,7 @@
     :header="$t.customersOverview.header()"
     :filters="customerFilters"
     :create-action-label="$t.customersOverview.create()"
-    :create-action-view-name="ROUTE_NAMES.createNewCustomer"
+    :create-action-view-name="CREATE_NEW_CUSTOMER_ROUTE_NAME"
   >
     <SaPageableItems
       :page-query="customersPageQuery"
@@ -17,8 +17,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const CUSTOMERS_OVERVIEW_ROUTE_NAME = 'customers-overview';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { CREATE_NEW_CUSTOMER_ROUTE_NAME } from '@/pages/settings/customers/EditCustomer.vue';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';

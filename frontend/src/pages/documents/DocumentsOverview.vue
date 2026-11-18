@@ -4,7 +4,7 @@
     :header="$t.documentsOverview.header()"
     :filters="documentFilters"
     :create-action-label="$t.documentsOverview.create()"
-    :create-action-view-name="ROUTE_NAMES.createStandaloneDocument"
+    :create-action-view-name="CREATE_STANDALONE_DOCUMENT_ROUTE_NAME"
     :create-action-available="isCurrentUserRegular()"
     :create-action-disabled="!currentWorkspace.editable"
   >
@@ -23,8 +23,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const DOCUMENTS_OVERVIEW_ROUTE_NAME = 'documents-overview';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { CREATE_STANDALONE_DOCUMENT_ROUTE_NAME } from '@/pages/documents/EditStandaloneDocument.vue';
   import { computed, ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';

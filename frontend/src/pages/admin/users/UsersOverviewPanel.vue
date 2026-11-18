@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { EDIT_USER_ROUTE_NAME } from '@/pages/admin/users/EditUser.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
@@ -54,7 +54,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToUserEdit = () => navigateToView({
-    name: ROUTE_NAMES.editUser,
+    name: EDIT_USER_ROUTE_NAME,
     params: { id: props.user.id },
   });
 </script>

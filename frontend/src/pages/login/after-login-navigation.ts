@@ -1,5 +1,7 @@
 import { useWorkspaces } from '@/services/workspaces';
-import { ROUTE_NAMES } from '@/services/route-names';
+import { DASHBOARD_ROUTE_NAME } from '@/pages/dashboard/Dashboard.vue';
+import { ACCOUNT_SETUP_ROUTE_NAME } from '@/pages/account-setup/AccountSetupPage.vue';
+import { USERS_OVERVIEW_ROUTE_NAME } from '@/pages/admin/users/UsersOverview.vue';
 import { setLocaleFromProfile } from '@/services/i18n';
 import useNavigation from '@/services/use-navigation';
 import { useAuth } from '@/services/api';
@@ -34,10 +36,10 @@ export function useAfterLoginNavigation() {
       if (lastView) {
         await navigateByViewName(lastView);
       } else {
-        await navigateByViewName(ROUTE_NAMES.dashboard);
+        await navigateByViewName(DASHBOARD_ROUTE_NAME);
       }
     } else {
-      await navigateByViewName(ROUTE_NAMES.accountSetup);
+      await navigateByViewName(ACCOUNT_SETUP_ROUTE_NAME);
     }
   };
 
@@ -46,7 +48,7 @@ export function useAfterLoginNavigation() {
     await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
     if (isAdmin()) {
-      await navigateByViewName(ROUTE_NAMES.usersOverview);
+      await navigateByViewName(USERS_OVERVIEW_ROUTE_NAME);
     } else {
       await onUserLogin();
     }

@@ -56,8 +56,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_INCOME_TAX_PAYMENT_ROUTE_NAME = 'create-new-income-tax-payment';
+  export const EDIT_INCOME_TAX_PAYMENT_ROUTE_NAME = 'edit-income-tax-payment';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { INCOME_TAX_PAYMENTS_OVERVIEW_ROUTE_NAME } from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -84,7 +89,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToTaxPaymentsOverview = async () => navigateByViewName(ROUTE_NAMES.incomeTaxPaymentsOverview);
+  const navigateToTaxPaymentsOverview = async () => navigateByViewName(INCOME_TAX_PAYMENTS_OVERVIEW_ROUTE_NAME);
 
   const {
     defaultCurrency,

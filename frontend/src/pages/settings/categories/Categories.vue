@@ -4,7 +4,7 @@
     :header="$t.categoriesOverview.header()"
     :filters="categoryFilters"
     :create-action-label="$t.categoriesOverview.create()"
-    :create-action-view-name="ROUTE_NAMES.createNewCategory"
+    :create-action-view-name="CREATE_NEW_CATEGORY_ROUTE_NAME"
   >
     <SaPageableItems
       :page-query="categoriesPageQuery"
@@ -21,8 +21,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const SETTINGS_CATEGORIES_ROUTE_NAME = 'settings-categories';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { CREATE_NEW_CATEGORY_ROUTE_NAME } from '@/pages/settings/categories/EditCategory.vue';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';

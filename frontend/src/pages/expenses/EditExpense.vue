@@ -103,8 +103,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_EXPENSE_ROUTE_NAME = 'create-new-expense';
+  export const EDIT_EXPENSE_ROUTE_NAME = 'edit-expense';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { EXPENSES_OVERVIEW_ROUTE_NAME } from '@/pages/expenses/ExpensesOverview.vue';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -138,7 +143,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToExpensesOverview = async () => {
-    await navigateByViewName(ROUTE_NAMES.expensesOverview);
+    await navigateByViewName(EXPENSES_OVERVIEW_ROUTE_NAME);
   };
 
   const {

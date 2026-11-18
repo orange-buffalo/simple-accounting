@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { LOGIN_ROUTE_NAME } from '@/pages/login/Login.vue';
   import { useRouter } from 'vue-router';
   import { $t } from '@/services/i18n';
   import SaIcon from '@/components/SaIcon.vue';
@@ -19,7 +19,7 @@
   const { logout } = useAuth();
   const doLogout = async () => {
     await logout();
-    await router.push({ name: ROUTE_NAMES.login });
+    await router.push({ name: LOGIN_ROUTE_NAME });
   };
 </script>
 

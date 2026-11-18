@@ -20,6 +20,10 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const MY_PROFILE_ROUTE_NAME = 'my-profile';
+</script>
+
 <script lang="ts" setup>
   import { ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';

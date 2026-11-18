@@ -77,6 +77,10 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const WORKSPACE_ACCESS_TOKENS_ROUTE_NAME = 'workspace-access-tokens';
+</script>
+
 <script lang="ts" setup>
   import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';

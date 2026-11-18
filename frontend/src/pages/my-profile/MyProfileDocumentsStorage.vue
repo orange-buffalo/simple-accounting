@@ -32,7 +32,7 @@
             >
               <SaI18n :message="$t.myProfile.documentsStorage.googleDriveDocumentsNotice(googleDriveDocumentsCount)">
                 <template #migrationLink>
-                  <RouterLink :to="{ name: ROUTE_NAMES.documentsMigration }">
+                  <RouterLink :to="{ name: DOCUMENTS_MIGRATION_ROUTE_NAME }">
                     {{ $t.documentsMigration.pageHeader() }}
                   </RouterLink>
                 </template>
@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { DOCUMENTS_MIGRATION_ROUTE_NAME } from '@/pages/documents/DocumentsMigration.vue';
   import { computed } from 'vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaI18n from '@/components/SaI18n.vue';

@@ -2,7 +2,7 @@
   <SaOverviewPage
     :header="$t.workspacesOverview.header()"
     :create-action-label="$t.workspacesOverview.create()"
-    :create-action-view-name="ROUTE_NAMES.createNewWorkspace"
+    :create-action-view-name="CREATE_NEW_WORKSPACE_ROUTE_NAME"
   >
     <SaPageableItems
       ref="pageableItems"
@@ -15,8 +15,12 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const WORKSPACES_OVERVIEW_ROUTE_NAME = 'workspaces-overview';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { CREATE_NEW_WORKSPACE_ROUTE_NAME } from '@/pages/settings/workspaces/WorkspaceEditor.vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
   import { graphql } from '@/services/api/gql';

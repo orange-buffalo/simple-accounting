@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { MY_PROFILE_ROUTE_NAME } from '@/pages/my-profile/MyProfile.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaI18n from '@/components/SaI18n.vue';
   import useNavigation from '@/services/use-navigation';
@@ -31,7 +31,7 @@
   const { navigateByViewName } = useNavigation();
 
   const navigateToProfileSettings = () => {
-    navigateByViewName(ROUTE_NAMES.myProfile);
+    navigateByViewName(MY_PROFILE_ROUTE_NAME);
   };
 </script>
 

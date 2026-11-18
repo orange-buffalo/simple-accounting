@@ -22,6 +22,10 @@
   </SaStatusLabel>
 </template>
 
+<script lang="ts">
+  export const LOGIN_BY_LINK_ROUTE_NAME = 'login-by-link';
+</script>
+
 <script lang="ts" setup>
   import { onMounted, ref } from 'vue';
   import { useWorkspaces } from '@/services/workspaces';

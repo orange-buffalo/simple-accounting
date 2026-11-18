@@ -114,8 +114,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_INVOICE_ROUTE_NAME = 'create-new-invoice';
+  export const EDIT_INVOICE_ROUTE_NAME = 'edit-invoice';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { INVOICES_OVERVIEW_ROUTE_NAME } from '@/pages/invoices/InvoicesOverview.vue';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -150,7 +155,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToInvoicesOverview = async () => {
-    await navigateByViewName(ROUTE_NAMES.invoicesOverview);
+    await navigateByViewName(INVOICES_OVERVIEW_ROUTE_NAME);
   };
 
   const {

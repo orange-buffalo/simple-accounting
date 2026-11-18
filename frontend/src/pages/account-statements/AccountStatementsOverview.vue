@@ -11,6 +11,10 @@
   </SaOverviewPage>
 </template>
 
+<script lang="ts">
+  export const ACCOUNT_STATEMENTS_OVERVIEW_ROUTE_NAME = 'account-statements-overview';
+</script>
+
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import { useRoute } from 'vue-router';

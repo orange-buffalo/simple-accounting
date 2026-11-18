@@ -30,6 +30,10 @@
   </div>
 </template>
 
+<script lang="ts">
+  export const OAUTH_CALLBACK_ROUTE_NAME = 'oauth-callback';
+</script>
+
 <script lang="ts" setup>
   import { ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';

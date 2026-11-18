@@ -103,6 +103,10 @@
   </div>
 </template>
 
+<script lang="ts">
+  export const LOGIN_ROUTE_NAME = 'login';
+</script>
+
 <script lang="ts" setup>
   /// <reference types="vite-svg-loader" />
   import type { Ref } from 'vue';

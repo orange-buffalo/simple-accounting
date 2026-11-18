@@ -10,8 +10,13 @@
   </SaPage>
 </template>
 
+<script lang="ts">
+  export const CREATE_NEW_WORKSPACE_ROUTE_NAME = 'create-new-workspace';
+  export const EDIT_WORKSPACE_ROUTE_NAME = 'edit-workspace';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { WORKSPACES_OVERVIEW_ROUTE_NAME } from '@/pages/settings/workspaces/WorkspacesOverview.vue';
   import { ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -39,7 +44,7 @@
     : $t.value.workspaceEditor.pageHeader.create();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToWorkspacesOverview = async () => navigateByViewName(ROUTE_NAMES.workspacesOverview);
+  const navigateToWorkspacesOverview = async () => navigateByViewName(WORKSPACES_OVERVIEW_ROUTE_NAME);
 
   const loadWorkspaceQuery = useLazyQuery(graphql(`
     query getWorkspaceForEdit($id: String!) {

@@ -29,8 +29,13 @@
   </div>
 </template>
 
+<script lang="ts">
+  export const OAUTH_IDENTITY_CALLBACK_ROUTE_NAME = 'oauth-identity-callback';
+</script>
+
 <script lang="ts" setup>
-  import { ROUTE_NAMES } from '@/services/route-names';
+  import { MY_PROFILE_ROUTE_NAME } from '@/pages/my-profile/MyProfile.vue';
+  import { LOGIN_ROUTE_NAME } from '@/pages/login/Login.vue';
   /// <reference types="vite-svg-loader" />
   import { computed, ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';
@@ -74,7 +79,7 @@
     : $t.value.oauthIdentityCallbackPage.backToLogin()));
 
   const navigateToRecovery = async () => {
-    await navigateByViewName(sessionRecovered.value ? ROUTE_NAMES.myProfile : ROUTE_NAMES.login);
+    await navigateByViewName(sessionRecovered.value ? MY_PROFILE_ROUTE_NAME : LOGIN_ROUTE_NAME);
   };
 
   /**
@@ -135,10 +140,10 @@
       if (result.outcome === OAuthAuthenticationOutcome.Link) {
         // linking never grants a session, so the one of the initiating browser is restored
         if (await recoverSession()) {
-          await navigateByViewName(ROUTE_NAMES.myProfile);
+          await navigateByViewName(MY_PROFILE_ROUTE_NAME);
           showSuccessNotification($t.value.oauthIdentityCallbackPage.linked());
         } else {
-          await navigateByViewName(ROUTE_NAMES.login);
+          await navigateByViewName(LOGIN_ROUTE_NAME);
         }
         return;
       }
