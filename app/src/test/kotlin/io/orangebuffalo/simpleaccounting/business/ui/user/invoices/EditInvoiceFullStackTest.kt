@@ -341,6 +341,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!)
             .shouldBeEntityWithFields(
                 Invoice(
+                    workspaceId = testData.customer2.workspaceId,
                     invoiceNumber = "Updated delivery services",
                     customerId = testData.customer2.id!!,
                     dateIssued = LocalDate.of(3025, 1, 10),
@@ -698,6 +699,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         val savedInvoice = aggregateTemplate.findSingle<Invoice>(testData.invoice.id!!)
         savedInvoice.shouldBeEntityWithFields(
             Invoice(
+                workspaceId = testData.customer.workspaceId,
                 invoiceNumber = "Updated scientific consulting",
                 customerId = testData.customer.id!!,
                 dateIssued = LocalDate.of(3025, 11, 1),

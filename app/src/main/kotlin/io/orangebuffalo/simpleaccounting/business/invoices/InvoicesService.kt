@@ -47,16 +47,13 @@ class InvoicesService(
     /**
      * If tax is provided, it is always calculated on top of reported amount
      */
-    fun saveInvoice(invoice: Invoice, workspaceId: String): Invoice {
-        validateInvoice(invoice, workspaceId)
+    fun saveInvoice(invoice: Invoice): Invoice {
+        validateInvoice(invoice = invoice, workspaceId = invoice.workspaceId)
         return invoicesRepository.save(updateInvoiceStatus(invoice))
     }
 
     fun cancelInvoice(invoice: Invoice, workspaceId: String): Invoice {
-        val customer = customersService.findById(invoice.customerId)
-            ?: throw EntityNotFoundException("Customer ${invoice.customerId} is not found")
-
-        if (workspaceId != customer.workspaceId) {
+        if (workspaceId != invoice.workspaceId) {
             throw EntityNotFoundException("Invoice ${invoice.id} is not found")
         }
 
@@ -87,7 +84,7 @@ class InvoicesService(
         workspaceId: String
     ) {
         validateGeneralTax(invoice, workspaceId)
-        customersService.validateCustomer(invoice.customerId, workspaceId)
+        customersService.validateCustomer(customerId = invoice.customerId, workspaceId = workspaceId)
         validateAttachments(invoice, workspaceId)
     }
 

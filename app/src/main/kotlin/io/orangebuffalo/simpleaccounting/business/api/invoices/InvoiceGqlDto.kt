@@ -88,7 +88,7 @@ data class InvoiceGqlDto(
     }
 }
 
-fun io.orangebuffalo.simpleaccounting.business.invoices.Invoice.toInvoiceGqlDto(workspaceId: String) = InvoiceGqlDto(
+fun io.orangebuffalo.simpleaccounting.business.invoices.Invoice.toInvoiceGqlDto() = InvoiceGqlDto(
     id = id!!,
     version = version!!,
     invoiceNumber = invoiceNumber,

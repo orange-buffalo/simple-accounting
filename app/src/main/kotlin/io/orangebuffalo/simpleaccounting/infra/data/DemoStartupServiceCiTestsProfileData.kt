@@ -145,6 +145,7 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         ).also { jdbcAggregateTemplate.insert(it) }
 
         Invoice(
+            workspaceId = planetExpressWorkspace.id,
             customerId = omicronians.id!!,
             invoiceNumber = "Delivery to Omicron Persei 8",
             dateIssued = LocalDate.now().plusDays(2),

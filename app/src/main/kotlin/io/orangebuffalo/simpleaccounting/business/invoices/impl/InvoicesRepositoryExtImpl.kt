@@ -16,15 +16,13 @@ class InvoicesRepositoryExtImpl(
     private val timeService: TimeService
 ) : InvoicesRepositoryExt {
     private val invoice = Tables.INVOICE
-    private val customer = Tables.CUSTOMER
 
     override fun findByIdAndWorkspaceId(id: String, workspaceId: String): Invoice? = dslContext
         .select(*invoice.fields())
         .from(invoice)
-        .join(customer).on(invoice.customerId.eq(customer.id))
         .where(
             invoice.id.eq(id),
-            customer.workspaceId.eq(workspaceId)
+            invoice.workspaceId.eq(workspaceId)
         )
         .fetchOneOrNull()
 

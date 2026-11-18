@@ -149,6 +149,31 @@ class CreateInvoiceMutationTest(
     inner class BusinessFlow {
 
         @Test
+        fun `should reject a customer from another owned workspace without creating an invoice`() {
+            val otherCustomer = preconditions { customer(workspace = workspace(owner = preconditions.fry)) }
+
+            client.graphqlMutation {
+                createInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    customerId = otherCustomer.id!!,
+                )
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateInvoice)
+
+            aggregateTemplate.findAll<Invoice>().shouldBe(emptyList())
+        }
+
+        @Test
+        fun `should reject a missing customer without creating an invoice`() {
+            client.graphqlMutation {
+                createInvoiceMutation(workspaceId = preconditions.fryWorkspace.id!!, customerId = "missing-id")
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.CreateInvoice)
+
+            aggregateTemplate.findAll<Invoice>().shouldBe(emptyList())
+        }
+
+        @Test
         fun `should create an invoice with all fields`() {
             val document = preconditions { document(workspace = preconditions.fryWorkspace) }
             val generalTax = preconditions { generalTax(workspace = preconditions.fryWorkspace, rateInBps = 1000) }
@@ -190,6 +215,7 @@ class CreateInvoiceMutationTest(
                 .shouldBeSingle()
                 .shouldBeEntityWithFields(
                     Invoice(
+                        workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = preconditions.fryCustomer.id!!,
                         invoiceNumber = "Slurm delivery invoice",
                         dateIssued = LocalDate.of(3025, 1, 15),
@@ -240,6 +266,7 @@ class CreateInvoiceMutationTest(
                 .shouldBeSingle()
                 .shouldBeEntityWithFields(
                     Invoice(
+                        workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = preconditions.fryCustomer.id!!,
                         invoiceNumber = "Robot maintenance",
                         dateIssued = LocalDate.of(3025, 2, 1),

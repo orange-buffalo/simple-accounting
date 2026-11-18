@@ -20,7 +20,6 @@ class InvoiceByWorkspaceAndIdDataLoader(
 ) : KotlinDataLoader<WorkspaceInvoiceKey, InvoiceGqlDto> {
 
     private val invoice = Tables.INVOICE
-    private val customer = Tables.CUSTOMER
     private val invoiceAttachments = Tables.INVOICE_ATTACHMENTS
 
     override val dataLoaderName: String = NAME
@@ -31,11 +30,10 @@ class InvoiceByWorkspaceAndIdDataLoader(
             val workspaceIds = keys.map { it.workspaceId }.toSet()
 
             val records = dslContext
-                .select(invoice.asterisk(), customer.workspaceId)
+                .select(invoice.asterisk())
                 .from(invoice)
-                .join(customer).on(customer.id.eq(invoice.customerId))
                 .where(invoice.id.`in`(invoiceIds))
-                .and(customer.workspaceId.`in`(workspaceIds))
+                .and(invoice.workspaceId.`in`(workspaceIds))
                 .fetch()
 
             val attachmentsByInvoiceId = dslContext
@@ -49,9 +47,9 @@ class InvoiceByWorkspaceAndIdDataLoader(
                 )
 
             val dtosByKey = records.associate { record ->
-                val workspaceId = record[customer.workspaceId]!!
+                val workspaceId = record[invoice.workspaceId]!!
                 val invoiceId = record[invoice.id]!!
-                WorkspaceInvoiceKey(workspaceId, invoiceId) to InvoiceGqlDto(
+                WorkspaceInvoiceKey(workspaceId = workspaceId, invoiceId = invoiceId) to InvoiceGqlDto(
                     id = invoiceId,
                     version = record[invoice.version]!!,
                     invoiceNumber = record[invoice.invoiceNumber]!!,

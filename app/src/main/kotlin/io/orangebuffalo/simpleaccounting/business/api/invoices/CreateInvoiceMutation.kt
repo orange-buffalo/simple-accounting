@@ -57,6 +57,7 @@ class CreateInvoiceMutation(
         workspacesService.validateWorkspaceAccess(workspaceId = workspaceId, accessMode = WorkspaceAccessMode.READ_WRITE)
         val invoice = invoicesService.saveInvoice(
             invoice = Invoice(
+                workspaceId = workspaceId,
                 customerId = customerId,
                 invoiceNumber = invoiceNumber,
                 dateIssued = dateIssued,
@@ -69,9 +70,8 @@ class CreateInvoiceMutation(
                 attachments = mapAttachments(attachments),
                 generalTaxId = generalTaxId,
             ),
-            workspaceId = workspaceId,
         )
-        return invoice.toInvoiceGqlDto(workspaceId)
+        return invoice.toInvoiceGqlDto()
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<InvoiceAttachment> =

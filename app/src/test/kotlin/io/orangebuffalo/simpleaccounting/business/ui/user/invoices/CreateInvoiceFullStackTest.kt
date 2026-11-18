@@ -48,6 +48,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Invoice>()
             .shouldBeEntityWithFields(
                 Invoice(
+                    workspaceId = preconditions.customer.workspaceId,
                     invoiceNumber = "Delivery services",
                     customerId = preconditions.customer.id!!,
                     dateIssued = LocalDate.of(3025, 1, 15),

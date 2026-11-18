@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.reload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -205,6 +206,53 @@ class EditInvoiceMutationTest(
     inner class BusinessFlow {
 
         @Test
+        fun `should reject a customer from another owned workspace without changing the invoice`() {
+            val otherCustomer = preconditions { customer(workspace = workspace(owner = preconditions.fry)) }
+
+            client.graphqlMutation {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    customerId = otherCustomer.id!!,
+                )
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditInvoice)
+
+            aggregateTemplate.reload(preconditions.fryInvoice).shouldBe(preconditions.fryInvoice)
+        }
+
+        @Test
+        fun `should reject a missing customer without changing the invoice`() {
+            client.graphqlMutation {
+                editInvoiceMutation(
+                    workspaceId = preconditions.fryWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    customerId = "missing-id",
+                )
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditInvoice)
+
+            aggregateTemplate.reload(preconditions.fryInvoice).shouldBe(preconditions.fryInvoice)
+        }
+
+        @Test
+        fun `should reject another owned workspace without moving the invoice`() {
+            val otherWorkspace = preconditions { workspace(owner = preconditions.fry) }
+            val otherCustomer = preconditions { customer(workspace = otherWorkspace) }
+
+            client.graphqlMutation {
+                editInvoiceMutation(
+                    workspaceId = otherWorkspace.id!!,
+                    id = preconditions.fryInvoice.id!!,
+                    customerId = otherCustomer.id!!,
+                )
+            }.from(preconditions.fry)
+                .executeAndVerifyEntityNotFoundError(path = DgsConstants.MUTATION.EditInvoice)
+
+            aggregateTemplate.reload(preconditions.fryInvoice).shouldBe(preconditions.fryInvoice)
+        }
+
+        @Test
         fun `should update all fields of an existing invoice`() {
             val invoice = preconditions {
                 invoice(
@@ -250,6 +298,7 @@ class EditInvoiceMutationTest(
             aggregateTemplate.findSingle<Invoice>(invoice.id!!)
                 .shouldBeEntityWithFields(
                     Invoice(
+                        workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = newCustomer.id!!,
                         invoiceNumber = "Updated Slurm delivery",
                         dateIssued = LocalDate.of(3025, 3, 10),
@@ -301,6 +350,7 @@ class EditInvoiceMutationTest(
             aggregateTemplate.findSingle<Invoice>(invoice.id!!)
                 .shouldBeEntityWithFields(
                     Invoice(
+                        workspaceId = preconditions.fryWorkspace.id!!,
                         customerId = preconditions.fryCustomer.id!!,
                         invoiceNumber = "Spaceship parts",
                         dateIssued = MOCK_DATE,
@@ -359,10 +409,13 @@ class EditInvoiceMutationTest(
                         workspaceId = preconditions.fryWorkspace.id!!,
                         id = invoice.id!!,
                         version = invoice.version!! + 1,
+                        customerId = "missing-id",
                     )
                 }
                 .from(preconditions.fry)
                 .executeAndVerifySubmittedOutdatedStateError(path = DgsConstants.MUTATION.EditInvoice)
+
+            aggregateTemplate.reload(invoice).shouldBe(invoice)
         }
     }
 

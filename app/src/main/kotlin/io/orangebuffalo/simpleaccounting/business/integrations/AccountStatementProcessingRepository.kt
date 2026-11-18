@@ -13,8 +13,8 @@ interface AccountStatementProcessingRepository : Repository<AccountStatementReco
     fun findCreditsWithoutInvoice(workspaceId: String): List<AccountStatementRecord>
 
     @Query("""
-        select i.* from invoice i join customer c on c.id = i.customer_id
-        where c.workspace_id = :workspaceId
+        select i.* from invoice i
+        where i.workspace_id = :workspaceId
           and not exists (select 1 from account_statement_record r where r.linked_invoice_id = i.id)
     """)
     fun findUnlinkedInvoices(workspaceId: String): List<Invoice>
@@ -24,15 +24,15 @@ interface AccountStatementProcessingRepository : Repository<AccountStatementReco
         where r.workspace_id = :workspaceId and r.integration_id = :integrationId
           and r.type = 'CREDIT' and r.linked_income_id is null and r.linked_invoice_id is not null
           and not exists (select 1 from income i where i.linked_invoice_id = r.linked_invoice_id and i.workspace_id = r.workspace_id)
-          and not exists (select 1 from invoice i join customer c on c.id = i.customer_id
-                          where i.id = r.linked_invoice_id and c.workspace_id = r.workspace_id
+          and not exists (select 1 from invoice i
+                          where i.id = r.linked_invoice_id and i.workspace_id = r.workspace_id
                            and (i.date_paid is not null or i.status in ('PAID', 'CANCELLED')))
     """)
     fun findCreditsForIncomeCreation(workspaceId: String, integrationId: String): List<AccountStatementRecord>
 
     @Query("""
-        select i.* from invoice i join customer c on c.id = i.customer_id
-        where i.id in (:ids) and c.workspace_id = :workspaceId
+        select i.* from invoice i
+        where i.id in (:ids) and i.workspace_id = :workspaceId
     """)
     fun findInvoices(ids: List<String>, workspaceId: String): List<Invoice>
 

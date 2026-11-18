@@ -27,10 +27,10 @@ class InvoicesGqlApi(
         statusIn: List<InvoiceStatus>? = null,
     ): ConnectionGqlDto<InvoiceGqlDto> {
         return paginationService.forTable(invoice)
-            .onQuery { it.join(customer).on(customer.id.eq(invoice.customerId)) }
-            .addPredicate(customer.workspaceId.eq(workspaceId))
+            .addPredicate(invoice.workspaceId.eq(workspaceId))
             .also {
                 if (freeSearchText != null) {
+                    it.onQuery { query -> query.join(customer).on(customer.id.eq(invoice.customerId)) }
                     it.addPredicate(
                         DSL.or(
                             invoice.notes.containsIgnoreCase(freeSearchText),
@@ -64,7 +64,7 @@ class InvoicesGqlApi(
                         status = record[invoice.status]!!,
                         generalTaxId = record[invoice.generalTaxId],
                         customerId = record[invoice.customerId]!!,
-                        workspaceId = workspaceId,
+                        workspaceId = record[invoice.workspaceId]!!,
                         attachmentIds = emptyList(),
                     )
                 },
@@ -86,7 +86,7 @@ class InvoicesGqlApi(
     }
 
     fun loadInvoice(workspaceId: String, invoiceId: String): InvoiceGqlDto? {
-        return invoicesService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
-            ?.toInvoiceGqlDto(workspaceId)
+        return invoicesService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = workspaceId)
+            ?.toInvoiceGqlDto()
     }
 }
