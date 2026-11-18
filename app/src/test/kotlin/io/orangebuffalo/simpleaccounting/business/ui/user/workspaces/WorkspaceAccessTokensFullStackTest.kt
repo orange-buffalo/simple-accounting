@@ -104,7 +104,8 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
                 object {
                     val fry = platformUser(
                         userName = "Fry",
-                        i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York"),
+                        i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                        timeZone = "America/New_York",
                     )
                     val workspace = workspace(owner = fry, name = "Planet Express")
                     val sharedToken = workspaceAccessToken(

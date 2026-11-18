@@ -247,7 +247,7 @@ class WiseStatementFetchService internal constructor(
         if (!integration.fetchMonthlyStatements || integration.authenticationRequired) return
         val workspace = workspaces.getWorkspace(integration.workspaceId)
         val owner = users.getUserByUserId(workspace.ownerId)
-        val timeZone = ZoneId.of(owner.i18nSettings.timeZone)
+        val timeZone = ZoneId.of(owner.timeZone)
         val month = YearMonth.from(time.currentTime().atZone(timeZone)).minusMonths(1)
         val firstDate = month.atDay(1)
         val lastDate = month.atEndOfMonth()

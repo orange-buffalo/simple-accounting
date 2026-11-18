@@ -37,20 +37,20 @@ class UpdateUserProfileMutation(
         val savedUser = platformUsersService.save(
             user.copy(
                 documentsStorage = documentsStorage,
+                timeZone = timeZone,
                 i18nSettings = user.i18nSettings.copy(
                     locale = locale,
                     language = language,
-                    timeZone = timeZone,
                 )
             )
         )
         return UserProfile(
             userName = savedUser.userName,
             documentsStorage = savedUser.documentsStorage,
+            timeZone = savedUser.timeZone,
             i18n = I18nSettings(
                 locale = savedUser.i18nSettings.locale,
                 language = savedUser.i18nSettings.language,
-                timeZone = savedUser.i18nSettings.timeZone,
             )
         )
     }

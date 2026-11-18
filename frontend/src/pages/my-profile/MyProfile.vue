@@ -46,8 +46,8 @@
         i18n {
           language
           locale
-          timeZone
         }
+        timeZone
         userName
       }
     }

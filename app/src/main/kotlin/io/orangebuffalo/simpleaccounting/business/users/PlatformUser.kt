@@ -12,6 +12,7 @@ data class PlatformUser(
     val passwordHash: String,
     val isAdmin: Boolean,
     val activated: Boolean,
+    val timeZone: String = "Australia/Melbourne",
     val documentsStorage: String? = null,
 
     @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
@@ -25,7 +26,11 @@ data class PlatformUser(
     override val id: String? = null,
     override val version: Int? = null,
     override val createdAt: Instant? = null,
-) : AbstractEntity()
+) : AbstractEntity() {
+    init {
+        require(isSupportedTimeZone(timeZone)) { "Unsupported time zone" }
+    }
+}
 
 data class LoginStatistics(
     val failedAttemptsCount: Int,
@@ -35,12 +40,7 @@ data class LoginStatistics(
 data class I18nSettings(
     val locale: String,
     val language: String,
-    val timeZone: String = "Australia/Melbourne",
-) {
-    init {
-        require(isSupportedTimeZone(timeZone)) { "Unsupported time zone" }
-    }
-}
+)
 
 // JVM-only aliases are not portable to browsers and PostgreSQL.
 private val supportedTimeZones = ZoneId.getAvailableZoneIds().filterTo(destination = mutableSetOf("UTC")) {

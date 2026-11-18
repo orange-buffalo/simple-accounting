@@ -1,5 +1,5 @@
 import {
-  afterEach, describe, expect, vi, test,
+  afterEach, beforeEach, describe, expect, vi, test,
 } from 'vitest';
 import {
   formatMessage,
@@ -12,8 +12,11 @@ import {
   setLocaleFromBrowser,
   $t,
 } from '@/services/i18n';
+import { setProfileTimeZone } from '@/services/time-zone';
 
 describe('i18n', () => {
+  beforeEach(() => setProfileTimeZone('UTC'));
+
   test('should provide supported languages', () => {
     expect(getSupportedLanguages())
       .toContainEqual({
@@ -51,21 +54,21 @@ describe('i18n', () => {
   });
 
   test('should render template without parameters', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('Test message'))
       .toBe('Test message');
   });
 
   test('should render named params', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{param}', { param: 'value' }))
       .toBe('value');
   });
 
   test('should render indexed params', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0}', ['value']))
       .toBe('value');
@@ -75,14 +78,14 @@ describe('i18n', () => {
     [true, 'Yes'],
     [false, 'No'],
   ])('should support yesNo format (%b -> %s)', async (value, expectedInterpolation) => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, yesNo}', [value]))
       .toBe(expectedInterpolation);
   });
 
   test('should support amount format', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, amount, withCurrency}', [{
       currency: 'AUD',
@@ -104,21 +107,21 @@ describe('i18n', () => {
     [1230, '12.3%'],
     [1234, '12.34%'],
   ])('should support bps format (%i -> %s)', async (bps, expectedValue) => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, bps, percent}', [bps]))
       .toBe(expectedValue);
   });
 
   test('should support date format', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, date, medium}', [new Date('2021-10-21 14:23')]))
       .toBe('Oct 21, 2021');
   });
 
   test('should format API date-only strings as local calendar dates', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, date, medium}', ['3025-01-15']))
       .toBe('Jan 15, 3025');
@@ -127,7 +130,7 @@ describe('i18n', () => {
   });
 
   test('should support date-time format', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, dateTime, medium}', [new Date('3025-01-15T14:23:00Z')]))
       .toBe('Jan 15, 3025, 2:23 PM');
@@ -137,7 +140,8 @@ describe('i18n', () => {
     ['Australia/Melbourne', 'Mar 29, 1999, 9:01 AM', 'Mar 29, 1999'],
     ['America/New_York', 'Mar 28, 1999, 6:01 PM', 'Mar 28, 1999'],
   ])('should format timestamps in profile time zone %s', async (timeZone, expectedTimestamp, expectedDate) => {
-    await setLocaleFromProfile('en', 'en', timeZone);
+    setProfileTimeZone(timeZone);
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, dateTime, medium}', ['1999-03-28T23:01:00Z']))
       .toBe(expectedTimestamp);
@@ -152,7 +156,7 @@ describe('i18n', () => {
     ['uk', 'uk', '15 січ. 3025, 2:23 пп'],
   ])('should format date-time translations with locale %s and language %s', async (locale, language, expected) => {
     const i18n = await import('@/services/i18n');
-    await i18n.setLocaleFromProfile(locale, language, 'UTC');
+    await i18n.setLocaleFromProfile(locale, language);
 
     expect(i18n.$t.value.common.dateTime.medium(new Date('3025-01-15T14:23:00Z')))
       .toBe(expected);
@@ -161,7 +165,7 @@ describe('i18n', () => {
   test('should format wall times inside the browser daylight-saving gap without shifting them', async () => {
     vi.stubEnv('TZ', 'America/New_York');
     try {
-      await setLocaleFromProfile('en', 'en', 'UTC');
+      await setLocaleFromProfile('en', 'en');
       expect(formatMessage('{0, dateTime, medium}', ['1999-04-04T02:30:00Z']))
         .toBe('Apr 4, 1999, 2:30 AM');
     } finally {
@@ -170,7 +174,7 @@ describe('i18n', () => {
   });
 
   test('should support $t', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect($t.value.common.yesNo.yes())
       .toBe('Yes');
@@ -193,14 +197,14 @@ describe('i18n', () => {
     [1024 * 1024 * 1000, '1,000 MB'],
     [1024 * 1024 * 2000, '2,000 MB'],
   ])('should support file size format (%i -> %s)', async (value, expectedInterpolation) => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(formatMessage('{0, fileSize, pretty}', [value]))
       .toBe(expectedInterpolation);
   });
 
   test('should parse messages', async () => {
-    await setLocaleFromProfile('en', 'en', 'UTC');
+    await setLocaleFromProfile('en', 'en');
 
     expect(parseMessage('Test then {0} and then done.'))
       .toEqual([{

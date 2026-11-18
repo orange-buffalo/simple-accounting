@@ -26,7 +26,8 @@ class UserPreferencesAcceptanceFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = platformUser(
                     userName = "Fry",
-                    i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York"),
+                    i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                    timeZone = "America/New_York",
                 ).also { workspace(owner = it, name = "Planet Express") }
                 val sharedToken = workspaceAccessToken(
                     workspace = workspace(owner = platformUser(userName = "Leela"), name = "Slurm Corp"),
@@ -98,7 +99,8 @@ class UserPreferencesAcceptanceFullStackTest : SaFullStackTestBase() {
             val fry = platformUser(
                 userName = "Fry",
                 passwordHash = "qwertyHash",
-                i18nSettings = I18nSettings(locale = "uk_UA", language = "uk", timeZone = "America/New_York"),
+                i18nSettings = I18nSettings(locale = "uk_UA", language = "uk"),
+                timeZone = "America/New_York",
             ).also {
                 val planetExpress = workspace(owner = it, name = "Planet Express")
                 category(workspace = planetExpress).also { category ->

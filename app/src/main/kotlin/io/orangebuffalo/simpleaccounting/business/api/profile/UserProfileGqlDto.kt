@@ -9,6 +9,8 @@ data class UserProfile(
     val userName: String,
     @GraphQLDescription("The identifier of the documents storage used by the user.")
     val documentsStorage: String?,
+    @GraphQLDescription("The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for business calendar dates and timestamps.")
+    val timeZone: String,
     @GraphQLDescription("Internationalization settings of the user.")
     val i18n: I18nSettings
 )
@@ -22,6 +24,4 @@ data class I18nSettings(
     @field:Size(max = 36) val locale: String,
     @GraphQLDescription("The language of the user profile, e.g. 'en'. Used for translations.")
     @field:Size(max = 36) val language: String,
-    @GraphQLDescription("The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for calendar dates and timestamps.")
-    val timeZone: String,
 )

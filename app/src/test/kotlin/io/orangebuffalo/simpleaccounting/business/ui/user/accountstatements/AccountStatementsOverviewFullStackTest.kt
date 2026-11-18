@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.integrations.StatementType
-import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.invoices.InvoicesOverviewPage.Companion.shouldBeInvoicesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
@@ -290,7 +289,7 @@ class AccountStatementsOverviewFullStackTest(
         val fry = preconditions {
             platformUser(
                 userName = "Fry",
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York"),
+                timeZone = "America/New_York",
             ).also { user ->
                 val integration = wiseIntegrationSettings(workspace = workspace(owner = user))
                 accountStatementRecord(integration = integration, externalId = "Slurm-before", occurredAt = startInstant.minusNanos(1000))

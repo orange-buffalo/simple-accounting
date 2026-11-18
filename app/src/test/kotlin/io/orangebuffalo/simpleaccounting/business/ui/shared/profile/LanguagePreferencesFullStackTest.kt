@@ -29,10 +29,9 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             }
             shouldHaveNotifications { success("Regional preferences have been saved") }
         }
-        assertOnlyI18nFieldChanged(
-            initialUser = preconditions.fry,
-            expectedI18nSettings = preconditions.fry.i18nSettings.copy(timeZone = "America/New_York"),
-        )
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
+        updatedUser.shouldBeEqualToIgnoringFields(preconditions.fry, PlatformUser::timeZone, PlatformUser::version)
+        updatedUser.timeZone.shouldBe("America/New_York")
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
                 timeZone { input.shouldHaveSelectedValue("America/New_York") }
@@ -175,7 +174,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         object {
             val fry = platformUser(
                 userName = "Fry",
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "Australia/Melbourne"),
+                timeZone = "Australia/Melbourne",
             ).withWorkspace()
             val farnsworth = farnsworth()
         }

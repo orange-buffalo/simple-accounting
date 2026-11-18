@@ -334,7 +334,7 @@ class AccountStatementProcessingServiceTest(
         @Test
         fun `should create and convert in ordered passes even when conversion occurred before the credit`() {
             val integration = preconditions {
-                val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "UTC")), defaultCurrency = "EUR")
+                val workspace = workspace(owner = platformUser(userName = "Fry", timeZone = "UTC"), defaultCurrency = "EUR")
                 wiseIntegrationSettings(workspace = workspace, incomeCategory = category(workspace = workspace, income = true)).also { integration ->
                     val invoice = invoice(customer = customer(workspace = workspace), invoiceNumber = "PE-42", currency = "USD", amount = 12000, datePaid = null, status = InvoiceStatus.SENT, generalTax = null)
                     accountStatementRecord(integration = integration, type = StatementType.CREDIT, linkedInvoice = invoice, linkedIncome = null, occurredAt = Instant.parse("1999-03-27T23:00:00Z"))
@@ -391,7 +391,7 @@ class AccountStatementProcessingServiceTest(
         attachDocument: Boolean = false,
         timeZone: String = "UTC",
     ): MatchingConversion {
-        val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language, timeZone = timeZone)), defaultCurrency = "EUR")
+        val workspace = workspace(owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language), timeZone = timeZone), defaultCurrency = "EUR")
         val integration = wiseIntegrationSettings(workspace = workspace)
         val invoice = invoice(customer = customer(workspace = workspace), datePaid = LocalDate.parse("1999-03-27"), status = InvoiceStatus.PAID)
         val income = income(workspace = workspace, linkedInvoice = invoice, currency = "USD", originalAmount = 12000,
@@ -429,7 +429,7 @@ class AccountStatementProcessingServiceTest(
         language: String = "en",
         timeZone: String = "UTC",
     ): InvoicePayment {
-        val owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language, timeZone = timeZone))
+        val owner = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = language), timeZone = timeZone)
         val workspace = workspace(owner = owner, defaultCurrency = "EUR")
         val category = category(workspace = workspace, income = true)
         val integration = wiseIntegrationSettings(workspace = workspace, createIncomeFromInvoices = true, incomeCategory = category)

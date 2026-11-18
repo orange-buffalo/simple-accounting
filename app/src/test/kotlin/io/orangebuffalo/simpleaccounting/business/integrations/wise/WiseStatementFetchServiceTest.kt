@@ -358,7 +358,7 @@ class WiseStatementFetchServiceTest(
             val integration = preconditions {
                 wiseIntegrationSettings(
                     workspace = workspace(owner = platformUser(documentsStorage = TestDocumentsStorage.STORAGE_ID,
-                        i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = zone))),
+                        timeZone = zone)),
                     token = WiseApiMocks.TOKEN, accounts = setOf(dollars, euros),
                 )
             }

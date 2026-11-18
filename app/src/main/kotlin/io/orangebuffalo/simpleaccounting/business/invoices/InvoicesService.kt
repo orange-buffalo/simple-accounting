@@ -85,7 +85,7 @@ class InvoicesService(
     private fun isOverdue(invoice: Invoice): Boolean {
         val workspace = workspacesService.getWorkspace(invoice.workspaceId)
         val owner = usersService.getUserByUserId(workspace.ownerId)
-        return invoice.dueDate.isBefore(timeService.currentDate(ZoneId.of(owner.i18nSettings.timeZone)))
+        return invoice.dueDate.isBefore(timeService.currentDate(ZoneId.of(owner.timeZone)))
     }
 
     private fun validateInvoice(

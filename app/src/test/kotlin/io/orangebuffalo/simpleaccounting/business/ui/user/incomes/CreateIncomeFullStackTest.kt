@@ -10,8 +10,8 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
-import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.CreateIncomePage.Companion.openCreateIncomePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.incomes.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
@@ -37,7 +37,11 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should default receipt date to the preferred calendar day`(page: Page) {
         val fry = preconditions {
-            platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York")).withWorkspace()
+            platformUser(
+                userName = "Fry",
+                timeZone = "America/New_York",
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+            ).withWorkspace()
         }
         page.authenticateViaCookie(fry)
         page.openCreateIncomePage {

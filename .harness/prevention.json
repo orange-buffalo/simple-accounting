@@ -588,6 +588,13 @@
       "appliesWhen": "Defining or deduplicating named Vue page routes; excludes unrelated registries and path-only navigation",
       "instruction": "Export route-name constants from the owning Vue page's normal script and import them in route registration and named navigation consumers. Shared create/edit pages export both names. Do not introduce a central route-name registry or union solely to collect these exports; retain generic navigation parameter types.",
       "reason": "Page ownership keeps route identifiers with their destination without maintaining a parallel central catalog."
+    },
+    {
+      "id": "business-preference-domain-ownership",
+      "category": "backend",
+      "appliesWhen": "Modeling user preferences that affect business calculations; excludes presentation-only language and formatting preferences",
+      "instruction": "Choose ownership from business semantics, not UI grouping. Keep timeZone and its validity invariant on PlatformUser and root UserProfile, not I18nSettings; apply frontend timezone independently of locale initialization. Audit affected consumers and assertions when relocating preferences without changing unrelated persistence or UI grouping.",
+      "reason": "Presentation grouping can conceal business state and couple calculations to localization setup."
     }
   ]
 }

@@ -705,8 +705,6 @@ export type I18nSettings = {
   language: Scalars['String']['output'];
   /** The locale of the user profile, e.g. 'en-US'. Used for formatting dates, numbers, etc. */
   locale: Scalars['String']['output'];
-  /** The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for calendar dates and timestamps. */
-  timeZone: Scalars['String']['output'];
 };
 
 /** Income record of a workspace. */
@@ -1870,6 +1868,8 @@ export type UserProfile = {
   documentsStorage?: Maybe<Scalars['String']['output']>;
   /** Internationalization settings of the user. */
   i18n: I18nSettings;
+  /** The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for business calendar dates and timestamps. */
+  timeZone: Scalars['String']['output'];
   /** The user name / login of the user. */
   userName: Scalars['String']['output'];
 };

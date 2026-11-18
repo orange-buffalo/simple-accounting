@@ -69,6 +69,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         isAdmin: Boolean = false,
         documentsStorage: String? = null,
         i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+        timeZone: String = "Australia/Melbourne",
         activated: Boolean = true,
         createdAt: Instant = MOCK_TIME,
     ) = PlatformUser(
@@ -77,6 +78,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         isAdmin = isAdmin,
         documentsStorage = documentsStorage,
         i18nSettings = i18nSettings,
+        timeZone = timeZone,
         activated = activated,
         createdAt = createdAt,
     ).save()

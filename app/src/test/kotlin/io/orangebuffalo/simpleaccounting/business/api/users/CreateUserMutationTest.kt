@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.business.api.users
 
 import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
@@ -108,7 +107,7 @@ class CreateUserMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         userName = "Leela",
-                        i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "Australia/Melbourne"),
+                        timeZone = "Australia/Melbourne",
                         isAdmin = false,
                         activated = false,
                         passwordHash = "",
@@ -138,7 +137,7 @@ class CreateUserMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         userName = "Wernstrom",
-                        i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "Australia/Melbourne"),
+                        timeZone = "Australia/Melbourne",
                         isAdmin = true,
                         activated = false,
                         passwordHash = "",

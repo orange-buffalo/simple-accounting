@@ -143,10 +143,10 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Fry")
                         put("documentsStorage", "new-storage")
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
-                            put("timeZone", "America/New_York")
                         })
                     }
                 )
@@ -157,7 +157,8 @@ class UpdateUserProfileMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         documentsStorage = "new-storage",
-                        i18nSettings = I18nSettings(locale = "el", language = "uk", timeZone = "America/New_York"),
+                        i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                        timeZone = "America/New_York",
                         activated = preconditions.fry.activated,
                         userName = preconditions.fry.userName,
                         passwordHash = preconditions.fry.passwordHash,
@@ -175,10 +176,10 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Farnsworth")
                         put("documentsStorage", "new-storage")
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
-                            put("timeZone", "America/New_York")
                         })
                     }
                 )
@@ -189,7 +190,8 @@ class UpdateUserProfileMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         documentsStorage = "new-storage",
-                        i18nSettings = I18nSettings(locale = "el", language = "uk", timeZone = "America/New_York"),
+                        i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                        timeZone = "America/New_York",
                         activated = preconditions.farnsworth.activated,
                         userName = preconditions.farnsworth.userName,
                         passwordHash = preconditions.farnsworth.passwordHash,
@@ -207,10 +209,10 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Fry")
                         put("documentsStorage", JsonNull)
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
-                            put("timeZone", "America/New_York")
                         })
                     }
                 )
@@ -237,10 +239,10 @@ class UpdateUserProfileMutationTest(
     ) {
         userName
         this.documentsStorage
+        this.timeZone
         i18n {
             this.locale
             this.language
-            this.timeZone
         }
     }
 }

@@ -48,7 +48,7 @@ class DemoStartupServiceCiTestsProfileData(
             i18nSettings = I18nSettings(locale = "en", language = "en"),
             activated = true
         ).also { jdbcAggregateTemplate.insert(it) }
-        val today = timeService.currentDate(ZoneId.of(fry.i18nSettings.timeZone))
+        val today = timeService.currentDate(ZoneId.of(fry.timeZone))
         PlatformUser(
             userName = "Hermes",
             passwordHash = "{noop}password",

@@ -42,7 +42,7 @@ class AccountStatementProcessingService(
                 workspaceId = workspaceId,
                 integrationId = integrationId,
                 locale = locale,
-                timeZone = ZoneId.of(owner.i18nSettings.timeZone),
+                timeZone = ZoneId.of(owner.timeZone),
                 categoryId = requireNotNull(incomeCategoryId) { "An income category is required for automatic income creation" },
             )
         }
@@ -52,7 +52,7 @@ class AccountStatementProcessingService(
                 integrationId = integrationId,
                 defaultCurrency = currentWorkspace.defaultCurrency,
                 locale = locale,
-                timeZone = ZoneId.of(owner.i18nSettings.timeZone),
+                timeZone = ZoneId.of(owner.timeZone),
             )
         }
         return matching

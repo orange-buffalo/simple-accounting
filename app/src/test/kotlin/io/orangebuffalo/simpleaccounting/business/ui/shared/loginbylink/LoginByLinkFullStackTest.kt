@@ -79,7 +79,8 @@ class LoginByLinkFullStackTest : SaFullStackTestBase() {
         object {
             val validToken = platformUser(
                 userName = "Fry",
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en", timeZone = "America/New_York"),
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                timeZone = "America/New_York",
             ).let { fry ->
                 val ws = workspace(owner = fry)
                 workspaceAccessToken(

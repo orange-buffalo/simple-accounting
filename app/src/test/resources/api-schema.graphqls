@@ -549,8 +549,6 @@ type I18nSettings {
   language: String!
   "The locale of the user profile, e.g. 'en-US'. Used for formatting dates, numbers, etc."
   locale: String!
-  "The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for calendar dates and timestamps."
-  timeZone: String!
 }
 
 "Income record of a workspace."
@@ -1632,6 +1630,8 @@ type UserProfile {
   documentsStorage: String
   "Internationalization settings of the user."
   i18n: I18nSettings!
+  "The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for business calendar dates and timestamps."
+  timeZone: String!
   "The user name / login of the user."
   userName: String!
 }

@@ -23,21 +23,23 @@ class UserProfileQueryTest(
             val fry = platformUser(
                 userName = "Fry",
                 documentsStorage = "google-drive",
+                timeZone = "Australia/Melbourne",
                 i18nSettings = I18nSettings(
                     locale = "en_AU",
                     language = "en",
-                    timeZone = "Australia/Melbourne",
                 )
             )
             val zoidberg = platformUser(
                 userName = "Zoidberg",
-                i18nSettings = I18nSettings(locale = "en_US", language = "en", timeZone = "America/New_York")
+                i18nSettings = I18nSettings(locale = "en_US", language = "en"),
+                timeZone = "America/New_York",
             )
             val farnsworth = platformUser(
                 userName = "Farnsworth",
                 isAdmin = true,
                 documentsStorage = "local",
-                i18nSettings = I18nSettings(locale = "fr_FR", language = "fr", timeZone = "Europe/Paris")
+                i18nSettings = I18nSettings(locale = "fr_FR", language = "fr"),
+                timeZone = "Europe/Paris",
             )
             val fryWorkspace = workspace(owner = fry)
             val workspaceToken = workspaceAccessToken(
@@ -82,10 +84,10 @@ class UserProfileQueryTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.UserProfile to buildJsonObject {
                         put("userName", "Fry")
+                        put("timeZone", "Australia/Melbourne")
                         put("i18n", buildJsonObject {
                             put("locale", "en_AU")
                             put("language", "en")
-                            put("timeZone", "Australia/Melbourne")
                         })
                         put("documentsStorage", "google-drive")
                     }
@@ -100,10 +102,10 @@ class UserProfileQueryTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.UserProfile to buildJsonObject {
                         put("userName", "Zoidberg")
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "en_US")
                             put("language", "en")
-                            put("timeZone", "America/New_York")
                         })
                         put("documentsStorage", JsonNull)
                     }
@@ -118,10 +120,10 @@ class UserProfileQueryTest(
                 .executeAndVerifySuccessResponse(
                     DgsConstants.QUERY.UserProfile to buildJsonObject {
                         put("userName", "Farnsworth")
+                        put("timeZone", "Europe/Paris")
                         put("i18n", buildJsonObject {
                             put("locale", "fr_FR")
                             put("language", "fr")
-                            put("timeZone", "Europe/Paris")
                         })
                         put("documentsStorage", "local")
                     }
@@ -131,10 +133,10 @@ class UserProfileQueryTest(
 
     private fun QueryProjection.fullUserProfile(): QueryProjection = userProfile {
         userName
+        timeZone
         i18n {
             locale
             language
-            timeZone
         }
         documentsStorage
     }

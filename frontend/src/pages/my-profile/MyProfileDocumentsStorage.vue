@@ -131,8 +131,8 @@
         i18n {
           language
           locale
-          timeZone
         }
+        timeZone
         userName
       }
     }
@@ -144,7 +144,7 @@
       documentsStorage: storageId,
       locale: props.profile.i18n.locale,
       language: props.profile.i18n.language,
-      timeZone: props.profile.i18n.timeZone,
+      timeZone: props.profile.timeZone,
     });
     emit('profile-updated', updatedProfile);
   };

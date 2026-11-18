@@ -68,7 +68,7 @@
   import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { getSupportedTimeZones } from '@/services/time-zone';
+  import { getSupportedTimeZones, setProfileTimeZone } from '@/services/time-zone';
 
   const props = defineProps<{
     profile?: UserProfileQuery["userProfile"],
@@ -100,7 +100,7 @@
   watch(() => props.profile, () => {
     formValues.value.language = localeIdToLanguageTag(props.profile?.i18n?.language || '');
     formValues.value.locale = localeIdToLanguageTag(props.profile?.i18n?.locale || '');
-    formValues.value.timeZone = props.profile?.i18n.timeZone || '';
+    formValues.value.timeZone = props.profile?.timeZone || '';
   }, {
     deep: true,
     immediate: true,
@@ -115,8 +115,8 @@
         i18n {
           language
           locale
-          timeZone
         }
+        timeZone
         userName
       }
     }
@@ -129,10 +129,10 @@
       language: languageTagToLocaleId(formValues.value.language),
       timeZone: formValues.value.timeZone,
     });
+    setProfileTimeZone(updatedProfile.timeZone);
     await setLocaleFromProfile(
       languageTagToLocaleId(formValues.value.locale),
       languageTagToLocaleId(formValues.value.language),
-      updatedProfile.i18n.timeZone,
     );
     locales.value = getSupportedLocales();
     emit('profile-updated', updatedProfile);
