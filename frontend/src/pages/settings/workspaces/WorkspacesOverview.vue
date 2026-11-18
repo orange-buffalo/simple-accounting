@@ -2,7 +2,7 @@
   <SaOverviewPage
     :header="$t.workspacesOverview.header()"
     :create-action-label="$t.workspacesOverview.create()"
-    create-action-view-name="create-new-workspace"
+    :create-action-view-name="ROUTE_NAMES.createNewWorkspace"
   >
     <SaPageableItems
       ref="pageableItems"
@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
   import { graphql } from '@/services/api/gql';

@@ -25,6 +25,7 @@
 
 <script lang="ts" setup generic="TFilters extends OverviewFilters">
   import { computed } from 'vue';
+  import type { RouteName } from '@/services/route-names';
   import SaPage from '@/components/SaPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaOverviewFilters from '@/components/overview-page/SaOverviewFilters.vue';
@@ -40,7 +41,7 @@
     createActionAvailable?: boolean,
     createActionDisabled?: boolean,
     createActionLabel?: string,
-    createActionViewName?: string,
+    createActionViewName?: RouteName,
   }>(), { createActionAvailable: true, createActionDisabled: false });
   const emit = defineEmits<{ 'update:modelValue': [value: TFilters] }>();
   const { navigateByViewName } = useNavigation();

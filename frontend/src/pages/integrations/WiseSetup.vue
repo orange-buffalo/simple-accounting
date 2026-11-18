@@ -76,7 +76,7 @@
           </SaStatusLabel>
           <template v-else-if="saved">
             <SaStatusLabel status="success">{{ $t.integrations.wise.success() }}</SaStatusLabel>
-            <RouterLink :to="{ name: 'integrations' }">{{ $t.integrations.header() }}</RouterLink>
+            <RouterLink :to="{ name: ROUTE_NAMES.integrations }">{{ $t.integrations.header() }}</RouterLink>
           </template>
           <template v-else-if="error">
             <SaStatusLabel status="failure" role="alert">{{ errorMessage }}</SaStatusLabel>
@@ -88,6 +88,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref, watch } from 'vue';
   import { ElTag } from 'element-plus';
   import SaWizard from '@/components/wizard/SaWizard.vue';

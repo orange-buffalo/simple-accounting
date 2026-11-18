@@ -4,7 +4,7 @@
     :header="$t.usersOverview.header()"
     :filters="userFilters"
     :create-action-label="$t.usersOverview.create()"
-    create-action-view-name="create-new-user"
+    :create-action-view-name="ROUTE_NAMES.createNewUser"
   >
     <SaPageableItems
       :page-query="usersPageQuery"
@@ -18,6 +18,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { $t } from '@/services/i18n';

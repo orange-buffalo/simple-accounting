@@ -258,6 +258,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
@@ -329,12 +330,12 @@
   const isGeneralTaxApplicable = computed(() => (props.expense.generalTax != null));
 
   const navigateToExpenseEdit = () => navigateToView({
-    name: 'edit-expense',
+    name: ROUTE_NAMES.editExpense,
     params: { id: props.expense.id },
   });
 
   const navigateToExpenseCreateWithPrototype = () => navigateToView({
-    name: 'create-new-expense',
+    name: ROUTE_NAMES.createNewExpense,
     params: { prototype: props.expense.id },
   });
 </script>

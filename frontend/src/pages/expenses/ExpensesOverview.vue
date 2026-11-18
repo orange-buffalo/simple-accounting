@@ -4,7 +4,7 @@
     :header="$t.expensesOverview.header()"
     :filters="expenseFilters"
     :create-action-label="$t.expensesOverview.create()"
-    create-action-view-name="create-new-expense"
+    :create-action-view-name="ROUTE_NAMES.createNewExpense"
     :create-action-disabled="!currentWorkspace.editable"
   >
     <SaPageableItems
@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';

@@ -48,7 +48,7 @@
       {{ $t.accountActivationPage.success.message() }}
     </SaStatusLabel>
     <div class="account-activation-page__success-panel__button-panel">
-      <ElButton type="primary" @click="$router.push({ name: 'login' })">
+      <ElButton type="primary" @click="$router.push({ name: ROUTE_NAMES.login })">
         {{ $t.accountActivationPage.success.button() }}
       </ElButton>
     </div>
@@ -56,6 +56,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';

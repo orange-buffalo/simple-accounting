@@ -4,7 +4,7 @@
     :header="$t.invoicesOverview.header()"
     :filters="invoiceFilters"
     :create-action-label="$t.invoicesOverview.create()"
-    create-action-view-name="create-new-invoice"
+    :create-action-view-name="ROUTE_NAMES.createNewInvoice"
     :create-action-disabled="!currentWorkspace.editable"
   >
     <SaPageableItems
@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';

@@ -1,5 +1,6 @@
 import type { LocationQueryRaw, RouteParamsRaw } from 'vue-router';
 import { useRouter } from 'vue-router';
+import type { RouteName } from '@/services/route-names';
 
 export default function useNavigation() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function useNavigation() {
     name,
     params,
     query,
-  }: { name: string; params?: RouteParamsRaw; query?: LocationQueryRaw }) => router.push({
+  }: { name: RouteName; params?: RouteParamsRaw; query?: LocationQueryRaw }) => router.push({
     name,
     params,
     query,

@@ -36,6 +36,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -71,7 +72,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
   const { navigateByViewName } = useNavigation();
   const navigateToDocumentsOverview = async () => {
-    await navigateByViewName('documents-overview');
+    await navigateByViewName(ROUTE_NAMES.documentsOverview);
   };
 
   const getStandaloneDocumentForEditQuery = useLazyQuery(graphql(`

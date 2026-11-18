@@ -86,6 +86,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
+  import type { RouteName } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import { ElTooltip } from 'element-plus';
   import { DataLine, Delete, Folder } from '@element-plus/icons-vue';
@@ -232,13 +234,13 @@
     }
   });
 
-  const usageTypeToRouteMap: Record<DocumentUsageType, string> = {
-    ACCOUNT_STATEMENT: 'account-statements-overview',
-    EXPENSE: 'edit-expense',
-    INCOME: 'edit-income',
-    INVOICE: 'edit-invoice',
-    INCOME_TAX_PAYMENT: 'edit-income-tax-payment',
-    STANDALONE_DOCUMENT: 'edit-standalone-document',
+  const usageTypeToRouteMap: Record<DocumentUsageType, RouteName> = {
+    ACCOUNT_STATEMENT: ROUTE_NAMES.accountStatementsOverview,
+    EXPENSE: ROUTE_NAMES.editExpense,
+    INCOME: ROUTE_NAMES.editIncome,
+    INVOICE: ROUTE_NAMES.editInvoice,
+    INCOME_TAX_PAYMENT: ROUTE_NAMES.editIncomeTaxPayment,
+    STANDALONE_DOCUMENT: ROUTE_NAMES.editStandaloneDocument,
   };
 
   const usageTypeToIconMap: Record<DocumentUsageType, string> = {

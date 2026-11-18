@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -32,7 +33,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
+  const navigateToCategoriesOverview = async () => navigateByViewName(ROUTE_NAMES.settingsCategories);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getCategoryQuery = useLazyQuery(graphql(`

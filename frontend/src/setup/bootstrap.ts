@@ -1,4 +1,5 @@
 import { removeLoader } from '@/setup/loader';
+import { ROUTE_NAMES } from '@/services/route-names';
 import { ANONYMOUS_PAGES_PATH_PREFIXES } from '@/setup/setup-router.ts';
 import { useAuth } from '@/services/api';
 import { initWorkspace } from '@/services/workspaces.ts';
@@ -56,7 +57,7 @@ export async function bootstrapApp() {
 
     if (router().currentRoute.value.path !== '/login') {
       await router()
-        .push({ name: 'login' });
+        .push({ name: ROUTE_NAMES.login });
     }
   }
 

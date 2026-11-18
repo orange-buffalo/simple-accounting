@@ -1,4 +1,5 @@
 import { useWorkspaces } from '@/services/workspaces';
+import { ROUTE_NAMES } from '@/services/route-names';
 import { setLocaleFromProfile } from '@/services/i18n';
 import useNavigation from '@/services/use-navigation';
 import { useAuth } from '@/services/api';
@@ -33,10 +34,10 @@ export function useAfterLoginNavigation() {
       if (lastView) {
         await navigateByViewName(lastView);
       } else {
-        await navigateByViewName('dashboard');
+        await navigateByViewName(ROUTE_NAMES.dashboard);
       }
     } else {
-      await navigateByViewName('account-setup');
+      await navigateByViewName(ROUTE_NAMES.accountSetup);
     }
   };
 
@@ -45,7 +46,7 @@ export function useAfterLoginNavigation() {
     await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
     if (isAdmin()) {
-      await navigateByViewName('users-overview');
+      await navigateByViewName(ROUTE_NAMES.usersOverview);
     } else {
       await onUserLogin();
     }

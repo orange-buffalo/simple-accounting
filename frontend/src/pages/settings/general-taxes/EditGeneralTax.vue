@@ -23,6 +23,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -44,7 +45,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToTaxesOverview = async () => navigateByViewName('general-taxes-overview');
+  const navigateToTaxesOverview = async () => navigateByViewName(ROUTE_NAMES.generalTaxesOverview);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
   const getGeneralTaxQuery = useLazyQuery(graphql(`

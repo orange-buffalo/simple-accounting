@@ -48,7 +48,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <RouterLink :to="{
-              name: 'invoices-overview', query: { freeSearchText: statement.linkedInvoice.invoiceNumber },
+              name: ROUTE_NAMES.invoicesOverview, query: { freeSearchText: statement.linkedInvoice.invoiceNumber },
             }">
               {{ statement.linkedInvoice.invoiceNumber }}
             </RouterLink>
@@ -59,7 +59,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <RouterLink :to="{
-              name: 'incomes-overview', query: { freeSearchText: statement.linkedIncome.title },
+              name: ROUTE_NAMES.incomesOverview, query: { freeSearchText: statement.linkedIncome.title },
             }">
               {{ statement.linkedIncome.title }}
             </RouterLink>
@@ -81,6 +81,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed } from 'vue';
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';

@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
@@ -112,7 +113,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToProvidersOverview = async () => {
-    await navigateByViewName('oauth-providers-overview');
+    await navigateByViewName(ROUTE_NAMES.oauthProvidersOverview);
   };
 
   const getProviderQuery = useLazyQuery(graphql(/* GraphQL */ `

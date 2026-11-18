@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import { ElButton, ElTooltip } from 'element-plus';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
@@ -88,7 +89,7 @@
   const providers = computed(() => [{
     id: 'wise', name: $t.value.integrations.wise.name(), logo: WiseLogo,
     description: $t.value.integrations.wise.description(),
-    active: integrations.value?.wise.active === true, setup: 'wise-setup',
+    active: integrations.value?.wise.active === true, setup: ROUTE_NAMES.wiseSetup,
     authenticationRequired: integrations.value?.wise.authenticationRequired === true,
     fetchTransactionsPeriodically: integrations.value?.wise.fetchTransactionsPeriodically === true,
     fetchMonthlyStatements: integrations.value?.wise.fetchMonthlyStatements === true,

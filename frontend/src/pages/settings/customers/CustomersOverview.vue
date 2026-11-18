@@ -4,7 +4,7 @@
     :header="$t.customersOverview.header()"
     :filters="customerFilters"
     :create-action-label="$t.customersOverview.create()"
-    create-action-view-name="create-new-customer"
+    :create-action-view-name="ROUTE_NAMES.createNewCustomer"
   >
     <SaPageableItems
       :page-query="customersPageQuery"
@@ -18,6 +18,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';

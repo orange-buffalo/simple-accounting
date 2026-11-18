@@ -97,6 +97,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import SaPage from '@/components/SaPage.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -130,7 +131,7 @@
 
   const { navigateByViewName } = useNavigation();
   const navigateToIncomesOverview = async () => {
-    await navigateByViewName('incomes-overview');
+    await navigateByViewName(ROUTE_NAMES.incomesOverview);
   };
 
   const {

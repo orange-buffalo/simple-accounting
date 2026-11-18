@@ -57,6 +57,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -83,7 +84,7 @@
   }>();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
+  const navigateToTaxPaymentsOverview = async () => navigateByViewName(ROUTE_NAMES.incomeTaxPaymentsOverview);
 
   const {
     defaultCurrency,

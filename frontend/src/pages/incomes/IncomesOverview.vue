@@ -4,7 +4,7 @@
     :header="$t.incomesOverview.header()"
     :filters="incomeFilters"
     :create-action-label="$t.incomesOverview.create()"
-    create-action-view-name="create-new-income"
+    :create-action-view-name="ROUTE_NAMES.createNewIncome"
     :create-action-disabled="!currentWorkspace.editable"
   >
     <SaPageableItems
@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';

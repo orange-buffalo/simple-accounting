@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -38,7 +39,7 @@
     : $t.value.workspaceEditor.pageHeader.create();
 
   const { navigateByViewName } = useNavigation();
-  const navigateToWorkspacesOverview = async () => navigateByViewName('workspaces-overview');
+  const navigateToWorkspacesOverview = async () => navigateByViewName(ROUTE_NAMES.workspacesOverview);
 
   const loadWorkspaceQuery = useLazyQuery(graphql(`
     query getWorkspaceForEdit($id: String!) {

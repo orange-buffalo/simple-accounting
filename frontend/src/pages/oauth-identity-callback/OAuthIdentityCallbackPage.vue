@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   /// <reference types="vite-svg-loader" />
   import { computed, ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';
@@ -73,7 +74,7 @@
     : $t.value.oauthIdentityCallbackPage.backToLogin()));
 
   const navigateToRecovery = async () => {
-    await navigateByViewName(sessionRecovered.value ? 'my-profile' : 'login');
+    await navigateByViewName(sessionRecovered.value ? ROUTE_NAMES.myProfile : ROUTE_NAMES.login);
   };
 
   /**
@@ -134,10 +135,10 @@
       if (result.outcome === OAuthAuthenticationOutcome.Link) {
         // linking never grants a session, so the one of the initiating browser is restored
         if (await recoverSession()) {
-          await navigateByViewName('my-profile');
+          await navigateByViewName(ROUTE_NAMES.myProfile);
           showSuccessNotification($t.value.oauthIdentityCallbackPage.linked());
         } else {
-          await navigateByViewName('login');
+          await navigateByViewName(ROUTE_NAMES.login);
         }
         return;
       }

@@ -4,7 +4,7 @@
     :header="$t.generalTaxesOverview.header()"
     :filters="generalTaxFilters"
     :create-action-label="$t.generalTaxesOverview.create()"
-    create-action-view-name="create-new-general-tax"
+    :create-action-view-name="ROUTE_NAMES.createNewGeneralTax"
   >
     <SaPageableItems
       :page-query="generalTaxesPageQuery"
@@ -18,6 +18,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';

@@ -42,6 +42,7 @@ import OAuthProvidersOverview from '@/pages/admin/oauth-providers/OAuthProviders
 import EditOAuthProvider from '@/pages/admin/oauth-providers/EditOAuthProvider.vue';
 import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
 import { resetDocumentsStorageStatus } from '@/components/documents/storage/useDocumentsStorageStatus';
+import { ROUTE_NAMES } from '@/services/route-names';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: route.params.id as string });
 const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
@@ -62,7 +63,7 @@ const SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
 const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
   {
     path: '/activate-account/:token',
-    name: 'activate-account',
+    name: ROUTE_NAMES.activateAccount,
     component: AccountActivationPage,
     props: true,
     meta: {
@@ -71,7 +72,7 @@ const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
   },
   {
     path: '/login-by-link/:token',
-    name: 'login-by-link',
+    name: ROUTE_NAMES.loginByLink,
     component: LoginByLink,
     props: true,
     meta: {
@@ -104,9 +105,9 @@ function setupAuthenticationHooks(router: Router) {
     resetDocumentsStorageStatus();
 
     const { setLastView } = useLastView();
-    if (to.name !== 'login'
-      && to.name !== 'oauth-callback'
-      && to.name !== 'oauth-identity-callback'
+    if (to.name !== ROUTE_NAMES.login
+      && to.name !== ROUTE_NAMES.oauthCallback
+      && to.name !== ROUTE_NAMES.oauthIdentityCallback
       && !ANONYMOUS_PAGES_NAMES.includes(to.name)
       && !isLoggedIn()) {
       if (await tryAutoLogin()) {
@@ -114,14 +115,14 @@ function setupAuthenticationHooks(router: Router) {
         next();
       } else {
         setLastView(to.name);
-        next({ name: 'login' });
+        next({ name: ROUTE_NAMES.login });
       }
     } else {
       next();
     }
   });
 
-  LOGIN_REQUIRED_EVENT.subscribe(() => router.push('/login'));
+  LOGIN_REQUIRED_EVENT.subscribe(() => router.push({ name: ROUTE_NAMES.login }));
 }
 
 export default function setupRouter() {
@@ -130,22 +131,22 @@ export default function setupRouter() {
     routes: [
       {
         path: '/login',
-        name: 'login',
+        name: ROUTE_NAMES.login,
         component: Login,
       },
       {
         path: '/account-setup',
-        name: 'account-setup',
+        name: ROUTE_NAMES.accountSetup,
         component: AccountSetupPage,
       },
       {
         path: '/oauth-callback',
-        name: 'oauth-callback',
+        name: ROUTE_NAMES.oauthCallback,
         component: OAuthCallbackPage,
       },
       {
         path: '/oauth-identity-callback',
-        name: 'oauth-identity-callback',
+        name: ROUTE_NAMES.oauthIdentityCallback,
         component: OAuthIdentityCallbackPage,
       },
       {
@@ -154,220 +155,220 @@ export default function setupRouter() {
         children: [
           {
             path: '',
-            name: 'dashboard',
+            name: ROUTE_NAMES.dashboard,
             component: Dashboard,
           },
           {
             path: 'settings/categories',
-            name: 'settings-categories',
+            name: ROUTE_NAMES.settingsCategories,
             component: Categories,
           },
           {
             path: 'settings/categories/create',
-            name: 'create-new-category',
+            name: ROUTE_NAMES.createNewCategory,
             component: EditCategory,
           },
           {
             path: 'settings/categories/:id/edit',
-            name: 'edit-category',
+            name: ROUTE_NAMES.editCategory,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditCategory,
           },
           {
             path: 'expenses',
-            name: 'expenses-overview',
+            name: ROUTE_NAMES.expensesOverview,
             component: ExpensesOverview,
           },
           {
             path: 'expenses/create/:prototype?',
-            name: 'create-new-expense',
+            name: ROUTE_NAMES.createNewExpense,
             props: PROTOTYPE_ROUTER_PARAM_PROCESSOR,
             component: EditExpense,
           },
           {
             path: 'expenses/:id/edit',
-            name: 'edit-expense',
+            name: ROUTE_NAMES.editExpense,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditExpense,
           },
           {
             path: 'incomes',
-            name: 'incomes-overview',
+            name: ROUTE_NAMES.incomesOverview,
             component: IncomesOverview,
           },
           {
             path: 'incomes/create/:sourceInvoiceId?',
-            name: 'create-new-income',
+            name: ROUTE_NAMES.createNewIncome,
             component: EditIncome,
             props: SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'incomes/:id/edit',
-            name: 'edit-income',
+            name: ROUTE_NAMES.editIncome,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditIncome,
           },
           {
             path: 'invoices',
-            name: 'invoices-overview',
+            name: ROUTE_NAMES.invoicesOverview,
             component: InvoicesOverview,
           },
           {
             path: 'invoices/create',
-            name: 'create-new-invoice',
+            name: ROUTE_NAMES.createNewInvoice,
             component: EditInvoice,
           },
           {
             path: 'invoices/:id/edit',
-            name: 'edit-invoice',
+            name: ROUTE_NAMES.editInvoice,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditInvoice,
           },
           {
             path: 'income-tax-payments',
-            name: 'income-tax-payments-overview',
+            name: ROUTE_NAMES.incomeTaxPaymentsOverview,
             component: IncomeTaxPaymentsOverview,
           },
           {
             path: 'income-tax-payments/create',
-            name: 'create-new-income-tax-payment',
+            name: ROUTE_NAMES.createNewIncomeTaxPayment,
             component: EditIncomeTaxPayment,
           },
           {
             path: 'income-tax-payments/:id/edit',
-            name: 'edit-income-tax-payment',
+            name: ROUTE_NAMES.editIncomeTaxPayment,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditIncomeTaxPayment,
           },
           {
             path: 'settings/customers',
-            name: 'customers-overview',
+            name: ROUTE_NAMES.customersOverview,
             component: CustomersOverview,
           },
           {
             path: 'settings/customers/create',
-            name: 'create-new-customer',
+            name: ROUTE_NAMES.createNewCustomer,
             component: EditCustomer,
           },
           {
             path: 'settings/customers/:id/edit',
-            name: 'edit-customer',
+            name: ROUTE_NAMES.editCustomer,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditCustomer,
           },
           {
             path: 'settings/general-taxes',
-            name: 'general-taxes-overview',
+            name: ROUTE_NAMES.generalTaxesOverview,
             component: GeneralTaxesOverview,
           },
           {
             path: 'settings/general-taxes/create',
-            name: 'create-new-general-tax',
+            name: ROUTE_NAMES.createNewGeneralTax,
             component: EditGeneralTax,
           },
           {
             path: 'settings/general-taxes/:id/edit',
-            name: 'edit-general-tax',
+            name: ROUTE_NAMES.editGeneralTax,
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditGeneralTax,
           },
           {
             path: 'settings/integrations',
-            name: 'integrations',
+            name: ROUTE_NAMES.integrations,
             component: Integrations,
           },
           {
             path: 'settings/integrations/wise/setup',
-            name: 'wise-setup',
+            name: ROUTE_NAMES.wiseSetup,
             component: WiseSetup,
           },
           {
             path: 'settings/workspaces',
-            name: 'workspaces-overview',
+            name: ROUTE_NAMES.workspacesOverview,
             component: WorkspacesOverview,
           },
           {
             path: 'settings/workspaces/create',
-            name: 'create-new-workspace',
+            name: ROUTE_NAMES.createNewWorkspace,
             component: WorkspaceEditor,
           },
           {
             path: 'settings/workspaces/:id/edit',
-            name: 'edit-workspace',
+            name: ROUTE_NAMES.editWorkspace,
             component: WorkspaceEditor,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'settings/workspaces/:id/access-tokens',
-            name: 'workspace-access-tokens',
+            name: ROUTE_NAMES.workspaceAccessTokens,
             component: WorkspaceAccessTokens,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'my-profile',
-            name: 'my-profile',
+            name: ROUTE_NAMES.myProfile,
             component: MyProfile,
           },
           {
             path: 'reporting',
-            name: 'reporting',
+            name: ROUTE_NAMES.reporting,
             component: Reporting,
           },
           {
             path: 'documents',
-            name: 'documents-overview',
+            name: ROUTE_NAMES.documentsOverview,
             component: DocumentsOverview,
           },
           {
             path: 'account-statements',
-            name: 'account-statements-overview',
+            name: ROUTE_NAMES.accountStatementsOverview,
             component: AccountStatementsOverview,
           },
           {
             path: 'documents/migration',
-            name: 'documents-migration',
+            name: ROUTE_NAMES.documentsMigration,
             component: DocumentsMigration,
           },
           {
             path: 'documents/create',
-            name: 'create-standalone-document',
+            name: ROUTE_NAMES.createStandaloneDocument,
             component: EditStandaloneDocument,
           },
           {
             path: 'documents/:id/edit',
-            name: 'edit-standalone-document',
+            name: ROUTE_NAMES.editStandaloneDocument,
             component: EditStandaloneDocument,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'admin/users',
-            name: 'users-overview',
+            name: ROUTE_NAMES.usersOverview,
             component: UsersOverview,
           },
           {
             path: 'admin/users/create',
-            name: 'create-new-user',
+            name: ROUTE_NAMES.createNewUser,
             component: EditUser,
           },
           {
             path: 'admin/users/:id/edit',
-            name: 'edit-user',
+            name: ROUTE_NAMES.editUser,
             component: EditUser,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'admin/oauth-providers',
-            name: 'oauth-providers-overview',
+            name: ROUTE_NAMES.oauthProvidersOverview,
             component: OAuthProvidersOverview,
           },
           {
             path: 'admin/oauth-providers/create',
-            name: 'create-new-oauth-provider',
+            name: ROUTE_NAMES.createNewOauthProvider,
             component: EditOAuthProvider,
           },
           {
             path: 'admin/oauth-providers/:id/edit',
-            name: 'edit-oauth-provider',
+            name: ROUTE_NAMES.editOauthProvider,
             component: EditOAuthProvider,
             props: ID_ROUTER_PARAM_PROCESSOR,
           },
@@ -385,7 +386,7 @@ export default function setupRouter() {
       {
         path: '/:catchAll(.*)',
         redirect: {
-          name: 'dashboard',
+          name: ROUTE_NAMES.dashboard,
         },
       },
     ],

@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaPage from '@/components/SaPage.vue';
@@ -60,11 +61,11 @@
 
   const { navigateByViewName, navigateToView } = useNavigation();
   const navigateToUsersOverview = async () => {
-    await navigateByViewName('users-overview');
+    await navigateByViewName(ROUTE_NAMES.usersOverview);
   };
   const navigateToEditUser = async (id: string) => {
     await navigateToView({
-      name: 'edit-user',
+      name: ROUTE_NAMES.editUser,
       params: {
         id,
       },

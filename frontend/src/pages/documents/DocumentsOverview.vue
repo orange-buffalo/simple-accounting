@@ -4,7 +4,7 @@
     :header="$t.documentsOverview.header()"
     :filters="documentFilters"
     :create-action-label="$t.documentsOverview.create()"
-    create-action-view-name="create-standalone-document"
+    :create-action-view-name="ROUTE_NAMES.createStandaloneDocument"
     :create-action-available="isCurrentUserRegular()"
     :create-action-disabled="!currentWorkspace.editable"
   >
@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import { computed, ref } from 'vue';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';

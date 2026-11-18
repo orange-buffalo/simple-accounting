@@ -88,6 +88,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
   import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
   import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
@@ -112,7 +113,7 @@
 
   const { navigateToView } = useNavigation();
   const navigateToTaxPaymentEdit = () => navigateToView({
-    name: 'edit-income-tax-payment',
+    name: ROUTE_NAMES.editIncomeTaxPayment,
     params: { id: props.taxPayment.id },
   });
 

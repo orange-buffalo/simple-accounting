@@ -2,7 +2,7 @@
   <SaOverviewPage
     :header="$t.incomeTaxPaymentsOverview.header()"
     :create-action-label="$t.incomeTaxPaymentsOverview.create()"
-    create-action-view-name="create-new-income-tax-payment"
+    :create-action-view-name="ROUTE_NAMES.createNewIncomeTaxPayment"
     :create-action-disabled="!currentWorkspace.editable"
   >
     <SaPageableItems
@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { ROUTE_NAMES } from '@/services/route-names';
   import SaOverviewPage from '@/components/SaOverviewPage.vue';
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
