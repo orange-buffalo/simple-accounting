@@ -3,6 +3,29 @@
 Simple Accounting can be deployed to any container environment (e.g. Docker or Kubernetes) via
 `orangebuffalo/simple-accounting` Docker image.
 
+## Container security
+
+The image runs as non-root UID `65532` and GID `65532` by default. No root privileges or privileged ports are required.
+Application files remain root-owned and read-only to the application user; temporary files use `/tmp`.
+
+When upgrading from a root-running image, ensure any writable bind mounts or existing volumes are writable by
+`65532:65532` before starting the new container. The container does not change mounted-file ownership on startup.
+For local document storage, prepare the host directory (replace the example path with your actual storage path):
+
+```sh
+sudo mkdir -p /srv/simple-accounting/documents
+sudo chown -R 65532:65532 /srv/simple-accounting/documents
+sudo chmod 0700 /srv/simple-accounting/documents
+```
+
+Mount this directory at `/data/documents-storage/local` and enable local storage as described below. Other configured
+storage paths need equivalent permissions. A newly created Docker volume may also need its ownership initialized;
+do not solve permission errors by running the application as root or making storage world-writable.
+
+For additional deployment hardening, drop all Linux capabilities (`--cap-drop=ALL`) and prevent privilege escalation
+(`--security-opt=no-new-privileges:true`). A read-only root filesystem (`--read-only`) also requires a writable `/tmp`
+(for example, `--tmpfs /tmp:rw,nosuid,nodev,mode=1777`) and a separate writable mount for local document storage, if enabled.
+
 ## Configuration
 
 ### Public URL

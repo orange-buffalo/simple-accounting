@@ -119,6 +119,7 @@ jib {
         tags = setOf("latest")
     }
     container {
+        user = "65532:65532"
         ports = listOf("9393")
         jvmFlags = listOf("-Xmx128m")
     }
