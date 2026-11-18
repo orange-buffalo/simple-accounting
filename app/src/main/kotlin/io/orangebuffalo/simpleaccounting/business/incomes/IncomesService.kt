@@ -73,7 +73,7 @@ class IncomesService(
         val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = income.workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
-        invoicesService.saveInvoice(invoice.copy(datePaid = income.dateReceived), income.workspaceId)
+        invoicesService.saveInvoice(invoice.copy(datePaid = income.dateReceived))
     }
 
     private fun getGeneralTax(income: Income): GeneralTax? =

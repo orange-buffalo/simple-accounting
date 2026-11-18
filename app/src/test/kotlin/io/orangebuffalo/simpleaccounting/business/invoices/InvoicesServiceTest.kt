@@ -103,7 +103,6 @@ class InvoicesServiceTest(
         val savedInvoice = runAs(testData.fry.toSecurityPrincipal()) {
             invoicesService.saveInvoice(
                 invoice = testData.invoice,
-                workspaceId = testData.workspace.id!!
             )
         }
 

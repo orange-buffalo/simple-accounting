@@ -77,8 +77,7 @@ class EditInvoiceMutation(
                 attachments = mapAttachments(attachments),
                 generalTaxId = generalTaxId,
             ),
-            workspaceId = workspaceId,
-        ).toInvoiceGqlDto(workspaceId)
+        ).toInvoiceGqlDto()
     }
 
     private fun mapAttachments(attachmentIds: List<String>?): Set<InvoiceAttachment> =

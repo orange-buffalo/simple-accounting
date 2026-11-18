@@ -8,6 +8,7 @@ import java.time.LocalDate
 
 @Table
 data class Invoice(
+    val workspaceId: String,
     val customerId: String,
     val invoiceNumber: String,
     val dateIssued: LocalDate,

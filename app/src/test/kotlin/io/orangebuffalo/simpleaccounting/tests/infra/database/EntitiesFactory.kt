@@ -456,9 +456,10 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         generalTax: GeneralTax? = null,
         status: InvoiceStatus = InvoiceStatus.DRAFT
     ): Invoice {
-        val customerId = if (customer == null) customer().id else customer.id
+        val invoiceCustomer = customer ?: customer()
         return Invoice(
-            customerId = customerId!!,
+            workspaceId = invoiceCustomer.workspaceId,
+            customerId = invoiceCustomer.id!!,
             invoiceNumber = invoiceNumber,
             dateIssued = dateIssued,
             dateSent = dateSent,

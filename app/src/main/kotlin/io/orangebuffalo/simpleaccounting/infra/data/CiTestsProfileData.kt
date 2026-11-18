@@ -52,6 +52,7 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
 
         jdbcAggregateTemplate.insert(
             Invoice(
+                workspaceId = planetExpress.id,
                 customerId = lunaPark.id!!,
                 status = InvoiceStatus.DRAFT,
                 dueDate = LocalDate.of(3000, 4, 10),
