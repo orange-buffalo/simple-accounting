@@ -593,8 +593,15 @@
       "id": "business-preference-domain-ownership",
       "category": "backend",
       "appliesWhen": "Modeling user preferences that affect business calculations; excludes presentation-only language and formatting preferences",
-      "instruction": "Choose ownership from business semantics, not UI grouping. Keep timeZone and its validity invariant on PlatformUser and root UserProfile, not I18nSettings; apply frontend timezone independently of locale initialization. Audit affected consumers and assertions when relocating preferences without changing unrelated persistence or UI grouping.",
-      "reason": "Presentation grouping can conceal business state and couple calculations to localization setup."
+      "instruction": "Choose state ownership from business semantics, not UI grouping. Keep timeZone on PlatformUser and root UserProfile, not I18nSettings; validate preference input at system boundaries/facades, not entity constructors. State ownership does not imply validation ownership. Apply frontend timezone independently of locale initialization. Audit affected consumers and assertions without changing unrelated persistence or UI grouping.",
+      "reason": "Business state must remain independent of presentation grouping, while boundary validation preserves input-error contracts."
+    },
+    {
+      "id": "preference-reference-infrastructure",
+      "category": "backend",
+      "appliesWhen": "Placing runtime-backed reference registries and cross-runtime compatibility helpers for user preferences; excludes domain state and provider-owned adapters",
+      "instruction": "Keep technical registries, compatibility filtering and lookup helpers in infrastructure, not entity-definition files. Boundary validators consume those helpers; entities retain preference state without runtime portability policy.",
+      "reason": "Technical compatibility policy is infrastructure responsibility, not part of an entity definition."
     }
   ]
 }

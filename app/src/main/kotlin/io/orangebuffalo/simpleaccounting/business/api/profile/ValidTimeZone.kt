@@ -4,7 +4,7 @@ import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import io.orangebuffalo.simpleaccounting.business.users.isSupportedTimeZone
+import io.orangebuffalo.simpleaccounting.infra.isSupportedTimeZone
 import kotlin.reflect.KClass
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails

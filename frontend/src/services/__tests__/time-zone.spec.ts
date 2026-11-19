@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { effectScope } from 'vue';
 import {
-  calendarDayStart, currentDate, getCurrentTimeZone, setProfileTimeZone, setSharedWorkspaceTimeZone,
+  calendarDayStart, currentCalendarDate, currentDate, getCurrentTimeZone,
+  setProfileTimeZone, setSharedWorkspaceTimeZone,
   calendarDateTimeToInstant, timestampToCalendarDateTime, useProfileTimeZone,
 } from '@/services/time-zone';
 
@@ -13,6 +14,17 @@ afterEach(() => {
 });
 
 describe('preferred time zone', () => {
+  it('defaults calendar controls to the profile month rather than the browser month', () => {
+    vi.stubEnv('TZ', 'America/New_York');
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('1999-03-31T23:01:02Z'));
+    setProfileTimeZone('Australia/Melbourne');
+    expect(new Date().getMonth()).toBe(2);
+    expect(currentCalendarDate()).toEqual(new Date(1999, 3, 1));
+    setSharedWorkspaceTimeZone(true);
+    expect(currentCalendarDate()).toEqual(new Date(1999, 2, 31));
+  });
+
   it('preserves a profile wall time inside a browser DST gap', () => {
     vi.stubEnv('TZ', 'America/New_York');
     setProfileTimeZone('UTC');
