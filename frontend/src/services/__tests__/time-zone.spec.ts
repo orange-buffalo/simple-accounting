@@ -27,10 +27,10 @@ describe('preferred time zone', () => {
 
   it('preserves a profile wall time inside a browser DST gap', () => {
     vi.stubEnv('TZ', 'America/New_York');
-    setProfileTimeZone('UTC');
-    const wallTime = timestampToCalendarDateTime(new Date('1999-04-04T02:30:00Z'));
+    setProfileTimeZone('Europe/Paris');
+    const wallTime = timestampToCalendarDateTime(new Date('1999-04-04T00:30:00Z'));
     expect(wallTime).toBe('1999-04-04T02:30:00.000');
-    expect(calendarDateTimeToInstant(wallTime)).toBe('1999-04-04T02:30:00.000Z');
+    expect(calendarDateTimeToInstant(wallTime)).toBe('1999-04-04T00:30:00.000Z');
   });
 
   it('uses the profile for owned-workspace management without changing the selected shared workspace', () => {

@@ -15,7 +15,7 @@ import {
 import { setProfileTimeZone } from '@/services/time-zone';
 
 describe('i18n', () => {
-  beforeEach(() => setProfileTimeZone('UTC'));
+  beforeEach(() => setProfileTimeZone('America/New_York'));
 
   test('should provide supported languages', () => {
     expect(getSupportedLanguages())
@@ -132,7 +132,7 @@ describe('i18n', () => {
   test('should support date-time format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, dateTime, medium}', [new Date('3025-01-15T14:23:00Z')]))
+    expect(formatMessage('{0, dateTime, medium}', [new Date('3025-01-15T19:23:00Z')]))
       .toBe('Jan 15, 3025, 2:23 PM');
   });
 
@@ -156,17 +156,20 @@ describe('i18n', () => {
     ['uk', 'uk', '15 січ. 3025, 2:23 пп'],
   ])('should format date-time translations with locale %s and language %s', async (locale, language, expected) => {
     const i18n = await import('@/services/i18n');
+    const timeZone = await import('@/services/time-zone');
+    timeZone.setProfileTimeZone('America/New_York');
     await i18n.setLocaleFromProfile(locale, language);
 
-    expect(i18n.$t.value.common.dateTime.medium(new Date('3025-01-15T14:23:00Z')))
+    expect(i18n.$t.value.common.dateTime.medium(new Date('3025-01-15T19:23:00Z')))
       .toBe(expected);
   });
 
   test('should format wall times inside the browser daylight-saving gap without shifting them', async () => {
     vi.stubEnv('TZ', 'America/New_York');
     try {
+      setProfileTimeZone('Europe/Paris');
       await setLocaleFromProfile('en', 'en');
-      expect(formatMessage('{0, dateTime, medium}', ['1999-04-04T02:30:00Z']))
+      expect(formatMessage('{0, dateTime, medium}', ['1999-04-04T00:30:00Z']))
         .toBe('Apr 4, 1999, 2:30 AM');
     } finally {
       vi.unstubAllEnvs();

@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ConfirmationDialog.Companion.confirmationDialog
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ElementTable
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ElementTableRowData
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemDatePickerByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
@@ -24,7 +24,7 @@ class WorkspaceAccessTokensPage private constructor(page: Page) : SaPageBase(pag
         ElementTable.byContainer(page.locator(".workspace-access-tokens__table"))
     )
     private val manageSectionHeader = page.getByText("Manage Existing Temporary Access Links")
-    private val validTill = components.formItemTextInputByLabel("Valid Till")
+    val validTill = components.formItemDatePickerByLabel("Valid Till")
     private val saveButton = components.buttonByText("Save")
 
     private fun shouldBeOpen() {
@@ -49,11 +49,6 @@ class WorkspaceAccessTokensPage private constructor(page: Page) : SaPageBase(pag
     fun createTemporaryAccessLink(validTill: String): WorkspaceAccessTokensPage {
         this.validTill.input.fill(validTill)
         saveButton.click()
-        return this
-    }
-
-    fun shouldHaveExpiryMatching(pattern: Regex): WorkspaceAccessTokensPage {
-        validTill.input.shouldHaveValue(pattern)
         return this
     }
 

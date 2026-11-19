@@ -29,7 +29,7 @@ export function getCurrentTimeZone(): string {
 }
 
 export function currentDate(): string {
-  return dayjs().tz(getCurrentTimeZone()).format('YYYY-MM-DD');
+  return timestampToCalendarDateTime(new Date()).slice(0, 10);
 }
 
 /** Calendar-only Date for controls that use browser-local Date fields. */
@@ -44,14 +44,25 @@ export function calendarDayStart(date: string, dayOffset = 0): string {
 }
 
 export function timestampToCalendarDateTime(date: Date): string {
-  return dayjs(date).tz(getCurrentTimeZone()).format('YYYY-MM-DDTHH:mm:ss.SSS');
+  return timestampToUtcCalendarDate(date).toISOString().slice(0, -1);
 }
 
 /** UTC fields avoid browser DST normalization while formatting another zone's wall time. */
 export function timestampToUtcCalendarDate(date: Date): Date {
-  const zoned = dayjs(date).tz(getCurrentTimeZone());
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: getCurrentTimeZone(),
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const value = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((part) => part.type === type)?.value);
   return new Date(Date.UTC(
-    zoned.year(), zoned.month(), zoned.date(), zoned.hour(), zoned.minute(), zoned.second(), zoned.millisecond(),
+    value('year'), value('month') - 1, value('day'),
+    value('hour'), value('minute'), value('second'), date.getUTCMilliseconds(),
   ));
 }
 
@@ -60,6 +71,6 @@ export function calendarDateTimeToInstant(date: string): string {
 }
 
 export function getSupportedTimeZones(): string[] {
-  const zones = [...Intl.supportedValuesOf('timeZone'), getCurrentTimeZone(), 'Australia/Melbourne', 'UTC'];
+  const zones = [...Intl.supportedValuesOf('timeZone'), getCurrentTimeZone(), 'UTC'];
   return [...new Set(zones)].sort();
 }

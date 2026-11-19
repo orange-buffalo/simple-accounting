@@ -41,7 +41,7 @@ class InvoicesService(
         }
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 1 0 * * *")
     fun moveInvoicesToOverdue() {
         logger.info { "Started moving invoices to overdue" }
         val overdueInvoices = invoicesRepository.findAllOverdue()

@@ -8,8 +8,6 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
-import io.kotest.matchers.shouldBe
 
 class TextInput private constructor(
     rootLocator: Locator,
@@ -29,9 +27,6 @@ class TextInput private constructor(
     fun shouldBeHidden() = input.shouldBeHidden()
 
     fun shouldHaveValue(value: String) = input.shouldHaveValue(value)
-    fun shouldHaveValue(pattern: Regex) = input.shouldSatisfy("Input value should match $pattern") {
-        pattern.matches(input.inputValue()).shouldBe(true)
-    }
     fun shouldHaveAttribute(name: String, value: String) = input.shouldHaveAttribute(name, value)
 
     fun shouldBeEnabled() = input.shouldBeEnabled()

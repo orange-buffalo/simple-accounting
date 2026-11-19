@@ -19,6 +19,13 @@ You can then build it with `./gradlew assemble` and then run `SimpleAccountingAp
 * Latest [Bun](https://bun.sh/docs/installation), which should be available on `PATH`.
 * Docker
 
+## Time zones
+
+The workspace access-link expiry editor retains the Element Plus datetime picker. Its calendar uses the browser's
+timezone internally: a valid profile-local time inside a browser daylight-saving gap may be shifted forward by the
+picker. This is an accepted limitation of this control; timestamp formatting and timezone conversion helpers do not
+share that limitation.
+
 ## Development Flow
 
 We recommend developing new functionality using testing facilities, as it allows to prepare very specific

@@ -99,7 +99,7 @@ class UpdateUserProfileMutationTest(
 
         fun testCases() = listOf(
             requiredFieldRejectedTestCases("timeZone") {
-                updateProfileMutation(documentsStorage = null, language = "en", locale = "en_AU", timeZone = "UTC")
+                updateProfileMutation(documentsStorage = null, language = "en", locale = "en_AU", timeZone = "America/New_York")
             },
             sizeConstraintTestCases("documentsStorage", maxLength = 255) { value ->
                 updateProfileMutation(value, "uk", "el")

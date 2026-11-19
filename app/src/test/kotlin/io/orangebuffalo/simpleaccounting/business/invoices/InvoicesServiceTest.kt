@@ -48,13 +48,18 @@ class InvoicesServiceTest(
 
     private fun setupOverdueTestPreconditions() = preconditions {
         object {
-            val firstOwner = platformUser(timeZone = "UTC")
-            val secondOwner = platformUser(timeZone = "UTC")
+            val firstOwner = platformUser(timeZone = "Australia/Melbourne")
+            val secondOwner = platformUser(timeZone = "America/Los_Angeles")
             val firstWorkspace = workspace(owner = firstOwner)
             val secondWorkspace = workspace(owner = secondOwner)
             val firstCustomer = customer(workspace = firstWorkspace)
             val secondCustomer = customer(workspace = secondWorkspace)
             val overdueInvoices = listOf(
+                invoice(
+                    customer = firstCustomer,
+                    status = InvoiceStatus.SENT,
+                    dueDate = MOCK_DATE,
+                ),
                 invoice(
                     customer = firstCustomer,
                     status = InvoiceStatus.SENT,
@@ -228,7 +233,7 @@ class InvoicesServiceTest(
         val currentStatus: InvoiceStatus = InvoiceStatus.DRAFT,
         val expectedStatus: InvoiceStatus,
     ) {
-        val fry = entitiesFactory.platformUser(userName = "Fry", timeZone = "UTC")
+        val fry = entitiesFactory.platformUser(userName = "Fry", timeZone = "America/New_York")
         val workspace = entitiesFactory.workspace(owner = fry)
         val invoice = entitiesFactory.invoice(
             dateSent = dateSent,
