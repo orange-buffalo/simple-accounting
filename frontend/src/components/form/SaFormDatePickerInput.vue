@@ -6,6 +6,7 @@
       value-format="YYYY-MM-DD"
       :format="datePickerFormat"
       :placeholder="placeholder"
+      :default-value="currentCalendarDate()"
     />
   </SaFormItemInternal>
 </template>
@@ -16,6 +17,7 @@
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
   import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
   import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
+  import { currentCalendarDate } from '@/services/time-zone';
 
   const inputValue = ref<string | null>(null);
 

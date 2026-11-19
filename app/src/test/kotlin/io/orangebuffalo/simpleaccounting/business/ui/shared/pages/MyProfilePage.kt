@@ -247,10 +247,11 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class LanguagePreferencesSection(components: ComponentsAccessors) {
-        val sectionHeader = components.sectionHeader("Language Preferences")
-        val ukrainianSectionHeader = components.sectionHeader("Мовні Уподобання")
+        val sectionHeader = components.sectionHeader("Regional Preferences")
+        val ukrainianSectionHeader = components.sectionHeader("Регіональні Налаштування")
         val language = components.formItemSelectByLabel("Interface Language")
         val locale = components.formItemSelectByLabel("Language to display dates, amounts, etc")
+        val timeZone = components.formItemSelectByLabel("Time Zone")
 
         fun shouldBeVisible() {
             sectionHeader.shouldBeVisible()

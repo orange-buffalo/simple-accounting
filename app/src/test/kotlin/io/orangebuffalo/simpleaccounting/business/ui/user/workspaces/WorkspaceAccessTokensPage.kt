@@ -24,7 +24,7 @@ class WorkspaceAccessTokensPage private constructor(page: Page) : SaPageBase(pag
         ElementTable.byContainer(page.locator(".workspace-access-tokens__table"))
     )
     private val manageSectionHeader = page.getByText("Manage Existing Temporary Access Links")
-    private val validTill = components.formItemDatePickerByLabel("Valid Till")
+    val validTill = components.formItemDatePickerByLabel("Valid Till")
     private val saveButton = components.buttonByText("Save")
 
     private fun shouldBeOpen() {

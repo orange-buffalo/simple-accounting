@@ -47,6 +47,7 @@
           language
           locale
         }
+        timeZone
         userName
       }
     }

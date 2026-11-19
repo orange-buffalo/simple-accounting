@@ -48,7 +48,7 @@
             <ElDatePickerPanel
               v-model="selectedDateRange"
               type="daterange"
-              :default-value="selectedDateRange[0]"
+              :default-value="calendarDefaultDate"
               :border="false"
               :clearable="false"
               class="reporting-panel--calendar"
@@ -91,6 +91,7 @@
   import { apiDateString } from '@/services/api';
   import { $t } from '@/services/i18n';
   import { getAustralianFinancialYearDateRange } from '@/services/date-utils';
+  import { currentCalendarDate } from '@/services/time-zone';
   import { ElDatePickerPanel } from 'element-plus';
   import SaWizard from '@/components/wizard/SaWizard.vue';
   import type { WizardStep } from '@/components/wizard/sa-wizard';
@@ -104,6 +105,7 @@
 
   const activeWizardStep = ref<ReportStep>(steps.SELECT_REPORT);
   const selectedDateRange = ref<Array<Date>>([]);
+  const calendarDefaultDate = computed(() => selectedDateRange.value[0] ?? currentCalendarDate());
   const rangeSelectionInProgress = ref(false);
   const pendingDateRange = ref<Array<Date | null> | null>(null);
   const displayedDateRange = computed(() => pendingDateRange.value ?? selectedDateRange.value);

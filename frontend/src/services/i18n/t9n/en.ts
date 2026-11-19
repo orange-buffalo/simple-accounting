@@ -571,7 +571,7 @@ export default {
       googleDriveDocumentsNotice: (count: number) => `${count} document${count === 1 ? ' has' : 's have'} been uploaded with Google Drive. You need to keep the authorization active in order to download them. Navigate to the {migrationLink} page to move the documents to the current storage.`,
     },
     languagePreferences: {
-      header: () => 'Language Preferences',
+      header: () => 'Regional Preferences',
       language: {
         label: () => 'Interface Language',
         placeholder: () => 'Please select interface language',
@@ -581,7 +581,11 @@ export default {
         placeholder: () => 'Please select formatting language',
       },
       feedback: {
-        success: () => 'Language preferences have been saved',
+        success: () => 'Regional preferences have been saved',
+      },
+      timeZone: {
+        label: () => 'Time Zone',
+        placeholder: () => 'Please select time zone',
       },
     },
     oauthProviders: {

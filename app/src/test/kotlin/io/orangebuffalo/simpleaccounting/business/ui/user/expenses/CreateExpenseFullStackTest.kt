@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.business.ui.user.expenses.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
@@ -31,6 +32,21 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     @TempDir
     private lateinit var tempDir: Path
+
+    @Test
+    fun `should default payment date to the preferred calendar day`(page: Page) {
+        val fry = preconditions {
+            platformUser(
+                userName = "Fry",
+                timeZone = "America/New_York",
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+            ).withWorkspace()
+        }
+        page.authenticateViaCookie(fry)
+        page.openCreateExpensePage {
+            datePaid { input.shouldHaveValue("28/03/1999") }
+        }
+    }
 
     @Test
     fun `should create expense in default currency`(page: Page) {

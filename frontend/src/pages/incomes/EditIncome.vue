@@ -119,7 +119,7 @@
   import useNavigation from '@/services/use-navigation';
   import { $t } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { currentDate } from '@/services/time-zone';
   import { graphql } from '@/services/api/gql';
   import { useMutation, useLazyQuery } from '@/services/api/use-gql-api.ts';
   import { useDocumentAttachments } from '@/components/documents/documents-gql-types';
@@ -278,7 +278,7 @@
   const formValues = ref<IncomeFormValues>({
     workspaceId: currentWorkspaceId,
     id: props.id,
-    dateReceived: formatDateToLocalISOString(new Date()),
+    dateReceived: currentDate(),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
     linkedInvoiceId: props.sourceInvoiceId ? props.sourceInvoiceId : undefined,

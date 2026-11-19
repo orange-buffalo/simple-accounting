@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.reload
 import org.springframework.beans.factory.annotation.Autowired
 
 class UpdateUserProfileMutationTest(
@@ -79,7 +81,26 @@ class UpdateUserProfileMutationTest(
     @DisplayName("Inputs Validation")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InputsValidation {
+        @ParameterizedTest
+        @ValueSource(strings = ["", " ", "Mars/Olympus", "+10:00", "australia/melbourne", "SystemV/EST5", "ECT"])
+        fun `should reject invalid time zones without changing the profile`(zone: String) {
+            val initial = preconditions.fry
+            val testCase = GraphqlMutationValidationErrorTestCase(
+                description = "invalid time zone",
+                mutation = { updateProfileMutation(documentsStorage = null, language = "uk", locale = "el", timeZone = zone) },
+                violationPath = "timeZone",
+                error = "MustBeValidTimeZone",
+                message = "must be a supported IANA time zone",
+            )
+            client.buildInputValidationRequest(testCase).from(initial)
+                .executeAndVerifyInputValidation(testCase = testCase, path = DgsConstants.MUTATION.UpdateProfile)
+            aggregateTemplate.reload(initial).shouldBeEntityWithFields(initial)
+        }
+
         fun testCases() = listOf(
+            requiredFieldRejectedTestCases("timeZone") {
+                updateProfileMutation(documentsStorage = null, language = "en", locale = "en_AU", timeZone = "America/New_York")
+            },
             sizeConstraintTestCases("documentsStorage", maxLength = 255) { value ->
                 updateProfileMutation(value, "uk", "el")
             },
@@ -122,6 +143,7 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Fry")
                         put("documentsStorage", "new-storage")
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
@@ -136,6 +158,7 @@ class UpdateUserProfileMutationTest(
                     PlatformUser(
                         documentsStorage = "new-storage",
                         i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                        timeZone = "America/New_York",
                         activated = preconditions.fry.activated,
                         userName = preconditions.fry.userName,
                         passwordHash = preconditions.fry.passwordHash,
@@ -153,6 +176,7 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Farnsworth")
                         put("documentsStorage", "new-storage")
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
@@ -167,6 +191,7 @@ class UpdateUserProfileMutationTest(
                     PlatformUser(
                         documentsStorage = "new-storage",
                         i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                        timeZone = "America/New_York",
                         activated = preconditions.farnsworth.activated,
                         userName = preconditions.farnsworth.userName,
                         passwordHash = preconditions.farnsworth.passwordHash,
@@ -184,6 +209,7 @@ class UpdateUserProfileMutationTest(
                     DgsConstants.MUTATION.UpdateProfile to buildJsonObject {
                         put("userName", "Fry")
                         put("documentsStorage", JsonNull)
+                        put("timeZone", "America/New_York")
                         put("i18n", buildJsonObject {
                             put("locale", "el")
                             put("language", "uk")
@@ -204,13 +230,16 @@ class UpdateUserProfileMutationTest(
         documentsStorage: String?,
         language: String,
         locale: String,
+        timeZone: String = "America/New_York",
     ): MutationProjection = updateProfile(
         documentsStorage = documentsStorage,
         language = language,
         locale = locale,
+        timeZone = timeZone,
     ) {
         userName
         this.documentsStorage
+        this.timeZone
         i18n {
             this.locale
             this.language

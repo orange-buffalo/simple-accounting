@@ -134,7 +134,7 @@
   import SaFormNotesInput from '@/components/form/SaFormNotesInput.vue';
   import SaFormDocumentsUpload from '@/components/form/SaFormDocumentsUpload.vue';
   import useNavigation from '@/services/use-navigation';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { currentDate } from '@/services/time-zone';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { useConfirmation } from '@/components/confirmation/use-confirmation';
@@ -172,7 +172,7 @@
     id: props.id,
     workspaceId: currentWorkspaceId,
     attachments: [],
-    dateIssued: formatDateToLocalISOString(new Date()),
+    dateIssued: currentDate(),
     currency: defaultCurrency,
   });
 

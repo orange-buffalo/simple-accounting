@@ -32,9 +32,9 @@
     {
       "id": "independent-expectations",
       "category": "testing",
-      "appliesWhen": "Production mappings, third-party reference data, or parameterized tests intended to demonstrate input-dependent output",
-      "instruction": "Use independently specified representative expected values. Include an excluded value for filtered reference data; do not reproduce production registry/filtering logic or maintain exhaustive provider lists unless exhaustive membership is the contract. For input-dependent output claims, choose fixtures that distinguish the claimed behavior and vary its controlling input; do not require different outputs when identical output is the contract.",
-      "reason": "Mirrored expectations can reproduce defects, nondiscriminating fixtures cannot establish output differences, and exhaustive external fixtures add maintenance."
+      "appliesWhen": "Production mappings, third-party reference data, or tests intended to demonstrate input-dependent output, including timezone preference behavior",
+      "instruction": "Use independently specified representative expected values. Include an excluded value for filtered reference data; do not reproduce production registry/filtering logic or maintain exhaustive provider lists unless exhaustive membership is the contract. For input-dependent output claims, choose fixtures that distinguish the claimed behavior and vary its controlling input; do not require different outputs when identical output is the contract. Use explicit non-UTC regional timezone preference fixtures, contrasting profile/browser/fallback inputs where selection matters. UTC remains valid for explicit UTC-contract coverage and technical timestamp carriers, not as the ordinary preference fixture.",
+      "reason": "Mirrored expectations and default-compatible fixtures can hide missing mappings or ignored preferences."
     },
     {
       "id": "api-test-structure",
@@ -571,9 +571,9 @@
     {
       "id": "contract-change-scope",
       "category": "workflow",
-      "appliesWhen": "A requested workflow or automated finding appears to require broadening an established schema, API validation or acceptance contract; excludes contract changes explicitly authorized by the user",
-      "instruction": "Preserve established unrelated contracts. Automated findings do not authorize scope expansion; ask the user before broadening contracts to resolve a product-policy choice, and do not weaken existing tests to legitimize that expansion.",
-      "reason": "A local workflow fix can silently change behavior for unrelated callers."
+      "appliesWhen": "A requested workflow or automated finding appears to require changing an established schema, API acceptance contract, scheduling cadence or user interaction; excludes changes explicitly authorized by the user",
+      "instruction": "Preserve established unrelated contracts, scheduling cadence and interaction capabilities. Automated findings do not authorize scope expansion or control substitutions that remove existing UX. Ask the user before resolving a genuine product-policy or library tradeoff by changing those contracts; do not weaken existing tests to legitimize the expansion.",
+      "reason": "A local fix can silently change unrelated behavior or remove established user capabilities."
     },
     {
       "id": "temporary-inspection-cleanup",
@@ -588,6 +588,27 @@
       "appliesWhen": "Defining or deduplicating named Vue page routes; excludes unrelated registries and path-only navigation",
       "instruction": "Export route-name constants from the owning Vue page's normal script and import them in route registration and named navigation consumers. Shared create/edit pages export both names. Do not introduce a central route-name registry or union solely to collect these exports; retain generic navigation parameter types.",
       "reason": "Page ownership keeps route identifiers with their destination without maintaining a parallel central catalog."
+    },
+    {
+      "id": "business-preference-domain-ownership",
+      "category": "backend",
+      "appliesWhen": "Modeling user preferences that affect business calculations; excludes presentation-only language and formatting preferences",
+      "instruction": "Choose state ownership from business semantics, not UI grouping. Keep timeZone on PlatformUser and root UserProfile, not I18nSettings; validate preference input at system boundaries/facades, not entity constructors. State ownership does not imply validation ownership. Apply frontend timezone independently of locale initialization. Audit affected consumers and assertions without changing unrelated persistence or UI grouping.",
+      "reason": "Business state must remain independent of presentation grouping, while boundary validation preserves input-error contracts."
+    },
+    {
+      "id": "preference-reference-infrastructure",
+      "category": "backend",
+      "appliesWhen": "Placing or implementing runtime-backed reference registries and cross-runtime compatibility helpers for user preferences; excludes domain state and provider-owned adapters",
+      "instruction": "Keep technical registries, compatibility filtering and lookup helpers in infrastructure, not entity-definition files. Boundary validators consume those helpers; entities retain preference state without runtime portability policy. Derive options from runtime reference enumeration rather than redundantly special-casing application defaults. Retain justified supplements such as an active value absent from enumeration or supported UTC omitted by Intl.supportedValuesOf.",
+      "reason": "Technical reference policy belongs in infrastructure; persistence defaults do not define enumeration exceptions."
+    },
+    {
+      "id": "jvm-calendar-query-thresholds",
+      "category": "backend",
+      "appliesWhen": "Selecting date-only records against the current date in user-preferred time zones; excludes explicitly database-owned calendar calculations",
+      "instruction": "Calculate current local-date thresholds through TimeService and JVM ZoneId, then use ordinary typed database comparisons. For multiple owner zones, calculate thresholds per distinct zone while preserving batch SQL eligibility filtering; do not embed timezone conversion and date casts in raw SQL for this purpose.",
+      "reason": "Application-owned calendar semantics should not be duplicated in database-specific expressions."
     }
   ]
 }

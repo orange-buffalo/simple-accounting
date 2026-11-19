@@ -26,9 +26,10 @@ class UserProfileQuery(
     private fun PlatformUser.mapToProfileDto() = UserProfile(
         userName = userName,
         documentsStorage = documentsStorage,
+        timeZone = timeZone,
         i18n = I18nSettings(
             locale = i18nSettings.locale,
-            language = i18nSettings.language
+            language = i18nSettings.language,
         )
     )
 }

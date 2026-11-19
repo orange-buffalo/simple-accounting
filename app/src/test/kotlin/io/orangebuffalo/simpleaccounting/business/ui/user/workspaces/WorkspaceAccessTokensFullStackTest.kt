@@ -2,13 +2,17 @@ package io.orangebuffalo.simpleaccounting.business.ui.user.workspaces
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.business.ui.user.workspaces.WorkspaceAccessTokensPage.Companion.openWorkspaceAccessTokensPage
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
 import org.junit.jupiter.api.Test
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import java.time.Instant
 
 class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
@@ -93,7 +97,11 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
     fun `should create temporary access link`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = fry()
+                val fry = platformUser(
+                    userName = "Fry",
+                    i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                    timeZone = "Australia/Melbourne",
+                )
                 val workspace = workspace(owner = fry, name = "Planet Express")
             }
         }
@@ -101,19 +109,13 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openWorkspaceAccessTokensPage(testData.workspace.id!!) {
             shouldHaveNoManageExistingLinksSection()
-            createTemporaryAccessLink("3025-01-15 10:00:00")
+            createTemporaryAccessLink("15/01/3025 10:00")
             shouldHaveNotifications { success("Temporary access link created.") }
 
             val createdToken = aggregateTemplate.findAll<WorkspaceAccessToken>()
                 .single { it.workspaceId == testData.workspace.id }
 
-            shouldHaveAccessLinks(
-                accessLinkRow(
-                    token = createdToken.token,
-                    validTill = "15 Jan 3025, 10:00 am",
-                )
-            )
-
+            shouldHaveAccessLinks(accessLinkRow(token = createdToken.token, validTill = "15 Jan 3025, 10:00 am"))
             createdToken.shouldBeEntityWithFields(
                 WorkspaceAccessToken(
                     workspaceId = testData.workspace.id,
@@ -123,6 +125,45 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
                     token = createdToken.token,
                 )
             )
+        }
+    }
+
+    /**
+     * Verifies profile-preference wiring with deliberately different browser settings: en_AU/New York for the profile,
+     * en-US/Melbourne for the browser. The creation test's matching time zones cannot detect browser-zone fallback.
+     * Checks the picker's initial display, the page's custom Now shortcut, and conversion of the entered time to an instant.
+     * This is not coverage of Element Plus's browser-DST-gap limitation, which is documented in docs/Development.md.
+     */
+    @Test
+    fun `should edit expiry in the profile time zone and locale rather than browser settings`(page: Page) {
+        val testData = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                    timeZone = "America/New_York",
+                )
+                val workspace = workspace(owner = fry)
+            }
+        }
+        createConfiguredBrowserContext(
+            browser = requireNotNull(page.context().browser()),
+            customize = { it.setLocale("en-US") },
+        ).use { context ->
+            val preferredZonePage = createNewPage(context)
+            preferredZonePage.authenticateViaCookie(testData.fry)
+            preferredZonePage.openWorkspaceAccessTokensPage(testData.workspace.id!!) {
+                validTill.input.shouldHaveValue("28/03/1999 18:01")
+                validTill.input.fill("27/03/1999 12:00")
+                validTill.input.clickShortcut("Now")
+                validTill.input.shouldHaveValue("28/03/1999 18:01")
+                validTill.input.openPopover()
+                reportRenderingWithPopovers("workspace-access-tokens.preferred-time-zone-picker")
+                createTemporaryAccessLink("15/01/3025 10:00")
+                shouldHaveNotifications { success("Temporary access link created.") }
+                val token = aggregateTemplate.findAll<WorkspaceAccessToken>().single()
+                token.validTill.shouldBe(Instant.parse("3025-01-15T15:00:00Z"))
+            }
         }
     }
 }

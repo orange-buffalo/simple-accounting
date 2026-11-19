@@ -125,13 +125,14 @@
   });
 
   const updateProfileMutation = useMutation(graphql(/* GraphQL */ `
-    mutation updateProfileStorage($documentsStorage: String, $locale: String!, $language: String!) {
-      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language) {
+    mutation updateProfileStorage($documentsStorage: String, $locale: String!, $language: String!, $timeZone: String!) {
+      updateProfile(documentsStorage: $documentsStorage, locale: $locale, language: $language, timeZone: $timeZone) {
         documentsStorage
         i18n {
           language
           locale
         }
+        timeZone
         userName
       }
     }
@@ -143,6 +144,7 @@
       documentsStorage: storageId,
       locale: props.profile.i18n.locale,
       language: props.profile.i18n.language,
+      timeZone: props.profile.timeZone,
     });
     emit('profile-updated', updatedProfile);
   };

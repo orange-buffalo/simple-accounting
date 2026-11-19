@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
@@ -33,6 +34,13 @@ class DatePicker private constructor(
         inputLocator.click()
         val popover = inputLocator.page().locator(".el-picker-panel__body-wrapper")
         popover.shouldBeVisible()
+    }
+
+    fun clickShortcut(text: String) {
+        openPopover()
+        inputLocator.page().locator(".el-picker-panel__sidebar")
+            .getByRole(AriaRole.BUTTON, Locator.GetByRoleOptions().setName(text).setExact(true))
+            .click()
     }
 
     fun clickDay(day: Int) {

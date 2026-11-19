@@ -3,6 +3,7 @@
     <SaForm
       v-model="formValues"
       :on-submit="shareWorkspace"
+      :submit-button-disabled="!formValues.validTill"
       class="workspace-access-tokens__create-section"
     >
       <h2>{{ $t.workspaceAccessTokens.createNewLink() }}</h2>
@@ -12,9 +13,13 @@
         :label="$t.workspaceAccessTokens.validTill()"
       >
         <ElDatePicker
+          ref="expiryPicker"
           v-model="formValues.validTill"
           type="datetime"
           :format="dateTimePickerFormat"
+          value-format="YYYY-MM-DDTHH:mm:ss.SSS"
+          :show-now="false"
+          :shortcuts="expiryShortcuts"
           :placeholder="$t.workspaceAccessTokens.validTillPlaceholder()"
         />
       </SaFormItemInternal>
@@ -82,10 +87,12 @@
 </script>
 
 <script lang="ts" setup>
+  import { timestampToCalendarDateTime, calendarDateTimeToInstant, useProfileTimeZone } from '@/services/time-zone';
   import copy from 'copy-to-clipboard';
   import { computed, ref } from 'vue';
   import { Delete } from '@element-plus/icons-vue';
-  import { ElDatePicker, ElTooltip } from 'element-plus';
+  import { ElDatePicker, ElTooltip, useLocale } from 'element-plus';
+  import type { DatePickerInstance } from 'element-plus';
   import SaPage from '@/components/SaPage.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaForm from '@/components/form/SaForm.vue';
@@ -97,7 +104,17 @@
   import { $t } from '@/services/i18n';
   import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
 
+  useProfileTimeZone();
+  const { t } = useLocale();
   const dateTimePickerFormat = computed(() => `${datePickerFormat.value} HH:mm`);
+  const expiryPicker = ref<DatePickerInstance>();
+  const expiryShortcuts = computed(() => [{
+    text: t('el.datepicker.now'),
+    onClick: () => {
+      formValues.value.validTill = timestampToCalendarDateTime(new Date());
+      expiryPicker.value?.handleClose();
+    },
+  }]);
 
   const props = defineProps<{
     id: string,
@@ -145,7 +162,7 @@
   const workspaceName = ref('');
   const accessTokens = ref<AccessTokenRow[]>([]);
   const formValues = ref({
-    validTill: new Date(),
+    validTill: timestampToCalendarDateTime(new Date()),
   });
 
   const reloadAccessTokens = async () => {
@@ -165,7 +182,7 @@
   const shareWorkspace = async () => {
     await executeCreateToken({
       workspaceId: props.id,
-      validTill: formValues.value.validTill.toISOString(),
+      validTill: calendarDateTimeToInstant(formValues.value.validTill),
     });
     await reloadAccessTokens();
     showSuccessNotification($t.value.workspaceAccessTokens.linkCreated());

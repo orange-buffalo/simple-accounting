@@ -107,6 +107,7 @@ class CreateUserMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         userName = "Leela",
+                        timeZone = "Australia/Melbourne",
                         isAdmin = false,
                         activated = false,
                         passwordHash = "",
@@ -136,6 +137,7 @@ class CreateUserMutationTest(
                 .shouldBeEntityWithFields(
                     PlatformUser(
                         userName = "Wernstrom",
+                        timeZone = "Australia/Melbourne",
                         isAdmin = true,
                         activated = false,
                         passwordHash = "",

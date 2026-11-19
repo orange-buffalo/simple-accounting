@@ -5,6 +5,7 @@ import { useAuth } from '@/services/api';
 import { initWorkspace } from '@/services/workspaces.ts';
 import { graphql } from '@/services/api/gql';
 import { gqlClient } from '@/services/api/gql-api-client.ts';
+import { setProfileTimeZone } from '@/services/time-zone';
 
 const userProfileQuery = graphql(/* GraphQL */ `
   query userProfileBootstrap {
@@ -13,6 +14,7 @@ const userProfileQuery = graphql(/* GraphQL */ `
         language
         locale
       }
+      timeZone
     }
   }
 `);
@@ -34,6 +36,7 @@ export async function bootstrapApp() {
   const isAnonymousPage = ANONYMOUS_PAGES_PATH_PREFIXES
     .some((prefix) => targetRoute.startsWith(prefix));
   if (isAnonymousPage) {
+    setProfileTimeZone(null);
     await setLocaleFromBrowser();
 
     if (router().currentRoute.value.path !== targetRoute) {
@@ -42,7 +45,9 @@ export async function bootstrapApp() {
     }
   } else if (await tryAutoLogin()) {
     const profileData = await gqlClient.query(userProfileQuery, {});
-    await setLocaleFromProfile(profileData.userProfile.i18n.locale, profileData.userProfile.i18n.language);
+    const { locale, language } = profileData.userProfile.i18n;
+    setProfileTimeZone(profileData.userProfile.timeZone);
+    await setLocaleFromProfile(locale, language);
 
     if (router().currentRoute.value.path !== targetRoute) {
       await router()
@@ -53,6 +58,7 @@ export async function bootstrapApp() {
       await initWorkspace();
     }
   } else {
+    setProfileTimeZone(null);
     await setLocaleFromBrowser();
 
     if (router().currentRoute.value.path !== '/login') {

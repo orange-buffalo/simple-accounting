@@ -76,6 +76,9 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
+"Validates a supported IANA time zone identifier"
+directive @timeZone on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 "Additional error extensions for the ACCOUNT_LOCKED business error."
 type AccountLockedErrorExtensions {
   "The remaining lock duration in seconds."
@@ -1323,7 +1326,9 @@ type Mutation {
     "The language of the user profile, e.g. 'en'."
     language: String! @notBlank @size(max : 36, min : 0),
     "The locale of the user profile, e.g. 'en-US'."
-    locale: String! @notBlank @size(max : 36, min : 0)
+    locale: String! @notBlank @size(max : 36, min : 0),
+    "Required IANA time zone, e.g. 'Australia/Melbourne'. Null, empty, blank and unknown zones are rejected."
+    timeZone: String! @timeZone
   ): UserProfile! @auth(type : AUTHENTICATED_USER)
 }
 
@@ -1625,6 +1630,8 @@ type UserProfile {
   documentsStorage: String
   "Internationalization settings of the user."
   i18n: I18nSettings!
+  "The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for business calendar dates and timestamps."
+  timeZone: String!
   "The user name / login of the user."
   userName: String!
 }
@@ -2251,6 +2258,8 @@ enum ValidationErrorCode {
   MustBeValidCountryCode
   "The field must be an https URL, or an http URL of a loopback host."
   MustBeValidEndpointUrl
+  "The field must be a supported IANA time zone identifier."
+  MustBeValidTimeZone
   "The field must not be null, empty, or blank."
   MustNotBeBlank
   "The field must not be null."

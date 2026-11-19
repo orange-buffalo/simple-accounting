@@ -1,5 +1,5 @@
 import {
-  afterEach, describe, expect, vi, test,
+  afterEach, beforeEach, describe, expect, vi, test,
 } from 'vitest';
 import {
   formatMessage,
@@ -12,8 +12,11 @@ import {
   setLocaleFromBrowser,
   $t,
 } from '@/services/i18n';
+import { setProfileTimeZone } from '@/services/time-zone';
 
 describe('i18n', () => {
+  beforeEach(() => setProfileTimeZone('America/New_York'));
+
   test('should provide supported languages', () => {
     expect(getSupportedLanguages())
       .toContainEqual({
@@ -129,8 +132,23 @@ describe('i18n', () => {
   test('should support date-time format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, dateTime, medium}', [new Date(3025, 0, 15, 14, 23)]))
+    expect(formatMessage('{0, dateTime, medium}', [new Date('3025-01-15T19:23:00Z')]))
       .toBe('Jan 15, 3025, 2:23 PM');
+  });
+
+  test.each([
+    ['Australia/Melbourne', 'Mar 29, 1999, 9:01 AM', 'Mar 29, 1999'],
+    ['America/New_York', 'Mar 28, 1999, 6:01 PM', 'Mar 28, 1999'],
+  ])('should format timestamps in profile time zone %s', async (timeZone, expectedTimestamp, expectedDate) => {
+    setProfileTimeZone(timeZone);
+    await setLocaleFromProfile('en', 'en');
+
+    expect(formatMessage('{0, dateTime, medium}', ['1999-03-28T23:01:00Z']))
+      .toBe(expectedTimestamp);
+    expect(formatMessage('{0, date, medium}', ['1999-03-28T23:01:00Z']))
+      .toBe(expectedDate);
+    expect(formatMessage('{0, date, medium}', ['1999-03-28']))
+      .toBe('Mar 28, 1999');
   });
 
   test.each([
@@ -138,10 +156,24 @@ describe('i18n', () => {
     ['uk', 'uk', '15 січ. 3025, 2:23 пп'],
   ])('should format date-time translations with locale %s and language %s', async (locale, language, expected) => {
     const i18n = await import('@/services/i18n');
+    const timeZone = await import('@/services/time-zone');
+    timeZone.setProfileTimeZone('America/New_York');
     await i18n.setLocaleFromProfile(locale, language);
 
-    expect(i18n.$t.value.common.dateTime.medium(new Date(3025, 0, 15, 14, 23)))
+    expect(i18n.$t.value.common.dateTime.medium(new Date('3025-01-15T19:23:00Z')))
       .toBe(expected);
+  });
+
+  test('should format wall times inside the browser daylight-saving gap without shifting them', async () => {
+    vi.stubEnv('TZ', 'America/New_York');
+    try {
+      setProfileTimeZone('Europe/Paris');
+      await setLocaleFromProfile('en', 'en');
+      expect(formatMessage('{0, dateTime, medium}', ['1999-04-04T00:30:00Z']))
+        .toBe('Apr 4, 1999, 2:30 AM');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   test('should support $t', async () => {

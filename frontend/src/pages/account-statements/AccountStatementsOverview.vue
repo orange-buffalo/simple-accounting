@@ -28,6 +28,7 @@
   import { graphql } from '@/services/api/gql';
   import type { IntegrationProvider } from '@/services/api/gql/graphql';
   import { $t } from '@/services/i18n';
+  import { calendarDayStart } from '@/services/time-zone';
 
   type StatementFilters = {
     freeSearchText: string | null,
@@ -48,16 +49,12 @@
     },
     dateRange: { type: 'date-range', label: $t.value.accountStatements.dateRange() },
   } satisfies SaOverviewFilterConfigs<StatementFilters>));
-  const localDayStart = (date: string, dayOffset = 0) => {
-    const [year, month, day] = date.split('-').map(Number);
-    return new Date(year, month - 1, day + dayOffset).toISOString();
-  };
   const queryArguments = computed(() => ({
     workspaceId: currentWorkspaceId,
     freeSearchText: overviewFilters.value.freeSearchText,
     providerIn: overviewFilters.value.providerIn,
-    occurredAtFrom: overviewFilters.value.dateRange ? localDayStart(overviewFilters.value.dateRange[0]) : null,
-    occurredAtBefore: overviewFilters.value.dateRange ? localDayStart(overviewFilters.value.dateRange[1], 1) : null,
+    occurredAtFrom: overviewFilters.value.dateRange ? calendarDayStart(overviewFilters.value.dateRange[0]) : null,
+    occurredAtBefore: overviewFilters.value.dateRange ? calendarDayStart(overviewFilters.value.dateRange[1], 1) : null,
   }));
   const statementsQuery = graphql(`
     query accountStatementsPage(

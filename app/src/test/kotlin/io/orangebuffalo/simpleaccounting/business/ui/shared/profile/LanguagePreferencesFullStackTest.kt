@@ -20,6 +20,27 @@ import org.junit.jupiter.api.Test
 class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     @Test
+    fun `should save time zone and restore it after reload`(page: Page) {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                timeZone { input.shouldHaveSelectedValue("Australia/Melbourne") }
+                timeZone { input.selectOption("America/New_York") }
+            }
+            shouldHaveNotifications { success("Regional preferences have been saved") }
+        }
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
+        updatedUser.shouldBeEqualToIgnoringFields(preconditions.fry, PlatformUser::timeZone, PlatformUser::version)
+        updatedUser.timeZone.shouldBe("America/New_York")
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                timeZone { input.shouldHaveSelectedValue("America/New_York") }
+            }
+            reportRendering("my-profile.time-zone")
+        }
+    }
+
+    @Test
     fun `should change language for regular user`(page: Page) {
         testLanguageChange(page, preconditions.fry)
     }
@@ -131,7 +152,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             }
 
             shouldHaveNotifications {
-                success("Language preferences have been saved")
+                success("Regional preferences have been saved")
             }
         }
 
@@ -151,7 +172,10 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = fry().withWorkspace()
+            val fry = platformUser(
+                userName = "Fry",
+                timeZone = "Australia/Melbourne",
+            ).withWorkspace()
             val farnsworth = farnsworth()
         }
     }

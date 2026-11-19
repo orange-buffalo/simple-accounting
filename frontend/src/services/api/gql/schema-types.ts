@@ -1452,6 +1452,7 @@ export type MutationUpdateProfileArgs = {
   documentsStorage?: InputMaybe<Scalars['String']['input']>;
   language: Scalars['String']['input'];
   locale: Scalars['String']['input'];
+  timeZone: Scalars['String']['input'];
 };
 
 /** The outcome of a completed OAuth2 flow. */
@@ -1867,6 +1868,8 @@ export type UserProfile = {
   documentsStorage?: Maybe<Scalars['String']['output']>;
   /** Internationalization settings of the user. */
   i18n: I18nSettings;
+  /** The user's IANA time zone, e.g. 'Australia/Melbourne'. Used for business calendar dates and timestamps. */
+  timeZone: Scalars['String']['output'];
   /** The user name / login of the user. */
   userName: Scalars['String']['output'];
 };
@@ -1881,6 +1884,8 @@ export enum ValidationErrorCode {
   MustBeValidCountryCode = 'MustBeValidCountryCode',
   /** The field must be an https URL, or an http URL of a loopback host. */
   MustBeValidEndpointUrl = 'MustBeValidEndpointUrl',
+  /** The field must be a supported IANA time zone identifier. */
+  MustBeValidTimeZone = 'MustBeValidTimeZone',
   /** The field must not be null, empty, or blank. */
   MustNotBeBlank = 'MustNotBeBlank',
   /** The field must not be null. */

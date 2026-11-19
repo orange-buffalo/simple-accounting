@@ -28,6 +28,9 @@ data class ValidationErrorParam(
 
 @GraphQLDescription("Error codes for validation failures, matching REST API constraint violation error keys.")
 enum class ValidationErrorCode {
+    @GraphQLDescription("The field must be a supported IANA time zone identifier.")
+    MustBeValidTimeZone,
+
     @GraphQLDescription("The field must be a valid ISO 3166-1 alpha-2 country code.")
     MustBeValidCountryCode,
 

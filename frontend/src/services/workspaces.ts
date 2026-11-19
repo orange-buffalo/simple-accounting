@@ -2,6 +2,7 @@ import { useStorage } from '@/services/storage';
 import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
 import { graphql } from '@/services/api/gql';
 import { gqlClient } from '@/services/api/gql-api-client.ts';
+import { setSharedWorkspaceTimeZone } from '@/services/time-zone';
 
 export interface WorkspaceInfo {
   id: string;
@@ -41,6 +42,7 @@ const workspaceByIdQuery = graphql(`
 function setCurrentWorkspace(workspace: WorkspaceInfo) {
   if (workspace.id == null) throw new Error('Invalid workspace provided');
   currentWorkspace = workspace;
+  setSharedWorkspaceTimeZone(!workspace.editable);
   storage.set(workspace.id);
   WORKSPACE_CHANGED_EVENT.emit(currentWorkspace);
 }
@@ -80,6 +82,7 @@ async function loadWorkspaces(): Promise<boolean> {
     if (currentWorkspace.id == null) throw new Error('Invalid workspace');
 
     storage.set(currentWorkspace.id);
+    setSharedWorkspaceTimeZone(!currentWorkspace.editable);
 
     return true;
   }
@@ -114,4 +117,3 @@ export async function initWorkspace(): Promise<boolean> {
   return useWorkspaces()
     .loadWorkspaces();
 }
-

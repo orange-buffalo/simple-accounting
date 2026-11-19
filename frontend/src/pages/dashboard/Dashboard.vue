@@ -6,6 +6,7 @@
         v-model="selectedDateRange"
         type="daterange"
         :format="datePickerFormat"
+        :default-value="currentCalendarDate()"
         align="right"
         unlink-panels
         :range-separator="$t.dashboard.dateRange.separator()"
@@ -57,6 +58,7 @@
   import type { GetDashboardAnalyticsQuery } from '@/services/api/gql/graphql';
   import { datePickerFormat } from '@/components/date-picker/date-picker-localization';
   import { formatDateToLocalISOString } from '@/services/date-utils';
+  import { currentCalendarDate } from '@/services/time-zone';
 
   type DashboardInvoiceNode = GetDashboardAnalyticsQuery['workspace']['invoices']['edges'][0]['node'];
 
@@ -64,7 +66,7 @@
 
   const selectedDateRange = ref<Array<Date>>(storage.getOrDefault([]));
   if (!selectedDateRange.value.length) {
-    const now = new Date();
+    const now = currentCalendarDate();
     selectedDateRange.value = [
       new Date(now.getFullYear(), 0, 1),
       now,

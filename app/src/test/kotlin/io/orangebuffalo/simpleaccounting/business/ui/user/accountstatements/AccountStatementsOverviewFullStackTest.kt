@@ -275,10 +275,10 @@ class AccountStatementsOverviewFullStackTest(
 
     @ParameterizedTest
     @CsvSource(
-        "1999-03-28, 1999-03-27T13:00:00Z, 1999-03-28T14:00:00Z",
-        "1999-10-31, 1999-10-30T14:00:00Z, 1999-10-31T13:00:00Z",
+        "1999-04-04, 1999-04-04T05:00:00Z, 1999-04-05T04:00:00Z",
+        "1999-10-31, 1999-10-31T04:00:00Z, 1999-11-01T05:00:00Z",
     )
-    fun `should filter whole browser-local days across daylight saving transitions`(
+    fun `should filter whole preferred-zone days across daylight saving transitions`(
         date: String,
         start: String,
         end: String,
@@ -287,7 +287,10 @@ class AccountStatementsOverviewFullStackTest(
         val startInstant = Instant.parse(start)
         val endInstant = Instant.parse(end)
         val fry = preconditions {
-            fry().also { user ->
+            platformUser(
+                userName = "Fry",
+                timeZone = "America/New_York",
+            ).also { user ->
                 val integration = wiseIntegrationSettings(workspace = workspace(owner = user))
                 accountStatementRecord(integration = integration, externalId = "Slurm-before", occurredAt = startInstant.minusNanos(1000))
                 accountStatementRecord(integration = integration, externalId = "Slurm-start", occurredAt = startInstant)

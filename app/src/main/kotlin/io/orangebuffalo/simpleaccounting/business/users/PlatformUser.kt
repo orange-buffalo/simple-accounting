@@ -11,6 +11,7 @@ data class PlatformUser(
     val passwordHash: String,
     val isAdmin: Boolean,
     val activated: Boolean,
+    val timeZone: String = "Australia/Melbourne",
     val documentsStorage: String? = null,
 
     @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
@@ -33,5 +34,5 @@ data class LoginStatistics(
 
 data class I18nSettings(
     val locale: String,
-    val language: String
+    val language: String,
 )

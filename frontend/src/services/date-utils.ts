@@ -1,3 +1,5 @@
+import { currentCalendarDate } from '@/services/time-zone';
+
 /** Formats a local calendar date without converting it to UTC. */
 export function formatDateToLocalISOString(date: Date): string {
   const year = date.getFullYear();
@@ -6,7 +8,7 @@ export function formatDateToLocalISOString(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export function getAustralianFinancialYearDateRange(date = new Date()): [Date, Date] {
+export function getAustralianFinancialYearDateRange(date = currentCalendarDate()): [Date, Date] {
   const startYear = date.getMonth() >= 6 ? date.getFullYear() : date.getFullYear() - 1;
   return [new Date(startYear, 6, 1), new Date(startYear + 1, 5, 30)];
 }
