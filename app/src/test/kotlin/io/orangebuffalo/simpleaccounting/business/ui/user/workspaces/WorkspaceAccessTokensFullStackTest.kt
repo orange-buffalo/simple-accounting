@@ -128,6 +128,12 @@ class WorkspaceAccessTokensFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    /**
+     * Verifies profile-preference wiring with deliberately different browser settings: en_AU/New York for the profile,
+     * en-US/Melbourne for the browser. The creation test's matching time zones cannot detect browser-zone fallback.
+     * Checks the picker's initial display, the page's custom Now shortcut, and conversion of the entered time to an instant.
+     * This is not coverage of Element Plus's browser-DST-gap limitation, which is documented in docs/Development.md.
+     */
     @Test
     fun `should edit expiry in the profile time zone and locale rather than browser settings`(page: Page) {
         val testData = preconditions {
