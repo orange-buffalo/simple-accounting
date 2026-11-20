@@ -19,9 +19,9 @@ plugins {
     alias(libs.plugins.springBoot)
     jacoco
     alias(libs.plugins.jib)
+    alias(libs.plugins.jooq.codegen)
 }
 
-apply<SaJooqCodeGenPlugin>()
 apply<SaHotReloadPlugin>()
 apply<SaDgsCodegenPlugin>()
 
@@ -43,6 +43,9 @@ dependencies {
     implementation(libs.kotlinx.dateTime)
 
     implementation(libs.jooq)
+    jooqCodegen(libs.jooq.metaExtensions) {
+        exclude(group = "org.springframework")
+    }
     implementation(libs.jjwt.api)
     implementation(libs.commonsLang3)
     implementation(libs.graphqlKotlin.schemaGenerator)
@@ -90,6 +93,75 @@ dependencies {
 
     mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 }
+
+val flywayMigrationDir = "src/main/resources/db/migration"
+jooq {
+    configuration {
+        generator {
+            database {
+                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                properties {
+                    property {
+                        key = "scripts"
+                        value = "$flywayMigrationDir/*.sql"
+                    }
+                    property {
+                        key = "sort"
+                        value = "flyway"
+                    }
+                    property {
+                        key = "defaultNameCase"
+                        value = "lower"
+                    }
+                }
+                forcedTypes {
+                    forcedType {
+                        includeExpression = """INCOME\.STATUS"""
+                        userType = "io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus"
+                        setEnumConverter(true)
+                    }
+                    forcedType {
+                        includeExpression = """EXPENSE\.STATUS"""
+                        userType = "io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus"
+                        setEnumConverter(true)
+                    }
+                    forcedType {
+                        includeExpression = """INVOICE\.STATUS"""
+                        userType = "io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus"
+                        setEnumConverter(true)
+                    }
+                    forcedType {
+                        name = "DECIMAL"
+                        includeExpression = """ACCOUNT_STATEMENT_RECORD\.EXCHANGE_RATE"""
+                    }
+                    forcedType {
+                        includeTypes = "TIMESTAMP.*"
+                        userType = "java.time.Instant"
+                        converter = "io.orangebuffalo.simpleaccounting.infra.jooq.InstantConverter"
+                    }
+                    forcedType {
+                        includeTypes = "DATE"
+                        userType = "java.time.LocalDate"
+                        converter = "io.orangebuffalo.simpleaccounting.infra.jooq.LocalDateConverter"
+                    }
+                }
+            }
+            strategy { name = SaGeneratorStrategy::class.java.name }
+            target {
+                directory = layout.buildDirectory.dir("generated-sources/jooq").get().asFile.absolutePath
+                packageName = "io.orangebuffalo.simpleaccounting.services.persistence.model"
+            }
+            generate { setJavaTimeTypes(false) }
+        }
+    }
+}
+
+val generateJooq = tasks.named("jooqCodegen") {
+    inputs.files(fileTree(flywayMigrationDir) { include("*.sql") })
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+tasks.compileJava { dependsOn(generateJooq) }
+tasks.compileKotlin { dependsOn(generateJooq) }
 
 val frontendBuildTaskName = ":frontend:buildFrontend"
 

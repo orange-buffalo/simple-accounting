@@ -72,6 +72,7 @@ wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
 
 [plugins]
+jooq-codegen = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
 gitSemverPlugin = { id = "com.github.jmongard.git-semver-plugin", version.ref = "gitSemverPlugin" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
