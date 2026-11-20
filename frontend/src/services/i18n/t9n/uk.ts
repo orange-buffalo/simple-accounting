@@ -1315,6 +1315,10 @@ export default {
 
   reporting: {
     header: () => 'Звітність',
+    pending: {
+      label: () => 'Не завершено',
+      excludedFromTotals: () => 'Незавершені операції не враховуються в підсумках.',
+    },
     wizard: {
       selectionIntro: () => 'Оберіть звіт, який бажаєте переглянути',
       steps: {
@@ -1539,7 +1543,6 @@ export default {
 
   incomeTaxReport: {
     uncategorized: () => 'Без категорії',
-    pending: () => 'Очікує',
     sections: {
       incomes: () => 'Доходи',
       expenses: () => 'Витрати',

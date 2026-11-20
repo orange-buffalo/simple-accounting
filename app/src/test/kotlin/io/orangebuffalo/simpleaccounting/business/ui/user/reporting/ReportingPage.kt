@@ -4,9 +4,11 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.AriaRole
 import io.kotest.matchers.collections.shouldContainExactly
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ReportingInlineCalendar.Companion.reportingInlineCalendarByContainer
@@ -28,6 +30,7 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     val viewReportStep = components.wizardStep("View the report")
     val inlineCalendar = components.reportingInlineCalendarByContainer(reportingPanel)
     val steps = components.stepsByContainer(reportingPanel)
+    val pendingNote = TaxReportPendingNote(reportingPanel)
     val collectedSection = TaxReportSection(components, "Collected", 0)
     val paidSection = TaxReportSection(components, "Paid", 1)
     val incomeTaxReport = IncomeTaxReportComponent(components)
@@ -61,6 +64,20 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
     }
 }
 
+class TaxReportPendingNote(container: Locator) : UiComponent<TaxReportPendingNote>() {
+    private val message = "Pending transactions are not included in the totals."
+    private val note = container.getByText(
+        message,
+        Locator.GetByTextOptions().setExact(true),
+    )
+    private val alertMessage = container.getByRole(AriaRole.ALERT)
+        .getByText(message, Locator.GetByTextOptions().setExact(true))
+
+    fun shouldBeVisible() = alertMessage.shouldBeVisible()
+
+    fun shouldBeHidden() = note.shouldBeHidden()
+}
+
 class TaxReportSection(
     components: ComponentsAccessors,
     title: String,
@@ -69,6 +86,8 @@ class TaxReportSection(
     private val sectionHeader = components.sectionHeader(title)
     private val page = components.page
     private val totalLocator = page.locator(".reporting-panel--content b").nth(sectionIndex)
+    private val table = page.locator(".reporting-panel--content .el-table").nth(sectionIndex)
+    val pendingBadge = SaStatusLabel.byContainer(table.locator("tbody td:first-child"))
 
     fun shouldBeVisible() {
         sectionHeader.shouldBeVisible()
@@ -91,7 +110,7 @@ class TaxReportSection(
                     return Array.from(rows).map(row => {
                         const cells = row.querySelectorAll('td .cell');
                         return [
-                            (cells[0]?.textContent || '').replace(/\u00A0/g, ' ').trim(),
+                            (cells[0]?.innerText || '').replace(/\s+/g, ' ').trim(),
                             (cells[1]?.textContent || '').replace(/\u00A0/g, ' ').trim(),
                             (cells[2]?.textContent || '').replace(/\u00A0/g, ' ').trim(),
                             (cells[3]?.textContent || '').replace(/\u00A0/g, ' ').trim()
@@ -113,8 +132,7 @@ class TaxReportSection(
     }
 
     fun shouldHaveEmptyTable() {
-        page.locator(".reporting-panel--content .el-table").nth(sectionIndex)
-            .locator(".el-table__empty-text").shouldBeVisible()
+        table.locator(".el-table__empty-text").shouldBeVisible()
     }
 }
 
@@ -149,6 +167,7 @@ class IncomeTaxReportSection(
     private val sectionHeader = components.sectionHeader(title)
     private val table = report.locator(".el-table").nth(sectionIndex)
     private val total = report.locator(".income-tax-report__total").nth(sectionIndex)
+    val pendingBadge = SaStatusLabel.byContainer(table.locator("tbody td:first-child"))
 
     fun shouldBeVisible() {
         sectionHeader.shouldBeVisible()

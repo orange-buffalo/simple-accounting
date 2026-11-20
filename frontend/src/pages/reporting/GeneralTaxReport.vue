@@ -30,6 +30,7 @@
         />
       </b>
     </div>
+    <TaxReportPendingNote v-if="hasPendingTransactions" />
   </div>
 </template>
 
@@ -39,6 +40,7 @@
   } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import GeneralTaxReportTable from '@/pages/reporting/GeneralTaxReportTable.vue';
+  import TaxReportPendingNote from '@/pages/reporting/TaxReportPendingNote.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
   import { $t } from '@/services/i18n';
@@ -131,6 +133,8 @@
   }
 
   const report = ref<GeneralTaxesSummaryData | null>(null);
+  const hasPendingTransactions = computed(() => report.value !== null
+    && (report.value.pendingCollectedTaxes.length > 0 || report.value.pendingPaidTaxes.length > 0));
 
   const {
     defaultCurrency,

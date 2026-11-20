@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "tax-report-pending-warning-presentation",
+  "refs": [
+    "F1"
+  ],
+  "feedback": "Present the pending-exclusion notice as a centered standard warning below each complete tax report, only when pending entries exist.",
+  "instruction": "For General Tax and Income Tax reports, render one themed, centered, non-dismissable ElAlert warning after both tables and totals, including net taxable income where present, only if either section contains a pending row. Retain positive and negative page coverage, require alert semantics on the positive path, and inspect both rendered reports.",
+  "diff": "--- a/frontend/src/pages/reporting/TaxReportPendingNote.vue\n+++ b/frontend/src/pages/reporting/TaxReportPendingNote.vue\n@@\n-  <p>{{ $t.reporting.pending.excludedFromTotals() }}</p>\n+  <ElAlert\n+    type=\"warning\"\n+    :title=\"$t.reporting.pending.excludedFromTotals()\"\n+    :closable=\"false\"\n+    center\n+  />",
+  "reason": "The precise placement and alignment are report-specific product preferences. Existing guidance already covers shared themed presentation and page-owned conditional coverage; a new active rule would overgeneralize this correction."
+}

@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResp
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withFailedGqlApiResponse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 
@@ -48,6 +49,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
             )
             backButton.shouldBeEnabled()
             viewReportStep.shouldBeCompleted()
+            pendingNote.shouldBeHidden()
             backButton.click()
             selectDatesStep.shouldBeOpen()
         }
@@ -138,6 +140,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                         IncomeTaxReportRow("Interplanetary consulting", "1", "USD 700.00"),
                         IncomeTaxReportRow("Pending", "2", ""),
                     )
+                    pendingBadge.shouldBeIconlessBadge("pending")
                     shouldHaveTotal("USD 1,000.00")
                 }
                 expenses {
@@ -146,10 +149,12 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                         IncomeTaxReportRow("Robot maintenance", "1", "USD 100.00"),
                         IncomeTaxReportRow("Pending", "1", ""),
                     )
+                    pendingBadge.shouldBeIconlessBadge("pending")
                     shouldHaveTotal("USD 100.00")
                 }
                 shouldHaveNetTaxableIncome("USD 900.00")
             }
+            pendingNote.shouldBeVisible()
             reportRendering("reporting.income-tax")
             viewReportStep.shouldBeOpen()
             viewReportStep.shouldBeCompleted()
@@ -211,12 +216,13 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                         taxAmount = "USD 100.00",
                     ),
                     TaxReportRow(
-                        taxName = "Interplanetary VAT",
+                        taxName = "Interplanetary VAT Pending",
                         numberOfItems = "1",
                         itemsAmount = "",
                         taxAmount = "",
                     ),
                 )
+                pendingBadge.shouldBeIconlessBadge("pending")
                 shouldHaveTotal("USD 100.00")
             }
 
@@ -231,15 +237,17 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                         taxAmount = "USD 40.00",
                     ),
                     TaxReportRow(
-                        taxName = "Interplanetary VAT",
+                        taxName = "Interplanetary VAT Pending",
                         numberOfItems = "1",
                         itemsAmount = "",
                         taxAmount = "",
                     ),
                 )
                 shouldHaveTotal("USD 40.00")
+                pendingBadge.shouldBeIconlessBadge("pending")
             }
 
+            pendingNote.shouldBeVisible()
             reportRendering("reporting.all-combinations")
         }
     }
@@ -275,6 +283,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveTotal("USD 0.00")
             }
 
+            pendingNote.shouldBeHidden()
             reportRendering("reporting.only-finalized-incomes")
         }
     }
@@ -310,6 +319,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveTotal("USD 45.00")
             }
 
+            pendingNote.shouldBeHidden()
             reportRendering("reporting.only-finalized-expenses")
         }
     }
@@ -330,7 +340,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldBeVisible()
                 shouldHaveTableData(
                     TaxReportRow(
-                        taxName = "Robot Oil Tax",
+                        taxName = "Robot Oil Tax Pending",
                         numberOfItems = "1",
                         itemsAmount = "",
                         taxAmount = "",
@@ -343,7 +353,7 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldBeVisible()
                 shouldHaveTableData(
                     TaxReportRow(
-                        taxName = "Robot Oil Tax",
+                        taxName = "Robot Oil Tax Pending",
                         numberOfItems = "1",
                         itemsAmount = "",
                         taxAmount = "",
@@ -352,7 +362,79 @@ class ReportingFullStackTest : SaFullStackTestBase() {
                 shouldHaveTotal("USD 0.00")
             }
 
+            pendingNote.shouldBeVisible()
             reportRendering("reporting.only-pending")
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource("General Tax, 7, false", "General Tax, 9, true", "Income Tax, 7, false", "Income Tax, 9, true")
+    fun `should show the note when only one report section has pending transactions`(
+        report: String,
+        month: Int,
+        pendingIncome: Boolean,
+        page: Page,
+    ) {
+        page.authenticateViaCookie(preconditionsAllCombinations.fry)
+        page.openReportingPage {
+            val isIncomeTaxReport = report == "Income Tax"
+            if (isIncomeTaxReport) selectIncomeTaxReport() else selectGeneralTaxReport()
+            nextButton.click()
+            inlineCalendar {
+                selectRange(start = LocalDate.of(1999, month, 1), end = LocalDate.of(1999, month, 20))
+            }
+            nextButton.click()
+            pendingNote.shouldBeVisible()
+            if (isIncomeTaxReport) {
+                incomeTaxReport {
+                    val pendingSection = if (pendingIncome) incomes else expenses
+                    val emptySection = if (pendingIncome) expenses else incomes
+                    pendingSection.shouldHaveTableData(
+                        IncomeTaxReportRow(categoryName = "Pending", numberOfItems = "1", amount = ""),
+                    )
+                    emptySection.shouldHaveTableData()
+                    pendingSection.shouldHaveTotal("USD 0.00")
+                    emptySection.shouldHaveTotal("USD 0.00")
+                    shouldHaveNetTaxableIncome("USD 0.00")
+                }
+            } else {
+                val pendingSection = if (pendingIncome) collectedSection else paidSection
+                val emptySection = if (pendingIncome) paidSection else collectedSection
+                pendingSection.shouldHaveTableData(
+                    TaxReportRow(
+                        taxName = "Interplanetary VAT Pending",
+                        numberOfItems = "1",
+                        itemsAmount = "",
+                        taxAmount = "",
+                    ),
+                )
+                emptySection.shouldHaveEmptyTable()
+            }
+        }
+    }
+
+    @Test
+    fun `should omit the note from a populated income tax report with no pending transactions`(page: Page) {
+        page.authenticateViaCookie(preconditionsOnlyFinalizedIncomes.fry)
+        page.openReportingPage {
+            selectIncomeTaxReport()
+            nextButton.click()
+            inlineCalendar {
+                selectRange(start = LocalDate.of(1999, 1, 1), end = LocalDate.of(1999, 12, 31))
+            }
+            nextButton.click()
+            incomeTaxReport {
+                incomes {
+                    shouldHaveTableData(
+                        IncomeTaxReportRow(categoryName = "Uncategorized", numberOfItems = "1", amount = "USD 1,000.00"),
+                    )
+                    shouldHaveTotal("USD 1,000.00")
+                }
+                expenses.shouldHaveTableData()
+                expenses.shouldHaveTotal("USD 0.00")
+                shouldHaveNetTaxableIncome("USD 1,000.00")
+            }
+            pendingNote.shouldBeHidden()
         }
     }
 
