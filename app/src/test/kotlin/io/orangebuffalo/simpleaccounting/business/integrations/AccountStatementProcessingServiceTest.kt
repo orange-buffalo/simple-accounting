@@ -192,9 +192,14 @@ class AccountStatementProcessingServiceTest(
         }
 
         @ParameterizedTest
-        @CsvSource("false,10800,9000,1800", "true,15000,12500,2500")
-        fun `should populate conversion amounts preserving income data and distinct taxation`(
-            differentTaxRate: Boolean, taxableAmount: Long, taxableAdjusted: Long, taxAmount: Long,
+        @CsvSource(
+            "false,null,null,null,PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
+            "true,null,null,null,PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
+            "true,15000,12500,2500,FINALIZED",
+            nullValues = ["null"],
+        )
+        fun `should save actual conversion without filling in a missing separate tax amount`(
+            differentTaxRate: Boolean, taxableAmount: Long?, taxableAdjusted: Long?, taxAmount: Long?, expectedStatus: IncomeStatus,
         ) {
             val setup = preconditions {
                 object {
@@ -206,7 +211,7 @@ class AccountStatementProcessingServiceTest(
                     val income = income(
                         workspace = workspace, currency = "USD", originalAmount = 12000, dateReceived = LocalDate.parse("1999-03-27"),
                         title = "Slurm delivery", convertedAmounts = AmountsInDefaultCurrency(null), linkedInvoice = invoice,
-                        incomeTaxableAmounts = AmountsInDefaultCurrency(15000), useDifferentExchangeRateForIncomeTaxPurposes = differentTaxRate,
+                        incomeTaxableAmounts = AmountsInDefaultCurrency(taxableAmount), useDifferentExchangeRateForIncomeTaxPurposes = differentTaxRate,
                         generalTax = generalTax(workspace = workspace, rateInBps = 2000),
                         attachments = setOf(originalDocument), notes = "Good news, everyone!", status = IncomeStatus.PENDING_CONVERSION,
                     )
@@ -222,7 +227,8 @@ class AccountStatementProcessingServiceTest(
             aggregateTemplate.reload(setup.income).shouldBeEntityWithFields(setup.income.copy(
                 convertedAmounts = AmountsInDefaultCurrency(originalAmountInDefaultCurrency = 10800, adjustedAmountInDefaultCurrency = 9000),
                 incomeTaxableAmounts = AmountsInDefaultCurrency(originalAmountInDefaultCurrency = taxableAmount, adjustedAmountInDefaultCurrency = taxableAdjusted),
-                generalTaxRateInBps = 2000, generalTaxAmount = taxAmount, status = IncomeStatus.FINALIZED,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                generalTaxRateInBps = 2000, generalTaxAmount = taxAmount, status = expectedStatus,
                 attachments = setOf(IncomeAttachment(setup.originalDocument.id!!), IncomeAttachment(setup.conversionDocument.id!!)),
                 notes = "Good news, everyone!\nConverted on 1999-03-27: 1 USD = 0.9 EUR",
             ))
@@ -345,6 +351,9 @@ class AccountStatementProcessingServiceTest(
             process(integration = integration, create = true, convert = true)
             val income = aggregateTemplate.findSingle<Income>()
             income.convertedAmounts.shouldBe(AmountsInDefaultCurrency(10800))
+            income.useDifferentExchangeRateForIncomeTaxPurposes.shouldBe(true)
+            income.incomeTaxableAmounts.shouldBe(AmountsInDefaultCurrency(null))
+            income.status.shouldBe(IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES)
             income.notes.shouldBe("Converted on 1999-03-27: 1 USD = 0.9 EUR")
             aggregateTemplate.findAll<AccountStatementRecord>().map { it.linkedIncomeId }.shouldBe(listOf(income.id, income.id))
         }

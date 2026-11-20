@@ -131,6 +131,10 @@ class AccountStatementProcessingService(
             val updatedNotes = listOfNotNull(matched.notes?.takeIf { it.isNotEmpty() }, note).joinToString("\n")
             incomesService.saveIncome(matched.copy(
                 convertedAmounts = AmountsInDefaultCurrency(targetAmount),
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                incomeTaxableAmounts = if (matched.useDifferentExchangeRateForIncomeTaxPurposes) {
+                    matched.incomeTaxableAmounts
+                } else AmountsInDefaultCurrency(null),
                 attachments = matched.attachments + record.attachments.map { IncomeAttachment(it.documentId) },
                 notes = updatedNotes.takeIf { it.length <= 1024 } ?: matched.notes,
             ))
