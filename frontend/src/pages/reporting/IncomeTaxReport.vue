@@ -1,5 +1,6 @@
 <template>
   <div class="income-tax-report">
+    <TaxReportPendingNote v-if="hasPendingTransactions" />
     <h2>{{ $t.incomeTaxReport.sections.incomes() }}</h2>
     <IncomeTaxReportTable :data="incomes" />
     <div v-if="report" class="income-tax-report__total text-right">
@@ -28,6 +29,7 @@
   import { computed, onMounted, ref, watch } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import IncomeTaxReportTable from '@/pages/reporting/IncomeTaxReportTable.vue';
+  import TaxReportPendingNote from '@/pages/reporting/TaxReportPendingNote.vue';
   import type { IncomeTaxReportItem } from '@/pages/reporting/income-tax-report';
   import { graphql } from '@/services/api/gql';
   import { useLazyQuery } from '@/services/api/use-gql-api';
@@ -86,6 +88,8 @@
   `), 'workspace');
 
   const report = ref<IncomeTaxReportData | null>(null);
+  const hasPendingTransactions = computed(() => report.value !== null
+    && (report.value.incomesSummary.pendingCount > 0 || report.value.expensesSummary.pendingCount > 0));
   const { currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
 
   const reloadReport = async () => {
@@ -105,7 +109,7 @@
   const transformSummary = (summary: Summary | undefined): IncomeTaxReportItem[] => {
     if (!summary) return [];
 
-    const items = summary.items
+    const items: IncomeTaxReportItem[] = summary.items
       .filter((item) => item.finalizedCount > 0)
       .map((item) => ({
         categoryName: item.category?.name ?? $t.value.incomeTaxReport.uncategorized(),
@@ -116,7 +120,6 @@
 
     if (summary.pendingCount > 0) {
       items.push({
-        categoryName: $t.value.incomeTaxReport.pending(),
         numberOfItems: summary.pendingCount,
         amount: 0,
         finalized: false,

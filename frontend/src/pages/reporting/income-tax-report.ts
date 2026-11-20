@@ -1,5 +1,5 @@
 export interface IncomeTaxReportItem {
-  categoryName: string;
+  categoryName?: string;
   numberOfItems: number;
   amount: number;
   finalized: boolean;

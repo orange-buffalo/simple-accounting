@@ -3,20 +3,17 @@
     <ElTableColumn
       align="left"
       header-align="left"
-      prop="categoryName"
       :label="$t.incomeTaxReport.tableColumns.category()"
-    />
+      #default="{ row }"
+    >
+      <TaxReportRowLabel :name="row.categoryName" :finalized="row.finalized" />
+    </ElTableColumn>
     <ElTableColumn
       align="right"
       header-align="right"
+      prop="numberOfItems"
       :label="$t.incomeTaxReport.tableColumns.numberOfItems()"
-      #default="{ row }"
-    >
-      <span v-if="row.finalized">{{ row.numberOfItems }}</span>
-      <SaStatusLabel v-else simplified status="pending" hide-icon>
-        {{ row.numberOfItems }}
-      </SaStatusLabel>
-    </ElTableColumn>
+    />
     <ElTableColumn
       align="right"
       header-align="right"
@@ -34,8 +31,8 @@
 
 <script lang="ts" setup>
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import type { IncomeTaxReportItem } from '@/pages/reporting/income-tax-report';
+  import TaxReportRowLabel from '@/pages/reporting/TaxReportRowLabel.vue';
   import { $t } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
 

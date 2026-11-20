@@ -1316,6 +1316,10 @@ export default {
 
   reporting: {
     header: () => 'Reporting',
+    pending: {
+      label: () => 'Pending',
+      excludedFromTotals: () => 'Pending transactions are not included in the totals.',
+    },
     wizard: {
       selectionIntro: () => 'Choose the report you want to explore',
       steps: {
@@ -1540,7 +1544,6 @@ export default {
 
   incomeTaxReport: {
     uncategorized: () => 'Uncategorized',
-    pending: () => 'Pending',
     sections: {
       incomes: () => 'Incomes',
       expenses: () => 'Expenses',
