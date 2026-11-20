@@ -65,12 +65,15 @@ class ReportingPage private constructor(page: Page) : SaPageBase(page) {
 }
 
 class TaxReportPendingNote(container: Locator) : UiComponent<TaxReportPendingNote>() {
+    private val message = "Pending transactions are not included in the totals."
     private val note = container.getByText(
-        "Pending transactions are not included in the totals.",
+        message,
         Locator.GetByTextOptions().setExact(true),
     )
+    private val alertMessage = container.getByRole(AriaRole.ALERT)
+        .getByText(message, Locator.GetByTextOptions().setExact(true))
 
-    fun shouldBeVisible() = note.shouldBeVisible()
+    fun shouldBeVisible() = alertMessage.shouldBeVisible()
 
     fun shouldBeHidden() = note.shouldBeHidden()
 }

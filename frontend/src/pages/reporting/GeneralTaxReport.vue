@@ -1,6 +1,5 @@
 <template>
   <div>
-    <TaxReportPendingNote v-if="hasPendingTransactions" />
     <h2>{{ $t.generalTaxReport.sections.collected() }}</h2>
     <GeneralTaxReportTable :data="collectedTaxes" />
     <div
@@ -31,6 +30,7 @@
         />
       </b>
     </div>
+    <TaxReportPendingNote v-if="hasPendingTransactions" />
   </div>
 </template>
 

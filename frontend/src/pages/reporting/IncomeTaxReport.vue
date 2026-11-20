@@ -1,6 +1,5 @@
 <template>
   <div class="income-tax-report">
-    <TaxReportPendingNote v-if="hasPendingTransactions" />
     <h2>{{ $t.incomeTaxReport.sections.incomes() }}</h2>
     <IncomeTaxReportTable :data="incomes" />
     <div v-if="report" class="income-tax-report__total text-right">
@@ -22,6 +21,7 @@
         <SaMoneyOutput :currency="defaultCurrency" :amount-in-cents="netTaxableIncome" />
       </strong>
     </div>
+    <TaxReportPendingNote v-if="hasPendingTransactions" />
   </div>
 </template>
 
