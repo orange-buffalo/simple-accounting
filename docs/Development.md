@@ -200,21 +200,3 @@ PostgreSQL migrations are in `app/src/main/resources/db/migration` and drive sch
 code generation. Do not edit existing migration files. Add new PostgreSQL schema changes as versioned migrations after
 `V0001__Postgresql_baseline.sql`. Never drop the Flyway history of an existing installation to
 replace its migrations: that would invalidate upgrades.
-
-### Verifying jOOQ generation
-
-Run `./gradlew :app:jooqCodegen` to regenerate `app/build/generated-sources/jooq` directly from the
-migration SQL, without a running database. Java and Kotlin compilation both run generation as needed.
-
-When changing the codegen configuration without changing the schema, save a copy of the generated
-directory before the change and use `diff -qr` to confirm it is identical after the change. To check
-the build wiring, run `./gradlew :app:clean :app:compileJava --no-build-cache --console=plain` and
-confirm both `:app:compileKotlin` and `:app:compileJava` execute successfully. A subsequent
-`./gradlew :app:jooqCodegen --no-build-cache --console=plain` must report `UP-TO-DATE`.
-
-In a disposable checkout, copy the current generated directory, then add a temporary migration
-with the next unused version containing
-`create table planet_express_probe (id bigint primary key);`. Run the same codegen command and
-check that it executes and creates `tables/PlanetExpressProbePathTable.java` under the generated
-model package. Remove the temporary migration, rerun codegen, and compare the generated directory
-with the copy made before adding the migration to check that no stale files remain.
