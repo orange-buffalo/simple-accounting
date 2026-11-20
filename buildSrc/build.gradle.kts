@@ -9,10 +9,6 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("saJooqCodeGen") {
-            id = "sa.jooq-codegen"
-            implementationClass = "SaJooqCodeGenPlugin"
-        }
         create("saHotReload") {
             id = "sa.hot-reload"
             implementationClass = "SaHotReloadPlugin"
@@ -25,10 +21,7 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(libs.jooq.metaExtensions) {
-        // causes conflicts with spring-boot plugin
-        exclude(group = "org.springframework")
-    }
+    // The generator strategy is loaded from buildSrc and needs its jOOQ superclass on that classpath.
     implementation(libs.jooq.codegen)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.snakeYaml)
