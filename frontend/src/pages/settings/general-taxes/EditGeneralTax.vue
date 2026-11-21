@@ -12,8 +12,9 @@
         :label="$t.editGeneralTax.form.description.label()"
         :placeholder="$t.editGeneralTax.form.description.placeholder()"
       />
-      <!--todo #79: input in bps-->
       <SaFormNumberInput
+        v-model:invalid-format="invalidRateFormat"
+        :scaled-decimal-places="2"
         prop="rateInBps"
         :label="$t.editGeneralTax.form.rate.label()"
         :placeholder="$t.editGeneralTax.form.rate.placeholder()"
@@ -43,7 +44,9 @@
     CreateGeneralTaxMutationVariables,
     EditGeneralTaxMutationVariables,
   } from '@/services/api/gql/graphql.ts';
-  import { AsFormValues, toRequestArgs, updateFormValues } from '@/components/form/sa-form-api.ts';
+  import {
+    AsFormValues, ClientSideValidationError, toRequestArgs, updateFormValues,
+  } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: string,
@@ -116,6 +119,8 @@
     description: null,
     rateInBps: null,
   });
+  const invalidRateFormat = ref(false);
+  const maxRateInBps = 10_000;
 
   const loadTax = props.id !== undefined ? async () => {
     const workspace = await getGeneralTaxQuery({
@@ -126,6 +131,13 @@
   } : undefined;
 
   const saveTax = async () => {
+    const { rateInBps } = formValues.value;
+    if (invalidRateFormat.value || (rateInBps != null && (rateInBps < 0 || rateInBps > maxRateInBps))) {
+      throw new ClientSideValidationError([{
+        field: 'rateInBps',
+        message: $t.value.editGeneralTax.form.rate.invalid(),
+      }]);
+    }
     if (props.id === undefined) {
       await createGeneralTax(toRequestArgs(formValues));
     } else {

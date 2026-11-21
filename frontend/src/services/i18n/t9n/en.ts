@@ -1503,8 +1503,9 @@ export default {
         placeholder: () => 'Short description of a tax',
       },
       rate: {
-        label: () => 'Rate',
-        placeholder: () => 'Provide a rate for this tax',
+        label: () => 'Rate (%)',
+        placeholder: () => 'e.g. 20.25',
+        invalid: () => 'Enter a percentage from 0 to 100 with up to two decimal places',
       },
     },
   },

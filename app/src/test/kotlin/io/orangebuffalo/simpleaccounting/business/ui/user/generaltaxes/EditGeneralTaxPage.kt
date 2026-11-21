@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 abstract class EditGeneralTaxPageBase(page: Page) : SaPageBase(page) {
     val title = components.formItemTextInputByLabel("Title")
     val description = components.formItemTextInputByLabel("Description")
-    val rate = components.formItemTextInputByLabel("Rate")
+    val rate = components.formItemTextInputByLabel("Rate (%)")
 
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")

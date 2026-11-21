@@ -23,7 +23,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateGeneralTaxPage {
             title { input.fill("VAT") }
-            rate { input.fill("2000") }
+            rate { input.fill("20,29") }
             description { input.fill("Value Added Tax") }
             saveButton.click()
         }
@@ -34,7 +34,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
             .shouldBeEntityWithFields(
                 GeneralTax(
                     title = "VAT",
-                    rateInBps = 2000,
+                    rateInBps = 2029,
                     description = "Value Added Tax",
                     workspaceId = preconditions.workspace.id!!,
                 )
@@ -56,7 +56,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
             reportRendering("create-general-tax.validation-errors-empty")
 
             // Fill rate to allow title to reach server-side validation
-            rate { input.fill("2000") }
+            rate { input.fill("20") }
             saveButton.click()
 
             title {
@@ -80,7 +80,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             title { input.fill("x".repeat(256)) }
-            rate { input.fill("2000") }
+            rate { input.fill("20") }
             saveButton.click()
 
             title {
@@ -98,23 +98,23 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             description { input.fill("") }
-            rate { input.fill("-1") }
+            rate { input.fill("-0.01") }
             saveButton.click()
 
-            rate {
-                shouldHaveValidationError("The value must be no less than 0")
-            }
             shouldHaveNotifications { validationFailed() }
+            rate {
+                shouldHaveValidationError("Enter a percentage from 0 to 100 with up to two decimal places")
+            }
 
             reportRendering("create-general-tax.validation-error-rate-min")
 
-            rate { input.fill("10001") }
+            rate { input.fill("100.01") }
             saveButton.click()
 
-            rate {
-                shouldHaveValidationError("The value must be no greater than 10,000")
-            }
             shouldHaveNotifications { validationFailed() }
+            rate {
+                shouldHaveValidationError("Enter a percentage from 0 to 100 with up to two decimal places")
+            }
         }
     }
 
@@ -123,7 +123,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateGeneralTaxPage {
             title { input.fill("VAT") }
-            rate { input.fill("2000") }
+            rate { input.fill("20") }
             cancelButton.click()
         }
 
