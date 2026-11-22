@@ -609,6 +609,13 @@
       "appliesWhen": "Selecting date-only records against the current date in user-preferred time zones; excludes explicitly database-owned calendar calculations",
       "instruction": "Calculate current local-date thresholds through TimeService and JVM ZoneId, then use ordinary typed database comparisons. For multiple owner zones, calculate thresholds per distinct zone while preserving batch SQL eligibility filtering; do not embed timezone conversion and date casts in raw SQL for this purpose.",
       "reason": "Application-owned calendar semantics should not be duplicated in database-specific expressions."
+    },
+    {
+      "id": "full-stack-translation-test-scope",
+      "category": "testing",
+      "appliesWhen": "Adding full-stack translated-copy coverage or translation-specific page-object variants; excludes explicitly requested translation tests and existing backend localization contracts",
+      "instruction": "Do not add translated-copy full-stack tests, translation-only rendering captures or translation-specific page-object variants unless explicitly requested. Preserve production translations. Test locale-dependent numeric behavior with a fixed UI language and retain exact persistence assertions.",
+      "reason": "Production localization requirements do not authorize separate translation-copy test workflows."
     }
   ]
 }

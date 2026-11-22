@@ -21,7 +21,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 val tax = generalTax(
                     workspace = workspace,
                     title = "VAT",
-                    rateInBps = 2000,
+                    rateInBps = 2029,
                     description = "Value Added Tax"
                 )
             }
@@ -34,7 +34,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("VAT")
             }
             rate {
-                input.shouldHaveValue("2000")
+                input.shouldHaveValue("20.29")
             }
             description {
                 input.shouldHaveValue("Value Added Tax")
@@ -67,8 +67,8 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 input.fill("Sales Tax")
             }
             rate {
-                input.shouldHaveValue("2000")
-                input.fill("1500")
+                input.shouldHaveValue("20")
+                input.fill("15.06")
             }
             description {
                 input.shouldHaveValue("Value Added Tax")
@@ -83,7 +83,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             .shouldBeEntityWithFields(
                 GeneralTax(
                     title = "Sales Tax",
-                    rateInBps = 1500,
+                    rateInBps = 1506,
                     description = "State Sales Tax",
                     workspaceId = testData.workspace.id!!,
                 )
@@ -149,7 +149,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             reportRendering("edit-general-tax.validation-errors-empty")
 
             // Fill rate to allow title to reach server-side validation
-            rate { input.fill("1500") }
+            rate { input.fill("15") }
             saveButton.click()
 
             title {
@@ -173,7 +173,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             title { input.fill("x".repeat(256)) }
-            rate { input.fill("1500") }
+            rate { input.fill("15") }
             saveButton.click()
 
             title {
@@ -191,21 +191,21 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
             shouldHaveNotifications { validationFailed() }
 
             description { input.fill("") }
-            rate { input.fill("-1") }
+            rate { input.fill("-0.01") }
             saveButton.click()
 
+            shouldHaveNotifications { validationFailed() }
             rate {
                 shouldHaveValidationError("The value must be no less than 0")
             }
-            shouldHaveNotifications { validationFailed() }
 
-            rate { input.fill("10001") }
+            rate { input.fill("100.01") }
             saveButton.click()
 
-            rate {
-                shouldHaveValidationError("The value must be no greater than 10,000")
-            }
             shouldHaveNotifications { validationFailed() }
+            rate {
+                shouldHaveValidationError("The value must be no greater than 100")
+            }
         }
     }
 

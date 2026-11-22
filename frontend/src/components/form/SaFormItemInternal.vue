@@ -19,12 +19,15 @@
   import {
     onMounted, onUnmounted, ref, watch,
   } from 'vue';
-  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+  import { AdaptApiFieldError, useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined } from '@/services/utils.ts';
   import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
   import SaInputLoader from '@/components/SaInputLoader.vue';
 
-  const props = defineProps<SaFormComponentProps>();
+  const props = defineProps<SaFormComponentProps & {
+    inputError?: string,
+    adaptApiError?: AdaptApiFieldError,
+  }>();
 
   const formItemContext = ref<FormItemContext | null>(null);
   const saFormApi = useSaFormComponentsApi();
@@ -63,7 +66,11 @@
   });
 
   onMounted(() => {
-    saFormApi.registerFormItem(props.prop, ensureDefined(formItemContext.value));
+    saFormApi.registerFormItem(props.prop, {
+      context: ensureDefined(formItemContext.value),
+      validate: () => props.inputError,
+      adaptApiError: (error) => props.adaptApiError?.(error) ?? error,
+    });
   });
 
   onUnmounted(() => {

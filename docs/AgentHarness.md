@@ -139,7 +139,9 @@ review roles are rejected to keep paired configurations identical. All read-only
 including finding and learning verifiers, receive an explicit configured model; they never inherit the caller's model.
 Fixers may inherit it unless overridden. Time and cost limits are checked **between operations**; an in-flight parallel
 batch may exceed them. These are not hard spend caps. The controller awaits every worker in a batch, accounts for all
-reported costs and saves separate artifacts before proceeding or blocking. Interrupted/unaccounted workers prevent resume.
+reported costs and saves separate artifacts before proceeding or blocking. Native delegation can return a running child
+even when requested in foreground mode. The controller journals the child ID and waits for completion before consuming
+its report; unbound worker output never counts toward a receipt.
 The worktree lock serializes controller invocations, not reviewers within a run. Review detects snapshot drift.
 The stored `reviewers` list remains a legacy compatibility bridge; updated consumers use `reviewTopology` instead.
 When `reviewTopology` is present, both lists are validated independently; an invalid legacy bridge fails closed.
@@ -168,6 +170,13 @@ commit or publish them. A passed receipt applies only to its recorded fingerprin
 rounds remain; after exhaustion, finish validation and disclose that the final source has no clean review receipt.
 After an interrupted process leaves `controller.lock`, inspect its PID and active sessions before manually
 removing that **single stale file**. Never delete active-run locks or reset budgets to work around a blocker.
+For a review execution failure, the primary agent must investigate the failed role, error, child session and artifacts.
+Reproduce and fix repository harness defects with regression coverage rather than handing off a recurring blocker.
+Reload updated plugin code before resuming the same run. The controller reconciles interrupted children against their
+parent, delegation prompt, terminal outcome and reported cost. It preserves spent rounds and prior evidence and does
+not adopt unverified output. A running worker that lost its trusted binding on reload is denied tools and interrupted
+before its cost is reconciled. If reconciliation still fails, investigate the specific diagnostic; report any external
+blocker with the evidence and attempted remedy. Never guess usage or start a replacement run to bypass limits.
 
 Workers use glob plus read for investigation. Grep is denied because OpenCode's grep permission resource is the search
 pattern, not the paths traversed; a path-based secret deny would not protect recursive searches. Read denies cover

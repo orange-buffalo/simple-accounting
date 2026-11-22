@@ -2,11 +2,20 @@ import {
   inject, InjectionKey, provide, Ref,
 } from 'vue';
 import { FormItemContext } from 'element-plus';
+import { FieldError } from '@/services/api/api-errors.ts';
 
 export type FormValues = Exclude<object, Function | null>; // not a primitive and not a function
 
+export type AdaptApiFieldError = (error: FieldError) => FieldError;
+
+export type SaFormItemRegistration = {
+  context: FormItemContext;
+  validate: () => string | undefined;
+  adaptApiError?: AdaptApiFieldError;
+};
+
 export type SaFormComponentsApi = {
-  registerFormItem: (prop: string, item: FormItemContext) => void;
+  registerFormItem: (prop: string, item: SaFormItemRegistration) => void;
   unregisterFormItem: (prop: string) => void;
   formValues: Ref<FormValues>;
   submitForm: () => Promise<void>;

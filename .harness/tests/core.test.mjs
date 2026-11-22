@@ -1293,6 +1293,82 @@ test('unaccounted concurrent worker failure preserves completed artifacts and bl
   await assert.rejects(controller.review({ ...input, runId: result.runId }), /Unreconciled interrupted agent/);
 });
 
+for (const journaled of [true, false]) {
+  test(`same run recovers ${journaled ? 'journaled' : 'legacy'} child cost, but not its review output`, async (t) => {
+    const { root, input } = await fixture(t);
+    const parentSessionID = 'ses_fry';
+    const sessionId = 'ses_leela';
+    let originalPrompt;
+    const initial = new Controller(root, async ({ role, prompt, recordSession }) => {
+      if (role !== 'review-2') return answer(report, 0.25);
+      originalPrompt = prompt;
+      if (journaled) {
+        await recordSession(sessionId);
+        throw new Error('Lost connection during wait');
+      }
+      throw new Error(`Subagent did not bind a child worker: ${JSON.stringify({ output: { sessionID: sessionId } })}`);
+    });
+    const blocked = await initial.review({ ...input, parentSessionID });
+    assert.equal(blocked.status, 'blocked');
+    assert.equal(blocked.nextAction, 'investigate-execution-failure-and-resume');
+    // A pre-fix run did not store a batch journal identifier.
+    if (!journaled) {
+      const file = path.join(blocked.evidence, 'state.json');
+      const legacy = JSON.parse(await readFile(file));
+      delete legacy.pendingBatch;
+      await writeFile(file, JSON.stringify(legacy));
+    }
+    const launched = [];
+    const recovered = new Controller(root, async ({ role }) => {
+      launched.push(role);
+      return answer(report, 0.25);
+    }, async (worker) => {
+      assert.deepEqual(worker, { sessionId, prompt: originalPrompt, parentSessionID });
+      return { cost: 0.5, outcome: 'succeeded', text: 'untrusted prior report' };
+    });
+    const receipt = await recovered.review({ ...input, runId: blocked.runId, parentSessionID: 'ses_bender' });
+    assert.equal(receipt.status, 'passed');
+    assert.equal(receipt.runId, blocked.runId);
+    assert.equal(receipt.totalRounds, 2);
+    assert.equal(receipt.cost, 2.25);
+    assert.deepEqual(launched, Object.keys(reviewerScopes));
+    const state = JSON.parse(await readFile(path.join(receipt.evidence, 'state.json')));
+    assert.deepEqual(state.workerRecoveries.map(({ role, cost }) => ({ role, cost })), [{ role: 'review-2', cost: 0.5 }]);
+    assert.equal(state.pendingAgents, undefined);
+    assert.equal(state.rounds[0].reports.length, 0);
+    assert.equal(state.rounds[1].reports.length, 4);
+  });
+}
+
+test('recovery refuses unknown cost and counts recovered cost against the existing turn before launching workers', async (t) => {
+  const { root, input } = await fixture(t, { maxCostUsd: 1 });
+  const parentSessionID = 'ses_fry';
+  const controller = new Controller(root, async ({ role, recordSession }) => {
+    if (role === 'review-2') {
+      await recordSession('ses_leela');
+      throw new Error('Wait disconnected');
+    }
+    return answer(report, 0.25);
+  });
+  const blocked = await controller.review({ ...input, parentSessionID });
+  const resume = { ...input, runId: blocked.runId, parentSessionID };
+  let cost;
+  let launched = 0;
+  const recovered = new Controller(root, async () => { launched++; return answer(report); },
+    async () => ({ cost, outcome: 'succeeded' }));
+  for (const unknown of [undefined, -1]) {
+    cost = unknown;
+    await assert.rejects(recovered.review(resume), /Child session cost still unavailable/);
+  }
+  cost = 0.5;
+  const result = await recovered.review(resume);
+  assert.equal(result.status, 'blocked');
+  assert.match(result.error, /budget/i);
+  assert.equal(result.cost, 1.25);
+  assert.equal(result.totalRounds, 1);
+  assert.equal(launched, 0);
+});
+
 test('delivery requires explicit primary-agent validation after controller repairs before handover', async () => {
   const skill = await readFile(new URL('../../.agents/skills/sa-delivery/SKILL.md', import.meta.url), 'utf8');
   const postReview = skill.indexOf('4. After `sa_review` returns');

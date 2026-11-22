@@ -1225,6 +1225,9 @@ export default {
   },
 
   formValidationMessages: {
+    invalidDecimal: (places: number) => format(
+      'Enter a number with at most {places, plural, one {# decimal place} other {# decimal places}}', { places },
+    ),
     sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number} characters', {
       min,
       max,
@@ -1503,8 +1506,8 @@ export default {
         placeholder: () => 'Short description of a tax',
       },
       rate: {
-        label: () => 'Rate',
-        placeholder: () => 'Provide a rate for this tax',
+        label: () => 'Rate (%)',
+        placeholder: () => 'e.g. 20.25',
       },
     },
   },

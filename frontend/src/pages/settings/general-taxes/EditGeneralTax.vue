@@ -12,8 +12,8 @@
         :label="$t.editGeneralTax.form.description.label()"
         :placeholder="$t.editGeneralTax.form.description.placeholder()"
       />
-      <!--todo #79: input in bps-->
       <SaFormNumberInput
+        :scaled-decimal-places="2"
         prop="rateInBps"
         :label="$t.editGeneralTax.form.rate.label()"
         :placeholder="$t.editGeneralTax.form.rate.placeholder()"

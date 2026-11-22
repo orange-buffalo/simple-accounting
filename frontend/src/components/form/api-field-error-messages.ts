@@ -1,19 +1,19 @@
-import { FormItemContext } from 'element-plus';
 import { $t } from '@/services/i18n';
 import { FieldError } from '@/services/api/api-errors.ts';
 import { FieldError as ClientFieldError } from '@/components/form/sa-form-api.ts';
+import { SaFormItemRegistration } from '@/components/form/sa-form-components-api.ts';
 
 /**
  * Sets form item errors based on the API response.
  */
 export function setFieldsErrorsFromApiResponse(
   apiFieldErrors: FieldError[],
-  formItems: Map<string, FormItemContext>,
+  formItems: ReadonlyMap<string, SaFormItemRegistration>,
 ) {
   setFieldErrorsFromClientSideValidation(
     apiFieldErrors.map((apiError) => ({
       field: apiError.field,
-      message: getApiFieldErrorMessage(apiError),
+      message: getApiFieldErrorMessage(formItems.get(apiError.field)?.adaptApiError?.(apiError) ?? apiError),
     })),
     formItems,
   );
@@ -24,10 +24,10 @@ export function setFieldsErrorsFromApiResponse(
  */
 export function setFieldErrorsFromClientSideValidation(
   fieldErrors: ClientFieldError[],
-  formItems: Map<string, FormItemContext>,
+  formItems: ReadonlyMap<string, SaFormItemRegistration>,
 ) {
   fieldErrors.forEach((fieldError) => {
-    const formItem = formItems.get(fieldError.field);
+    const formItem = formItems.get(fieldError.field)?.context;
     if (formItem) {
       formItem.validateState = 'error';
       // @ts-ignore
