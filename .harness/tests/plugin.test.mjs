@@ -98,6 +98,8 @@ test('workers use native child sessions, freeze knowledge and deny blind tools',
   const permissions = [];
   let workerPrompt;
   let calls = 0;
+  let recorded;
+  let completed = false;
   const context = { sessionID: 'ses_fry', id: 'call_leela' };
   const model = { providerID: 'openai', id: 'gpt-6.1-sol', variant: 'medium' };
   const ctx = {
@@ -106,28 +108,41 @@ test('workers use native child sessions, freeze knowledge and deny blind tools',
       update: async (rules) => permissions.push(rules),
       hook: async (kind, handler) => hooks.set(kind, handler),
       create: async () => { throw new Error('Standalone session creation is forbidden'); },
-      get: async () => ({ id: 'ses_leela', parentID: 'ses_fry', title: 'SA blind-baseline', outcome: 'succeeded', cost: 0.25 }),
-      context: async () => [{ type: 'user', text: workerPrompt },
-        { type: 'assistant', finish: 'stop', content: [{ type: 'text', text: '{"findings":[]}' }] }],
+      get: async () => ({ data: { id: 'ses_leela', parentID: 'ses_fry', outcome: completed ? 'succeeded' : undefined,
+        cost: completed ? 0.25 : undefined } }),
+      context: async () => ({ data: [{ type: 'user', text: workerPrompt },
+        ...(completed ? [{ type: 'assistant', finish: 'stop', content: [{ type: 'text', text: '{"findings":[]}' }] }] : [])] }),
+      wait: async ({ sessionID }) => {
+        assert.equal(sessionID, 'ses_leela');
+        assert.equal(recorded, sessionID);
+        const event = { sessionID, system: [], tools: { read: {}, shell: {} } };
+        await hooks.get('context')(event);
+        assert.ok(event.system.some(({ text }) => text.includes('Frozen Fry lesson')));
+        assert.ok(event.system.some(({ text }) => text.includes('Never run builds/tests or inspect their results')));
+        assert.deepEqual(event.tools, {});
+        completed = true;
+      },
     },
     tool: { list: async () => [{ id: 'subagent', execute: async (input, actualContext) => {
       workerPrompt = `You are a subagent spawned by another session.\n${input.prompt}`;
       calls++; assert.equal(actualContext, context); assert.equal(input.background, false);
       assert.equal(input.agent, 'sa-reviewer'); assert.equal(input.model, 'openai/gpt-6.1-sol#medium');
-      const event = { sessionID: 'ses_leela', system: [], tools: { read: {}, shell: {} } };
-      await hooks.get('context')(event);
-      assert.ok(event.system.some(({ text }) => text.includes('Frozen Fry lesson')));
-      assert.ok(event.system.some(({ text }) => text.includes('Never run builds/tests or inspect their results')));
-      assert.deepEqual(event.tools, {});
-      return { content: 'complete' };
+      return { output: { status: 'running', sessionID: 'ses_leela' } };
     } }] },
   };
   const workers = await createWorkers(ctx);
   workers.contexts.set('ses_fry', context);
   await assert.rejects(workers.execute({ role: 'blind-baseline', prompt: 'Review Slurm', knowledge: 'Frozen Fry lesson', parentSessionID: 'ses_fry' }), /explicit configured reviewer model/);
-  const result = await workers.execute({ role: 'blind-baseline', prompt: 'Review Slurm', knowledge: 'Frozen Fry lesson', model, parentSessionID: 'ses_fry' });
+  const result = await workers.execute({ role: 'blind-baseline', prompt: 'Review Slurm', knowledge: 'Frozen Fry lesson',
+    model, parentSessionID: 'ses_fry', recordSession: async (id) => { recorded = id; } });
   assert.equal(calls, 1); assert.equal(result.parentSessionID, 'ses_fry'); assert.equal(result.failed, false);
   assert.deepEqual(permissions, [{ sessionID: 'ses_leela', permissions: [{ action: '*', resource: '*', effect: 'deny' }] }]);
+  assert.deepEqual(await workers.reconcile({ sessionId: recorded, parentSessionID: 'ses_fry', prompt: 'Review Slurm' }),
+    { cost: 0.25, outcome: 'succeeded' });
+  await assert.rejects(workers.reconcile({ sessionId: recorded, parentSessionID: 'ses_fry', prompt: 'Review Robot Oil' }),
+    /recovery prompt mismatch/);
+  await assert.rejects(workers.reconcile({ sessionId: recorded, parentSessionID: 'ses_bender', prompt: 'Review Slurm' }),
+    /session or parent mismatch/);
 });
 
 test('concurrent native workers bind separate child sessions and restrict result reads', async () => {
@@ -178,6 +193,99 @@ test('concurrent native workers bind separate child sessions and restrict result
   }
 });
 
+test('interrupted worker waits preserve live restrictions and fail closed after reload', async () => {
+  for (const interruption of ['before binding', 'after binding', 'before reload']) {
+    const hooks = new Map();
+    const sessionID = 'ses_leela';
+    const parentSessionID = 'ses_fry';
+    const binding = { sessionID, parentSessionID };
+    let text;
+    let outcome;
+    let waits = 0;
+    let interrupts = 0;
+    const permissions = [];
+    const generate = async () => {
+      const event = { sessionID, system: [], tools: { read: {}, shell: {} } };
+      await hooks.get('generate')(event);
+      assert.deepEqual(Object.keys(event.tools), ['read']);
+      assert.ok(event.system.some(({ text: instruction }) => instruction.includes('Frozen Leela lesson')));
+    };
+    const ctx = {
+      agent: { get: async () => ({ permissions: [{ action: 'read', resource: '*', effect: 'allow' }] }) },
+      session: {
+        hook: async (kind, handler) => hooks.set(kind, handler),
+        update: async (request) => permissions.push(request.permissions),
+        get: async () => ({ id: sessionID, parentID: parentSessionID, outcome, cost: 0.25 }),
+        context: async () => [{ type: 'user', text }],
+        wait: async () => {
+          if (++waits === 1) {
+            if (interruption !== 'before binding') await generate();
+            throw new Error('Wait disconnected');
+          }
+          if (interruption !== 'before reload') await generate();
+          outcome = interruption === 'before reload' ? 'interrupted' : 'succeeded';
+        },
+        interrupt: async (input) => {
+          assert.deepEqual(input, { sessionID, resume: false });
+          assert.deepEqual(permissions.at(-1), [{ action: '*', resource: '*', effect: 'deny' }]);
+          interrupts++;
+        },
+      },
+      tool: { list: async () => [{ id: 'subagent', execute: async (input) => {
+        text = input.prompt;
+        return { output: { sessionID, status: 'running' } };
+      } }] },
+    };
+    const workers = await createWorkers(ctx);
+    workers.contexts.set(parentSessionID, { sessionID: parentSessionID });
+    const result = await workers.execute({ role: 'review-1', prompt: 'Review Slurm', knowledge: 'Frozen Leela lesson',
+      model: { providerID: 'openai', id: 'gpt-6.1-sol' }, parentSessionID });
+    assert.equal(result.text, 'Wait disconnected');
+    assert.equal(result.failed, true);
+    const reloaded = interruption === 'before reload';
+    const recovery = reloaded ? await createWorkers(ctx) : workers;
+    if (reloaded) {
+      await assert.rejects(generate(), /no active restricted binding/);
+    } else if (interruption === 'after binding') {
+      await generate();
+    }
+    assert.deepEqual(await recovery.reconcile({ sessionId: binding.sessionID, parentSessionID, prompt: 'Review Slurm' }),
+      { cost: 0.25, outcome: reloaded ? 'interrupted' : 'succeeded' });
+    assert.equal(interrupts, reloaded ? 1 : 0);
+  }
+});
+
+test('native reports cannot pass without both a verified binding and a successful terminal outcome', async () => {
+  for (const [bind, outcome, diagnostic] of [
+    [false, 'succeeded', /did not bind/],
+    [true, undefined, /no terminal outcome/],
+    [true, 'failed', /clean-looking report/],
+  ]) {
+    const hooks = new Map();
+    const sessionID = 'ses_leela';
+    const parentSessionID = 'ses_fry';
+    const ctx = {
+      agent: { get: async () => ({ permissions: [] }) },
+      session: {
+        hook: async (kind, handler) => hooks.set(kind, handler),
+        update: async () => {},
+        get: async () => ({ id: sessionID, parentID: parentSessionID, outcome, cost: 0.25 }),
+        context: async () => [{ type: 'assistant', finish: 'stop', content: [{ type: 'text', text: 'clean-looking report' }] }],
+      },
+      tool: { list: async () => [{ id: 'subagent', execute: async (input) => {
+        if (bind) await hooks.get('prompt')({ sessionID, prompt: { text: input.prompt } });
+        return { output: { sessionID } };
+      } }] },
+    };
+    const workers = await createWorkers(ctx);
+    workers.contexts.set(parentSessionID, { sessionID: parentSessionID });
+    const result = await workers.execute({ role: 'review-1', prompt: 'Review Slurm', knowledge: '[]',
+      model: { providerID: 'openai', id: 'gpt-6.1-sol' }, parentSessionID });
+    assert.equal(result.failed, true);
+    assert.match(result.text, diagnostic);
+  }
+});
+
 test('artifact grants reject runtime state, wildcard runs, path escapes and unrelated learning evidence', async () => {
   const workers = await createWorkers({ session: { hook: async () => {} } });
   const input = { role: 'security', prompt: 'Review Slurm', knowledge: '[]',
@@ -199,7 +307,7 @@ test('matching child titles cannot acquire worker grants and tokens cannot rebin
       update: async ({ sessionID, permissions: rules }) => permissions.set(sessionID, rules),
       get: async ({ sessionID }) => ({ id: sessionID, parentID: 'ses_fry', title: 'SA security', outcome: 'succeeded', cost: 0 }),
       context: async ({ sessionID }) => [{ type: 'user', text: sessionID === 'ses_leela'
-        ? workerPrompt : 'SA_WORKER:00000000-0000-0000-0000-000000000000\nReview Slurm' },
+        ? workerPrompt : 'Review Slurm' },
         { type: 'assistant', finish: 'stop', content: [{ type: 'text', text: '{"findings":[]}' }] }],
     },
     tool: { list: async () => [{ id: 'subagent', execute: async (input) => {

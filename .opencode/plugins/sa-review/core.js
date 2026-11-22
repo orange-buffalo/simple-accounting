@@ -234,9 +234,10 @@ export async function snapshot(root, base) {
 }
 
 export class Controller {
-  constructor(root, agent) {
+  constructor(root, agent, reconcileWorker) {
     this.root = root;
     this.agent = agent;
+    this.reconcileWorker = reconcileWorker;
     this.runtime = path.join(root, '.harness/runtime');
   }
 
@@ -284,12 +285,16 @@ export class Controller {
   async askMany(state, requests) {
     this.boundary(state);
     state.pendingAgents = requests.map(({ role }) => role);
+    const batch = randomUUID();
+    state.pendingBatch = batch;
     await save(path.join(state.dir, 'state.json'), state);
     const settled = await Promise.allSettled(requests.map(({ role, prompt, bundle = state.knowledge, fixer = false }) =>
       this.agent({ role, prompt, knowledge: bundle, fixer, model: state.policy.models[role] ?? (fixer ? undefined : state.policy.reviewerModel),
         artifactRoots: state.profile ? [path.join(state.dir, 'sources')]
           : ['feedback-analysis', 'learning-validator'].includes(role) ? [path.join(state.dir, 'original-evidence')] : [],
-        parentSessionID: state.parentSessionID })));
+         parentSessionID: state.parentSessionID,
+         recordSession: (sessionId) => save(path.join(state.dir, `${batch}-${role}.json`),
+           { sessionId, prompt, parentSessionID: state.parentSessionID }) })));
     const outputs = [];
     const errors = [];
     for (const [index, outcome] of settled.entries()) {
@@ -299,22 +304,62 @@ export class Controller {
       state.artifacts.push(artifact);
       await save(path.join(state.dir, `agent-${state.artifacts.length}.json`), artifact);
       if (!Number.isFinite(result.cost) || result.cost < 0) {
-        errors.push(`Agent ${role} cost unavailable; reconcile its session before resuming`);
+        errors.push(`Agent ${role}${result.sessionId ? ` (${result.sessionId})` : ''} cost unavailable: ${result.text}`);
       } else {
         state.cost += result.cost;
         state.pendingAgents = state.pendingAgents.filter((pending) => pending !== role);
         try {
-          if (result.failed) throw new Error(`Agent ${role} did not complete: ${result.sessionId}`);
+          if (result.failed) throw new Error(`Agent ${role} did not complete (${result.sessionId}): ${result.outcome ?? result.text}`);
           outputs[index] = fixer ? result.text : parse(result.text);
         } catch (error) { errors.push(`${role}: ${error.message}`); }
       }
       await save(path.join(state.dir, 'state.json'), state);
     }
-    if (!state.pendingAgents.length) delete state.pendingAgents;
+    if (!state.pendingAgents.length) {
+      delete state.pendingAgents;
+      delete state.pendingBatch;
+    }
     await save(path.join(state.dir, 'state.json'), state);
     if (errors.length) throw new Error(errors.join('\n'));
     this.boundary(state);
     return outputs;
+  }
+
+  async reconcilePendingWorkers(state) {
+    const pending = state.pendingAgents ?? [];
+    const failures = [];
+    for (const role of pending) {
+      let record;
+      try {
+        if (!this.reconcileWorker) throw new Error('Worker diagnostics unavailable');
+        if (state.pendingBatch) {
+          record = JSON.parse(await readFile(path.join(state.dir, `${state.pendingBatch}-${role}.json`), 'utf8'));
+        } else {
+          // Older controllers embedded the native launch response in the worker failure artifact.
+          const artifact = state.artifacts.findLast((entry) => entry.role === role);
+          const prefix = 'Error: Subagent did not bind a child worker: ';
+          const sessionId = artifact?.text?.startsWith(prefix)
+            ? JSON.parse(artifact.text.slice(prefix.length)).output?.sessionID : artifact?.sessionId;
+          record = { sessionId, prompt: artifact?.prompt, parentSessionID: state.parentSessionID };
+        }
+        if (!/^ses_[a-zA-Z0-9]+$/.test(record.sessionId) || !record.prompt || !record.parentSessionID) {
+          throw new Error('No verifiable child-session record');
+        }
+        const { cost, outcome } = await this.reconcileWorker(record);
+        if (!Number.isFinite(cost) || cost < 0) throw new Error('Child session cost still unavailable');
+        state.workerRecoveries ??= [];
+        state.workerRecoveries.push({ role, sessionId: record.sessionId, outcome, cost, time: Date.now() });
+        state.cost += cost;
+        state.pendingAgents = state.pendingAgents.filter((entry) => entry !== role);
+        await save(path.join(state.dir, 'state.json'), state);
+      } catch (error) {
+        failures.push(`${role} (${record?.sessionId ?? 'unknown session'}): ${error.message}`);
+      }
+    }
+    if (state.pendingAgent) failures.push('Legacy single worker has no recovery record');
+    if (failures.length) throw new Error(`Unreconciled interrupted agent operation: ${failures.join('; ')}`);
+    delete state.pendingAgents;
+    delete state.pendingBatch;
   }
 
   async reviewSources(state, snapshot) {
@@ -342,9 +387,9 @@ export class Controller {
         const newFeedback = feedback && !(state.clarifications ?? []).some((entry) => normalizedFeedback(entry.text) === normalizedFeedback(feedback));
         if (!['running', 'blocked', 'review-exhausted', 'awaiting-verification'].includes(state.status)
           && !(newFeedback && ['passed', 'needs-human'].includes(state.status))) throw new Error('Run cannot be resumed');
-        if (state.pendingAgent || state.pendingAgents?.length) throw new Error('Unreconciled interrupted agent operation; inspect its session and cost before resuming');
         if (input.requirements !== state.requirements || input.base !== state.base || input.profile !== state.profile
-          || json(input.testClasses ?? []) !== json(state.testClasses ?? [])) throw new Error('Resume contract changed');
+           || json(input.testClasses ?? []) !== json(state.testClasses ?? [])) throw new Error('Resume contract changed');
+        if (state.pendingAgent || state.pendingAgents?.length) await this.reconcilePendingWorkers(state);
         state.parentSessionID = input.parentSessionID;
         if (state.policy.reviewers?.length === legacyReviewers.length
           && legacyReviewers.every((role) => state.policy.reviewers.includes(role))) {
@@ -483,7 +528,8 @@ export class Controller {
         totalFixes: state.fixes, turn: state.reviewTurns.length, turnRounds: roundsUsed(), totalRounds: state.rounds.length, cost: state.cost, evidence: dir,
         reviewRoundsExhausted: state.status === 'review-exhausted',
         nextAction: state.status === 'review-exhausted' ? 'finish-implementation-and-validation'
-          : state.status === 'awaiting-verification' ? 'self-review-and-complete-verifications-then-resume' : undefined,
+          : state.status === 'awaiting-verification' ? 'self-review-and-complete-verifications-then-resume'
+            : state.status === 'blocked' ? 'investigate-execution-failure-and-resume' : undefined,
         unresolved: state.status === 'passed' ? [] : state.rounds.at(-1)?.accepted ?? [], fingerprint: state.fingerprint };
     });
   }
