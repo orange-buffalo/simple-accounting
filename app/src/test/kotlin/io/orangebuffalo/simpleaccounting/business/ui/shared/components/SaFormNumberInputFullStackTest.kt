@@ -25,10 +25,7 @@ class SaFormNumberInputFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openCreateGeneralTaxPage {
             title { input.fill("Space VAT") }
-            rate {
-                input.fill("20")
-                input.fill(value)
-            }
+            rate { input.fill(value) }
             saveButton.click()
 
             shouldHaveNotifications { validationFailed() }
