@@ -103,7 +103,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
 
             shouldHaveNotifications { validationFailed() }
             rate {
-                shouldHaveValidationError("Enter a percentage from 0 to 100 with up to two decimal places")
+                shouldHaveValidationError("The value must be no less than 0")
             }
 
             reportRendering("create-general-tax.validation-error-rate-min")
@@ -113,7 +113,7 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
 
             shouldHaveNotifications { validationFailed() }
             rate {
-                shouldHaveValidationError("Enter a percentage from 0 to 100 with up to two decimal places")
+                shouldHaveValidationError("The value must be no greater than 100")
             }
         }
     }

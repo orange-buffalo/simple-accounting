@@ -1224,6 +1224,9 @@ export default {
   },
 
   formValidationMessages: {
+    invalidDecimal: (places: number) => format(
+      'Вкажіть число: не більше {places, number} знаків після коми', { places },
+    ),
     sizeMinMax: (min: number, max: number) => format('Довжина цього значення не повинна бути коротшою за {min, number} та не довшою за {max, number} символів', {
       min,
       max,
@@ -1504,7 +1507,6 @@ export default {
       rate: {
         label: () => 'Ставка (%)',
         placeholder: () => 'наприклад, 20,25',
-        invalid: () => 'Вкажіть відсоток від 0 до 100 з не більш ніж двома знаками після коми',
       },
     },
   },

@@ -27,10 +27,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { ElForm, FormInstance, FormItemContext } from 'element-plus';
+  import { ElForm, FormInstance } from 'element-plus';
   import { computed, nextTick, onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+  import {
+    FormValues, provideSaFormComponentsApi, SaFormItemRegistration,
+  } from '@/components/form/sa-form-components-api.ts';
   import { ApiFieldLevelValidationError, ApiSubmittedOutdatedStateError } from '@/services/api/api-errors.ts';
   import {
     setFieldErrorsFromClientSideValidation,
@@ -117,13 +119,20 @@
   const internalLoading = ref(false);
   const loading = computed(() => internalLoading.value || props.externalLoading);
 
-  const formItems = new Map<string, FormItemContext>();
+  const formItems = new Map<string, SaFormItemRegistration>();
   const documentsUploads = new Map<string, () => Promise<void>>();
 
   const { showWarningNotification, showErrorNotification } = useNotifications();
   const submitForm = async () => {
     internalLoading.value = true;
     try {
+      const inputErrors = Array.from(formItems).flatMap(([field, item]) => {
+        const message = item.validate();
+        return message ? [{ field, message }] : [];
+      });
+      if (inputErrors.length) {
+        throw new ClientSideValidationError(inputErrors);
+      }
       try {
         await Promise.all(Array.from(documentsUploads.values()).map((submitUpload) => submitUpload()));
       } catch (uploadError: unknown) {
@@ -149,7 +158,7 @@
   };
 
   provideSaFormComponentsApi({
-    registerFormItem: (prop: string, formItem: FormItemContext) => {
+    registerFormItem: (prop, formItem) => {
       formItems.set(prop, formItem);
     },
     unregisterFormItem: (prop: string) => {

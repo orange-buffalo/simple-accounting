@@ -5,8 +5,14 @@ import { FormItemContext } from 'element-plus';
 
 export type FormValues = Exclude<object, Function | null>; // not a primitive and not a function
 
+export type SaFormItemRegistration = {
+  context: FormItemContext;
+  validate: () => string | undefined;
+  apiNumericScale?: number;
+};
+
 export type SaFormComponentsApi = {
-  registerFormItem: (prop: string, item: FormItemContext) => void;
+  registerFormItem: (prop: string, item: SaFormItemRegistration) => void;
   unregisterFormItem: (prop: string) => void;
   formValues: Ref<FormValues>;
   submitForm: () => Promise<void>;

@@ -1,19 +1,19 @@
-import { FormItemContext } from 'element-plus';
 import { $t } from '@/services/i18n';
 import { FieldError } from '@/services/api/api-errors.ts';
 import { FieldError as ClientFieldError } from '@/components/form/sa-form-api.ts';
+import { SaFormItemRegistration } from '@/components/form/sa-form-components-api.ts';
 
 /**
  * Sets form item errors based on the API response.
  */
 export function setFieldsErrorsFromApiResponse(
   apiFieldErrors: FieldError[],
-  formItems: Map<string, FormItemContext>,
+  formItems: ReadonlyMap<string, SaFormItemRegistration>,
 ) {
   setFieldErrorsFromClientSideValidation(
     apiFieldErrors.map((apiError) => ({
       field: apiError.field,
-      message: getApiFieldErrorMessage(apiError),
+      message: getApiFieldErrorMessage(apiError, formItems.get(apiError.field)?.apiNumericScale),
     })),
     formItems,
   );
@@ -24,10 +24,10 @@ export function setFieldsErrorsFromApiResponse(
  */
 export function setFieldErrorsFromClientSideValidation(
   fieldErrors: ClientFieldError[],
-  formItems: Map<string, FormItemContext>,
+  formItems: ReadonlyMap<string, SaFormItemRegistration>,
 ) {
   fieldErrors.forEach((fieldError) => {
-    const formItem = formItems.get(fieldError.field);
+    const formItem = formItems.get(fieldError.field)?.context;
     if (formItem) {
       formItem.validateState = 'error';
       // @ts-ignore
@@ -42,7 +42,7 @@ export function setFieldErrorsFromClientSideValidation(
  * Translates field validation messages from the API response into UI messages, taking current user locale into
  * account. In case there is no mapping defined, fallbacks to API-provided non-localized message.
  */
-function getApiFieldErrorMessage(fieldError: FieldError) {
+function getApiFieldErrorMessage(fieldError: FieldError, numericScale = 1) {
   switch (fieldError.error) {
   case 'SizeConstraintViolated':
     return (fieldError.params?.min && (Number(fieldError.params.min) > 1))
@@ -53,9 +53,9 @@ function getApiFieldErrorMessage(fieldError: FieldError) {
   case 'MustNotBeNull':
     return $t.value.formValidationMessages.notNull();
   case 'MinConstraintViolated':
-    return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value));
+    return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value) / numericScale);
   case 'MaxConstraintViolated':
-    return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value));
+    return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value) / numericScale);
   case 'MustBeValidEndpointUrl':
     return $t.value.formValidationMessages.mustBeValidEndpointUrl();
   case 'MustBeValidCountryCode':

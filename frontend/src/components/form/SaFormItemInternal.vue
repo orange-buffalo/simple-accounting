@@ -24,7 +24,10 @@
   import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
   import SaInputLoader from '@/components/SaInputLoader.vue';
 
-  const props = defineProps<SaFormComponentProps>();
+  const props = defineProps<SaFormComponentProps & {
+    inputError?: string,
+    apiNumericScale?: number,
+  }>();
 
   const formItemContext = ref<FormItemContext | null>(null);
   const saFormApi = useSaFormComponentsApi();
@@ -63,7 +66,11 @@
   });
 
   onMounted(() => {
-    saFormApi.registerFormItem(props.prop, ensureDefined(formItemContext.value));
+    saFormApi.registerFormItem(props.prop, {
+      context: ensureDefined(formItemContext.value),
+      validate: () => props.inputError,
+      apiNumericScale: props.apiNumericScale,
+    });
   });
 
   onUnmounted(() => {

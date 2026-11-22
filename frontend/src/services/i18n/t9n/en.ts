@@ -1225,6 +1225,9 @@ export default {
   },
 
   formValidationMessages: {
+    invalidDecimal: (places: number) => format(
+      'Enter a number with at most {places, plural, one {# decimal place} other {# decimal places}}', { places },
+    ),
     sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number} characters', {
       min,
       max,
@@ -1505,7 +1508,6 @@ export default {
       rate: {
         label: () => 'Rate (%)',
         placeholder: () => 'e.g. 20.25',
-        invalid: () => 'Enter a percentage from 0 to 100 with up to two decimal places',
       },
     },
   },
