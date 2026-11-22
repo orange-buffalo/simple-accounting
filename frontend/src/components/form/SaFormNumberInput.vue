@@ -44,7 +44,7 @@
       const [whole, fraction = '', ...extra] = unsigned.split(separator);
       if (extra.length || !/^\d*$/.test(fraction) || fraction.length > decimalPlaces) return undefined;
       const groups = allowGrouping ? whole.split(thousandsSeparator) : [whole];
-      const validGrouping = /^\d{1,3}$/.test(groups[0]) && groups.slice(1).every((group) => /^\d{3}$/.test(group));
+      const validGrouping = /^[1-9]\d{0,2}$/.test(groups[0]) && groups.slice(1).every((group) => /^\d{3}$/.test(group));
       if (groups.length > 1 && !validGrouping) {
         return undefined;
       }
