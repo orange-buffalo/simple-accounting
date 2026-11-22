@@ -1,3 +1,5 @@
 /frontend/src/services/api/gql/* linguist-generated
 /app/src/test/resources/api-schema.graphqls linguist-generated
 /frontend/bun.lock linguist-generated
+# Upstream-generated Google Fonts WOFF2 subsets
+/frontend/src/assets/fonts/mulish-*.woff2 linguist-generated
