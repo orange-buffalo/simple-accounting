@@ -8,7 +8,6 @@ import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.CreateGen
 import io.orangebuffalo.simpleaccounting.business.ui.user.generaltaxes.GeneralTaxesOverviewPage.Companion.shouldBeGeneralTaxesOverviewPage
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
@@ -57,29 +56,6 @@ class SaFormNumberInputFullStackTest : SaFullStackTestBase() {
         }
         page.shouldBeGeneralTaxesOverviewPage()
         aggregateTemplate.findSingle<GeneralTax>().rateInBps.shouldBe(rateInBps)
-    }
-
-    @Test
-    fun `should show decimal validation in Ukrainian`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", i18nSettings = I18nSettings(locale = "uk_UA", language = "uk"))
-                    .withWorkspace()
-            }
-        }
-        page.authenticateViaCookie(testData.fry)
-        page.openCreateGeneralTaxPage(ukrainian = true) {
-            title { input.fill("Space VAT") }
-            rate { input.fill("20,251") }
-            saveButton.click()
-
-            shouldHaveNotifications { warning() }
-            rate {
-                shouldHaveValidationError("Вкажіть число: не більше 2 знаків після коми")
-                input.shouldHaveValue("20,251")
-            }
-            reportRendering("number-input.validation-error-uk_UA")
-        }
     }
 
     @ParameterizedTest

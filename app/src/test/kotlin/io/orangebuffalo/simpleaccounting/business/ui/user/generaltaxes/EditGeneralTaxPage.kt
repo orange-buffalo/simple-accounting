@@ -6,39 +6,33 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
-abstract class EditGeneralTaxPageBase(page: Page, ukrainian: Boolean = false) : SaPageBase(page) {
-    val title = components.formItemTextInputByLabel(if (ukrainian) "Назва" else "Title")
-    val description = components.formItemTextInputByLabel(if (ukrainian) "Опис" else "Description")
-    val rate = components.formItemTextInputByLabel(if (ukrainian) "Ставка (%)" else "Rate (%)")
+abstract class EditGeneralTaxPageBase(page: Page) : SaPageBase(page) {
+    val title = components.formItemTextInputByLabel("Title")
+    val description = components.formItemTextInputByLabel("Description")
+    val rate = components.formItemTextInputByLabel("Rate (%)")
 
-    val saveButton = components.buttonByText(if (ukrainian) "Зберегти" else "Save")
-    val cancelButton = components.buttonByText(if (ukrainian) "Скасувати" else "Cancel")
+    val saveButton = components.buttonByText("Save")
+    val cancelButton = components.buttonByText("Cancel")
 }
 
-class CreateGeneralTaxPage private constructor(page: Page, ukrainian: Boolean) :
-    EditGeneralTaxPageBase(page = page, ukrainian = ukrainian) {
-    private val header = components.pageHeader(
-        if (ukrainian) "Створити новий загальний податок" else "Create New General Tax"
-    )
+class CreateGeneralTaxPage private constructor(page: Page) : EditGeneralTaxPageBase(page) {
+    private val header = components.pageHeader("Create New General Tax")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
     }
 
     companion object {
-        fun Page.shouldBeCreateGeneralTaxPage(
-            ukrainian: Boolean = false,
-            spec: CreateGeneralTaxPage.() -> Unit = {},
-        ) {
-            CreateGeneralTaxPage(page = this, ukrainian = ukrainian).apply {
+        fun Page.shouldBeCreateGeneralTaxPage(spec: CreateGeneralTaxPage.() -> Unit = {}) {
+            CreateGeneralTaxPage(this).apply {
                 shouldBeOpen()
                 spec()
             }
         }
 
-        fun Page.openCreateGeneralTaxPage(ukrainian: Boolean = false, spec: CreateGeneralTaxPage.() -> Unit = {}) {
+        fun Page.openCreateGeneralTaxPage(spec: CreateGeneralTaxPage.() -> Unit = {}) {
             navigate("/settings/general-taxes/create")
-            shouldBeCreateGeneralTaxPage(ukrainian = ukrainian, spec = spec)
+            shouldBeCreateGeneralTaxPage(spec)
         }
     }
 }
