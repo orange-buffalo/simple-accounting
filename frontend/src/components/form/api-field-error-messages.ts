@@ -13,7 +13,7 @@ export function setFieldsErrorsFromApiResponse(
   setFieldErrorsFromClientSideValidation(
     apiFieldErrors.map((apiError) => ({
       field: apiError.field,
-      message: getApiFieldErrorMessage(apiError, formItems.get(apiError.field)?.apiNumericScale),
+      message: getApiFieldErrorMessage(formItems.get(apiError.field)?.adaptApiError?.(apiError) ?? apiError),
     })),
     formItems,
   );
@@ -42,7 +42,7 @@ export function setFieldErrorsFromClientSideValidation(
  * Translates field validation messages from the API response into UI messages, taking current user locale into
  * account. In case there is no mapping defined, fallbacks to API-provided non-localized message.
  */
-function getApiFieldErrorMessage(fieldError: FieldError, numericScale = 1) {
+function getApiFieldErrorMessage(fieldError: FieldError) {
   switch (fieldError.error) {
   case 'SizeConstraintViolated':
     return (fieldError.params?.min && (Number(fieldError.params.min) > 1))
@@ -53,9 +53,9 @@ function getApiFieldErrorMessage(fieldError: FieldError, numericScale = 1) {
   case 'MustNotBeNull':
     return $t.value.formValidationMessages.notNull();
   case 'MinConstraintViolated':
-    return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value) / numericScale);
+    return $t.value.formValidationMessages.minConstraintViolated(Number(fieldError.params?.value));
   case 'MaxConstraintViolated':
-    return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value) / numericScale);
+    return $t.value.formValidationMessages.maxConstraintViolated(Number(fieldError.params?.value));
   case 'MustBeValidEndpointUrl':
     return $t.value.formValidationMessages.mustBeValidEndpointUrl();
   case 'MustBeValidCountryCode':

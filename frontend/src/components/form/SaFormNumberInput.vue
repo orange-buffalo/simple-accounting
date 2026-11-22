@@ -3,7 +3,7 @@
     v-bind="props"
     v-model="formValue"
     :input-error="inputError"
-    :api-numeric-scale="apiNumericScale"
+    :adapt-api-error="adaptApiError"
   >
     <ElInput
       :model-value="displayValue"
@@ -18,6 +18,7 @@
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
+  import { AdaptApiFieldError } from '@/components/form/sa-form-components-api.ts';
   import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
   import { $t, getNumbersInfo } from '@/services/i18n';
 
@@ -68,9 +69,15 @@
     return fraction ? `${sign}${whole}${decimalSymbol}${fraction}` : `${sign}${whole}`;
   }
 
-  const apiNumericScale = computed(() => (
-    props.scaledDecimalPlaces === undefined ? undefined : 10 ** props.scaledDecimalPlaces
-  ));
+  const adaptApiError: AdaptApiFieldError = (error) => {
+    const places = props.scaledDecimalPlaces;
+    if (places === undefined || (error.error !== 'MinConstraintViolated' && error.error !== 'MaxConstraintViolated')) {
+      return error;
+    }
+    const bound = error.params?.value;
+    if (bound === undefined) return error;
+    return { ...error, params: { ...error.params, value: String(Number(bound) / (10 ** places)) } };
+  };
   const inputError = computed(() => {
     const places = props.scaledDecimalPlaces;
     return places !== undefined && parseScaledDecimal(displayValue.value, places) === undefined
